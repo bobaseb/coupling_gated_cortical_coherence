@@ -20,22 +20,92 @@ noncomputable def boltzmann_entropy {sys : Type} [DecidableEq sys] (states : Fin
 noncomputable def entropy {sys : Type} [Fintype sys] [DecidableEq sys] (t : sys → sys) : Real :=
   boltzmann_entropy (Finset.image t Finset.univ)
 
+-- The rigorous derivation of Landauer's bound from reversible microscopic dynamics.
+-- This establishes the Second Law bound from pure injectivity (reversibility) of physics.
+theorem landauer_from_reversibility
+  {S B : Type} [DecidableEq S] [DecidableEq B]
+  (X : Finset S) (Y : Finset B) (U : S × B → S × B)
+  (h_inj : Function.Injective U)
+  (X_final : Finset S) (B_final : Finset B)
+  (h_evolve : Finset.image U (X ×ˢ Y) ⊆ X_final ×ˢ B_final)
+  (hX : X.Nonempty) (hY : Y.Nonempty) :
+  boltzmann_entropy B_final - boltzmann_entropy Y ≥ boltzmann_entropy X - boltzmann_entropy X_final := by
+  have card_prod : (X ×ˢ Y).card = X.card * Y.card := Finset.card_product X Y
+  have card_prod_final : (X_final ×ˢ B_final).card = X_final.card * B_final.card := Finset.card_product X_final B_final
+  have card_image : (Finset.image U (X ×ˢ Y)).card = (X ×ˢ Y).card := Finset.card_image_of_injective (X ×ˢ Y) h_inj
+  have card_le : (Finset.image U (X ×ˢ Y)).card ≤ (X_final ×ˢ B_final).card := Finset.card_le_card h_evolve
+  rw [card_image, card_prod, card_prod_final] at card_le
+  have hX_pos : X.card > 0 := Finset.card_pos.mpr hX
+  have hY_pos : Y.card > 0 := Finset.card_pos.mpr hY
+  have h_prod_pos : X.card * Y.card > 0 := mul_pos hX_pos hY_pos
+  have h_final_pos : X_final.card * B_final.card > 0 := lt_of_lt_of_le h_prod_pos card_le
+  have hXf_pos : X_final.card > 0 := Nat.pos_of_mul_pos_right h_final_pos
+  have hBf_pos : B_final.card > 0 := Nat.pos_of_mul_pos_left h_final_pos
+  
+  have real_le : (X.card : Real) * (Y.card : Real) ≤ (X_final.card : Real) * (B_final.card : Real) := by
+    exact_mod_cast card_le
+    
+  have h_log_le : Real.log ((X.card : Real) * (Y.card : Real)) ≤ Real.log ((X_final.card : Real) * (B_final.card : Real)) := by
+    apply Real.log_le_log
+    · exact mul_pos (Nat.cast_pos.mpr hX_pos) (Nat.cast_pos.mpr hY_pos)
+    · exact real_le
+    
+  rw [Real.log_mul (ne_of_gt (Nat.cast_pos.mpr hX_pos)) (ne_of_gt (Nat.cast_pos.mpr hY_pos))] at h_log_le
+  rw [Real.log_mul (ne_of_gt (Nat.cast_pos.mpr hXf_pos)) (ne_of_gt (Nat.cast_pos.mpr hBf_pos))] at h_log_le
+  
+  unfold boltzmann_entropy
+  linarith
+
+-- We model the physical bath required to realize state transitions
+class BipartiteEnvironment (sys : Type) [Fintype sys] [DecidableEq sys] where
+  bath : Type
+  dec_bath : DecidableEq bath
+  U : (sys → sys) → sys × bath → sys × bath
+  U_inj : ∀ t, Function.Injective (U t)
+  initial_bath : (sys → sys) → Finset bath
+  final_bath : (sys → sys) → Finset bath
+  h_evolve : ∀ t, Finset.image (U t) (Finset.univ ×ˢ initial_bath t) ⊆ (Finset.image t Finset.univ) ×ˢ final_bath t
+  h_bath_nonempty : ∀ t, (initial_bath t).Nonempty
+
+instance instDecidableEqBath {sys : Type} [Fintype sys] [DecidableEq sys] [BipartiteEnvironment sys] : 
+  DecidableEq (BipartiteEnvironment.bath sys) := BipartiteEnvironment.dec_bath
+
 class Thermodynamics (sys : Type) where
   heat_dissipation : (sys → sys) → Real
   temperature : Real
   temperature_pos : temperature > 0
 
-class StatisticalMechanics (sys : Type) [Fintype sys] [DecidableEq sys] extends Thermodynamics sys where
-  env_entropy_change : (sys → sys) → Real
-  second_law : ∀ (t : sys → sys), env_entropy_change t + (entropy t - entropy (id : sys → sys)) ≥ 0
-  heat_eq : ∀ (t : sys → sys), Thermodynamics.heat_dissipation t = temperature * env_entropy_change t
+-- StatisticalMechanics no longer postulates the second law as an axiom.
+-- It derives the entropy change from the underlying reversible bipartite evolution.
+class StatisticalMechanics (sys : Type) [Fintype sys] [DecidableEq sys] extends Thermodynamics sys, BipartiteEnvironment sys where
+  heat_eq : ∀ (t : sys → sys), Thermodynamics.heat_dissipation t = 
+    temperature * (boltzmann_entropy (final_bath t) - boltzmann_entropy (initial_bath t))
 
-theorem landauer_bound {sys : Type} [Fintype sys] [DecidableEq sys] [StatisticalMechanics sys] :
+-- The Second Law is now a rigorously proved theorem derived from microphysical reversibility
+theorem second_law {sys : Type} [Fintype sys] [DecidableEq sys] [StatisticalMechanics sys] [Nonempty sys] (t : sys → sys) :
+  (boltzmann_entropy (BipartiteEnvironment.final_bath t) - boltzmann_entropy (BipartiteEnvironment.initial_bath t)) + 
+  (entropy t - entropy (id : sys → sys)) ≥ 0 := by
+  have hX : (Finset.univ : Finset sys).Nonempty := Finset.univ_nonempty
+  have hY : (BipartiteEnvironment.initial_bath t).Nonempty := BipartiteEnvironment.h_bath_nonempty t
+  have bound := landauer_from_reversibility 
+    (Finset.univ : Finset sys) (BipartiteEnvironment.initial_bath t) (BipartiteEnvironment.U t) (BipartiteEnvironment.U_inj t)
+    (Finset.image t Finset.univ) (BipartiteEnvironment.final_bath t) (BipartiteEnvironment.h_evolve t) hX hY
+  -- We know entropy (id) = boltzmann_entropy (univ)
+  have h_id_card : (Finset.image id (Finset.univ : Finset sys)).card = (Finset.univ : Finset sys).card := by
+    rw [Finset.image_id]
+  have eq_id : entropy (id : sys → sys) = boltzmann_entropy (Finset.univ : Finset sys) := by
+    unfold entropy boltzmann_entropy
+    rw [h_id_card]
+  have eq_t : entropy t = boltzmann_entropy (Finset.image t Finset.univ) := rfl
+  rw [eq_id, eq_t]
+  linarith
+
+theorem landauer_bound {sys : Type} [Fintype sys] [DecidableEq sys] [StatisticalMechanics sys] [Nonempty sys] :
   ∀ (t : sys → sys), Thermodynamics.heat_dissipation (sys := sys) t ≥ Thermodynamics.temperature (sys := sys) * (entropy (id : sys → sys) - entropy t) := by
   intro t
   rw [StatisticalMechanics.heat_eq]
   have h2 : Thermodynamics.temperature (sys := sys) > 0 := Thermodynamics.temperature_pos
-  have h_sec := StatisticalMechanics.second_law (sys := sys) t
+  have h_sec := second_law (sys := sys) t
   nlinarith
 
 def heat_dissipation {sys : Type} [Thermodynamics sys] (t : sys → sys) : Real :=
@@ -78,7 +148,7 @@ theorem erasure_decreases_entropy {sys : Type} [Fintype sys] [DecidableEq sys] [
     apply Fintype.card_pos
   exact Real.strictMonoOn_log h_pos1 h_pos2 (Nat.cast_lt.mpr h_lt)
 
-theorem entropy_decrease_implies_heat {sys : Type} [Fintype sys] [DecidableEq sys] [StatisticalMechanics sys] (t : sys → sys) 
+theorem entropy_decrease_implies_heat {sys : Type} [Fintype sys] [DecidableEq sys] [StatisticalMechanics sys] [Nonempty sys] (t : sys → sys) 
   (h : entropy (id : sys → sys) > entropy t) : heat_dissipation t > 0 := by
   have bound := landauer_bound (sys := sys) t
   have diff_pos : entropy (id : sys → sys) - entropy t > 0 := sub_pos.mpr h
@@ -121,42 +191,4 @@ theorem pigeonhole_erasure {sys input : Type} [Fintype sys] [Fintype input]
 def expansion_cost {sys : Type} [DecidableEq sys] [PhysicalSystem sys] (delta_volume : Real) : Real :=
   delta_volume * (PhysicalSystem.surface_tension (sys := sys))
 
-
--- The rigorous derivation of Landauer's bound from reversible microscopic dynamics.
--- This proves that the `second_law` axiom used in `StatisticalMechanics` is not an unproved 
--- physical leap, but a mathematical consequence of bijective/injective physical evolution 
--- over a joint state space (System × Bath).
-theorem landauer_from_reversibility
-  {S B : Type} [DecidableEq S] [DecidableEq B]
-  (X : Finset S) (Y : Finset B) (U : S × B → S × B)
-  (h_inj : Function.Injective U)
-  (X_final : Finset S) (B_final : Finset B)
-  (h_evolve : Finset.image U (X ×ˢ Y) ⊆ X_final ×ˢ B_final)
-  (hX : X.Nonempty) (hY : Y.Nonempty) :
-  boltzmann_entropy B_final - boltzmann_entropy Y ≥ boltzmann_entropy X - boltzmann_entropy X_final := by
-  have card_prod : (X ×ˢ Y).card = X.card * Y.card := Finset.card_product X Y
-  have card_prod_final : (X_final ×ˢ B_final).card = X_final.card * B_final.card := Finset.card_product X_final B_final
-  have card_image : (Finset.image U (X ×ˢ Y)).card = (X ×ˢ Y).card := Finset.card_image_of_injective (X ×ˢ Y) h_inj
-  have card_le : (Finset.image U (X ×ˢ Y)).card ≤ (X_final ×ˢ B_final).card := Finset.card_le_card h_evolve
-  rw [card_image, card_prod, card_prod_final] at card_le
-  have hX_pos : X.card > 0 := Finset.card_pos.mpr hX
-  have hY_pos : Y.card > 0 := Finset.card_pos.mpr hY
-  have h_prod_pos : X.card * Y.card > 0 := mul_pos hX_pos hY_pos
-  have h_final_pos : X_final.card * B_final.card > 0 := lt_of_lt_of_le h_prod_pos card_le
-  have hXf_pos : X_final.card > 0 := Nat.pos_of_mul_pos_right h_final_pos
-  have hBf_pos : B_final.card > 0 := Nat.pos_of_mul_pos_left h_final_pos
-  
-  have real_le : (X.card : Real) * (Y.card : Real) ≤ (X_final.card : Real) * (B_final.card : Real) := by
-    exact_mod_cast card_le
-    
-  have h_log_le : Real.log ((X.card : Real) * (Y.card : Real)) ≤ Real.log ((X_final.card : Real) * (B_final.card : Real)) := by
-    apply Real.log_le_log
-    · exact mul_pos (Nat.cast_pos.mpr hX_pos) (Nat.cast_pos.mpr hY_pos)
-    · exact real_le
-    
-  rw [Real.log_mul (ne_of_gt (Nat.cast_pos.mpr hX_pos)) (ne_of_gt (Nat.cast_pos.mpr hY_pos))] at h_log_le
-  rw [Real.log_mul (ne_of_gt (Nat.cast_pos.mpr hXf_pos)) (ne_of_gt (Nat.cast_pos.mpr hBf_pos))] at h_log_le
-  
-  unfold boltzmann_entropy
-  linarith
 end PhysicsOfConsciousness
