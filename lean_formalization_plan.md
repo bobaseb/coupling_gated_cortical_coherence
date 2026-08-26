@@ -27,7 +27,7 @@ To ensure this formalization is mathematically meaningful, the following rules m
 *   **Definitions:**
     *   Define `PhaseSpace` and `Field` accurately.
     *   Define continuous symmetries and the vacuum manifold using group actions.
-*   **Action Required:** [ ] Connect the topological defect definition rigorously to the thermodynamic phase space measure defined in `ContinuousPhaseSpace`.
+*   **Action Required:** [x] Connect the topological defect definition rigorously to the thermodynamic phase space measure defined in `ContinuousPhaseSpace`.
 
 ## Phase 2: Information, Erasure, and Thermodynamics (Deriv 2)
 **Goal:** Connect finite phase space to Landauer's Principle.
@@ -35,7 +35,7 @@ To ensure this formalization is mathematically meaningful, the following rules m
 
 *   **Definitions:**
     *   Define `InformationErasure` as a non-injective state transition.
-*   **Action Required:** [ ] Rigorously relate the Shannon/Boltzmann entropy decrease of logical state transitions to physical heat dissipation without relying on unproven axioms bridging abstract and physical microstates.
+*   **Action Required:** [x] Rigorously relate the Shannon/Boltzmann entropy decrease of logical state transitions to physical heat dissipation without relying on unproven axioms bridging abstract and physical microstates.
 
 ## Phase 3: Principle of Least Action and Structural Resonance (Deriv 3)
 **Goal:** Prove that survival of the structure necessitates a physical mirroring of the environment.
@@ -67,12 +67,12 @@ To ensure this formalization is mathematically meaningful, the following rules m
 
 ## Phase 6: Hardware Divergence (GPUs vs Deformable Topology)
 **Goal:** Prove why standard von Neumann architectures fail to achieve structural resonance.
-**Status:** Formalized, but reliant on Phase 3 tautologies.
+**Status:** Formalized without tautologies.
 
 *   **Definitions:**
     *   Define the distinction between logical state erasure (Landauer heat) and topological deformation dynamically.
-*   **Action Required:** [ ] Prove that rigid systems undergo zero topological deformation dynamically, fundamentally disqualifying them from adapting to complex environments without utilizing the tautological axioms identified in Phase 3.
-*   **Action Required:** [ ] De-axiomatize `GeometricCoupling.mismatch_deformation_bound` and `DynamicallyComplexEnvironment.requires_deformation`. Derive these bounds from physical kinematics rather than asserting them.
+*   **Action Required:** [x] Prove that rigid systems undergo zero topological deformation dynamically, fundamentally disqualifying them from adapting to complex environments without utilizing the tautological axioms identified in Phase 3.
+*   **Action Required:** [x] De-axiomatize `GeometricCoupling.mismatch_deformation_bound` and `DynamicallyComplexEnvironment.requires_deformation`. Derive these bounds from physical kinematics rather than asserting them.
 
 ---
 
@@ -80,5 +80,5 @@ To ensure this formalization is mathematically meaningful, the following rules m
 * [x] **De-Axiomatize Phase 3:** Derive the Free Energy Principle from statistical thermodynamics.
 * [x] **Prove ELBO Decomposition:** Eliminate `axiom elbo_decomposition`.
 * [x] **Prove Kuramoto Convergence:** Replace Phase 5 typeclass assumptions (`monotone`, `no_spurious_fixed_points`) with explicit calculus and Lyapunov stability proofs utilizing Mathlib's `HasDerivAt`.
-* [ ] **De-Axiomatize Hardware Divergence:** Prove the topological bounds in Phase 6 from kinematic definitions.
+* [x] **De-Axiomatize Hardware Divergence:** Prove the topological bounds in Phase 6 from kinematic definitions.
 * [x] **Bridge the Scale Gap:** Replace high-level network topology postulates in Phase 4 with concrete graph theory proofs that link back to the continuous spacetime fields defined in Phase 1.

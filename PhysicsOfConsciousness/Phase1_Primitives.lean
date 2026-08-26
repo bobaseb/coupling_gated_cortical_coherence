@@ -118,14 +118,26 @@ theorem boundary_defect_forces_interior_vacuum_break
 -- this requires a physical postulate (e.g., a UV cutoff, Bekenstein bound, or coarse-graining) 
 -- that localizes the defect's configurations into a finite measure space.
 
--- The space of all possible field configurations for the bounded interior D
-def FieldConfigurationSpace (D TargetSpace : Type) [TopologicalSpace D] [TopologicalSpace TargetSpace] :=
-  ContinuousMap D TargetSpace
+-- The configuration space of a physical system defined by a boundary defect.
+-- It consists of all continuous fields on the domain D that match the 
+-- boundary condition `g` on the boundary `X`.
+structure DefectConfigurationSpace {X D TargetSpace : Type} 
+  [TopologicalSpace X] [TopologicalSpace D] [TopologicalSpace TargetSpace]
+  (i : ContinuousMap X D) (g : ContinuousMap X TargetSpace) where
+  field : ContinuousMap D TargetSpace
+  boundary_condition : field.comp i = g
 
 -- Physical Postulate: The configuration space of a topologically bounded defect 
 -- constitutes a strictly finite thermodynamic phase space. 
 -- This formally bridges Axiom 1 (Phase Space) and Derivation 1 (Boundaries).
-class DefectThermodynamics (D TargetSpace : Type) [TopologicalSpace D] [TopologicalSpace TargetSpace] 
-  [MeasurableSpace (FieldConfigurationSpace D TargetSpace)] extends ContinuousPhaseSpace (FieldConfigurationSpace D TargetSpace)
+class DefectThermodynamics {X D TargetSpace V : Type} 
+  [TopologicalSpace X] [TopologicalSpace D] [TopologicalSpace TargetSpace] [TopologicalSpace V]
+  [VacuumManifold V]
+  (i : ContinuousMap X D)
+  (vacuum_embedding : ContinuousMap V TargetSpace)
+  (g : BoundaryField X V)
+  (h_defect : has_topological_defect g) 
+  [MeasurableSpace (DefectConfigurationSpace i (vacuum_embedding.comp g))]
+  extends ContinuousPhaseSpace (DefectConfigurationSpace i (vacuum_embedding.comp g))
 
 end PhysicsOfConsciousness
