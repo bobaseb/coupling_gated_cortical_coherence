@@ -1,26 +1,37 @@
-# Lean 4 Formalization: Remaining Action Items
+# Lean Formalization Plan 3.0: Action Items
 
 ## Intent
-Address the final three mathematical gaps in the formalization plan to complete the translation of the Physics of Consciousness framework into a fully rigorous Lean 4 deductive chain.
+Implement the Hybrid "Coarse-Grained" Architecture (Plan 3.0) which uses Algebraic Topology (Simplicial Complexes) to bridge the continuous manifold (Phase 1) to combinatorial thermodynamics (Phase 3) and Sheaf theory (Phase 4/5). This replaces the Fokker-Planck PDE approach to allow for exact Lean proofs without placeholders.
 
 ## Constraints
 - Ensure strict Lean 4 rigor using Mathlib.
-- Maintain the boundary between what can be proven dynamically and what must be structured as a carefully scoped axiom.
+- All deprecated Lean modules (the PDE-based Phase2-6) should be archived to `_archive/`.
+- Match existing code styles and limit cyclomatic complexity (below 10).
 
 ## Plan
 
-### Step 1: Phase 1 (Primitives) - Ginzburg-Landau Trapping
-- [x] Investigate the feasibility of formalizing the Kibble-Zurek mechanism or Ginzburg-Landau dynamics in Lean.
-- [x] Prove (or strictly structure) that physical dynamics under an energy functional inevitably trap the system in a non-trivial homotopy class upon symmetry breaking, replacing the broad `symmetry_breaking_yields_defects` postulate.
+### Step 0: Migration
+- [x] Move deprecated PDE-based `Phase2_Thermodynamics.lean`, `Phase3_StructuralResonance.lean`, `Phase4_MacroscopicCoupling.lean`, `Phase5_Inevitability.lean`, `Phase6_MutualRecursion.lean` to `_archive/` (rename to `v2_...` to avoid collision).
+- [x] Update `PhysicsOfConsciousness.lean` to reflect new modules.
 
-### Step 2: Phase 2 (Thermodynamics) - Landauer Limit Bridge
-- [x] Refactor `Phase2_Thermodynamics.lean` to rigorously derive the relationship between Shannon/Boltzmann entropy decrease and physical heat dissipation.
-- [x] Eliminate any unproved axioms that arbitrarily bridge abstract logical states and physical microstates.
+### Step 1: Phase 1 (The Stage)
+- [x] Update `Phase1_Primitives.lean`: define electrodynamic fields and probability distributions as a Presheaf over the topological space.
 
-### Step 3: Phase 4 (Macroscopic Coupling) - Spin-Glass Proof
-- [x] Replace the `topology_bounds_spin_glass` axiom with an actual mathematical construction or theorem.
-- [x] Prove that specific topological conditions (small-world, criticality) restrict the energy landscape's local minima, bounding the probability of spin-glass freezing.
+### Step 2: Phase 2 (The Bridge)
+- [x] Create `Phase2_SimplicialBridge.lean`.
+- [x] Discretize the continuous manifold using a Simplicial Complex (nodes, edges, faces).
+- [x] Map the continuous Stress-Energy Tensor ($T_{\mu\nu}$) to discrete weights on the edges of the simplicial complex.
+
+### Step 3: Phase 3 (The Engine)
+- [x] Create `Phase3_CombinatorialThermodynamics.lean`.
+- [x] Port Landauer erasure proofs from `_archive/old_Phase2_Thermodynamics.lean`.
+- [x] Port Kuramoto gradient descent proofs from `_archive/old_Phase5_Inevitability.lean`.
+- [x] Apply these proofs to the finite state transitions of the simplicial complex.
+
+### Step 4: Phase 4 & 5 (Macroscopic Scaling & The Self)
+- [x] Create `Phase4_MacroscopicScaling.lean`: link the synchronized discrete states to local sections of the probability presheaf, defining restriction maps and showing adjacent local sections agree.
+- [x] Create `Phase5_GlobalSection.lean`: prove the existence of a Global Section (The Self) based on the agreement of local sections.
 
 ## Review
-- [ ] Verify everything compiles.
-- [ ] Finalize `lessons.md`.
+- [x] Verify everything compiles successfully (`lake build`).
+- [x] Ensure all axioms and `sorry`s are limited strictly to the agreed boundaries.

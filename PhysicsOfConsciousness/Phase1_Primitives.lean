@@ -14,9 +14,14 @@ import Mathlib.Geometry.Manifold.IsManifold.Basic
 import Mathlib.Geometry.Manifold.VectorBundle.Tangent
 import Mathlib.Analysis.Normed.Module.Basic
 import Mathlib.MeasureTheory.Measure.Basic
+import Mathlib.CategoryTheory.Sites.Sheaf
+import Mathlib.Topology.Category.TopCat.Basic
+import Mathlib.Topology.Sets.Opens
+import Mathlib.MeasureTheory.Measure.FiniteMeasure
 
 open Manifold
 open Topology
+open CategoryTheory TopologicalSpace MeasureTheory
 
 namespace PhysicsOfConsciousness
 
@@ -42,6 +47,21 @@ class PseudoRiemannianManifold (I : ModelWithCorners ℝ E H) (M : Type*)
 -- A Field is a mapping from Spacetime to some ValueSpace (e.g., energy states, vacuum manifold).
 structure Field (Spacetime : Type*) (ValueSpace : Type*) where
   val : Spacetime → ValueSpace
+
+-- Define fields and probability distributions as Presheaves over the topological space.
+-- Let X represent the continuous biological substrate (e.g., cortical sheet).
+variable (X : TopCat) [MeasurableSpace X] [BorelSpace X]
+
+-- The presheaf of probability densities over X.
+-- Each local section s ∈ F(U) represents the finite measure (unnormalized probability) 
+-- derived from the local structural resonance within the subsystem U.
+noncomputable def probabilityPresheaf : (Opens X)ᵒᵖ ⥤ Type _ where
+  obj U := FiniteMeasure (↥U.unop)
+  -- The restriction map simply restricts the measure's domain to the smaller open subset
+  map {U V} i := ↾(fun μ => FiniteMeasure.comap (fun x => ⟨x.val, i.unop.le x.property⟩) μ)
+  -- Functor laws ensure compatibility
+  map_id := sorry
+  map_comp := sorry
   
 -- 2. Symmetry Breaking and Topological Defects (Homotopy)
 -- A vacuum manifold is a topological space of degenerate energy minima resulting from broken symmetry.
