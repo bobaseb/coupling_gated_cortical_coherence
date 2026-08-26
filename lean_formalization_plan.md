@@ -66,3 +66,17 @@ Translate the prose arguments from `main.tex` into a rigorous, formal mathematic
 *   **Theorems:**
     *   **The Kuramoto Transition:** State the theorem that for a coupling strength $K > K_c$, the network strictly converges to `Synchronization`.
     *   **Final Deduction:** Conclude that the initial finite, symmetrical primitives, driven by continuous perturbation, inevitably reach this synchronized macroscopic fixed point.
+
+---
+
+## Technical Strategy for Bridging Scales
+Bridging microscopic rules to macroscopic dynamics (e.g., QFT to thermodynamics to Kuramoto) requires handling physical heuristics rigorously in Lean. We will employ three main strategies:
+
+1. **The "Effective Theory" Axiom Strategy:** 
+   Instead of a complete microscopic derivation of the Renormalization Group, we formalize the micro-scale and macro-scale as distinct structures. We then introduce an `axiom` that explicitly declares the mapping (e.g., coarse-graining of a highly frustrated micro-network yields a macro-field). This isolates the "physics magic" into a single, labeled assumption.
+
+2. **Parameterized Assumptions (Typeclasses):**
+   When a derivation relies on a physical heuristic (like the Mean-Field approximation), we encode it as a Lean `class` or a parameterized assumption rather than an absolute truth. Theorems will take this class as a hypothesis (e.g., `[SatisfiesMeanField sys]`). This guarantees mathematical soundness: *if* the heuristic holds, *then* the dynamics follow.
+
+3. **Strategic `sorry` (Skeleton Approach):**
+   We will write out the exact theorems linking the derivations end-to-end, initially using Lean's `sorry` to skip the hardest physics proofs. This allows us to establish the full deductive chain and prove the "inevitability of the Self" at the top level. We can then systematically replace the `sorry`s with rigorous proofs, limits via `Filter.Tendsto`, or well-scoped axioms.
