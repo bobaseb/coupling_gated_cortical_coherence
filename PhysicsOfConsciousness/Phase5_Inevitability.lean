@@ -72,6 +72,7 @@ axiom min_potential_is_sync (sys : KuramotoSystem) (state : MicroState sys.net) 
 
 -- We replace the monolithic axiom with a structured theorem leveraging the topology bounds.
 theorem kuramoto_phase_transition (sys : KuramotoSystem) [NetworkTopology sys.net] [StatisticalMechanicsNetwork sys.net] 
+  [TopologicalSpinGlassPhysics sys.net (kuramoto_potential sys)]
   (theta : Real → Nat → Real) 
   (_h_traj : is_kuramoto_trajectory sys theta)
   (h_sw : is_small_world sys.net) 
@@ -85,6 +86,7 @@ theorem kuramoto_phase_transition (sys : KuramotoSystem) [NetworkTopology sys.ne
 
 -- We use this non-spin-glass landscape to guarantee convergence.
 axiom kuramoto_convergence_theorem (sys : KuramotoSystem) [NetworkTopology sys.net] [StatisticalMechanicsNetwork sys.net] 
+  [TopologicalSpinGlassPhysics sys.net (kuramoto_potential sys)]
   (theta : Real → Nat → Real) 
   (h_traj : is_kuramoto_trajectory sys theta)
   (h_sw : is_small_world sys.net) 
