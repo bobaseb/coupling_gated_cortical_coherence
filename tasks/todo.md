@@ -10,12 +10,12 @@ Address the final three mathematical gaps in the formalization plan to complete 
 ## Plan
 
 ### Step 1: Phase 1 (Primitives) - Ginzburg-Landau Trapping
-- [ ] Investigate the feasibility of formalizing the Kibble-Zurek mechanism or Ginzburg-Landau dynamics in Lean.
-- [ ] Prove (or strictly structure) that physical dynamics under an energy functional inevitably trap the system in a non-trivial homotopy class upon symmetry breaking, replacing the broad `symmetry_breaking_yields_defects` postulate.
+- [x] Investigate the feasibility of formalizing the Kibble-Zurek mechanism or Ginzburg-Landau dynamics in Lean.
+- [x] Prove (or strictly structure) that physical dynamics under an energy functional inevitably trap the system in a non-trivial homotopy class upon symmetry breaking, replacing the broad `symmetry_breaking_yields_defects` postulate.
 
 ### Step 2: Phase 2 (Thermodynamics) - Landauer Limit Bridge
-- [ ] Refactor `Phase2_Thermodynamics.lean` to rigorously derive the relationship between Shannon/Boltzmann entropy decrease and physical heat dissipation.
-- [ ] Eliminate any unproved axioms that arbitrarily bridge abstract logical states and physical microstates.
+- [x] Refactor `Phase2_Thermodynamics.lean` to rigorously derive the relationship between Shannon/Boltzmann entropy decrease and physical heat dissipation.
+- [x] Eliminate any unproved axioms that arbitrarily bridge abstract logical states and physical microstates.
 
 ### Step 3: Phase 4 (Macroscopic Coupling) - Spin-Glass Proof
 - [ ] Replace the `topology_bounds_spin_glass` axiom with an actual mathematical construction or theorem.

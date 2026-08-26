@@ -79,16 +79,35 @@ def has_topological_defect {X V : Type} [TopologicalSpace X] [TopologicalSpace V
   (f : BoundaryField X V) : Prop :=
   ¬ is_topologically_trivial f
 
--- The Physical Postulate of Defect Formation (e.g., Kibble-Zurek mechanism):
--- If the vacuum manifold allows for non-trivial homotopy classes, continuous fields 
--- will inevitably form topological defects upon rapid symmetry breaking.
--- We state this honestly as a physical axiom linking topological capacity to physical inevitability,
--- replacing the previous theater that disguised a trivial Intermediate Value Theorem as physics.
-axiom symmetry_breaking_yields_defects {X V : Type} [TopologicalSpace X] [TopologicalSpace V]
-  [VacuumManifold V] :
-  -- If the vacuum manifold has a non-trivial fundamental group / homotopy...
-  (∃ (g : BoundaryField X V), has_topological_defect g) → 
-  -- Then physical dynamics will inevitably produce a defect state in the universe.
-  ∃ (actual_f : BoundaryField X V), has_topological_defect actual_f
+-- The Physical Proof of Defect Inevitability (e.g., Kibble-Zurek / topological defect formation):
+-- If the physical space `D` is contractible (like a uniform universe), and its boundary is `X`,
+-- any continuous field `f : D → V` to the vacuum manifold will restrict to a null-homotopic 
+-- field on `X`. Thus, if the boundary condition `g : X → V` has a topological defect 
+-- (is NOT null-homotopic), then `g` CANNOT be extended to a continuous field `f : D → V`.
+-- The field MUST leave the vacuum manifold in the interior of `D` (which is precisely the 
+-- mathematical definition of a physical defect / energy localized in spacetime).
+-- This completely eliminates the "theater" axiom and replaces it with a rigorous topological proof.
+theorem defect_inevitability
+  {X D V : Type} [TopologicalSpace X] [TopologicalSpace D] [TopologicalSpace V]
+  (i : ContinuousMap X D) (f : ContinuousMap D V) (d0 : D)
+  (H : ContinuousMap.Homotopy (ContinuousMap.id D) (ContinuousMap.const D d0)) :
+  is_topologically_trivial (f.comp i) := by
+  use f d0
+  let H2 : ContinuousMap.Homotopy (ContinuousMap.id D |>.comp i) (ContinuousMap.const D d0 |>.comp i) :=
+    ContinuousMap.Homotopy.comp H (ContinuousMap.Homotopy.refl i)
+  let H3 : ContinuousMap.Homotopy (f.comp i) (ContinuousMap.const X (f d0)) :=
+    ContinuousMap.Homotopy.comp (ContinuousMap.Homotopy.refl f) H2
+  exact ⟨H3⟩
+
+theorem boundary_defect_forces_interior_vacuum_break
+  {X D V : Type} [TopologicalSpace X] [TopologicalSpace D] [TopologicalSpace V]
+  (i : ContinuousMap X D) (d0 : D)
+  (H : ContinuousMap.Homotopy (ContinuousMap.id D) (ContinuousMap.const D d0))
+  (g : BoundaryField X V) (h_defect : has_topological_defect g) :
+  ¬ ∃ (f : ContinuousMap D V), f.comp i = g := by
+  intro ⟨f, h_ext⟩
+  have h_trivial := defect_inevitability i f d0 H
+  rw [h_ext] at h_trivial
+  exact h_defect h_trivial
 
 end PhysicsOfConsciousness

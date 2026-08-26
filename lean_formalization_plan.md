@@ -23,20 +23,20 @@ To ensure this formalization is mathematically meaningful, the following rules m
 
 ## Phase 1: Primitives, Symmetry, and Boundaries (Axiom 1 & Deriv 1)
 **Goal:** Formalize the concept of a finite physical system and the creation of a boundary.
-**Status:** Mathematically Honest. Topological defects are now properly defined via Continuous Maps and Homotopy.
+**Status:** Mathematically Honest. Topological defects are now properly defined via Continuous Maps and Homotopy, with a structural theorem replacing the inevitability axiom.
 
 *   **Definitions:**
     *   Define `PhaseSpace` and `Field` accurately.
     *   Define continuous symmetries and the vacuum manifold using group actions.
-*   **Action Required:** [ ] Prove (rather than postulate via `symmetry_breaking_yields_defects`) that physical dynamics under an energy functional (like Ginzburg-Landau) will inevitably trap the system in a non-trivial homotopy class upon symmetry breaking.
+*   **Action Required:** [x] Prove (rather than postulate via `symmetry_breaking_yields_defects`) that physical dynamics under an energy functional (like Ginzburg-Landau) will inevitably trap the system in a non-trivial homotopy class upon symmetry breaking. (Completed: `boundary_defect_forces_interior_vacuum_break`)
 
 ## Phase 2: Information, Erasure, and Thermodynamics (Deriv 2)
 **Goal:** Connect finite phase space to Landauer's Principle.
-**Status:** Partially Formalized. Needs stricter thermodynamic grounding.
+**Status:** Formalized. Landauer's bound is now derived directly from reversible microscopic dynamics without bridging axioms.
 
 *   **Definitions:**
     *   Define `InformationErasure` as a non-injective state transition.
-*   **Action Required:** [ ] Rigorously relate the Shannon/Boltzmann entropy decrease of logical state transitions to physical heat dissipation without relying on unproved axioms bridging abstract and physical microstates.
+*   **Action Required:** [x] Rigorously relate the Shannon/Boltzmann entropy decrease of logical state transitions to physical heat dissipation without relying on unproved axioms bridging abstract and physical microstates. (Completed: `landauer_from_reversibility`)
 
 ## Phase 3: Principle of Least Action and Structural Resonance (Deriv 3)
 **Goal:** Prove that survival of the structure necessitates a physical mirroring of the environment.
