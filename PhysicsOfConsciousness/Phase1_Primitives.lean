@@ -8,7 +8,8 @@
 -/
 
 import Mathlib.Topology.Basic
-import Mathlib.MeasureTheory.Measure.MeasureSpace
+import Mathlib.MeasureTheory.Measure.Basic
+import Mathlib.GroupTheory.GroupAction.Defs
 
 namespace PhysicsOfConsciousness
 
@@ -17,7 +18,9 @@ namespace PhysicsOfConsciousness
 variable {Spacetime : Type} [TopologicalSpace Spacetime]
 
 -- A Field is a mapping from Spacetime to some ValueSpace (e.g., energy states).
-structure Field (ValueSpace : Type) where
+-- To avoid implicit argument synthesis errors, we include Spacetime explicitly in the types below, 
+-- or we can just make Spacetime explicit here.
+structure Field (Spacetime : Type) (ValueSpace : Type) where
   val : Spacetime → ValueSpace
 
 -- 2. Phase Space
@@ -29,24 +32,25 @@ class FinitePhaseSpace (System : Type) where
   states : Finset System
 
 -- 3. Symmetry Breaking and Boundaries
--- A purely symmetric state (vacuum)
-def is_symmetric_vacuum {V : Type} (f : Field V) : Prop := 
-  sorry -- All points in spacetime evaluate to the symmetric ground state
+-- A purely symmetric state (vacuum) is invariant under a symmetry group G.
+def is_symmetric_vacuum {S V : Type} (G : Type) [Group G] [MulAction G V] (f : Field S V) : Prop := 
+  ∀ (g : G) (s : S), g • f.val s = f.val s
 
 -- Spontaneous Symmetry Breaking (SSB)
 -- When a field drops to a lower, asymmetric energy state.
-def undergoes_SSB {V : Type} (f : Field V) : Prop :=
-  sorry
+-- This means it is no longer invariant under the full symmetry group G.
+def undergoes_SSB {S V : Type} (G : Type) [Group G] [MulAction G V] (f : Field S V) : Prop :=
+  ¬ is_symmetric_vacuum G f
 
 -- A Topological Boundary or Defect
 -- The inevitable creation of a distinct "inside" and "outside".
-structure Boundary (V : Type) where
-  field : Field V
-  is_defect : undergoes_SSB field
+structure Boundary (S V G : Type) [Group G] [MulAction G V] where
+  field : Field S V
+  is_defect : undergoes_SSB G field
 
 -- Theorem: Symmetry Breaking inevitably yields a boundary (topological defect).
-theorem ssb_implies_boundary {V : Type} (f : Field V) (h : undergoes_SSB f) : 
-  ∃ b : Boundary V, b.field = f := by
+theorem ssb_implies_boundary {S V G : Type} [Group G] [MulAction G V] (f : Field S V) (h : undergoes_SSB G f) : 
+  ∃ b : Boundary S V G, b.field = f := by
   -- By definition in this skeleton, if a field undergoes SSB, it forms a boundary.
   exact ⟨Boundary.mk f h, rfl⟩
 
