@@ -1,37 +1,38 @@
-# Lean Formalization Plan 3.0: Action Items
+# Lean Formalization Plan 4.0: Rigorous Mathlib Integration
 
 ## Intent
-Implement the Hybrid "Coarse-Grained" Architecture (Plan 3.0) which uses Algebraic Topology (Simplicial Complexes) to bridge the continuous manifold (Phase 1) to combinatorial thermodynamics (Phase 3) and Sheaf theory (Phase 4/5). This replaces the Fokker-Planck PDE approach to allow for exact Lean proofs without placeholders.
+Upgrade the existing Lean 4 formalization from an "ontological checker" (where proofs are stubbed out with `True` or axioms) into a rigorous, mathematically verified computational physics pipeline. We will push Lean to its limits by using proper Mathlib definitions for continuous calculus, integration, and discrete stochastic processes.
 
 ## Constraints
-- Ensure strict Lean 4 rigor using Mathlib.
-- All deprecated Lean modules (the PDE-based Phase2-6) should be archived to `_archive/`.
-- Match existing code styles and limit cyclomatic complexity (below 10).
+- Ensure strict Lean 4 rigor using Mathlib. No `True` for actual proofs. Use `sorry` or `axiom` only where fundamentally required (e.g., stating an abstract manifold property) but never for core physical derivations.
+- Replace all "lazy" placeholders in the physics proofs.
+- Verify everything compiles successfully (`lake build`).
+
+## Success Criteria
+- Kuramoto gradient descent is formally proven via analytic derivatives.
+- Integration for the Stress-Energy tensor is properly defined using Bochner/Lebesgue integrals.
+- Sheaf gluing conditions (Phase 5) are logically derived from synchronization constraints, not just axiomatized.
 
 ## Plan
 
-### Step 0: Migration
-- [x] Move deprecated PDE-based `Phase2_Thermodynamics.lean`, `Phase3_StructuralResonance.lean`, `Phase4_MacroscopicCoupling.lean`, `Phase5_Inevitability.lean`, `Phase6_MutualRecursion.lean` to `_archive/` (rename to `v2_...` to avoid collision).
-- [x] Update `PhysicsOfConsciousness.lean` to reflect new modules.
+### 1. Phase 3: Kuramoto Gradient Descent & Thermodynamics
+- [x] Update `Phase3_CombinatorialThermodynamics.lean`.
+- [x] Define the Kuramoto potential rigorously using `Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic` and finite sums.
+- [x] Define the nonlinear differential equation $\frac{d\theta_i}{dt}$.
+\- [x] Rigorously prove that $\frac{dV}{dt} \le 0$ (the system is a gradient system seeking a thermodynamic minimum).
+- [ ] Define finite stochastic transition matrices and compute Shannon entropy.
+- [x] Prove that many-to-one state transitions strictly decrease internal entropy (Landauer.s bound).
 
-### Step 1: Phase 1 (The Stage)
-- [x] Update `Phase1_Primitives.lean`: define electrodynamic fields and probability distributions as a Presheaf over the topological space.
+### 2. Phase 2: Proper Integral Definitions
+- [ ] Update `Phase2_SimplicialBridge.lean`.
+- [ ] Replace the `True` placeholder in `weight_bounded_by_stress`.
+- [ ] Define the edge weights strictly mathematically using Bochner/Lebesgue integration of the Stress-Energy Tensor over the manifold.
 
-### Step 2: Phase 2 (The Bridge)
-- [x] Create `Phase2_SimplicialBridge.lean`.
-- [x] Discretize the continuous manifold using a Simplicial Complex (nodes, edges, faces).
-- [x] Map the continuous Stress-Energy Tensor ($T_{\mu\nu}$) to discrete weights on the edges of the simplicial complex.
-
-### Step 3: Phase 3 (The Engine)
-- [x] Create `Phase3_CombinatorialThermodynamics.lean`.
-- [x] Port Landauer erasure proofs from `_archive/old_Phase2_Thermodynamics.lean`.
-- [x] Port Kuramoto gradient descent proofs from `_archive/old_Phase5_Inevitability.lean`.
-- [x] Apply these proofs to the finite state transitions of the simplicial complex.
-
-### Step 4: Phase 4 & 5 (Macroscopic Scaling & The Self)
-- [x] Create `Phase4_MacroscopicScaling.lean`: link the synchronized discrete states to local sections of the probability presheaf, defining restriction maps and showing adjacent local sections agree.
-- [x] Create `Phase5_GlobalSection.lean`: prove the existence of a Global Section (The Self) based on the agreement of local sections.
+### 3. Phase 4 & 5: Constructing the Global Section
+- [ ] Update `Phase4_MacroscopicScaling.lean` and `Phase5_GlobalSection.lean`.
+- [ ] Prove the Sheaf gluing condition: demonstrate that if the Kuramoto system reaches a phase-locked equilibrium (variance approaches 0), the local sections (probability measures) perfectly overlap on their intersections.
+- [ ] Use Lean's `CategoryTheory.Sites.Sheaf` to prove that a unique Global Section must exist from these overlapping sections, thereby removing the `unified_self_exists` assumption.
 
 ## Review
-- [x] Verify everything compiles successfully (`lake build`).
-- [x] Ensure all axioms and `sorry`s are limited strictly to the agreed boundaries.
+- [ ] Verify everything compiles successfully (`lake build`).
+- [ ] Review any remaining axioms to ensure they are strictly foundational and not circumventing proofs.

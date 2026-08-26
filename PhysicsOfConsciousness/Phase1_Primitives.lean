@@ -60,8 +60,17 @@ noncomputable def probabilityPresheaf : (Opens X)ᵒᵖ ⥤ Type _ where
   -- The restriction map simply restricts the measure's domain to the smaller open subset
   map {U V} i := ↾(fun μ => FiniteMeasure.comap (fun x => ⟨x.val, i.unop.le x.property⟩) μ)
   -- Functor laws ensure compatibility
-  map_id := sorry
-  map_comp := sorry
+  map_id U := by
+    ext μ s hs
+    dsimp
+    have H_id : (fun (x : ↥U.unop) => (⟨x.val, (𝟙 U).unop.le x.property⟩ : ↥U.unop)) = (fun x => x) := by ext x; rfl
+    rw [H_id]
+    have H_eq : Measure.comap (fun x : ↥U.unop => x) (μ : Measure ↥U.unop) = (μ : Measure ↥U.unop) := Measure.comap_id (μ : Measure ↥U.unop)
+    rw [H_eq]
+  map_comp {U V W} i j := by
+    ext μ s hs
+    sorry
+
   
 -- 2. Symmetry Breaking and Topological Defects (Homotopy)
 -- A vacuum manifold is a topological space of degenerate energy minima resulting from broken symmetry.
