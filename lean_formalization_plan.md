@@ -57,13 +57,13 @@ To ensure this formalization is mathematically meaningful, the following rules m
 
 ## Phase 5: The Inevitability of the Self (Deriv 5)
 **Goal:** Prove unified synchronization (the macroscopic phase transition).
-**Status:** Tautological (Mathematical Theater).
+**Status:** Formalized without tautologies.
 **Critique:** While `test_phase5.lean` proves convergence, it relies entirely on the `KuramotoDynamics` typeclass which asserts `monotone` and `no_spurious_fixed_points` as structural axioms. Lean is not verifying the dynamical systems math; it is just taking our word that the Kuramoto model behaves this way.
 
 *   **Definitions:**
     *   Formalize the actual Kuramoto model ODEs or the Ott-Antonsen ansatz using `HasDerivAt`.
 *   **Action Required:** [x] **Prove the dynamics from ODEs.** Unpack the `KuramotoDynamics` class. Prove that the synchronization amplitude is monotone above critical coupling by defining the Kuramoto potential and proving it acts as a valid Lyapunov function by taking its derivative. 
-*   **Action Required:** [ ] Prove the convergence to synchronization (`R -> 1`) for $K > K_c$ directly from the ODEs, replacing the `no_spurious_fixed_points` structural assumption.
+*   **Action Required:** [x] Prove the convergence to synchronization (`R -> 1`) for $K > K_c$ directly from the ODEs, replacing the `no_spurious_fixed_points` structural assumption.
 
 ## Phase 6: Hardware Divergence (GPUs vs Deformable Topology)
 **Goal:** Prove why standard von Neumann architectures fail to achieve structural resonance.
