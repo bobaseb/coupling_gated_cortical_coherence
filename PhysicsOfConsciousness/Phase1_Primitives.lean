@@ -89,6 +89,46 @@ theorem ssb_yields_boundary {Spacetime ValueSpace : Type} [TopologicalSpace Spac
   (h_visits_A : ∃ x, f.val x ∈ A)
   (h_visits_B : ∃ y, f.val y ∈ B) :
   ∃ z, is_boundary_point f (A ∪ B) z := by
-  sorry
+  by_contra h_no_boundary
+  push Not at h_no_boundary
+  unfold is_boundary_point at h_no_boundary
+  simp only [Set.mem_union, not_not] at h_no_boundary
+  
+  rcases h_phases with ⟨hA_closed, hB_closed, h_disj⟩
+  
+  let U := f.val ⁻¹' A
+  let V := f.val ⁻¹' B
+  
+  have hU_closed : IsClosed U := IsClosed.preimage hf_cont hA_closed
+  have hV_closed : IsClosed V := IsClosed.preimage hf_cont hB_closed
+  
+  have h_cover : (Set.univ : Set Spacetime) ⊆ U ∪ V := by
+    intro z _
+    exact h_no_boundary z
+
+  have h_disj_UV : Disjoint U V := h_disj.preimage f.val
+
+  have h_conn := isPreconnected_univ (α := Spacetime)
+  
+  have hU_nonempty : (Set.univ ∩ U).Nonempty := by
+    rcases h_visits_A with ⟨x, hx⟩
+    use x
+    exact ⟨Set.mem_univ x, hx⟩
+    
+  have hV_nonempty : (Set.univ ∩ V).Nonempty := by
+    rcases h_visits_B with ⟨y, hy⟩
+    use y
+    exact ⟨Set.mem_univ y, hy⟩
+
+  have h_inter_nonempty := isPreconnected_closed_iff.mp h_conn U V hU_closed hV_closed h_cover hU_nonempty hV_nonempty
+  
+  have h_inter_empty : U ∩ V = ∅ := Disjoint.inter_eq h_disj_UV
+  
+  rw [h_inter_empty] at h_inter_nonempty
+  
+  have h_empty_not_nonempty : ¬ (Set.univ ∩ ∅ : Set Spacetime).Nonempty := by
+    simp
+    
+  exact h_empty_not_nonempty h_inter_nonempty
 
 end PhysicsOfConsciousness

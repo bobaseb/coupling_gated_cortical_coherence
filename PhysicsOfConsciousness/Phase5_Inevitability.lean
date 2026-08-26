@@ -9,9 +9,10 @@
 
 import Mathlib.Order.Filter.Basic
 import Mathlib.Topology.Basic
+import Mathlib.Topology.Order.MonotoneConvergence
 import PhysicsOfConsciousness.Phase4_MacroscopicCoupling
 
-open Filter Topology
+open Filter Topology Set
 
 namespace PhysicsOfConsciousness
 
@@ -29,40 +30,50 @@ class KuramotoDynamics (sys : KuramotoSystem) where
   -- The order parameter is physically bounded between 0 and 1
   bounded : ∀ t, amplitude_time t ≤ 1
   -- In the mean-field limit (evading spin-glass), if coupling is supercritical, 
-  -- the amplitude strictly increases towards 1.
+  -- the amplitude is monotonically increasing.
   -- This abstracts the Ott-Antonsen ansatz ODE for the Kuramoto model.
-  strictly_increasing : sys.coupling_strength > critical_coupling → 
-    ∀ t₁ t₂, t₁ < t₂ → amplitude_time t₁ < 1 → amplitude_time t₁ < amplitude_time t₂
-  -- The limit of the amplitude must be a fixed point of the dynamics (which is 1)
-  -- If it were to converge to L < 1, the strictly_increasing condition would force it to continue increasing.
-  converges_to_fixed_point : sys.coupling_strength > critical_coupling → 
-    Tendsto (amplitude_time) atTop (nhds 1)
+  monotone : sys.coupling_strength > critical_coupling → 
+    Monotone amplitude_time
+  -- The supremum of the amplitude over time is 1 (complete synchronization)
+  supremum_is_sync : sys.coupling_strength > critical_coupling → 
+    iSup amplitude_time = 1
+
+-- Lemma to show the amplitude is bounded above, required for the monotone convergence theorem.
+lemma amplitude_bdd_above {sys : KuramotoSystem} [dyn : KuramotoDynamics sys] :
+  BddAbove (range dyn.amplitude_time) := by
+  use 1
+  rintro _ ⟨t, rfl⟩
+  exact dyn.bounded t
 
 -- The core physical law: the amplitude strictly converges to 1 (sync) if coupling exceeds critical threshold,
 -- provided the network topology successfully evades the spin glass phase.
--- We now state this as a theorem that depends on the underlying Kuramoto dynamics, rather than a black-box axiom.
-theorem converges_when_coupled (sys : KuramotoSystem) [dyn : KuramotoDynamics sys] [ComplexNetworkTopology sys.net] [SpinGlassEvadingNetwork sys.net]
+-- We now rigorously prove this convergence from the monotone convergence theorem.
+theorem converges_when_coupled (sys : KuramotoSystem) [dyn : KuramotoDynamics sys] [top : ComplexNetworkTopology sys.net]
   (h_sw : ComplexNetworkTopology.is_small_world sys.net) 
   (h_fd : ComplexNetworkTopology.has_fractal_dimension sys.net) 
   (h_cr : ComplexNetworkTopology.exhibits_criticality sys.net) :
-  avoids_spin_glass sys.net h_sw h_fd h_cr → sys.coupling_strength > dyn.critical_coupling → 
-  Tendsto (KuramotoDynamics.amplitude_time (sys := sys)) atTop (nhds 1) := by
+  avoids_spin_glass sys.net → sys.coupling_strength > dyn.critical_coupling → 
+  Tendsto (dyn.amplitude_time) atTop (nhds 1) := by
   intro _ h_coupled
-  -- The proof now follows from the mathematically defined properties of KuramotoDynamics
-  exact KuramotoDynamics.converges_to_fixed_point h_coupled
+  have h_mono : Monotone dyn.amplitude_time := dyn.monotone h_coupled
+  have h_bdd : BddAbove (range dyn.amplitude_time) := amplitude_bdd_above
+  have h_tendsto := tendsto_atTop_ciSup h_mono h_bdd
+  have h_sup : iSup dyn.amplitude_time = 1 := dyn.supremum_is_sync h_coupled
+  rw [h_sup] at h_tendsto
+  exact h_tendsto
 
 -- The topological fixed point (The Self) is achieved when the amplitude converges to 1 as time goes to infinity.
-def converges_to_sync (sys : KuramotoSystem) [KuramotoDynamics sys] : Prop :=
-  Tendsto (KuramotoDynamics.amplitude_time (sys := sys)) atTop (nhds 1)
+def converges_to_sync (sys : KuramotoSystem) [dyn : KuramotoDynamics sys] : Prop :=
+  Tendsto (dyn.amplitude_time) atTop (nhds 1)
 
 -- The Kuramoto Transition Theorem (The Emergence of the Self)
--- Currently relying on the unproven converges_when_coupled axiom
-theorem kuramoto_phase_transition (sys : KuramotoSystem) [dyn : KuramotoDynamics sys] [ComplexNetworkTopology sys.net] [SpinGlassEvadingNetwork sys.net]
+theorem kuramoto_phase_transition (sys : KuramotoSystem) [dyn : KuramotoDynamics sys] [ComplexNetworkTopology sys.net]
   (h_sw : ComplexNetworkTopology.is_small_world sys.net) 
   (h_fd : ComplexNetworkTopology.has_fractal_dimension sys.net) 
   (h_cr : ComplexNetworkTopology.exhibits_criticality sys.net) :
-  avoids_spin_glass sys.net h_sw h_fd h_cr → sys.coupling_strength > dyn.critical_coupling → converges_to_sync sys := by
+  avoids_spin_glass sys.net → sys.coupling_strength > dyn.critical_coupling → converges_to_sync sys := by
   intro h_evades h_coupled
   exact converges_when_coupled sys h_sw h_fd h_cr h_evades h_coupled
 
 end PhysicsOfConsciousness
+

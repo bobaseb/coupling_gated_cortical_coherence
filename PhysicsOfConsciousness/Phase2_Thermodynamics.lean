@@ -25,8 +25,18 @@ class Thermodynamics (sys : Type) where
   temperature : Real
   temperature_pos : temperature > 0
 
-axiom landauer_bound {sys : Type} [Fintype sys] [DecidableEq sys] [Thermodynamics sys] :
-  ∀ (t : sys → sys), Thermodynamics.heat_dissipation (sys := sys) t ≥ Thermodynamics.temperature (sys := sys) * (entropy (id : sys → sys) - entropy t)
+class StatisticalMechanics (sys : Type) [Fintype sys] [DecidableEq sys] extends Thermodynamics sys where
+  env_entropy_change : (sys → sys) → Real
+  second_law : ∀ (t : sys → sys), env_entropy_change t + (entropy t - entropy (id : sys → sys)) ≥ 0
+  heat_eq : ∀ (t : sys → sys), Thermodynamics.heat_dissipation t = temperature * env_entropy_change t
+
+theorem landauer_bound {sys : Type} [Fintype sys] [DecidableEq sys] [StatisticalMechanics sys] :
+  ∀ (t : sys → sys), Thermodynamics.heat_dissipation (sys := sys) t ≥ Thermodynamics.temperature (sys := sys) * (entropy (id : sys → sys) - entropy t) := by
+  intro t
+  rw [StatisticalMechanics.heat_eq]
+  have h2 : Thermodynamics.temperature (sys := sys) > 0 := Thermodynamics.temperature_pos
+  have h_sec := StatisticalMechanics.second_law (sys := sys) t
+  nlinarith
 
 def heat_dissipation {sys : Type} [Thermodynamics sys] (t : sys → sys) : Real :=
   Thermodynamics.heat_dissipation t
@@ -68,7 +78,7 @@ theorem erasure_decreases_entropy {sys : Type} [Fintype sys] [DecidableEq sys] [
     apply Fintype.card_pos
   exact Real.strictMonoOn_log h_pos1 h_pos2 (Nat.cast_lt.mpr h_lt)
 
-theorem entropy_decrease_implies_heat {sys : Type} [Fintype sys] [DecidableEq sys] [Thermodynamics sys] (t : sys → sys) 
+theorem entropy_decrease_implies_heat {sys : Type} [Fintype sys] [DecidableEq sys] [StatisticalMechanics sys] (t : sys → sys) 
   (h : entropy (id : sys → sys) > entropy t) : heat_dissipation t > 0 := by
   have bound := landauer_bound (sys := sys) t
   have diff_pos : entropy (id : sys → sys) - entropy t > 0 := sub_pos.mpr h
@@ -76,7 +86,7 @@ theorem entropy_decrease_implies_heat {sys : Type} [Fintype sys] [DecidableEq sy
     mul_pos (Thermodynamics.temperature_pos) diff_pos
   exact lt_of_lt_of_le rhs_pos bound
 
-theorem landauers_principle {sys : Type} [Fintype sys] [DecidableEq sys] [Nonempty sys] [Thermodynamics sys] (t : sys → sys) :
+theorem landauers_principle {sys : Type} [Fintype sys] [DecidableEq sys] [Nonempty sys] [StatisticalMechanics sys] (t : sys → sys) :
   is_erasure t → heat_dissipation t > 0 := by
   intro h_erasure
   have h_entropy := erasure_decreases_entropy t h_erasure
@@ -85,16 +95,16 @@ theorem landauers_principle {sys : Type} [Fintype sys] [DecidableEq sys] [Nonemp
 def is_dissipative_structure {sys : Type} [Thermodynamics sys] (t : sys → sys) : Prop :=
   heat_dissipation t > 0
 
-theorem boundary_is_dissipative {sys : Type} [Fintype sys] [DecidableEq sys] [Nonempty sys] [Thermodynamics sys] (t : sys → sys) (h : is_erasure t) :
+theorem boundary_is_dissipative {sys : Type} [Fintype sys] [DecidableEq sys] [Nonempty sys] [StatisticalMechanics sys] (t : sys → sys) (h : is_erasure t) :
   is_dissipative_structure t := by
   exact landauers_principle t h
 
-class PhysicalSystem (sys : Type) extends FinitePhaseSpace sys, Thermodynamics sys where
+class PhysicalSystem (sys : Type) [DecidableEq sys] extends FinitePhaseSpace sys, StatisticalMechanics sys where
   volume : Real
   surface_tension : Real
   available_energy : Real
 
-axiom strict_confining_potential {sys : Type} [PhysicalSystem sys] : PhysicalSystem.surface_tension (sys := sys) > 0
+axiom strict_confining_potential {sys : Type} [DecidableEq sys] [PhysicalSystem sys] : PhysicalSystem.surface_tension (sys := sys) > 0
 
 def is_integration_erasure {sys input : Type} (update : sys × input → sys) : Prop :=
   ¬ Function.Injective update
@@ -108,7 +118,7 @@ theorem pigeonhole_erasure {sys input : Type} [Fintype sys] [Fintype input]
   rw [h_prod] at h_le
   nlinarith
 
-def expansion_cost {sys : Type} [PhysicalSystem sys] (delta_volume : Real) : Real :=
+def expansion_cost {sys : Type} [DecidableEq sys] [PhysicalSystem sys] (delta_volume : Real) : Real :=
   delta_volume * (PhysicalSystem.surface_tension (sys := sys))
 
 end PhysicsOfConsciousness
