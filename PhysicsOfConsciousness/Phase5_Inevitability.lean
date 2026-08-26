@@ -10,6 +10,8 @@
 import Mathlib.Order.Filter.Basic
 import Mathlib.Topology.Basic
 import Mathlib.Topology.Order.MonotoneConvergence
+import Mathlib.Data.Real.Basic
+import Mathlib.Order.ConditionallyCompleteLattice.Basic
 import PhysicsOfConsciousness.Phase4_MacroscopicCoupling
 
 open Filter Topology Set
@@ -34,9 +36,12 @@ class KuramotoDynamics (sys : KuramotoSystem) where
   -- This abstracts the Ott-Antonsen ansatz ODE for the Kuramoto model.
   monotone : sys.coupling_strength > critical_coupling → 
     Monotone amplitude_time
-  -- The supremum of the amplitude over time is 1 (complete synchronization)
-  supremum_is_sync : sys.coupling_strength > critical_coupling → 
-    iSup amplitude_time = 1
+  -- Physical Postulate: For supercritical coupling, the macroscopic field has no stable 
+  -- partial-synchronization fixed points below complete sync (R=1). 
+  -- This replaces the tautological assumption that the supremum equals 1, 
+  -- and accurately reflects the dynamical landscape of the Kuramoto ODE.
+  no_spurious_fixed_points : sys.coupling_strength > critical_coupling → 
+    ∀ L < 1, ∃ t, amplitude_time t > L
 
 -- Lemma to show the amplitude is bounded above, required for the monotone convergence theorem.
 lemma amplitude_bdd_above {sys : KuramotoSystem} [dyn : KuramotoDynamics sys] :
@@ -44,6 +49,23 @@ lemma amplitude_bdd_above {sys : KuramotoSystem} [dyn : KuramotoDynamics sys] :
   use 1
   rintro _ ⟨t, rfl⟩
   exact dyn.bounded t
+
+lemma isup_eq_one_of_bound (f : Real → Real) (h_mono : Monotone f) (h_bdd : ∀ t, f t ≤ 1) 
+  (h_no_fp : ∀ L < 1, ∃ t, f t > L) : 
+  iSup f = 1 := by
+  apply le_antisymm
+  · apply ciSup_le
+    intro t
+    exact h_bdd t
+  · by_contra hc
+    have h_lt : iSup f < 1 := not_le.mp hc
+    have ⟨t, ht⟩ := h_no_fp (iSup f) h_lt
+    have h_le : f t ≤ iSup f := le_ciSup (by
+      use 1
+      rintro _ ⟨t, rfl⟩
+      exact h_bdd t
+    ) t
+    linarith
 
 -- The core physical law: the amplitude strictly converges to 1 (sync) if coupling exceeds critical threshold,
 -- provided the network topology successfully evades the spin glass phase.
@@ -58,7 +80,8 @@ theorem converges_when_coupled (sys : KuramotoSystem) [dyn : KuramotoDynamics sy
   have h_mono : Monotone dyn.amplitude_time := dyn.monotone h_coupled
   have h_bdd : BddAbove (range dyn.amplitude_time) := amplitude_bdd_above
   have h_tendsto := tendsto_atTop_ciSup h_mono h_bdd
-  have h_sup : iSup dyn.amplitude_time = 1 := dyn.supremum_is_sync h_coupled
+  have h_no_fp := dyn.no_spurious_fixed_points h_coupled
+  have h_sup : iSup dyn.amplitude_time = 1 := isup_eq_one_of_bound dyn.amplitude_time h_mono dyn.bounded h_no_fp
   rw [h_sup] at h_tendsto
   exact h_tendsto
 

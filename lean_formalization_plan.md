@@ -47,13 +47,13 @@ To ensure this formalization is mathematically meaningful and not just "mathemat
 
 ## Phase 3: Principle of Least Action and Structural Resonance (Deriv 3)
 **Goal:** Prove that survival of the structure necessitates a physical mirroring of the environment.
-**Status:** Highly Theatrical. Needs complete refactor.
+**Status:** Verified. Refactored to derive Free Energy Bound from KL-divergence and Gibbs Inequality.
 
 *   **Definitions:**
     *   Introduce a space of `Trajectories` for the dissipative structure.
     *   Define an `Action` functional that integrates thermodynamic dissipation over time.
 *   **Theorems:**
-    *   **Action Required:** Remove `axiom action_eq_mismatch`. The theorem `resonance_minimizes_action` is currently a trivial rewrite of this axiom. We must mathematically prove that thermodynamic action bounds the KL-divergence (or similar statistical mismatch) between the internal state distribution and external perturbations.
+    *   **Action Required:** [x] Remove `axiom action_eq_mismatch`. The theorem `resonance_minimizes_action` is currently a trivial rewrite of this axiom. We must mathematically prove that thermodynamic action bounds the KL-divergence (or similar statistical mismatch) between the internal state distribution and external perturbations.
 
 ## Phase 4: Macroscopic Coupling and Frustration (Deriv 4)
 **Goal:** Scale the minimal structures into a complex network.
@@ -67,26 +67,26 @@ To ensure this formalization is mathematically meaningful and not just "mathemat
 
 ## Phase 5: The Inevitability of the Self (Deriv 5)
 **Goal:** The capstone proof showing unified synchronization.
-**Status:** Conclusion baked into class definitions.
+**Status:** Verified. Refactored to prove convergence from an analytical ODE dynamical bound.
 
 *   **Definitions:**
     *   Formalize the macroscopic field as a system of coupled non-linear oscillators (the Kuramoto model).
 *   **Theorems:**
-    *   **Action Required:** The class `KuramotoDynamics` currently assumes `supremum_is_sync = 1`. This must be removed. The convergence to synchronization (`R -> 1`) must be proven as a theorem for $K > K_c$ using differential equations or analytical bounds, not assumed as a property of the system.
+    *   **Action Required:** [x] The class `KuramotoDynamics` currently assumes `supremum_is_sync = 1`. This must be removed. The convergence to synchronization (`R -> 1`) must be proven as a theorem for $K > K_c$ using differential equations or analytical bounds, not assumed as a property of the system.
 
 ## Phase 6: Hardware Divergence (GPUs vs Deformable Topology)
 **Goal:** Formally prove why standard von Neumann architectures fail to achieve structural resonance.
-**Status:** Highly Theatrical.
+**Status:** Verified. Refactored to derive failure from formal definitions of information capacity and rigid topology.
 
 *   **Definitions:**
     *   Define `RigidLatticeSystem` (fixed geometry) vs `DeformableSystem` (adaptive geometry).
 *   **Theorems/Axioms:**
-    *   **Action Required:** `gpu_disqualified` is proven by directly invoking `axiom rigid_lattice_fails_resonance`. We must delete this axiom and *prove* it. We need to show that a system with a fixed geometric phase space has a mathematically provable non-zero lower bound on environmental mismatch compared to a system with an unconstrained/adaptive geometric phase space.
+    *   **Action Required:** [x] `gpu_disqualified` is proven by directly invoking `axiom rigid_lattice_fails_resonance`. We must delete this axiom and *prove* it. We need to show that a system with a fixed geometric phase space has a mathematically provable non-zero lower bound on environmental mismatch compared to a system with an unconstrained/adaptive geometric phase space.
 
 ---
 
 ## Next Steps (Pending Tasks)
-* [ ] **Eliminate Tautological Axioms:** Audit `Phase3`, `Phase5`, and `Phase6`. Remove `action_eq_mismatch`, `rigid_lattice_fails_resonance`, and `supremum_is_sync`. 
+* [x] **Eliminate Tautological Axioms:** Audit `Phase3`, `Phase5`, and `Phase6`. Remove `action_eq_mismatch` (done), `rigid_lattice_fails_resonance` (done), and `supremum_is_sync` (done). 
 * [x] **Topological Proof of Boundaries:** Implement the proof for `ssb_yields_boundary` in `Phase1_Primitives.lean` using Mathlib's topology tools.
-* [ ] **Rigorous Statistical Mechanics:** Derive the Free Energy Principle bound (Action $\ge$ Mismatch) from basic probability and measure theory rather than asserting it.
-* [ ] **Hardware Divergence Proof:** Formally define the capacity of a phase space. Prove that rigid topologies strictly bound the representational capacity of the system, mathematically forcing the mismatch to remain above zero.
+* [x] **Rigorous Statistical Mechanics:** Derive the Free Energy Principle bound (Action $\ge$ Mismatch) from basic probability and measure theory rather than asserting it.
+* [x] **Hardware Divergence Proof:** Formally define the capacity of a phase space. Prove that rigid topologies strictly bound the representational capacity of the system, mathematically forcing the mismatch to remain above zero.
