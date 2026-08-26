@@ -1,0 +1,10 @@
+name = "PhysicsOfConsciousness"
+version = "0.1.0"
+defaultTargets = ["physicsofconsciousness"]
+
+[[lean_lib]]
+name = "PhysicsOfConsciousness"
+
+[[lean_exe]]
+name = "physicsofconsciousness"
+root = "Main"
