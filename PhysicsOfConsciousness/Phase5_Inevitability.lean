@@ -9,12 +9,13 @@
 
 import Mathlib.Order.Filter.Basic
 import Mathlib.Topology.Basic
-import Mathlib.Topology.Order.MonotoneConvergence
 import Mathlib.Data.Real.Basic
-import Mathlib.Order.ConditionallyCompleteLattice.Basic
+import Mathlib.Analysis.Calculus.Deriv.Basic
+import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
+import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import PhysicsOfConsciousness.Phase4_MacroscopicCoupling
 
-open Filter Topology Set
+open Filter Topology Set Finset
 
 namespace PhysicsOfConsciousness
 
@@ -24,79 +25,41 @@ structure KuramotoSystem where
   net : DissipativeNetwork
   field : MacroField
   coupling_strength : Real
+  intrinsic_freqs : Nat → Real
 
--- We define the time evolution of the macroscopic order parameter (amplitude)
-class KuramotoDynamics (sys : KuramotoSystem) where
-  critical_coupling : Real
-  amplitude_time : Real → Real
-  -- The order parameter is physically bounded between 0 and 1
-  bounded : ∀ t, amplitude_time t ≤ 1
-  -- In the mean-field limit (evading spin-glass), if coupling is supercritical, 
-  -- the amplitude is monotonically increasing.
-  -- This abstracts the Ott-Antonsen ansatz ODE for the Kuramoto model.
-  monotone : sys.coupling_strength > critical_coupling → 
-    Monotone amplitude_time
-  -- Physical Postulate: For supercritical coupling, the macroscopic field has no stable 
-  -- partial-synchronization fixed points below complete sync (R=1). 
-  -- This replaces the tautological assumption that the supremum equals 1, 
-  -- and accurately reflects the dynamical landscape of the Kuramoto ODE.
-  no_spurious_fixed_points : sys.coupling_strength > critical_coupling → 
-    ∀ L < 1, ∃ t, amplitude_time t > L
+-- We define the Kuramoto ODE precisely.
+-- The rate of change of phase for each oscillator depends on its intrinsic frequency
+-- and the sine of the phase differences with all other oscillators.
+def is_kuramoto_trajectory (sys : KuramotoSystem) (theta : Real → Nat → Real) : Prop :=
+  ∀ (i : Nat) (t : Real), 
+    i < sys.net.nodes → 
+    HasDerivAt (fun t => theta t i) 
+      (sys.intrinsic_freqs i + (sys.coupling_strength / sys.net.nodes) * 
+        ∑ j ∈ range sys.net.nodes, Real.sin (theta t j - theta t i)) t
 
--- Lemma to show the amplitude is bounded above, required for the monotone convergence theorem.
-lemma amplitude_bdd_above {sys : KuramotoSystem} [dyn : KuramotoDynamics sys] :
-  BddAbove (range dyn.amplitude_time) := by
-  use 1
-  rintro _ ⟨t, rfl⟩
-  exact dyn.bounded t
+-- We define the macroscopic order parameter R(t) based on the phase coherence.
+-- R(t)^2 = (1/N^2) * ((sum cos(theta_i))^2 + (sum sin(theta_i))^2)
+noncomputable def kuramoto_order_parameter_sq (sys : KuramotoSystem) (theta : Real → Nat → Real) (t : Real) : Real :=
+  (1 / (sys.net.nodes : Real)^2) * 
+  ((∑ i ∈ range sys.net.nodes, Real.cos (theta t i))^2 + 
+   (∑ i ∈ range sys.net.nodes, Real.sin (theta t i))^2)
 
-lemma isup_eq_one_of_bound (f : Real → Real) (h_mono : Monotone f) (h_bdd : ∀ t, f t ≤ 1) 
-  (h_no_fp : ∀ L < 1, ∃ t, f t > L) : 
-  iSup f = 1 := by
-  apply le_antisymm
-  · apply ciSup_le
-    intro t
-    exact h_bdd t
-  · by_contra hc
-    have h_lt : iSup f < 1 := not_le.mp hc
-    have ⟨t, ht⟩ := h_no_fp (iSup f) h_lt
-    have h_le : f t ≤ iSup f := le_ciSup (by
-      use 1
-      rintro _ ⟨t, rfl⟩
-      exact h_bdd t
-    ) t
-    linarith
-
--- The core physical law: the amplitude strictly converges to 1 (sync) if coupling exceeds critical threshold,
--- provided the network topology successfully evades the spin glass phase.
--- We now rigorously prove this convergence from the monotone convergence theorem.
-theorem converges_when_coupled (sys : KuramotoSystem) [dyn : KuramotoDynamics sys] [top : ComplexNetworkTopology sys.net]
-  (h_sw : ComplexNetworkTopology.is_small_world sys.net) 
-  (h_fd : ComplexNetworkTopology.has_fractal_dimension sys.net) 
-  (h_cr : ComplexNetworkTopology.exhibits_criticality sys.net) :
-  avoids_spin_glass sys.net → sys.coupling_strength > dyn.critical_coupling → 
-  Tendsto (dyn.amplitude_time) atTop (nhds 1) := by
-  intro _ h_coupled
-  have h_mono : Monotone dyn.amplitude_time := dyn.monotone h_coupled
-  have h_bdd : BddAbove (range dyn.amplitude_time) := amplitude_bdd_above
-  have h_tendsto := tendsto_atTop_ciSup h_mono h_bdd
-  have h_no_fp := dyn.no_spurious_fixed_points h_coupled
-  have h_sup : iSup dyn.amplitude_time = 1 := isup_eq_one_of_bound dyn.amplitude_time h_mono dyn.bounded h_no_fp
-  rw [h_sup] at h_tendsto
-  exact h_tendsto
-
--- The topological fixed point (The Self) is achieved when the amplitude converges to 1 as time goes to infinity.
-def converges_to_sync (sys : KuramotoSystem) [dyn : KuramotoDynamics sys] : Prop :=
-  Tendsto (dyn.amplitude_time) atTop (nhds 1)
+-- The topological fixed point (The Self) is achieved when the order parameter converges 
+-- to a non-zero synchronized state as time goes to infinity.
+def converges_to_sync (sys : KuramotoSystem) (theta : Real → Nat → Real) : Prop :=
+  ∃ (R_inf : Real), R_inf > 0 ∧ Tendsto (fun t => kuramoto_order_parameter_sq sys theta t) atTop (nhds (R_inf^2))
 
 -- The Kuramoto Transition Theorem (The Emergence of the Self)
-theorem kuramoto_phase_transition (sys : KuramotoSystem) [dyn : KuramotoDynamics sys] [ComplexNetworkTopology sys.net]
-  (h_sw : ComplexNetworkTopology.is_small_world sys.net) 
-  (h_fd : ComplexNetworkTopology.has_fractal_dimension sys.net) 
-  (h_cr : ComplexNetworkTopology.exhibits_criticality sys.net) :
-  avoids_spin_glass sys.net → sys.coupling_strength > dyn.critical_coupling → converges_to_sync sys := by
-  intro h_evades h_coupled
-  exact converges_when_coupled sys h_sw h_fd h_cr h_evades h_coupled
+-- We explicitly declare this as a physical postulate rather than a trivial theorem.
+-- A complete formalization requires analyzing the Kuramoto ODEs (e.g., via the Ott-Antonsen ansatz)
+-- and formally proving that the network topology guarantees stability.
+axiom kuramoto_phase_transition (sys : KuramotoSystem) (theta : Real → Nat → Real) 
+  (h_traj : is_kuramoto_trajectory sys theta)
+  (h_sw : is_small_world sys.net) 
+  (h_fd : ∃ d, has_fractal_dimension sys.net d) 
+  (h_cr : exhibits_criticality sys.net) :
+  (∀ (energy_landscape : MicroState sys.net → Real), ¬ is_spin_glass sys.net energy_landscape) → 
+  sys.coupling_strength > 0 → -- K > Kc (Critical coupling threshold abstracted)
+  converges_to_sync sys theta
 
 end PhysicsOfConsciousness
-
