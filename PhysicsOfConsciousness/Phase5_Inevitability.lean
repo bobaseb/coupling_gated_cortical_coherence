@@ -7,7 +7,11 @@
   3. The unified topological fixed point ("The Self")
 -/
 
+import Mathlib.Order.Filter.Basic
+import Mathlib.Topology.Basic
 import PhysicsOfConsciousness.Phase4_MacroscopicCoupling
+
+open Filter Topology
 
 namespace PhysicsOfConsciousness
 
@@ -18,17 +22,33 @@ structure KuramotoSystem where
   field : MacroField
   coupling_strength : Real
 
--- Synchronization: The topological fixed point where the global order parameter R -> 1.
-def is_synchronized (sys : KuramotoSystem) : Prop :=
-  sys.field.amplitude = 1
+-- We define the time evolution of the macroscopic order parameter (amplitude)
+class KuramotoDynamics (sys : KuramotoSystem) where
+  critical_coupling : Real
+  amplitude_time : Real → Real
 
--- The Kuramoto Transition Theorem (The Emergence of the Self)
--- If the coupling strength exceeds a critical threshold (Kc), and the network topology 
--- successfully evades the spin glass dead end, the system strictly converges to a synchronized state.
-axiom kuramoto_phase_transition (sys : KuramotoSystem) [ComplexNetworkTopology sys.net] (Kc : Real) 
+-- The core physical law: the amplitude strictly converges to 1 (sync) if coupling exceeds critical threshold,
+-- provided the network topology successfully evades the spin glass phase.
+-- TODO: Prove this from Kuramoto model dynamics instead of asserting it.
+axiom converges_when_coupled (sys : KuramotoSystem) [dyn : KuramotoDynamics sys] [ComplexNetworkTopology sys.net]
   (h_sw : ComplexNetworkTopology.is_small_world sys.net) 
   (h_fd : ComplexNetworkTopology.has_fractal_dimension sys.net) 
   (h_cr : ComplexNetworkTopology.exhibits_criticality sys.net) :
-  avoids_spin_glass sys.net h_sw h_fd h_cr → sys.coupling_strength > Kc → is_synchronized sys
+  avoids_spin_glass sys.net h_sw h_fd h_cr → sys.coupling_strength > dyn.critical_coupling → 
+  Tendsto (KuramotoDynamics.amplitude_time (sys := sys)) atTop (nhds 1)
+
+-- The topological fixed point (The Self) is achieved when the amplitude converges to 1 as time goes to infinity.
+def converges_to_sync (sys : KuramotoSystem) [KuramotoDynamics sys] : Prop :=
+  Tendsto (KuramotoDynamics.amplitude_time (sys := sys)) atTop (nhds 1)
+
+-- The Kuramoto Transition Theorem (The Emergence of the Self)
+-- Currently relying on the unproven converges_when_coupled axiom
+theorem kuramoto_phase_transition (sys : KuramotoSystem) [dyn : KuramotoDynamics sys] [ComplexNetworkTopology sys.net]
+  (h_sw : ComplexNetworkTopology.is_small_world sys.net) 
+  (h_fd : ComplexNetworkTopology.has_fractal_dimension sys.net) 
+  (h_cr : ComplexNetworkTopology.exhibits_criticality sys.net) :
+  avoids_spin_glass sys.net h_sw h_fd h_cr → sys.coupling_strength > dyn.critical_coupling → converges_to_sync sys := by
+  intro h_evades h_coupled
+  exact converges_when_coupled sys h_sw h_fd h_cr h_evades h_coupled
 
 end PhysicsOfConsciousness

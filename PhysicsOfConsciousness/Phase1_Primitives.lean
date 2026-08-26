@@ -9,7 +9,16 @@
 
 import Mathlib.Topology.Basic
 import Mathlib.MeasureTheory.Measure.Basic
+import Mathlib.MeasureTheory.Measure.Continuity
+import Mathlib.MeasureTheory.Measure.OuterMeasure
+import Mathlib.MeasureTheory.Measure.Module
+import Mathlib.MeasureTheory.Measure.CompleteLattice
+import Mathlib.MeasureTheory.Measure.Sum
+import Mathlib.MeasureTheory.Measure.Filter
+import Mathlib.MeasureTheory.Measure.Interval
+import Mathlib.MeasureTheory.Measure.Typeclasses.Finite
 import Mathlib.GroupTheory.GroupAction.Defs
+import Mathlib.Order.Filter.Basic
 
 namespace PhysicsOfConsciousness
 
@@ -27,9 +36,27 @@ structure Field (Spacetime : Type) (ValueSpace : Type) where
 -- Axiom 1: Localized physical systems possess a strict mathematical limit 
 -- on the amount of information they can embody (Finite Phase Space).
 class FinitePhaseSpace (System : Type) where
-  -- A simplified representation: the system has a finite number of distinguishable states.
-  -- In a more rigorous continuous setting, this would be a finite measure.
+  -- A discrete representation: the system has a finite number of distinguishable states.
   states : Finset System
+
+-- In a rigorous continuous setting, Phase Space is a measurable space with a finite measure.
+class ContinuousPhaseSpace (System : Type) [MeasurableSpace System] where
+  volume_measure : MeasureTheory.Measure System
+  is_finite : MeasureTheory.IsFiniteMeasure volume_measure
+
+-- Connecting the discrete finite representation to the continuous measure-theoretic space.
+-- We model this by a sequence of discrete approximations (e.g., finer coarse-grainings).
+structure DiscreteApproximation (System : Type) where
+  states : Finset System
+  effective_volume : Real
+
+open Filter Topology
+
+-- The macroscopic limit: as the discrete approximation becomes infinitely fine,
+-- its effective volume converges to the continuous thermodynamic volume.
+def converges_to_continuous_phase_space {System : Type} [MeasurableSpace System] [ContinuousPhaseSpace System]
+  (seq : Nat → DiscreteApproximation System) (continuous_volume : Real) : Prop :=
+  Tendsto (fun n => (seq n).effective_volume) atTop (nhds continuous_volume)
 
 -- 3. Symmetry Breaking and Boundaries
 -- A purely symmetric state (vacuum) is invariant under a symmetry group G.

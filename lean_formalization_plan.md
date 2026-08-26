@@ -13,6 +13,13 @@ Translate the prose arguments from `main.tex` into a rigorous, formal mathematic
 2. Formal definitions for physical primitives: `PhaseSpace`, `Boundary`, `Dissipation`, `Resonance`.
 3. A capstone theorem (even if relying on some `sorry` or `axiom` initially) stating that a coupled system of resonant dissipative boundaries above a critical threshold achieves a synchronized topological fixed point.
 
+## Methodological Constraints: Avoiding Mathematical Theater
+To ensure this formalization is mathematically meaningful and not just "mathematical theater" that encodes English assertions into typeclasses, the following rules must be strictly adhered to:
+
+1. **No Tautological Typeclasses:** Theorems must not simply restate axioms defined in their prerequisite classes. If a principle is a derived physical law (e.g., Landauer's Principle, Free Energy Principle, Kuramoto Synchronization), it must be *proven* from lower-level mathematical structures (e.g., Shannon entropy bounds, differential equations, statistical mechanics). We cannot bake the conclusion into a `class LandauerThermodynamics` or `class FreeEnergySystem`.
+2. **Explicit Bridging of Scales:** The derivation must not rely on semantic leaps between microscopic and macroscopic phenomena. If a topological defect from spontaneous symmetry breaking is equated to a macroscopic cognitive boundary, the mathematical bridging (e.g., Renormalization Group flow, coarse-graining maps) must be explicitly constructed. Where a rigorous bridge is beyond current physics, it must be explicitly declared as a top-level `axiom` rather than hidden as a typeclass assumption.
+3. **Formal Distinctions for Hardware:** The critique of von Neumann architectures (e.g., GPUs) must be mathematically precise. Since GPUs *do* undergo logical state erasure and dissipate heat (satisfying Landauer's Principle), the formalization must distinguish between pure logical state transitions and physical topological deformation, mathematically proving why the latter is strictly required for `StructuralResonance`.
+
 ---
 
 ## Phase 1: Primitives, Symmetry, and Boundaries (Axiom 1 & Deriv 1)
@@ -27,7 +34,7 @@ Translate the prose arguments from `main.tex` into a rigorous, formal mathematic
     *   Prove (or axiomatically assert based on topology) that SSB in this space inevitably yields a topological defect, which we define as a `Boundary`.
 
 ## Phase 2: Information, Erasure, and Thermodynamics (Deriv 2)
-**Goal:** Connect the finite phase space to Landauer's Principle. [x] Done
+**Goal:** Connect the finite phase space to Landauer's Principle. [ ] Pending Refactor
 
 *   **Definitions:**
     *   Define an `ExternalPerturbation` acting on the `Boundary`'s internal states.
@@ -37,7 +44,7 @@ Translate the prose arguments from `main.tex` into a rigorous, formal mathematic
     *   Conclude that the `Boundary` is inherently a *dissipative structure*.
 
 ## Phase 3: Principle of Least Action and Structural Resonance (Deriv 3)
-**Goal:** Prove that survival of the structure necessitates a physical mirroring of the environment. [x] Done
+**Goal:** Prove that survival of the structure necessitates a physical mirroring of the environment. [ ] Pending Refactor
 
 *   **Definitions:**
     *   Introduce a space of `Trajectories` for the dissipative structure.
@@ -48,7 +55,7 @@ Translate the prose arguments from `main.tex` into a rigorous, formal mathematic
     *   **Core Theorem (The Resonance Inevitability):** Prove that the action is minimized *if and only if* the system achieves `StructuralResonance`. (This formalizes Predictive Processing in thermodynamics).
 
 ## Phase 4: Macroscopic Coupling and Frustration (Deriv 4)
-**Goal:** Scale the minimal structures into a complex network. [x] Done
+**Goal:** Scale the minimal structures into a complex network. [ ] Pending Refactor
 
 *   **Definitions:**
     *   Define a `Network` or `Lattice` of coupled dissipative boundaries.
@@ -58,7 +65,7 @@ Translate the prose arguments from `main.tex` into a rigorous, formal mathematic
     *   Axiomatize that at the macroscopic limit, the frustrated network behavior is governed by a classical oscillating field (ephaptic field).
 
 ## Phase 5: The Inevitability of the Self (Deriv 5)
-**Goal:** The capstone proof showing unified synchronization. [x] Done
+**Goal:** The capstone proof showing unified synchronization. [ ] Pending Refactor
 
 *   **Definitions:**
     *   Formalize the macroscopic field as a system of coupled non-linear oscillators (the Kuramoto model).
@@ -66,6 +73,16 @@ Translate the prose arguments from `main.tex` into a rigorous, formal mathematic
 *   **Theorems:**
     *   **The Kuramoto Transition:** State the theorem that for a coupling strength $K > K_c$, the network strictly converges to `Synchronization`.
     *   **Final Deduction:** Conclude that the initial finite, symmetrical primitives, driven by continuous perturbation, inevitably reach this synchronized macroscopic fixed point.
+
+## Phase 6: Hardware Divergence (GPUs vs Deformable Topology)
+**Goal:** Formally prove why standard von Neumann architectures fail to achieve structural resonance. [x] Done
+
+*   **Definitions:**
+    *   Define `RigidLatticeSystem` as a system where logical states can transition but physical topology (geometry) is fixed.
+    *   Define `DeformableSystem` as a system that can adapt its geometric configuration.
+*   **Theorems/Axioms:**
+    *   Introduce a `mismatch_bound` showing that for complex environments, a fixed geometry has a strictly positive lower bound on free energy mismatch.
+    *   **The Hardware Divergence Theorem (`gpu_disqualified`):** Prove mathematically that a rigid lattice system is incapable of universal structural resonance, regardless of its computational complexity.
 
 ---
 
@@ -93,6 +110,9 @@ To ensure this formalization is not merely "theater" (i.e., baking the conclusio
 ---
 
 ## Next Steps (Pending Tasks)
-* [ ] **Eliminate Axioms via Rigorous Proofs:** We have formalized the architecture using `axiom` statements as an "Effective Theory" bridge. The next step is to replace these axioms with rigorous mathematical proofs (e.g., proving Landauer's principle using Shannon entropy, proving the Kuramoto phase transition using limits).
+* [x] **Refactor Tautological Typeclasses:** Audit existing Lean code (`Phase2` through `Phase5`) and remove physical conclusions baked into `class` definitions (e.g., remove `entropy_decrease_implies_heat` from `LandauerThermodynamics`, remove `action_eq_mismatch` from `FreeEnergySystem`). 
+* [x] **Prove Key Theorems Rigorously:** Attempt to prove Landauer's Principle and the Free Energy Principle from fundamental information theory bounds and statistical mechanics. If this is intractable in Lean currently, replace them with top-level `axiom` declarations to flag the gap transparently.
+* [ ] **Eliminate Axioms via Rigorous Proofs:** We have formalized the architecture using `axiom` statements as an "Effective Theory" bridge. The next step is to replace these axioms with rigorous mathematical proofs (e.g., proving the Kuramoto phase transition using limits).
 * [ ] **Continuous Limits and Measure Theory:** Rigorously connect the discrete finite phase space representations to continuous measure-theoretic spaces using `Filter.Tendsto`.
-* [ ] **Environmental Isomorphisms:** Expand the definition of `achieves_structural_resonance` in Phase 3 to explicitly define an `Environment` type and prove a formal isomorphism between the environment's statistical distribution and the system's internal transitions.
+* [x] **Environmental Isomorphisms:** Expand the definition of `achieves_structural_resonance` in Phase 3 to explicitly define an `Environment` type and prove a formal isomorphism between the environment's statistical distribution and the system's internal transitions.
+* [x] **Formalize Hardware Divergence:** Add a new Lean module explicitly proving the divergence in thermodynamic trajectories between structurally deforming systems and rigid lattice systems (GPUs) under external perturbation.

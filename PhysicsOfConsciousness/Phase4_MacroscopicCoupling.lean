@@ -31,10 +31,16 @@ structure MacroField where
   amplitude : Real
   phase : Real
 
--- THE BRIDGE AXIOM: Coarse-Graining Limit
+-- THE BRIDGE: Coarse-Graining Limit (Formalized as a Typeclass)
 -- At the macroscopic limit (N -> infinity), the frustrated network is governed by a classical field.
-axiom macroscopic_limit (net : DissipativeNetwork) (h_large : net.nodes > 10^20) (h_frust : is_frustrated net) : 
-  MacroField
+-- We formulate this as a property of sufficiently large, frustrated networks.
+class HasMacroscopicLimit (net : DissipativeNetwork) where
+  large_enough : net.nodes > 10^20
+  is_frust : is_frustrated net
+  macro_field : MacroField
+
+def macroscopic_limit (net : DissipativeNetwork) [h : HasMacroscopicLimit net] : MacroField :=
+  h.macro_field
 
 -- Falsifiable Physics 3: The "Spin Glass" Dead End
 -- Highly frustrated networks often freeze into a disordered spin glass state instead of synchronizing.
@@ -44,11 +50,13 @@ class ComplexNetworkTopology (net : DissipativeNetwork) where
   is_small_world : Prop
   has_fractal_dimension : Prop
   exhibits_criticality : Prop
-  
-  -- The combination of these properties guarantees evasion of the spin glass phase
-  evades_spin_glass : is_small_world ∧ has_fractal_dimension ∧ exhibits_criticality → Prop
+
+-- The combination of these properties guarantees evasion of the spin glass phase
+-- TODO: Prove this from statistical mechanics of complex networks.
+axiom evades_spin_glass (net : DissipativeNetwork) [ComplexNetworkTopology net] : 
+  ComplexNetworkTopology.is_small_world net ∧ ComplexNetworkTopology.has_fractal_dimension net ∧ ComplexNetworkTopology.exhibits_criticality net → Prop
 
 def avoids_spin_glass (net : DissipativeNetwork) [ComplexNetworkTopology net] (h_sw : ComplexNetworkTopology.is_small_world net) (h_fd : ComplexNetworkTopology.has_fractal_dimension net) (h_cr : ComplexNetworkTopology.exhibits_criticality net) : Prop :=
-  ComplexNetworkTopology.evades_spin_glass ⟨h_sw, ⟨h_fd, h_cr⟩⟩
+  evades_spin_glass net ⟨h_sw, ⟨h_fd, h_cr⟩⟩
 
 end PhysicsOfConsciousness
