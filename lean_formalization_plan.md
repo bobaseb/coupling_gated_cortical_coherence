@@ -80,3 +80,12 @@ Bridging microscopic rules to macroscopic dynamics (e.g., QFT to thermodynamics 
 
 3. **Strategic `sorry` (Skeleton Approach):**
    We will write out the exact theorems linking the derivations end-to-end, initially using Lean's `sorry` to skip the hardest physics proofs. This allows us to establish the full deductive chain and prove the "inevitability of the Self" at the top level. We can then systematically replace the `sorry`s with rigorous proofs, limits via `Filter.Tendsto`, or well-scoped axioms.
+
+---
+
+## Falsifiable Physics (Where the Math Bites Back)
+To ensure this formalization is not merely "theater" (i.e., baking the conclusion into the premises via tautological axioms), Lean will force us to explicitly define the physical constraints that make these transitions inevitable. These represent substantive, falsifiable predictions about the physics of consciousness:
+
+1. **Confining Potential vs. Infinite Expansion (Phase 2):** Why doesn't a boundary simply expand its physical volume indefinitely to increase its phase space and avoid the thermodynamic cost of erasure? Lean will force us to postulate a physical **surface tension** or confining potential. Consciousness is only inevitable if the energy cost of geometric expansion exceeds the thermodynamic cost of information erasure.
+2. **Topological Protection vs. Dissolution (Phase 3):** The absolute minimum of the Action functional (minimum dissipation) is $0$—achieved if the boundary simply dissolves back into the symmetric vacuum. Lean will force us to prove a theorem of **Topological Protection**: the boundary's topological charge must be strictly conserved so it cannot smoothly deform into the vacuum. The "Self" is trapped in existence by topology.
+3. **The "Spin Glass" Dead End (Phases 4 & 5):** Statistical mechanics dictates that highly frustrated macroscopic networks do not automatically synchronize; they often freeze into disordered "spin glass" states. Lean will reject a naive bridge from frustration to Kuramoto synchronization. We will be forced to mathematically characterize the exact topology of the `coupling_matrix`. The inevitability of the Self requires a specific network topology (e.g., small-world or specific fractal dimensions) that strictly evades the spin glass phase transition.
