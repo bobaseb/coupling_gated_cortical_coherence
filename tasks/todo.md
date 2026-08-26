@@ -18,8 +18,8 @@ Address the final three mathematical gaps in the formalization plan to complete 
 - [x] Eliminate any unproved axioms that arbitrarily bridge abstract logical states and physical microstates.
 
 ### Step 3: Phase 4 (Macroscopic Coupling) - Spin-Glass Proof
-- [ ] Replace the `topology_bounds_spin_glass` axiom with an actual mathematical construction or theorem.
-- [ ] Prove that specific topological conditions (small-world, criticality) restrict the energy landscape's local minima, bounding the probability of spin-glass freezing.
+- [x] Replace the `topology_bounds_spin_glass` axiom with an actual mathematical construction or theorem.
+- [x] Prove that specific topological conditions (small-world, criticality) restrict the energy landscape's local minima, bounding the probability of spin-glass freezing.
 
 ## Review
 - [ ] Verify everything compiles.

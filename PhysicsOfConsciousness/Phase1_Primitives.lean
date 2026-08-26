@@ -64,7 +64,7 @@ def converges_to_continuous_phase_space {System : Type} [MeasurableSpace System]
 class VacuumManifold (V : Type) [TopologicalSpace V]
 
 -- A field configuration on a spatial boundary (e.g., S^1, S^2) mapped to the vacuum V
-def BoundaryField (X V : Type) [TopologicalSpace X] [TopologicalSpace V] :=
+abbrev BoundaryField (X V : Type) [TopologicalSpace X] [TopologicalSpace V] :=
   ContinuousMap X V
 
 -- A field configuration is topologically trivial (no defect) if it is null-homotopic.
