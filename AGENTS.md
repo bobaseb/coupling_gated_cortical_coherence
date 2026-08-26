@@ -9,6 +9,8 @@ The following rules apply to all AI agents working on this project. These rules 
 ## 2. Python Code Quality & CI/CD
 If Python code is introduced to this repository, the following tooling MUST be configured and gated as pre-commit hooks (`.pre-commit-config.yaml`):
 
+*   **Package Management:** Use `uv` for all Python project management, dependency resolution, and virtual environments.
+
 *   **Linting & Formatting:** Use `ruff`.
 *   **Static Type Checking:** Use `mypy` with strict settings.
 *   **Security Scanning:** Use `bandit` and/or `ruff`'s security rules (`S` rules). Never hardcode secrets.
