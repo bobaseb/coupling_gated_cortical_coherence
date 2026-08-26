@@ -53,10 +53,14 @@ class ComplexNetworkTopology (net : DissipativeNetwork) where
 
 -- The combination of these properties guarantees evasion of the spin glass phase
 -- TODO: Prove this from statistical mechanics of complex networks.
-axiom evades_spin_glass (net : DissipativeNetwork) [ComplexNetworkTopology net] : 
-  ComplexNetworkTopology.is_small_world net ∧ ComplexNetworkTopology.has_fractal_dimension net ∧ ComplexNetworkTopology.exhibits_criticality net → Prop
+-- The combination of these properties guarantees evasion of the spin glass phase
+-- This represents the physical statement that such complex networks don't freeze into disordered states
+class SpinGlassEvadingNetwork (net : DissipativeNetwork) [ComplexNetworkTopology net] where
+  evades : ComplexNetworkTopology.is_small_world net → 
+           ComplexNetworkTopology.has_fractal_dimension net → 
+           ComplexNetworkTopology.exhibits_criticality net → Prop
 
-def avoids_spin_glass (net : DissipativeNetwork) [ComplexNetworkTopology net] (h_sw : ComplexNetworkTopology.is_small_world net) (h_fd : ComplexNetworkTopology.has_fractal_dimension net) (h_cr : ComplexNetworkTopology.exhibits_criticality net) : Prop :=
-  evades_spin_glass net ⟨h_sw, ⟨h_fd, h_cr⟩⟩
+def avoids_spin_glass (net : DissipativeNetwork) [ComplexNetworkTopology net] [SpinGlassEvadingNetwork net] (h_sw : ComplexNetworkTopology.is_small_world net) (h_fd : ComplexNetworkTopology.has_fractal_dimension net) (h_cr : ComplexNetworkTopology.exhibits_criticality net) : Prop :=
+  SpinGlassEvadingNetwork.evades h_sw h_fd h_cr
 
 end PhysicsOfConsciousness

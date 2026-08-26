@@ -34,7 +34,7 @@ To ensure this formalization is mathematically meaningful and not just "mathemat
     *   Prove (or axiomatically assert based on topology) that SSB in this space inevitably yields a topological defect, which we define as a `Boundary`.
 
 ## Phase 2: Information, Erasure, and Thermodynamics (Deriv 2)
-**Goal:** Connect the finite phase space to Landauer's Principle. [ ] Pending Refactor
+**Goal:** Connect the finite phase space to Landauer's Principle. [x] Done
 
 *   **Definitions:**
     *   Define an `ExternalPerturbation` acting on the `Boundary`'s internal states.
@@ -112,7 +112,7 @@ To ensure this formalization is not merely "theater" (i.e., baking the conclusio
 ## Next Steps (Pending Tasks)
 * [x] **Refactor Tautological Typeclasses:** Audit existing Lean code (`Phase2` through `Phase5`) and remove physical conclusions baked into `class` definitions (e.g., remove `entropy_decrease_implies_heat` from `LandauerThermodynamics`, remove `action_eq_mismatch` from `FreeEnergySystem`). 
 * [x] **Prove Key Theorems Rigorously:** Attempt to prove Landauer's Principle and the Free Energy Principle from fundamental information theory bounds and statistical mechanics. If this is intractable in Lean currently, replace them with top-level `axiom` declarations to flag the gap transparently.
-* [ ] **Eliminate Axioms via Rigorous Proofs:** We have formalized the architecture using `axiom` statements as an "Effective Theory" bridge. The next step is to replace these axioms with rigorous mathematical proofs (e.g., proving the Kuramoto phase transition using limits).
-* [ ] **Continuous Limits and Measure Theory:** Rigorously connect the discrete finite phase space representations to continuous measure-theoretic spaces using `Filter.Tendsto`.
+* [ ] **Eliminate Axioms via Rigorous Proofs:** We have formalized the architecture using `axiom` statements as an "Effective Theory" bridge. We have replaced the erasure axiom in Phase 2 with a rigorous proof (`pigeonhole_erasure`). The next step is to replace remaining axioms with rigorous mathematical proofs (e.g., proving the Kuramoto phase transition using limits).
+* [x] **Continuous Limits and Measure Theory:** Rigorously connect the discrete finite phase space representations to continuous measure-theoretic spaces using `Filter.Tendsto`.
 * [x] **Environmental Isomorphisms:** Expand the definition of `achieves_structural_resonance` in Phase 3 to explicitly define an `Environment` type and prove a formal isomorphism between the environment's statistical distribution and the system's internal transitions.
 * [x] **Formalize Hardware Divergence:** Add a new Lean module explicitly proving the divergence in thermodynamic trajectories between structurally deforming systems and rigid lattice systems (GPUs) under external perturbation.

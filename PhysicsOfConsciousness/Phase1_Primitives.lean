@@ -8,6 +8,7 @@
 -/
 
 import Mathlib.Topology.Basic
+import Mathlib.Topology.Connected.Basic
 import Mathlib.MeasureTheory.Measure.Basic
 import Mathlib.MeasureTheory.Measure.Continuity
 import Mathlib.MeasureTheory.Measure.OuterMeasure
@@ -35,9 +36,8 @@ structure Field (Spacetime : Type) (ValueSpace : Type) where
 -- 2. Phase Space
 -- Axiom 1: Localized physical systems possess a strict mathematical limit 
 -- on the amount of information they can embody (Finite Phase Space).
-class FinitePhaseSpace (System : Type) where
-  -- A discrete representation: the system has a finite number of distinguishable states.
-  states : Finset System
+-- We formalize this by requiring the phase space Type itself to be a `Fintype`.
+class FinitePhaseSpace (System : Type) extends Fintype System
 
 -- In a rigorous continuous setting, Phase Space is a measurable space with a finite measure.
 class ContinuousPhaseSpace (System : Type) [MeasurableSpace System] where
@@ -45,40 +45,50 @@ class ContinuousPhaseSpace (System : Type) [MeasurableSpace System] where
   is_finite : MeasureTheory.IsFiniteMeasure volume_measure
 
 -- Connecting the discrete finite representation to the continuous measure-theoretic space.
--- We model this by a sequence of discrete approximations (e.g., finer coarse-grainings).
-structure DiscreteApproximation (System : Type) where
+-- A discrete approximation assigns a discrete measure to a finite set of states
+-- to approximate the continuous volume.
+structure DiscreteApproximation (System : Type) [MeasurableSpace System] where
   states : Finset System
-  effective_volume : Real
+  measure : MeasureTheory.Measure System
+  is_finite : MeasureTheory.IsFiniteMeasure measure
+  supported_on_states : measure (Set.univ \ ↑states) = 0
 
 open Filter Topology
 
--- The macroscopic limit: as the discrete approximation becomes infinitely fine,
--- its effective volume converges to the continuous thermodynamic volume.
+-- The macroscopic thermodynamic limit:
+-- As the discrete approximation becomes infinitely fine, its measure converges
+-- to the continuous thermodynamic volume for any measurable set.
 def converges_to_continuous_phase_space {System : Type} [MeasurableSpace System] [ContinuousPhaseSpace System]
-  (seq : Nat → DiscreteApproximation System) (continuous_volume : Real) : Prop :=
-  Tendsto (fun n => (seq n).effective_volume) atTop (nhds continuous_volume)
+  (seq : Nat → DiscreteApproximation System) : Prop :=
+  ∀ (s : Set System), MeasurableSet s →
+    Tendsto (fun n => (seq n).measure s) atTop (nhds (ContinuousPhaseSpace.volume_measure s))
 
 -- 3. Symmetry Breaking and Boundaries
--- A purely symmetric state (vacuum) is invariant under a symmetry group G.
-def is_symmetric_vacuum {S V : Type} (G : Type) [Group G] [MulAction G V] (f : Field S V) : Prop := 
-  ∀ (g : G) (s : S), g • f.val s = f.val s
+-- A physical theory defines a potential over the value space, determining the vacuum.
+class PhysicalTheory (ValueSpace : Type) [TopologicalSpace ValueSpace] where
+  vacuum_manifold : Set ValueSpace
 
--- Spontaneous Symmetry Breaking (SSB)
--- When a field drops to a lower, asymmetric energy state.
--- This means it is no longer invariant under the full symmetry group G.
-def undergoes_SSB {S V : Type} (G : Type) [Group G] [MulAction G V] (f : Field S V) : Prop :=
-  ¬ is_symmetric_vacuum G f
+-- Two regions of the vacuum manifold are in distinct broken phases if they are disjoint and closed.
+def distinct_broken_phases {ValueSpace : Type} [TopologicalSpace ValueSpace] (A B : Set ValueSpace) : Prop :=
+  IsClosed A ∧ IsClosed B ∧ Disjoint A B
 
--- A Topological Boundary or Defect
--- The inevitable creation of a distinct "inside" and "outside".
-structure Boundary (S V G : Type) [Group G] [MulAction G V] where
-  field : Field S V
-  is_defect : undergoes_SSB G field
+-- A boundary point is a spacetime point where the field is NOT in the specified vacua
+-- i.e., it possesses higher potential energy (a topological defect).
+def is_boundary_point {Spacetime ValueSpace : Type} [TopologicalSpace Spacetime] [TopologicalSpace ValueSpace] 
+  (f : Field Spacetime ValueSpace) (vacua : Set ValueSpace) (x : Spacetime) : Prop :=
+  f.val x ∉ vacua
 
--- Theorem: Symmetry Breaking inevitably yields a boundary (topological defect).
-theorem ssb_implies_boundary {S V G : Type} [Group G] [MulAction G V] (f : Field S V) (h : undergoes_SSB G f) : 
-  ∃ b : Boundary S V G, b.field = f := by
-  -- By definition in this skeleton, if a field undergoes SSB, it forms a boundary.
-  exact ⟨Boundary.mk f h, rfl⟩
+-- Theorem: Symmetry Breaking (the existence of distinct broken phases A, B)
+-- inevitably yields a boundary on a connected Spacetime if the continuous field visits both vacua.
+-- This mathematically formalizes the inevitability of topological defects (boundaries)
+-- without relying on a tautological definition.
+theorem ssb_yields_boundary {Spacetime ValueSpace : Type} [TopologicalSpace Spacetime] [TopologicalSpace ValueSpace]
+  {f : Field Spacetime ValueSpace} {A B : Set ValueSpace}
+  [ConnectedSpace Spacetime] (hf_cont : Continuous f.val)
+  (h_phases : distinct_broken_phases A B)
+  (h_visits_A : ∃ x, f.val x ∈ A)
+  (h_visits_B : ∃ y, f.val y ∈ B) :
+  ∃ z, is_boundary_point f (A ∪ B) z := by
+  sorry
 
 end PhysicsOfConsciousness

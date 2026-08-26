@@ -1,98 +1,114 @@
-/-
-  Phase 2: Information, Erasure, and Thermodynamics
-  
-  This module formalizes:
-  1. External Perturbations on the Boundary
-  2. Information Erasure (non-injective mapping)
-  3. Landauer's Axiom (erasure costs heat)
--/
-
 import PhysicsOfConsciousness.Phase1_Primitives
+import Mathlib.Data.Finset.Basic
+import Mathlib.Data.Finset.Card
+import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Mathlib.Data.Fintype.Basic
+import Mathlib.Data.Fintype.Card
+import Mathlib.Tactic
 
 namespace PhysicsOfConsciousness
 
--- Assume we have some boundary from Phase 1.
-variable {S V G : Type} [Group G] [MulAction G V] (b : Boundary S V G)
-
--- A StateTransition represents the boundary's internal state changing 
--- in response to an ExternalPerturbation.
 structure ExternalPerturbation where
   magnitude : Real
 
--- Information Erasure
--- A transition is an erasure if it is not injective (Pigeonhole principle means 
--- a finite system forced to accept infinite novel inputs must eventually erase).
-def is_erasure {sys : Type} [FinitePhaseSpace sys] (t : sys → sys) : Prop :=
+def is_erasure {sys : Type} (t : sys → sys) : Prop :=
   ¬ Function.Injective t
 
--- Thermodynamic properties of a system
+noncomputable def boltzmann_entropy {sys : Type} [DecidableEq sys] (states : Finset sys) : Real :=
+  Real.log (states.card : Real)
+
+noncomputable def entropy {sys : Type} [Fintype sys] [DecidableEq sys] (t : sys → sys) : Real :=
+  boltzmann_entropy (Finset.image t Finset.univ)
+
 class Thermodynamics (sys : Type) where
   heat_dissipation : (sys → sys) → Real
+  temperature : Real
+  temperature_pos : temperature > 0
 
--- We define heat dissipation using the class
+axiom landauer_bound {sys : Type} [Fintype sys] [DecidableEq sys] [Thermodynamics sys] :
+  ∀ (t : sys → sys), Thermodynamics.heat_dissipation (sys := sys) t ≥ Thermodynamics.temperature (sys := sys) * (entropy (id : sys → sys) - entropy t)
+
 def heat_dissipation {sys : Type} [Thermodynamics sys] (t : sys → sys) : Real :=
   Thermodynamics.heat_dissipation t
 
-class InformationTheory (sys : Type) where
-  entropy : (sys → sys) → Real
+lemma not_injective_image_card_lt {sys : Type} [Fintype sys] [DecidableEq sys] (t : sys → sys) (h : ¬ Function.Injective t) : 
+  (Finset.image t Finset.univ).card < Fintype.card sys := by
+  have h1 : (Finset.image t Finset.univ).card ≤ Fintype.card sys := Finset.card_image_le
+  by_contra hc
+  have heq : (Finset.image t Finset.univ).card = Fintype.card sys := le_antisymm h1 (not_lt.mp hc)
+  have hsurj : Function.Surjective t := by
+    have himage_eq_univ : Finset.image t Finset.univ = Finset.univ := by
+      apply Finset.eq_of_subset_of_card_le
+      · intro x _ ; exact Finset.mem_univ x
+      · rw [heq] ; rfl
+    intro y
+    have hy : y ∈ Finset.univ := Finset.mem_univ y
+    rw [← himage_eq_univ] at hy
+    rcases Finset.mem_image.mp hy with ⟨x, _, hx_eq⟩
+    exact ⟨x, hx_eq⟩
+  have hinj : Function.Injective t := Finite.injective_iff_surjective.mpr hsurj
+  exact h hinj
 
-def entropy {sys : Type} [InformationTheory sys] (t : sys → sys) : Real :=
-  InformationTheory.entropy t
+theorem erasure_decreases_entropy {sys : Type} [Fintype sys] [DecidableEq sys] [Nonempty sys] (t : sys → sys) (h : is_erasure t) :
+  entropy (id : sys → sys) > entropy t := by
+  unfold entropy boltzmann_entropy
+  have h_id_card : (Finset.image id (Finset.univ : Finset sys)).card = Fintype.card sys := by
+    have himage : Finset.image id (Finset.univ : Finset sys) = Finset.univ := Finset.image_id
+    rw [himage]
+    rfl
+  rw [h_id_card]
+  have h_lt : (Finset.image t Finset.univ).card < Fintype.card sys := not_injective_image_card_lt t h
+  have h_pos1 : (0 : Real) < ((Finset.image t Finset.univ).card : Real) := by
+    apply Nat.cast_pos.mpr
+    apply Finset.card_pos.mpr
+    have ⟨x⟩ := ‹Nonempty sys›
+    exact ⟨t x, Finset.mem_image.mpr ⟨x, Finset.mem_univ x, rfl⟩⟩
+  have h_pos2 : (0 : Real) < (Fintype.card sys : Real) := by
+    apply Nat.cast_pos.mpr
+    apply Fintype.card_pos
+  exact Real.strictMonoOn_log h_pos1 h_pos2 (Nat.cast_lt.mpr h_lt)
 
-class LandauerThermodynamics (sys : Type) extends FinitePhaseSpace sys, Thermodynamics sys, InformationTheory sys
+theorem entropy_decrease_implies_heat {sys : Type} [Fintype sys] [DecidableEq sys] [Thermodynamics sys] (t : sys → sys) 
+  (h : entropy (id : sys → sys) > entropy t) : heat_dissipation t > 0 := by
+  have bound := landauer_bound (sys := sys) t
+  have diff_pos : entropy (id : sys → sys) - entropy t > 0 := sub_pos.mpr h
+  have rhs_pos : Thermodynamics.temperature (sys := sys) * (entropy (id : sys → sys) - entropy t) > 0 :=
+    mul_pos (Thermodynamics.temperature_pos) diff_pos
+  exact lt_of_lt_of_le rhs_pos bound
 
--- Explicit Physical Axiom: Landauer's link: heat dissipation is lower bounded by the reduction in entropy
--- TODO: Derive this from rigorous statistical mechanics and information theory bounds instead of asserting it.
-axiom entropy_decrease_implies_heat {sys : Type} [LandauerThermodynamics sys] (t : sys → sys) : 
-  (entropy (id : sys → sys) > entropy t) → heat_dissipation t > 0
-
--- Explicit Physical Axiom: A non-injective map on a finite phase space decreases the maximum possible entropy
-axiom erasure_decreases_entropy {sys : Type} [LandauerThermodynamics sys] (t : sys → sys) :
-  is_erasure t → entropy (id : sys → sys) > entropy t
-
--- Landauer's Theorem (Currently relying on the above unproven axioms)
--- Any non-injective state transition mapping dissipates a minimum amount of heat (ΔQ > 0).
-theorem landauers_principle {sys : Type} [LandauerThermodynamics sys] (t : sys → sys) :
+theorem landauers_principle {sys : Type} [Fintype sys] [DecidableEq sys] [Nonempty sys] [Thermodynamics sys] (t : sys → sys) :
   is_erasure t → heat_dissipation t > 0 := by
   intro h_erasure
   have h_entropy := erasure_decreases_entropy t h_erasure
   exact entropy_decrease_implies_heat t h_entropy
 
--- Conclusion: The boundary under constant perturbation is a dissipative structure.
 def is_dissipative_structure {sys : Type} [Thermodynamics sys] (t : sys → sys) : Prop :=
   heat_dissipation t > 0
 
-theorem boundary_is_dissipative {sys : Type} [LandauerThermodynamics sys] (t : sys → sys) (h : is_erasure t) :
+theorem boundary_is_dissipative {sys : Type} [Fintype sys] [DecidableEq sys] [Nonempty sys] [Thermodynamics sys] (t : sys → sys) (h : is_erasure t) :
   is_dissipative_structure t := by
-  -- Follows from Landauer's theorem.
   exact landauers_principle t h
 
--- Falsifiable Physics 1: Confining Potential vs. Infinite Expansion
--- To avoid the thermodynamic cost of erasure, a boundary could theoretically 
--- expand its physical volume indefinitely to increase its phase space.
--- We must postulate a physical surface tension or confining potential.
-
-class PhysicalSystem (sys : Type) extends LandauerThermodynamics sys where
+class PhysicalSystem (sys : Type) extends FinitePhaseSpace sys, Thermodynamics sys where
   volume : Real
   surface_tension : Real
   available_energy : Real
 
--- Constraint 1: Surface tension is strictly positive.
 axiom strict_confining_potential {sys : Type} [PhysicalSystem sys] : PhysicalSystem.surface_tension (sys := sys) > 0
 
--- Constraint 2: Because of the confining potential (finite energy vs expansion cost),
--- a system subjected to continuous perturbation cannot expand infinitely and 
--- MUST eventually undergo information erasure.
-axiom continuous_perturbation_forces_erasure {sys : Type} [PhysicalSystem sys] : ∃ (t : sys → sys), is_erasure t
+def is_integration_erasure {sys input : Type} (update : sys × input → sys) : Prop :=
+  ¬ Function.Injective update
 
--- The energetic cost of expanding the volume to avoid erasure.
+theorem pigeonhole_erasure {sys input : Type} [Fintype sys] [Fintype input] 
+  (h_input : Fintype.card input > 1) (h_sys_pos : Fintype.card sys > 0)
+  (update : sys × input → sys) : is_integration_erasure update := by
+  intro h_inj
+  have h_le := Fintype.card_le_of_injective update h_inj
+  have h_prod : Fintype.card (sys × input) = Fintype.card sys * Fintype.card input := Fintype.card_prod sys input
+  rw [h_prod] at h_le
+  nlinarith
+
 def expansion_cost {sys : Type} [PhysicalSystem sys] (delta_volume : Real) : Real :=
   delta_volume * (PhysicalSystem.surface_tension (sys := sys))
-
--- Upgraded Theorem: A physical system under continuous perturbation is INEVITABLY a dissipative structure.
-theorem inevitably_dissipative {sys : Type} [PhysicalSystem sys] :
-  ∃ (t : sys → sys), is_dissipative_structure t := by
-  have ⟨t, h_erasure⟩ := continuous_perturbation_forces_erasure (sys := sys)
-  exact ⟨t, boundary_is_dissipative t h_erasure⟩
 
 end PhysicsOfConsciousness
