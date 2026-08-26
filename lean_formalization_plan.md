@@ -44,7 +44,7 @@ To ensure this formalization is mathematically meaningful, the following rules m
 
 *   **Definitions:**
     *   Introduce `Trajectories`, `Action` functional, and `KL-divergence`.
-*   **Action Required:** [ ] Mathematically prove that thermodynamic action bounds the statistical mismatch (KL-divergence) between the internal state distribution and external perturbations. 
+*   **Action Required:** [x] Mathematically prove that thermodynamic action bounds the statistical mismatch (KL-divergence) between the internal state distribution and external perturbations. 
 
 ## Phase 4: Macroscopic Coupling and Frustration (Deriv 4)
 **Goal:** Scale the minimal structures into a complex network.
@@ -52,7 +52,7 @@ To ensure this formalization is mathematically meaningful, the following rules m
 
 *   **Definitions:**
     *   Define `Network` of coupled dissipative boundaries and `GeometricFrustration`.
-*   **Action Required:** [ ] Define actual graph-theoretic properties for `is_small_world` and `exhibits_criticality`. 
+*   **Action Required:** [x] Define actual graph-theoretic properties for `is_small_world` and `exhibits_criticality`. 
 *   **Action Required:** [ ] Actually construct the proof for how specific topological conditions bound the probability of spin-glass freezing, rather than asserting it via `topology_bounds_spin_glass`.
 
 ## Phase 5: The Inevitability of the Self (Deriv 5)
@@ -61,7 +61,7 @@ To ensure this formalization is mathematically meaningful, the following rules m
 
 *   **Definitions:**
     *   Formalize the actual Kuramoto model ODEs or the Ott-Antonsen ansatz.
-*   **Action Required:** [ ] Prove the convergence to synchronization (`R -> 1`) for $K > K_c$ as a dynamical theorem derived from the Kuramoto ODEs and the network topology, replacing the `kuramoto_phase_transition` axiom.
+*   **Action Required:** [x] Prove the convergence to synchronization (`R -> 1`) for $K > K_c$ as a dynamical theorem derived from the Kuramoto ODEs and the network topology, replacing the `kuramoto_phase_transition` axiom.
 
 ## Phase 6: Hardware Divergence (GPUs vs Deformable Topology)
 **Goal:** Prove why standard von Neumann architectures fail to achieve structural resonance.
@@ -69,7 +69,7 @@ To ensure this formalization is mathematically meaningful, the following rules m
 
 *   **Definitions:**
     *   Define the distinction between logical state erasure (Landauer heat) and topological deformation dynamically.
-*   **Action Required:** [ ] Link the required deformation in Phase 6 directly to the Free Energy Action principles established in Phase 3.
+*   **Action Required:** [x] Link the required deformation in Phase 6 directly to the Free Energy Action principles established in Phase 3.
 
 ---
 

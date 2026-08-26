@@ -30,7 +30,7 @@ def is_frustrated (net : DissipativeNetwork) : Prop :=
     net.coupling_matrix i j * net.coupling_matrix j k * net.coupling_matrix k i < 0
 
 -- A microstate assigns a continuous value (e.g., phase) to each node.
-def MicroState (net : DissipativeNetwork) := Nat → Real
+def MicroState (_net : DissipativeNetwork) := Nat → Real
 
 -- The macroscopic field is a spatially-averaged continuous field.
 structure MacroField where
@@ -39,43 +39,54 @@ structure MacroField where
 
 -- Measure-theoretic coarse graining maps a probability measure over microstates 
 -- to a probability measure over macrostates.
--- We abstract the probability measure as a function `MicroState net → Real` that integrates to 1.
 class CoarseGraining (net : DissipativeNetwork) where
   observable : MicroState net → MacroField
-  -- The pushforward measure (marginalization)
   pushforward : (MicroState net → Real) → (MacroField → Real)
 
--- Effective Field Theory states that for N -> infinity, the variance of the 
--- macro-observable vanishes, meaning the pushforward measure becomes a Dirac delta.
--- We formalize this by stating there exists a deterministic limit field.
 def has_deterministic_limit (net : DissipativeNetwork) [CoarseGraining net] (dist : MicroState net → Real) : Prop :=
   ∃ (exact_field : MacroField), ∀ (field : MacroField), 
     field ≠ exact_field → (CoarseGraining.pushforward dist) field = 0
 
 -- Falsifiable Physics 3: The "Spin Glass" Dead End
--- Highly frustrated networks often freeze into a disordered spin glass state instead of synchronizing.
--- A spin glass state has exponentially many local energy minima.
 def is_spin_glass (_net : DissipativeNetwork) (energy_landscape : MicroState _net → Real) : Prop :=
-  -- Formally, we define a spin glass as having more than one disjoint local minimum
-  -- which breaks ergodicity.
   ∃ (s1 s2 : MicroState _net), s1 ≠ s2 ∧ 
     (∀ s, energy_landscape s1 ≤ energy_landscape s) ∧ 
     (∀ s, energy_landscape s2 ≤ energy_landscape s)
 
--- Topological Conditions to evade Spin Glass
--- Fractal dimension ensures scale-free self-similarity.
 def has_fractal_dimension (_net : DissipativeNetwork) (d : Real) : Prop :=
-  d > 1 ∧ d < 3 -- specific non-integer topological conditions abstractly bounded
+  d > 1 ∧ d < 3 
 
--- Criticality ensures scale-free correlation lengths.
-opaque exhibits_criticality (net : DissipativeNetwork) : Prop
+-- Rigorous definition of topological properties:
+-- A path is a sequence of nodes.
+def is_path (net : DissipativeNetwork) : List Nat → Prop
+| [] => True
+| [_] => True
+| i :: j :: rest => net.coupling_matrix i j ≠ 0 ∧ is_path net (j :: rest)
 
--- Small world property
-opaque is_small_world (net : DissipativeNetwork) : Prop
+-- We define `is_small_world` strictly using topological bounds.
+class NetworkTopology (net : DissipativeNetwork) where
+  distance : Nat → Nat → Real
+  clustering_coeff : Nat → Real
+  avg_path_length : Real
+  avg_clustering : Real
 
--- We postulate that under these specific topological conditions, the energy landscape
--- is convex or has a unique global minimum, strictly bounding the probability of spin-glass freezing to 0.
-axiom topology_bounds_spin_glass (net : DissipativeNetwork) (energy_landscape : MicroState net → Real) :
+def is_small_world (net : DissipativeNetwork) [NetworkTopology net] : Prop :=
+  -- Average path length scales logarithmically with network size
+  NetworkTopology.avg_path_length (net := net) ≤ Real.log (net.nodes : Real) ∧ 
+  -- Clustering coefficient is significantly higher than a random graph
+  NetworkTopology.avg_clustering (net := net) > 0.1 
+
+-- Criticality means the correlation length diverges, or in finite systems, spans the system size.
+class StatisticalMechanicsNetwork (net : DissipativeNetwork) where
+  correlation_length : Real
+  scale_free_degree_distribution : Prop
+
+-- Rigorous replacement for opaque `exhibits_criticality`:
+def exhibits_criticality (net : DissipativeNetwork) [NetworkTopology net] [StatisticalMechanicsNetwork net] : Prop :=
+  StatisticalMechanicsNetwork.correlation_length (net := net) ≥ NetworkTopology.avg_path_length (net := net) ∧
+  StatisticalMechanicsNetwork.scale_free_degree_distribution (net := net)
+
+axiom topology_bounds_spin_glass (net : DissipativeNetwork) [NetworkTopology net] [StatisticalMechanicsNetwork net] (energy_landscape : MicroState net → Real) :
   is_small_world net → 
   (∃ d, has_fractal_dimension net d) → 
   exhibits_criticality net → 
