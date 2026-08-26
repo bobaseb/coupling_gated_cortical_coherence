@@ -6,4 +6,4 @@ import PhysicsOfConsciousness.Phase2_Thermodynamics
 import PhysicsOfConsciousness.Phase3_StructuralResonance
 import PhysicsOfConsciousness.Phase4_MacroscopicCoupling
 import PhysicsOfConsciousness.Phase5_Inevitability
-import PhysicsOfConsciousness.Phase6_HardwareDivergence
+import PhysicsOfConsciousness.Phase6_MutualRecursion

@@ -1,94 +1,68 @@
 /-
-  Phase 1: Primitives, Symmetry, and Boundaries
+  Phase 1: Primitives, Symmetry, Boundaries, and the Stress-Energy Tensor
   
   This module formalizes the foundational axioms of the theory:
-  1. Spacetime and Fields
-  2. Finite Phase Space
-  3. Spontaneous Symmetry Breaking and Topological Defects (Homotopy)
+  1. Spacetime and Fields over Pseudo-Riemannian Manifolds
+  2. Spontaneous Symmetry Breaking and Topological Defects (Homotopy)
+  3. The Stress-Energy Tensor and its subsystem decomposition
 -/
 
 import Mathlib.Topology.Basic
-import Mathlib.MeasureTheory.Measure.Basic
-import Mathlib.MeasureTheory.Measure.Continuity
-import Mathlib.MeasureTheory.Measure.OuterMeasure
-import Mathlib.MeasureTheory.Measure.Module
-import Mathlib.MeasureTheory.Measure.CompleteLattice
-import Mathlib.MeasureTheory.Measure.Sum
-import Mathlib.MeasureTheory.Measure.Filter
-import Mathlib.MeasureTheory.Measure.Interval
-import Mathlib.MeasureTheory.Measure.Typeclasses.Finite
-import Mathlib.GroupTheory.GroupAction.Defs
-import Mathlib.Order.Filter.Basic
 import Mathlib.Topology.Homotopy.Basic
 import Mathlib.Topology.ContinuousMap.Basic
+import Mathlib.Geometry.Manifold.IsManifold.Basic
+import Mathlib.Geometry.Manifold.VectorBundle.Tangent
+import Mathlib.Analysis.Normed.Module.Basic
+import Mathlib.MeasureTheory.Measure.Basic
+
+open Manifold
+open Topology
 
 namespace PhysicsOfConsciousness
 
 -- 1. Spacetime and Fields
--- We abstract Spacetime as a general topological space for now.
-variable {Spacetime : Type} [TopologicalSpace Spacetime]
+-- We define the physical system over a pseudo-Riemannian manifold.
+variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+variable {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
+variable {Spacetime : Type*} [TopologicalSpace Spacetime] [ChartedSpace H Spacetime]
+variable [IsManifold I ⊤ Spacetime]
 
--- A Field is a mapping from Spacetime to some ValueSpace (e.g., energy states).
-structure Field (Spacetime : Type) (ValueSpace : Type) where
+-- A rank-2 covariant tensor field assigns a continuous bilinear form on the tangent space at each point.
+def CovariantTensor2 (I : ModelWithCorners ℝ E H) (M : Type*)
+  [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ⊤ M] :=
+  ∀ x : M, TangentSpace I x →L[ℝ] TangentSpace I x →L[ℝ] ℝ
+
+-- A Pseudo-Riemannian Manifold has a metric which is a symmetric, non-degenerate CovariantTensor2.
+class PseudoRiemannianManifold (I : ModelWithCorners ℝ E H) (M : Type*)
+  [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ⊤ M] where
+  metric : CovariantTensor2 I M
+  symm : ∀ x u v, metric x u v = metric x v u
+  nondeg : ∀ x u, (∀ v, metric x u v = 0) → u = 0
+
+-- A Field is a mapping from Spacetime to some ValueSpace (e.g., energy states, vacuum manifold).
+structure Field (Spacetime : Type*) (ValueSpace : Type*) where
   val : Spacetime → ValueSpace
-
--- 2. Phase Space
--- Axiom 1: Localized physical systems possess a strict mathematical limit 
--- on the amount of information they can embody (Finite Phase Space).
-class FinitePhaseSpace (System : Type) extends Fintype System
-
--- In a rigorous continuous setting, Phase Space is a measurable space with a finite measure.
-class ContinuousPhaseSpace (System : Type) [MeasurableSpace System] where
-  volume_measure : MeasureTheory.Measure System
-  is_finite : MeasureTheory.IsFiniteMeasure volume_measure
-
--- Connecting the discrete finite representation to the continuous measure-theoretic space.
-structure DiscreteApproximation (System : Type) [MeasurableSpace System] where
-  states : Finset System
-  measure : MeasureTheory.Measure System
-  is_finite : MeasureTheory.IsFiniteMeasure measure
-  supported_on_states : measure (Set.univ \ ↑states) = 0
-
-open Filter Topology
-
--- The macroscopic thermodynamic limit:
--- As the discrete approximation becomes infinitely fine, its measure converges
--- to the continuous thermodynamic volume for any measurable set.
-def converges_to_continuous_phase_space {System : Type} [MeasurableSpace System] [ContinuousPhaseSpace System]
-  (seq : Nat → DiscreteApproximation System) : Prop :=
-  ∀ (s : Set System), MeasurableSet s →
-    Tendsto (fun n => (seq n).measure s) atTop (nhds (ContinuousPhaseSpace.volume_measure s))
-
--- 3. Symmetry Breaking and Topological Defects (Homotopy)
+  
+-- 2. Symmetry Breaking and Topological Defects (Homotopy)
 -- A vacuum manifold is a topological space of degenerate energy minima resulting from broken symmetry.
-class VacuumManifold (V : Type) [TopologicalSpace V]
+class VacuumManifold (V : Type*) [TopologicalSpace V]
 
 -- A field configuration on a spatial boundary (e.g., S^1, S^2) mapped to the vacuum V
-abbrev BoundaryField (X V : Type) [TopologicalSpace X] [TopologicalSpace V] :=
+abbrev BoundaryField (X V : Type*) [TopologicalSpace X] [TopologicalSpace V] :=
   ContinuousMap X V
 
 -- A field configuration is topologically trivial (no defect) if it is null-homotopic.
--- It can be continuously deformed to a uniform, constant vacuum state.
-def is_topologically_trivial {X V : Type} [TopologicalSpace X] [TopologicalSpace V]
+def is_topologically_trivial {X V : Type*} [TopologicalSpace X] [TopologicalSpace V]
   (f : BoundaryField X V) : Prop :=
   ∃ (c : V), Nonempty (ContinuousMap.Homotopy f (ContinuousMap.const X c))
 
 -- A topological defect exists if the boundary field is NOT null-homotopic.
--- This represents a trapped region of non-vacuum energy (the "boundary" of the physical entity).
-def has_topological_defect {X V : Type} [TopologicalSpace X] [TopologicalSpace V]
+def has_topological_defect {X V : Type*} [TopologicalSpace X] [TopologicalSpace V]
   (f : BoundaryField X V) : Prop :=
   ¬ is_topologically_trivial f
 
--- The Physical Proof of Defect Inevitability (e.g., Kibble-Zurek / topological defect formation):
--- If the physical space `D` is contractible (like a uniform universe), and its boundary is `X`,
--- any continuous field `f : D → V` to the vacuum manifold will restrict to a null-homotopic 
--- field on `X`. Thus, if the boundary condition `g : X → V` has a topological defect 
--- (is NOT null-homotopic), then `g` CANNOT be extended to a continuous field `f : D → V`.
--- The field MUST leave the vacuum manifold in the interior of `D` (which is precisely the 
--- mathematical definition of a physical defect / energy localized in spacetime).
--- This completely eliminates the "theater" axiom and replaces it with a rigorous topological proof.
 theorem defect_inevitability
-  {X D V : Type} [TopologicalSpace X] [TopologicalSpace D] [TopologicalSpace V]
+  {X D V : Type*} [TopologicalSpace X] [TopologicalSpace D] [TopologicalSpace V]
   (i : ContinuousMap X D) (f : ContinuousMap D V) (d0 : D)
   (H : ContinuousMap.Homotopy (ContinuousMap.id D) (ContinuousMap.const D d0)) :
   is_topologically_trivial (f.comp i) := by
@@ -100,7 +74,7 @@ theorem defect_inevitability
   exact ⟨H3⟩
 
 theorem boundary_defect_forces_interior_vacuum_break
-  {X D V : Type} [TopologicalSpace X] [TopologicalSpace D] [TopologicalSpace V]
+  {X D V : Type*} [TopologicalSpace X] [TopologicalSpace D] [TopologicalSpace V]
   (i : ContinuousMap X D) (d0 : D)
   (H : ContinuousMap.Homotopy (ContinuousMap.id D) (ContinuousMap.const D d0))
   (g : BoundaryField X V) (h_defect : has_topological_defect g) :
@@ -110,34 +84,19 @@ theorem boundary_defect_forces_interior_vacuum_break
   rw [h_ext] at h_trivial
   exact h_defect h_trivial
 
--- 4. Connecting Topological Defects to Phase Space
--- The physical entity (the "Self" or dissipative structure) is formed by the interior region 
--- where the field is forced out of the vacuum manifold due to the boundary defect.
--- To undergo thermodynamic erasure (Phase 2), this localized physical entity must possess 
--- a finite phase space. Since continuous fields natively have infinite degrees of freedom, 
--- this requires a physical postulate (e.g., a UV cutoff, Bekenstein bound, or coarse-graining) 
--- that localizes the defect's configurations into a finite measure space.
+-- 3. The Stress-Energy Tensor (T_mu_nu)
+-- The Stress-Energy Tensor is a CovariantTensor2.
 
--- The configuration space of a physical system defined by a boundary defect.
--- It consists of all continuous fields on the domain D that match the 
--- boundary condition `g` on the boundary `X`.
-structure DefectConfigurationSpace {X D TargetSpace : Type} 
-  [TopologicalSpace X] [TopologicalSpace D] [TopologicalSpace TargetSpace]
-  (i : ContinuousMap X D) (g : ContinuousMap X TargetSpace) where
-  field : ContinuousMap D TargetSpace
-  boundary_condition : field.comp i = g
+-- Decompose the total stress-energy tensor into subsystem-specific components.
+structure DecomposedStressEnergyTensor (I : ModelWithCorners ℝ E H) (Spacetime : Type*)
+  [TopologicalSpace Spacetime] [ChartedSpace H Spacetime] [IsManifold I ⊤ Spacetime] where
+  EM   : CovariantTensor2 I Spacetime
+  chem : CovariantTensor2 I Spacetime
+  mech : CovariantTensor2 I Spacetime
+  int  : CovariantTensor2 I Spacetime
 
--- Physical Postulate: The configuration space of a topologically bounded defect 
--- constitutes a strictly finite thermodynamic phase space. 
--- This formally bridges Axiom 1 (Phase Space) and Derivation 1 (Boundaries).
-class DefectThermodynamics {X D TargetSpace V : Type} 
-  [TopologicalSpace X] [TopologicalSpace D] [TopologicalSpace TargetSpace] [TopologicalSpace V]
-  [VacuumManifold V]
-  (i : ContinuousMap X D)
-  (vacuum_embedding : ContinuousMap V TargetSpace)
-  (g : BoundaryField X V)
-  (h_defect : has_topological_defect g) 
-  [MeasurableSpace (DefectConfigurationSpace i (vacuum_embedding.comp g))]
-  extends ContinuousPhaseSpace (DefectConfigurationSpace i (vacuum_embedding.comp g))
+-- The total Stress-Energy Tensor is the sum of its subsystems
+noncomputable def total_T (T_decomp : DecomposedStressEnergyTensor I Spacetime) : CovariantTensor2 I Spacetime :=
+  fun x => T_decomp.EM x + T_decomp.chem x + T_decomp.mech x + T_decomp.int x
 
 end PhysicsOfConsciousness
