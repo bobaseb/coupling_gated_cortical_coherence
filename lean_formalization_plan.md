@@ -1,97 +1,93 @@
-# Lean Formalization Plan 2.0: Energetically Coherent Computation (ECC)
+# Lean Formalization Plan 3.0: The Hybrid "Coarse-Grained" Architecture
 
-This plan supersedes the original formalization strategy (now archived). It removes the axiomatic "leaps" between physical topology and Bayesian inference by grounding the entire derivation in continuous differential geometry, stochastic thermodynamics, and category theory (sheaves).
+This plan supersedes version 2.0. The previous iteration correctly mapped to the continuous, macroscopic electrodynamic ontology of the paper (manifolds, sheaves, continuous fields), but attempting to formalize continuous Fokker-Planck PDEs natively in Lean resulted in a loss of rigorous proofs (relying heavily on placeholder axioms).
 
-**Migration Note:** As this new plan is implemented, any entire Lean modules from the previous iteration that are completely deprecated should be moved to the `_archive/` folder to preserve their history, rather than simply being deleted.
+To get the best of both worlds, this 3.0 plan introduces **Algebraic Topology (Simplicial Complexes)** as the computational bridge. We retain the elegant continuous setup of the new approach and the rigorous combinatorial proofs of the old approach by mathematically formalizing the coarse-graining step.
+
+**Migration Note:** As this new plan is implemented, any entire Lean modules from previous iterations that are completely deprecated should be moved to the `_archive/` folder to preserve their history.
 
 ## Overview of the Mathematical Pipeline
 
-The goal of this formalization is to prove a strict, unbroken mathematical isomorphism:
-`Topological Defect + Stress-Energy Jacobian ⟷ Fokker-Planck Dynamics ⟷ Variational Free Energy (ELBO) ⟷ Global Section of a Sheaf`
+The goal of this formalization is to prove a strict, unbroken mathematical causal chain:
+`Continuous Manifold ⟷ Triangulation (Simplicial Complex) ⟷ Discrete Thermodynamics (Landauer/Kuramoto) ⟷ Sheaf Gluing (Global Section)`
 
-By proving this chain, we demonstrate that a physical system minimizing its thermodynamic dissipation is mathematically identical to a Bayesian prediction engine achieving macroscopic unity, without ever postulating "Generative Models" as base axioms.
+By proving this chain, we use discrete thermodynamics to rigorously force the components to agree, and continuous Sheaf theory to prove that this agreement mathematically crystallizes into a singular, unified macroscopic object (The Self).
 
 ---
 
-## Phase 1: Geometry, Fields, and Topological Defects
+## Phase 1: The Stage (Continuous Geometry & Fields)
 *Status: Partially complete in `Phase1_Primitives.lean`, requires extension.*
 
-1.  **Manifolds and Fields:** 
-    *   Import Mathlib's differential geometry library. Define the physical system over a pseudo-Riemannian manifold.
-    *   Define a continuous scalar/vector field taking values in a vacuum manifold $V$.
-2.  **Topological Defects:**
-    *   Retain the existing `ContinuousMap.Homotopy` proofs showing that a topologically non-trivial boundary condition mathematically forbids a uniform vacuum interior (`boundary_defect_forces_interior_vacuum_break`).
-3.  **The Stress-Energy Tensor ($T_{\mu\nu}$):**
-    *   *New:* Define the stress-energy tensor $T_{\mu\nu}$ for this localized field.
-    *   Decompose it into subsystem-specific components: $T_{\mu\nu} = T_{\mu\nu}^{(EM)} + T_{\mu\nu}^{(chem)} + T_{\mu\nu}^{(mech)} + T_{\mu\nu}^{(int)}$ (from ECC `10_tensor.tex`).
+1. **Manifolds and Fields:** 
+    *   Import Mathlib's differential geometry library. Define the biological substrate (e.g., the cortical sheet) as a continuous pseudo-Riemannian manifold.
+    *   Define the electrodynamic fields and the probability distributions as a Presheaf over this topological space.
+2. **Topological Defects:**
+    *   Retain the existing `ContinuousMap.Homotopy` proofs showing that a topologically non-trivial boundary condition mathematically forbids a uniform vacuum interior.
+3. **The Stress-Energy Tensor ($T_{\mu\nu}$):**
+    *   Define the stress-energy tensor $T_{\mu\nu}$ for this localized field.
 
 ---
 
-## Phase 2: Thermodynamic Gradients and the Jacobian
-*Status: Total rewrite required. Replace abstract `Thermodynamics` classes.*
+## Phase 2: The Bridge (Algebraic Topology & Coarse-Graining)
+*Status: New. Replaces the intractable Fokker-Planck PDE approach.*
 
-1.  **The Jacobian ($\partial_\sigma T_{\mu\nu}$):**
-    *   Define the covariant derivative (Jacobian) of the stress-energy tensor to track spatial and temporal energy flux gradients.
-    *   Formalize the coupling terms $C_{\mu\nu}(\alpha,\beta)$ between internal subsystems and the boundary interface terms $B_{\mu\nu}(x)$ that track energy exchange with the environment.
-2.  **Fokker-Planck Dynamics:**
-    *   Model the environmental perturbations as stochastic noise. 
-    *   Derive a Fokker-Planck equation where the deterministic drift is driven by the necessity to minimize the Jacobian (thermodynamic friction/stress), governing the evolution of the defect's internal probability density function over time.
+1. **Simplicial Complexes:**
+    *   Mathematically formalize the "coarse-graining" (Renormalization Group) step mentioned in the paper. Discretize the continuous manifold using a Simplicial Complex (a triangulation of the continuous space into nodes, edges, and faces).
+    *   Lean's Mathlib is excellent at algebraic topology, making this an ideal rigorous bridge.
+2. **Discretizing the Gradients:**
+    *   Map the continuous Stress-Energy Tensor ($T_{\mu\nu}$) gradients to discrete weights (coupling matrices) on the edges of this simplicial complex. 
+    *   This extracts the thermodynamic friction of the environment into a computable graph structure.
 
 ---
 
-## Phase 3: The Bridge (Stochastic Thermodynamics $\to$ Variational Inference)
-*Status: Total rewrite required. Replace abstract `GenerativeModel` classes.*
+## Phase 3: The Engine (Combinatorial Thermodynamics)
+*Status: Port from `_archive/old_Phase2` and `_archive/old_Phase5`.*
 
-1.  **Entropy Production Action:**
-    *   Define the action functional associated with the entropy production of the Fokker-Planck trajectory from Phase 2.
-2.  **The ELBO Isomorphism:**
-    *   Prove the fundamental equivalence theorem: The mathematical functional that minimizes the physical entropy production (the strain of the Jacobian) is algebraically isomorphic to the Variational Free Energy (ELBO) functional.
-    *   **Result:** This proves that structural resonance (predictive processing) is not an algorithmic software process, but the direct geometric consequence of minimizing $T_{\mu\nu}$ boundary gradients.
+1. **Landauer Erasure:**
+    *   Rescue the rigorous combinatorial proofs from the old `Phase2`. 
+    *   Run the Landauer erasure proofs on the finite state transitions of the simplicial complex to prove that the discrete boundaries must act as dissipative structures.
+2. **Structural Resonance & Kuramoto Gradient Descent:**
+    *   Rescue the exact multivariable calculus proofs from the old `Phase5`.
+    *   Prove that the discrete network undergoes **Kuramoto gradient descent** on a Lyapunov potential to minimize thermodynamic friction.
+    *   *Result:* We mathematically prove that the discrete network *must* phase-lock (synchronize) to survive, rather than axiomatically assuming Variational Free Energy minimization.
 
 ---
 
 ## Phase 4: Macroscopic Scaling via Sheaf Theory
-*Status: Total rewrite required. Replace `Phase4_MacroscopicCoupling.lean` (Kuramoto model).*
+*Status: Port concepts from `Phase4_MacroscopicCoupling.lean`.*
 
-1.  **Presheaves of Probability Densities:**
-    *   Using `Mathlib.CategoryTheory.Sites.Sheaf`, define a presheaf $\mathcal{F}$ over the topological space of the biological substrate (e.g., the cortical sheet / astrocytic syncytium).
-    *   Assign to each open set $U$ a local section $s \in \mathcal{F}(U)$, representing the coherent energy state / probability distribution derived in Phase 3.
-2.  **Restriction Maps and Gluing:**
-    *   Define restriction maps $\rho_{U \cap V}: \mathcal{F}(U) \rightarrow \mathcal{F}(U \cap V)$.
-    *   Prove the compatibility conditions: $\rho_{U \cap V}(s_U) = \rho_{V \cap U}(s_V)$. This mathematically formalizes how localized thermodynamic boundaries "glue" together without losing their local distinctiveness.
+1. **Presheaves of Probability Densities:**
+    *   Using `Mathlib.CategoryTheory.Sites.Sheaf`, link the synchronized states of the simplicial complex back to local sections $s \in \mathcal{F}(U)$ of the probability presheaf over the continuous manifold.
+2. **Restriction Maps and Compatibility:**
+    *   Define restriction maps $\rho_{U \cap V}$.
+    *   Use the phase-locked state proven in Phase 3 to show that adjacent local sections perfectly agree on their overlaps: $\rho_{U \cap V}(s_U) = \rho_{V \cap U}(s_V)$.
 
 ---
 
-## Phase 5: The "Self" as a Global Section
-*Status: Total rewrite required. Replace `Phase5_Inevitability.lean`.*
+## Phase 5: The Conclusion (The "Self" as a Global Section)
+*Status: Rework `Phase5_Inevitability.lean`.*
 
-1.  **Global Section Emergence:**
-    *   Define the unified "Self" not as a Kuramoto phase-lock, but strictly as the existence of a **Global Section** $S \in \mathcal{F}(X)$ of the sheaf.
-2.  **Stability and Coherence Measure:**
-    *   Define the coherence measure $\mu(s_U, s_V) = \int_{U \cap V} \|\rho_{U \cap V}(s_U) - \rho_{V \cap U}(s_V)\|^2 \,d\nu$.
-    *   Prove that if the global variational free energy (from Phase 3) is minimized below a critical thermodynamic threshold, the global section remains mathematically stable under coherent deformation operators $D_\lambda$.
-    *   **Result:** A mathematically rigorous proof of macroscopic unity across distributed subsystems.
+1. **Sheaf Gluing:**
+    *   Apply standard Category/Sheaf theory: because the local sections (nodes of the network) perfectly agree on their overlaps (due to the thermodynamic phase-lock proven in Phase 3), they uniquely "glue" together.
+2. **Global Section Emergence:**
+    *   Prove the existence of a **Global Section** $S \in \mathcal{F}(X)$ of the sheaf.
+    *   *Result:* This is the ultimate payoff. We use discrete thermodynamics to force the nodes to agree, and continuous Sheaf theory to prove that this agreement mathematically creates a singular, unified macroscopic object (The Self).
 
 ---
 
 ## Required Mathlib Dependencies
-- `Mathlib.Geometry.Manifold.*` (Smooth manifolds, vector bundles)
-- `Mathlib.DifferentialGeometry.Tensor.*` (Stress-Energy tensor)
-- `Mathlib.MeasureTheory.Measure.ProbabilityMeasure` (Fokker-Planck densities)
-- `Mathlib.CategoryTheory.Sites.Sheaf` (Local-to-global coherence)
+- `Mathlib.Geometry.Manifold.*` (Smooth manifolds, continuous stage)
+- `Mathlib.Topology.SimplicialComplex` or algebraic topology equivalents (Coarse-graining bridge)
+- `Mathlib.Analysis.Calculus.*` (Kuramoto gradient descent engine)
+- `Mathlib.CategoryTheory.Sites.Sheaf` (Local-to-global coherence, The Self)
 
 ---
 
-## Phase 6: Triangulation and Mutual Recursion (Continuous Coherence)
-*Status: Completed in `Phase6_MutualRecursion.lean`.*
+## Future Directions: PDE Solving via Python
 
-1.  **Recursive Update Operators ($R$):**
-    *   Define a recursive update operator $R(x, t)$ acting on local sections of the probability sheaf. 
-    *   Formalize the update function $R^{(n+1)}(x) = F[R^{(n)}(y) \mid y \in N(x)]$ where $N(x)$ defines the topological neighborhood (e.g., adjacent cortical columns or astrocytic networks).
-2.  **Triangulation over Non-Adjacent Regions:**
-    *   Define the triangulation operator $T(A,B,C)$ across three spatial regions.
-    *   Formalize the path-consistency bound: $\|T(A,B,C) - T(A,B',C)\| \leq \kappa \exp(-\lambda d)$, where $d$ is the distance metric on the manifold, and $\lambda$ is the spatial decay constant.
-3.  **Local and Global Stability Fixed Points:**
-    *   **Local Stability:** Prove that the recursive sequence converges (is Cauchy): $\|R^{(n+1)}(x) - R^{(n)}(x)\| \to 0$.
-    *   **Global Stability:** Prove that if the triangulation deviation is bounded by $\varepsilon(d)$, then the local recursive updates precisely satisfy the sheaf compatibility conditions $\rho_{U \cap V}(s_U) = \rho_{V \cap U}(s_V)$ over overlaps.
-    *   **Result:** This proves that the static "Global Section" (from Phase 5) is dynamically maintained through continuous, energetically coherent mutual adjustment (mutual recursion) across the neural network.
+While this hybrid Lean plan mathematically guarantees the topological boundaries and synchronization via algebraic and combinatorial proofs, directly modeling the continuous transient dynamics (e.g., solving the actual Fokker-Planck stochastic PDEs over the manifold) remains computationally intractable natively in Lean.
+
+**Proposed Integration:**
+*   **Python for Dynamics:** In the future, we can delegate the heavy numerical integration of the continuous PDEs to Python (using solvers like SciPy, JAX, or custom PDE engines).
+*   **Lean for Verification:** Lean would act as the formal verifier, ingesting the output of the Python numerical simulations and certifying the bounds and topological invariants.
+*   *Note:* Given current compute limitations, this numerical PDE extension is relegated to future work. The discrete simplicial bridge in Phase 2 is completely sufficient to establish the core deductive proofs of the theory without requiring massive compute for continuous numerical simulation.
