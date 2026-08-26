@@ -1,3 +1,8 @@
 -- This module serves as the root of the `PhysicsOfConsciousness` library.
 -- Import modules here that should be built as part of the library.
 import PhysicsOfConsciousness.Basic
+import PhysicsOfConsciousness.Phase1_Primitives
+import PhysicsOfConsciousness.Phase2_Thermodynamics
+import PhysicsOfConsciousness.Phase3_StructuralResonance
+import PhysicsOfConsciousness.Phase4_MacroscopicCoupling
+import PhysicsOfConsciousness.Phase5_Inevitability
