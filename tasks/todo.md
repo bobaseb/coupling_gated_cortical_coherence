@@ -60,6 +60,14 @@ Shift the formalization from an "Ontology Checker" (tautological definitions map
 ## Next Steps (Phase 3: Future Refinements)
 * **Status**: Open for Planning
 * **Potential Tasks**:
-  - [ ] 1. Expand `Phase6_HardwareComparison.lean` to incorporate explicit empirical estimates (e.g., biological synaptic plasticity energy bounds vs silicon routing limits).
+  - [ ] 1. Expand `Phase7_HardwareComparison.lean` to incorporate explicit empirical estimates (e.g., biological synaptic plasticity energy bounds vs silicon routing limits).
   - [ ] 2. Integrate continuous symmetries (Poincaré group) more directly into the initial Lean axioms.
   - [ ] 3. Render the LaTeX manuscript into a final PDF and perform a thorough editorial review for narrative flow.
+
+## Phase 4: Ontological Refinement & Reflexive Topology
+* **Status**: Complete
+* **Tasks Executed**:
+  - [x] 1. Elevate macroscopic EM fields (ephaptic coupling) to the primary dissipative structure, demoting synaptic firings to underlying mechanics (`main.tex`).
+  - [x] 2. Disentangle "Unity of Consciousness" from the "Self": map Unity strictly to the Global Section of the probability sheaf (`Phase5_GlobalSection.lean` & `main.tex`).
+  - [x] 3. Formalize the emergence of the "Self" via a Reflexive Boundary, requiring the field to predict its own internal state changes (auto-resonance) (`Phase6_ReflexiveTopology.lean`).
+  - [x] 4. Rename hardware comparison to `Phase7_HardwareComparison.lean` to maintain logical sequence and fix typeclass synthesis issues.

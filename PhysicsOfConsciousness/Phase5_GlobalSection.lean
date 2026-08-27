@@ -1,8 +1,8 @@
 /-
-  Phase 5: The "Self" as a Global Section
+  Phase 5: Unity of Consciousness as a Global Section
   
   This module formalizes:
-  1. The unified "Self" as the existence of a Global Section of the probability sheaf.
+  1. The "Unity of Consciousness" as the existence of a Global Section of the probability sheaf.
   2. The inevitable emergence of this section via sheaf gluing conditions.
 -/
 
