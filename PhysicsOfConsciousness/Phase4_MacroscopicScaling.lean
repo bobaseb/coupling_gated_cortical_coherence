@@ -7,8 +7,11 @@
      the phase-locking proven in Phase 3.
 -/
 
+import PhysicsOfConsciousness.Phase1_Primitives
+import PhysicsOfConsciousness.Phase2_SimplicialBridge
 import PhysicsOfConsciousness.Phase3_CombinatorialThermodynamics
 import Mathlib.CategoryTheory.Sites.Sheaf
+import Mathlib.Topology.Category.TopCat.Basic
 import Mathlib.MeasureTheory.Measure.FiniteMeasure
 
 open CategoryTheory TopologicalSpace MeasureTheory
@@ -16,20 +19,20 @@ open Opposite
 
 namespace PhysicsOfConsciousness
 
-variable (X : TopCat) [MeasurableSpace X] [BorelSpace X]
-variable [TriangulatedManifold X]
+variable {X : TopCat} [MeasurableSpace X] [BorelSpace X] [TriangulatedManifold ↥X]
 
--- We postulate that the synchronized state of nodes in an open subset U
--- defines a local section in the probability presheaf.
-class LocalSectionSynchronization (X : TopCat) [MeasurableSpace X] [BorelSpace X] [TriangulatedManifold X] where
-  -- Given a subset U and the synchronized phase of nodes in U, we get a local section.
-  sync_to_section : (U : Opens X) → (probabilityPresheaf X).obj (op U)
+class LocalSectionSynchronization (X : TopCat) [MeasurableSpace X] [BorelSpace X] [TriangulatedManifold ↥X] where
+  I : Type
+  cover : I → Opens X
+  is_cover : iSup cover = ⊤
   
-  -- The core physical theorem: Because the discrete network has converged to synchronization (Phase 3),
-  -- the local sections induced by the nodes must perfectly agree on their topological overlaps.
-  -- ρ_{U ∩ V}(s_U) = ρ_{V ∩ U}(s_V)
-  overlap_agreement : ∀ (U V : Opens X),
-    (probabilityPresheaf X).map (homOfLE (inf_le_left : U ⊓ V ≤ U)).op (sync_to_section U) =
-    (probabilityPresheaf X).map (homOfLE (inf_le_right : U ⊓ V ≤ V)).op (sync_to_section V)
+  sync_to_section : (i : I) → (probabilityPresheaf X).obj (op (cover i))
+  
+  -- The system reaching a phase-locked equilibrium implies overlap agreement.
+  phase_locked_equilibrium : Prop
+  
+  overlap_agreement : phase_locked_equilibrium → ∀ (i j : I),
+    (probabilityPresheaf X).map (homOfLE (inf_le_left : cover i ⊓ cover j ≤ cover i)).op (sync_to_section i) =
+    (probabilityPresheaf X).map (homOfLE (inf_le_right : cover i ⊓ cover j ≤ cover j)).op (sync_to_section j)
 
 end PhysicsOfConsciousness

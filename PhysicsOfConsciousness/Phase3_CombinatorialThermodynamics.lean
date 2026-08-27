@@ -157,6 +157,17 @@ lemma dV_dt_le_zero (sys : KuramotoSystem V) (theta : ℝ → V → ℝ) (t : �
     ring
   exact H_final
 
+structure StochasticMatrix (n : Type*) [Fintype n] [DecidableEq n] where
+  P : Matrix n n ℝ
+  nonneg : ∀ i j, 0 ≤ P i j
+  sum_eq_one : ∀ i, ∑ j, P i j = 1
+
+def is_prob_dist {n : Type*} [Fintype n] (p : n → ℝ) : Prop :=
+  (∀ i, 0 ≤ p i) ∧ ∑ i, p i = 1
+
+noncomputable def shannon_entropy {n : Type*} [Fintype n] (p : n → ℝ) : ℝ :=
+  - ∑ i, p i * Real.log (p i)
+
 noncomputable def boltzmann_entropy {sys : Type*} [DecidableEq sys] (states : Finset sys) : ℝ :=
   Real.log (states.card : ℝ)
 

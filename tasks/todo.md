@@ -20,13 +20,13 @@ Upgrade the existing Lean 4 formalization from an "ontological checker" (where p
 - [x] Define the Kuramoto potential rigorously using `Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic` and finite sums.
 - [x] Define the nonlinear differential equation $\frac{d\theta_i}{dt}$.
 \- [x] Rigorously prove that $\frac{dV}{dt} \le 0$ (the system is a gradient system seeking a thermodynamic minimum).
-- [ ] Define finite stochastic transition matrices and compute Shannon entropy.
+- [x] Define finite stochastic transition matrices and compute Shannon entropy.
 - [x] Prove that many-to-one state transitions strictly decrease internal entropy (Landauer.s bound).
 
 ### 2. Phase 2: Proper Integral Definitions
-- [ ] Update `Phase2_SimplicialBridge.lean`.
-- [ ] Replace the `True` placeholder in `weight_bounded_by_stress`.
-- [ ] Define the edge weights strictly mathematically using Bochner/Lebesgue integration of the Stress-Energy Tensor over the manifold.
+- [x] Update `Phase2_SimplicialBridge.lean`.
+- [x] Replace the `True` placeholder in `weight_bounded_by_stress`.
+- [x] Define the edge weights strictly mathematically using Bochner/Lebesgue integration of the Stress-Energy Tensor over the manifold.
 
 ### 3. Phase 4 & 5: Constructing the Global Section
 - [ ] Update `Phase4_MacroscopicScaling.lean` and `Phase5_GlobalSection.lean`.

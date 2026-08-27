@@ -8,37 +8,25 @@
 
 import PhysicsOfConsciousness.Phase4_MacroscopicScaling
 import Mathlib.CategoryTheory.Sites.Sheaf
+import Mathlib.Topology.Category.TopCat.Basic
 import Mathlib.MeasureTheory.Measure.FiniteMeasure
+import Mathlib.Topology.Sheaves.Sheaf
+import Mathlib.Topology.Sheaves.SheafCondition.UniqueGluing
 
 open CategoryTheory TopologicalSpace MeasureTheory
 open Opposite
 
 namespace PhysicsOfConsciousness
 
-variable (X : TopCat) [MeasurableSpace X] [BorelSpace X] [TriangulatedManifold X]
+variable {X : TopCat} [MeasurableSpace X] [BorelSpace X] [TriangulatedManifold ↥X]
 
--- The Sheaf condition ensures that compatible local sections glue uniquely into a larger section.
--- Because thermodynamics forces phase-locking (Phase 3) and thus overlap agreement (Phase 4),
--- we can apply standard sheaf theory to prove the emergence of a global section.
+axiom probability_is_sheaf : Presheaf.IsSheaf (Opens.grothendieckTopology X) (probabilityPresheaf X)
 
--- We assume `probabilityPresheaf` forms a valid Sheaf over X.
--- (The proof that probability measures form a sheaf is a known result in abstract measure theory,
--- assumed here as an axiom for the physical formalization).
-axiom probability_is_sheaf : Presheaf.IsSheaf (TopCat.openCoverSite X) (probabilityPresheaf X)
-
--- 1. Global Section Emergence
--- The "Self" is precisely the global section of the probability sheaf, evaluated on the entire space ⊤
 noncomputable def GlobalSection := (probabilityPresheaf X).obj (op ⊤)
 
--- The existence of a unified self means there exists a non-trivial Global Section
-noncomputable def unified_self_exists : Prop := Nonempty (GlobalSection X)
-
--- Theorem: Thermodynamic synchronization implies the existence of a unified self.
-class UnifiedSelfEmergence (X : TopCat) [MeasurableSpace X] [BorelSpace X] [TriangulatedManifold X] 
-  [LocalSectionSynchronization X] where
-  
-  -- If all local subsystems are synchronized (thermodynamic coupling),
-  -- they mathematically glue together into a single global entity.
-  global_section_from_local_sync : unified_self_exists X
+theorem global_section_from_local_sync [S : LocalSectionSynchronization X] (h_sync : S.phase_locked_equilibrium) :
+  ∃ s : GlobalSection, 
+    ∀ i : S.I, (probabilityPresheaf X).map (homOfLE (le_top : S.cover i ≤ ⊤)).op s = S.sync_to_section i := by
+  sorry
 
 end PhysicsOfConsciousness
