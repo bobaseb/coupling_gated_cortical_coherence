@@ -34,15 +34,38 @@ class LocalSectionSynchronization (X : TopCat.{u}) [MeasurableSpace X] [BorelSpa
   
   sync_to_section : (i : I) → (probabilityPresheaf X).obj (op (cover i))
   
-  -- The crucial physical property: If two nodes are synchronized (have the same phase),
-  -- their corresponding probability measures perfectly overlap on their intersection.
-  section_agrees_of_phase_eq : ∀ i j, phase i = phase j → 
-    (probabilityPresheaf X).map (homOfLE (inf_le_left : cover i ⊓ cover j ≤ cover i)).op (sync_to_section i) =
-    (probabilityPresheaf X).map (homOfLE (inf_le_right : cover i ⊓ cover j ≤ cover j)).op (sync_to_section j)
+  -- The physical invariant measure parameterized by a macroscopic phase.
+  phase_invariant_measure : ℝ → (probabilityPresheaf X).obj (op ⊤)
+  
+  -- The invariant measure depends only on the physical phase state (periodic)
+  phase_invariant_periodic : ∀ x y, Real.cos (x - y) = 1 → phase_invariant_measure x = phase_invariant_measure y
+  
+  -- The local section is the restriction of the phase's invariant measure to the local cover
+  sync_to_section_eq : ∀ i, sync_to_section i = (probabilityPresheaf X).map (homOfLE (le_top : cover i ≤ ⊤)).op (phase_invariant_measure (phase i))
 
--- Phase-locked equilibrium means all nodes have the same phase.
+-- Phase-locked equilibrium means all nodes have the same phase modulo 2pi.
 def phase_locked_equilibrium [S : LocalSectionSynchronization X] : Prop :=
-  ∀ i j, S.phase i = S.phase j
+  ∀ i j, Real.cos (S.phase i - S.phase j) = 1
+
+-- Theorem: If two oscillators have the same phase (i.e. perfectly correlated),
+-- their invariant measures over their respective regions are identical on the intersection.
+theorem section_agrees_of_phase_eq [S : LocalSectionSynchronization X] (i j : S.I) (h_eq : Real.cos (S.phase i - S.phase j) = 1) :
+  (probabilityPresheaf X).map (homOfLE (inf_le_left : S.cover i ⊓ S.cover j ≤ S.cover i)).op (S.sync_to_section i) =
+  (probabilityPresheaf X).map (homOfLE (inf_le_right : S.cover i ⊓ S.cover j ≤ S.cover j)).op (S.sync_to_section j) := by
+  rw [S.sync_to_section_eq i, S.sync_to_section_eq j]
+  have h_meas_eq : S.phase_invariant_measure (S.phase i) = S.phase_invariant_measure (S.phase j) := S.phase_invariant_periodic _ _ h_eq
+  rw [h_meas_eq]
+  have H1 : (probabilityPresheaf X).map (homOfLE (le_top : S.cover i ≤ ⊤)).op ≫ (probabilityPresheaf X).map (homOfLE (inf_le_left : S.cover i ⊓ S.cover j ≤ S.cover i)).op = (probabilityPresheaf X).map (homOfLE (le_top : S.cover i ⊓ S.cover j ≤ ⊤)).op := by
+    rw [← Functor.map_comp]
+    rfl
+  have H2 : (probabilityPresheaf X).map (homOfLE (le_top : S.cover j ≤ ⊤)).op ≫ (probabilityPresheaf X).map (homOfLE (inf_le_right : S.cover i ⊓ S.cover j ≤ S.cover j)).op = (probabilityPresheaf X).map (homOfLE (le_top : S.cover i ⊓ S.cover j ≤ ⊤)).op := by
+    rw [← Functor.map_comp]
+    rfl
+  have H1_apply : (probabilityPresheaf X).map (homOfLE (inf_le_left : S.cover i ⊓ S.cover j ≤ S.cover i)).op ((probabilityPresheaf X).map (homOfLE (le_top : S.cover i ≤ ⊤)).op (S.phase_invariant_measure (S.phase j))) = 
+    ((probabilityPresheaf X).map (homOfLE (le_top : S.cover i ≤ ⊤)).op ≫ (probabilityPresheaf X).map (homOfLE (inf_le_left : S.cover i ⊓ S.cover j ≤ S.cover i)).op) (S.phase_invariant_measure (S.phase j)) := rfl
+  have H2_apply : (probabilityPresheaf X).map (homOfLE (inf_le_right : S.cover i ⊓ S.cover j ≤ S.cover j)).op ((probabilityPresheaf X).map (homOfLE (le_top : S.cover j ≤ ⊤)).op (S.phase_invariant_measure (S.phase j))) = 
+    ((probabilityPresheaf X).map (homOfLE (le_top : S.cover j ≤ ⊤)).op ≫ (probabilityPresheaf X).map (homOfLE (inf_le_right : S.cover i ⊓ S.cover j ≤ S.cover j)).op) (S.phase_invariant_measure (S.phase j)) := rfl
+  rw [H1_apply, H2_apply, H1, H2]
 
 -- Prove that if the system reaches a phase-locked equilibrium, the local sections overlap perfectly.
 theorem overlap_agreement [S : LocalSectionSynchronization X] (h_sync : phase_locked_equilibrium (S := S)) :
@@ -50,12 +73,11 @@ theorem overlap_agreement [S : LocalSectionSynchronization X] (h_sync : phase_lo
     (probabilityPresheaf X).map (homOfLE (inf_le_left : S.cover i ⊓ S.cover j ≤ S.cover i)).op (S.sync_to_section i) =
     (probabilityPresheaf X).map (homOfLE (inf_le_right : S.cover i ⊓ S.cover j ≤ S.cover j)).op (S.sync_to_section j) := by
   intro i j
-  apply S.section_agrees_of_phase_eq
+  apply section_agrees_of_phase_eq
   exact h_sync i j
 
--- Link dynamic phase locking to sheaf theoretical equilibrium
-theorem dynamic_phase_locking_implies_equilibrium [S : LocalSectionSynchronization X] 
-  [Fintype S.I] [DecidableEq S.I]
+-- Prove that the purely dynamic phase locking implies structural equilibrium
+theorem phase_locked_implies_equilibrium (S : LocalSectionSynchronization X)
   (h_dyn_lock : is_phase_locked S.phase) : phase_locked_equilibrium (S := S) := by
   intro i j
   exact h_dyn_lock i j

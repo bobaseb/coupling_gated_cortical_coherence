@@ -14,6 +14,7 @@ universe u
 
 variable {X : TopCat.{u}} [MeasurableSpace X] [BorelSpace X] [TriangulatedManifold ↥X]
 
+omit [TriangulatedManifold ↥X] in
 theorem probability_is_sheaf : TopCat.Presheaf.IsSheaf (probabilityPresheaf X) :=
   (TopCat.Presheaf.sheafify (probabilityPresheaf_pre X)).property
 
@@ -33,14 +34,13 @@ class ThermodynamicCover (X : TopCat.{u}) [MeasurableSpace X] [BorelSpace X] [Tr
       kuramoto_potential_dynamic (V := I) ⟨fun _ => 0, A, A_symm⟩ phase ≤ 
       kuramoto_potential_dynamic (V := I) ⟨fun _ => 0, A, A_symm⟩ theta
 
-theorem global_section_from_thermodynamics [T : ThermodynamicCover X]
-  (h_min_implies_lock : 
-    letI := T.I_fintype
-    letI := T.I_decidable
-    (∀ theta, kuramoto_potential_dynamic (V := T.I) ⟨fun _ => 0, T.A, T.A_symm⟩ T.phase ≤ kuramoto_potential_dynamic (V := T.I) ⟨fun _ => 0, T.A, T.A_symm⟩ theta) → is_phase_locked T.phase) :
+theorem global_section_from_thermodynamics [T : ThermodynamicCover X] :
   ∃! s : GlobalSection (X := X), 
     ∀ i : T.I, (probabilityPresheaf X).map (homOfLE (le_top : T.cover i ≤ ⊤)).op s = T.sync_to_section i := by
-  have h_locked : is_phase_locked T.phase := h_min_implies_lock T.thermodynamic_equilibrium
+  letI := T.I_fintype
+  letI := T.I_decidable
+  have h_locked : is_phase_locked T.phase := 
+    potential_min_implies_phase_locked ⟨fun _ => 0, T.A, T.A_symm⟩ T.A_pos T.phase T.thermodynamic_equilibrium
   have h_eq : phase_locked_equilibrium (S := T.toLocalSectionSynchronization) := by
     intro i j; exact h_locked i j
   have h_compat : TopCat.Presheaf.IsCompatible (probabilityPresheaf X) T.cover T.sync_to_section := by

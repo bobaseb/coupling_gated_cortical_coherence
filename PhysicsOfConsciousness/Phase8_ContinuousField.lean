@@ -18,47 +18,98 @@ def is_continuous_kuramoto_trajectory (sys : ContinuousNeuralField M) (theta : �
       (sys.omega x + ∫ y : M, sys.K x y * Real.sin (theta t y - theta t x)) t
 
 -- 2. Stochastic Thermodynamics & Entropy Production
-structure StochasticNeuralField (M : Type*) [MeasureSpace M] [TopologicalSpace M] 
+structure StochasticNeuralField (M : Type*) [MeasureSpace M] [TopologicalSpace M]
   extends ContinuousNeuralField M where
   D : ℝ
   h_D_pos : D > 0
   Omega_avg : ℝ
-  -- The absolute thermodynamic lower bound by Jensen's inequality / variance
-  lower_bound : ∀ (theta : M → ℝ),
-    (∫ x : M, (1 / D) * (omega x + ∫ y : M, K x y * Real.sin (theta y - theta x))^2) ≥
-    (∫ x : M, (1 / D) * Omega_avg^2)
 
 noncomputable def entropy_production_rate (sys : StochasticNeuralField M) (theta : M → ℝ) : ℝ :=
-  ∫ x : M, (1 / sys.D) * (sys.omega x + ∫ y : M, sys.K x y * Real.sin (theta y - theta x))^2
+  ∫ _x : M, (1 / sys.D) * (sys.omega _x + ∫ y : M, sys.K _x y * Real.sin (theta y - theta _x))^2
 
 def is_dynamically_phase_locked (sys : StochasticNeuralField M) (theta : M → ℝ) : Prop :=
   ∀ x : M, sys.omega x + ∫ y : M, sys.K x y * Real.sin (theta y - theta x) = sys.Omega_avg
 
-theorem phase_locked_achieves_minimum_entropy 
+/-
+  Jensen-style lower bound for squared integrals (requires finite measure).
+  Proves: if ∫f dμ = c·μ(M), then c²·μ(M) ≤ ∫f² dμ.
+  Proof: 0 ≤ ∫(f - c)² = ∫f² - 2c·∫f + c²·μ(M); substitute ∫f = c·μ.
+-/
+omit [TopologicalSpace M] in
+private lemma sq_integral_le_integral_sq [IsFiniteMeasure (volume : Measure M)]
+    (f : M → ℝ) (c : ℝ)
+    (hf : Integrable f) (hf2 : Integrable (fun x => f x ^ 2))
+    (h_mean : ∫ x : M, f x = c * (volume (Set.univ : Set M)).toReal) :
+    c ^ 2 * (volume (Set.univ : Set M)).toReal ≤ ∫ x : M, f x ^ 2 := by
+  -- Core variance decomposition: 0 ≤ ∫(f - c)²
+  have h0 : (0 : ℝ) ≤ ∫ x : M, (f x - c) ^ 2 :=
+    integral_nonneg fun x => sq_nonneg _
+  -- Pointwise equality
+  have heq : (fun x : M => (f x - c) ^ 2) = (fun x : M => (f x ^ 2 - 2 * c * f x) + c ^ 2) := by
+    ext x; ring
+  -- Integrability of component functions
+  have hfc   : Integrable (fun x : M => 2 * c * f x) := hf.const_mul (2 * c)
+  have hf2mc : Integrable (fun x : M => f x ^ 2 - 2 * c * f x) := hf2.sub hfc
+  have hconst: Integrable (fun _ : M => c ^ 2) := integrable_const (c ^ 2)
+  -- Expand: ∫(f-c)² = ∫f² - 2c·∫f + c²·μ
+  have h_expand : ∫ x : M, (f x - c) ^ 2 =
+      (∫ x : M, f x ^ 2) - 2 * c * (∫ x : M, f x) + c ^ 2 * (volume (Set.univ : Set M)).toReal := by
+    rw [heq, integral_add hf2mc hconst, integral_sub hf2 hfc, integral_const_mul, integral_const]
+    simp only [smul_eq_mul]
+    rw [MeasureTheory.measureReal_def]
+    ring
+  -- Substitute h_mean and conclude
+  rw [h_mean] at h_expand
+  linarith
+
+/--
+**Phase-locked state achieves minimum entropy production.**
+
+`StochasticNeuralField.lower_bound` has been removed; minimality is now proved
+from the variance bound `sq_integral_le_integral_sq` (requires `[IsFiniteMeasure volume]`).
+-/
+theorem phase_locked_achieves_minimum_entropy [IsFiniteMeasure (volume : Measure M)]
   (sys : StochasticNeuralField M) (theta : M → ℝ)
-  (h_lock : is_dynamically_phase_locked sys theta) :
-  entropy_production_rate sys theta = (∫ x : M, (1 / sys.D) * sys.Omega_avg^2) ∧ 
-  ∀ (theta_other : M → ℝ), entropy_production_rate sys theta ≤ entropy_production_rate sys theta_other := by
+  (h_lock : is_dynamically_phase_locked sys theta)
+  (h_mean : ∀ (theta_other : M → ℝ),
+    ∫ x : M, (sys.omega x + ∫ y : M, sys.K x y * Real.sin (theta_other y - theta_other x)) =
+    sys.Omega_avg * (volume (Set.univ : Set M)).toReal) :
+  entropy_production_rate sys theta = (∫ _x : M, (1 / sys.D) * sys.Omega_avg^2) ∧
+  ∀ (theta_other : M → ℝ)
+    (_hf : Integrable (fun x => sys.omega x + ∫ y : M, sys.K x y * Real.sin (theta_other y - theta_other x)))
+    (_hf2 : Integrable (fun x => (sys.omega x + ∫ y : M, sys.K x y * Real.sin (theta_other y - theta_other x))^2)),
+    entropy_production_rate sys theta ≤ entropy_production_rate sys theta_other := by
+  have h_drift_eq : ∀ x : M,
+      (1 / sys.D) * (sys.omega x + ∫ y : M, sys.K x y * Real.sin (theta y - theta x))^2 =
+      (1 / sys.D) * sys.Omega_avg^2 := fun x => by rw [h_lock x]
+  have h_integrand_eq :
+      (fun x : M => (1 / sys.D) * (sys.omega x + ∫ y : M, sys.K x y * Real.sin (theta y - theta x))^2) =
+      fun _ => (1 / sys.D) * sys.Omega_avg^2 := funext h_drift_eq
   constructor
-  · unfold entropy_production_rate
-    have h_eq : ∀ x : M, (1 / sys.D) * (sys.omega x + ∫ y : M, sys.K x y * Real.sin (theta y - theta x))^2 = (1 / sys.D) * sys.Omega_avg^2 := by
-      intro x
-      rw [h_lock x]
-    have : (fun (x : M) => (1 / sys.D) * (sys.omega x + ∫ (y : M), sys.K x y * Real.sin (theta y - theta x))^2) = fun (x : M) => (1 / sys.D) * sys.Omega_avg^2 := by
-      ext x
-      exact h_eq x
-    rw [this]
-  · intro theta_other
+  · -- Equality: integrand is constant under phase-locking.
+    unfold entropy_production_rate; rw [h_integrand_eq]
+  · -- Minimality: use Jensen bound.
+    intro theta_other _hf _hf2
     unfold entropy_production_rate
-    have h_min := sys.lower_bound theta_other
-    have h_eq : ∀ x : M, (1 / sys.D) * (sys.omega x + ∫ y : M, sys.K x y * Real.sin (theta y - theta x))^2 = (1 / sys.D) * sys.Omega_avg^2 := by
-      intro x
-      rw [h_lock x]
-    have : (fun (x : M) => (1 / sys.D) * (sys.omega x + ∫ (y : M), sys.K x y * Real.sin (theta y - theta x))^2) = fun (x : M) => (1 / sys.D) * sys.Omega_avg^2 := by
-      ext x
-      exact h_eq x
-    rw [this]
-    exact h_min
+    rw [h_integrand_eq]
+    set f_other := fun x : M =>
+      sys.omega x + ∫ y : M, sys.K x y * Real.sin (theta_other y - theta_other x)
+    -- Jensen: Ω²·μ(M) ≤ ∫ f_other²
+    have h_lb := sq_integral_le_integral_sq f_other sys.Omega_avg _hf _hf2 (h_mean theta_other)
+    -- Rewrite LHS: ∫(1/D)·Ω² = (1/D)·Ω²·μ(M)
+    have h_lhs : ∫ _x : M, (1 / sys.D) * sys.Omega_avg ^ 2 =
+        (1 / sys.D) * sys.Omega_avg ^ 2 * (volume (Set.univ : Set M)).toReal := by
+      rw [integral_const]
+      simp only [smul_eq_mul]
+      rw [MeasureTheory.measureReal_def]
+      ring
+    -- Rewrite RHS: ∫(1/D)·f² = (1/D)·∫f²
+    have h_rhs : ∫ x : M, (1 / sys.D) * f_other x ^ 2 =
+        (1 / sys.D) * ∫ x : M, f_other x ^ 2 := by
+      rw [integral_const_mul]
+    rw [h_lhs, h_rhs]
+    have h_inv_pos : (0 : ℝ) < 1 / sys.D := div_pos one_pos sys.h_D_pos
+    nlinarith [h_lb, (volume (Set.univ : Set M)).toReal_nonneg]
 
 -- 3. Topology Deformation
 structure PlasticNeuralField (M : Type*) [MeasureSpace M] [TopologicalSpace M] 
@@ -87,16 +138,20 @@ noncomputable def ephaptic_critical_coupling : ℝ := critical_coupling macrosco
 
 -- 6. Gradient Descent Mechanism
 -- Replace tautological definitions with meaningful dynamic bounds.
--- Structural resonance occurs when the time derivative of the coupling matrix K_t
--- strictly bounds the time derivative of the entropy production, driving it towards the minimum.
-def continuous_structural_resonance (sys : PlasticNeuralField M) (theta : ℝ → M → ℝ) (deriv : ℝ → ℝ) : Prop :=
-  (∀ t, HasDerivAt (fun t => dynamic_entropy_production sys theta t) (deriv t) t) ∧ (∀ t, deriv t ≤ 0)
+-- Structural resonance occurs when the time evolution of the coupling matrix K_t
+-- aligns with the negative gradient of the entropy production. This means the 
+-- rate of change of entropy is equal to the negative squared norm of the velocity.
+def continuous_structural_resonance (sys : PlasticNeuralField M) (theta : ℝ → M → ℝ) (v_norm_sq : ℝ → ℝ) : Prop :=
+  (∀ t, 0 ≤ v_norm_sq t) ∧ 
+  (∀ t, HasDerivAt (fun t => dynamic_entropy_production sys theta t) (- v_norm_sq t) t)
 
-theorem structural_resonance_implies_gradient_descent (sys : PlasticNeuralField M) (theta : ℝ → M → ℝ) (deriv : ℝ → ℝ)
-  (h_res : continuous_structural_resonance sys theta deriv) : 
+theorem structural_resonance_implies_gradient_descent (sys : PlasticNeuralField M) (theta : ℝ → M → ℝ) (v_norm_sq : ℝ → ℝ)
+  (h_res : continuous_structural_resonance sys theta v_norm_sq) : 
   Antitone (fun t => dynamic_entropy_production sys theta t) := by
-  apply antitone_of_hasDerivAt_nonpos h_res.1
+  apply antitone_of_hasDerivAt_nonpos h_res.2
   intro t
-  exact h_res.2 t
+  have h_pos := h_res.1 t
+  change -v_norm_sq t ≤ 0
+  linarith
 
 end PhysicsOfConsciousness

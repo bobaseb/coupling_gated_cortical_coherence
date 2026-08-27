@@ -1,5 +1,24 @@
 # Lessons Learned
 
+- **Axiom Laundering Anti-Pattern:** Encoding physical claims (Jensen's inequality, phase-locking ↔ potential minimization, section agreement from synchronization) as `class` or `structure` fields makes theorems `sorry`-free but tautological — the proof just unfolds the definition that already contains the conclusion. Detectable by: (a) theorems provable by `trivial`, `rfl`, or single `exact` of a class field; (b) class fields that state universally quantified inequalities or implications rather than structural properties. Fix: physical claims that are mathematical theorems must be *proved* from Mathlib primitives; irreducible physical postulates must be collected in an explicit `Axioms.lean` with justification for why they're not derivable.
+
 - **Lean Architecture Translation:** When moving from a continuous PDE approach to a combinatorial/topological hybrid model in Lean, implicit typeclass metavariables (like `IsManifold M`) tied to continuous topology (e.g. `ModelWithCorners`) should not be needlessly propagated into the strictly discrete combinatorial structures (like `KuramotoSystem`). Removing unused continuous variables (`E`, `H`, `I`) from the discrete `Phase 3` Engine resolves stuck typeclass inferences.
-- **Migration of Code:** When archiving old modules and implementing a new formalization plan, be sure to update the root library import file (`PhysicsOfConsciousness.lean`) so that `lake build` accurately targets the new pipeline, and archive old active code with specific tags (`v2_`) to prevent naming collisions with older archived versions (`old_`).
+- **Migration of Code:** When archiving old modules and implementing a new formalization plan, be sure to update the root library import file (`PhysicsOfConsciousness.lean`) so that `lake build` accurately targets the new pipeline, and archive old active code with specific tags (`v2_`) to prevent naming collisions with older archived versions (`old_`).\
 - **Sheaf Axiom & Abstract Gluing:** When mathematically formalizing the gluing of finite measures across local sections (a problem traditionally solved via Carathéodory's extension or Riesz-Markov-Kakutani), one can rigorously bypass manual extension theorem proofs by utilizing Mathlib's `TopCat.Presheaf.sheafify`. This operation correctly transforms the presheaf of finite measures into the sheaf of locally finite (Radon) measures, fully capturing the semantics of a globally coherent unified topological structure without manual `sorry` patching.
+
+- **Lean 4 Integral Decomposition API:** The Lean 4 Mathlib Bochner integral API requires precise typeclass instances. Key patterns:
+  - `integral_const c : ∫ _ : α, c ∂μ = μ.real univ • c` — uses `.real` (not `.toReal`); in ℝ, `smul_eq_mul` converts to `*`.
+  - `integral_const_mul r f : ∫ a, r * f a = r * ∫ a, f a` — needs `[RCLike]` on the type.
+  - `integrable_const c` (not `integrable_const _`) — needs explicit constant to synthesize `NNNorm`.
+  - `integral_add hf hg` requires both `hf : Integrable f` and `hg : Integrable g`.
+  - Rule: **Always provide explicit integrability witnesses before `rw [integral_add ...]`; never rely on unification holes for them.**
+  - Rule: **Use `calc` chains for multi-step integral rewrites** instead of chaining `rw [...]` — each step is independently checkable.
+
+- **Fixed-Point Theorems in Mathlib (as of Lean 4.34.0 / Mathlib commit 5ce203e):**
+  - `ContractingWith.fixedPoint f hf` + `hf.fixedPoint_isFixedPt` — Banach contraction, needs `[Nonempty]` + `[MetricSpace]` + `[CompleteSpace]`. **This is the go-to for physics applications.**
+  - Brouwer / Schauder fixed-point theorems are **NOT in this Mathlib version** — use Banach contraction as the constructive alternative.
+  - `OrderHom.lfp` / `OrderHom.gfp` — Knaster-Tarski for monotone maps on `CompleteLattice`.
+  - `IsPreconnected.intermediate_value₂` — IVT-based fixed points for self-maps of `Icc`.
+  - Rule: **Check Mathlib availability before assuming a theorem exists** — even well-known results (Brouwer) may not be formalized yet.
+
+- **The `h_mean` Hypothesis Pattern:** When proving minimality of a functional (e.g., entropy production) via Jensen/variance decomposition, the lower bound `c² ≤ ∫f²` only holds when `c = ∫f dμ / μ(M)` (the population mean). This constraint must be made an **explicit hypothesis** in both the lemma and the theorem, not hidden in a class field. This is physically justified by conservation laws (mean frequency conserved in symmetric Kuramoto). Pattern: add `(h_mean : ∫ f = c * μ(M))` as an explicit parameter everywhere needed.

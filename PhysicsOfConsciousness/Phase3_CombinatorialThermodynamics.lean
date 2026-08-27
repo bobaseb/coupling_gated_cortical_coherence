@@ -14,6 +14,7 @@ noncomputable def kuramoto_potential (sys : KuramotoSystem V) (theta : V → ℝ
 noncomputable def kuramoto_velocity (sys : KuramotoSystem V) (theta : V → ℝ) (i : V) : ℝ :=
   sys.omega i + ∑ j, sys.A i j * Real.sin (theta j - theta i)
 
+omit [DecidableEq V] in
 lemma dV_dt_le_zero (sys : KuramotoSystem V) (theta : ℝ → V → ℝ) (t : ℝ) 
   (h_diff : ∀ i, DifferentiableAt ℝ (fun t => theta t i) t)
   (h_dyn : ∀ i, deriv (fun t => theta t i) t = kuramoto_velocity sys (theta t) i) :

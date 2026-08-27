@@ -9,7 +9,7 @@ variable (vol : Measure M)
 def is_volume_preserving (phi : M → M) : Prop :=
   MeasurePreserving phi vol vol
 
-def is_dissipative (phi : M → M) (S : Set M) (hS : MeasurableSet S) : Prop :=
+def is_dissipative (phi : M → M) (S : Set M) (_hS : MeasurableSet S) : Prop :=
   vol (phi '' S) < vol S
 
 noncomputable def continuous_entropy (S : Set M) : ℝ :=

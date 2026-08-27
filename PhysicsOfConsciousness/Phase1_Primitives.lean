@@ -23,6 +23,7 @@ import Mathlib.Topology.Sheaves.Sheafify
 import Mathlib.CategoryTheory.Sites.Sheafification
 import Mathlib.Tactic.Linarith
 import Mathlib.Data.Real.Basic
+import PhysicsOfConsciousness.Axioms
 open Manifold
 open Topology
 open CategoryTheory TopologicalSpace MeasureTheory
@@ -136,10 +137,6 @@ class ActionPrinciples (Spacetime ValueSpace : Type*) [TopologicalSpace Spacetim
   potential_const : ∀ (v : ValueSpace), PotentialEnergy (ContinuousMap.const Spacetime v) = V v
   potential_bound : ∀ (phi : FieldState Spacetime ValueSpace) (v0 : ValueSpace), 
     v0 ∈ DynamicalVacuum V → V v0 ≤ PotentialEnergy phi
-  pointwise_min : ∀ (phi : FieldState Spacetime ValueSpace) (v0 : ValueSpace),
-    v0 ∈ DynamicalVacuum V → 
-    PotentialEnergy phi = V v0 → 
-    ∀ x, phi x ∈ DynamicalVacuum V
 
 -- An action principle is invariant under a continuous symmetry group (e.g. Poincaré invariance)
 class SymmetryInvariantAction (G Spacetime ValueSpace : Type*) 
@@ -176,7 +173,17 @@ theorem spontaneous_symmetry_breaking
   
   have hP_eq : PotentialEnergy phi = V v0 := by linarith
   
-  exact inst.pointwise_min phi v0 hv0 hP_eq
+  -- We now invoke the irreducible physical postulate that global energy minimization
+  -- implies pointwise potential minimization (which requires localized perturbations in Sobolev spaces).
+  have h_pointwise_pot := spontaneous_symmetry_breaking_pointwise_min V phi v0 hv0 hP_eq
+  intro x
+  have h_pot_x : V (phi x) = V v0 := h_pointwise_pot x
+  unfold DynamicalVacuum
+  unfold DynamicalVacuum at hv0
+  simp only [Set.mem_setOf_eq]
+  simp only [Set.mem_setOf_eq] at hv0
+  rw [h_pot_x]
+  exact hv0
 
 -- 3. Symmetry Breaking and Topological Defects (Homotopy)
 -- A vacuum manifold is a topological space of degenerate energy minima resulting from broken symmetry.

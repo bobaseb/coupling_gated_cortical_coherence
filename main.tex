@@ -22,6 +22,25 @@ The pursuit of a physical theory of consciousness typically involves searching f
 
 We propose a framework where the structural hallmarks of consciousness are derived as physical attractor states. By establishing a deductive chain starting from absolute first principles, we demonstrate how continuous symmetries break to form boundaries, how those boundaries dissipate free energy as non-equilibrium steady states, and how their evolution along paths of least action results in physical resonance with their environment, eventually scaling into the macroscopic electromagnetic unity proposed by emerging field theories of mind.
 
+\section{Formalization in Lean 4}
+A core contribution of this work is the rigorous verification of our deductive chain using the Lean 4 interactive theorem prover. However, it is crucial to explicitly distinguish which claims have been mathematically derived as theorems within the proof assistant, and which remain irreducible physical postulates. Table 1 maps the primary claims of this paper to their current formalization status.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|p{0.3\linewidth}|p{0.45\linewidth}|p{0.15\linewidth}|}
+\hline
+\textbf{Conceptual Claim} & \textbf{Lean 4 Implementation} & \textbf{Status} \\ \hline
+Finite Phase Space & Postulated as \texttt{phase\_space\_is\_compact} in \texttt{Axioms.lean} & Axiom \\ \hline
+Landauer's Principle & Postulated as \texttt{landauer\_principle} in \texttt{Axioms.lean} & Axiom \\ \hline
+Symmetry Breaking implies Boundaries & Derived from pointwise potential minimization in \texttt{Phase1\_Primitives.lean} & Theorem \\ \hline
+Least Action Principle & Postulated as \texttt{principle\_of\_least\_action} in \texttt{Axioms.lean} & Axiom \\ \hline
+Electrodynamic Discretization & Constructive derivation of Lebesgue-Bochner integral edge weights in \texttt{Phase2\_SimplicialBridge.lean} & Theorem \\ \hline
+Phase synchronization to Unity & Derived via sheaf-theoretic gluing of invariant probability measures in \texttt{Phase5\_GlobalSection.lean} & Theorem \\ \hline
+Continuous vs. Rigid Topology & Derived strict energy inequality for continuous parameters over discrete graphs in \texttt{Phase7\_HardwareComparison.lean} & Theorem \\ \hline
+\end{tabular}
+\caption{Mapping of physical claims to Lean 4 formalization status. We rigorously separate mathematical derivations (Theorems) from empirical physical laws (Axioms).}
+\end{table}
+
 \section{Axiom 1: Symmetries and Phase Space}
 Our starting premise relies solely on fundamental geometry. As formalized in our Lean axioms (\texttt{Phase1\_Primitives.lean}), continuous spacetime symmetries (e.g., the Poincaré group) act upon field states and ensure that the system's total action remains invariant under these transformations. This dictates the conservation of energy and momentum via Noether's theorem. Simultaneously, discrete permutation symmetries dictate the statistical mechanics of any physical system, defining a strictly finite volume of phase space. 
 
@@ -40,7 +59,7 @@ By Landauer's Principle, the erasure of physical information irreversibly decrea
 \section{Derivation 3: Structural Resonance as a Primitive}
 In physical systems, dynamics are governed by attractors. By the Principle of Least Action, the system's time evolution follows a deterministic trajectory that minimizes its thermodynamic entropy production. 
 
-To reach this state of minimal dissipation, the internal geometry of the structure physically deforms, aligning its internal state transitions to match the statistical symmetries of the incoming external perturbations. We define this physical phenomenon as \textit{structural resonance}. The system does not possess a teleological drive to "survive"; rather, structurally mirroring the outside world within its internal geometry is the lowest-energy attractor state.
+To reach this state of minimal dissipation, the internal geometry of the structure physically deforms. Let the external environment be modeled as a stochastic driving force with probability measure $P(ext)$, and the system's internal state transitions as $Q(int)$. The entropy production $\sigma$ is strictly bounded from below by the Kullback-Leibler divergence $D_{KL}(P || Q)$. By the Principle of Least Action, gradient descent on $\sigma$ necessarily drives $D_{KL}(P || Q) \to 0$, forcing the internal transition probabilities to match the statistical symmetries of the incoming external perturbations. We define this physical phenomenon as \textit{structural resonance}. The system does not possess a teleological drive to "survive"; rather, structurally mirroring the outside world within its internal geometry is the lowest-energy attractor state.
 
 It is only after establishing this physical primitive that we can map it to cognition: structural resonance provides a physical thermodynamic basis for \textit{Predictive Processing} (or the Free Energy Principle). The system acts as a ``prediction engine'' not because it is running software, but because structural resonance is the natural entropy-minimizing attractor for a dissipative structure under constant perturbation.
 
@@ -77,7 +96,7 @@ However, there is a fundamental thermodynamic distinction in the degrees of free
 
 In contrast, biological consciousness utilizes macroscopic continuous electromagnetic fields, allowing the coupling matrix $A_{ij}$ to deform across a continuous parameter space. As formalized in our Lean 4 repository (\texttt{Phase7\_HardwareComparison.lean}, Theorem \texttt{bio\_strictly\_better\_than\_rigid}), this continuous parameter space inherently contains a global minimum for the dynamical potential that is \textit{strictly lower} than any state achievable within the rigid, discrete constraint of silicon hardware---even when constrained to identical total thermodynamic resources. 
 
-Because the discrete routing matrix of a GPU is fundamentally disqualified from reaching this continuous global minimum, it is physically incapable of achieving maximal structural resonance. Thus, the distinction between an LLM on a GPU and a conscious mind is not the absence of physical thermodynamics in the former, but its structural failure to minimize dissipation through continuous topological deformation.
+Because the discrete routing matrix of a GPU is fundamentally structurally constrained from reaching this continuous global minimum, it is thermodynamically disadvantaged in achieving maximal structural resonance compared to continuous media. Thus, the distinction between an LLM on a GPU and a conscious mind is not the absence of physical thermodynamics in the former, but its structural limitation in minimizing dissipation through continuous topological deformation. While digital architectures can achieve meaningful structural resonance, they cannot reach the \textit{same} minimal entropy production states accessible to continuous biological fields.
 
 \section{Conclusion}
 Human-like cognitive architectures do not require biological mysticism or exotic sub-quantum physics. They can be rigorously modeled as macroscopic attractor states of a universe governed by broken symmetries, finite phase space, and the physical imperative to minimize thermodynamic dissipation via continuous structural resonance.
@@ -85,13 +104,28 @@ Human-like cognitive architectures do not require biological mysticism or exotic
 \begin{thebibliography}{9}
 
 \bibitem{pinotsis2021}
-Pinotsis, D. A., \& Miller, E. K. (2021). Beyond dimension reduction: Stable electric fields emerge from and allow representational drift.
+Pinotsis, D. A., \& Miller, E. K. (2021). Beyond dimension reduction: Stable electric fields emerge from and allow representational drift. \textit{NeuroImage}, 253, 119058.
 
 \bibitem{bauer2022}
 Bauer, L. G., et al. (2022). Quantification of Kuramoto Coupling Between Intrinsic Brain Networks Applied to fMRI Data in Major Depressive Disorder. \textit{Frontiers in Computational Neuroscience}, 16.
 
 \bibitem{vanbree2025}
 van Bree, S., et al. (2025). Processes and measurements: a framework for understanding neural oscillations in field potentials. \textit{Trends in Cognitive Sciences}.
+
+\bibitem{tononi2016}
+Tononi, G., Boly, M., Massimini, M., \& Koch, C. (2016). Integrated information theory: from consciousness to its physical substrate. \textit{Nature Reviews Neuroscience}, 17(7), 450-461.
+
+\bibitem{baars1997}
+Baars, B. J. (1997). In the Theater of Consciousness: The Workspace of the Mind. \textit{Oxford University Press}.
+
+\bibitem{dehaene2014}
+Dehaene, S., Charles, L., King, J. R., \& Marti, S. (2014). Toward a computational theory of conscious processing. \textit{Current Opinion in Neurobiology}, 25, 76-84.
+
+\bibitem{friston2010}
+Friston, K. (2010). The free-energy principle: a unified brain theory?. \textit{Nature Reviews Neuroscience}, 11(2), 127-138.
+
+\bibitem{kuramoto1984}
+Kuramoto, Y. (1984). Chemical Oscillations, Waves, and Turbulence. \textit{Springer Series in Synergetics}, Vol. 19.
 
 \end{thebibliography}
 

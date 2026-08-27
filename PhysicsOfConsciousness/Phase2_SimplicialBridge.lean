@@ -14,40 +14,54 @@ class TriangulatedManifold (M : Type*) [TopologicalSpace M] where
   complex : AbstractSimplicialComplex V
   embedding : V → M
   edge_region : V → V → Set M
+  edge_region_symm : ∀ u v, edge_region u v = edge_region v u
 
 def is_edge {V : Type*} (s : Finset V) : Prop := s.card = 2
 
-class DiscreteThermodynamics (M : Type*) [TopologicalSpace M] [TriangulatedManifold M] [MeasurableSpace M]
+structure DiscreteThermodynamics (M : Type*) [TopologicalSpace M] [TriangulatedManifold M] [MeasurableSpace M]
   {E H : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [TopologicalSpace H] 
   {I : ModelWithCorners ℝ E H} [ChartedSpace H M] [IsManifold I ⊤ M] where
-  
   volume_measure : MeasureTheory.Measure M
-
-  -- The coupling weight w(u, v) representing thermodynamic friction derived from a specific stress-energy tensor T
-  edge_weight : CovariantTensor2 I M → (TriangulatedManifold.V M) → (TriangulatedManifold.V M) → ℝ
-  
-  weight_symm : ∀ (T : CovariantTensor2 I M) (u v : TriangulatedManifold.V M), edge_weight T u v = edge_weight T v u
-  
-  -- Axiom: there is a notion of scalar magnitude for the stress energy tensor
   scalar_magnitude : CovariantTensor2 I M → M → ℝ
-  
-  -- The integration is formal Lebesgue-Bochner.
-  weight_eq_stress_integral : ∀ (u v : TriangulatedManifold.V M) (T : CovariantTensor2 I M),
-    edge_weight T u v = ∫ x in (TriangulatedManifold.edge_region u v), scalar_magnitude T x ∂volume_measure
+  magnitude_nonneg : ∀ T x, 0 ≤ scalar_magnitude T x
 
-
--- Kuramoto Model dynamically derived from continuous field thermodynamics
-def induced_kuramoto_system (M : Type*) [TopologicalSpace M] [TriangulatedManifold M] [MeasurableSpace M]
+namespace DiscreteThermodynamics
+variable {M : Type*} [TopologicalSpace M] [TriangulatedManifold M] [MeasurableSpace M]
   {E H : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [TopologicalSpace H] 
   {I : ModelWithCorners ℝ E H} [ChartedSpace H M] [IsManifold I ⊤ M]
-  (edge_weight : CovariantTensor2 I M → (TriangulatedManifold.V M) → (TriangulatedManifold.V M) → ℝ)
-  (weight_symm : ∀ (T : CovariantTensor2 I M) (u v : TriangulatedManifold.V M), edge_weight T u v = edge_weight T v u)
+
+-- The coupling weight w(u, v) is defined constructively as the Lebesgue-Bochner integral 
+-- of the scalar magnitude of the stress-energy tensor over the edge region.
+noncomputable def edge_weight (DT : DiscreteThermodynamics M (E := E) (H := H) (I := I)) (T : CovariantTensor2 I M) (u v : TriangulatedManifold.V M) : ℝ :=
+  ∫ x in (TriangulatedManifold.edge_region u v), DT.scalar_magnitude T x ∂DT.volume_measure
+
+-- Symmetry is proved naturally from the geometric symmetry of the edge region.
+theorem weight_symm (DT : DiscreteThermodynamics M (E := E) (H := H) (I := I)) (T : CovariantTensor2 I M) (u v : TriangulatedManifold.V M) : 
+  edge_weight DT T u v = edge_weight DT T v u := by
+  unfold edge_weight
+  rw [TriangulatedManifold.edge_region_symm u v]
+
+-- Positivity is proved natively from the non-negativity of the scalar magnitude.
+theorem weight_nonneg (DT : DiscreteThermodynamics M (E := E) (H := H) (I := I)) (T : CovariantTensor2 I M) (u v : TriangulatedManifold.V M) : 
+  0 ≤ edge_weight DT T u v := by
+  unfold edge_weight
+  apply MeasureTheory.integral_nonneg
+  intro x
+  exact DT.magnitude_nonneg T x
+
+end DiscreteThermodynamics
+
+-- Kuramoto Model dynamically derived from continuous field thermodynamics
+noncomputable def induced_kuramoto_system (M : Type*) [TopologicalSpace M] [TriangulatedManifold M] [MeasurableSpace M]
+  {E H : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [TopologicalSpace H] 
+  {I : ModelWithCorners ℝ E H} [ChartedSpace H M] [IsManifold I ⊤ M]
+  (DT : DiscreteThermodynamics M (E := E) (H := H) (I := I))
   [Fintype (TriangulatedManifold.V M)] [DecidableEq (TriangulatedManifold.V M)]
   (T : CovariantTensor2 I M) (omega : TriangulatedManifold.V M → ℝ) : 
   KuramotoSystem (TriangulatedManifold.V M) where
   omega := omega
-  A := fun u v => edge_weight T u v
-  symm := fun u v => weight_symm T u v
+  A := fun u v => DiscreteThermodynamics.edge_weight DT T u v
+  symm := fun u v => DiscreteThermodynamics.weight_symm DT T u v
 
 
 

@@ -1,0 +1,39 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.2
+    hooks:
+      - id: ruff
+        args: [ --fix ]
+      - id: ruff-format
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: bash -c 'cd simulations && uv run mypy .'
+        language: system
+        types: [python]
+        pass_filenames: false
+      - id: bandit
+        name: bandit
+        entry: bash -c 'cd simulations && uv run bandit -r .'
+        language: system
+        types: [python]
+        pass_filenames: false
+      - id: vulture
+        name: vulture
+        entry: bash -c 'cd simulations && uv run vulture .'
+        language: system
+        types: [python]
+        pass_filenames: false
+      - id: xenon
+        name: xenon
+        entry: bash -c 'cd simulations && uv run xenon --max-absolute B --max-modules B --max-average A .'
+        language: system
+        types: [python]
+        pass_filenames: false
+      - id: tach
+        name: tach
+        entry: bash -c 'cd simulations && uv run tach check'
+        language: system
+        types: [python]
+        pass_filenames: false
