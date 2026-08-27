@@ -10,3 +10,4 @@ import PhysicsOfConsciousness.Phase4_MacroscopicScaling
 import PhysicsOfConsciousness.Phase5_GlobalSection
 import PhysicsOfConsciousness.Phase6_ReflexiveTopology
 import PhysicsOfConsciousness.Phase7_HardwareComparison
+import PhysicsOfConsciousness.Phase8_ContinuousField

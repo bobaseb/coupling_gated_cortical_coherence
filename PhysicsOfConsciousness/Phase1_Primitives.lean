@@ -114,8 +114,16 @@ noncomputable def probabilityPresheaf_pre : (Opens X)ᵒᵖ ⥤ Type _ where
 
   
 
--- 2. Action Principles and Spontaneous Symmetry Breaking
+-- 2. Action Principles, Continuous Symmetries, and Spontaneous Symmetry Breaking
 abbrev FieldState (S V : Type*) [TopologicalSpace S] [TopologicalSpace V] := ContinuousMap S V
+
+-- Continuous symmetries (like the Poincaré group or internal gauge groups) acting on the system.
+class ContinuousSymmetryGroup (G Spacetime ValueSpace : Type*) 
+  [Group G] [TopologicalSpace Spacetime] [TopologicalSpace ValueSpace] where
+  space_action : G → Spacetime → Spacetime
+  value_action : G → ValueSpace → ValueSpace
+  -- Abstract action on the field state: g • phi
+  field_action : G → FieldState Spacetime ValueSpace → FieldState Spacetime ValueSpace
 
 def DynamicalVacuum (V : ValueSpace → ℝ) : Set ValueSpace :=
   { v | ∀ v', V v ≤ V v' }
@@ -132,6 +140,15 @@ class ActionPrinciples (Spacetime ValueSpace : Type*) [TopologicalSpace Spacetim
     v0 ∈ DynamicalVacuum V → 
     PotentialEnergy phi = V v0 → 
     ∀ x, phi x ∈ DynamicalVacuum V
+
+-- An action principle is invariant under a continuous symmetry group (e.g. Poincaré invariance)
+class SymmetryInvariantAction (G Spacetime ValueSpace : Type*) 
+  [Group G] [TopologicalSpace Spacetime] [TopologicalSpace ValueSpace]
+  (KineticEnergy PotentialEnergy TotalEnergy : FieldState Spacetime ValueSpace → ℝ) (V : ValueSpace → ℝ) 
+  [ActionPrinciples Spacetime ValueSpace KineticEnergy PotentialEnergy TotalEnergy V]
+  [ContinuousSymmetryGroup G Spacetime ValueSpace] where
+  total_energy_invariant : ∀ (g : G) (phi : FieldState Spacetime ValueSpace), 
+    TotalEnergy (ContinuousSymmetryGroup.field_action g phi) = TotalEnergy phi
 
 theorem spontaneous_symmetry_breaking 
   {Spacetime ValueSpace : Type*} [TopologicalSpace Spacetime] [TopologicalSpace ValueSpace]
