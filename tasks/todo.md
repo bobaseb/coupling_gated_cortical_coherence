@@ -58,11 +58,11 @@ Shift the formalization from an "Ontology Checker" (tautological definitions map
 - All `sorry` placeholders successfully filled with valid mathematical proofs (e.g. `Complex.normSq_eq_norm_sq`, `Real.strictMonoOn_log`).
 
 ## Next Steps (Phase 3: Future Refinements)
-* **Status**: Open for Planning
-* **Potential Tasks**:
-  - [ ] 1. Expand `Phase7_HardwareComparison.lean` to incorporate explicit empirical estimates (e.g., biological synaptic plasticity energy bounds vs silicon routing limits).
-  - [ ] 2. Integrate continuous symmetries (Poincaré group) more directly into the initial Lean axioms.
-  - [ ] 3. Render the LaTeX manuscript into a final PDF and perform a thorough editorial review for narrative flow.
+* **Status**: Complete
+* **Tasks Executed**:
+  - [x] 1. Expand `Phase7_HardwareComparison.lean` to incorporate explicit empirical estimates (e.g., biological synaptic plasticity energy bounds vs silicon routing limits).
+  - [x] 2. Integrate continuous symmetries (Poincaré group) more directly into the initial Lean axioms.
+  - [x] 3. Render the LaTeX manuscript into a final PDF and perform a thorough editorial review for narrative flow.
 
 ## Phase 4: Ontological Refinement & Reflexive Topology
 * **Status**: Complete
@@ -71,3 +71,11 @@ Shift the formalization from an "Ontology Checker" (tautological definitions map
   - [x] 2. Disentangle "Unity of Consciousness" from the "Self": map Unity strictly to the Global Section of the probability sheaf (`Phase5_GlobalSection.lean` & `main.tex`).
   - [x] 3. Formalize the emergence of the "Self" via a Reflexive Boundary, requiring the field to predict its own internal state changes (auto-resonance) (`Phase6_ReflexiveTopology.lean`).
   - [x] 4. Rename hardware comparison to `Phase7_HardwareComparison.lean` to maintain logical sequence and fix typeclass synthesis issues.
+
+## Phase 5: Deepening the Hardware Comparison
+* **Status**: Complete
+* **Tasks**:
+  - [x] 1. Mathematically formalize the fixed routing constraint of silicon as a strict, discrete topological constraint on the Kuramoto coupling matrix $A_{ij}$.
+  - [x] 2. Prove that a continuous parameter space for $A_{ij}$ (mediated by biological EM fields) inherently contains a global minimum for the `kuramoto_potential_dynamic` that is strictly lower than any state achievable within the discrete silicon constraint.
+  - [x] 3. Refine `Phase7_HardwareComparison.lean` to move beyond axiomatic structure into an actual dynamical proof of this inequality.
+  - [x] 4. Update the corollary in `main.tex` to explicitly cite this strict mathematical proof, demonstrating exactly why rigid hardware is physically disqualified from maximal structural resonance.
