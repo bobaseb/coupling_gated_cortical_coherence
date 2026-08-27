@@ -79,3 +79,12 @@ Shift the formalization from an "Ontology Checker" (tautological definitions map
   - [x] 2. Prove that a continuous parameter space for $A_{ij}$ (mediated by biological EM fields) inherently contains a global minimum for the `kuramoto_potential_dynamic` that is strictly lower than any state achievable within the discrete silicon constraint.
   - [x] 3. Refine `Phase7_HardwareComparison.lean` to move beyond axiomatic structure into an actual dynamical proof of this inequality.
   - [x] 4. Update the corollary in `main.tex` to explicitly cite this strict mathematical proof, demonstrating exactly why rigid hardware is physically disqualified from maximal structural resonance.
+
+## Phase 6: Bridging the Gap to Theoretical Physics
+* **Status**: Proposed
+* **Intent**: Move beyond finite graph analogies and structural definitions into rigorous continuous field theories and stochastic thermodynamics. The current formalizations provide an ontological framework but lack the quantitative derivations expected in modern statistical mechanics.
+* **Tasks**:
+  - [ ] 1. **Continuous Neural Field Theory**: Upgrade the discrete Kuramoto model over `Fintype V` to a continuous neural field equation (e.g., Amari or Wilson-Cowan equations) with a spatial coupling kernel $K(x,y)$. True ephaptic coupling is a continuous spatial phenomenon, not a discrete graph.
+  - [ ] 2. **Stochastic Thermodynamics & Entropy Production**: Replace the static `landauer_heat_bound` (which simply asserts volume shrinking = heat) with a rigorous non-equilibrium formulation using Fokker-Planck or Langevin equations. Prove that structural resonance is the Non-Equilibrium Steady State (NESS) that minimizes the exact entropy production rate $\sigma$.
+  - [ ] 3. **Derive Topology Deformation**: In `Phase7`, the continuous parameter space for $A_{ij}$ is posited to find the global minimum. Derive the *dynamical mechanism* by which biological fields deform this topology (e.g., gradient descent on the free energy functional). Prove that macroscopic EM fields mathematically necessitate this topological gradient descent, whereas fixed silicon lattices physically constrain it.
+  - [ ] 4. **Calculate Critical Coupling Thresholds**: Perform a Mean-Field or Ott-Antonsen reduction on the continuous field to analytically derive the critical coupling constant $K_c$ where the phase transition to the "Unity" Global Section occurs, explicitly linking this threshold to physical temperature $T$ and noise $D$.
