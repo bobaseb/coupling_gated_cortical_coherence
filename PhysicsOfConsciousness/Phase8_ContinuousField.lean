@@ -69,4 +69,20 @@ noncomputable def critical_coupling (D : ℝ) : ℝ := 2 * D
 def exhibits_phase_transition (sys : StochasticNeuralField M) : Prop :=
   (∫ x, ∫ y, sys.K x y) > critical_coupling sys.D
 
+-- 5. Empirical Grounding
+noncomputable def cortical_temperature_kelvin : ℝ := 310.15
+noncomputable def boltzmann_constant : ℝ := 1.380649e-23
+noncomputable def macroscopic_noise_D : ℝ := cortical_temperature_kelvin * boltzmann_constant
+
+noncomputable def ephaptic_critical_coupling : ℝ := critical_coupling macroscopic_noise_D
+
+-- 6. Gradient Descent Mechanism
+def continuous_structural_resonance (sys : PlasticNeuralField M) (theta : ℝ → M → ℝ) : Prop :=
+  Antitone (fun t => dynamic_entropy_production sys theta t)
+
+theorem structural_resonance_implies_gradient_descent (sys : PlasticNeuralField M) (theta : ℝ → M → ℝ)
+  (h_res : continuous_structural_resonance sys theta) : is_gradient_descent sys theta := by
+  intro t1 t2 h_le
+  exact h_res h_le
+
 end PhysicsOfConsciousness

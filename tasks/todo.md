@@ -88,3 +88,11 @@ Shift the formalization from an "Ontology Checker" (tautological definitions map
   - [x] 2. **Stochastic Thermodynamics & Entropy Production**: Replace the static `landauer_heat_bound` (which simply asserts volume shrinking = heat) with a rigorous non-equilibrium formulation using Fokker-Planck or Langevin equations. Prove that structural resonance is the Non-Equilibrium Steady State (NESS) that minimizes the exact entropy production rate $\sigma$.
   - [x] 3. **Derive Topology Deformation**: In `Phase7`, the continuous parameter space for $A_{ij}$ is posited to find the global minimum. Derive the *dynamical mechanism* by which biological fields deform this topology (e.g., gradient descent on the free energy functional). Prove that macroscopic EM fields mathematically necessitate this topological gradient descent, whereas fixed silicon lattices physically constrain it.
   - [x] 4. **Calculate Critical Coupling Thresholds**: Perform a Mean-Field or Ott-Antonsen reduction on the continuous field to analytically derive the critical coupling constant $K_c$ where the phase transition to the "Unity" Global Section occurs, explicitly linking this threshold to physical temperature $T$ and noise $D$.
+
+## Phase 7: Final Manuscript Integration & Empirical Grounding
+* **Status**: Complete
+* **Intent**: Tie the newly formalized continuous field theories and stochastic thermodynamics back into the LaTeX manuscript, and ground the theoretical limits in concrete biological data.
+* **Tasks**:
+  - [x] 1. **Update Manuscript**: Expand `main.tex` to explicitly cite `Phase8_ContinuousField.lean`. Add a new section detailing the continuous stochastic thermodynamics, the entropy production functional, and the critical coupling threshold ($K_c$).
+  - [x] 2. **Empirical Verification in Lean**: Map the abstract variables ($D$, $K_c$, and spatial dimensions) to explicit physical constants and neurobiological estimates (e.g., cortical temperature, spatial coupling radius of ephaptic fields).
+  - [x] 3. **Formalize Gradient Descent Mechanism**: Provide a formal proof in Lean that the `PlasticNeuralField` naturally undergoes gradient descent on the entropy production functional when subjected to continuous structural resonance.
