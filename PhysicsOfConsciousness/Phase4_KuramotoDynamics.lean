@@ -26,7 +26,16 @@ def is_phase_locked (theta : V → ℝ) : Prop :=
 
 theorem phase_locked_implies_r_sq_eq_one [Nonempty V] (theta : V → ℝ) (h_lock : is_phase_locked theta) :
   order_parameter_r_sq theta = 1 := by
-  sorry
+  obtain ⟨v0⟩ := id ‹Nonempty V›
+  have H : ∀ j, theta j = theta v0 := fun j => h_lock j v0
+  unfold order_parameter_r_sq order_parameter_complex
+  simp [H]
+  rw [Complex.normSq_eq_norm_sq]
+  have h1 : ‖Complex.exp (I * (theta v0 : ℂ))‖ = 1 := by
+    rw [mul_comm]
+    exact Complex.norm_exp_ofReal_mul_I (theta v0)
+  rw [h1]
+  simp
 
 -- 3. The Lyapunov potential derived from heat dissipation minimization
 noncomputable def kuramoto_potential_dynamic (sys : KuramotoSystem V) (theta : V → ℝ) : ℝ :=
@@ -35,6 +44,16 @@ noncomputable def kuramoto_potential_dynamic (sys : KuramotoSystem V) (theta : V
 theorem phase_locked_minimizes_potential 
   (sys : KuramotoSystem V) (h_pos : ∀ i j, sys.A i j > 0) (theta : V → ℝ) :
   kuramoto_potential_dynamic sys (fun _ => 0) ≤ kuramoto_potential_dynamic sys theta := by
-  sorry
+  unfold kuramoto_potential_dynamic
+  apply mul_le_mul_of_nonpos_left
+  · apply sum_le_sum
+    intro i _
+    apply sum_le_sum
+    intro j _
+    have h1 : Real.cos ((fun _ => (0 : ℝ)) j - (fun _ => (0 : ℝ)) i) = 1 := by simp
+    rw [h1]
+    have h2 : Real.cos (theta j - theta i) ≤ 1 := Real.cos_le_one (theta j - theta i)
+    exact mul_le_mul_of_nonneg_left h2 (le_of_lt (h_pos i j))
+  · norm_num
 
 end PhysicsOfConsciousness
