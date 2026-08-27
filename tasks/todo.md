@@ -56,3 +56,10 @@ Shift the formalization from an "Ontology Checker" (tautological definitions map
   - Entropy bounds in `Phase3_MeasureThermodynamics.lean` explicitly rely on standard `MeasureTheory` and `ENNReal.toReal` monotonicity.
   - Kuramoto derivation explicitly relies on coupling constraints and topological phases as formalized in `Phase4_KuramotoDynamics.lean`.
 - All `sorry` placeholders successfully filled with valid mathematical proofs (e.g. `Complex.normSq_eq_norm_sq`, `Real.strictMonoOn_log`).
+
+## Next Steps (Phase 3: Future Refinements)
+* **Status**: Open for Planning
+* **Potential Tasks**:
+  - [ ] 1. Expand `Phase6_HardwareComparison.lean` to incorporate explicit empirical estimates (e.g., biological synaptic plasticity energy bounds vs silicon routing limits).
+  - [ ] 2. Integrate continuous symmetries (Poincaré group) more directly into the initial Lean axioms.
+  - [ ] 3. Render the LaTeX manuscript into a final PDF and perform a thorough editorial review for narrative flow.
