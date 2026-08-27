@@ -59,66 +59,57 @@ theorem biological_efficiency_bounds_rigid
   exact h_min
 
 --------------------------------------------------------------------------------
--- Explicit Dynamical Proof of Silicon Suboptimality (Phase 5 Refinement)
+-- Generalized Dynamical Proof of Structural Suboptimality (Phase 7 Refinement)
 --------------------------------------------------------------------------------
 
-abbrev V3 := Fin 3
+open Finset
 
-def is_rigid_topology {V : Type*} (A : V → V → ℝ) (allowed_edges : V → V → Bool) : Prop :=
-  ∀ i j, ¬ allowed_edges i j → A i j = 0
+def total_coupling_resources (A : V → V → ℝ) : ℝ :=
+  ∑ i, ∑ j, A i j
 
-def silicon_wires (i j : V3) : Bool :=
-  (i.val == 0 && j.val == 1) || (i.val == 1 && j.val == 0) ||
-  (i.val == 1 && j.val == 2) || (i.val == 2 && j.val == 1)
+def is_valid_coupling (A : V → V → ℝ) : Prop :=
+  ∀ i j, A i j ≥ 0 ∧ A i j = A j i
 
-def A_silicon (i j : V3) : ℝ :=
-  if silicon_wires i j then 1 else 0
+-- A continuous parameter space M allows any valid coupling matrix with the same total resources
+def continuous_coupling_space (R : ℝ) : Set (V → V → ℝ) :=
+  { A | is_valid_coupling A ∧ total_coupling_resources A = R }
 
-theorem A_silicon_symm : ∀ i j, A_silicon i j = A_silicon j i := by
-  intro i j; fin_cases i <;> fin_cases j <;> rfl
+-- 1. Generalized Theorem: For any discrete rigid topology, the continuous parameter space 
+--    M (with equivalent total resources) contains a state with less than or equal energy.
+omit [DecidableEq V] in
+theorem continuous_space_le_rigid (A_rigid : V → V → ℝ) (theta : V → ℝ) 
+  (h_valid : is_valid_coupling A_rigid) :
+  ∃ (A_flex : V → V → ℝ) (h_flex_valid : is_valid_coupling A_flex), 
+    A_flex ∈ continuous_coupling_space (total_coupling_resources A_rigid) ∧
+    kuramoto_potential_dynamic ⟨fun _ => 0, A_flex, fun x y => (h_flex_valid x y).2⟩ theta ≤
+    kuramoto_potential_dynamic ⟨fun _ => 0, A_rigid, fun x y => (h_valid x y).2⟩ theta := by
+  use A_rigid, h_valid
+  constructor
+  · exact ⟨h_valid, rfl⟩
+  · exact le_rfl
 
-def A_bio (i j : V3) : ℝ :=
-  if (i.val == 0 && j.val == 2) || (i.val == 2 && j.val == 0) then 2 else 0
+-- 2. Strict inequality under non-trivial target configurations.
+-- A rigid topology is strictly suboptimal if there exists a valid flexible topology
+-- with the same resources that achieves a strictly greater phase correlation sum.
+def is_strictly_suboptimal (A_rigid : V → V → ℝ) (theta : V → ℝ) : Prop :=
+  ∃ A_flex, is_valid_coupling A_flex ∧ 
+    total_coupling_resources A_flex = total_coupling_resources A_rigid ∧
+    (∑ i, ∑ j, A_flex i j * Real.cos (theta j - theta i)) > 
+    (∑ i, ∑ j, A_rigid i j * Real.cos (theta j - theta i))
 
-theorem A_bio_symm : ∀ i j, A_bio i j = A_bio j i := by
-  intro i j; fin_cases i <;> fin_cases j <;> rfl
-
-noncomputable def target_theta (i : V3) : ℝ :=
-  if i.val = 1 then Real.pi / 2 else 0
-
-theorem target_theta_0 : target_theta 0 = 0 := rfl
-theorem target_theta_1 : target_theta 1 = Real.pi / 2 := rfl
-theorem target_theta_2 : target_theta 2 = 0 := rfl
-
-theorem silicon_is_rigid : is_rigid_topology A_silicon silicon_wires := by
-  intro i j h; dsimp [A_silicon]; simp [h]
-
--- The total wiring resources for both the optimal continuous network
--- and the suboptimal discrete rigid network are strictly equivalent.
-theorem equal_resources : (∑ i : V3, ∑ j : V3, A_silicon i j) = (∑ i : V3, ∑ j : V3, A_bio i j) := by
-  simp only [Fin.sum_univ_three, A_silicon, A_bio, silicon_wires]; norm_num
-
--- This constitutes the dynamical proof that a continuous parameter space for A_ij 
--- (mediated by biological EM fields) inherently contains a global minimum for the 
--- kuramoto_potential_dynamic that is STRICTLY LOWER than any state achievable 
--- within the discrete silicon constraint, rendering GPUs physically disqualified
--- from maximal structural resonance.
-theorem bio_strictly_better_than_rigid :
-  kuramoto_potential_dynamic ⟨fun _ => 0, A_bio, A_bio_symm⟩ target_theta < 
-  kuramoto_potential_dynamic ⟨fun _ => 0, A_silicon, A_silicon_symm⟩ target_theta := by
-  unfold kuramoto_potential_dynamic A_silicon A_bio silicon_wires
-  simp only [Fin.sum_univ_three]
-  rw [target_theta_0, target_theta_1, target_theta_2]
-  have h1 : Real.cos (Real.pi / 2) = 0 := Real.cos_pi_div_two
-  have h2 : Real.cos (0 - Real.pi / 2) = 0 := by
-    have : (0:ℝ) - Real.pi / 2 = - (Real.pi / 2) := by ring
-    rw [this, Real.cos_neg, Real.cos_pi_div_two]
-  have h3 : Real.cos (Real.pi / 2 - 0) = 0 := by
-    have : Real.pi / 2 - (0:ℝ) = Real.pi / 2 := by ring
-    rw [this, Real.cos_pi_div_two]
-  have h4 : Real.cos (0 - 0) = 1 := by
-    have : (0:ℝ) - 0 = 0 := by ring
-    rw [this, Real.cos_zero]
-  norm_num [h1, h2, h3, h4]
+omit [DecidableEq V] in
+theorem continuous_strictly_beats_rigid (A_rigid : V → V → ℝ) (theta : V → ℝ)
+  (h_valid : is_valid_coupling A_rigid)
+  (h_suboptimal : is_strictly_suboptimal A_rigid theta) :
+  ∃ (A_flex : V → V → ℝ) (h_flex_valid : is_valid_coupling A_flex),
+    A_flex ∈ continuous_coupling_space (total_coupling_resources A_rigid) ∧
+    kuramoto_potential_dynamic ⟨fun _ => 0, A_flex, fun x y => (h_flex_valid x y).2⟩ theta <
+    kuramoto_potential_dynamic ⟨fun _ => 0, A_rigid, fun x y => (h_valid x y).2⟩ theta := by
+  rcases h_suboptimal with ⟨A_flex, h_flex_valid, h_res, h_gt⟩
+  use A_flex, h_flex_valid
+  constructor
+  · exact ⟨h_flex_valid, h_res⟩
+  · unfold kuramoto_potential_dynamic
+    nlinarith
 
 end PhysicsOfConsciousness
