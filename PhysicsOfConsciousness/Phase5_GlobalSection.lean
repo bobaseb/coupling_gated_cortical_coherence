@@ -22,7 +22,8 @@ universe u
 
 variable {X : TopCat.{u}} [MeasurableSpace X] [BorelSpace X] [TriangulatedManifold ↥X]
 
-theorem probability_is_sheaf : TopCat.Presheaf.IsSheaf (probabilityPresheaf X) := sorry
+theorem probability_is_sheaf : TopCat.Presheaf.IsSheaf (probabilityPresheaf X) :=
+  (TopCat.Presheaf.sheafify (probabilityPresheaf_pre X)).property
 
 noncomputable def GlobalSection := (probabilityPresheaf X).obj (op ⊤)
 
@@ -33,11 +34,36 @@ theorem global_section_from_local_sync [S : LocalSectionSynchronization X] (h_sy
     intro i j
     exact overlap_agreement h_sync i j
   have h_sheaf_gluing := (TopCat.Presheaf.isSheaf_iff_isSheafUniqueGluing_types (probabilityPresheaf X)).mp probability_is_sheaf
-  have hs := h_sheaf_gluing S.cover S.sync_to_section h_compat
-  
-  -- hs provides s which is the unique gluing. It's a gluing over iSup cover.
-  -- Since iSup cover = ⊤, s corresponds to a global section.
-  -- We leave a targeted sorry for the exact isomorphism casting since iSup cover = ⊤.
-  sorry
+  have ⟨s, hs, h_uniq⟩ := h_sheaf_gluing S.cover S.sync_to_section h_compat
+  let e' : op (iSup S.cover) ⟶ op ⊤ := (eqToHom (by rw [S.is_cover])).op
+  let s_top : GlobalSection (X := X) := (probabilityPresheaf X).map e' s
+  use s_top
+  constructor
+  · intro i
+    have H_map : (probabilityPresheaf X).map (homOfLE (le_top : S.cover i ≤ ⊤)).op s_top = 
+                 ((probabilityPresheaf X).map e' ≫ (probabilityPresheaf X).map (homOfLE (le_top : S.cover i ≤ ⊤)).op) s := rfl
+    rw [H_map, ← (probabilityPresheaf X).map_comp]
+    have H_eq : e' ≫ (homOfLE (le_top : S.cover i ≤ ⊤)).op = (Opens.leSupr S.cover i).op := by apply Subsingleton.elim
+    rw [H_eq]
+    exact hs i
+  · intro s' hs'
+    let e_inv : op ⊤ ⟶ op (iSup S.cover) := (eqToHom (by rw [S.is_cover.symm])).op
+    have H_s'_eq : s' = ((probabilityPresheaf X).map e_inv ≫ (probabilityPresheaf X).map e') s' := by
+      rw [← (probabilityPresheaf X).map_comp]
+      have h_id : e_inv ≫ e' = 𝟙 _ := by apply Subsingleton.elim
+      rw [h_id, (probabilityPresheaf X).map_id]
+      rfl
+    rw [H_s'_eq]
+    have H_apply : (probabilityPresheaf X).map e_inv s' = s := by
+      apply h_uniq
+      intro i
+      have H_map2 : (probabilityPresheaf X).map (Opens.leSupr S.cover i).op ((probabilityPresheaf X).map e_inv s') = 
+                    ((probabilityPresheaf X).map e_inv ≫ (probabilityPresheaf X).map (Opens.leSupr S.cover i).op) s' := rfl
+      rw [H_map2, ← (probabilityPresheaf X).map_comp]
+      have H_eq2 : e_inv ≫ (Opens.leSupr S.cover i).op = (homOfLE (le_top : S.cover i ≤ ⊤)).op := by apply Subsingleton.elim
+      rw [H_eq2]
+      exact hs' i
+    change (probabilityPresheaf X).map e' ((probabilityPresheaf X).map e_inv s') = (probabilityPresheaf X).map e' s
+    rw [H_apply]
 
 end PhysicsOfConsciousness

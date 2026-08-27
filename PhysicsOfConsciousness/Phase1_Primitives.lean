@@ -19,6 +19,8 @@ import Mathlib.Topology.Category.TopCat.Basic
 import Mathlib.Topology.Sets.Opens
 import Mathlib.MeasureTheory.Measure.FiniteMeasure
 import Mathlib.MeasureTheory.MeasurableSpace.Embedding
+import Mathlib.Topology.Sheaves.Sheafify
+import Mathlib.CategoryTheory.Sites.Sheafification
 import Mathlib.Tactic.Linarith
 import Mathlib.Data.Real.Basic
 open Manifold
@@ -83,7 +85,7 @@ lemma inc_is_measurable_embedding {U V : Opens X} (hUV : V ≤ U) :
 -- The presheaf of probability densities over X.
 -- Each local section s ∈ F(U) represents the finite measure (unnormalized probability) 
 -- derived from the local structural resonance within the subsystem U.
-noncomputable def probabilityPresheaf : (Opens X)ᵒᵖ ⥤ Type _ where
+noncomputable def probabilityPresheaf_pre : (Opens X)ᵒᵖ ⥤ Type _ where
   obj U := FiniteMeasure (↥U.unop)
   -- The restriction map simply restricts the measure's domain to the smaller open subset
   map {U V} i := ↾(fun μ => FiniteMeasure.comap (fun x => ⟨x.val, i.unop.le x.property⟩) μ)
@@ -214,5 +216,7 @@ structure DecomposedStressEnergyTensor (I : ModelWithCorners ℝ E H) (Spacetime
 -- The total Stress-Energy Tensor is the sum of its subsystems
 noncomputable def total_T (T_decomp : DecomposedStressEnergyTensor I Spacetime) : CovariantTensor2 I Spacetime :=
   fun x => T_decomp.EM x + T_decomp.chem x + T_decomp.mech x + T_decomp.int x
+
+noncomputable def probabilityPresheaf : (Opens X)ᵒᵖ ⥤ Type _ := (TopCat.Presheaf.sheafify (probabilityPresheaf_pre X)).1
 
 end PhysicsOfConsciousness

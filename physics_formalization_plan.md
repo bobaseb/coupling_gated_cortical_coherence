@@ -14,7 +14,7 @@ The current proofs rely on unproven gaps that undermine the mathematical rigor.
 *   **Phase 5: The Isomorphism `sorry`**
     *   **Task:** Remove the `sorry` in `global_section_from_local_sync`.
     *   **Action:** The proof currently obtains a unique gluing over `iSup S.cover`. We must explicitly use the fact that `S.is_cover : iSup S.cover = ⊤` to cast (via `eqToHom`) the glued section into `(probabilityPresheaf X).obj (op ⊤)`.
-*   **Phase 5: The Sheaf Axiom**
+*   **Phase 5: The Sheaf Axiom** [COMPLETED]
     *   **Task:** Remove `axiom probability_is_sheaf : TopCat.Presheaf.IsSheaf (probabilityPresheaf X)`.
     *   **Action:** Axioms in Lean are dangerous because they can introduce logical inconsistencies if they are false. We must prove this as a `theorem`. Gluing local finite measures into a global finite measure on a topological space generally relies on extension theorems (like Carathéodory's or Riesz-Markov-Kakutani). 
 
