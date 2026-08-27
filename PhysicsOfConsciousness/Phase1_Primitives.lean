@@ -19,6 +19,8 @@ import Mathlib.Topology.Category.TopCat.Basic
 import Mathlib.Topology.Sets.Opens
 import Mathlib.MeasureTheory.Measure.FiniteMeasure
 import Mathlib.MeasureTheory.MeasurableSpace.Embedding
+import Mathlib.Tactic.Linarith
+import Mathlib.Data.Real.Basic
 open Manifold
 open Topology
 open CategoryTheory TopologicalSpace MeasureTheory
@@ -109,7 +111,55 @@ noncomputable def probabilityPresheaf : (Opens X)ᵒᵖ ⥤ Type _ where
     rw [← H]
 
   
--- 2. Symmetry Breaking and Topological Defects (Homotopy)
+
+-- 2. Action Principles and Spontaneous Symmetry Breaking
+abbrev FieldState (S V : Type*) [TopologicalSpace S] [TopologicalSpace V] := ContinuousMap S V
+
+def DynamicalVacuum (V : ValueSpace → ℝ) : Set ValueSpace :=
+  { v | ∀ v', V v ≤ V v' }
+
+class ActionPrinciples (Spacetime ValueSpace : Type*) [TopologicalSpace Spacetime] [TopologicalSpace ValueSpace]
+  (KineticEnergy PotentialEnergy TotalEnergy : FieldState Spacetime ValueSpace → ℝ) (V : ValueSpace → ℝ) where
+  total_eq : ∀ phi, TotalEnergy phi = KineticEnergy phi + PotentialEnergy phi
+  kinetic_nonneg : ∀ phi, 0 ≤ KineticEnergy phi
+  kinetic_const : ∀ (v : ValueSpace), KineticEnergy (ContinuousMap.const Spacetime v) = 0
+  potential_const : ∀ (v : ValueSpace), PotentialEnergy (ContinuousMap.const Spacetime v) = V v
+  potential_bound : ∀ (phi : FieldState Spacetime ValueSpace) (v0 : ValueSpace), 
+    v0 ∈ DynamicalVacuum V → V v0 ≤ PotentialEnergy phi
+  pointwise_min : ∀ (phi : FieldState Spacetime ValueSpace) (v0 : ValueSpace),
+    v0 ∈ DynamicalVacuum V → 
+    PotentialEnergy phi = V v0 → 
+    ∀ x, phi x ∈ DynamicalVacuum V
+
+theorem spontaneous_symmetry_breaking 
+  {Spacetime ValueSpace : Type*} [TopologicalSpace Spacetime] [TopologicalSpace ValueSpace]
+  {KineticEnergy PotentialEnergy TotalEnergy : FieldState Spacetime ValueSpace → ℝ}
+  {V : ValueSpace → ℝ}
+  (inst : ActionPrinciples Spacetime ValueSpace KineticEnergy PotentialEnergy TotalEnergy V)
+  (phi : FieldState Spacetime ValueSpace)
+  (v0 : ValueSpace) (hv0 : v0 ∈ DynamicalVacuum V)
+  (h_min : ∀ phi', TotalEnergy phi ≤ TotalEnergy phi') :
+  ∀ x, phi x ∈ DynamicalVacuum V := by
+  have h1 : TotalEnergy phi ≤ TotalEnergy (ContinuousMap.const Spacetime v0) := h_min _
+  have h_tot_const : TotalEnergy (ContinuousMap.const Spacetime v0) = KineticEnergy (ContinuousMap.const Spacetime v0) + PotentialEnergy (ContinuousMap.const Spacetime v0) := inst.total_eq (ContinuousMap.const Spacetime v0)
+  rw [h_tot_const] at h1
+  have h_k_const : KineticEnergy (ContinuousMap.const Spacetime v0) = 0 := inst.kinetic_const v0
+  rw [h_k_const] at h1
+  have h_p_const : PotentialEnergy (ContinuousMap.const Spacetime v0) = V v0 := inst.potential_const v0
+  rw [h_p_const] at h1
+  rw [zero_add] at h1
+  
+  have h2 : TotalEnergy phi = KineticEnergy phi + PotentialEnergy phi := inst.total_eq phi
+  rw [h2] at h1
+  
+  have hK : 0 ≤ KineticEnergy phi := inst.kinetic_nonneg phi
+  have hP : V v0 ≤ PotentialEnergy phi := inst.potential_bound phi v0 hv0
+  
+  have hP_eq : PotentialEnergy phi = V v0 := by linarith
+  
+  exact inst.pointwise_min phi v0 hv0 hP_eq
+
+-- 3. Symmetry Breaking and Topological Defects (Homotopy)
 -- A vacuum manifold is a topological space of degenerate energy minima resulting from broken symmetry.
 class VacuumManifold (V : Type*) [TopologicalSpace V]
 
@@ -150,7 +200,7 @@ theorem boundary_defect_forces_interior_vacuum_break
   rw [h_ext] at h_trivial
   exact h_defect h_trivial
 
--- 3. The Stress-Energy Tensor (T_mu_nu)
+-- 4. The Stress-Energy Tensor (T_mu_nu)
 -- The Stress-Energy Tensor is a CovariantTensor2.
 
 -- Decompose the total stress-energy tensor into subsystem-specific components.

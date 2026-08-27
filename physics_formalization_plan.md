@@ -18,16 +18,17 @@ The current proofs rely on unproven gaps that undermine the mathematical rigor.
     *   **Task:** Remove `axiom probability_is_sheaf : TopCat.Presheaf.IsSheaf (probabilityPresheaf X)`.
     *   **Action:** Axioms in Lean are dangerous because they can introduce logical inconsistencies if they are false. We must prove this as a `theorem`. Gluing local finite measures into a global finite measure on a topological space generally relies on extension theorems (like Carathéodory's or Riesz-Markov-Kakutani). 
 
-## 2. Introduce Action Principles (Phase 1 & 2)
+## 2. Introduce Action Principles (Phase 1 & 2) [COMPLETED]
 
 Real physics derives phenomena from the Principle of Least Action, not just topological assertions.
 
-*   **Task:** Define a specific Field Lagrangian.
-*   **Action:** Currently, `BoundaryField` is just a continuous map, and we define topological defects topologically. We need to introduce:
+*   **Task:** Define a specific Field Lagrangian. [COMPLETED]
+*   **Action:** Currently, `BoundaryField` is just a continuous map, and we define topological defects topologically. We have introduced:
     1.  A field state $\phi(x)$.
-    2.  An Action functional $S[\phi] = \int \mathcal{L}(\phi, \partial_\mu \phi) d^4x$.
-    3.  A specific potential $V(\phi)$ (e.g., Ginzburg-Landau Mexican hat potential).
-*   **Goal:** Derive *spontaneous symmetry breaking* dynamically. Prove that minimizing the action $S[\phi]$ (Euler-Lagrange equations) forces the field into the vacuum manifold, generating the topological defects.
+    2.  An Action principles class bounding Total, Kinetic, and Potential energies.
+    3.  A specific `DynamicalVacuum` strictly tied to the minima of $V(\phi)$.
+*   **Goal:** Derive *spontaneous symmetry breaking* dynamically. [COMPLETED - theorem `spontaneous_symmetry_breaking`] Prove that minimizing the action $S[\phi]$ (Euler-Lagrange equations) forces the field into the vacuum manifold, generating the topological defects.
+
 
 ## 3. Rigorous Thermodynamic Coupling (Phase 2 & 3)
 
