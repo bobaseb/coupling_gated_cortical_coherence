@@ -18,7 +18,7 @@ import Mathlib.CategoryTheory.Sites.Sheaf
 import Mathlib.Topology.Category.TopCat.Basic
 import Mathlib.Topology.Sets.Opens
 import Mathlib.MeasureTheory.Measure.FiniteMeasure
-
+import Mathlib.MeasureTheory.MeasurableSpace.Embedding
 open Manifold
 open Topology
 open CategoryTheory TopologicalSpace MeasureTheory
@@ -52,6 +52,32 @@ structure Field (Spacetime : Type*) (ValueSpace : Type*) where
 -- Let X represent the continuous biological substrate (e.g., cortical sheet).
 variable (X : TopCat) [MeasurableSpace X] [BorelSpace X]
 
+lemma inc_is_measurable_embedding {U V : Opens X} (hUV : V ≤ U) :
+  MeasurableEmbedding (fun (x : ↥V) => (⟨x.val, hUV x.property⟩ : ↥U)) where
+  injective := fun x y hxy => Subtype.ext (by injection hxy)
+  measurable := by
+    apply Continuous.measurable
+    apply continuous_induced_rng.mpr
+    exact continuous_subtype_val
+  measurableSet_image' := by
+    intro s hs
+    have h_embed : MeasurableEmbedding (Subtype.val : ↥V → ↥X) := 
+      MeasurableEmbedding.subtype_coe V.isOpen.measurableSet
+    have h_s_img : MeasurableSet (Subtype.val '' s) := h_embed.measurableSet_image.mpr hs
+    have h_preimage : MeasurableSet ((Subtype.val : ↥U → ↥X) ⁻¹' (Subtype.val '' s)) :=
+      (Continuous.measurable continuous_subtype_val) h_s_img
+    have h_eq : ((fun (x : ↥V) => (⟨x.val, hUV x.property⟩ : ↥U)) '' s) = (Subtype.val : ↥U → ↥X) ⁻¹' (Subtype.val '' s) := by
+      ext u
+      constructor
+      · rintro ⟨v, hv, rfl⟩
+        exact ⟨v, hv, rfl⟩
+      · rintro ⟨x, hx_val, hx_eq⟩
+        have h_eq_v : (⟨x.val, hUV x.property⟩ : ↥U) = u := Subtype.ext hx_eq
+        rw [← h_eq_v]
+        exact ⟨x, hx_val, rfl⟩
+    rw [h_eq]
+    exact h_preimage
+
 -- The presheaf of probability densities over X.
 -- Each local section s ∈ F(U) represents the finite measure (unnormalized probability) 
 -- derived from the local structural resonance within the subsystem U.
@@ -69,7 +95,18 @@ noncomputable def probabilityPresheaf : (Opens X)ᵒᵖ ⥤ Type _ where
     rw [H_eq]
   map_comp {U V W} i j := by
     ext μ s hs
-    sorry
+    dsimp
+    let inc1 : ↥W.unop → ↥V.unop := fun x => ⟨x.val, j.unop.le x.property⟩
+    let inc2 : ↥V.unop → ↥U.unop := fun x => ⟨x.val, i.unop.le x.property⟩
+    have H_comp : (fun (x : ↥W.unop) => (⟨x.val, (i ≫ j).unop.le x.property⟩ : ↥U.unop)) = inc2 ∘ inc1 := rfl
+    rw [H_comp]
+    have H1 := inc_is_measurable_embedding X j.unop.le
+    have H2 := inc_is_measurable_embedding X i.unop.le
+    have h1 : ∀ (s : Set ↥W.unop), MeasurableSet s → MeasurableSet (inc1 '' s) := fun s hs => H1.measurableSet_image.mpr hs
+    have h2 : Function.Injective inc2 := H2.injective
+    have h3 : ∀ (s : Set ↥V.unop), MeasurableSet s → MeasurableSet (inc2 '' s) := fun s hs => H2.measurableSet_image.mpr hs
+    have H := Measure.comap_comap h1 h2 h3 (μ := (μ : Measure ↥U.unop))
+    rw [← H]
 
   
 -- 2. Symmetry Breaking and Topological Defects (Homotopy)

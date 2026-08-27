@@ -1,4 +1,7 @@
 import PhysicsOfConsciousness.Phase1_Primitives
+import PhysicsOfConsciousness.Phase2_SimplicialBridge
+import PhysicsOfConsciousness.Phase3_CombinatorialThermodynamics
+import Mathlib.CategoryTheory.Sites.Sheaf
 import Mathlib.Topology.Category.TopCat.Basic
 import Mathlib.MeasureTheory.Measure.FiniteMeasure
 import Mathlib.Topology.Sheaves.Sheaf
@@ -8,10 +11,12 @@ open CategoryTheory TopologicalSpace MeasureTheory Opposite
 
 namespace PhysicsOfConsciousness
 
-variable {X : TopCat} [MeasurableSpace X] [BorelSpace X]
+universe u
 
-class LocalSectionSynchronization (X : TopCat) [MeasurableSpace X] [BorelSpace X] where
-  I : Type
+variable {X : TopCat.{u}} [MeasurableSpace X] [BorelSpace X] [TriangulatedManifold ↥X]
+
+class LocalSectionSynchronization (X : TopCat.{u}) [MeasurableSpace X] [BorelSpace X] [TriangulatedManifold ↥X] where
+  I : Type u
   cover : I → Opens X
   is_cover : iSup cover = ⊤
   phase : I → ℝ
@@ -40,11 +45,9 @@ theorem global_section_from_local_sync [S : LocalSectionSynchronization X] (h_sy
     ∀ i : S.I, (probabilityPresheaf X).map (homOfLE (le_top : S.cover i ≤ ⊤)).op s = S.sync_to_section i := by
   have h_compat : TopCat.Presheaf.IsCompatible (probabilityPresheaf X) S.cover S.sync_to_section := by
     intro i j
-    have h_eq := overlap_agreement h_sync i j
-    exact h_eq
+    exact overlap_agreement h_sync i j
   have h_sheaf_gluing := (TopCat.Presheaf.isSheaf_iff_isSheafUniqueGluing_types (probabilityPresheaf X)).mp probability_is_sheaf
-  have ⟨s, hs⟩ := h_sheaf_gluing S.cover S.sync_to_section h_compat
-  use (probabilityPresheaf X).map (homOfLE (le_of_eq S.is_cover.symm)).op s
+  have hs := h_sheaf_gluing S.cover S.sync_to_section h_compat
   sorry
 
 end PhysicsOfConsciousness

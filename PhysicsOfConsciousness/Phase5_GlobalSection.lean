@@ -22,7 +22,7 @@ universe u
 
 variable {X : TopCat.{u}} [MeasurableSpace X] [BorelSpace X] [TriangulatedManifold ↥X]
 
-axiom probability_is_sheaf : TopCat.Presheaf.IsSheaf (probabilityPresheaf X)
+theorem probability_is_sheaf : TopCat.Presheaf.IsSheaf (probabilityPresheaf X) := sorry
 
 noncomputable def GlobalSection := (probabilityPresheaf X).obj (op ⊤)
 
