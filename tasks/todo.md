@@ -29,10 +29,10 @@ Upgrade the existing Lean 4 formalization from an "ontological checker" (where p
 - [x] Define the edge weights strictly mathematically using Bochner/Lebesgue integration of the Stress-Energy Tensor over the manifold.
 
 ### 3. Phase 4 & 5: Constructing the Global Section
-- [ ] Update `Phase4_MacroscopicScaling.lean` and `Phase5_GlobalSection.lean`.
-- [ ] Prove the Sheaf gluing condition: demonstrate that if the Kuramoto system reaches a phase-locked equilibrium (variance approaches 0), the local sections (probability measures) perfectly overlap on their intersections.
-- [ ] Use Lean's `CategoryTheory.Sites.Sheaf` to prove that a unique Global Section must exist from these overlapping sections, thereby removing the `unified_self_exists` assumption.
+- [x] Update `Phase4_MacroscopicScaling.lean` and `Phase5_GlobalSection.lean`.
+- [x] Prove the Sheaf gluing condition: demonstrate that if the Kuramoto system reaches a phase-locked equilibrium (variance approaches 0), the local sections (probability measures) perfectly overlap on their intersections.
+- [x] Use Lean's `CategoryTheory.Sites.Sheaf` to prove that a unique Global Section must exist from these overlapping sections, thereby removing the `unified_self_exists` assumption.
 
 ## Review
-- [ ] Verify everything compiles successfully (`lake build`).
-- [ ] Review any remaining axioms to ensure they are strictly foundational and not circumventing proofs.
+- [x] Verify everything compiles successfully (`lake build`).
+- [x] Review any remaining axioms to ensure they are strictly foundational and not circumventing proofs.
