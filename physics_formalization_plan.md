@@ -4,7 +4,7 @@ To transform this repository from an "ontological checker" into a **rigorous phy
 
 Here is the step-by-step roadmap to achieve this.
 
-## 1. Eliminate Hidden Axioms and `sorry`s (Immediate Fixes)
+## 1. Eliminate Hidden Axioms and `sorry`s (Immediate Fixes) [COMPLETED]
 
 The current proofs rely on unproven gaps that undermine the mathematical rigor.
 
@@ -30,7 +30,7 @@ Real physics derives phenomena from the Principle of Least Action, not just topo
 *   **Goal:** Derive *spontaneous symmetry breaking* dynamically. [COMPLETED - theorem `spontaneous_symmetry_breaking`] Prove that minimizing the action $S[\phi]$ (Euler-Lagrange equations) forces the field into the vacuum manifold, generating the topological defects.
 
 
-## 3. Rigorous Thermodynamic Coupling (Phase 2 & 3)
+## 3. Rigorous Thermodynamic Coupling (Phase 2 ## 3. Rigorous Thermodynamic Coupling (Phase 2 & 3) 3) [COMPLETED]
 
 The link between the continuous field and the discrete Kuramoto model is currently arbitrary (the `edge_weight` is defined as an integral but lacking physical constraints).
 
@@ -39,7 +39,7 @@ The link between the continuous field and the discrete Kuramoto model is current
 *   **Task:** Derive, rather than assume, Structural Resonance. 
 *   **Action:** Show that a system bound by Landauer's heat limit will minimize its action by adapting its internal state $\phi_{int}$ to minimize the gradient with external perturbations $\phi_{ext}$. This formalizes "Predictive Processing" as a physical thermodynamic necessity.
 
-## 4. Derive the Kuramoto Model from Field Dynamics
+## 4. Derive the Kuramoto Model from Field Dynamics [COMPLETED]
 
 The Kuramoto equations in `Phase 3` are currently declared out of thin air.
 

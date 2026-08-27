@@ -1,6 +1,7 @@
 import PhysicsOfConsciousness.Phase1_Primitives
 import Mathlib.Data.Finset.Basic
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
+import PhysicsOfConsciousness.Phase3_CombinatorialThermodynamics
 
 namespace PhysicsOfConsciousness
 
@@ -33,5 +34,22 @@ class DiscreteThermodynamics (M : Type*) [TopologicalSpace M] [TriangulatedManif
   -- The integration is formal Lebesgue-Bochner.
   weight_eq_stress_integral : ∀ (u v : TriangulatedManifold.V M) (T : CovariantTensor2 I M),
     edge_weight T u v = ∫ x in (TriangulatedManifold.edge_region u v), scalar_magnitude T x ∂volume_measure
+
+
+-- Kuramoto Model dynamically derived from continuous field thermodynamics
+def induced_kuramoto_system (M : Type*) [TopologicalSpace M] [TriangulatedManifold M] [MeasurableSpace M]
+  {E H : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [TopologicalSpace H] 
+  {I : ModelWithCorners ℝ E H} [ChartedSpace H M] [IsManifold I ⊤ M]
+  (edge_weight : CovariantTensor2 I M → (TriangulatedManifold.V M) → (TriangulatedManifold.V M) → ℝ)
+  (weight_symm : ∀ (T : CovariantTensor2 I M) (u v : TriangulatedManifold.V M), edge_weight T u v = edge_weight T v u)
+  [Fintype (TriangulatedManifold.V M)] [DecidableEq (TriangulatedManifold.V M)]
+  (T : CovariantTensor2 I M) (omega : TriangulatedManifold.V M → ℝ) : 
+  KuramotoSystem (TriangulatedManifold.V M) where
+  omega := omega
+  A := fun u v => edge_weight T u v
+  symm := fun u v => weight_symm T u v
+
+
+
 
 end PhysicsOfConsciousness

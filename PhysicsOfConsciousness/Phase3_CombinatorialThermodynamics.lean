@@ -191,3 +191,148 @@ lemma entropy_decrease {sys : Type*} [Fintype sys] [DecidableEq sys] (t : sys �
     apply h_not_inj
     intro x y hxy
     exact h_inj (Finset.mem_univ x) (Finset.mem_univ y) hxy
+def is_erasure {sys : Type*} (t : sys → sys) : Prop :=
+  ¬ Function.Injective t
+
+theorem landauer_from_reversibility
+  {S B : Type*} [DecidableEq S] [DecidableEq B]
+  (X : Finset S) (Y : Finset B) (U : S × B → S × B)
+  (h_inj : Function.Injective U)
+  (X_final : Finset S) (B_final : Finset B)
+  (h_evolve : Finset.image U (X ×ˢ Y) ⊆ X_final ×ˢ B_final)
+  (hX : X.Nonempty) (hY : Y.Nonempty) :
+  boltzmann_entropy B_final - boltzmann_entropy Y ≥ boltzmann_entropy X - boltzmann_entropy X_final := by
+  have card_prod : (X ×ˢ Y).card = X.card * Y.card := Finset.card_product X Y
+  have card_prod_final : (X_final ×ˢ B_final).card = X_final.card * B_final.card := Finset.card_product X_final B_final
+  have card_image : (Finset.image U (X ×ˢ Y)).card = (X ×ˢ Y).card := Finset.card_image_of_injective (X ×ˢ Y) h_inj
+  have card_le : (Finset.image U (X ×ˢ Y)).card ≤ (X_final ×ˢ B_final).card := Finset.card_le_card h_evolve
+  rw [card_image, card_prod, card_prod_final] at card_le
+  have hX_pos : X.card > 0 := Finset.card_pos.mpr hX
+  have hY_pos : Y.card > 0 := Finset.card_pos.mpr hY
+  have h_prod_pos : X.card * Y.card > 0 := mul_pos hX_pos hY_pos
+  have h_final_pos : X_final.card * B_final.card > 0 := lt_of_lt_of_le h_prod_pos card_le
+  have hXf_pos : X_final.card > 0 := Nat.pos_of_mul_pos_right h_final_pos
+  have hBf_pos : B_final.card > 0 := Nat.pos_of_mul_pos_left h_final_pos
+  
+  have real_le : (X.card : ℝ) * (Y.card : ℝ) ≤ (X_final.card : ℝ) * (B_final.card : ℝ) := by
+    exact_mod_cast card_le
+    
+  have h_log_le : Real.log ((X.card : ℝ) * (Y.card : ℝ)) ≤ Real.log ((X_final.card : ℝ) * (B_final.card : ℝ)) := by
+    apply Real.log_le_log
+    · exact mul_pos (Nat.cast_pos.mpr hX_pos) (Nat.cast_pos.mpr hY_pos)
+    · exact real_le
+    
+  rw [Real.log_mul (ne_of_gt (Nat.cast_pos.mpr hX_pos)) (ne_of_gt (Nat.cast_pos.mpr hY_pos))] at h_log_le
+  rw [Real.log_mul (ne_of_gt (Nat.cast_pos.mpr hXf_pos)) (ne_of_gt (Nat.cast_pos.mpr hBf_pos))] at h_log_le
+  
+  unfold boltzmann_entropy
+  linarith
+
+class BipartiteEnvironment (sys : Type*) [Fintype sys] [DecidableEq sys] where
+  bath : Type*
+  dec_bath : DecidableEq bath
+  U : (sys → sys) → sys × bath → sys × bath
+  U_inj : ∀ t, Function.Injective (U t)
+  initial_bath : (sys → sys) → Finset bath
+  final_bath : (sys → sys) → Finset bath
+  h_evolve : ∀ t, Finset.image (U t) (Finset.univ ×ˢ initial_bath t) ⊆ (Finset.image t Finset.univ) ×ˢ final_bath t
+  h_bath_nonempty : ∀ t, (initial_bath t).Nonempty
+
+instance instDecidableEqBath {sys : Type*} [Fintype sys] [DecidableEq sys] [BipartiteEnvironment sys] : 
+  DecidableEq (BipartiteEnvironment.bath sys) := BipartiteEnvironment.dec_bath
+
+class Thermodynamics (sys : Type*) where
+  heat_dissipation : (sys → sys) → ℝ
+  temperature : ℝ
+  temperature_pos : temperature > 0
+
+class StatisticalMechanics (sys : Type*) [Fintype sys] [DecidableEq sys] extends Thermodynamics sys, BipartiteEnvironment sys where
+  heat_eq : ∀ (t : sys → sys), Thermodynamics.heat_dissipation t = 
+    temperature * (boltzmann_entropy (final_bath t) - boltzmann_entropy (initial_bath t))
+
+theorem second_law {sys : Type*} [Fintype sys] [DecidableEq sys] [StatisticalMechanics sys] [Nonempty sys] (t : sys → sys) :
+  (boltzmann_entropy (BipartiteEnvironment.final_bath t) - boltzmann_entropy (BipartiteEnvironment.initial_bath t)) + 
+  (entropy t - entropy (id : sys → sys)) ≥ 0 := by
+  have hX : (Finset.univ : Finset sys).Nonempty := Finset.univ_nonempty
+  have hY : (BipartiteEnvironment.initial_bath t).Nonempty := BipartiteEnvironment.h_bath_nonempty t
+  have bound := landauer_from_reversibility 
+    (Finset.univ : Finset sys) (BipartiteEnvironment.initial_bath t) (BipartiteEnvironment.U t) (BipartiteEnvironment.U_inj t)
+    (Finset.image t Finset.univ) (BipartiteEnvironment.final_bath t) (BipartiteEnvironment.h_evolve t) hX hY
+  have h_id_card : (Finset.image id (Finset.univ : Finset sys)).card = (Finset.univ : Finset sys).card := by
+    rw [Finset.image_id]
+  have eq_id : entropy (id : sys → sys) = boltzmann_entropy (Finset.univ : Finset sys) := by
+    unfold entropy boltzmann_entropy
+    rw [h_id_card]
+  have eq_t : entropy t = boltzmann_entropy (Finset.image t Finset.univ) := rfl
+  rw [eq_id, eq_t]
+  linarith
+
+theorem landauer_bound {sys : Type*} [Fintype sys] [DecidableEq sys] [StatisticalMechanics sys] [Nonempty sys] :
+  ∀ (t : sys → sys), Thermodynamics.heat_dissipation (sys := sys) t ≥ Thermodynamics.temperature (sys := sys) * (entropy (id : sys → sys) - entropy t) := by
+  intro t
+  rw [StatisticalMechanics.heat_eq]
+  have h2 : Thermodynamics.temperature (sys := sys) > 0 := Thermodynamics.temperature_pos
+  have h_sec := second_law (sys := sys) t
+  nlinarith
+
+def heat_dissipation {sys : Type*} [Thermodynamics sys] (t : sys → sys) : ℝ :=
+  Thermodynamics.heat_dissipation t
+
+lemma not_injective_image_card_lt {sys : Type*} [Fintype sys] [DecidableEq sys] (t : sys → sys) (h : ¬ Function.Injective t) : 
+  (Finset.image t Finset.univ).card < Fintype.card sys := by
+  have h1 : (Finset.image t Finset.univ).card ≤ Fintype.card sys := Finset.card_image_le
+  by_contra hc
+  have heq : (Finset.image t Finset.univ).card = Fintype.card sys := le_antisymm h1 (not_lt.mp hc)
+  have hsurj : Function.Surjective t := by
+    have himage_eq_univ : Finset.image t Finset.univ = Finset.univ := by
+      apply Finset.eq_of_subset_of_card_le
+      · intro x _ ; exact Finset.mem_univ x
+      · rw [heq] ; rfl
+    intro y
+    have hy : y ∈ Finset.univ := Finset.mem_univ y
+    rw [← himage_eq_univ] at hy
+    rcases Finset.mem_image.mp hy with ⟨x, _, hx_eq⟩
+    exact ⟨x, hx_eq⟩
+  have hinj : Function.Injective t := Finite.injective_iff_surjective.mpr hsurj
+  exact h hinj
+
+theorem erasure_decreases_entropy {sys : Type*} [Fintype sys] [DecidableEq sys] [Nonempty sys] (t : sys → sys) (h : is_erasure t) :
+  entropy (id : sys → sys) > entropy t := by
+  unfold entropy boltzmann_entropy
+  have h_id_card : (Finset.image id (Finset.univ : Finset sys)).card = Fintype.card sys := by
+    have himage : Finset.image id (Finset.univ : Finset sys) = Finset.univ := Finset.image_id
+    rw [himage]
+    rfl
+  rw [h_id_card]
+  have h_lt : (Finset.image t Finset.univ).card < Fintype.card sys := not_injective_image_card_lt t h
+  have h_pos1 : (0 : ℝ) < ((Finset.image t Finset.univ).card : ℝ) := by
+    apply Nat.cast_pos.mpr
+    apply Finset.card_pos.mpr
+    have ⟨x⟩ := ‹Nonempty sys›
+    exact ⟨t x, Finset.mem_image.mpr ⟨x, Finset.mem_univ x, rfl⟩⟩
+  have h_pos2 : (0 : ℝ) < (Fintype.card sys : ℝ) := by
+    apply Nat.cast_pos.mpr
+    apply Fintype.card_pos
+  exact Real.strictMonoOn_log h_pos1 h_pos2 (Nat.cast_lt.mpr h_lt)
+
+theorem entropy_decrease_implies_heat {sys : Type*} [Fintype sys] [DecidableEq sys] [StatisticalMechanics sys] [Nonempty sys] (t : sys → sys) 
+  (h : entropy (id : sys → sys) > entropy t) : heat_dissipation t > 0 := by
+  have bound := landauer_bound (sys := sys) t
+  have diff_pos : entropy (id : sys → sys) - entropy t > 0 := sub_pos.mpr h
+  have rhs_pos : Thermodynamics.temperature (sys := sys) * (entropy (id : sys → sys) - entropy t) > 0 :=
+    mul_pos (Thermodynamics.temperature_pos) diff_pos
+  exact lt_of_lt_of_le rhs_pos bound
+
+theorem landauers_principle {sys : Type*} [Fintype sys] [DecidableEq sys] [Nonempty sys] [StatisticalMechanics sys] (t : sys → sys) :
+  is_erasure t → heat_dissipation t > 0 := by
+  intro h_erasure
+  have h_entropy := erasure_decreases_entropy t h_erasure
+  exact entropy_decrease_implies_heat t h_entropy
+
+def is_dissipative_structure {sys : Type*} [Thermodynamics sys] (t : sys → sys) : Prop :=
+  heat_dissipation t > 0
+
+theorem boundary_is_dissipative {sys : Type*} [Fintype sys] [DecidableEq sys] [Nonempty sys] [StatisticalMechanics sys] (t : sys → sys) (h : is_erasure t) :
+  is_dissipative_structure t := by
+  exact landauers_principle t h
+

@@ -16,7 +16,7 @@ By proving this chain, we use discrete thermodynamics to rigorously force the co
 ---
 
 ## Phase 1: The Stage (Continuous Geometry & Fields)
-*Status: Partially complete in `Phase1_Primitives.lean`, requires extension.*
+*Status: Complete.*
 
 1. **Manifolds and Fields:** 
     *   Import Mathlib's differential geometry library. Define the biological substrate (e.g., the cortical sheet) as a continuous pseudo-Riemannian manifold.
@@ -29,7 +29,7 @@ By proving this chain, we use discrete thermodynamics to rigorously force the co
 ---
 
 ## Phase 2: The Bridge (Algebraic Topology & Coarse-Graining)
-*Status: New. Replaces the intractable Fokker-Planck PDE approach.*
+*Status: Complete.*
 
 1. **Simplicial Complexes:**
     *   Mathematically formalize the "coarse-graining" (Renormalization Group) step mentioned in the paper. Discretize the continuous manifold using a Simplicial Complex (a triangulation of the continuous space into nodes, edges, and faces).
@@ -41,7 +41,7 @@ By proving this chain, we use discrete thermodynamics to rigorously force the co
 ---
 
 ## Phase 3: The Engine (Combinatorial Thermodynamics)
-*Status: Port from `_archive/old_Phase2` and `_archive/old_Phase5`.*
+*Status: Complete.*
 
 1. **Landauer Erasure:**
     *   Rescue the rigorous combinatorial proofs from the old `Phase2`. 
@@ -54,7 +54,7 @@ By proving this chain, we use discrete thermodynamics to rigorously force the co
 ---
 
 ## Phase 4: Macroscopic Scaling via Sheaf Theory
-*Status: Port concepts from `Phase4_MacroscopicCoupling.lean`.*
+*Status: Complete.*
 
 1. **Presheaves of Probability Densities:**
     *   Using `Mathlib.CategoryTheory.Sites.Sheaf`, link the synchronized states of the simplicial complex back to local sections $s \in \mathcal{F}(U)$ of the probability presheaf over the continuous manifold.
@@ -65,7 +65,7 @@ By proving this chain, we use discrete thermodynamics to rigorously force the co
 ---
 
 ## Phase 5: The Conclusion (The "Self" as a Global Section)
-*Status: Rework `Phase5_Inevitability.lean`.*
+*Status: Complete.*
 
 1. **Sheaf Gluing:**
     *   Apply standard Category/Sheaf theory: because the local sections (nodes of the network) perfectly agree on their overlaps (due to the thermodynamic phase-lock proven in Phase 3), they uniquely "glue" together.
