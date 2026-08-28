@@ -82,12 +82,23 @@ Mesh refinement convergence: as the mesh size (supremum of edge region diameters
 tends to zero, the discrete approximations (like total edge weight)
 converge to their continuous counterparts (total continuous energy) on the manifold.
 
-Numerically validated in `simulations/mesh_refinement.py` (see `run_mesh_refinement_simulation`,
-which computes the continuous Kuramoto potential via Riemann sum and shows O(1/N²) convergence
-of the discrete approximation).
+**Numerical validation** — `simulations/mesh_refinement.py`:
+  • Computes the continuous Kuramoto potential V_cont on a 1D ring [0, 2π) using
+    a fine Riemann sum (N=2000) with Gaussian coupling and sinusoidal phase.
+  • Computes discrete potentials V_disc on meshes of size N = {10, 20, 40, 80, 160, 320, 640}.
+  • Plots |V_disc - V_cont| in log-log scale, confirming O(1/N²) convergence.
+  • Saves the convergence plot to `simulations/mesh_refinement_convergence.png`.
+
+  Run: `python simulations/mesh_refinement.py` (function `run_mesh_refinement_simulation`).
 
 *Note: This is currently an unproven conjecture in Lean — a theorem would need
-measure-theoretic Riemann-sum approximation infrastructure not yet in Mathlib.*
+measure-theoretic Riemann-sum approximation infrastructure (partition-of-unity,
+compactness, uniform-continuity assumptions) not yet available in Mathlib.
+The type signature below is also known to be too weak (it quantifies over all
+triangulations simultaneously without a sequence structure relating mesh size
+to triangulation refinement). A redesigned formal statement would likely build
+on the Python simulation's concrete 1D setting before attempting the general
+manifold case.*
 -/
 def mesh_refinement_convergence.{u_M, u_V}
   (M : Type u_M) [TopologicalSpace M] [MeasurableSpace M] [PseudoMetricSpace M]

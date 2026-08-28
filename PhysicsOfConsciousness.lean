@@ -4,6 +4,7 @@ import PhysicsOfConsciousness.Basic
 import PhysicsOfConsciousness.Phase1_Primitives
 import PhysicsOfConsciousness.Phase2_SimplicialBridge
 import PhysicsOfConsciousness.Phase3_CombinatorialThermodynamics
+import PhysicsOfConsciousness.Phase3_KLBound
 import PhysicsOfConsciousness.Phase3_MeasureThermodynamics
 import PhysicsOfConsciousness.Phase4_KuramotoDynamics
 import PhysicsOfConsciousness.Axioms

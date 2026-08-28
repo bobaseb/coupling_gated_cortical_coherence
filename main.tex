@@ -41,7 +41,7 @@ A core contribution of this work is the verification of our deductive chain usin
 Pointwise Vacuum Minimization & Postulated as \texttt{spontaneous\_symmetry\_breaking\_pointwise\_min} in \texttt{Axioms.lean} & Axiom \\ \hline
 Landauer's Principle & Constructively derived from statistical mechanics in \texttt{Phase3\_CombinatorialThermodynamics.lean} & Theorem \\ \hline
 Symmetry Breaking implies Boundaries & Derived from pointwise potential minimization in \texttt{Phase1\_Primitives.lean} & Theorem \\ \hline
-Structural Resonance KL Bound & Unformalized conceptual mapping (KL divergence to entropy) & Unformalized \\ \hline
+Structural Resonance KL Bound & Formalized as KL divergence with Gibbs inequality proof and KL bound axiom (\texttt{Phase3\_KLBound.lean}) & Axiom + Theorem \\ \hline
 Structural Resonance via Least Action & Derived as gradient flow on entropy production with relaxation rate $c>0$ in \texttt{Phase8\_ContinuousField.lean} & Theorem \\ \hline
 Electrodynamic Discretization & Constructive derivation of Lebesgue-Bochner integral edge weights in \texttt{Phase2\_SimplicialBridge.lean} & Theorem \\ \hline
 Phase synchronization to Unity & Derived via sheaf-theoretic gluing of invariant probability measures in \texttt{Phase5\_GlobalSection.lean} & Theorem \\ \hline
@@ -137,7 +137,7 @@ Future empirical validation of this thermodynamic framework may leverage 3D cort
 The complete Lean 4 formalization, encompassing the derivation of all theorems presented in this manuscript, as well as the accompanying Python simulations, are publicly available in the GitHub repository: \url{https://github.com/bobaseb/physical_primitives_of_mind}. Additional documentation and web-accessible proofs are hosted at the project website: \url{https://bobaseb.github.io/physical_primitives_of_mind/}.
 
 \section*{Acknowledgments}
-The conceptualization, manuscript drafting, and Lean 4 formalizations presented in this work were heavily AI-assisted. The authors gratefully acknowledge the use of the Google Antigravity CLI, specifically utilizing Gemini 3.1, Claude 4.6 Opus, and Claude 4.6 Sonnet as collaborative reasoning partners throughout the research and formalization processes.
+The conceptualization, manuscript drafting, and Lean 4 formalizations presented in this work were heavily AI-assisted. The authors gratefully acknowledge the use of the Google Antigravity CLI, specifically utilizing Gemini 3.1 and Claude 4.6 Sonnet as collaborative reasoning partners throughout the research and formalization processes. In addition, DeepSeek V4 Flash and Claude Opus 5 (routed via OpenRouter) operating through Nous Research's Hermes Agent framework provided substantial assistance with code generation, proof debugging, and structural analysis.
 
 \begin{thebibliography}{12}
  
