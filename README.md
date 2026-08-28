@@ -12,7 +12,7 @@
 
 *A rigorous physical framework demonstrating how cognitive architectures emerge as attractor states from fundamental physical primitives.*
 
-[**Read the Paper**](main.pdf) | [**Math Supplement**](supplementary.pdf) | [**Project Website**](index.html)
+[**Read the Paper**](main.pdf) | [**Math Supplement**](supplementary.pdf) | [**Project Website**](https://bobaseb.github.io/physical_primitives_of_mind/)
 
 </div>
 
