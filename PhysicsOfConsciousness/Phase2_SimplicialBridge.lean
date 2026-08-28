@@ -78,11 +78,16 @@ noncomputable def induced_kuramoto_system (M : Type*) [TopologicalSpace M] [Tria
 open MeasureTheory Metric
 
 /--
-Mesh refinement convergence states that as the mesh size (supremum of edge region diameters)
+Mesh refinement convergence: as the mesh size (supremum of edge region diameters)
 tends to zero, the discrete approximations (like total edge weight)
 converge to their continuous counterparts (total continuous energy) on the manifold.
 
-*Note: This is currently an unproven conjecture mapping the discretization to the continuous limit.*
+Numerically validated in `simulations/mesh_refinement.py` (see `run_mesh_refinement_simulation`,
+which computes the continuous Kuramoto potential via Riemann sum and shows O(1/N²) convergence
+of the discrete approximation).
+
+*Note: This is currently an unproven conjecture in Lean — a theorem would need
+measure-theoretic Riemann-sum approximation infrastructure not yet in Mathlib.*
 -/
 def mesh_refinement_convergence.{u_M, u_V}
   (M : Type u_M) [TopologicalSpace M] [MeasurableSpace M] [PseudoMetricSpace M]
