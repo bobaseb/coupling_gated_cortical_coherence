@@ -60,8 +60,8 @@ Ensure you have [elan](https://github.com/leanprover/elan) installed, which mana
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/physics_of_consciousness.git
-cd physics_of_consciousness
+git clone https://github.com/bobaseb/physical_primitives_of_mind.git
+cd physical_primitives_of_mind
 
 # Build the Lean 4 project
 lake build
