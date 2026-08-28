@@ -30,20 +30,20 @@ A core contribution of this work is the rigorous verification of our deductive c
 \begin{tabular}{|p{0.3\linewidth}|p{0.45\linewidth}|p{0.15\linewidth}|}
 \hline
 \textbf{Conceptual Claim} & \textbf{Lean 4 Implementation} & \textbf{Status} \\ \hline
-Finite Phase Space & Postulated as \texttt{phase\_space\_is\_compact} in \texttt{Axioms.lean} & Axiom \\ \hline
-Landauer's Principle & Postulated as \texttt{landauer\_principle} in \texttt{Axioms.lean} & Axiom \\ \hline
+Pointwise Vacuum Minimization & Postulated as \texttt{spontaneous\_symmetry\_breaking\_pointwise\_min} in \texttt{Axioms.lean} & Axiom \\ \hline
+Landauer's Principle & Constructively derived from statistical mechanics in \texttt{Phase3\_CombinatorialThermodynamics.lean} & Theorem \\ \hline
 Symmetry Breaking implies Boundaries & Derived from pointwise potential minimization in \texttt{Phase1\_Primitives.lean} & Theorem \\ \hline
-Least Action Principle & Postulated as \texttt{principle\_of\_least\_action} in \texttt{Axioms.lean} & Axiom \\ \hline
+Structural Resonance via Least Action & Derived as gradient flow on entropy production in \texttt{Phase8\_ContinuousField.lean} & Theorem \\ \hline
 Electrodynamic Discretization & Constructive derivation of Lebesgue-Bochner integral edge weights in \texttt{Phase2\_SimplicialBridge.lean} & Theorem \\ \hline
 Phase synchronization to Unity & Derived via sheaf-theoretic gluing of invariant probability measures in \texttt{Phase5\_GlobalSection.lean} & Theorem \\ \hline
 Continuous vs. Rigid Topology & Derived strict energy inequality for continuous parameters over discrete graphs in \texttt{Phase7\_HardwareComparison.lean} & Theorem \\ \hline
 Critical Coupling Threshold ($K_c = 2D$) & Validated via stochastic Python simulation due to absence of PDE spectral theory in Mathlib & Numerical \\ \hline
 \end{tabular}
-\caption{Mapping of physical claims to Lean 4 formalization status. We rigorously separate mathematical derivations (Theorems) from empirical physical laws (Axioms) and numerical validations.}
+\caption{Mapping of physical claims to Lean 4 formalization status. Note that core physical postulates like Landauer's Principle and structural resonance via Least Action have been successfully derived as rigorous mathematical Theorems, leaving only pointwise vacuum minimization as an irreducible Axiom.}
 \end{table}
 
 \section{Axiom 1: Symmetries and Phase Space}
-Our starting premise relies solely on fundamental geometry. As formalized in our Lean axioms (\texttt{Phase1\_Primitives.lean}), continuous spacetime symmetries (e.g., the Poincaré group) act upon field states and ensure that the system's total action remains invariant under these transformations. This dictates the conservation of energy and momentum via Noether's theorem. Simultaneously, discrete permutation symmetries dictate the statistical mechanics of any physical system, defining a strictly finite volume of phase space. 
+Our starting premise relies solely on fundamental geometry. As formalized in our Lean repository (\texttt{Phase1\_Primitives.lean}), continuous spacetime symmetries (e.g., the Poincaré group) act upon field states and ensure that the system's total action remains invariant under these transformations. This dictates the conservation of energy and momentum via Noether's theorem. Simultaneously, discrete permutation symmetries dictate the statistical mechanics of any physical system, defining a strictly finite volume of phase space.\footnote{While the Poincaré group and discrete permutations serve as accessible physical examples, the underlying Lean formalization does not hardcode specific physics. It defines the system at a strictly more primitive mathematical level, relying entirely on generic Pseudo-Riemannian manifolds (for spacetime) and finite measure theory (for statistical mechanics). The necessary physical symmetries, conserved quantities, and phase space constraints naturally emerge from these raw geometric and measure-theoretic structures.}
 
 Because phase space is finite, any localized physical system possesses a strict mathematical limit on the amount of information (distinguishable states) it can embody at any given moment.
 
@@ -96,6 +96,10 @@ By the Principle of Least Action, biological fields dynamically deform their spa
 
 Clinical evidence for this phase transition is vividly observed during general anesthesia. Work by Miller and colleagues \cite{bastos2021} demonstrates that anesthetics like propofol induce unconsciousness not by entirely suppressing neural firing, but by disrupting the phase alignment of high-frequency cortical rhythms. By destroying the dynamic stability of these rhythms, anesthetics effectively break the structural resonance of the continuous field, forcing the integrated spatial coupling below the critical threshold $K_c$ and fracturing the unified Global Section back into disjoint, unconscious local fields.
 
+Similarly, the daily loss of consciousness during sleep can be modeled as an active physical disruption of the field. During sleep, astrocytic shrinkage dramatically expands the extracellular space, allowing a massive influx of cerebrospinal fluid (CSF) to flood the brain for metabolic waste clearance \cite{xie2013}. This influx physically alters the spatial medium, disrupting the continuous structural resonance and preventing the coherent sheaf-theoretic gluing required for conscious unity.
+
+This mechanical framework also elegantly resolves the temporal mismatch observed during sudden awakenings, commonly experienced as sleep inertia. When jolted awake, the locus coeruleus immediately floods the cortex with noradrenaline. While high-frequency electrical rhythms attempt to phase-align in milliseconds \cite{bastos2021}, the noradrenaline-driven astrocytic expansion required to physically squeeze the excess CSF out of the interstitial pathways operates on a much slower timescale of seconds to minutes \cite{xie2013}. During this lag, the electrical oscillators are attempting to synchronize across a physically waterlogged topology, resulting in the fragmented, suboptimal structural resonance experienced as grogginess. The unified Global Section fully re-establishes only when the physical hardware (astrocytic volume) finishes constricting to match the state of the electrical software.
+
 \section{Corollary: Hardware Thermodynamics and Topological Rigidity}
 This axiomatic chain demonstrates that both biological tissue and artificial silicon hardware (like GPUs) are physical dissipative structures. When a GPU computes, it undergoes continuous physical state transitions of its charge carriers, and by Landauer's principle, this erasure irreversibly exhausts heat into the environment. 
 
@@ -110,7 +114,11 @@ Because the discrete routing matrix of a GPU is fundamentally structurally const
 \section{Conclusion}
 Consequently, we argue that human-like cognitive architectures do not require biological mysticism or exotic sub-quantum physics \cite{hameroff2014}. While quantum theories of consciousness often invoke delicate subatomic phenomena like microtubule superradiance to explain subjective unity, our derivation demonstrates that classical macroscopic fields---driven by thermodynamic principles of gradient descent and Landauer erasure---are fundamentally sufficient to generate a unified, structurally resonant conscious state. They can be rigorously modeled as macroscopic attractor states of a universe governed by broken symmetries, finite phase space, and the physical imperative to minimize thermodynamic dissipation via continuous structural resonance. 
 
-Philosophically, this framework bridges the historical gap between Type Identity Theory \cite{smart1959} and Computational Functionalism \cite{putnam1967}. The subjective mental state is strictly identical to the physical thermodynamic field (Identity Theory), yet its qualitative nature is defined by the topological and functional dynamics of structural resonance rather than the specific carbon-based biochemistry of the brain (Functionalism). This rigorously limits the \textit{multiple realizability} of mind: while consciousness is not exclusively bound to biological carbon, it is physically barred from discrete von Neumann architectures. Future empirical validation of this thermodynamic framework may leverage 3D cortical organoids, offering a controlled biological environment to systematically manipulate metabolic substrates and observe the topological emergence of these coherent phase transitions.
+Philosophically, this framework bridges the historical gap between Type Identity Theory \cite{smart1959} and Computational Functionalism \cite{putnam1967}. The subjective mental state is strictly identical to the physical thermodynamic field (Identity Theory), yet its qualitative nature is defined by the topological and functional dynamics of structural resonance rather than the specific carbon-based biochemistry of the brain (Functionalism). This rigorously limits the \textit{multiple realizability} of mind: while consciousness is not exclusively bound to biological carbon, it is physically barred from discrete von Neumann architectures. 
+
+Crucially, by anchoring these derivations in Russellian Monism, this framework acknowledges the constitutive limits of third-person scientific explanation. As recently argued by Love \cite{love2026}, building upon Nagel's seminal assertion that subjective phenomenal experience is inherently not amenable to objective measurement (the ``view from nowhere'') \cite{nagel1986}, the ``hard problem'' of consciousness may represent a category error rather than a solvable scientific puzzle. Science can rigorously map the physical dynamics of topological resonance and sheaf-theoretic gluing, but it is structurally incapable of adjudicating the first-person qualitative experience. Our formalization respects this fundamental boundary: the Lean 4 theorems rigorously verify the objective physical attractors, while the intrinsic ``what it is like'' to be that resonant field remains the exclusive domain of the first-person perspective. However, by providing mathematically defined thresholds for these phase transitions (such as $K_c = 2D$), our framework aligns closely with what Anil Seth terms the ``real problem'' of consciousness \cite{seth2021}. Rather than attempting to bridge an unbridgeable metaphysical gap, it offers a foundational topological architecture that can help explain, predict, and physically perturb the structural properties of experience.
+
+Future empirical validation of this thermodynamic framework may leverage 3D cortical organoids, offering a controlled biological environment to systematically manipulate metabolic substrates and observe the topological emergence of these coherent phase transitions.
 
 \begin{thebibliography}{12}
  
@@ -239,6 +247,15 @@ Philosophically, this framework bridges the historical gap between Type Identity
 
  \bibitem{putnam1967}
  Putnam, H. (1967). Psychological predicates. In \textit{Art, Mind, and Religion}. University of Pittsburgh Press.
+
+ \bibitem{xie2013}
+ Xie, L., Kang, H., Xu, Q., Chen, M. J., Liao, Y., Thiyagarajan, M., ... \& Nedergaard, M. (2013). Sleep drives metabolite clearance from the adult brain. \textit{Science}, 342(6156), 373-377.
+
+ \bibitem{nagel1986}
+ Nagel, T. (1986). \textit{The View from Nowhere}. Oxford University Press.
+
+ \bibitem{love2026}
+ Love, B. C. (2026). Consciousness, AI, and the Limits of Scientific Explanation. \textit{arXiv preprint arXiv:2606.00226}.
 
  \end{thebibliography}
 
