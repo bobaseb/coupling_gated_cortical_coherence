@@ -3,7 +3,7 @@ rm -rf arxiv_submit
 mkdir arxiv_submit
 cp main.tex arxiv_submit/
 cp supplementary.tex arxiv_submit/
-cp neurips_2026.sty arxiv_submit/
+cp arxiv_assets/neurips_2026.sty arxiv_submit/
 
 cd arxiv_submit
 
