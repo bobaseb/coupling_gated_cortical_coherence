@@ -24,3 +24,6 @@ If Python code is introduced to this repository, the following tooling MUST be c
 - Ensure simplicity. Push back if a simpler solution exists over a clever one.
 - Match existing patterns in the codebase. Consistency over novelty.
 - If scope expands, stop and split into separate changes.
+
+## 4. Anti-Hallucination Gate for References
+- **Verify All References:** Any time a new reference or citation is added to the project (e.g., in `main.tex`), it MUST be verified for correctness via an online web search before being committed. You must independently confirm the authors, title, year, and publication venue. No fabricated or unverified references are allowed.

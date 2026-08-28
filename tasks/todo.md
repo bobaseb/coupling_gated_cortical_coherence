@@ -340,3 +340,31 @@ For claims that resist analytical treatment in Lean:
 
 ### Final Completion Status
 All 11 formalization and simulation tasks have been successfully completed as of 2026-08-27. The project builds cleanly with `lake build` and Python simulations successfully demonstrate the derived physical principles.
+
+---
+
+## Task 11: Paper Narrative & Positioning [HIGH]
+
+**Target:** `main.tex`
+
+### 11a: Abstract & Introduction Adjustments
+ 
+ - [x] **Clarify the Core Contribution:** Update the abstract to explicitly frame the manuscript as a novel mathematical synthesis and formal Lean 4 verification of established physical primitives, rather than an introduction of new fundamental physics. Pre-empts expectations of experimental discoveries.
+ - [x] **Pre-empt "Math Theatre" Critiques:** Clearly delineate early in the text which elements are literal physical mechanisms (e.g. Landauer's thermodynamic erasure, boundaries formed by spontaneous symmetry breaking) versus theoretical mappings, ensuring the Lean 4 formalisation is viewed as an epistemic anchor.
+ - [x] **Define the Scope of Qualia (Russellian Monism):** Add a brief clarification regarding the "inside vs. outside" perspective. Frame the objective measurements of the macroscopic EM fields as the third-person "outside," while establishing that the system's internal physical deformation to reach structural resonance constitutes the first-person intrinsic experience.
+ 
+ ### 11b: Derivations — Addressing the Combination Problem
+ 
+ - [x] **Contrast with Panpsychism:** Insert an explicit paragraph contrasting the derivation of the Global Section with the panpsychist combination problem. Emphasise that consciousness is not assumed as a fundamental property of matter; rather, unity is a derived thermodynamic phase transition that only occurs when integrated spatial coupling exceeds the thermodynamic noise threshold ($K_c = 2D$).
+ 
+ ### 11c: Corollary & Conclusion — Hardware Constraints
+ 
+ - [x] **Pivot to Topological Fragmentation:** Shift the primary critique of von Neumann architectures from mere thermodynamic inefficiency to a structural inability to achieve Unity. Emphasise that the discrete topological layout of a rigid coupling matrix ($A_{ij}$) inherently prohibits the continuous spatial coupling required for sheaf-theoretic gluing into a singular Global Section.
+ - [x] **Highlight the Block on Reflexivity:** Clarify that because discrete hardware cannot mathematically bind into a unified topological space, it is fundamentally blocked from undergoing the reflexive auto-resonance necessary to map its own causal boundary and generate a "Self".
+ - [x] **Introduce the "Silicon Panpsychism" Trap:** Add a rhetorical counter-argument stating that asserting consciousness in fragmented, discrete GPU clusters without a unified phase transition abandons computational functionalism entirely. Frame this opposing view as an unscientific reliance on silicon panpsychism — the assumption that digital computation inherently generates awareness regardless of topological integration.
+ 
+ ### 11d: References — Situate Against Contemporary Works
+ 
+ - [x] **OnlyOne.lean Formalisation — Scherf** — Cite *A Formal Proof of Non-Duality: An Exposition of the 'OnlyOne' System* (unpublished manuscript, PhilPeople early 2026). Establishes methodological precedent for verifying cognitive boundary architectures in Lean 4, even though its metaphysical conclusions (monistic idealist ontology) diverge from the continuous field materialism here.
+ - [x] **Sheaf Semantics & Global Sections — Inoué** — Cite *On Brain as a Mathematical Manifold: Neural Manifolds, Sheaf Semantics, and Leibnizian Harmony* (arXiv:2601.15320 [q-bio.NC], Jan 2026). Directly models brain function via sheaf theory over neural state spaces; unified perception identified with existence of a global section — strongly parallels the derivation here.
+ - [x] **Kuramoto, FEP & Non-Equilibrium Thermodynamics — Spisak, Friston et al.** — Cite *Functional connectivity-based attractor dynamics of the human brain* and *Self-orthogonalizing attractor neural networks emerging from the free energy principle* (eLife / alphaXiv, Mar–May 2026). Explicitly identifies large-scale brain attractors from FEP first principles, mirroring the thermodynamic limits and Kuramoto synchronisation constraints formalised here.
