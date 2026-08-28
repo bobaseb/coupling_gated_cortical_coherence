@@ -125,13 +125,13 @@ def is_gradient_descent (sys : PlasticNeuralField M) (theta : ℝ → M → ℝ)
 
 -- 4. Critical Coupling Thresholds
 /--
-[NUMERICAL VALIDATION]
-The onset of synchronization in the stochastic Kuramoto model occurs at `K_c = 2D`.
-While this is an exact analytical result derived via the Fokker-Planck equation
-and linear stability analysis in theoretical physics, proving it formally in Lean
-requires stochastic calculus and PDE spectral theory infrastructure currently absent
-from Mathlib. Therefore, this threshold is defined here as a constant and
-validated empirically via Python simulations in `simulations/kuramoto.py`.
+Critical coupling threshold for the Kuramoto phase transition.
+When the spatial coupling strength exceeds this value, K > K_c = 2D,
+the oscillators undergo a synchronization phase transition.
+
+Numerically validated against `simulations/kuramoto.py` (see that script's
+`simulate_kuramoto` function, which sweeps K and measures the order parameter r
+against the theoretical threshold K_c = 2D).
 -/
 noncomputable def critical_coupling (D : ℝ) : ℝ := 2 * D
 
@@ -191,7 +191,7 @@ theorem structural_resonance_implies_gradient_descent (K_t : ℝ → E) (S : E �
   · intro t
     have h_comp := HasFDerivAt.comp_hasDerivAt t (h_res.1 (K_t t)) (h_res.2.1 t)
     have h_eq : (innerSL ℝ (gradS (K_t t))) (- c • gradS (K_t t)) = - c * norm (gradS (K_t t)) ^ 2 := by
-      simp [innerSL, inner_neg_right, inner_smul_right, real_inner_self_eq_norm_sq]
+      simp [innerSL, inner_neg_right, inner_smul_right]
     rw [h_eq] at h_comp
     exact h_comp
   · intro t

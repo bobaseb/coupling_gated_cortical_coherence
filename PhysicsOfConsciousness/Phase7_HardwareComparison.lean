@@ -36,6 +36,7 @@ private lemma neg_sum_lemma (f : V → V → ℝ) (c : ℝ) (hc : (∑ i, ∑ j,
   have : (∑ i, ∑ j, -f i j) = - (∑ i, ∑ j, f i j) := by simp_rw [Finset.sum_neg_distrib]
   rw [this, hc]
 
+omit [DecidableEq V] in
 lemma better_allocation_of_adj (A_rigid : V → V → ℝ) (theta : V → ℝ) (adj : V → V → ℝ)
   (h_valid : is_valid_coupling A_rigid)
   (h_adj_symm : ∀ i j, adj i j = adj j i)

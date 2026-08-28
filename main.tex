@@ -42,11 +42,11 @@ Pointwise Vacuum Minimization & Postulated as \texttt{spontaneous\_symmetry\_bre
 Landauer's Principle & Constructively derived from statistical mechanics in \texttt{Phase3\_CombinatorialThermodynamics.lean} & Theorem \\ \hline
 Symmetry Breaking implies Boundaries & Derived from pointwise potential minimization in \texttt{Phase1\_Primitives.lean} & Theorem \\ \hline
 Structural Resonance KL Bound & Unformalized conceptual mapping (KL divergence to entropy) & Unformalized \\ \hline
-Structural Resonance via Least Action & Derived as gradient flow on entropy production in \texttt{Phase8\_ContinuousField.lean} & Theorem \\ \hline
+Structural Resonance via Least Action & Derived as gradient flow on entropy production with relaxation rate $c>0$ in \texttt{Phase8\_ContinuousField.lean} & Theorem \\ \hline
 Electrodynamic Discretization & Constructive derivation of Lebesgue-Bochner integral edge weights in \texttt{Phase2\_SimplicialBridge.lean} & Theorem \\ \hline
 Phase synchronization to Unity & Derived via sheaf-theoretic gluing of invariant probability measures in \texttt{Phase5\_GlobalSection.lean} & Theorem \\ \hline
 Continuous vs. Rigid Topology & Derived strict energy inequality for continuous parameters over discrete graphs in \texttt{Phase7\_HardwareComparison.lean} & Theorem \\ \hline
-Critical Coupling Threshold ($K_c = 2D$) & Validated via stochastic Python simulation due to absence of PDE spectral theory in Mathlib & Numerical \\ \hline
+Critical Coupling Threshold ($K_c = 2D$) & Validated via stochastic Python simulation (\texttt{simulations/kuramoto.py}) due to absence of PDE spectral theory in Mathlib & Numerical \\ \hline
 \end{tabular}
 \caption{Mapping of physical claims to Lean 4 formalization status. Note that core physical postulates like Landauer's Principle and structural resonance via Least Action have been successfully derived as mathematical Theorems, leaving only pointwise vacuum minimization as an irreducible Axiom.}
 \end{table}
