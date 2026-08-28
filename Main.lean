@@ -1,4 +1,4 @@
 import PhysicsOfConsciousness
 
 def main : IO Unit :=
-  IO.println s!"Hello, {hello}!"
+  IO.println "Physics of Consciousness — Lean 4 formalization."
