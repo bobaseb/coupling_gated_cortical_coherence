@@ -37,8 +37,8 @@ class ThermodynamicCover (X : TopCat.{u}) [MeasurableSpace X] [BorelSpace X] [Tr
 theorem global_section_from_thermodynamics [T : ThermodynamicCover X] :
   ∃! s : GlobalSection (X := X), 
     ∀ i : T.I, (probabilityPresheaf X).map (homOfLE (le_top : T.cover i ≤ ⊤)).op s = T.sync_to_section i := by
-  letI := T.I_fintype
-  letI := T.I_decidable
+  let := T.I_fintype
+  let := T.I_decidable
   have h_locked : is_phase_locked T.phase := 
     potential_min_implies_phase_locked ⟨fun _ => 0, T.A, T.A_symm⟩ T.A_pos T.phase T.thermodynamic_equilibrium
   have h_eq : phase_locked_equilibrium (S := T.toLocalSectionSynchronization) := by

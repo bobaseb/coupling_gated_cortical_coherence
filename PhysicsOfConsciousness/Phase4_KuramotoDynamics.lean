@@ -69,6 +69,7 @@ theorem phase_locked_implies_r_sq_eq_one [Nonempty V] (theta : V → ℝ) (h_loc
 noncomputable def kuramoto_potential_dynamic (sys : KuramotoSystem V) (theta : V → ℝ) : ℝ :=
   - (1 / 2) * ∑ i, ∑ j, sys.A i j * Real.cos (theta j - theta i)
 
+omit [DecidableEq V] in
 theorem phase_locked_minimizes_potential 
   (sys : KuramotoSystem V) (h_pos : ∀ i j, sys.A i j > 0) (theta : V → ℝ) :
   kuramoto_potential_dynamic sys (fun _ => 0) ≤ kuramoto_potential_dynamic sys theta := by

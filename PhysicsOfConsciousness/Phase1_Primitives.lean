@@ -180,8 +180,8 @@ theorem spontaneous_symmetry_breaking
   have h_pot_x : V (phi x) = V v0 := h_pointwise_pot x
   unfold DynamicalVacuum
   unfold DynamicalVacuum at hv0
-  simp only [Set.mem_setOf_eq]
-  simp only [Set.mem_setOf_eq] at hv0
+  simp only [Set.mem_ofPred_eq]
+  simp only [Set.mem_ofPred_eq] at hv0
   rw [h_pot_x]
   exact hv0
 

@@ -1,3 +1,4 @@
+import Mathlib
 /-
   Axioms.lean — Explicit Physical Postulates
 
@@ -58,7 +59,8 @@ classical statistical mechanics. No purely topological argument can guarantee
 compactness from first principles without additional physical structure.
 -/
 axiom phase_space_is_compact {X : Type*} [TopologicalSpace X]
-  (_h_localized : True) -- "the system is physically localized"
+  (_h_local : LocallyCompactSpace X) -- The system has locally compact state space
+  (_h_bounded : ∃ K : Set X, IsCompact K ∧ ∀ x : X, x ∈ K) -- and is bounded
   : CompactSpace X
 
 -- ============================================================
@@ -86,12 +88,22 @@ mathematical assumptions — it is an empirical organizing principle.
 
 *Scope:* Used in Phase 8 to justify that structural resonance follows gradient
 flow on the entropy production functional.
--/
-axiom principle_of_least_action : True
--- (Formal statement would require defining the action functional over the
---  continuous neural field, which requires Sobolev space infrastructure
---  not yet present in the formalization.)
 
+*Status:* The formal statement is: any physically realized trajectory `theta`
+minimizes the action `S[theta]` over all competing smooth trajectories.
+Formalizing the action functional over the continuous neural field requires
+Sobolev space infrastructure not yet present in this formalization.
+-/
+-- The formal statement requires Sobolev space infrastructure not yet present.
+-- We state it as: every physical trajectory is a stationary point of the action
+-- with respect to smooth compactly supported variations.
+-- Type signature uses a generic action functional S : (M → ℝ → ℝ) → ℝ.
+axiom principle_of_least_action
+    {M : Type*} [MeasureTheory.MeasureSpace M]
+    (S : (M → ℝ → ℝ) → ℝ)       -- The action functional
+    (physical_trajectory : M → ℝ → ℝ) -- The physical field trajectory
+    : ∀ (variation : M → ℝ → ℝ),
+        HasDerivAt (fun ε => S (fun x t => physical_trajectory x t + ε * variation x t)) 0 0
 
 /--
 [IRREDUCIBLE] **Pointwise Minimization of Vacuum States.**

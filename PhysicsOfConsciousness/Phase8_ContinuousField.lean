@@ -139,19 +139,42 @@ noncomputable def ephaptic_critical_coupling : ℝ := critical_coupling macrosco
 -- 6. Gradient Descent Mechanism
 -- Replace tautological definitions with meaningful dynamic bounds.
 -- Structural resonance occurs when the time evolution of the coupling matrix K_t
--- aligns with the negative gradient of the entropy production. This means the 
--- rate of change of entropy is equal to the negative squared norm of the velocity.
-def continuous_structural_resonance (sys : PlasticNeuralField M) (theta : ℝ → M → ℝ) (v_norm_sq : ℝ → ℝ) : Prop :=
-  (∀ t, 0 ≤ v_norm_sq t) ∧ 
-  (∀ t, HasDerivAt (fun t => dynamic_entropy_production sys theta t) (- v_norm_sq t) t)
+-- aligns with the negative gradient of the entropy production. 
+-- We model the space of coupling matrices abstractly as an inner product space E.
 
-theorem structural_resonance_implies_gradient_descent (sys : PlasticNeuralField M) (theta : ℝ → M → ℝ) (v_norm_sq : ℝ → ℝ)
-  (h_res : continuous_structural_resonance sys theta v_norm_sq) : 
-  Antitone (fun t => dynamic_entropy_production sys theta t) := by
-  apply antitone_of_hasDerivAt_nonpos h_res.2
-  intro t
-  have h_pos := h_res.1 t
-  change -v_norm_sq t ≤ 0
-  linarith
+variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+
+/--
+A trajectory `K_t` follows the gradient flow of a functional `S` with gradient `gradS`
+if its velocity is the negative gradient of `S`.
+-/
+def is_coupling_gradient_flow (K_t : ℝ → E) (S : E → ℝ) (gradS : E → E) : Prop :=
+  (∀ K, HasFDerivAt S (innerSL ℝ (gradS K)) K) ∧
+  (∀ t, HasDerivAt K_t (- gradS (K_t t)) t)
+
+theorem gradient_flow_implies_entropy_decrease (K_t : ℝ → E) (S : E → ℝ) (gradS : E → E)
+  (h_flow : is_coupling_gradient_flow K_t S gradS) :
+  Antitone (fun t => S (K_t t)) := by
+  apply antitone_of_hasDerivAt_nonpos (f' := fun t => - (norm (gradS (K_t t)) ^ 2))
+  · intro t
+    have h_comp := HasFDerivAt.comp_hasDerivAt t (h_flow.1 (K_t t)) (h_flow.2 t)
+    have h_eq : (innerSL ℝ (gradS (K_t t))) (- gradS (K_t t)) = - (norm (gradS (K_t t)) ^ 2) := by
+      simp [inner_neg_right]
+    rw [h_eq] at h_comp
+    exact h_comp
+  · intro t
+    exact neg_nonpos.mpr (sq_nonneg _)
+
+/--
+Continuous structural resonance is the physical regime where coupling dynamics
+evolve as a gradient flow on the entropy production landscape.
+-/
+def continuous_structural_resonance (K_t : ℝ → E) (S : E → ℝ) (gradS : E → E) : Prop :=
+  is_coupling_gradient_flow K_t S gradS
+
+theorem structural_resonance_implies_gradient_descent (K_t : ℝ → E) (S : E → ℝ) (gradS : E → E)
+  (h_res : continuous_structural_resonance K_t S gradS) : 
+  Antitone (fun t => S (K_t t)) :=
+  gradient_flow_implies_entropy_decrease K_t S gradS h_res
 
 end PhysicsOfConsciousness
