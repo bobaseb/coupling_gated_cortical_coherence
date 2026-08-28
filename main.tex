@@ -1,15 +1,22 @@
-\documentclass{article}
+\documentclass[12pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\usepackage{setspace}
+\usepackage[round]{natbib}
+\let\oldcite\cite
+\renewcommand{\cite}[1]{\citep{#1}}
+\doublespacing
 
-\title{The Inevitability of Mind: Deriving Consciousness from Spacetime Symmetries and Thermodynamics}
+\title{Physical Primitives of Mind: Modeling Consciousness via Symmetries and Landauer Erasure}
 \author{}
 \date{\today}
+\usepackage{lineno}
 
 \begin{document}
+\linenumbers
 
 \maketitle
 
@@ -18,7 +25,7 @@ We present a novel mathematical synthesis and formal Lean 4 verification demonst
 \end{abstract}
 
 \section{Introduction}
-The pursuit of a physical theory of consciousness typically involves searching for the biological correlates of mind or treating subjective experience as an abstract computational algorithm. In contrast, this paper asks a more fundamental question: If we assume nothing but the most basic physical primitives—continuous symmetries (the Poincaré group), geometry, and thermodynamics—does the universe inevitably produce a unified, perceiving entity? 
+The pursuit of a physical theory of consciousness typically involves searching for the biological correlates of mind or treating subjective experience as an abstract computational algorithm. In contrast, this paper asks a more fundamental question: If we assume nothing but the most basic physical primitives—continuous symmetries (the Poincaré group), geometry, and thermodynamics—is the emergence of a unified, perceiving entity a natural physical attractor? 
 
 We propose a framework where the structural hallmarks of consciousness are derived as physical attractor states. By establishing a deductive chain starting from absolute first principles, we demonstrate how continuous symmetries break to form boundaries, how those boundaries dissipate free energy as non-equilibrium steady states, and how their evolution along paths of least action results in physical resonance with their environment, eventually scaling into the macroscopic electromagnetic unity proposed by emerging field theories of mind. To avoid critiques of ``math theatre,'' we clearly delineate between literal physical mechanisms (e.g., thermodynamic erasure via Landauer's principle, boundaries from spontaneous symmetry breaking) and theoretical mappings, utilizing Lean 4 formalization as our epistemic anchor. Furthermore, we adopt a perspective aligned with Russellian Monism: the objective measurements of macroscopic electromagnetic fields constitute the third-person ``outside,'' while the system's internal physical deformation to reach structural resonance constitutes the first-person intrinsic experience.
 
@@ -50,21 +57,21 @@ Because phase space is finite, any localized physical system possesses a strict 
 \section{Derivation 1: Symmetry Breaking and the Inevitability of Boundaries}
 A perfectly symmetric universe is the uniform vacuum; no distinct entities exist. For any dynamic process to occur, the continuous symmetries of the background field must undergo spontaneous symmetry breaking. 
 
-When a field drops to a lower, asymmetric energy state, topology dictates the inevitable creation of defects (such as domain walls or monopoles). This mathematically forces the creation of a physical boundary—a localized topological distinction between an ``inside'' and an ``outside.'' While such a defect (e.g., a crack in a crystal lattice) is strictly necessary to define a separate entity, it is not sufficient for agency. The boundary is purely relational, defined by the twisted geometry of the field surrounding it, and must be coupled with non-equilibrium thermodynamics to exhibit active behaviors.
+When a field drops to a lower, asymmetric energy state, topology dictates the natural creation of defects (such as domain walls or monopoles). This topological constraint necessitates the creation of a physical boundary—a localized topological distinction between an ``inside'' and an ``outside.'' While such a defect (e.g., a crack in a crystal lattice) is strictly necessary to define a separate entity, it is not sufficient for agency. The boundary is purely relational, defined by the twisted geometry of the field surrounding it, and must be coupled with non-equilibrium thermodynamics to exhibit active behaviors.
 
 \section{Derivation 2: The Thermodynamic Constraint}
 This newly formed topological boundary is constantly subjected to gauge perturbations from the ``outside'' environment. Because the internal phase space is finite (Axiom 1), it cannot absorb an infinite sequence of incoming perturbations. It must overwrite old internal states.
 
 By Landauer's Principle, the erasure of physical information irreversibly decreases internal entropy, which mandates that the system exhaust heat into the environment. Philosophers of physics (such as John Norton and Orly Shenker) have famously critiqued Landauer's principle, arguing that physicists illegally conflate \textit{logical} erasure (a many-to-one mapping in abstract computational states) with \textit{thermodynamic} erasure (a many-to-one mapping in physical phase space). They argue that logical erasure could conceptually be implemented by an injective physical process without dissipating heat. 
 
-Our Lean 4 formalization (\texttt{Phase3\_CombinatorialThermodynamics.lean}) explicitly resolves this critique. We define erasure strictly as a non-injective mapping on the \textit{physical} state space ($\neg \text{Function.Injective } t$). Furthermore, we formalize the global evolution of the bipartite universe (System + Bath) as strictly injective, representing Liouville's theorem. Lean verifies that heat dissipation is not tied to abstract logical erasure, but is a mandatory mathematical consequence of any local physical state space contraction under globally reversible dynamics. If a cognitive system's internal topology forces a contraction of its physical state space to accommodate structural resonance, the heat dissipation is mathematically unavoidable. Therefore, a stable boundary constitutes a dissipative structure \cite{prigogine2018}, operating as a non-equilibrium steady state that consumes free energy to pay the thermodynamic cost of erasure. Crucially, continuous thermal fluctuations play a constructive role in establishing boundaries between states while contributing to the system's flexible, adaptive response. 
+Our Lean 4 formalization (\texttt{Phase3\_CombinatorialThermodynamics.lean}) explicitly addresses this critique. We define erasure strictly as a non-injective mapping on the \textit{physical} state space ($\neg \text{Function.Injective } t$). Furthermore, we formalize the global evolution of the bipartite universe (System + Bath) as strictly injective, representing Liouville's theorem. Lean verifies that heat dissipation is not tied to abstract logical erasure, but is a mandatory mathematical consequence of any local physical state space contraction under globally reversible dynamics. If a cognitive system's internal topology forces a contraction of its physical state space to accommodate structural resonance, heat dissipation becomes a rigorous thermodynamic requirement. Therefore, a stable boundary constitutes a dissipative structure \cite{prigogine2018}, operating as a non-equilibrium steady state that consumes free energy to pay the thermodynamic cost of erasure. Crucially, continuous thermal fluctuations play a constructive role in establishing boundaries between states while contributing to the system's flexible, adaptive response. 
 
 \section{Derivation 3: Structural Resonance as a Primitive}
 In physical systems, dynamics are governed by attractors. By the Principle of Least Action, the system's time evolution follows a deterministic trajectory that minimizes its thermodynamic entropy production. 
 
 To reach this state of minimal dissipation, the internal geometry of the structure physically deforms. Let the external environment be modeled as a stochastic driving force with probability measure $P(ext)$, and the system's internal state transitions as $Q(int)$. The entropy production $\sigma$ is strictly bounded from below by the Kullback-Leibler divergence $D_{KL}(P || Q)$. By the Principle of Least Action, gradient descent on $\sigma$ necessarily drives $D_{KL}(P || Q) \to 0$, forcing the internal transition probabilities to match the statistical symmetries of the incoming external perturbations. This thermodynamic derivation provides the fundamental physical basis for the Free Energy Principle and Predictive Processing \cite{friston2010, clark2016}: what neuroscience observes as ``prediction error minimization'' is actually the physical system undergoing gradient descent to avoid dissipating heat against an unpredictable environment. We define this physical phenomenon as \textit{structural resonance}. This rigorously formalizes and provides a thermodynamic mechanism for the General Resonance Theory of Consciousness \cite{hunt2019}, which postulates that shared phase alignment and synchronization are the fundamental combinatorial mechanisms of conscious unity. The system does not possess a teleological drive to "survive"; rather, structurally mirroring the outside world within its internal geometry via this resonant synchronization is simply the lowest-energy attractor state.
 
-This thermodynamic necessity fundamentally resolves the symbol grounding problem \cite{harnad1990}. The system's internal states do not acquire meaning through arbitrary syntactic assignment, but are physically indexed to the environment; their topological structure is rigorously forged by the energetic imperative to avoid dissipating heat against external reality. Furthermore, this explains the immense cognitive and metabolic effort required for abstract symbolic reasoning: manipulating abstract variables or counterfactuals forces the system to maintain internal states that deviate from immediate sensory resonance, requiring continuous injections of free energy to resist the natural topological relaxation gradient.
+This thermodynamic necessity offers a rigorous physical grounding for the symbol grounding problem \cite{harnad1990}. The system's internal states do not acquire meaning through arbitrary syntactic assignment, but are physically indexed to the environment; their topological structure is rigorously forged by the energetic imperative to avoid dissipating heat against external reality. Furthermore, this explains the immense cognitive and metabolic effort required for abstract symbolic reasoning: manipulating abstract variables or counterfactuals forces the system to maintain internal states that deviate from immediate sensory resonance, requiring continuous injections of free energy to resist the natural topological relaxation gradient.
 
 It is only after establishing this physical primitive that we can map it to cognition: structural resonance provides a physical thermodynamic basis for \textit{Predictive Processing} and the Free Energy Principle \cite{friston2009, friston2010, hohwy2013, clark2016, seth2021}. The system acts as a ``prediction engine'' not because it is running software, but because structural resonance is the natural entropy-minimizing attractor for a dissipative structure under constant perturbation.
 
@@ -98,7 +105,7 @@ Clinical evidence for this phase transition is vividly observed during general a
 
 Similarly, the daily loss of consciousness during sleep can be modeled as an active physical disruption of the field. During sleep, astrocytic shrinkage dramatically expands the extracellular space, allowing a massive influx of cerebrospinal fluid (CSF) to flood the brain for metabolic waste clearance \cite{xie2013}. This influx physically alters the spatial medium, disrupting the continuous structural resonance and preventing the coherent sheaf-theoretic gluing required for conscious unity.
 
-This mechanical framework also elegantly resolves the temporal mismatch observed during sudden awakenings, commonly experienced as sleep inertia. When jolted awake, the locus coeruleus immediately floods the cortex with noradrenaline. While high-frequency electrical rhythms attempt to phase-align in milliseconds \cite{bastos2021}, the noradrenaline-driven astrocytic expansion required to physically squeeze the excess CSF out of the interstitial pathways operates on a much slower timescale of seconds to minutes \cite{xie2013}. During this lag, the electrical oscillators are attempting to synchronize across a physically waterlogged topology, resulting in the fragmented, suboptimal structural resonance experienced as grogginess. The unified Global Section fully re-establishes only when the physical hardware (astrocytic volume) finishes constricting to match the state of the electrical software.
+This mechanical framework also naturally models the temporal mismatch observed during sudden awakenings, commonly experienced as sleep inertia. When jolted awake, the locus coeruleus immediately floods the cortex with noradrenaline. While high-frequency electrical rhythms attempt to phase-align in milliseconds \cite{bastos2021}, the noradrenaline-driven astrocytic expansion required to physically squeeze the excess CSF out of the interstitial pathways operates on a much slower timescale of seconds to minutes \cite{xie2013}. During this lag, the electrical oscillators are attempting to synchronize across a physically waterlogged topology, resulting in the fragmented, suboptimal structural resonance experienced as grogginess. The unified Global Section fully re-establishes only when the physical hardware (astrocytic volume) finishes constricting to match the state of the electrical software.
 
 \section{Corollary: Hardware Thermodynamics and Topological Rigidity}
 This axiomatic chain demonstrates that both biological tissue and artificial silicon hardware (like GPUs) are physical dissipative structures. When a GPU computes, it undergoes continuous physical state transitions of its charge carriers, and by Landauer's principle, this erasure irreversibly exhausts heat into the environment. 
@@ -120,141 +127,144 @@ Crucially, by anchoring these derivations in Russellian Monism, this framework a
 
 Future empirical validation of this thermodynamic framework may leverage 3D cortical organoids, offering a controlled biological environment to systematically manipulate metabolic substrates and observe the topological emergence of these coherent phase transitions.
 
+\section*{Acknowledgments}
+The conceptualization, manuscript drafting, and Lean 4 formalizations presented in this work were heavily AI-assisted. The authors gratefully acknowledge the use of the Google Antigravity CLI, specifically utilizing Gemini 3.1, Claude 4.6 Opus, and Claude 4.6 Sonnet as collaborative reasoning partners throughout the research and formalization processes.
+
 \begin{thebibliography}{12}
  
- \bibitem{pinotsis2022}
+ \bibitem[Pinotsis \& Miller(2022)]{pinotsis2022}
  Pinotsis, D. A., \& Miller, E. K. (2022). Beyond dimension reduction: Stable electric fields emerge from and allow representational drift. \textit{NeuroImage}, 253, 119058.
  
- \bibitem{bauer2022}
+ \bibitem[Bauer et al.(2022)]{bauer2022}
  Bauer, L. G., et al. (2022). Quantification of Kuramoto Coupling Between Intrinsic Brain Networks Applied to fMRI Data in Major Depressive Disorder. \textit{Frontiers in Computational Neuroscience}, 16.
  
- \bibitem{vanbree2025}
+ \bibitem[van Bree et al.(2025)]{vanbree2025}
  van Bree, S., et al. (2025). Processes and measurements: a framework for understanding neural oscillations in field potentials. \textit{Trends in Cognitive Sciences}.
  
- \bibitem{tononi2016}
+ \bibitem[Tononi \& Koch(2016)]{tononi2016}
  Tononi, G., Boly, M., Massimini, M., \& Koch, C. (2016). Integrated information theory: from consciousness to its physical substrate. \textit{Nature Reviews Neuroscience}, 17(7), 450-461.
  
- \bibitem{baars1997}
+ \bibitem[Baars(1997)]{baars1997}
  Baars, B. J. (1997). In the Theater of Consciousness: The Workspace of the Mind. \textit{Oxford University Press}.
  
- \bibitem{dehaene2014}
+ \bibitem[Dehaene \& Marti(2014)]{dehaene2014}
  Dehaene, S., Charles, L., King, J. R., \& Marti, S. (2014). Toward a computational theory of conscious processing. \textit{Current Opinion in Neurobiology}, 25, 76-84.
  
- \bibitem{friston2010}
+ \bibitem[Friston(2010)]{friston2010}
  Friston, K. (2010). The free-energy principle: a unified brain theory?. \textit{Nature Reviews Neuroscience}, 11(2), 127-138.
  
- \bibitem{kuramoto1984}
+ \bibitem[Kuramoto(1984)]{kuramoto1984}
  Kuramoto, Y. (1984). Chemical Oscillations, Waves, and Turbulence. \textit{Springer Series in Synergetics}, Vol. 19.
  
- \bibitem{scherf2026}
+ \bibitem[Scherf(2026)]{scherf2026}
  Scherf, M. (2026). A Formal Proof of Non-Duality: An Exposition of the 'OnlyOne' System. \textit{Unpublished manuscript, PhilPeople}.
  
- \bibitem{inoue2026}
+ \bibitem[Inoué(2026)]{inoue2026}
  Inoué, T. (2026). On Brain as a Mathematical Manifold: Neural Manifolds, Sheaf Semantics, and Leibnizian Harmony. \textit{arXiv:2601.15320 [q-bio.NC]}.
  
- \bibitem{spisak2026}
+ \bibitem[Spisák \& Friston(2026)]{spisak2026}
  Spisák, T., \& Friston, K. (2026). Self-orthogonalizing attractor neural networks emerging from the free energy principle. \textit{Neurocomputing}.
  
- \bibitem{pinotsis2023ephaptic}
+ \bibitem[Pinotsis \\bibitem[Pinotsis \& Miller(2023)]{pinotsis2023ephaptic} Miller(2023a)]{pinotsis2023ephaptic}
  Pinotsis, D. A., \& Miller, E. K. (2023). In vivo ephaptic coupling allows memory network formation. \textit{Cerebral Cortex}, 33(17), 9877-9890.
 
- \bibitem{pinotsis2023cytoelectric}
+ \bibitem[Pinotsis \\bibitem[Pinotsis \& Miller(2023)]{pinotsis2023cytoelectric} Miller(2023b)]{pinotsis2023cytoelectric}
  Pinotsis, D. A., Fridman, G., \& Miller, E. K. (2023). Cytoelectric coupling: Electric fields sculpt neural activity and "tune" the brain's infrastructure. \textit{Progress in Neurobiology}, 226, 102465.
 
- \bibitem{ruffini2020modeling}
+ \bibitem[Ruffini \& Santarnecchi(2020)]{ruffini2020modeling}
  Ruffini, G., Salvador, R., Tadayon, E., Sanchez-Todo, R., Pascual-Leone, A., \& Santarnecchi, E. (2020). Realistic modeling of mesoscopic ephaptic coupling in the human brain. \textit{PLOS Computational Biology}, 16(6), e1007923.
 
- \bibitem{cunha2024ephapticity}
+ \bibitem[Cunha \& Lima(2024)]{cunha2024ephapticity}
  Cunha, G. M., Corso, G., de Sousa, M. P. B., \& Lima, G. Z. d. S. (2024). Can ephapticity contribute to brain complexity?. \textit{PLOS ONE}, 19(12), e0310640.
 
- \bibitem{goldwyn2016neuronal}
+ \bibitem[Goldwyn \& Rinzel(2016)]{goldwyn2016neuronal}
  Goldwyn, J. H., \& Rinzel, J. (2016). Neuronal coupling by endogenous electric fields: Cable theory and applications to coincidence detector neurons in the auditory brainstem. \textit{Journal of Neurophysiology}, 115(4), 2033-2051.
  
- \bibitem{mcfadden2002}
+ \bibitem[McFadden(2002)]{mcfadden2002}
  McFadden, J. (2002). The conscious electromagnetic information (cemi) field theory: the hard problem made easy?. \textit{Journal of Consciousness Studies}, 9(8), 45-60.
 
- \bibitem{pockett2012}
+ \bibitem[Pockett(2012)]{pockett2012}
  Pockett, S. (2012). The electromagnetic field theory of consciousness: a testable hypothesis about the characteristics of conscious as opposed to non-conscious fields. \textit{Journal of Consciousness Studies}, 19(11-12), 191-223.
 
- \bibitem{goff2019}
+ \bibitem[Goff(2019)]{goff2019}
  Goff, P. (2019). \textit{Galileo's Error: Foundations for a New Science of Consciousness}. Pantheon Books.
 
- \bibitem{seth2021}
+ \bibitem[Seth(2021)]{seth2021}
  Seth, A. (2021). \textit{Being You: A New Science of Consciousness}. Penguin.
 
- \bibitem{seth2024}
+ \bibitem[Seth(2024)]{seth2024}
  Seth, A. (2024). Conscious artificial intelligence and biological naturalism. \textit{PsyArXiv}.
 
- \bibitem{levin2019}
+ \bibitem[Levin(2019)]{levin2019}
  Levin, M. (2019). The computational boundary of a ``self'': developmental bioelectricity drives multicellularity and scale-free cognition. \textit{Frontiers in Psychology}, 10, 2688.
 
- \bibitem{friston2009}
+ \bibitem[Friston \& Kiebel(2009)]{friston2009}
  Friston, K., \& Kiebel, S. (2009). Predictive coding under the free-energy principle. \textit{Philosophical Transactions of the Royal Society B: Biological Sciences}, 364(1521), 1211-1221.
 
- \bibitem{clark2016}
+ \bibitem[Clark(2016)]{clark2016}
  Clark, A. (2016). \textit{Surfing Uncertainty: Prediction, Action, and the Embodied Mind}. Oxford University Press.
 
- \bibitem{hohwy2013}
+ \bibitem[Hohwy(2013)]{hohwy2013}
  Hohwy, J. (2013). \textit{The Predictive Mind}. Oxford University Press.
 
- \bibitem{prigogine2018}
+ \bibitem[Prigogine \& Stengers(1984)]{prigogine2018}
  Prigogine, I., \& Stengers, I. (1984). \textit{Order Out of Chaos: Man's New Dialogue with Nature}. Bantam Books.
 
- \bibitem{mcfadden2020}
+ \bibitem[McFadden(2020)]{mcfadden2020}
  McFadden, J. (2020). Integrating information in the brain's EM field: the cemi field theory of consciousness. \textit{Neuroscience of Consciousness}, 2020(1), niaa016.
 
- \bibitem{frohlich2010}
+ \bibitem[Fr\"{o}hlich \& McCormick(2010)]{frohlich2010}
  Fr\"{o}hlich, F., \& McCormick, D. A. (2010). Endogenous electric fields may guide neocortical network activity. \textit{Neuron}, 67(1), 129-143.
 
- \bibitem{tasic2018}
+ \bibitem[Tasic et al.(2018)]{tasic2018}
  Tasic, B., et al. (2018). Shared and distinct transcriptomic cell types across neocortical areas. \textit{Nature}, 563(7729), 72-78.
 
- \bibitem{verkhratsky2018}
+ \bibitem[Verkhratsky \& Nedergaard(2018)]{verkhratsky2018}
  Verkhratsky, A., \& Nedergaard, M. (2018). Physiology of Astroglia. \textit{Physiological Reviews}, 98(1), 239-389.
 
- \bibitem{picard2022}
+ \bibitem[Picard \& Shirihai(2022)]{picard2022}
  Picard, M., \& Shirihai, O. S. (2022). Mitochondrial signal transduction. \textit{Cell Metabolism}, 34(11), 1620-1638.
 
- \bibitem{harnad1990}
+ \bibitem[Harnad(1990)]{harnad1990}
  Harnad, S. (1990). The symbol grounding problem. \textit{Physica D: Nonlinear Phenomena}, 42(1-3), 335-346.
 
- \bibitem{tononi2015}
+ \bibitem[Tononi \& Koch(2015)]{tononi2015}
  Tononi, G., \& Koch, C. (2015). Consciousness: here, there and everywhere? \textit{Philosophical Transactions of the Royal Society B: Biological Sciences}, 370(1668), 20140167.
 
- \bibitem{bastos2021}
+ \bibitem[Bastos \& Miller(2021)]{bastos2021}
  Bastos, A. M., Donoghue, J. A., Brincat, S. L., Mahnke, M., Yanar, J., Correa, J., ... \& Miller, E. K. (2021). Neural effects of propofol-induced unconsciousness and its reversal using thalamic stimulation. \textit{eLife}, 10, e60824.
 
- \bibitem{hameroff2014}
+ \bibitem[Hameroff \& Penrose(2014)]{hameroff2014}
  Hameroff, S., \& Penrose, R. (2014). Consciousness in the universe: A review of the 'Orch OR' theory. \textit{Physics of Life Reviews}, 11(1), 39-78.
 
- \bibitem{hunt2019}
+ \bibitem[Hunt \& Schooler(2019)]{hunt2019}
  Hunt, T., \& Schooler, J. W. (2019). The easy part of the hard problem: a resonance theory of consciousness. \textit{Frontiers in Human Neuroscience}, 13, 378.
 
- \bibitem{england2018}
+ \bibitem[England(2018)]{england2018}
  England, J. L. (2018). Dissipative adaptation in driven self-assembly. \textit{Nature Nanotechnology}, 13(4), 287-295.
 
- \bibitem{ganesh2021}
+ \bibitem[Ganesh \& Parrondo(2021)]{ganesh2021}
  Ganesh, N., \& Parrondo, J. M. R. (2021). Thermodynamic computing with non-equilibrium systems. \textit{Nature Physics}.
 
- \bibitem{hinton2022}
+ \bibitem[Hinton(2022)]{hinton2022}
  Hinton, G. (2022). The Forward-Forward Algorithm: Some Preliminary Investigations. \textit{arXiv preprint arXiv:2212.13345}.
 
- \bibitem{searle1980}
+ \bibitem[Searle(1980)]{searle1980}
  Searle, J. R. (1980). Minds, brains, and programs. \textit{Behavioral and Brain Sciences}, 3(3), 417-424.
 
- \bibitem{smart1959}
+ \bibitem[Smart(1959)]{smart1959}
  Smart, J. J. C. (1959). Sensations and brain processes. \textit{The Philosophical Review}, 68(2), 141-156.
 
- \bibitem{putnam1967}
+ \bibitem[Putnam(1967)]{putnam1967}
  Putnam, H. (1967). Psychological predicates. In \textit{Art, Mind, and Religion}. University of Pittsburgh Press.
 
- \bibitem{xie2013}
+ \bibitem[Xie \& Nedergaard(2013)]{xie2013}
  Xie, L., Kang, H., Xu, Q., Chen, M. J., Liao, Y., Thiyagarajan, M., ... \& Nedergaard, M. (2013). Sleep drives metabolite clearance from the adult brain. \textit{Science}, 342(6156), 373-377.
 
- \bibitem{nagel1986}
+ \bibitem[Nagel(1986)]{nagel1986}
  Nagel, T. (1986). \textit{The View from Nowhere}. Oxford University Press.
 
- \bibitem{love2026}
+ \bibitem[Love(2026)]{love2026}
  Love, B. C. (2026). Consciousness, AI, and the Limits of Scientific Explanation. \textit{arXiv preprint arXiv:2606.00226}.
 
  \end{thebibliography}

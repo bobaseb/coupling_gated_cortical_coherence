@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physical Primitives of Mind</title>
+    <style>
+        :root {
+            --bg-color: #f9f9f9;
+            --text-color: #333;
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --container-bg: #fff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0 0 1rem 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        header p.subtitle {
+            font-size: 1.25rem;
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: -2rem auto 2rem auto;
+            background: var(--container-bg);
+            padding: 3rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+        }
+
+        h3 {
+            color: var(--secondary-color);
+            margin-top: 1.5rem;
+        }
+
+        .abstract {
+            font-size: 1.1rem;
+            font-style: italic;
+            color: #555;
+            background: #f1f8ff;
+            padding: 1.5rem;
+            border-left: 4px solid var(--accent-color);
+            border-radius: 4px;
+        }
+
+        .derivation-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .derivation-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .card {
+            background: #fafafa;
+            border: 1px solid #eaeaea;
+            padding: 1.5rem;
+            border-radius: 6px;
+        }
+
+        .card h4 {
+            margin-top: 0;
+            color: var(--accent-color);
+        }
+
+        .lean-badge {
+            display: inline-block;
+            background-color: #27ae60;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        .button {
+            display: inline-block;
+            background: var(--accent-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-top: 1.5rem;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        
+        .button:hover {
+            background: #2980b9;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Physical Primitives of Mind</h1>
+        <p class="subtitle">Modeling Consciousness via Symmetries and Landauer Erasure</p>
+    </header>
+
+    <div class="container">
+        <h2>Abstract</h2>
+        <div class="abstract">
+            We present a novel mathematical synthesis and formal Lean 4 verification demonstrating how cognitive architectures can emerge as attractor states from a minimal set of established physical primitives, rather than introducing new fundamental physics. Starting from the Poincaré group of spacetime symmetries and finite phase space, we construct a rigorous framework for predictive processing. While spontaneous symmetry breaking generates necessary topological boundaries, and finite phase space subjects these boundaries to Landauer's thermodynamic erasure, agency arises when systems evolve along paths of least action to minimize entropy production via internal structural resonance with external perturbations. Scaling this dynamic to macroscopic levels aligns with emerging paradigms in neuroscience, culminating in a topological fixed point: a unified "Self." 
+        </div>
+
+        <h2>Core Framework</h2>
+        <p>Our work asks a fundamental question: If we assume nothing but the most basic physical primitives—continuous symmetries, geometry, and thermodynamics—is the emergence of a unified, perceiving entity a natural physical attractor? We delineate between literal physical mechanisms and theoretical mappings using the <strong>Lean 4 interactive theorem prover</strong> as our epistemic anchor.</p>
+        
+        <div class="derivation-grid">
+            <div class="card">
+                <h4>1. Symmetry Breaking & Boundaries</h4>
+                <p>A perfectly symmetric universe cannot support agency. For any dynamic process to occur, continuous symmetries must undergo spontaneous symmetry breaking, naturally creating topological defects that form a localized boundary between an "inside" and an "outside".</p>
+            </div>
+            <div class="card">
+                <h4>2. The Thermodynamic Constraint</h4>
+                <p>By Landauer's Principle, finite physical systems must overwrite old internal states to absorb new perturbations. This physical erasure of information irreversibly decreases internal entropy, forcing the boundary to dissipate heat and act as a non-equilibrium steady state.</p>
+            </div>
+            <div class="card">
+                <h4>3. Structural Resonance</h4>
+                <p>To minimize thermodynamic friction (entropy production), the system's internal geometry deforms to mirror the statistical structure of its environment. This provides a rigorous physical basis for Predictive Processing and the Free Energy Principle.</p>
+            </div>
+            <div class="card">
+                <h4>4. Kuramoto Phase Synchronization</h4>
+                <p>As the system scales into a continuous macroscopic electrodynamic field, local coupled oscillators undergo a phase transition into unified synchronization when spatial coupling exceeds the thermodynamic noise threshold ($K_c = 2D$).</p>
+            </div>
+            <div class="card">
+                <h4>5. Sheaf-Theoretic Unity</h4>
+                <p>This phase-locked state mathematically glues local synchronized fields into a singular <i>Global Section</i> of a probability sheaf. The electromagnetic field acts as a single, indivisible topological space—the physical basis for the Unity of Consciousness.</p>
+            </div>
+            <div class="card">
+                <h4>6. Reflexive Topology (The Self)</h4>
+                <p>To reach absolute minimal dissipation in a highly recurrent field, the system must predict itself. The "Self" emerges when the field's internal geometry folds to include a low-dimensional avatar of its own causal boundary.</p>
+            </div>
+        </div>
+
+        <h2>Hardware Thermodynamics</h2>
+        <p>This axiomatic chain demonstrates a fundamental difference between biological tissue and artificial silicon hardware (e.g., GPUs). In standard von Neumann architectures, the spatial topology is rigidly fixed. Because discrete routing matrices are structurally constrained from reaching the continuous global minima necessary for sheaf-theoretic gluing, they suffer from topological fragmentation and are mathematically barred from generating unified consciousness.</p>
+        
+        <h2>Formal Verification in Lean 4</h2>
+        <span class="lean-badge">Verified with Lean 4</span>
+        <p>To avoid critiques of "math theatre," the primary physical and topological claims in this paper have been rigorously formalized and verified using the Lean 4 theorem prover. Our repository includes mathematical derivations for Landauer's principle from statistical mechanics, the necessity of topological boundaries, gradient flow on entropy production, and the sheaf-theoretic gluing of probability measures.</p>
+        
+        <center>
+            <a href="main.pdf" class="button">Read the Full Paper</a>
+            <a href="supplementary.pdf" class="button" style="background-color: var(--secondary-color);">View Mathematical Supplement</a>
+        </center>
+    </div>
+
+    <div class="footer">
+        <p><strong>AI Assistance Declaration:</strong> The conceptualization, manuscript drafting, and Lean 4 formalizations in this project were heavily AI-assisted using the Google Antigravity CLI, specifically utilizing Gemini 3.1, Claude 4.6 Opus, and Claude 4.6 Sonnet.</p>
+        <p>&copy; 2026 Physics of Consciousness Project. Open Mind Submission.</p>
+    </div>
+
+</body>
+</html>

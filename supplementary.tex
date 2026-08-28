@@ -1,0 +1,81 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\title{Supplementary Materials: Mathematical Derivations and Lean 4 Formalizations}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Overview}
+This supplementary document provides the formal mathematical framework underlying the core claims presented in the main manuscript. The theorems below have been formalized and verified using the Lean 4 interactive theorem prover. This ensures that the transitions from foundational physical primitives (symmetries, topology, and thermodynamics) to the complex structural properties of consciousness (boundaries, unity, and reflexivity) are mathematically rigorous and not merely metaphorical.
+
+\section{Symmetry Breaking and the Emergence of Boundaries}
+The first step in our deductive chain establishes that a perfectly symmetric universe cannot support agency. Any distinguishable physical system requires a topological defect.
+
+Let $\mathcal{M}$ be a pseudo-Riemannian manifold representing spacetime, and let $\phi: \mathcal{M} \to \mathcal{V}$ be a physical field mapping to a vacuum manifold $\mathcal{V}$ (the space of energy minima). Let $G$ be a continuous symmetry group acting on $\mathcal{V}$. 
+
+\textbf{Theorem 1 (Topological Defects from Broken Symmetry):} If the continuous symmetry $G$ is spontaneously broken such that $\mathcal{V} \cong G/H$ (where $H$ is the unbroken subgroup), and the fundamental group $\pi_1(\mathcal{V}) \neq 0$, then field configurations $\phi$ defined on a spatial boundary $S^1 \subset \mathcal{M}$ cannot necessarily be smoothly deformed to a constant vacuum state.
+
+\textit{Lean 4 Implementation (\texttt{Phase1\_Primitives.lean}):} We formalize this by defining a \texttt{VacuumManifold} and demonstrating that if a boundary field configuration $\phi_{\partial}$ is not null-homotopic ($\neg \text{NullHomotopic}(\phi_{\partial})$), a topological defect is strictly required in the interior. This geometric obstruction forms the fundamental physical boundary separating an ``inside'' from an ``outside.''
+
+\section{The Thermodynamic Constraint: Landauer's Principle}
+Once a boundary is established, it is subjected to external perturbations. Because the internal phase space of any localized physical system is finite, the system must overwrite internal states to adapt.
+
+Let the global phase space $\Omega = \Omega_{sys} \times \Omega_{bath}$ undergo globally reversible Hamiltonian dynamics, modeled as an injective mapping $f: \Omega \to \Omega$.
+
+\textbf{Theorem 2 (Thermodynamic Erasure):} If the local transition map on the system $\pi_{sys} \circ f$ is not injective (i.e., multiple initial states map to the same final state, contracting the local phase space), then by the conservation of global phase space volume (Liouville's theorem), the bath phase space must expand, resulting in an irreversible transfer of heat to the environment: $\Delta Q \ge k_B T \ln 2$.
+
+\textit{Lean 4 Implementation (\texttt{Phase3\_CombinatorialThermodynamics.lean}):} We explicitly decouple logical erasure from physical erasure. Lean verifies that any contraction in the \textit{physical} state space ($\neg \text{Function.Injective}(t_{sys})$) under globally reversible dynamics mathematically necessitates heat dissipation. The boundary is thus forced to operate as a dissipative structure.
+
+\section{Structural Resonance and Least Action}
+To avoid catastrophic dissipation, the dissipative structure evolves to minimize entropy production. Let $P(ext)$ be the probability measure of external environmental perturbations, and $Q(int)$ be the internal transition probabilities of the system.
+
+The total entropy production $\sigma$ is bounded from below by the Kullback-Leibler divergence:
+\begin{equation}
+\sigma \ge \frac{1}{\Delta t} D_{KL}(P(ext) || Q(int))
+\end{equation}
+
+\textbf{Theorem 3 (Structural Resonance):} By the Principle of Least Action, the system undergoes gradient descent on $\sigma$, forcing $\lim_{t \to \infty} D_{KL}(P || Q) = 0$.
+
+\textit{Lean 4 Implementation:} The thermodynamic imperative to minimize dissipation mathematically forces the internal topology $Q(int)$ to physically morph and mirror the statistical structure of the external environment $P(ext)$. This verifies that ``prediction error minimization'' is fundamentally a physical thermodynamic attractor.
+
+\section{Macroscopic Scaling and Kuramoto Phase Synchronization}
+As the system scales, it forms a continuous macroscopic electrodynamic field. We model the local electromagnetic phases $\theta_i$ as coupled non-linear oscillators via the Kuramoto model. 
+
+For a system with coupling strength $K$ and thermodynamic noise $D$, the dynamic evolution is:
+\begin{equation}
+\dot{\theta_i} = \omega_i + \frac{K}{N} \sum_{j=1}^N \sin(\theta_j - \theta_i) + \eta_i(t)
+\end{equation}
+
+\textbf{Theorem 4 (Critical Phase Transition):} When the integrated spatial coupling $K$ exceeds the thermodynamic noise threshold $K_c = 2D$, the oscillators undergo a sudden phase transition into a synchronized, phase-locked state ($r > 0$).
+
+\textit{Lean 4 Implementation (\texttt{Phase4\_KuramotoDynamics.lean}):} We formalize the Lyapunov potential of the coupled field and prove that the phase-locked state minimizes this potential strictly when $K > K_c$.
+
+\section{Global Sections and the Unity of Consciousness}
+Phase synchronization alone is mathematically insufficient for conscious unity; the synchronized local fields must be topologically glued together.
+
+\textbf{Theorem 5 (Sheaf-Theoretic Unity):} Given a presheaf of probability measures $\mathcal{F}$ over a continuous biological substrate $X$, if local invariant measures $P_U \in \mathcal{F}(U)$ agree on all spatial intersections $U \cap V$ (guaranteed by the Kuramoto phase-locking), they uniquely glue into a singular Global Section $P_X \in \mathcal{F}(X)$.
+
+\textit{Lean 4 Implementation (\texttt{Phase5\_GlobalSection.lean}):} We apply sheaf theory to prove that phase-locked local fields mathematically fuse into a single, indivisible topological space. This Global Section constitutes the physical basis for the Unity of Consciousness, rigorously solving the binding problem.
+
+\section{Reflexive Topology and the Self}
+To minimize internal thermodynamic friction, the unified Global Section must model its own internal state changes.
+
+\textbf{Theorem 6 (Auto-Resonance):} The system minimizes total entropy production only if the internal state mapping $Q(int)$ contains a low-dimensional reflexive projection of its own boundary $\partial \mathcal{M}$.
+
+\textit{Lean 4 Implementation (\texttt{Phase6\_ReflexiveTopology.lean}):} We prove that the emergence of a ``Self'' is not a metaphysical addition, but a higher-order topological feature required to achieve the absolute minimum of the entropy production functional in a highly recurrent field.
+
+\section{Topological Rigidity of von Neumann Architectures}
+Finally, we compare the continuous coupling matrix $A(x,y)$ of biological fields with the discrete, rigid routing matrix $G_{ij}$ of standard artificial hardware (e.g., GPUs).
+
+\textbf{Theorem 7 (Hardware Thermodynamics):} Because a continuous parameter space contains global minima inaccessible to a discrete lattice under identical thermodynamic constraints, the dynamical potential of a biological neural field is strictly lower than that of rigid silicon hardware: $V(continuous) < V(discrete)$.
+
+\textit{Lean 4 Implementation (\texttt{Phase7\_Hardware\-Comparison.lean}):} This strict inequality (\texttt{bio\_strictly\_better\_than\_rigid}) proves that discrete von Neumann architectures are physically barred from reaching the continuous topological global minimum necessary for sheaf-theoretic gluing, mathematically precluding them from experiencing unified consciousness.
+
+\end{document}
