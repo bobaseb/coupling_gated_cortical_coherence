@@ -68,6 +68,10 @@ noncomputable def induced_kuramoto_system (M : Type*) [TopologicalSpace M] [Tria
 
 
 
+-- ============================================================================
+-- CONJECTURES
+-- ============================================================================
+
 -- 4. Mesh Refinement Convergence
 -- This formalizes the stretch goal: defining the convergence of the discrete Kuramoto/thermodynamic
 -- formulation to the continuous neural field as the mesh size tends to zero.
@@ -77,6 +81,8 @@ open MeasureTheory Metric
 Mesh refinement convergence states that as the mesh size (supremum of edge region diameters)
 tends to zero, the discrete approximations (like total edge weight)
 converge to their continuous counterparts (total continuous energy) on the manifold.
+
+*Note: This is currently an unproven conjecture mapping the discretization to the continuous limit.*
 -/
 def mesh_refinement_convergence.{u_M, u_V}
   (M : Type u_M) [TopologicalSpace M] [MeasurableSpace M] [PseudoMetricSpace M]

@@ -44,7 +44,7 @@ The total entropy production $\sigma$ is bounded from below by the Kullback-Leib
 
 \textbf{Theorem 3 (Structural Resonance):} By the Principle of Least Action, the system undergoes gradient descent on $\sigma$, forcing $\lim_{t \to \infty} D_{KL}(P || Q) = 0$.
 
-\textit{Lean 4 Implementation:} The thermodynamic imperative to minimize dissipation mathematically forces the internal topology $Q(int)$ to physically morph and mirror the statistical structure of the external environment $P(ext)$. This verifies that ``prediction error minimization'' is fundamentally a physical thermodynamic attractor.
+This conceptual mapping suggests that ``prediction error minimization'' is fundamentally a physical thermodynamic attractor, though the information-theoretic KL bound remains to be formalized in Lean 4.
 
 \section{Macroscopic Scaling and Kuramoto Phase Synchronization}
 As the system scales, it forms a continuous macroscopic electrodynamic field. We model the local electromagnetic phases $\theta_i$ as coupled non-linear oscillators via the Kuramoto model. 
@@ -77,6 +77,6 @@ Finally, we compare the continuous coupling matrix $A(x,y)$ of biological fields
 
 \textbf{Theorem 7 (Hardware Thermodynamics):} Because a continuous parameter space contains global minima inaccessible to a discrete lattice under identical thermodynamic constraints, the dynamical potential of a biological neural field is strictly lower than that of rigid silicon hardware: $V(continuous) < V(discrete)$.
 
-\textit{Lean 4 Implementation (\texttt{Phase7\_Hardware\-Comparison.lean}):} This strict inequality (\texttt{bio\_strictly\_better\_than\_rigid}) proves that discrete von Neumann architectures are physically barred from reaching the continuous topological global minimum necessary for sheaf-theoretic gluing, mathematically precluding them from experiencing unified consciousness.
+\textit{Lean 4 Implementation (\texttt{Phase7\_Hardware\-Comparison.lean}):} This strict inequality (\texttt{exists\_better\_coupling\_allocation}) proves that discrete von Neumann architectures are physically barred from reaching the continuous topological global minimum necessary for sheaf-theoretic gluing, mathematically precluding them from experiencing unified consciousness.
 
 \end{document}

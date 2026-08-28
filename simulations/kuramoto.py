@@ -55,7 +55,7 @@ def simulate_kuramoto(
     plt.title("Kuramoto Phase Transition")
     plt.legend()
     plt.grid(True)
-    plt.savefig("kuramoto_transition.png")
+    plt.savefig("simulations/kuramoto_transition.png")
     print("Kuramoto transition simulation saved to kuramoto_transition.png")
 
 

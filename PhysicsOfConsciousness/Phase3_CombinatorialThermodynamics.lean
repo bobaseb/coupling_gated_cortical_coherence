@@ -1,5 +1,8 @@
 import Mathlib
+
 open BigOperators
+
+namespace PhysicsOfConsciousness
 
 variable {V : Type*} [Fintype V] [DecidableEq V]
 
@@ -337,3 +340,4 @@ theorem boundary_is_dissipative {sys : Type*} [Fintype sys] [DecidableEq sys] [N
   is_dissipative_structure t := by
   exact landauers_principle t h
 
+end PhysicsOfConsciousness

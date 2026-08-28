@@ -85,7 +85,7 @@ def simulate_structural_resonance(N: int = 50, steps: int = 2000, dt: float = 0.
     ax2.grid(True)
 
     plt.tight_layout()
-    plt.savefig("structural_resonance.png")
+    plt.savefig("simulations/structural_resonance.png")
     print("Structural resonance simulation saved to structural_resonance.png")
 
 

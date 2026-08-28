@@ -1,4 +1,3 @@
-import Mathlib
 /-
   Axioms.lean — Explicit Physical Postulates
 

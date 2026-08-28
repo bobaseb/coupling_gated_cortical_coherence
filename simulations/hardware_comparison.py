@@ -72,7 +72,7 @@ def simulate_hardware_comparison(N: int = 30, steps: int = 1000, dt: float = 0.0
     plt.title("Hardware Strict Inequality: Continuous Beats Rigid")
     plt.legend()
     plt.grid(True)
-    plt.savefig("hardware_comparison.png")
+    plt.savefig("simulations/hardware_comparison.png")
     print("Hardware comparison simulation saved to hardware_comparison.png")
 
 

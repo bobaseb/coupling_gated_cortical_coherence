@@ -1,1 +1,3 @@
-def hello := "world"
+namespace PhysicsOfConsciousness
+
+end PhysicsOfConsciousness

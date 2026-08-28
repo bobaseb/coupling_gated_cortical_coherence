@@ -368,3 +368,65 @@ All 11 formalization and simulation tasks have been successfully completed as of
  - [x] **OnlyOne.lean Formalisation — Scherf** — Cite *A Formal Proof of Non-Duality: An Exposition of the 'OnlyOne' System* (unpublished manuscript, PhilPeople early 2026). Establishes methodological precedent for verifying cognitive boundary architectures in Lean 4, even though its metaphysical conclusions (monistic idealist ontology) diverge from the continuous field materialism here.
  - [x] **Sheaf Semantics & Global Sections — Inoué** — Cite *On Brain as a Mathematical Manifold: Neural Manifolds, Sheaf Semantics, and Leibnizian Harmony* (arXiv:2601.15320 [q-bio.NC], Jan 2026). Directly models brain function via sheaf theory over neural state spaces; unified perception identified with existence of a global section — strongly parallels the derivation here.
  - [x] **Kuramoto, FEP & Non-Equilibrium Thermodynamics — Spisak, Friston et al.** — Cite *Functional connectivity-based attractor dynamics of the human brain* and *Self-orthogonalizing attractor neural networks emerging from the free energy principle* (eLife / alphaXiv, Mar–May 2026). Explicitly identifies large-scale brain attractors from FEP first principles, mirroring the thermodynamic limits and Kuramoto synchronisation constraints formalised here.
+
+---
+
+## Session Review — 2026-08-28 (Lean 4 Opus 5 Audit)
+
+Two independent evaluations of the full repo (Lean build + `#print axioms` + file inspection) using `anthropic/claude-opus-5`. First eval scoped broadly (structure + code + prose), second deep-dive on narrative quality and proof hygiene.
+
+### Build Status
+`lake build` exit 0 — 17,598 jobs, zero `sorry`. Warnings unchanged from prior session.
+
+### Narrative Issues (Verified Against main.tex)
+
+| # | Issue | Location | Severity |
+|---|---|---|---|
+| 1 | `bio_strictly_better_than_rigid` cited as a theorem — **no declaration with that name exists in repo** | `main.tex:120`, `supplementary.tex:80` | 🔴 Fabricated claim — any referee checking the repo finds it in <1 min |
+| 2 | Derivation 3 KL bound claims "Lean 4 Implementation" in supplementary — **no formalization backs it** | `main.tex:73`, `supplementary.tex:40-47` | 🔴 Misleading — reads as claiming a proof that doesn't exist |
+| 3 | Table 1 Phase 7 labelled "Theorem" — actual file has zero `theorem` declarations (all `lemma`) | `main.tex:47`, `Phase7_HardwareComparison.lean` | 🟠 Overclaim — should read "Conditional" |
+| 4 | "Physically disqualified" rewording marked `[COMPLETED]` in Task 9b, but abstract still reads original | `tasks/todo.md:268`, `main.tex:25` | 🟠 Regression — fix was applied to tasks but not to source |
+| 5 | 9 `\bibitem` entries never cited (tononi2016, baars1997, dehaene2014, kuramoto1984, friston2009, hohwy2013, scherf2026, inoue2026, spisak2026) — Task 9a marked `[COMPLETED]` but `\cite{}`s were never added | `main.tex:152-175` | 🟡 Dead weight — inflates citation count, no integration into text |
+| 6 | Norton/Shenker objection engaged at `main.tex:66-68` but neither cited — handwaved critique | `main.tex:66-68` | 🟡 Missed opportunity to strengthen the one refutation most readers will care about |
+
+### Proof Hygiene — The Real Problem
+
+**Clean on the surface, but assumptions relocated.** `#print axioms` returns only `propext/Classical.choice/Quot.sound` for all headline theorems — but the physical content now lives in **hypotheses and class fields**, not `axiom` declarations:
+
+| Hidden Assumption | Location | What's assumed | Risk |
+|---|---|---|---|
+| `thermodynamic_equilibrium` asserts `phase` minimizes potential | `Phase5_GlobalSection.lean:30-35` | Physics is a class field, not derived | Phase-locking theorem is conditional on assumption |
+| `is_suboptimal` hypothesis | `Phase7_HardwareComparison.lean:37-43` | Strict suboptimality is a premise, not a conclusion | Hardware corollary vacuous under this hypothesis |
+| `ContractingWith (1/2)` never verified | `Phase6_ReflexiveTopology.lean:87` | Banach contraction factor is assumed, never constructed | Fixed-point proof is sound only if the factor is real — `MetricSpace`/`CompleteSpace` instances never built |
+| `phase_locked_minimizes_potential` proves only cos ≤ 1, no dynamics | `Phase4_KuramotoDynamics.lean:73-86` | Only algebraic bound — no Kuramoto dynamics enter | "Phase-locking" theorem proves only a static inequality |
+| `mesh_refinement_convergence` is `def ... : Prop`, never proven, never used | `Phase2_SimplicialBridge.lean:81` | Discrete→continuous bridge is a dead Prop | Derivations 4 and 7 silently depend on convergence |
+| `exhibits_phase_transition` / `is_gradient_descent` are unproven Props | `Phase8_ContinuousField.lean:123,138` | Declared but never proved | Structural resonance gradient flow is labelled but empty |
+
+**The fatal pattern:** clean `#print axioms` creates false confidence. The physical work was relocated from `axiom` blocks (visible in `Axioms.lean`, easily audited) to hypotheses that are handed in by the caller, then theorems "prove" the rest. The proofs are sound as deductive chains from those hypotheses — but the hypotheses carry the physical content.
+
+### Code Quality Issues
+
+| Issue | Location | Severity |
+|---|---|---|
+| Near-duplicated 85-line `by_cases` branches in one lemma | `Phase7_HardwareComparison.lean:53-138` vs `:139-226` | 🟡 Structural duplication — 166 lines, one can be factored |
+| No namespace in 3 files — 20+ global names leaked | `Phase3_CombinatorialThermodynamics.lean`, `Phase7_HardwareComparison.lean`, `Basic.lean` | 🟡 Namespace pollution |
+| Blanket `import Mathlib` in 6 files alongside precise imports | `Axioms.lean`, `Phase3_CombinatorialThermodynamics.lean`, `Phase3_MeasureThermodynamics.lean`, `Phase4_KuramotoDynamics.lean`, `Phase7_HardwareComparison.lean`, `Phase8_ContinuousField.lean` | 🟡 Slows build, risks deprecation issues |
+| Dead code: `def hello := "world"` at top of library root | `Basic.lean:1` | 🟢 Hello-world leftover |
+| Dead file: single blank line | `scratch.lean` | 🟢 Should be deleted |
+| 12 deprecated `if_pos`/`if_neg` warnings | `Phase7_HardwareComparison.lean:62-167` | 🟢 Cosmetic |
+| Python simulation output path inconsistency — one `savefig` uses absolute path, three use bare filenames | `mesh_refinement.py:98` vs `kuramoto.py:58`, `hardware_comparison.py:75`, `structural_resonance.py:88` | 🟢 Output location depends on cwd |
+
+### Recommended Actions (Ranked)
+
+| Prio | Action | Expected Benefit |
+|---|---|---|
+| [x] 🔴 P0 | Fix `bio_strictly_better_than_rigid` citations to the actual `exists_better_coupling_allocation` (line 37) | Removes a fabricated-theorem claim any referee catches |
+| [x] 🔴 P0 | Reclassify Phase 7 from "Theorem" to "Conditional" in Table 1 | Prevents strongest claim (silicon barred) from collapsing on inspection |
+| [x] 🔴 P0 | Either prove `mesh_refinement_convergence` or move to a labelled "Conjectures" section | Closes discrete→continuous bridge Derivations 4 and 7 depend on |
+| [x] 🟠 P1 | Add Table 1 row for Derivation 3 stating the KL bound is unformalized; delete "Lean 4 Implementation" from supplementary.tex:47 | Restores epistemic honesty Table 1 otherwise earns |
+| [x] 🟠 P1 | Delete dead bibitems and add actual `\cite{}` calls for IIT/GWT/FEP references | Every bibitem is live; time-box to 30 min with `check_citations.py` |
+| [x] 🟠 P1 | Fix "physically disqualified" → "thermodynamically disadvantaged" in main.tex:25 | Completes already-checked-off Task 9b |
+| [x] 🟡 P2 | Factor `Phase7_HardwareComparison.lean` 85-line duplicated `by_cases` into a shared lemma | Cuts ~100 lines, eliminates drift between copies |
+| [x] 🟡 P2 | Add namespaces to Phase3/Phase7/Basic; replace blanket `import Mathlib` with targeted imports | Cuts build time, stops namespace pollution (namespaces added, blanket imports kept for build stability) |
+| [x] 🟢 P3 | Delete `Basic.lean:1` and `scratch.lean` | Two files removed, zero impact on proofs |
+| [x] 🟢 P3 | Unify Python `savefig` paths to use a consistent output directory | Simulation outputs land in the same place regardless of cwd |
