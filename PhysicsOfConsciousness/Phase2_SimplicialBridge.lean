@@ -1,6 +1,7 @@
 import PhysicsOfConsciousness.Phase1_Primitives
 import Mathlib.Data.Finset.Basic
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
+import Mathlib.Topology.MetricSpace.Basic
 import PhysicsOfConsciousness.Phase3_CombinatorialThermodynamics
 
 namespace PhysicsOfConsciousness
@@ -65,5 +66,26 @@ noncomputable def induced_kuramoto_system (M : Type*) [TopologicalSpace M] [Tria
 
 
 
+
+
+-- 4. Mesh Refinement Convergence
+-- This formalizes the stretch goal: defining the convergence of the discrete Kuramoto/thermodynamic
+-- formulation to the continuous neural field as the mesh size tends to zero.
+open MeasureTheory Metric
+
+/--
+Mesh refinement convergence states that as the mesh size (supremum of edge region diameters)
+tends to zero, the discrete approximations (like total edge weight)
+converge to their continuous counterparts (total continuous energy) on the manifold.
+-/
+def mesh_refinement_convergence.{u_M, u_V}
+  (M : Type u_M) [TopologicalSpace M] [MeasurableSpace M] [PseudoMetricSpace M]
+  (volume_measure : MeasureTheory.Measure M)
+  (scalar_magnitude : M → ℝ) : Prop :=
+  ∀ (ε : ℝ), ε > 0 → ∃ (δ : ℝ), δ > 0 ∧ 
+    ∀ (TM : TriangulatedManifold.{u_M, u_V} M) [Fintype TM.V],
+      (∀ u v : TM.V, Metric.diam (TM.edge_region u v) < δ) →
+      |((1 / 2 : ℝ) * ∑ u : TM.V, ∑ v : TM.V, ∫ x in TM.edge_region u v, scalar_magnitude x ∂volume_measure) - 
+        (∫ x, scalar_magnitude x ∂volume_measure)| < ε
 
 end PhysicsOfConsciousness

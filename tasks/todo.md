@@ -224,7 +224,7 @@ This is essentially a finite-element / discretization argument:
 ### Tasks
 - [x] **[COMPLETED]** Refactor `weight_eq_stress_integral` from a class field to a definitional construction.
 - [x] **[COMPLETED]** Prove symmetry and non-negativity of the constructed weights from properties of the stress-energy tensor.
-- [ ] (Stretch) Formalize mesh refinement convergence.
+- [x] **[COMPLETED]** (Stretch) Formalize mesh refinement convergence.
 - **Success criteria:** `DiscreteThermodynamics` is a `def` or `structure` with a concrete construction, not a `class` with axiomatized integral equality.
 
 ---
