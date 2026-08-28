@@ -124,6 +124,15 @@ def is_gradient_descent (sys : PlasticNeuralField M) (theta : ℝ → M → ℝ)
   ∀ t1 t2, t1 ≤ t2 → dynamic_entropy_production sys theta t2 ≤ dynamic_entropy_production sys theta t1
 
 -- 4. Critical Coupling Thresholds
+/--
+[NUMERICAL VALIDATION]
+The onset of synchronization in the stochastic Kuramoto model occurs at `K_c = 2D`.
+While this is an exact analytical result derived via the Fokker-Planck equation
+and linear stability analysis in theoretical physics, proving it formally in Lean
+requires stochastic calculus and PDE spectral theory infrastructure currently absent
+from Mathlib. Therefore, this threshold is defined here as a constant and
+validated empirically via Python simulations.
+-/
 noncomputable def critical_coupling (D : ℝ) : ℝ := 2 * D
 
 def exhibits_phase_transition (sys : StochasticNeuralField M) : Prop :=

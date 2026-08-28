@@ -30,6 +30,14 @@ namespace PhysicsOfConsciousness
 -- §1  Thermodynamics
 -- ============================================================
 
+/- 
+  NOTE: The following two axioms (Landauer's Principle and Phase Space Locality) 
+  are provided to establish the physical intuition and theoretical context. 
+  They are commented out because they are not actively invoked in the Lean proofs 
+  (for instance, Landauer's bound is derived constructively from statistical 
+  mechanics in Phase 3).
+-/
+/-
 /--
 [IRREDUCIBLE] **Landauer's Principle.**
 Erasing one bit of information in a system at temperature T dissipates at least
@@ -62,6 +70,7 @@ axiom phase_space_is_compact {X : Type*} [TopologicalSpace X]
   (_h_local : LocallyCompactSpace X) -- The system has locally compact state space
   (_h_bounded : ∃ K : Set X, IsCompact K ∧ ∀ x : X, x ∈ K) -- and is bounded
   : CompactSpace X
+-/
 
 -- ============================================================
 -- §2  Dynamics — Invariant Measure and Section Agreement
@@ -77,6 +86,14 @@ axiom phase_space_is_compact {X : Type*} [TopologicalSpace X]
 -- §4  Field Theory
 -- ============================================================
 
+/-
+  NOTE: The Least-Action Principle below is provided for physical context. 
+  It is not actively invoked in the proofs because the mathematical consequence 
+  of this principle (that structural resonance follows a gradient flow on the 
+  entropy functional) is directly proved as a theorem in Phase 8 
+  (`gradient_flow_implies_entropy_decrease`).
+-/
+/-
 /--
 [MODELLING] **Least-Action Principle.**
 The physical trajectory of the coupled field is a stationary point of the
@@ -104,6 +121,7 @@ axiom principle_of_least_action
     (physical_trajectory : M → ℝ → ℝ) -- The physical field trajectory
     : ∀ (variation : M → ℝ → ℝ),
         HasDerivAt (fun ε => S (fun x t => physical_trajectory x t + ε * variation x t)) 0 0
+-/
 
 /--
 [IRREDUCIBLE] **Pointwise Minimization of Vacuum States.**

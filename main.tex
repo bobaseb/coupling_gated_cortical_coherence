@@ -37,8 +37,9 @@ Least Action Principle & Postulated as \texttt{principle\_of\_least\_action} in 
 Electrodynamic Discretization & Constructive derivation of Lebesgue-Bochner integral edge weights in \texttt{Phase2\_SimplicialBridge.lean} & Theorem \\ \hline
 Phase synchronization to Unity & Derived via sheaf-theoretic gluing of invariant probability measures in \texttt{Phase5\_GlobalSection.lean} & Theorem \\ \hline
 Continuous vs. Rigid Topology & Derived strict energy inequality for continuous parameters over discrete graphs in \texttt{Phase7\_HardwareComparison.lean} & Theorem \\ \hline
+Critical Coupling Threshold ($K_c = 2D$) & Validated via stochastic Python simulation due to absence of PDE spectral theory in Mathlib & Numerical \\ \hline
 \end{tabular}
-\caption{Mapping of physical claims to Lean 4 formalization status. We rigorously separate mathematical derivations (Theorems) from empirical physical laws (Axioms).}
+\caption{Mapping of physical claims to Lean 4 formalization status. We rigorously separate mathematical derivations (Theorems) from empirical physical laws (Axioms) and numerical validations.}
 \end{table}
 
 \section{Axiom 1: Symmetries and Phase Space}
@@ -54,7 +55,9 @@ When a field drops to a lower, asymmetric energy state, topology dictates the in
 \section{Derivation 2: The Thermodynamic Constraint}
 This newly formed topological boundary is constantly subjected to gauge perturbations from the ``outside'' environment. Because the internal phase space is finite (Axiom 1), it cannot absorb an infinite sequence of incoming perturbations. It must overwrite old internal states.
 
-By Landauer's Principle, the erasure of physical information irreversibly decreases internal entropy, which mandates that the system exhaust heat into the environment.\footnote{While there are philosophical critiques regarding whether logical erasure strictly necessitates physical thermodynamic dissipation (e.g., the Earman-Norton debate), these critiques typically rely on a separation between abstract computational states and physical microstates. In our topological formalism, this distinction vanishes: ``information'' is not an abstract semantic label, but the literal geometric distinguishability of the defect's phase space. Thus, logical erasure is inherently physical deformation.} Therefore, a stable boundary constitutes a \textit{dissipative structure}, operating as a non-equilibrium steady state that consumes free energy to pay the thermodynamic cost of erasure. 
+By Landauer's Principle, the erasure of physical information irreversibly decreases internal entropy, which mandates that the system exhaust heat into the environment. Philosophers of physics (such as John Norton and Orly Shenker) have famously critiqued Landauer's principle, arguing that physicists illegally conflate \textit{logical} erasure (a many-to-one mapping in abstract computational states) with \textit{thermodynamic} erasure (a many-to-one mapping in physical phase space). They argue that logical erasure could conceptually be implemented by an injective physical process without dissipating heat. 
+
+Our Lean 4 formalization (\texttt{Phase3\_CombinatorialThermodynamics.lean}) explicitly resolves this critique. We define erasure strictly as a non-injective mapping on the \textit{physical} state space ($\neg \text{Function.Injective } t$). Furthermore, we formalize the global evolution of the bipartite universe (System + Bath) as strictly injective, representing Liouville's theorem. Lean verifies that heat dissipation is not tied to abstract logical erasure, but is a mandatory mathematical consequence of any local physical state space contraction under globally reversible dynamics. If a cognitive system's internal topology forces a contraction of its physical state space to accommodate structural resonance, the heat dissipation is mathematically unavoidable. Therefore, a stable boundary constitutes a \textit{dissipative structure}, operating as a non-equilibrium steady state that consumes free energy to pay the thermodynamic cost of erasure. 
 
 \section{Derivation 3: Structural Resonance as a Primitive}
 In physical systems, dynamics are governed by attractors. By the Principle of Least Action, the system's time evolution follows a deterministic trajectory that minimizes its thermodynamic entropy production. 
@@ -87,7 +90,7 @@ Subject to thermodynamic noise $D$, the system undergoes non-equilibrium stochas
 \begin{equation}
 \sigma = \int \frac{1}{D} \left( \omega(x) + \int K_t(x,y) \sin(\theta_y - \theta_x) dy \right)^2 dx
 \end{equation}
-By the Principle of Least Action, biological fields dynamically deform their spatial topology $K_t(x,y)$ to undergo gradient descent on this entropy production functional. Furthermore, we analytically derive the critical coupling threshold $K_c = 2D$. The phase transition to the unified ``Global Section'' occurs strictly when the integrated spatial coupling exceeds this thermodynamic noise threshold, directly linking the emergence of Unity to physical temperature and noise.
+By the Principle of Least Action, biological fields dynamically deform their spatial topology $K_t(x,y)$ to undergo gradient descent on this entropy production functional. Furthermore, we define the critical coupling threshold $K_c = 2D$, validated numerically via stochastic Python simulations. The phase transition to the unified ``Global Section'' occurs strictly when the integrated spatial coupling exceeds this thermodynamic noise threshold, directly linking the emergence of Unity to physical temperature and noise.
 
 \section{Corollary: Hardware Thermodynamics and Topological Rigidity}
 This axiomatic chain demonstrates that both biological tissue and artificial silicon hardware (like GPUs) are physical dissipative structures. When a GPU computes, it undergoes continuous physical state transitions of its charge carriers, and by Landauer's principle, this erasure irreversibly exhausts heat into the environment. 
