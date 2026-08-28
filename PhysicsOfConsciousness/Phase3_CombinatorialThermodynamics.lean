@@ -250,9 +250,17 @@ class Thermodynamics (sys : Type*) where
   temperature : ℝ
   temperature_pos : temperature > 0
 
-class StatisticalMechanics (sys : Type*) [Fintype sys] [DecidableEq sys] extends Thermodynamics sys, BipartiteEnvironment sys where
-  heat_eq : ∀ (t : sys → sys), Thermodynamics.heat_dissipation t = 
-    temperature * (boltzmann_entropy (final_bath t) - boltzmann_entropy (initial_bath t))
+class StatisticalMechanics (sys : Type*) [Fintype sys] [DecidableEq sys] extends Thermodynamics sys, BipartiteEnvironment sys
+
+/--
+[AXIOM] Landauer's Heat Equation.  [IRREDUCIBLE] — physical postulate,
+registered in `Axioms.lean` §1.
+
+Heat dissipation of a transformation equals temperature times the change in
+Boltzmann entropy of the bath.  Links information theory to thermodynamics.
+-/
+axiom landauer_heat_eq {sys : Type*} [Fintype sys] [DecidableEq sys] [StatisticalMechanics sys] (t : sys → sys) :
+  Thermodynamics.heat_dissipation t = Thermodynamics.temperature (sys := sys) * (boltzmann_entropy (BipartiteEnvironment.final_bath t) - boltzmann_entropy (BipartiteEnvironment.initial_bath t))
 
 theorem second_law {sys : Type*} [Fintype sys] [DecidableEq sys] [StatisticalMechanics sys] [Nonempty sys] (t : sys → sys) :
   (boltzmann_entropy (BipartiteEnvironment.final_bath t) - boltzmann_entropy (BipartiteEnvironment.initial_bath t)) + 
@@ -274,7 +282,7 @@ theorem second_law {sys : Type*} [Fintype sys] [DecidableEq sys] [StatisticalMec
 theorem landauer_bound {sys : Type*} [Fintype sys] [DecidableEq sys] [StatisticalMechanics sys] [Nonempty sys] :
   ∀ (t : sys → sys), Thermodynamics.heat_dissipation (sys := sys) t ≥ Thermodynamics.temperature (sys := sys) * (entropy (id : sys → sys) - entropy t) := by
   intro t
-  rw [StatisticalMechanics.heat_eq]
+  rw [landauer_heat_eq t]
   have h2 : Thermodynamics.temperature (sys := sys) > 0 := Thermodynamics.temperature_pos
   have h_sec := second_law (sys := sys) t
   nlinarith

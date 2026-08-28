@@ -36,12 +36,24 @@ class LocalSectionSynchronization (X : TopCat.{u}) [MeasurableSpace X] [BorelSpa
   
   -- The physical invariant measure parameterized by a macroscopic phase.
   phase_invariant_measure : ℝ → (probabilityPresheaf X).obj (op ⊤)
-  
-  -- The invariant measure depends only on the physical phase state (periodic)
-  phase_invariant_periodic : ∀ x y, Real.cos (x - y) = 1 → phase_invariant_measure x = phase_invariant_measure y
-  
-  -- The local section is the restriction of the phase's invariant measure to the local cover
-  sync_to_section_eq : ∀ i, sync_to_section i = (probabilityPresheaf X).map (homOfLE (le_top : cover i ≤ ⊤)).op (phase_invariant_measure (phase i))
+
+/--
+[AXIOM] Periodic Phase Invariance.  [MODELLING] — registered in `Axioms.lean` §2.
+
+The invariant measure depends only on the physical phase state (2π-periodic).
+Could be derived from full dynamical-systems invariance theory.
+-/
+axiom phase_invariant_periodic {X : TopCat.{u}} [MeasurableSpace X] [BorelSpace X] [TriangulatedManifold ↥X] [S : LocalSectionSynchronization X] : 
+  ∀ x y, Real.cos (x - y) = 1 → S.phase_invariant_measure x = S.phase_invariant_measure y
+
+/--
+[AXIOM] Section Restriction.  [MODELLING] — registered in `Axioms.lean` §2.
+
+The local section is the restriction of the phase's invariant measure to the local cover.
+Fixes the relationship between two class fields.
+-/
+axiom sync_to_section_eq {X : TopCat.{u}} [MeasurableSpace X] [BorelSpace X] [TriangulatedManifold ↥X] [S : LocalSectionSynchronization X] : 
+  ∀ i, S.sync_to_section i = (probabilityPresheaf X).map (homOfLE (le_top : S.cover i ≤ ⊤)).op (S.phase_invariant_measure (S.phase i))
 
 -- Phase-locked equilibrium means all nodes have the same phase modulo 2pi.
 def phase_locked_equilibrium [S : LocalSectionSynchronization X] : Prop :=
@@ -52,8 +64,8 @@ def phase_locked_equilibrium [S : LocalSectionSynchronization X] : Prop :=
 theorem section_agrees_of_phase_eq [S : LocalSectionSynchronization X] (i j : S.I) (h_eq : Real.cos (S.phase i - S.phase j) = 1) :
   (probabilityPresheaf X).map (homOfLE (inf_le_left : S.cover i ⊓ S.cover j ≤ S.cover i)).op (S.sync_to_section i) =
   (probabilityPresheaf X).map (homOfLE (inf_le_right : S.cover i ⊓ S.cover j ≤ S.cover j)).op (S.sync_to_section j) := by
-  rw [S.sync_to_section_eq i, S.sync_to_section_eq j]
-  have h_meas_eq : S.phase_invariant_measure (S.phase i) = S.phase_invariant_measure (S.phase j) := S.phase_invariant_periodic _ _ h_eq
+  rw [sync_to_section_eq i, sync_to_section_eq j]
+  have h_meas_eq : S.phase_invariant_measure (S.phase i) = S.phase_invariant_measure (S.phase j) := phase_invariant_periodic _ _ h_eq
   rw [h_meas_eq]
   have H1 : (probabilityPresheaf X).map (homOfLE (le_top : S.cover i ≤ ⊤)).op ≫ (probabilityPresheaf X).map (homOfLE (inf_le_left : S.cover i ⊓ S.cover j ≤ S.cover i)).op = (probabilityPresheaf X).map (homOfLE (le_top : S.cover i ⊓ S.cover j ≤ ⊤)).op := by
     rw [← Functor.map_comp]

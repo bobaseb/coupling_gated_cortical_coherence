@@ -131,7 +131,7 @@ While this is an exact analytical result derived via the Fokker-Planck equation
 and linear stability analysis in theoretical physics, proving it formally in Lean
 requires stochastic calculus and PDE spectral theory infrastructure currently absent
 from Mathlib. Therefore, this threshold is defined here as a constant and
-validated empirically via Python simulations.
+validated empirically via Python simulations in `simulations/kuramoto.py`.
 -/
 noncomputable def critical_coupling (D : ℝ) : ℝ := 2 * D
 
@@ -176,14 +176,27 @@ theorem gradient_flow_implies_entropy_decrease (K_t : ℝ → E) (S : E → ℝ)
 
 /--
 Continuous structural resonance is the physical regime where coupling dynamics
-evolve as a gradient flow on the entropy production landscape.
+evolve proportionately to the negative gradient of the entropy production landscape.
+We introduce a physical relaxation rate `c > 0`.
 -/
-def continuous_structural_resonance (K_t : ℝ → E) (S : E → ℝ) (gradS : E → E) : Prop :=
-  is_coupling_gradient_flow K_t S gradS
+def continuous_structural_resonance (K_t : ℝ → E) (S : E → ℝ) (gradS : E → E) (c : ℝ) : Prop :=
+  (∀ K, HasFDerivAt S (innerSL ℝ (gradS K)) K) ∧
+  (∀ t, HasDerivAt K_t (- c • gradS (K_t t)) t) ∧
+  (c > 0)
 
-theorem structural_resonance_implies_gradient_descent (K_t : ℝ → E) (S : E → ℝ) (gradS : E → E)
-  (h_res : continuous_structural_resonance K_t S gradS) : 
-  Antitone (fun t => S (K_t t)) :=
-  gradient_flow_implies_entropy_decrease K_t S gradS h_res
+theorem structural_resonance_implies_gradient_descent (K_t : ℝ → E) (S : E → ℝ) (gradS : E → E) (c : ℝ)
+  (h_res : continuous_structural_resonance K_t S gradS c) : 
+  Antitone (fun t => S (K_t t)) := by
+  apply antitone_of_hasDerivAt_nonpos (f' := fun t => - c * norm (gradS (K_t t)) ^ 2)
+  · intro t
+    have h_comp := HasFDerivAt.comp_hasDerivAt t (h_res.1 (K_t t)) (h_res.2.1 t)
+    have h_eq : (innerSL ℝ (gradS (K_t t))) (- c • gradS (K_t t)) = - c * norm (gradS (K_t t)) ^ 2 := by
+      simp [innerSL, inner_neg_right, inner_smul_right, real_inner_self_eq_norm_sq]
+    rw [h_eq] at h_comp
+    exact h_comp
+  · intro t
+    have hc : c > 0 := h_res.2.2
+    have h_sq_nonneg : 0 ≤ (norm (gradS (K_t t))) ^ 2 := sq_nonneg _
+    exact mul_nonpos_of_nonpos_of_nonneg (by linarith) h_sq_nonneg
 
 end PhysicsOfConsciousness

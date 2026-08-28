@@ -69,13 +69,22 @@ axiom phase_space_is_compact {X : Type*} [TopologicalSpace X]
   (_h_local : LocallyCompactSpace X) -- The system has locally compact state space
   (_h_bounded : ∃ K : Set X, IsCompact K ∧ ∀ x : X, x ∈ K) -- and is bounded
   : CompactSpace X
--/
+  -/
 
 -- ============================================================
 -- §2  Dynamics — Invariant Measure and Section Agreement
 -- ============================================================
 
 -- (Removed `section_agrees_of_phase_eq_physical` as it was successfully derived in Task 6)
+
+-- Cross-reference: `landauer_heat_eq` (heat dissipation = T × ΔS_bath) is declared
+-- in Phase3_CombinatorialThermodynamics.lean as a standalone axiom.
+-- Status: [IRREDUCIBLE] — physical postulate linking info theory to thermodynamics.
+--
+-- Cross-reference: `phase_invariant_periodic` (invariant measure is 2π-periodic)
+-- and `sync_to_section_eq` (local section = restricted invariant measure) are
+-- declared in Phase4_MacroscopicScaling.lean as standalone axioms.
+-- Status: [MODELLING] — could be derived from dynamics with more infrastructure.
 
 -- ============================================================
 -- §3  Phase-Locking Bridge

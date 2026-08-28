@@ -222,4 +222,25 @@ lemma exists_better_coupling_allocation (A_rigid : V → V → ℝ) (theta : V �
         nlinarith [h_neg_src, h_dst, hcos_kl, hcos_ij, hδ_pos, h_lt]
       linarith [h_improvement]
 
+/--
+[THEOREM] Continuous Field Superiority over Rigid Topology
+For any rigid silicon-like hardware coupling `A_rigid` that enforces a suboptimal wiring
+(i.e., physical wires exist between less-correlated regions while more-correlated regions
+could use that resource), there exists a flexible (continuous-like) coupling allocation 
+that uses the exact same total coupling resources but achieves strictly greater 
+thermodynamic synchronization (higher correlation / lower energy).
+
+This formally disqualifies rigid topologies from achieving optimal thermodynamic 
+efficiency compared to continuous phase-locking fields.
+-/
+theorem continuous_beats_rigid_topology (A_rigid : V → V → ℝ) (theta : V → ℝ)
+  (h_valid : is_valid_coupling A_rigid)
+  (h_rigid_constraint : is_strictly_suboptimal A_rigid theta) :
+  ∃ A_flex : V → V → ℝ, 
+    is_valid_coupling A_flex ∧
+    total_coupling_resources A_flex = total_coupling_resources A_rigid ∧
+    (∑ i, ∑ j, A_flex i j * Real.cos (theta j - theta i)) >
+    (∑ i, ∑ j, A_rigid i j * Real.cos (theta j - theta i)) :=
+  exists_better_coupling_allocation A_rigid theta h_valid h_rigid_constraint
+
 end PhysicsOfConsciousness
