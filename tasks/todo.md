@@ -1358,7 +1358,7 @@ list is to keep it that way.
 | **O2** | **C2 — `ReflexiveBoundary.auto_resonance` is an arbitrary function of the global section.** Nothing constrains the avatar's state to track the field's, and no theorem in the development mentions the field | `Phase6_ReflexiveTopology:54` | `Examples.lean` §10 already shows the presheaf restriction is a legal choice, so the constraint is known satisfiable. Either add a predicate `IsRestrictionResonance` and a theorem that uses it, or state as a theorem what goes wrong without it. Do **not** strengthen the class to a field without checking rule §3 of `PhysicsOfConsciousness/AGENTS.md` |
 | ~~**O3**~~ | **DONE 2026-08-29.** ~~**B5 — existence of a global energy minimizer is a hypothesis, never a witness.**~~ `spontaneous_symmetry_breaking` takes `h_min : ∀ phi', TotalEnergy phi ≤ TotalEnergy phi'` as given; no compactness or direct-method argument exists anywhere in the development | `Phase1_Primitives` | Exhibit one system where `h_min` is discharged rather than assumed — the `unitAction` witness of `Examples.lean` §3 is on a one-point spacetime, where the minimizer is whatever minimizes `V` pointwise, so this may be a short addition. That would make the theorem non-vacuous in the same sense the other witnesses do. A general direct-method argument is Group 2 |
 | **O4** | **A3 — the `LocalSectionSynchronization` witness is weak.** `cortexSync` sets `phase ≡ 0` and discharges `sync_to_section_eq` by `rfl`; the local sections *are* restrictions by construction | `Phase4_MacroscopicScaling:56,61`, `Examples` §4 | A witness with a non-constant phase field, or a proof that no such witness exists under the current class shape (which would be the more useful outcome, as `contracting_implies_const` was for D1) |
-| **O5** | **A4 — the `ThermodynamicCover` witness has constant phase**, which is what makes `thermodynamic_equilibrium` dischargeable at all. This is where Derivation 5's physics lives | `Phase5_GlobalSection:43`, `Examples` §4 | Same shape as O4: a cover at a non-trivial minimum of the Kuramoto potential. `Phase4_RotatingFrame` now characterizes those minima in both directions, so the ingredients exist |
+| **O5** | *(ranked second — see the plan at the end of this file)* **A4 — the `ThermodynamicCover` witness has constant phase**, which is what makes `thermodynamic_equilibrium` dischargeable at all. This is where Derivation 5's physics lives | `Phase5_GlobalSection:43`, `Examples` §4 | Same shape as O4: a cover at a non-trivial minimum of the Kuramoto potential. `Phase4_RotatingFrame` now characterizes those minima in both directions, so the ingredients exist |
 | ~~**O6**~~ | **DONE 2026-08-29.** ~~**D4 — four classes still have no instance:**~~ `PlasticNeuralField`, `StochasticMatrix`, `PseudoRiemannianManifold`, `ContinuousSymmetryGroup`. Nothing headline rests on them, but rule §2 of the Lean `AGENTS.md` applies to them as much as to the others | `Phase8_ContinuousField:155`, `Phase3_CombinatorialThermodynamics:192`, `Phase1_Primitives:47,123` | Each is a short witness. `StochasticMatrix` on `Bool` and `PlasticNeuralField` on the `Duo` substrate of `Examples` §5 are both nearly free. Alternatively delete what is unused, as `VacuumManifold` was |
 | **O7** | **C3 — `DiscreteThermodynamics.scalar_magnitude` is arbitrary subject only to non-negativity.** The map from a stress-energy tensor to a scalar is modelling, not derivation | `Phase2_SimplicialBridge:42` | Probably *leave*, but say so in the source: if it is a modelling choice, mark it `[MODELLING]` the way `Phase4_MacroscopicScaling`'s fields are, so it is not mistaken for an oversight. Listed here so the decision gets recorded either way |
 
@@ -1366,8 +1366,8 @@ list is to keep it that way.
 
 | # | Item | What it takes |
 |---|---|---|
-| **O8** | **The coherent branch, beyond existence.** `supercritical_fixed_point_exists` gives *some* `r ∈ (0,1]`; uniqueness, dynamical selection and continuity in `K` are all unproved, so a discontinuous jump at threshold is not excluded and the bifurcation is not shown supercritical in the technical sense. `K = 2D` exactly is covered by neither theorem | Monotonicity of `R`, or an implicit-function-theorem argument. `R` is nowhere shown increasing. Uniqueness plausibly follows from strict concavity of `R` in `a`, which would be a third bound on the von Mises moments in the style of §5 |
-| **O9** | **B1 — the Self's metric is 0/1, and `contracting_implies_const` proves that forces the fixed point to be constant.** The Banach argument is sound; the metric makes its conclusion trivial | A metric on `GlobalSection` built from the measure-theoretic structure — the Prokhorov metric named in `Phase6`'s header, which nothing constructs. Mathlib has `MeasureTheory.LevyProkhorov`; whether `GlobalSection`'s sheafified measures fit its hypotheses is the first thing to check |
+| **O8** | *(ranked third — see the plan at the end of this file)* **The coherent branch, beyond existence.** `supercritical_fixed_point_exists` gives *some* `r ∈ (0,1]`; uniqueness, dynamical selection and continuity in `K` are all unproved, so a discontinuous jump at threshold is not excluded and the bifurcation is not shown supercritical in the technical sense. `K = 2D` exactly is covered by neither theorem | Monotonicity of `R`, or an implicit-function-theorem argument. `R` is nowhere shown increasing. Uniqueness plausibly follows from strict concavity of `R` in `a`, which would be a third bound on the von Mises moments in the style of §5 |
+| **O9** | **B1 — the Self's metric is 0/1, and `contracting_implies_const` proves that forces the fixed point to be constant.** The Banach argument is sound; the metric makes its conclusion trivial | **NEXT UP — full execution plan in "What to spend effort on next" at the end of this file.** Ranked first: this is the weakest headline claim in the paper. Mathlib's `LevyProkhorov` and `isIso_toSheafify` both exist and the route is mapped, including the two wrinkles and a fallback |
 | **O10** | **B3 — the σ/gradient-flow link holds for finite substrates only** (`hvol : volume = Measure.count`) | Differentiation under the integral sign with respect to the kernel. Mathlib has `hasDerivAt_integral_of_dominated_loc_of_deriv_le`; the work is in the domination hypotheses |
 | **O11** | **B2 — `h_mean` restricts the comparison class** to fields sharing the phase-locked state's mean drift, so minimality is Jensen alone | Model how `Omega_avg` varies with the competitor field. Stated as the honest scope on the theorem; removing it changes what is claimed |
 | **O12** | **D2 — there is still no Noether theorem.** The class is now inhabited (`Examples.lean` §11, a `ℤ₂` action on a double well, with symmetry breaking exhibited), but no conserved quantity is constructed and no theorem consumes a symmetry group | **Estimate corrected 2026-08-29 — see "Noether: a feasibility probe" at the end of this file.** "A project in itself" is right for the *field-theoretic* theorem and wrong for point mechanics, which was prototyped end to end in one session (~200 lines, zero `sorry`). The structural obstacle is not difficulty: `SymmetryInvariantAction` has **no dynamics**, so no conserved quantity can be attached to it at all |
@@ -1605,3 +1605,126 @@ third. So the honest options are:
 
 Option 1 introduces Lagrangian point mechanics, a topic the development does not
 otherwise touch, so it is a scope decision rather than a formalization one.
+
+---
+
+## What to spend effort on next — ranking and plan, 2026-08-29
+
+Written after a feasibility probe on Noether (previous section) raised the wider
+question of which open item most strengthens the *paper*, as opposed to which is
+most interesting to formalize. The two are not the same and this section records
+the difference so a later pass does not re-litigate it.
+
+### First, the verdict on Noether: it does not strengthen the paper — do not land it yet
+
+The probe showed the point-mechanics theorem is cheap (~200 lines, done). It
+should still stay in the scratchpad, for three reasons.
+
+1. **Nothing downstream uses it.** The chain is symmetry breaking → defect →
+   boundary → Landauer → resonance → Kuramoto → gluing → Self. Conservation of
+   energy and momentum is never invoked again after the Axiom 1 section. Proving
+   it adds a leaf, not a link.
+2. **The generality gap would cost more than the theorem gains.** The prose says
+   *Poincaré group acting on fields over spacetime*; the Lean would be
+   `L : ℝ × ℝ → ℝ` — one degree of freedom, one time variable. A Table 1 row
+   reading "Noether's theorem — Theorem" backed by that is exactly the "math
+   theatre" charge `main.tex:55` pre-empts. The paper's main rhetorical asset is
+   that its scope statements are exact; this would spend it.
+3. **It cannot attach to what exists.** `SymmetryInvariantAction` has no
+   dynamics, so nothing can hang off it (see the previous section). The mechanics
+   theorem would be a parallel island, not a strengthening of Derivation 1.
+
+Revisit only if a later pass gives the development a genuine field-theoretic
+action functional and equations of motion — at which point the mechanics version
+becomes the warm-up rather than the deliverable.
+
+### The ranking, by how much headline claim rests on the item
+
+| Rank | Item | Why it is where it is |
+|---|---|---|
+| **1** | **O9 — the Self's metric** (Derivation 6) | The weakest headline claim and the first thing a hostile reviewer finds. The Self is a Banach fixed point whose *only* witness uses the 0/1 metric, and `contracting_implies_const` **proves** every contraction there is constant. So on the only model exhibited, the paper's Self *is* the constant section. The fix is a real theorem, not a rewording |
+| **2** | **O5 — a `ThermodynamicCover` at a non-constant minimum** (Derivation 5) | "Unity of experience = global section" is *the* thesis. Its witness has constant phase, which is precisely what makes `thermodynamic_equilibrium` dischargeable. `Phase4_RotatingFrame` now characterises the potential minima in both directions, so the ingredients for a non-constant cover exist |
+| **3** | **O8 — uniqueness of the coherent branch** (Derivation 4) | Would move Table 1's only "partial" row to full. Bounded and self-contained: it wants strict concavity of `R`, a third bound on the von Mises moments in the style of `Phase8_SelfConsistency` §5, whose machinery is known to work |
+
+Everything else in the ledger is either documented scope (B-group), cosmetic
+(O7), or out of reach (Group 3).
+
+### O9 — the execution plan
+
+**Goal.** Replace "the Self is the constant section" with "the Self is the fixed
+point of a genuinely dissipative, non-constant self-prediction map," keeping
+`contracting_implies_const` in place as the recorded reason the old witness was
+weak.
+
+**Verified available in Mathlib** (checked, not assumed):
+
+* `CategoryTheory.GrothendieckTopology.isIso_toSheafify` —
+  `Mathlib/CategoryTheory/Sites/Sheafification.lean:150` (and
+  `ConcreteSheafification.lean:498`): if a presheaf is already a sheaf, the unit
+  `toSheafify` is an isomorphism.
+* Lévy–Prokhorov — `Mathlib/MeasureTheory/Measure/LevyProkhorovMetric.lean`.
+
+**Route A (preferred).**
+
+1. Prove `TopCat.Presheaf.IsSheaf (probabilityPresheaf_pre Cortex)`. On a finite
+   discrete space measures are finite sums of point masses, so gluing a
+   compatible family over an overlapping cover is summation. Use
+   `isSheaf_iff_isSheafUniqueGluing_types`, the same entry point
+   `global_section_from_thermodynamics` already uses.
+2. `isIso_toSheafify` then gives `GlobalSection Cortex ≅ FiniteMeasure ↥(⊤ : Opens Cortex)`.
+   Note `globalSect t` is *already defined* as
+   `(toSheafify _).app (op ⊤) (phaseMeasure t)` (`Examples.lean:349`), so the
+   forward map is in place; step 1 is exactly what supplies the inverse.
+3. Transport the Lévy–Prokhorov metric across that iso.
+4. Build `predict μ := ½ • μ + ½ • μ₀` and prove it a `ContractingWith (1/2)`
+   map that is **not** constant, with fixed point `μ₀`.
+
+**Two wrinkles, both real, recorded so they are not rediscovered.**
+
+* **Only `ProbabilityMeasure` gets a genuine `MetricSpace`.**
+  `levyProkhorovDist_metricSpace_probabilityMeasure` (line 336) needs
+  `[BorelSpace Ω]` and is stated for `ProbabilityMeasure`;
+  `instPseudoMetricSpaceFiniteMeasure` (line 296) gives only a
+  **Pseudo**MetricSpace, and the presheaf is built on `FiniteMeasure`.
+  `reflexive_topology_implies_self` needs a true `MetricSpace`, so separation
+  (`dist = 0 → equal`) must be proved by hand for `FiniteMeasure`. On a discrete
+  space this is easy: every set is closed, and for `ε` below the minimum
+  inter-point distance `A^ε = A`, so Lévy–Prokhorov collapses to agreement on
+  every set.
+* **The substrate needs a metric.** `Site` currently carries only
+  `TopologicalSpace Site := ⊥`; Lévy–Prokhorov needs a metric on the underlying
+  space. The 0/1 metric on `Site` is fine — and note the irony worth stating in
+  the source: 0/1 is a perfectly good metric on a three-point substrate, and the
+  measures over it are then metrically rich. The mistake was never the 0/1
+  metric as such; it was putting it on `GlobalSection` itself.
+
+**The target is concrete.** `phaseMeasure t = (1 + cos t)⁺ • midDirac`
+(`Examples.lean:322`) — the existing global sections are *scaled Diracs at
+`mid`*. On that ray Lévy–Prokhorov reads off the mass, so `μ ↦ ½μ + ½μ₀` is
+`c ↦ c/2 + c₀/2`: a manifest ½-contraction with fixed point `c₀`, non-constant
+because `phaseMeasure_not_const` already proves the family varies.
+
+**Route C (fallback, if the sheaf property walls up).** Do not metrize
+`GlobalSection` at all. Generalize `reflexive_topology_implies_self` to take the
+state space as a parameter — a complete metric space `S` with
+`ReflexiveBoundary` carrying `state_of : GlobalSection X → S` — and witness it
+with `S = LevyProkhorov (FiniteMeasure ↥⊤)` and the contraction above. This
+avoids sheafification entirely and is arguably *more* honest, since a
+sheafification was never a natural carrier for a metric; but it changes the
+statement of a headline theorem, so it must be presented as a re-scoping and not
+as a strengthening. **Do not take Route C silently** — if it is used, Table 1 and
+the Derivation 6 prose both have to say that the fixed point is in a state space
+mapped out of the global section, not in the global section itself.
+
+*(Route B — pulling the metric back along `toSheafify` without inverting it —
+does not work and should not be attempted: an injection `A → B` gives `B` no
+metric; a map `B → A` is needed, which is what step 1 supplies.)*
+
+**Manuscript consequences to plan for.** Table 1's Derivation 6 row currently
+reads "Theorem (conditional)" with "witnessed, but the metric forces `predict`
+constant"; on success it becomes a non-trivial witness and the parenthetical goes.
+The Derivation 6 section of `main.tex` and the Derivation 6 note in
+`supplementary.tex` both state the 0/1-metric limitation explicitly and both
+would need rewriting. `Phase6_ReflexiveTopology.lean`'s header names the
+Prokhorov metric as the thing "nothing constructs" — that sentence is the one to
+delete last, as the check that the work is actually finished.
