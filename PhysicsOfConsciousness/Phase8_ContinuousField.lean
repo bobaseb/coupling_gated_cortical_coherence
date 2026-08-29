@@ -173,12 +173,21 @@ Numerically validated against `simulations/kuramoto.py` (see that script's
 `simulate_kuramoto` function, which sweeps K and measures the order parameter r
 against the theoretical threshold K_c = 2D).
 
-**Scope.** `critical_coupling` is a *stipulation* in this development, not a
-result: nothing below connects it to `is_continuous_kuramoto_trajectory`,
-`entropy_production_rate` or any order parameter. The threshold's content is the
-bifurcation of the self-consistency equation `r = I₁(Kr/D) / I₀(Kr/D)` for the
-noisy mean-field Kuramoto model, which is not formalized here. See Table 1 of
-the manuscript, where this row reads "Numerical."
+**Scope.** The threshold's content is the bifurcation of the self-consistency
+equation `r = I₁(Kr/D) / I₀(Kr/D)` for the noisy mean-field Kuramoto model, and
+that bifurcation *is* formalized, in `Phase8_SelfConsistency.lean`: below `2 * D`
+the incoherent state is the only non-negative solution
+(`subcritical_fixed_point_eq_zero'`), above it a solution with `0 < r ≤ 1` exists
+(`supercritical_fixed_point_exists`); `critical_coupling_is_threshold` packages
+the two. `exhibits_phase_transition_coherent` there applies this to any substrate
+satisfying `exhibits_phase_transition` below.
+
+What remains assumed is the *von Mises stationary density* those theorems take as
+input — deriving it from the underlying SDE needs the Fokker–Planck operator and
+stationary-measure theory for SPDEs, which Mathlib does not have. And nothing
+here connects the threshold to `is_continuous_kuramoto_trajectory`,
+`entropy_production_rate` or `order_parameter_r_sq`: the results are about the
+self-consistency equation, not about a trajectory.
 -/
 noncomputable def critical_coupling (D : ℝ) : ℝ := 2 * D
 

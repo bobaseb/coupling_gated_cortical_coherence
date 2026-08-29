@@ -41,6 +41,16 @@ which is all the argument needs.
 * `selfConsistency_zero` — `r = 0` *is* a solution, for every `K` and `D`. The
   theorem above is therefore a uniqueness statement about a fixed point that
   exists, not a vacuous one.
+* `supercritical_fixed_point_exists` — **for `K > critical_coupling D = 2D`,
+  there is an `r` with `0 < r ≤ 1` solving `r = R(K, r)`.** The converse half,
+  proved in §6 from continuity of the mean `E_a[sin²θ]` at `a = 0` together with
+  the intermediate value theorem; no series expansion is involved.
+* `critical_coupling_is_threshold` — the two halves packaged: below `2D` the
+  incoherent state is the only solution, above it a coherent one exists.
+* `exhibits_phase_transition_coherent` — a substrate satisfying
+  `exhibits_phase_transition` of `Phase8_ContinuousField.lean` admits a positive
+  stationary order parameter. This is what stops `critical_coupling` from being
+  an inert stipulation: exceeding it now *implies* something.
 
 `subcritical_fixed_point_eq_zero` and `besselRatio_le_self` are the crude
 versions of the last two, obtained from the pointwise bound `sin² ≤ 1` alone.
@@ -50,12 +60,17 @@ sharpening of `sin² ≤ 1` to its *mean* value under the von Mises weight.
 
 ## What is NOT proved here
 
-**The supercritical direction.** That a positive solution branches off for
-`K > 2D` does not follow from anything above. It needs a *lower* bound on `R`
-near the origin — a second-order expansion of the Bessel ratio — rather than the
-single monotonicity argument used here, so the results above establish that
-`2D` is an upper bound on where coherence can begin, not that coherence begins
-there.
+**Anything about the coherent branch beyond its existence.**
+`supercritical_fixed_point_exists` produces *some* `r ∈ (0, 1]`; it does not
+prove that it is unique, that it is the dynamically selected one, or that it
+depends continuously on `K` — so nothing here rules out a discontinuous jump at
+threshold rather than the continuous (supercritical) bifurcation the physics
+literature describes. At `K = 2D` exactly, neither theorem applies.
+
+**Monotonicity of `R`.** The argument uses `R(a) ≤ a/2` globally but only
+`R(a) ≥ a·(1/2 - o(1))` near `a = 0`; `R` is never shown increasing, which is
+why the coherent solution is found by the intermediate value theorem rather than
+by iterating the map.
 
 **The ansatz.** Nothing here derives the von Mises stationary density from the
 SDE `dθ = (ω + K·mean-field) dt + √(2D) dW`. That needs the Fokker–Planck
@@ -425,13 +440,12 @@ theorem besselRatio_le_half_self {a : ℝ} (ha : 0 ≤ a) : besselRatio a ≤ a 
 incoherent state `r = 0` is the only non-negative solution of the
 self-consistency equation `r = R(K, r)`.
 
-This is the sharp form of `subcritical_fixed_point_eq_zero`, and the sense in
-which `critical_coupling D = 2 * D` of `Phase8_ContinuousField.lean` is the
-right number: below it, no coherent stationary order parameter exists. The
-converse — that a positive solution *does* branch off for `K > 2D` — is not
-proved here; it needs a lower bound on `R` near the origin (a second-order
-expansion of the Bessel ratio) rather than the single monotonicity argument
-used above. -/
+This is the sharp form of `subcritical_fixed_point_eq_zero`, and half of the
+sense in which `critical_coupling D = 2 * D` of `Phase8_ContinuousField.lean` is
+the right number: below it, no coherent stationary order parameter exists. The
+converse — that a positive solution does branch off for `K > 2D` — is
+`supercritical_fixed_point_exists` in §6; the two are packaged as
+`critical_coupling_is_threshold`. -/
 theorem subcritical_fixed_point_eq_zero' {K D r : ℝ} (hD : 0 < D) (hK : 0 ≤ K)
     (hKD : K < critical_coupling D) (hr : 0 ≤ r)
     (hfix : r = selfConsistency K D r) : r = 0 := by
@@ -446,11 +460,214 @@ theorem subcritical_fixed_point_eq_zero' {K D r : ℝ} (hD : 0 < D) (hK : 0 ≤ 
   linarith [hfix ▸ h1]
 
 
-/-! ## 6. Non-vacuity
+/-! ## 6. The supercritical direction
 
-The uniqueness theorems above quantify over solutions of `r = R(K, r)`. If that
-equation had no solutions they would be empty statements, so we exhibit one, and
-check that the sharp theorem then returns it. -/
+Below threshold the bound `R(a) ≤ a/2` of §5 was enough, because it is global.
+Above threshold a *lower* bound is needed, and only near the origin. The
+anticipated route was a second-order expansion of the Bessel ratio; none is
+required. Writing `R(a) = a · E(a)` with
+
+    E(a) := S(a) / Z(a) = E_a[sin²θ]
+
+the integration-by-parts identity of §2 already exposes the slope as a single
+factor, and `E` is continuous with `E(0) = 1/2` — the latter because the weight
+is constant at `a = 0`, so `E(0)` is the mean of `sin²` against Lebesgue measure
+on `[-π, π]`. Continuity is `intervalIntegral.continuous_parametric_intervalIntegral_of_continuous'`
+applied to the jointly continuous integrand; no dominated-convergence argument
+is written by hand.
+
+Given `K > 2D`, the number `D/K` is strictly below `1/2`, so `E(a) > D/K` on a
+neighbourhood of `0`. For `r` in the corresponding neighbourhood the map
+overshoots, `R(K, r) > r`. At the other end `R ≤ 1` always, since `cos θ ≤ 1`,
+so the map undershoots at `r = 1`. The intermediate value theorem closes the
+gap.
+
+Note what this does *not* use: `R` is never shown monotone, and the fixed point
+is not produced by iteration. -/
+
+/-- The partition function is continuous in the concentration. -/
+theorem continuous_vonMisesZ : Continuous vonMisesZ := by
+  unfold vonMisesZ
+  exact intervalIntegral.continuous_parametric_intervalIntegral_of_continuous'
+    (by unfold vonMisesWeight; fun_prop) _ _
+
+/-- The first moment is continuous in the concentration. -/
+theorem continuous_vonMisesM : Continuous vonMisesM := by
+  unfold vonMisesM
+  exact intervalIntegral.continuous_parametric_intervalIntegral_of_continuous'
+    (by unfold vonMisesWeight; fun_prop) _ _
+
+/-- The `sin²` moment is continuous in the concentration. -/
+theorem continuous_vonMisesS : Continuous vonMisesS := by
+  unfold vonMisesS
+  exact intervalIntegral.continuous_parametric_intervalIntegral_of_continuous'
+    (by unfold vonMisesWeight; fun_prop) _ _
+
+@[simp] theorem vonMisesZ_zero : vonMisesZ 0 = 2 * π := by
+  unfold vonMisesZ vonMisesWeight
+  simp
+  ring
+
+@[simp] theorem vonMisesC2_zero : vonMisesC2 0 = 0 := by
+  unfold vonMisesC2 vonMisesWeight
+  simp
+
+@[simp] theorem vonMisesS_zero : vonMisesS 0 = π := by
+  rw [vonMisesS_eq, vonMisesZ_zero, vonMisesC2_zero]
+  ring
+
+/-- `E(a) = E_a[sin²θ]`, the mean of `sin²` under the von Mises weight. The
+whole of §5 is the statement `vonMisesSRatio a ≤ 1/2`; the whole of this section
+is that it is *close to* `1/2` near the origin. -/
+noncomputable def vonMisesSRatio (a : ℝ) : ℝ := vonMisesS a / vonMisesZ a
+
+theorem continuous_vonMisesSRatio : Continuous vonMisesSRatio :=
+  continuous_vonMisesS.div continuous_vonMisesZ (fun a => (vonMisesZ_pos a).ne')
+
+/-- At zero concentration the weight is constant, so `E(0)` is the mean of
+`sin²` against Lebesgue measure on `[-π, π]`. -/
+@[simp] theorem vonMisesSRatio_zero : vonMisesSRatio 0 = 1 / 2 := by
+  rw [vonMisesSRatio, vonMisesS_zero, vonMisesZ_zero]
+  field_simp
+
+/-- `R(a) = a · E(a)` — the integration-by-parts identity of §2, with the slope
+factored out. Both bounds on `R` in this file go through this form. -/
+theorem besselRatio_eq_mul (a : ℝ) : besselRatio a = a * vonMisesSRatio a := by
+  rw [besselRatio, vonMisesM_eq_mul_vonMisesS, vonMisesSRatio, mul_div_assoc]
+
+theorem continuous_besselRatio : Continuous besselRatio :=
+  continuous_vonMisesM.div continuous_vonMisesZ (fun a => (vonMisesZ_pos a).ne')
+
+theorem continuous_selfConsistency (K D : ℝ) : Continuous (selfConsistency K D) := by
+  unfold selfConsistency
+  exact continuous_besselRatio.comp (by fun_prop)
+
+theorem vonMisesM_le_vonMisesZ (a : ℝ) : vonMisesM a ≤ vonMisesZ a := by
+  refine intervalIntegral.integral_mono_on (by linarith [Real.pi_pos])
+    (intervalIntegrable_cos_mul a _ _) (intervalIntegrable_vonMisesWeight a _ _)
+    (fun θ _ => ?_)
+  nlinarith [Real.cos_le_one θ, vonMisesWeight_pos a θ]
+
+/-- `R(a) ≤ 1`: the order parameter is a mean of `cos θ`. This is what makes the
+self-consistency map undershoot at `r = 1`, and is the only bound used at the
+upper end of the interval. -/
+theorem besselRatio_le_one (a : ℝ) : besselRatio a ≤ 1 := by
+  rw [besselRatio, div_le_one (vonMisesZ_pos a)]
+  exact vonMisesM_le_vonMisesZ a
+
+/-- **Supercritical existence.** For `K > critical_coupling D = 2D` the
+self-consistency equation `r = R(K, r)` has a solution with `0 < r ≤ 1`: a
+coherent stationary order parameter.
+
+Together with `subcritical_fixed_point_eq_zero'` this is the content of
+`K_c = 2D` at the level of the self-consistency equation. See
+`critical_coupling_is_threshold`.
+
+**What it does not establish.** Existence, not uniqueness: nothing here says the
+positive solution is unique, that it is the dynamically selected branch, or that
+it varies continuously with `K`, so a discontinuous jump at threshold is not
+excluded. The case `K = 2D` is untouched by this theorem and by the subcritical
+one. And the von Mises density remains an input — see the file header. -/
+theorem supercritical_fixed_point_exists {K D : ℝ} (hD : 0 < D)
+    (hKD : critical_coupling D < K) :
+    ∃ r : ℝ, 0 < r ∧ r ≤ 1 ∧ r = selfConsistency K D r := by
+  rw [critical_coupling] at hKD
+  have hK : 0 < K := by linarith
+  -- `D/K < 1/2 = E(0)`, so `E > D/K` on a ball around the origin.
+  have hc : D / K < 1 / 2 := by rw [div_lt_iff₀ hK]; linarith
+  have hcont : ContinuousAt vonMisesSRatio 0 := continuous_vonMisesSRatio.continuousAt
+  have hev : ∀ᶠ a in nhds (0:ℝ), D / K < vonMisesSRatio a :=
+    hcont.eventually (lt_mem_nhds (by rw [vonMisesSRatio_zero]; exact hc))
+  rw [Metric.eventually_nhds_iff] at hev
+  obtain ⟨ε, hε, hball⟩ := hev
+  -- a point of the interval whose concentration lands inside that ball
+  set r₀ : ℝ := min (1/2) (ε * D / (2 * K)) with hr₀def
+  have hr₀pos : 0 < r₀ := lt_min (by norm_num) (by positivity)
+  have hr₀le : r₀ ≤ 1/2 := min_le_left _ _
+  have ha₀ : K * r₀ / D < ε := by
+    have h1 : r₀ ≤ ε * D / (2 * K) := min_le_right _ _
+    rw [div_lt_iff₀ hD]
+    calc K * r₀ ≤ K * (ε * D / (2 * K)) := by nlinarith
+      _ = ε * D / 2 := by field_simp
+      _ < ε * D := by nlinarith
+  have ha₀pos : 0 < K * r₀ / D := by positivity
+  -- at `r₀` the map overshoots
+  have hlow : r₀ < selfConsistency K D r₀ := by
+    have hE : D / K < vonMisesSRatio (K * r₀ / D) := by
+      refine hball ?_
+      rw [Real.dist_eq, sub_zero, abs_of_pos ha₀pos]
+      exact ha₀
+    have hsplit : selfConsistency K D r₀
+        = (K * r₀ / D) * vonMisesSRatio (K * r₀ / D) := by
+      rw [selfConsistency, besselRatio_eq_mul]
+    rw [hsplit]
+    have hkey : (K * r₀ / D) * (D / K) < (K * r₀ / D) * vonMisesSRatio (K * r₀ / D) :=
+      mul_lt_mul_of_pos_left hE ha₀pos
+    have hid : (K * r₀ / D) * (D / K) = r₀ := by field_simp
+    linarith [hid ▸ hkey]
+  -- at `r = 1` it undershoots
+  have hhigh : selfConsistency K D 1 ≤ 1 := by
+    rw [selfConsistency]; exact besselRatio_le_one _
+  -- intermediate value theorem on `[r₀, 1]`
+  set f : ℝ → ℝ := fun r => selfConsistency K D r - r with hfdef
+  have hfc : ContinuousOn f (Set.Icc r₀ 1) :=
+    ((continuous_selfConsistency K D).sub continuous_id).continuousOn
+  have hmem : (0:ℝ) ∈ Set.Icc (f 1) (f r₀) := by
+    constructor
+    · simp only [hfdef]; linarith
+    · simp only [hfdef]; linarith
+  obtain ⟨r, hrmem, hr⟩ :=
+    intermediate_value_Icc' (by linarith : r₀ ≤ (1:ℝ)) hfc hmem
+  refine ⟨r, lt_of_lt_of_le hr₀pos hrmem.1, hrmem.2, ?_⟩
+  simp only [hfdef] at hr
+  linarith
+
+/-- **`K_c = 2D` for the self-consistency equation**, both halves in one
+statement: strictly below the threshold the incoherent state is the only
+non-negative solution, strictly above it a coherent one exists.
+
+The threshold itself, `K = critical_coupling D`, is not covered — neither half
+applies there. The von Mises ansatz is assumed throughout; see the file
+header. -/
+theorem critical_coupling_is_threshold {K D : ℝ} (hD : 0 < D) (hK : 0 ≤ K) :
+    (K < critical_coupling D →
+      ∀ r : ℝ, 0 ≤ r → r = selfConsistency K D r → r = 0)
+    ∧ (critical_coupling D < K →
+      ∃ r : ℝ, 0 < r ∧ r ≤ 1 ∧ r = selfConsistency K D r) :=
+  ⟨fun h r hr hfix => subcritical_fixed_point_eq_zero' (r := r) hD hK h hr hfix,
+    fun h => supercritical_fixed_point_exists hD h⟩
+
+section PhaseTransition
+
+variable {M : Type*} [MeasureSpace M] [TopologicalSpace M]
+
+/-- **The predicate is no longer inert.** A substrate satisfying
+`exhibits_phase_transition` — its mean-field coupling exceeds
+`critical_coupling` — admits a positive stationary order parameter.
+
+Before this, `critical_coupling` was a named real number that nothing was proved
+about, and `exhibits_phase_transition` compared against it; satisfying the
+predicate implied nothing. It now implies the existence of a coherent solution
+of the self-consistency equation.
+
+**Scope, unchanged from the rest of the file.** That solution is a fixed point
+of `selfConsistency`, which rests on the von Mises stationary density. It is not
+a statement about `is_continuous_kuramoto_trajectory` or `order_parameter_r_sq`,
+so the link from the predicate to the *dynamics* is still missing. -/
+theorem exhibits_phase_transition_coherent [IsProbabilityMeasure (volume : Measure M)]
+    (sys : StochasticNeuralField M) (h : exhibits_phase_transition sys) :
+    ∃ r : ℝ, 0 < r ∧ r ≤ 1 ∧ r = selfConsistency (mean_field_coupling sys) sys.D r :=
+  supercritical_fixed_point_exists sys.h_D_pos h
+
+end PhaseTransition
+
+/-! ## 7. Non-vacuity
+
+The uniqueness theorem quantifies over solutions of `r = R(K, r)`; if that
+equation had no solutions it would be an empty statement, so we exhibit one and
+check that the theorem returns it. The existence theorem has the opposite
+failure mode — vacuous hypotheses — so we discharge those at a concrete `K` and
+`D` too. -/
 
 /-- The incoherent state solves the self-consistency equation. -/
 example (K D : ℝ) : (0 : ℝ) = selfConsistency K D 0 := (selfConsistency_zero K D).symm
@@ -460,5 +677,18 @@ hypotheses are all dischargeable, so the theorem fires. -/
 example : (0 : ℝ) = 0 :=
   subcritical_fixed_point_eq_zero' (K := 1) (D := 1) (r := 0) one_pos zero_le_one
     (by rw [critical_coupling]; norm_num) le_rfl (selfConsistency_zero 1 1).symm
+
+/-- Above threshold the hypotheses are dischargeable as well: at `D = 1`,
+`K = 3` exceeds `critical_coupling 1 = 2`, and a coherent solution exists. -/
+example : ∃ r : ℝ, 0 < r ∧ r ≤ 1 ∧ r = selfConsistency 3 1 r :=
+  supercritical_fixed_point_exists one_pos (by rw [critical_coupling]; norm_num)
+
+/-- The same `K` is subcritical for a noisier substrate: at `D = 2`,
+`critical_coupling 2 = 4 > 3`, and only the incoherent state survives. Together
+with the previous example this shows the threshold separates two genuinely
+different regimes rather than always falling on one side. -/
+example (r : ℝ) (hr : 0 ≤ r) (hfix : r = selfConsistency 3 2 r) : r = 0 :=
+  subcritical_fixed_point_eq_zero' (by norm_num) (by norm_num)
+    (by rw [critical_coupling]; norm_num) hr hfix
 
 end PhysicsOfConsciousness

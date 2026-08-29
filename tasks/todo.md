@@ -760,10 +760,11 @@ references and no float overflow. `arxiv_submit/ax.tar` regenerated; its merged
 
 ---
 
-## Open: Critical Coupling Threshold `K_c = 2D`
+## Critical Coupling Threshold `K_c = 2D` — part (a) COMPLETE 2026-08-29
 
-Dimensional fix done and part (a) done, both 2026-08-29; part (b) untouched and
-staying that way. Recorded here because three files defer to it in their scope
+Dimensional fix done, part (a) done in **both directions** (subcritical
+2026-08-29, supercritical 2026-08-29 — see the final section of this file);
+part (b) untouched and staying that way. Recorded here because three files defer to it in their scope
 notes (`Phase3_CombinatorialThermodynamics`, `Phase4_RotatingFrame`,
 `Phase8_ContinuousField`) and it is the only Table 1 row still marked
 "Numerical", yet it appeared in no open item.
@@ -872,9 +873,10 @@ project, not a task.
 
 ### Recommendation — superseded
 
-The dimensional fix and part (a) are both done. What remains is (b), which stays
-untouched: it needs the Fokker-Planck operator, stationary-measure theory for
-SPDEs and bifurcation theory, none of which Mathlib has.
+The dimensional fix and part (a) — both directions — are done. What remains is
+(b), which stays untouched: it needs the Fokker-Planck operator,
+stationary-measure theory for SPDEs and bifurcation theory, none of which
+Mathlib has.
 
 ---
 
@@ -937,11 +939,10 @@ proof; it is not committed.
 
 ### What is still open, stated precisely
 
-1. **The supercritical direction.** That some `r > 0` solves `r = R(K,r)` when
-   `K > 2D`. Needs `R(K,r) > r` for small `r`, i.e. a *lower* bound
-   `R(a) ≥ a/2 - C a³` — a second-order expansion of the Bessel ratio, not a
-   monotonicity argument. Nothing above helps. Without it the file proves that
-   coherence cannot begin below `2D`, not that it begins there.
+1. ~~**The supercritical direction.**~~ **DONE 2026-08-29** — and the estimate
+   in this bullet was wrong. No second-order expansion was needed; continuity of
+   `E(a) = 𝔼_a[sin²θ]` at `a = 0` plus the intermediate value theorem suffices.
+   See the final section of this file.
 2. **The ansatz — this is item (b) and stays out of reach.** The von Mises
    density is an input. Per the design rule in `Axioms.lean` §5 it must become a
    field of a class carrying the system's own stationary density if it is ever
@@ -1059,9 +1060,13 @@ for the following.
 
 Recorded so the manuscript's claims and the Lean's claims stay separable.
 
-1. **`K_c = 2D`, supercritical direction.** `Phase8_SelfConsistency` proves
-   coherence cannot begin below `2D`; that it *does* begin there is unproved and
-   needs a second-order lower bound on the Bessel ratio. See that section above.
+1. ~~**`K_c = 2D`, supercritical direction.**~~ **DONE 2026-08-29.**
+   `Phase8_SelfConsistency` now proves both directions and packages them as
+   `critical_coupling_is_threshold`. What replaces this item, at a much smaller
+   scale: of the coherent branch only *existence* is proved — not uniqueness, not
+   dynamical selection, not continuity in `K`, so a discontinuous jump at
+   threshold is not excluded — and `K = 2D` exactly is covered by neither
+   theorem.
 2. **The von Mises stationary density** is assumed in prose only — it is not
    even a class field. If it is ever assumed *in Lean*, the §5 design rule
    requires it to be a field of a class carrying the system's own stationary
@@ -1086,10 +1091,11 @@ Recorded so the manuscript's claims and the Lean's claims stay separable.
 3. ~~**D2**~~ — done (prose only, as recommended).
 4. ~~**D3**~~ — done.
 5. ~~**A2**~~ — done; the new witness also shows the bound is *tight*.
-6. Everything in E stays open and stays stated as open.
+6. ~~Everything in E stays open and stays stated as open.~~ E1 closed
+   2026-08-29; E2–E5 stay open and stay stated as open.
 
 Remaining from this inventory: A3, A4 (weak-but-real witnesses), B1–B6
-(hypotheses, all documented), C2, C3, D4, and all of E.
+(hypotheses, all documented), C2, C3, D4, and E2–E5.
 
 ---
 
@@ -1207,3 +1213,123 @@ It is a `def`, not an `instance`, because `boolResonance` already occupies
   grid witness; the Derivation 3 note records the tight witness; the Derivation 6 note
   records the witness and the 0/1-metric limitation; the `VacuumManifold` reference fixed.
 * Both compile; the pre-existing count of overfull hboxes is unchanged.
+
+---
+
+## Supercritical Direction of `K_c = 2D` — 2026-08-29 — DONE
+
+Item E1 of the inventory, and the last remaining half of part (a) of the
+critical-coupling item. `PhysicsOfConsciousness/Phase8_SelfConsistency.lean`
+gains a §6 (the old §6 becomes §7); the file is now 700 lines. Zero `sorry`,
+zero warnings, `#print axioms` on every new result reports only `propext`,
+`Classical.choice`, `Quot.sound`. `lake build` clean (17,608 jobs). Both
+documents compile with the overfull-hbox counts unchanged from `HEAD`
+(main 20, supplementary 14).
+
+### The estimate in the previous section was wrong, and by a lot
+
+That section said the supercritical direction "needs a *lower* bound
+`R(a) ≥ a/2 - C a³` — a second-order expansion of the Bessel ratio, not a
+monotonicity argument. Nothing above helps." Every clause of that is wrong
+except the last three words of the second one.
+
+What is actually needed is *qualitative*. The integration-by-parts identity of
+§2 already writes
+
+    R(a) = a · E(a),    E(a) := S(a)/Z(a) = 𝔼_a[sin²θ]
+
+and §5 is the statement `E(a) ≤ 1/2`. The supercritical half is the statement
+that `E` is *close to* `1/2` near the origin — which is just continuity of `E`
+at `0` together with `E(0) = 1/2`, the latter because the weight is constant
+there, so `E(0)` is the mean of `sin²` against Lebesgue measure on `[-π, π]`.
+Given `K > 2D`, `D/K < 1/2`, so continuity puts `E > D/K` on a neighbourhood of
+the origin, hence `R(K, r) = (Kr/D)·E(Kr/D) > (Kr/D)·(D/K) = r` for all small
+`r > 0`. At the far end `R ≤ 1` always, since `R` is a mean of `cos θ`. The
+intermediate value theorem does the rest.
+
+**This is the third time the difficulty estimate in this file has been wrong in
+the same direction** (mesh refinement, the subcritical half, this). Recorded in
+`tasks/lessons.md` as a pattern: for an *existence* claim, a qualitative limit
+plus IVT usually beats a quantitative expansion; the expansion is only needed if
+the root's location or its uniqueness is wanted.
+
+### What landed
+
+| Declaration | Statement |
+|---|---|
+| `continuous_vonMisesZ`, `continuous_vonMisesM`, `continuous_vonMisesS` | The three moments are continuous in the concentration. Three lines each, from `intervalIntegral.continuous_parametric_intervalIntegral_of_continuous'`; no dominated-convergence argument is written by hand |
+| `vonMisesZ_zero`, `vonMisesC2_zero`, `vonMisesS_zero` | `Z(0) = 2π`, `C₂(0) = 0`, `S(0) = π` |
+| `vonMisesSRatio` | `E(a) = S(a)/Z(a)`, with `continuous_vonMisesSRatio` and `vonMisesSRatio_zero : E(0) = 1/2` |
+| `besselRatio_eq_mul` | `R(a) = a · E(a)` — the §2 identity with the slope factored out. Both bounds on `R` in the file now go through this form |
+| `vonMisesM_le_vonMisesZ`, `besselRatio_le_one` | `R(a) ≤ 1`, from `cos θ ≤ 1`. This is what makes the map undershoot at `r = 1` |
+| `continuous_selfConsistency` | `r ↦ R(K, r)` is continuous |
+| `supercritical_fixed_point_exists` | **For `K > critical_coupling D`, there is an `r` with `0 < r ≤ 1` and `r = R(K, r)`** |
+| `critical_coupling_is_threshold` | The two halves in one statement |
+| `exhibits_phase_transition_coherent` | **A substrate satisfying `exhibits_phase_transition` admits a positive stationary order parameter** |
+
+### Why `exhibits_phase_transition_coherent` matters more than its one-line proof
+
+Before this pass, `critical_coupling` was a named real number with one theorem
+mentioning it, and `exhibits_phase_transition` compared `mean_field_coupling`
+against it — so *satisfying the predicate implied nothing*. It now implies the
+existence of a coherent solution of the self-consistency equation. The proof is
+`supercritical_fixed_point_exists sys.h_D_pos h`, one line, because
+`exhibits_phase_transition` unfolds definitionally to the theorem's hypothesis;
+the content is that the two definitions were finally made to meet.
+
+The scope note on `critical_coupling` in `Phase8_ContinuousField.lean` — which
+read "`critical_coupling` is a *stipulation* in this development, not a result"
+— is rewritten accordingly, and now says precisely what *is* still assumed (the
+von Mises density) and what is still unconnected (the trajectories).
+
+### Non-vacuity
+
+§7 discharges the hypotheses of each half at concrete values: `K = 3`, `D = 1`
+is above `critical_coupling 1 = 2` and a coherent solution exists; the same
+`K = 3` with `D = 2` is below `critical_coupling 2 = 4` and only `r = 0`
+survives. The pair matters — a threshold theorem whose hypotheses can only be
+discharged on one side is half vacuous.
+
+### Independently checked numerically
+
+Trapezoid quadrature over `[-π, π]`: `E(0) = 0.5` to machine precision; the
+positive root of `r = R(Kr/D)` is `r ≈ 0.7242` at `(K, D) = (3, 1)` and
+`r ≈ 0.3037` at `(2.1, 1)`; and `R(Kr/D) - r < 0` for all `r ∈ (0, 1]` at
+`(3, 2)` and `(1.9, 1)` — i.e. no positive root below threshold, matching the
+subcritical theorem, and the two Lean examples land on the two sides. A sanity
+check on the statements, not part of the proof; not committed.
+
+### What is still open, stated precisely
+
+1. **Only existence of the coherent branch.** Not uniqueness, not that it is the
+   dynamically selected solution, and not that it varies continuously with `K` —
+   so nothing here rules out a discontinuous jump at threshold rather than the
+   continuous (supercritical, in the technical sense) bifurcation the literature
+   describes. Getting continuity of the branch needs a monotonicity or implicit
+   function theorem argument on `R`, neither of which is present: `R` is never
+   shown increasing anywhere in the file.
+2. **`K = 2D` exactly** is covered by neither theorem.
+3. **The ansatz — item (b), unchanged and out of reach.** The von Mises density
+   is an input. Fokker-Planck, stationary-measure theory for SPDEs, bifurcation
+   theory.
+4. **The link to the dynamics — unchanged.** `selfConsistency` touches neither
+   `is_continuous_kuramoto_trajectory` nor `order_parameter_r_sq`. This is now
+   the *only* thing standing between `exhibits_phase_transition` and a statement
+   about a trajectory, and it is the item worth attacking next in this area.
+
+### Manuscript
+
+* `main.tex`: Table 1's `K_c` row records both directions (status stays
+  "Theorem (partial)" — the density is still assumed); the Soundness section's
+  fourth-defect paragraph no longer says the threshold "remains a stipulation
+  unconnected to any trajectory or order parameter"; Derivation 4 gains a
+  paragraph giving the supercritical argument and has its "three things are not
+  established" paragraph rewritten around what is actually left.
+* `supplementary.tex`: the Phase 4 note's "K_c … is not formalized in Lean" —
+  which was already stale — corrected; the `Phase8_ContinuousField` note's
+  "in one direction only" corrected to both, and the predicate's new consequence
+  recorded; the `Phase8_SelfConsistency` note gains the supercritical theorem,
+  its proof sketch, and the sharpened scope list; the rotating-frame note's
+  "`K_c`, which is not formalized" corrected.
+* Both compile with zero errors, zero undefined references, and the same
+  overfull-hbox counts as `HEAD`.
