@@ -19,9 +19,12 @@ even overlapping) edge regions. Consequently `edge_weight` is an integral over a
 unconstrained set, and `weight_symm` merely unfolds the assumed
 `edge_region_symm` field rather than deriving symmetry from geometry. Any claim
 that this class "discretizes" a manifold should be read with that in mind. The
-missing conditions — `edge_region u v` is a neighbourhood of the segment between
-`embedding u` and `embedding v`, regions are almost disjoint, and they cover `M`
-— are also exactly what `mesh_refinement_convergence` below needs to be true.
+missing conditions — `edge_region u v` is anchored to `embedding u` and `embedding v`,
+regions are disjoint across distinct edges, and they cover `M` — are exactly what mesh
+refinement convergence needs. They are collected in `IsRegularTriangulation`
+(`Phase2_MeshConvergence.lean`), which is a *predicate on* a `TriangulatedManifold` rather
+than a strengthening of this class: existing instances are unaffected, and every result
+that needs the geometry now says so in its hypotheses.
 -/
 class TriangulatedManifold (M : Type*) [TopologicalSpace M] where
   V : Type*
@@ -82,20 +85,30 @@ noncomputable def induced_kuramoto_system (M : Type*) [TopologicalSpace M] [Tria
 
 
 -- ============================================================================
--- CONJECTURES
+-- MESH REFINEMENT — moved to Phase2_MeshConvergence.lean
 -- ============================================================================
 
--- 4. Mesh Refinement Convergence
--- This formalizes the stretch goal: defining the convergence of the discrete Kuramoto/thermodynamic
--- formulation to the continuous neural field as the mesh size tends to zero.
-open MeasureTheory Metric
+/-
+`mesh_refinement_convergence` used to be stated here as a `def … : Prop` in a
+"Conjectures" section. It was withdrawn: the statement was not merely unproven, it was
+**false and malformed**.
 
-/--
-Mesh refinement convergence: as the mesh size (supremum of edge region diameters)
-tends to zero, the discrete approximations (like total edge weight)
-converge to their continuous counterparts (total continuous energy) on the manifold.
+1. *Dead binder.* `∀ (TM : TriangulatedManifold M) [Fintype TM.V]` bound `TM`, but the body
+   wrote `TriangulatedManifold.V M` and `TriangulatedManifold.edge_region`, which resolve
+   by **instance search**, not through `TM`. The binder was never used.
 
-**Numerical validation** — `simulations/mesh_refinement.py`:
+2. *Refutable.* Nothing required `edge_region` to cover `M`, and `Metric.diam ∅ = 0 < δ`
+   for every `δ > 0`. The triangulation whose edge regions are all empty therefore
+   satisfied the mesh hypothesis while contributing `0` to the sum, forcing `|0 - ∫ f| < ε`
+   for all `ε > 0` — false for any `f` with `∫ f ≠ 0`.
+
+`Phase2_MeshConvergence.lean` replaces it with a **theorem** of the same name, quantified
+over a *sequence* of triangulations with fineness tending to zero, each required to be an
+`IsRegularTriangulation` (measurable, non-degenerate, pairwise disjoint, covering, and
+anchored to the `complex`/`embedding` data — precisely the conditions this class leaves
+open, as flagged in the doc-string of `TriangulatedManifold` above).
+
+**Numerical counterpart** — `simulations/mesh_refinement.py`:
   • Computes the continuous Kuramoto potential V_cont on a 1D ring [0, 2π) using
     a fine Riemann sum (N=2000) with Gaussian coupling and sinusoidal phase.
   • Computes discrete potentials V_disc on meshes of size N = {10, 20, 40, 80, 160, 320, 640}.
@@ -104,40 +117,9 @@ converge to their continuous counterparts (total continuous energy) on the manif
 
   Run: `python simulations/mesh_refinement.py` (function `run_mesh_refinement_simulation`).
 
-**WARNING — the statement below is not merely unproven, it is FALSE, and it is
-also malformed. Do not cite it. It is retained only as a record of the intended
-claim.**
-
-Two independent defects:
-
-1. *Dead binder.* `∀ (TM : TriangulatedManifold M) [Fintype TM.V]` binds `TM`,
-   but the body then writes `TriangulatedManifold.V M` and
-   `TriangulatedManifold.edge_region`, which resolve through **instance search**,
-   not through `TM`. `TM` is never used. Check with
-   `#print mesh_refinement_convergence`.
-
-2. *Refutable.* Nothing requires `edge_region` to cover `M`, and
-   `Metric.diam ∅ = 0 < δ` for every `δ > 0`. The triangulation whose edge
-   regions are all empty therefore satisfies the mesh hypothesis while
-   contributing `0` to the sum, forcing `|0 - ∫ f| < ε` for all `ε > 0`. So the
-   proposition is false for any `f` with `∫ f ≠ 0` — e.g. `f = 1` on `[0,1]`.
-
-A correct statement needs, at minimum: a *sequence* of triangulations with mesh
-size → 0; a covering/almost-disjointness condition on `edge_region`; and a link
-between `edge_region` and the simplicial `complex`/`embedding` fields, which
-`TriangulatedManifold` currently does not impose. Beyond restating it, a proof
-would need measure-theoretic Riemann-sum infrastructure (partition-of-unity,
-compactness, uniform continuity) not yet in Mathlib. The Python simulation's
-concrete 1D setting is the reasonable first target.
+  The Lean theorem proves convergence, not the O(1/N²) rate: its error bound is
+  `ε · μ(support)` with `ε` a modulus of continuity of the integrand.
 -/
-def mesh_refinement_convergence.{u_M, u_V}
-  (M : Type u_M) [TopologicalSpace M] [MeasurableSpace M] [PseudoMetricSpace M]
-  (volume_measure : MeasureTheory.Measure M)
-  (scalar_magnitude : M → ℝ) : Prop :=
-  ∀ (ε : ℝ), ε > 0 → ∃ (δ : ℝ), δ > 0 ∧ 
-    ∀ (TM : TriangulatedManifold.{u_M, u_V} M) [Fintype TM.V],
-      (∀ u v : TM.V, Metric.diam (TM.edge_region u v) < δ) →
-      |((1 / 2 : ℝ) * ∑ u : TM.V, ∑ v : TM.V, ∫ x in TM.edge_region u v, scalar_magnitude x ∂volume_measure) - 
-        (∫ x, scalar_magnitude x ∂volume_measure)| < ε
+
 
 end PhysicsOfConsciousness

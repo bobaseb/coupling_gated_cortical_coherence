@@ -22,6 +22,11 @@
   substrate: counting measure, a non-zero gradient, and an explicit non-constant
   flow along which entropy production decays as `e^{-2t}`.
 
+  §6 witnesses `IsRegularTriangulation` (`Phase2_MeshConvergence`) with the uniform
+  partition of `[0,1)`, and runs `mesh_refinement_convergence` on it. Its
+  disjoint-yet-covering-yet-anchored conditions are in tension, so an instance is
+  the only proof they are simultaneously satisfiable.
+
   Every declaration in this file depends only on `propext`, `Classical.choice`
   and `Quot.sound`.
 -/
@@ -31,8 +36,9 @@ import PhysicsOfConsciousness.Phase3_CombinatorialThermodynamics
 import PhysicsOfConsciousness.Phase3_KLBound
 import PhysicsOfConsciousness.Phase5_GlobalSection
 import PhysicsOfConsciousness.Phase8_ContinuousField
+import PhysicsOfConsciousness.Phase2_MeshConvergence
 
-open MeasureTheory CategoryTheory TopologicalSpace Opposite
+open MeasureTheory CategoryTheory TopologicalSpace Opposite Filter Topology
 
 namespace PhysicsOfConsciousness
 namespace Examples
@@ -421,6 +427,262 @@ example : StrictAnti (fun t => sigmaOfKernel duoSys duoTheta (duoFlow t)) := by
   intro a b hab
   simp only [sigma_duoFlow, ← Real.exp_nat_mul]
   exact Real.exp_lt_exp.mpr (by push_cast; linarith)
+
+
+/-! ## 6. A refining sequence of triangulations of `[0,1)`
+
+`Phase2_MeshConvergence.mesh_refinement_convergence` proves that the discrete energy of a
+sequence of `IsRegularTriangulation`s converges to the continuous energy. That is worth
+nothing if `IsRegularTriangulation` cannot be inhabited — and its conditions do pull against
+each other: the cells must be pairwise **disjoint** yet **cover** the region, while every
+vertex must be **anchored** to each of its edges' regions. A vertex shared by two cells can
+belong to at most one of them, which is exactly why `anchored` is stated with `closure`.
+
+This section discharges the obligation with the uniform partition of `[0,1)` into `N`
+half-open cells `[i/N, (i+1)/N)` on `N+1` vertices embedded at `i/N`, and then runs the
+convergence theorem on it. The witness is checked to be non-degenerate in three ways:
+
+* cells have measure `1/N`, so they are not empty (`gridCell_measure`);
+* the mesh really shrinks — `m n = 1/(n+1) → 0`, not `0` from the start;
+* the approximations really move: for the tent function `x ↦ |x - ½|` the discrete energy
+  is `1/2` at `N = 1` and `1/4` at `N = 2`, so the limit is not being reached by a constant
+  sequence (`tent_energy_one`, `tent_energy_two`).
+
+The triangulation is one-dimensional. Nothing here witnesses the manifold-valued case of
+`DiscreteThermodynamics`, whose edge weights integrate a stress-energy magnitude over a
+genuinely 2- or 3-dimensional region.
+-/
+
+
+/-- The `i`-th cell of the uniform partition of `[0,1)` into `N` pieces. -/
+def gridCell (N i : ℕ) : Set ℝ := Set.Ico ((i : ℝ) / N) (((i : ℝ) + 1) / N)
+
+/-- Faces: sets of pairwise-consecutive vertices. -/
+def gridComplex (N : ℕ) : AbstractSimplicialComplex (Fin (N + 1)) where
+  faces := {s | ∀ a ∈ s, ∀ b ∈ s, (a : ℕ) ≤ (b : ℕ) + 1 ∧ (b : ℕ) ≤ (a : ℕ) + 1}
+  downward_closed := fun hs hts a ha b hb => hs a (hts ha) b (hts hb)
+
+/-- The uniform triangulation of `[0,1)` by `N` cells and `N+1` vertices. -/
+@[reducible] noncomputable def gridTriangulation (N : ℕ) : TriangulatedManifold ℝ where
+  V := Fin (N + 1)
+  complex := gridComplex N
+  embedding := fun i => (i : ℕ) / N
+  edge_region := fun u v =>
+    if (u : ℕ) + 1 = (v : ℕ) then gridCell N u
+    else if (v : ℕ) + 1 = (u : ℕ) then gridCell N v
+    else ∅
+  edge_region_symm := by
+    intro u v
+    split_ifs <;> first | rfl | omega
+
+@[simp] theorem gridV (N : ℕ) : (gridTriangulation N).V = Fin (N + 1) := rfl
+
+instance instFintypeGridV (N : ℕ) : Fintype (gridTriangulation N).V :=
+  (inferInstance : Fintype (Fin (N + 1)))
+
+instance instLinearOrderGridV (N : ℕ) : LinearOrder (gridTriangulation N).V :=
+  (inferInstance : LinearOrder (Fin (N + 1)))
+
+theorem gridCell_subset (N i : ℕ) (h : i + 1 ≤ N) : gridCell N i ⊆ Set.Ico (0:ℝ) 1 := by
+  have hN : (0:ℝ) < N := by
+    have : 0 < N := by omega
+    exact_mod_cast this
+  intro x hx
+  rw [gridCell, Set.mem_Ico] at hx
+  rw [Set.mem_Ico]
+  constructor
+  · refine le_trans ?_ hx.1
+    positivity
+  · refine lt_of_lt_of_le hx.2 ?_
+    rw [div_le_one hN]
+    exact_mod_cast h
+
+theorem gridCell_dist (N i : ℕ) {x y : ℝ} (hx : x ∈ gridCell N i) (hy : y ∈ gridCell N i) :
+    dist x y ≤ 1 / N := by
+  rw [gridCell, Set.mem_Ico] at hx hy
+  have h := Real.dist_le_of_mem_Icc (x := x) (y := y)
+    ⟨hx.1, hx.2.le⟩ ⟨hy.1, hy.2.le⟩
+  refine h.trans (le_of_eq ?_)
+  ring
+
+@[simp] theorem grid_edge_region (N : ℕ) (u v : Fin (N + 1)) :
+    (gridTriangulation N).edge_region u v =
+      if (u : ℕ) + 1 = (v : ℕ) then gridCell N u
+      else if (v : ℕ) + 1 = (u : ℕ) then gridCell N v else ∅ := rfl
+
+@[simp] theorem grid_embedding (N : ℕ) (u : Fin (N + 1)) :
+    (gridTriangulation N).embedding u = (u : ℕ) / N := rfl
+
+theorem gridCell_disjoint (N : ℕ) (hN : 0 < N) {i j : ℕ} (h : i ≠ j) :
+    Disjoint (gridCell N i) (gridCell N j) := by
+  have hNR : (0:ℝ) < N := by exact_mod_cast hN
+  rw [gridCell, gridCell, Set.Ico_disjoint_Ico]
+  rcases lt_or_gt_of_ne h with hlt | hlt
+  · have h1 : ((i : ℝ) + 1) / N ≤ (j : ℝ) / N := by
+      refine (div_le_div_iff_of_pos_right hNR).2 ?_
+      exact_mod_cast hlt
+    calc min (((i : ℝ) + 1) / N) (((j : ℝ) + 1) / N) ≤ ((i : ℝ) + 1) / N := min_le_left _ _
+      _ ≤ (j : ℝ) / N := h1
+      _ ≤ max ((i : ℝ) / N) ((j : ℝ) / N) := le_max_right _ _
+  · have h1 : ((j : ℝ) + 1) / N ≤ (i : ℝ) / N := by
+      refine (div_le_div_iff_of_pos_right hNR).2 ?_
+      exact_mod_cast hlt
+    calc min (((i : ℝ) + 1) / N) (((j : ℝ) + 1) / N) ≤ ((j : ℝ) + 1) / N := min_le_right _ _
+      _ ≤ (i : ℝ) / N := h1
+      _ ≤ max ((i : ℝ) / N) ((j : ℝ) / N) := le_max_left _ _
+
+theorem grid_edge_region_lt (N : ℕ) {u v : Fin (N + 1)} (h : u < v) :
+    (gridTriangulation N).edge_region u v =
+      if (u : ℕ) + 1 = (v : ℕ) then gridCell N u else ∅ := by
+  rw [grid_edge_region]
+  have hvu : ¬((v : ℕ) + 1 = (u : ℕ)) := by
+    rw [Fin.lt_def] at h; omega
+  split_ifs <;> rfl
+
+theorem gridRegular (N : ℕ) (hN : 0 < N) :
+    IsRegularTriangulation (gridTriangulation N) (Set.Ico (0:ℝ) 1) where
+  measurable_region := by
+    intro u v
+    rw [grid_edge_region]
+    split_ifs <;> simp [gridCell]
+  no_self_region := by
+    intro u
+    rw [grid_edge_region]
+    split_ifs <;> first | rfl | omega
+  face_of_complex := by
+    intro u v hne
+    have hcond : (u : Fin (N + 1)).val + 1 = (v : Fin (N + 1)).val ∨
+        (v : Fin (N + 1)).val + 1 = (u : Fin (N + 1)).val := by
+      by_contra hc
+      rw [not_or] at hc
+      rw [grid_edge_region] at hne
+      split_ifs at hne with h1 h2
+      · exact hc.1 h1
+      · exact hc.2 h2
+      · exact Set.not_nonempty_empty hne
+    intro a ha b hb
+    simp only [Finset.mem_insert, Finset.mem_singleton] at ha hb
+    rcases ha with rfl | rfl <;> rcases hb with rfl | rfl <;> omega
+  anchored := by
+    intro u v hne
+    have hNR : (0:ℝ) < N := by exact_mod_cast hN
+    rw [grid_edge_region] at hne ⊢
+    split_ifs at hne ⊢ with h1 h2
+    · rw [gridCell, closure_Ico (by intro hc; rw [div_eq_div_iff hNR.ne' hNR.ne'] at hc; linarith)]
+      rw [grid_embedding, Set.mem_Icc]
+      constructor
+      · exact le_refl _
+      · gcongr
+        linarith
+    · rw [gridCell, closure_Ico (by intro hc; rw [div_eq_div_iff hNR.ne' hNR.ne'] at hc; linarith)]
+      rw [grid_embedding, Set.mem_Icc]
+      have : ((u : Fin (N + 1)).val : ℝ) = ((v : Fin (N + 1)).val : ℝ) + 1 := by
+        exact_mod_cast h2.symm
+      rw [this]
+      constructor
+      · gcongr
+        linarith
+      · exact le_refl _
+    · exact absurd hne Set.not_nonempty_empty
+  disjoint_region := by
+    intro u v u' v' huv huv' hne
+    rw [grid_edge_region_lt N huv, grid_edge_region_lt N huv']
+    split_ifs with h1 h2 h3
+    · refine gridCell_disjoint N hN ?_
+      intro hc
+      refine hne ?_
+      have huu : (u : Fin (N + 1)) = u' := Fin.ext hc
+      have hvv : (v : Fin (N + 1)) = v' := Fin.ext (by omega)
+      rw [huu, hvv]
+    · exact Set.disjoint_empty _
+    · exact Set.empty_disjoint _
+    · exact Set.empty_disjoint _
+  covers := by
+    have hNR : (0:ℝ) < N := by exact_mod_cast hN
+    refine Set.Subset.antisymm ?_ fun x hx => ?_
+    · refine Set.iUnion_subset fun u => Set.iUnion_subset fun v => ?_
+      rw [grid_edge_region]
+      split_ifs with h1 h2
+      · exact gridCell_subset N _ (by have := (v : Fin (N + 1)).isLt; omega)
+      · exact gridCell_subset N _ (by have := (u : Fin (N + 1)).isLt; omega)
+      · exact Set.empty_subset _
+    · rw [Set.mem_Ico] at hx
+      have hxN : 0 ≤ x * N := mul_nonneg hx.1 (le_of_lt hNR)
+      have h1 : (⌊x * N⌋₊ : ℝ) ≤ x * N := Nat.floor_le hxN
+      have h2 : x * N < ⌊x * N⌋₊ + 1 := Nat.lt_floor_add_one _
+      have hiN : ⌊x * N⌋₊ < N := by
+        refine (Nat.floor_lt hxN).2 ?_
+        calc x * N < 1 * N := by exact mul_lt_mul_of_pos_right hx.2 hNR
+          _ = N := one_mul _
+      refine Set.mem_iUnion.2 ⟨(⟨⌊x * N⌋₊, by omega⟩ : Fin (N + 1)),
+        Set.mem_iUnion.2 ⟨(⟨⌊x * N⌋₊ + 1, by omega⟩ : Fin (N + 1)), ?_⟩⟩
+      rw [grid_edge_region]
+      split_ifs with h3 h4
+      · rw [gridCell, Set.mem_Ico]
+        refine ⟨(div_le_iff₀ hNR).2 ?_, (lt_div_iff₀ hNR).2 ?_⟩
+        · exact h1
+        · exact h2
+      · simp at h3
+      · simp at h3
+
+theorem grid_fine (N : ℕ) (u v : Fin (N + 1)) {x y : ℝ}
+    (hx : x ∈ (gridTriangulation N).edge_region u v)
+    (hy : y ∈ (gridTriangulation N).edge_region u v) : dist x y ≤ 1 / N := by
+  rw [grid_edge_region] at hx hy
+  split_ifs at hx hy with h1 h2
+  · exact gridCell_dist N _ hx hy
+  · exact gridCell_dist N _ hx hy
+  · exact absurd hx (Set.notMem_empty x)
+
+theorem grid_mesh_refinement (f : ℝ → ℝ) (hf : UniformContinuous f) :
+    Tendsto (fun n : ℕ => discreteEnergy (gridTriangulation (n + 1)) volume f) atTop
+      (𝓝 (∫ x in Set.Ico (0:ℝ) 1, f x)) := by
+  have hint : IntegrableOn f (Set.Ico (0:ℝ) 1) volume :=
+    (hf.continuous.integrableOn_Icc (a := 0) (b := 1)).mono_set Set.Ico_subset_Icc_self
+  refine mesh_refinement_convergence volume f hf (by simp) hint
+    (fun n => gridTriangulation (n + 1)) (fun n => gridRegular (n + 1) n.succ_pos)
+    (fun n => 1 / ((n : ℝ) + 1)) tendsto_one_div_add_atTop_nhds_zero_nat ?_
+  intro n u v x hx y hy
+  have h := grid_fine (n + 1) u v hx hy
+  push_cast at h
+  exact h
+
+/-- Cells are non-degenerate: each has measure `1/N`. -/
+theorem gridCell_measure (N : ℕ) (hN : 0 < N) (i : ℕ) :
+    volume.real (gridCell N i) = 1 / N := by
+  have hNR : (0:ℝ) < N := by exact_mod_cast hN
+  rw [gridCell, Real.volume_real_Ico_of_le (by gcongr; linarith)]
+  field_simp
+  ring
+
+/-- The tent function `x ↦ |x - ½|`, Lipschitz hence uniformly continuous. -/
+theorem tent_uniformContinuous : UniformContinuous (fun x : ℝ => |x - 1/2|) := by
+  have h : (fun x : ℝ => |x - 1/2|) = fun x : ℝ => dist x (1/2) := by
+    funext x; rw [Real.dist_eq]
+  rw [h]
+  exact (LipschitzWith.dist_left (1/2 : ℝ)).uniformContinuous
+
+example : Tendsto
+    (fun n : ℕ => discreteEnergy (gridTriangulation (n + 1)) volume (fun x => |x - 1/2|))
+    atTop (𝓝 (∫ x in Set.Ico (0:ℝ) 1, |x - 1/2|)) :=
+  grid_mesh_refinement _ tent_uniformContinuous
+
+theorem tent_energy_one :
+    discreteEnergy (gridTriangulation 1) volume (fun x => |x - 1/2|) = 1/2 := by
+  simp [discreteEnergy, Fin.sum_univ_two, grid_edge_region, grid_embedding, gridCell]
+  norm_num
+
+theorem tent_energy_two :
+    discreteEnergy (gridTriangulation 2) volume (fun x => |x - 1/2|) = 1/4 := by
+  simp [discreteEnergy, Fin.sum_univ_three, grid_edge_region, grid_embedding, gridCell]
+  norm_num
+
+/-- The approximations genuinely move: refining the mesh changes the answer, so the
+convergence above is not the trivial convergence of a constant sequence. -/
+example : discreteEnergy (gridTriangulation 1) volume (fun x => |x - 1/2|)
+    ≠ discreteEnergy (gridTriangulation 2) volume (fun x => |x - 1/2|) := by
+  rw [tent_energy_one, tent_energy_two]
+  norm_num
 
 end Examples
 end PhysicsOfConsciousness

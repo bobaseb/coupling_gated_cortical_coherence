@@ -2,11 +2,11 @@
 
 The following tasks focus on expanding the Lean 4 formalization to cover claims that are currently unformalized or only conditionally proven.
 
-## P0: Mesh Refinement Convergence (Phase 2) — PENDING
-* **Objective:** Formalize the proof for `mesh_refinement_convergence` in `Phase2_SimplicialBridge.lean`, which currently sits in the "Conjectures" section.
-* **Verdict (Aug 2026):** Not feasible in Lean today without building substantial measure-theoretic Riemann-sum approximation infrastructure (partition-of-unity, compactness, uniform-continuity) that doesn't exist in Mathlib. The current type signature is also too weak (quantifies over all triangulations without a sequence structure). A concrete 1D formalization building on the Python simulation would be a reasonable intermediate target.
-* **Covered by:** Python simulation `simulations/mesh_refinement.py` — computes continuous Kuramoto potential via Riemann sum, confirms O(1/N²) convergence. Run with `python simulations/mesh_refinement.py`.
-* **Doc-comment updated:** The conjecture doc-string now explicitly describes the numerical validation and lists infrastructure gaps.
+## P0: Mesh Refinement Convergence (Phase 2) — DONE (2026-08-29)
+* **Objective:** Formalize the proof for `mesh_refinement_convergence` in `Phase2_SimplicialBridge.lean`, which sat in the "Conjectures" section.
+* **Superseded verdict (Aug 2026):** an earlier pass judged this infeasible without Riemann-sum infrastructure missing from Mathlib. That was wrong in two ways. The infrastructure needed is finite additivity plus a modulus-of-continuity estimate, both available; and the original statement was not just unproven but *false*, so no amount of proof effort would have closed it. See "Mesh Refinement Convergence — 2026-08-29 — DONE" at the end of this file.
+* **Implementation:** `PhysicsOfConsciousness/Phase2_MeshConvergence.lean` — `Mesh`, the fixed-mesh error bound, the sequence limit, `IsRegularTriangulation`, and `mesh_refinement_convergence` as a theorem. Witnessed on the uniform partition of `[0,1)` in `Examples.lean` §6.
+* **Covered by:** Python simulation `simulations/mesh_refinement.py` — computes continuous Kuramoto potential via Riemann sum, confirms O(1/N²) convergence. The Lean theorem proves convergence, not the rate. Run with `python simulations/mesh_refinement.py`.
 
 ## P1: KL Bound Formalization (Derivation 3) — DONE
 * **Objective:** Provide a full Lean 4 implementation of the KL Bound from Derivation 3.
@@ -182,8 +182,8 @@ Before this pass, the only `instance` in the entire development was a
 
 | # | Finding | Status |
 |---|---|---|
-| A | `mesh_refinement_convergence` is **refutable**, not merely unproven: nothing forces `edge_region` to cover `M`, and `Metric.diam ∅ = 0 < δ`, so the all-empty triangulation forces `|0 - ∫f| < ε` for all ε | Doc-comment rewritten as an explicit warning; refutation compiled |
-| B | The same definition has a **dead binder**: `∀ (TM : TriangulatedManifold M)` binds `TM`, but the body writes `TriangulatedManifold.V M`, resolved by *instance search*. `TM` is never used — confirmed via `#print` | Documented |
+| A | `mesh_refinement_convergence` is **refutable**, not merely unproven: nothing forces `edge_region` to cover `M`, and `Metric.diam ∅ = 0 < δ`, so the all-empty triangulation forces `|0 - ∫f| < ε` for all ε | **RESOLVED 2026-08-29** — false `def` deleted; restated and proved in `Phase2_MeshConvergence.lean` |
+| B | The same definition has a **dead binder**: `∀ (TM : TriangulatedManifold M)` binds `TM`, but the body writes `TriangulatedManifold.V M`, resolved by *instance search*. `TM` is never used — confirmed via `#print` | **RESOLVED 2026-08-29** — the replacement theorem uses its binder; checked with `pp.explicit` |
 | C | Two different Kuramoto potentials. `dV_dt_le_zero` proves descent for `kuramoto_potential` (with the ω term, in `Phase3`); `phase_locked_minimizes_potential` characterises the minimum of `kuramoto_potential_dynamic` (without it, in `Phase4`). They are never chained — and `kuramoto_potential` is **unbounded below** when any ωᵢ ≠ 0, so it has no minimum to attain | Documented on the definition |
 | D | `defect_inevitability` proved the *opposite* of its name — that extendable boundary configurations are trivial, not that defects are inevitable | Renamed `contractible_interior_forces_trivial_boundary`; supplementary corrected |
 | E | `TriangulatedManifold` never links `complex`/`embedding` to `edge_region`, so `edge_weight` integrates over an unconstrained set and `weight_symm` just unfolds an assumed field | Documented; Table 1 row downgraded to "Theorem (weak)" |
@@ -208,8 +208,9 @@ errors and zero warnings.
 
 1. ~~**Build a `ThermodynamicCover` instance.**~~ **DONE 2026-08-29** — see below.
 2. ~~Link Phase 8's abstract gradient-flow theorems to `entropy_production_rate`.~~ **DONE 2026-08-29** — see below.
-3. Restate `mesh_refinement_convergence` correctly (sequence of triangulations,
-   covering condition, `edge_region` tied to the simplicial data).
+3. ~~Restate `mesh_refinement_convergence` correctly (sequence of triangulations,
+   covering condition, `edge_region` tied to the simplicial data).~~ **DONE
+   2026-08-29** — restated *and proved*; see below.
 4. Chain the two Kuramoto potentials via the rotating-frame reduction.
 5. Formalize a genuine continuous/discrete distinction if the hardware corollary
    is to be more than an informal argument.
@@ -376,3 +377,131 @@ mismatch with itself, so its gradient component vanishes.
 Both manuscripts compile with no new warnings (Table 1 needed two trims — the
 row and one caption sentence — to keep the float on the page).
 `arxiv_submit/ax.tar` regenerated and its merged `main.tex` compiles clean.
+
+---
+
+## Mesh Refinement Convergence — 2026-08-29 — DONE
+
+Closes open item 3, and goes past it: the statement was not only restated but
+proved, and the finding recorded as (A) in the soundness audit — that
+`mesh_refinement_convergence` was *refutable*, not merely unproven — is now
+retired.
+
+### The old statement, and why it had to go
+
+`Phase2_SimplicialBridge.lean` carried `mesh_refinement_convergence` as a
+`def … : Prop` in a "Conjectures" section. Two independent defects, both
+verified:
+
+* **Refutable.** Nothing required `edge_region` to cover `M`, and
+  `Metric.diam ∅ = 0 < δ`. The triangulation whose edge regions are all empty
+  satisfied the mesh hypothesis while contributing `0`, forcing `|0 - ∫f| < ε`
+  for every `ε > 0` — false for any `f` with `∫ f ≠ 0`.
+* **Dead binder.** `∀ (TM : TriangulatedManifold M)` bound `TM`, but the body
+  wrote `TriangulatedManifold.V M`, resolved by *instance search*. `TM` was
+  never used.
+
+The `def` is deleted. `Phase2_SimplicialBridge.lean` keeps a note recording both
+defects and pointing at the replacement; the `TriangulatedManifold` doc-string
+now points at `IsRegularTriangulation` instead of at a false conjecture.
+
+### What was built — `PhysicsOfConsciousness/Phase2_MeshConvergence.lean` (new)
+
+| Declaration | What it is |
+|---|---|
+| `Mesh M` | Finitely many pairwise disjoint measurable cells. Measure-free; `support` records what it covers rather than assuming it is all of `M` |
+| `Mesh.riemannSum μ val` | `∑ᵢ μ(cellᵢ)·val i` |
+| `Mesh.setIntegral_support` | Finite additivity over the cells |
+| **`abs_riemannSum_sub_setIntegral_le`** | **The error bound.** If `\|val i − f x\| ≤ ε` throughout cell `i`, then `\|riemannSum − ∫_support f\| ≤ ε·μ(support)`. Stated at *fixed* mesh — the mesh size enters only through the hypothesis |
+| `tendsto_riemannSum` | Convergence along a sequence of meshes of common support, given the sampling error is eventually uniformly small |
+| `tendsto_riemannSum_of_tendsto_fineness` | The concrete form: uniformly continuous integrand, `m n → 0`, values averaged from two points within `m n` of the cell |
+| `dist_le_of_mem_closure` | A point in the closure of an `r`-small set is within `r` of it — what lets vertices on cell boundaries be sample points |
+| `sum_sum_of_symm` | Symmetric `g` with `g u u = 0`: `∑ᵤ∑ᵥ g = 2·∑_{u<v} g` |
+| **`sum_sum_mul_of_symm`** | **`½ ∑ᵤ∑ᵥ w(u,v)·φ(u) = ∑_{u<v} w(u,v)·(φu+φv)/2`.** The manuscript's half-sum samples only the *first* endpoint and is not symmetric; this shows it is exactly the midpoint rule over unordered edges. Without it, reading the double sum as a Riemann sum is a category error |
+| **`IsRegularTriangulation TM S`** | The conditions `TriangulatedManifold` leaves open: `measurable_region`, `no_self_region`, `face_of_complex`, `anchored`, `disjoint_region`, `covers = S`. A *predicate*, not a strengthening of the class — existing instances are unaffected |
+| `meshOfTriangulation` | One cell per unordered edge `u < v` |
+| `support_meshOfTriangulation` | The mesh covers exactly `S` |
+| `discreteEnergy TM μ f` | `½ ∑ᵤ∑ᵥ μ(R u v)·f(embedding u)` — the manuscript's quantity |
+| `discreteEnergy_eq_riemannSum` | It *is* the mesh's midpoint Riemann sum |
+| **`mesh_refinement_convergence`** | **The theorem.** Along a sequence of regular triangulations of `S` with fineness `→ 0`, `discreteEnergy → ∫_S f` for uniformly continuous `f` |
+
+### Design points worth recording
+
+* **`anchored` uses `closure`, not membership.** Cells are disjoint, so a vertex
+  shared by two edges belongs to at most one of them — in the half-open
+  partition of an interval it is a boundary point of both. Requiring
+  `embedding u ∈ edge_region u v` would have made the class uninhabitable for
+  the intended examples, which is the same failure mode as an inconsistent
+  axiom, just quieter.
+* **The covered region is named `S`.** Finitely many small cells cannot cover an
+  unbounded space, so the old `= univ` form was unsatisfiable for every concrete
+  example.
+* **The binder is live.** `set_option pp.explicit true in #check
+  @mesh_refinement_convergence` shows `TM n` passed to `TriangulatedManifold.V`,
+  `edge_region` and `discreteEnergy`.
+
+### Non-vacuity — `Examples.lean` §6
+
+The regularity conditions pull against each other (disjoint yet covering, every
+vertex anchored to each of its edges), so an instance is the only proof they are
+simultaneously satisfiable.
+
+| Declaration | What it is |
+|---|---|
+| `gridCell N i` | `[i/N, (i+1)/N)` |
+| `gridComplex N` | Faces are sets of pairwise-consecutive vertices — a real constraint, not `univ` |
+| `gridTriangulation N` | `N+1` vertices embedded at `i/N`; `edge_region` non-empty only on consecutive pairs |
+| `gridRegular N (hN : 0 < N)` | `IsRegularTriangulation (gridTriangulation N) (Ico 0 1)`. `covers` is proved via `⌊x·N⌋₊`; `disjoint_region` via `Set.Ico_disjoint_Ico` |
+| `grid_mesh_refinement` | The convergence theorem instantiated: `discreteEnergy (gridTriangulation (n+1)) volume f → ∫_{[0,1)} f` for any uniformly continuous `f` |
+| `gridCell_measure` | Cells have measure `1/N` — not empty |
+| `tent_energy_one`, `tent_energy_two` | For `x ↦ \|x − ½\|`: `½` at `N = 1`, `¼` at `N = 2` |
+
+The last pair is the point: the approximations genuinely move with `N`, so the
+limit is not being reached by a constant sequence. The fineness `1/(n+1)` also
+tends to zero rather than being zero from the start.
+
+### What it does *not* establish
+
+* The witness is **one-dimensional**. Nothing here witnesses the manifold-valued
+  `DiscreteThermodynamics`, whose edge weights integrate a stress-energy
+  magnitude over a genuinely 2- or 3-dimensional region.
+* **Convergence, not the rate.** `simulations/mesh_refinement.py` measures
+  O(1/N²); the Lean bound is `ε·μ(S)` with `ε` a modulus of continuity, which
+  for a Lipschitz integrand gives O(mesh size). The O(1/N²) midpoint-rule error
+  term needs a second derivative, which is not developed.
+* `TriangulatedManifold` itself still imposes no geometry. The conditions live
+  in the predicate, so every result that needs them says so in its hypotheses.
+
+### Manuscript updates
+
+* `main.tex:48` — Table 1 row for Electrodynamic Discretization moved from
+  "Theorem (weak)" / "`edge_region` unconstrained" to "Theorem", citing the
+  convergence result and its witness. (Row trimmed to keep the float on the
+  page.)
+* `main.tex` Soundness subsection — new paragraph on this defect, noting it is
+  the kind `#print axioms` cannot catch: a false *conjecture* rather than a bad
+  axiom. Covers the refutation, the dead binder, the four changes to the
+  statement, the closure-vs-membership point, the midpoint-rule identification,
+  the witness, and the fact that the rate is not proved.
+* `supplementary.tex` — new implementation note in the Kuramoto section
+  explaining how the discrete coupling matrix comes from the triangulation, that
+  mesh refinement was a false conjecture and is now a theorem, and the two
+  limitations above.
+
+**Verification:** `lake build` succeeds (17,602 jobs), no warnings from the new
+code. `#print axioms` on `mesh_refinement_convergence`,
+`abs_riemannSum_sub_setIntegral_le`, `discreteEnergy_eq_riemannSum`,
+`support_meshOfTriangulation`, `gridRegular`, `grid_mesh_refinement`,
+`tent_energy_one`, `tent_energy_two` and `gridCell_measure` each report only
+`[propext, Classical.choice, Quot.sound]`. `main.tex` and `supplementary.tex`
+compile with no undefined references and no float overflow.
+`arxiv_submit/ax.tar` regenerated; its merged `main.tex` compiles clean.
+
+### Remaining open (updated)
+
+1. Chain the two Kuramoto potentials via the rotating-frame reduction.
+2. Formalize a genuine continuous/discrete distinction if the hardware corollary
+   is to be more than an informal argument.
+3. Prove the limit `lim_{t→∞} D_KL(P ‖ Q) = 0` asserted in supplementary
+   Theorem 3 (needs a coercivity or Łojasiewicz-type estimate on σ).
+4. Extend the mesh witness beyond one dimension, and prove the O(1/N²) rate.

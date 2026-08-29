@@ -2,6 +2,7 @@
 -- Import modules here that should be built as part of the library.
 import PhysicsOfConsciousness.Phase1_Primitives
 import PhysicsOfConsciousness.Phase2_SimplicialBridge
+import PhysicsOfConsciousness.Phase2_MeshConvergence
 import PhysicsOfConsciousness.Phase3_CombinatorialThermodynamics
 import PhysicsOfConsciousness.Phase3_KLBound
 import PhysicsOfConsciousness.Phase3_MeasureThermodynamics
