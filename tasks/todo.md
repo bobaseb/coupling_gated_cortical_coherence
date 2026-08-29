@@ -762,35 +762,64 @@ references and no float overflow. `arxiv_submit/ax.tar` regenerated; its merged
 
 ## Open: Critical Coupling Threshold `K_c = 2D`
 
-Not started. Recorded here because three files now defer to it in their scope
-notes (`Phase3_CombinatorialThermodynamics`, `Phase4_RotatingFrame`,
+Dimensional fix done (2026-08-29); the analysis is not started. Recorded here
+because three files defer to it in their scope notes (`Phase3_CombinatorialThermodynamics`, `Phase4_RotatingFrame`,
 `Phase8_ContinuousField`) and it is the only Table 1 row still marked
 "Numerical", yet it appeared in no open item.
 
-### Current state in Lean — definitions only, zero theorems
+### Current state in Lean — the value itself is still a stipulation
 
 | Declaration | What it is | What is proved about it |
 |---|---|---|
-| `critical_coupling D := 2 * D` (`Phase8:176`) | A named real number | Nothing |
-| `exhibits_phase_transition sys := (∫∫ sys.K) > critical_coupling sys.D` (`Phase8:178`) | A predicate | Nothing — flagged as an unused declaration in the Opus 5 evaluation (finding #12) |
+| `critical_coupling D := 2 * D` | A named real number | Nothing |
+| `mean_field_coupling sys := ∫ x, ∫ y, sys.K x y` | The kernel averaged over both arguments | `mean_field_coupling_const` — on a probability substrate a constant kernel has strength exactly that constant |
+| `exhibits_phase_transition sys` (needs `[IsProbabilityMeasure volume]`) | `mean_field_coupling sys > critical_coupling sys.D` | `exhibits_phase_transition_const_iff` — reduces to `K > 2D` for constant kernels; witnessed both ways in `Examples.lean` §9 |
 
-Neither is connected to `order_parameter_r_sq`, `is_phase_locked`,
-`is_continuous_kuramoto_trajectory`, or any dynamics. `2 * D` is a *stipulation*
+The lemmas fix what the predicate *means*; they say nothing about whether `2D`
+is the right number. Nothing is connected to `order_parameter_r_sq`,
+`is_phase_locked`, `is_continuous_kuramoto_trajectory`, or any dynamics. `2 * D` is a *stipulation*
 in the Lean source; the content lives entirely in `simulations/kuramoto.py`,
 which sweeps `K` and plots the measured order parameter against a drawn line at
 `2D`.
 
-### A defect to check first (cheap, and independent of everything below)
+### The dimensional defect — FIXED 2026-08-29
 
-`exhibits_phase_transition` compares `∫ₓ∫_y K(x,y)` against `2D`. For a constant
-kernel `K(x,y) = K` on a substrate of measure `m` that integral is `K·m²`, so the
-comparison is only dimensionally right when `m = 1`. `StochasticNeuralField`
-imposes no finiteness or normalization on `volume`, so as written the predicate
-means different things on different substrates and is trivially satisfiable by
-inflating the substrate. Either require a probability measure or state the
-threshold in terms of the kernel's strength rather than its total mass. This is a
-one-line fix to a definition nothing depends on, and should be done regardless of
-whether the analysis below is ever attempted.
+`exhibits_phase_transition` compared `∫ₓ∫_y K(x,y)` against `2D`. For a constant
+kernel `K` on a substrate of measure `m` that integral is `K·m²`, so the
+comparison tracked the substrate's *size* rather than its coupling and was
+satisfiable by any kernel at all by inflating `m`.
+
+**Fix:** `Phase8_ContinuousField.lean` now factors the left-hand side out as
+`mean_field_coupling sys := ∫ x, ∫ y, sys.K x y` and requires
+`[IsProbabilityMeasure (volume : Measure M)]` on `exhibits_phase_transition` —
+the normalization the mean-field derivation of `K_c = 2D` is carried out in.
+Two lemmas keep the definition honest rather than merely well-typed:
+
+* `mean_field_coupling_const` — under the hypothesis, a constant kernel has
+  mean-field strength exactly that constant. No factor of substrate size.
+* `exhibits_phase_transition_const_iff` — the predicate reduces to `K > 2D`,
+  the inequality the physics is about.
+
+**Witnessed in `Examples.lean` §9.** `Cell` is a two-site substrate carrying the
+*normalized* counting measure `(1/2)·count`; `cellVolume_prob` discharges the
+probability hypothesis (so it is satisfiable at all), and the predicate holds of
+`cellSys 3` at `D = 1` and fails for `cellSys 1` — it is neither vacuous nor
+trivially true. The converse half matters more: `duoWeak_inflated` exhibits, on
+the unnormalized `Duo` substrate of §5, a system coupled at `K = 1/2` against a
+threshold of `1` — a factor of two *below* threshold — whose unnormalized double
+integral is `2 > 1`. That system satisfied the old predicate. Mass was doing the
+work, not coupling.
+
+This also retires finding #12 of the Opus 5 evaluation (`exhibits_phase_transition`
+flagged as an unused declaration): it now has two theorems and two witnesses.
+
+**What is still not proved:** everything below. `critical_coupling` remains a
+stipulation, unconnected to any trajectory or order parameter; the scope note on
+the definition now says so in the source. Table 1 still reads "Numerical".
+
+Manuscript: new paragraph in `main.tex` §Soundness ("A fourth defect was
+dimensional…") and a `Phase8_ContinuousField` implementation note under
+supplementary Theorem 4.
 
 ### What `K_c = 2D` actually is
 
@@ -840,7 +869,36 @@ project, not a task.
 
 ### Recommendation
 
-Do the dimensional fix now; treat (a) as the real task, sized in weeks rather
-than hours; leave (b) alone and keep saying so. Until (a) lands, Table 1 should
-continue to read "Numerical" for this row, and the scope notes in Phases 3, 4 and
-8 stay as they are — they are currently accurate.
+~~Do the dimensional fix now~~ — done, see above. Treat (a) as the real task,
+sized in weeks rather than hours; leave (b) alone and keep saying so. Until (a)
+lands, Table 1 continues to read "Numerical" for this row, and the scope notes in
+Phases 3, 4 and 8 stay as they are — they are currently accurate.
+
+### Notes toward (a), for whoever picks it up
+
+Two things found while doing the dimensional fix, worth recording so they are not
+re-derived:
+
+* **The subcritical direction reduces to one inequality.** Writing `a = Kr/D`,
+  integration by parts on `[-π, π]` gives the identity
+  `∫ cos θ · e^{a cos θ} dθ = a ∫ sin²θ · e^{a cos θ} dθ`
+  (take `u = sin θ`, `dv = a sin θ e^{a cos θ} dθ`; the boundary term vanishes by
+  periodicity). So `R(K, r) = a · E_a[sin²θ]` under the von Mises density, and
+  `r = R(K,r)` with `r > 0` forces `E_a[sin²θ] = D/K`. Since `E_a[sin²θ] ≤ 1`
+  outright, this already rules out a positive fixed point for `K < D` — half the
+  threshold, with no Bessel theory at all, and probably a day's work in Lean.
+* **Getting from `D` to `2D` is exactly the claim `E_a[sin²θ] ≤ 1/2`,** i.e.
+  `∫ cos 2θ · e^{a cos θ} dθ ≥ 0` (the statement `I₂(a) ≥ 0`). An elementary
+  proof avoiding Bessel series: fold `[-π, π]` onto `[0, π/2]` by `θ ↦ π - θ`,
+  giving `4∫₀^{π/2} cos 2θ · cosh(a cos θ) dθ`, then fold `[π/4, π/2]` onto
+  `[0, π/4]` by `θ ↦ π/2 - θ`, giving
+  `4∫₀^{π/4} cos 2θ · (cosh(a cos θ) - cosh(a sin θ)) dθ`.
+  On `(0, π/4)` both factors are non-negative — `cos 2θ ≥ 0`, and
+  `cos θ > sin θ ≥ 0` with `cosh` monotone on `[0, ∞)` — so the integral is
+  non-negative. This is the substantive piece: interval-integral substitution and
+  splitting over Mathlib's API, no new analysis.
+* **The supercritical direction is the harder one.** Producing an `r > 0` with
+  `r = R(K, r)` when `K > 2D` needs `R(K, r) > r` for small `r`, i.e. a
+  *lower* bound `R(K,r) ≥ ar/2 - C a³`, which is a second-order expansion of the
+  Bessel ratio rather than a single monotonicity argument. Nothing above helps
+  with it.

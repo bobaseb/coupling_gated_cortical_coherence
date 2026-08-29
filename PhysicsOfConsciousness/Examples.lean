@@ -52,6 +52,7 @@ import PhysicsOfConsciousness.Phase4_RotatingFrame
 import PhysicsOfConsciousness.Phase7_Rigidity
 
 open MeasureTheory CategoryTheory TopologicalSpace Opposite Filter Topology
+open scoped ENNReal
 
 namespace PhysicsOfConsciousness
 namespace Examples
@@ -865,6 +866,111 @@ example (theta : ℝ → ℝ) :
       < fieldCorrelation volume (fun _ => 0) (patchKernel (Set.Ico (0 : ℝ) 1) 1) :=
   sited_architecture_below_field_optimum volume {0} pointArchitecture pointArchitecture_sited
     theta (Set.Ico 0 1) measurableSet_Ico (by simp) (by simp) 1 one_pos
+
+/-! ## 9. The mean-field threshold is a statement about coupling, not about size
+
+`exhibits_phase_transition` compares `mean_field_coupling` — the kernel averaged
+over both arguments — against `K_c = 2D`, and requires the substrate's `volume`
+to be a probability measure. This section shows that both halves of that
+sentence do work:
+
+* `cellVolume_prob` / `cellSys_strength`: the hypothesis is satisfiable, and
+  under it a constant kernel `K` has mean-field strength exactly `K`, so the
+  predicate reduces to `K > 2D` — the inequality the Kuramoto derivation is
+  about. The predicate is therefore neither vacuous nor trivially true: it holds
+  of `cellSys 3` at `D = 1` and fails for `cellSys 1`.
+* `duo_double_integral_const` / `duoWeak_inflated`: without the hypothesis it is
+  false. On the counting-measure substrate `Duo` of §5 the *unnormalized* double
+  integral of a constant kernel is `4K` rather than `K`, and `duoWeak` is a
+  system whose coupling is a factor of two *below* threshold yet whose
+  unnormalized double integral clears `2D`. Mass was doing the work, not
+  coupling.
+
+Nothing here proves `K_c = 2D`; that remains a stipulation validated
+numerically. What is settled is that the predicate now says something whose
+truth depends only on the physics.
+-/
+
+/-- Two sites again, but carrying the *normalized* counting measure. -/
+inductive Cell : Type
+  | l | r
+  deriving DecidableEq
+
+instance : Fintype Cell := ⟨{Cell.l, Cell.r}, by intro x; cases x <;> decide⟩
+instance : TopologicalSpace Cell := ⊥
+
+/-- Counting measure divided by the number of sites: a probability measure. -/
+noncomputable instance : MeasureSpace Cell :=
+  { (⊤ : MeasurableSpace Cell) with volume := (2 : ℝ≥0∞)⁻¹ • @Measure.count Cell ⊤ }
+
+instance : MeasurableSingletonClass Cell := ⟨fun _ => trivial⟩
+
+theorem cell_card : Fintype.card Cell = 2 := rfl
+
+instance cellVolume_prob : IsProbabilityMeasure (volume : Measure Cell) := by
+  constructor
+  show ((2 : ℝ≥0∞)⁻¹ • @Measure.count Cell ⊤) Set.univ = 1
+  rw [Measure.smul_apply, smul_eq_mul, Measure.count_univ]
+  simp only [ENat.card_eq_coe_natCard, Nat.card_eq_fintype_card, cell_card]
+  exact ENNReal.inv_mul_cancel (by norm_num) (by norm_num)
+
+/-- A uniformly coupled substrate of strength `c`, at noise `D = 1` — so the
+threshold `K_c = 2D` sits at `2`. -/
+noncomputable def cellSys (c : ℝ) : StochasticNeuralField Cell where
+  omega := fun _ => 0
+  K := fun _ _ => c
+  tau := 1
+  D := 1
+  h_D_pos := one_pos
+  Omega_avg := 0
+
+/-- **The normalization is right.** Averaging a constant kernel over a
+probability substrate returns the constant — no factor of the substrate's
+size. -/
+theorem cellSys_strength (c : ℝ) : mean_field_coupling (cellSys c) = c :=
+  mean_field_coupling_const (cellSys c) c rfl
+
+/-- Above threshold: `K = 3 > 2 = 2D`. -/
+example : exhibits_phase_transition (cellSys 3) :=
+  (exhibits_phase_transition_const_iff (cellSys 3) 3 rfl).mpr (by norm_num [cellSys])
+
+/-- Below threshold: `K = 1 < 2 = 2D`. The predicate is not trivially true. -/
+example : ¬ exhibits_phase_transition (cellSys 1) := fun h =>
+  absurd ((exhibits_phase_transition_const_iff (cellSys 1) 1 rfl).mp h)
+    (by norm_num [cellSys])
+
+/-- On the unnormalized substrate of §5, a constant kernel integrates to four
+times itself: the double integral picks up `(volume univ)² = 4`. -/
+theorem duo_double_integral_const (c : ℝ) : (∫ _x : Duo, ∫ _y : Duo, c) = 4 * c := by
+  rw [duo_volume]
+  rw [integral_count (fun _ : Duo => ∫ _y : Duo, c ∂(Measure.count : Measure Duo))]
+  simp only [integral_count, duo_sum]
+  ring
+
+/-- Half the coupling needed, and half the noise: `K = 1/2` against `K_c = 1`,
+so this substrate is a factor of two *below* threshold. -/
+noncomputable def duoWeak : StochasticNeuralField Duo where
+  omega := fun _ => 0
+  K := fun _ _ => 1/2
+  tau := 1
+  D := 1/2
+  h_D_pos := by norm_num
+  Omega_avg := 0
+
+/-- **Why the hypothesis is not decoration.** `duoWeak`'s coupling is `1/2`
+against a threshold of `1`, yet its unnormalized double integral is `2 > 1`.
+Compared this way, the substrate crosses the threshold on mass alone — which is
+what the earlier form of `exhibits_phase_transition` did. -/
+theorem duoWeak_inflated :
+    (∫ x : Duo, ∫ y : Duo, duoWeak.K x y) > critical_coupling duoWeak.D
+      ∧ duoWeak.K Duo.a Duo.b < critical_coupling duoWeak.D := by
+  constructor
+  · show (∫ _x : Duo, ∫ _y : Duo, (1/2 : ℝ)) > critical_coupling (1/2 : ℝ)
+    rw [duo_double_integral_const, critical_coupling]
+    norm_num
+  · show (1/2 : ℝ) < critical_coupling (1/2 : ℝ)
+    rw [critical_coupling]
+    norm_num
 
 end Examples
 end PhysicsOfConsciousness

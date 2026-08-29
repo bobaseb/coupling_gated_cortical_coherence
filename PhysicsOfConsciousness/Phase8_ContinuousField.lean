@@ -166,17 +166,62 @@ def is_gradient_descent (sys : PlasticNeuralField M) (theta : ℝ → M → ℝ)
 -- 4. Critical Coupling Thresholds
 /--
 Critical coupling threshold for the Kuramoto phase transition.
-When the spatial coupling strength exceeds this value, K > K_c = 2D,
+When the mean-field coupling strength exceeds this value, K > K_c = 2D,
 the oscillators undergo a synchronization phase transition.
 
 Numerically validated against `simulations/kuramoto.py` (see that script's
 `simulate_kuramoto` function, which sweeps K and measures the order parameter r
 against the theoretical threshold K_c = 2D).
+
+**Scope.** `critical_coupling` is a *stipulation* in this development, not a
+result: nothing below connects it to `is_continuous_kuramoto_trajectory`,
+`entropy_production_rate` or any order parameter. The threshold's content is the
+bifurcation of the self-consistency equation `r = I₁(Kr/D) / I₀(Kr/D)` for the
+noisy mean-field Kuramoto model, which is not formalized here. See Table 1 of
+the manuscript, where this row reads "Numerical."
 -/
 noncomputable def critical_coupling (D : ℝ) : ℝ := 2 * D
 
-def exhibits_phase_transition (sys : StochasticNeuralField M) : Prop :=
-  (∫ x : M, ∫ y : M, sys.K x y) > critical_coupling sys.D
+/--
+The mean-field coupling strength of a substrate: the kernel averaged over both
+of its arguments.
+
+This is the quantity the threshold `K_c = 2D` is about. The averaging is against
+`volume`, so it is a *strength* only when `volume` is a probability measure —
+see `exhibits_phase_transition`, which requires exactly that.
+-/
+noncomputable def mean_field_coupling (sys : StochasticNeuralField M) : ℝ :=
+  ∫ x : M, ∫ y : M, sys.K x y
+
+/--
+The substrate is above the synchronization threshold.
+
+**The probability-measure hypothesis is not decoration.** `mean_field_coupling`
+integrates the kernel against `volume` twice, so on a substrate of total mass
+`m` a constant kernel `K` contributes `K · m²`. Comparing that against `2D`
+would make the predicate depend on the substrate's size rather than on how
+strongly it is coupled, and would be satisfiable for *any* kernel by inflating
+`m`. Requiring `volume` to be a probability measure fixes the normalization in
+which the mean-field derivation of `K_c = 2D` is carried out: a constant kernel
+then has `mean_field_coupling = K` exactly (`mean_field_coupling_const`).
+-/
+def exhibits_phase_transition [IsProbabilityMeasure (volume : Measure M)]
+    (sys : StochasticNeuralField M) : Prop :=
+  mean_field_coupling sys > critical_coupling sys.D
+
+/-- On a probability substrate a constant kernel has mean-field strength equal
+to that constant — the normalization in which `K_c = 2D` is stated. -/
+@[simp] theorem mean_field_coupling_const [IsProbabilityMeasure (volume : Measure M)]
+    (sys : StochasticNeuralField M) (c : ℝ) (hK : sys.K = fun _ _ => c) :
+    mean_field_coupling sys = c := by
+  simp [mean_field_coupling, hK]
+
+/-- For a constant kernel the predicate says exactly what the physics says:
+the coupling constant exceeds twice the noise strength. -/
+theorem exhibits_phase_transition_const_iff [IsProbabilityMeasure (volume : Measure M)]
+    (sys : StochasticNeuralField M) (c : ℝ) (hK : sys.K = fun _ _ => c) :
+    exhibits_phase_transition sys ↔ c > 2 * sys.D := by
+  rw [exhibits_phase_transition, mean_field_coupling_const sys c hK, critical_coupling]
 
 -- 5. Empirical Grounding
 noncomputable def cortical_temperature_kelvin : ℝ := 310.15
