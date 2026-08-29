@@ -962,3 +962,136 @@ proof; it is not committed.
   Theorem 4, and the Phase 4 note's "we do not formalize" corrected to "we
   formalize in one direction only."
 * Both documents compile with zero warnings and zero errors.
+
+---
+
+## Open: Inventory of what is assumed rather than derived — 2026-08-29
+
+Compiled by re-reading all 17 Lean files against the manuscript. The
+development declares zero `axiom`s, and that is worth exactly as much as the
+list below is short. An assumption that has moved into a class field, a theorem
+hypothesis, or an unconstrained structure field is still an assumption; it has
+only become *locatable*. This section is the location list, so that no future
+pass has to rediscover it, and so that the ones worth attacking are separated
+from the ones that are honest modelling choices.
+
+Ordering within each group is by how much of a headline claim rests on the
+assumption, not by difficulty.
+
+### A. Instance obligations — postulates carried as class fields
+
+These follow the `Axioms.lean` §5 design rule: each is an obligation a model
+discharges, not a global assertion. All four classes are inhabited, so nothing
+downstream is vacuous. The open question for each is whether the *witness* is
+strong enough to mean anything.
+
+| # | Assumption | Where | Witness | Verdict |
+|---|---|---|---|---|
+| A1 | `StatisticalMechanics.heat_eq` — dissipated heat equals `T` times the bath's entropy change | `Phase3_CombinatorialThermodynamics:307` | `boolStatMech` (`Examples` §1), a real one-bit erasure with a bijective `U` | Irreducible physical postulate; witness is non-degenerate (it reproduces `ΔQ = k_B T ln 2`). **Leave.** |
+| A2 | `StructuralResonance.kl_bound` — `σ ≥ D_KL(P‖Q)/Δt` for the system's own distributions | `Phase3_KLBound:129` | `boolResonance` (`Examples` §2) | Witness is the *perfectly resonant* system, `KL = 0`, so it discharges the bound trivially. A witness with `KL > 0` and a genuinely positive `σ` would be worth more. **Cheap; worth doing.** |
+| A3 | `LocalSectionSynchronization.phase_invariant_periodic` and `sync_to_section_eq` | `Phase4_MacroscopicScaling:56,61` | `cortexSync` (`Examples` §4) | Marked `[MODELLING]` in the source and derivable in principle from invariant-measure theory. The witness sets `phase ≡ 0` and discharges `sync_to_section_eq` by `rfl` — i.e. the local sections *are* restrictions by construction. Non-vacuous but weak. |
+| A4 | `ThermodynamicCover.thermodynamic_equilibrium` — the cover's phase configuration already minimizes the Kuramoto potential | `Phase5_GlobalSection:43` | `cortexCover` (`Examples` §4) | **This is where Derivation 5's physics lives.** Lean proves "given a cover at the minimum, the sections glue"; getting there is the informal argument. The witness has constant phase, which is what makes the obligation dischargeable. Stated plainly in `Phase5`'s header and the supplementary. |
+
+### B. Physical content carried in theorem hypotheses
+
+Not axioms, not class fields — restrictions on the statement, which is the
+easiest kind of assumption to overlook when reading a theorem name.
+
+| # | Assumption | Where | Effect |
+|---|---|---|---|
+| B1 | `h_contracting : ContractingWith (1/2) predict`, plus `[MetricSpace (GlobalSection X)]`, `[CompleteSpace …]`, `[Nonempty …]` | `Phase6_ReflexiveTopology:87` | See §D1 — the largest gap in the list. |
+| B2 | `h_mean` — the comparison class is restricted to fields of equal mean drift | `Phase8_ContinuousField`, `phase_locked_achieves_minimum_entropy` | The phase-locked state minimizes σ *among fields with the same mean drift*, not among all fields. Documented on the theorem. |
+| B3 | `hvol : volume = Measure.count` | `Phase8_ContinuousField` §7, three theorems | The σ/gradient-flow link holds for **finite** substrates only. The continuum case needs differentiation under the integral sign in the kernel. Documented. |
+| B4 | Identical natural frequencies `ω ≡ Ω` | `Phase4_RotatingFrame` | The rotating-frame reduction is exact only here. A frequency spread leaves residual detunings and the chain breaks. Documented in three files. |
+| B5 | `h_min : ∀ phi', TotalEnergy phi ≤ TotalEnergy phi'` | `Phase1_Primitives`, `spontaneous_symmetry_breaking` | *Existence* of a global energy minimizer is assumed, not derived. No compactness or direct-method argument anywhere in the development. |
+| B6 | `[IsProbabilityMeasure (volume : Measure M)]` | `Phase8_ContinuousField`, `exhibits_phase_transition` | Added deliberately (see the dimensional-fix section above); recorded here for completeness, not as a defect. |
+
+### C. Unconstrained structure fields — data that ought to be determined
+
+Fields that are free data where the physics says they should be forced by
+something else in the same structure. These are definitional gaps: no theorem is
+false because of them, but theorems about them say less than their names suggest.
+
+| # | Gap | Where | Consequence |
+|---|---|---|---|
+| C1 | `TriangulatedManifold` never relates `complex` / `embedding` to `edge_region` | `Phase2_SimplicialBridge:29` | `edge_weight` integrates over an unconstrained set, and `weight_symm` merely unfolds the assumed `edge_region_symm`. Table 1 row is downgraded to "Theorem (weak)" for this reason. **The fix is known:** `IsRegularTriangulation` (`Phase2_MeshConvergence:310`) already adds `face_of_complex` and `anchored`, exactly the missing links, and is witnessed. Requiring it in `DiscreteThermodynamics` would close C1 and upgrade the row. Sized in hours, not weeks. |
+| C2 | `ReflexiveBoundary.auto_resonance` is an arbitrary function of the global section | `Phase6_ReflexiveTopology:54` | Nothing constrains the avatar's state to track the field's. No theorem in the development mentions it. |
+| C3 | `DiscreteThermodynamics.scalar_magnitude` is arbitrary subject only to non-negativity | `Phase2_SimplicialBridge:42` | The map from a stress-energy tensor to a scalar is modelling, not derivation. |
+
+### D. Structures with no witness at all
+
+An uninhabited class makes its theorems vacuous exactly as an inconsistent axiom
+did — this is the failure mode the 2026-08-29 soundness audit was built to catch,
+and `Examples.lean` closed it for Phases 1, 3, 4, 5 and 8. It is **not** closed
+for the following.
+
+1. **`ReflexiveBoundary` / `PredictiveModel` — Derivation 6, the Self.**
+   No instance exists; nothing outside `Phase6_ReflexiveTopology.lean` mentions
+   either structure. `reflexive_topology_implies_self` is, read literally, the
+   Banach fixed-point theorem with every physical commitment in a hypothesis:
+   `GlobalSection X` is *assumed* to be a nonempty complete metric space (it is
+   defined as a sheafification's sections over `⊤`, with no metric constructed
+   anywhere), and `predict` is *assumed* to be a `1/2`-contraction. Supply those
+   and a fixed point follows by a Mathlib one-liner. **This is now the largest
+   open gap in the formalization**, in the same sense `ThermodynamicCover` was
+   before it was witnessed, and the manuscript's treatment of the Self rests on
+   it. Minimum useful work: construct *any* instance — a one-point space, a
+   metric on `GlobalSection`, a constant `predict` — to show the hypotheses are
+   jointly satisfiable. Until then the theorem is conditional on structures not
+   shown to be realizable.
+
+2. **`SymmetryInvariantAction` — and there is no Noether theorem.**
+   The class has one field, `total_energy_invariant`, has no instance, and is
+   referenced by no theorem. Nothing in the development derives a conservation
+   law from a symmetry. `ContinuousSymmetryGroup` is likewise instance-free.
+   **This one needs a prose fix, not just Lean:** `main.tex:87` says the
+   invariance "dictates the conservation of energy and momentum via Noether's
+   theorem," and its footnote says the "necessary physical symmetries, conserved
+   quantities, and phase space constraints naturally emerge" from the geometric
+   structures. Neither is true of the Lean — the invariance is an assumed class
+   field with no instance, and no conserved quantity is ever constructed. Either
+   the sentence is qualified the way every other scope note in the paper now is,
+   or a conservation law is proved. Recommend qualifying it: a real Noether
+   theorem over Mathlib is a project in itself.
+
+3. **`VacuumManifold` is an empty class** (`class VacuumManifold (V) [TopologicalSpace V]`
+   with no fields), used nowhere. Dead code; delete it, as `Basic.lean` was.
+
+4. `PlasticNeuralField`, `StochasticMatrix`, `PseudoRiemannianManifold` — no
+   instances either, but nothing headline rests on them. Low priority.
+
+### E. Steps that remain informal in prose
+
+Recorded so the manuscript's claims and the Lean's claims stay separable.
+
+1. **`K_c = 2D`, supercritical direction.** `Phase8_SelfConsistency` proves
+   coherence cannot begin below `2D`; that it *does* begin there is unproved and
+   needs a second-order lower bound on the Bessel ratio. See that section above.
+2. **The von Mises stationary density** is assumed in prose only — it is not
+   even a class field. If it is ever assumed *in Lean*, the §5 design rule
+   requires it to be a field of a class carrying the system's own stationary
+   density. Deriving it is item (b): Fokker-Planck, stationary-measure theory for
+   SPDEs, bifurcation theory. Out of reach.
+3. **`lim_{t→∞} D_KL(P‖Q) = 0`** — supplementary Theorem 3. Monotone descent of
+   σ plus `D_KL ≤ Δt·σ` does not give it: monotone-and-bounded yields *some*
+   infimum, possibly positive, and the KL bound would additionally have to be
+   tight. Needs a Łojasiewicz/coercivity estimate on σ and a statement relating
+   the σ-minimizer to `KL = 0`. This is audit item #6 and is still open.
+4. **Hardware.** The resource-matched content is the wiring-support result and
+   the continuity content is the measure-theoretic one; the step from either to
+   "von Neumann architectures cannot experience unified consciousness" is
+   informal, and `main.tex` says so.
+5. **Mesh refinement rate.** Lean proves convergence; the `O(1/N²)` rate is
+   numerical only (`simulations/mesh_refinement.py`).
+
+### Suggested order of attack
+
+1. **C1** — requiring `IsRegularTriangulation` in `DiscreteThermodynamics`.
+   Known fix, existing witness, upgrades a Table 1 row from "Theorem (weak)".
+2. **D1** — any instance of `ReflexiveBoundary`. Turns Derivation 6 from
+   conditional-on-unrealizable-structures into conditional-on-strong-hypotheses.
+3. **D2** — qualify the Noether sentence in `main.tex:87` and its footnote. This
+   is a correctness fix to the prose and should not wait on anything.
+4. **D3** — delete `VacuumManifold`.
+5. **A2** — a non-degenerate `StructuralResonance` witness with `KL > 0`.
+6. Everything in E stays open and stays stated as open.
