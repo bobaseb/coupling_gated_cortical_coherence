@@ -504,4 +504,24 @@ compile with no undefined references and no float overflow.
    is to be more than an informal argument.
 3. Prove the limit `lim_{t→∞} D_KL(P ‖ Q) = 0` asserted in supplementary
    Theorem 3 (needs a coercivity or Łojasiewicz-type estimate on σ).
-4. Extend the mesh witness beyond one dimension, and prove the O(1/N²) rate.
+4. **Prove the O(1/N²) rate for mesh refinement.** `Phase2_MeshConvergence`
+   bounds the fixed-mesh error by `ε·μ(S)` with `ε` a modulus of continuity,
+   which for a Lipschitz integrand gives O(mesh size) — one order short of the
+   O(1/N²) that `simulations/mesh_refinement.py` measures. Closing it needs the
+   midpoint-rule error term, i.e. a `C²` integrand and a second-derivative
+   bound on each cell, then summing. Mathlib has the Taylor machinery
+   (`taylor_mean_remainder_lagrange`), so this is bounded work on top of what
+   already exists — the harder half is stating the extra regularity on the
+   integrand without weakening the current theorem, which should stay as the
+   continuous-integrand case.
+5. **A mesh witness beyond one dimension.** `Examples.lean` §6 witnesses
+   `IsRegularTriangulation` with the uniform partition of `[0,1)`. Nothing
+   witnesses the manifold-valued `DiscreteThermodynamics`, whose edge weights
+   integrate a stress-energy magnitude over a genuinely 2- or 3-dimensional
+   region. Substantially harder than the 1D case: the `covers` obligation in 1D
+   is a one-line `⌊x·N⌋₊` argument, whereas a planar triangulation needs the
+   cells constructed *and* proved to cover — barycentric coordinates on a
+   half-open simplex, or a product mesh of half-open boxes as a cheaper
+   intermediate step that at least exercises the 2D geometry. Until this is
+   done, the mesh results are honest only for one-dimensional substrates, which
+   is what the file header and both manuscripts say.
