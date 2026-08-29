@@ -131,26 +131,47 @@ axiom principle_of_least_action
         HasDerivAt (fun ε => S (fun x t => physical_trajectory x t + ε * variation x t)) 0 0
 -/
 
-/--
-[IRREDUCIBLE] **Pointwise Minimization of Vacuum States.**
-If a field state globally minimizes the total energy (which is a sum of positive
-kinetic energy and bounded potential energy), then it must pointwise minimize 
-the potential energy almost everywhere (taking values in the vacuum manifold).
+-- ============================================================
+-- §5  Removed axioms (soundness record)
+-- ============================================================
 
-*Why irreducible:* Proving this mathematically requires functional analysis of 
-localized perturbations in Sobolev spaces, bump functions, and integration by parts
-on the manifold. Since Lean 4's `SmoothManifold` library currently lacks the
-machinery to seamlessly construct localized test variations of section maps,
-we encode the physical consequence (that global minima are pointwise vacua
-up to topological obstruction) directly as a postulate.
+/-
+  `spontaneous_symmetry_breaking_pointwise_min` was declared here until
+  2026-08-29. It was **inconsistent** and has been removed.
+
+  The statement was:
+
+      axiom spontaneous_symmetry_breaking_pointwise_min
+        {Spacetime ValueSpace} [TopologicalSpace Spacetime] [TopologicalSpace ValueSpace]
+        {PotentialEnergy : (ContinuousMap Spacetime ValueSpace) → ℝ}
+        (V : ValueSpace → ℝ) (phi : ContinuousMap Spacetime ValueSpace)
+        (v0 : ValueSpace) (h_v0_vac : ∀ v', V v0 ≤ V v')
+        (h_pot_eq : PotentialEnergy phi = V v0) :
+        ∀ x, V (phi x) = V v0
+
+  `PotentialEnergy` is implicit and occurs only in the hypothesis, so it can be
+  instantiated with `fun _ => V v0`, discharging `h_pot_eq` by `rfl` and giving
+  the conclusion for an arbitrary `phi`. With `V := fun v => v^2`, `v0 := 0`,
+  `Spacetime := Unit` and `phi := const 1` this proves `1 = 0`.
+
+  Replacement: `ActionPrinciples` (in `Phase1_Primitives.lean`) now defines
+  `PotentialEnergy` as the integral of the pointwise potential, and
+  `pointwise_vacuum_of_global_min` is a **theorem** proved from
+  `MeasureTheory.integral_eq_zero_iff_of_nonneg`. The conclusion is `∀ᵐ`.
+
+  Two further axioms were removed in the same pass for the same reason —
+  each pinned a *free class field* across every instance of its class, and so
+  was refutable by exhibiting an instance that violates it:
+
+  * `landauer_heat_eq` (was in `Phase3_CombinatorialThermodynamics.lean`) is now
+    the field `StatisticalMechanics.heat_eq`.
+  * `kl_bound_axiom` (was in `Phase3_KLBound.lean`) is now the field
+    `StructuralResonance.kl_bound`.
+
+  **Design rule added as a result:** a physical postulate that mentions a class
+  field must be a *field of that class* (an obligation on instances), never a
+  standalone `axiom` quantified over all instances. A standalone axiom is only
+  safe when every symbol it constrains is bound by the axiom itself.
 -/
-axiom spontaneous_symmetry_breaking_pointwise_min 
-  {Spacetime ValueSpace : Type*} [TopologicalSpace Spacetime] [TopologicalSpace ValueSpace]
-  {PotentialEnergy : (ContinuousMap Spacetime ValueSpace) → ℝ}
-  (V : ValueSpace → ℝ)
-  (phi : ContinuousMap Spacetime ValueSpace)
-  (v0 : ValueSpace) (h_v0_vac : ∀ v', V v0 ≤ V v')
-  (h_pot_eq : PotentialEnergy phi = V v0) : 
-  ∀ x, V (phi x) = V v0
 
 end PhysicsOfConsciousness

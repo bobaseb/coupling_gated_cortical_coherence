@@ -10,6 +10,19 @@ structure AbstractSimplicialComplex (V : Type*) where
   faces : Set (Finset V)
   downward_closed : ∀ {s t : Finset V}, s ∈ faces → t ⊆ s → t ∈ faces
 
+/--
+A triangulation of `M`.
+
+**Known gap.** Nothing here connects `complex` and `embedding` to `edge_region`:
+an instance may pair an arbitrary simplicial complex with arbitrary (even empty,
+even overlapping) edge regions. Consequently `edge_weight` is an integral over an
+unconstrained set, and `weight_symm` merely unfolds the assumed
+`edge_region_symm` field rather than deriving symmetry from geometry. Any claim
+that this class "discretizes" a manifold should be read with that in mind. The
+missing conditions — `edge_region u v` is a neighbourhood of the segment between
+`embedding u` and `embedding v`, regions are almost disjoint, and they cover `M`
+— are also exactly what `mesh_refinement_convergence` below needs to be true.
+-/
 class TriangulatedManifold (M : Type*) [TopologicalSpace M] where
   V : Type*
   complex : AbstractSimplicialComplex V
@@ -91,14 +104,31 @@ converge to their continuous counterparts (total continuous energy) on the manif
 
   Run: `python simulations/mesh_refinement.py` (function `run_mesh_refinement_simulation`).
 
-*Note: This is currently an unproven conjecture in Lean — a theorem would need
-measure-theoretic Riemann-sum approximation infrastructure (partition-of-unity,
-compactness, uniform-continuity assumptions) not yet available in Mathlib.
-The type signature below is also known to be too weak (it quantifies over all
-triangulations simultaneously without a sequence structure relating mesh size
-to triangulation refinement). A redesigned formal statement would likely build
-on the Python simulation's concrete 1D setting before attempting the general
-manifold case.*
+**WARNING — the statement below is not merely unproven, it is FALSE, and it is
+also malformed. Do not cite it. It is retained only as a record of the intended
+claim.**
+
+Two independent defects:
+
+1. *Dead binder.* `∀ (TM : TriangulatedManifold M) [Fintype TM.V]` binds `TM`,
+   but the body then writes `TriangulatedManifold.V M` and
+   `TriangulatedManifold.edge_region`, which resolve through **instance search**,
+   not through `TM`. `TM` is never used. Check with
+   `#print mesh_refinement_convergence`.
+
+2. *Refutable.* Nothing requires `edge_region` to cover `M`, and
+   `Metric.diam ∅ = 0 < δ` for every `δ > 0`. The triangulation whose edge
+   regions are all empty therefore satisfies the mesh hypothesis while
+   contributing `0` to the sum, forcing `|0 - ∫ f| < ε` for all `ε > 0`. So the
+   proposition is false for any `f` with `∫ f ≠ 0` — e.g. `f = 1` on `[0,1]`.
+
+A correct statement needs, at minimum: a *sequence* of triangulations with mesh
+size → 0; a covering/almost-disjointness condition on `edge_region`; and a link
+between `edge_region` and the simplicial `complex`/`embedding` fields, which
+`TriangulatedManifold` currently does not impose. Beyond restating it, a proof
+would need measure-theoretic Riemann-sum infrastructure (partition-of-unity,
+compactness, uniform continuity) not yet in Mathlib. The Python simulation's
+concrete 1D setting is the reasonable first target.
 -/
 def mesh_refinement_convergence.{u_M, u_V}
   (M : Type u_M) [TopologicalSpace M] [MeasurableSpace M] [PseudoMetricSpace M]

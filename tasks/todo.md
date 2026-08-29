@@ -107,3 +107,110 @@ Full audit via `anthropic/claude-opus-5`: Lean build, `#print axioms`, file insp
 | 11 | `_archive/` has 15 stale `.lean` files | Not built, not imported, not cited; harmless as version history |
 | 12 | 7 unused declarations (`spontaneous_symmetry_breaking`, `dV_dt_le_zero`, `exhibits_phase_transition`, …) | Expository value; the three unused axioms are now flagged as such in the Table 1 caption |
 | 14 | Blanket `import Mathlib` in 5 files alongside targeted imports | Cosmetic; no effect on correctness or on build time in a cached tree |
+
+
+---
+
+## Opus 5 Soundness Audit — 2026-08-29
+
+Full re-read of all 13 Lean files hunting axiom smuggling, circular definitions,
+and vacuous statements. **Every finding below was mechanically verified** by
+compiling an exploit against the then-current tree; the exploit files live in the
+session scratchpad and each one compiled to a proof of `False` or of the negation
+of the stated claim.
+
+### CRITICAL — three of the five live axioms were individually inconsistent
+
+Each of these, *on its own*, proved `False` — and therefore `2 + 2 = 5`. Every
+theorem depending on them was vacuous, while `lake build` stayed green and
+`#print axioms` reported them as ordinary named postulates.
+
+| Axiom | Defect | Refutation |
+|---|---|---|
+| `spontaneous_symmetry_breaking_pointwise_min` | `PotentialEnergy` was **implicit** and occurred only in the hypothesis `PotentialEnergy phi = V v0` | Instantiate it with `fun _ => V v0`; hypothesis closes by `rfl`; conclusion holds for arbitrary `phi`. With `V = v²`, `v0 = 0`, `phi = const 1`: `1 = 0` |
+| `landauer_heat_eq` | Pinned the **free class field** `heat_dissipation` for *every* `StatisticalMechanics` instance | Instance on `Unit` with `heat_dissipation = 0`, `temperature = 1`, bath `{false} → univ : Finset Bool` gives `0 = log 2` |
+| `kl_bound_axiom` | Asserted `σ ≥ KL P Q / dt` for **all** `P`, `Q`, while `σ` is one real fixed by a class field and `KL` is unbounded above | `Thermodynamics Bool` with `heat_dissipation = 0`; `P` a point mass, `Q` uniform gives `0 ≥ log 2` |
+
+**Root cause, common to all three:** an axiom constraining a symbol it does not
+itself bind — an implicit argument, or a field of a class it quantifies over.
+
+**Same defect, exploit not mechanized:** `phase_invariant_periodic` and
+`sync_to_section_eq` pin free fields of `LocalSectionSynchronization` across all
+instances. Refutable as soon as the probability presheaf has two distinct global
+sections; constructing those needs the sheafification machinery, so this one is
+reported on structural grounds rather than by a compiled counterexample.
+
+### Fixes applied
+
+* **Design rule adopted** (recorded in `Axioms.lean` §5): *a physical postulate
+  that mentions a class field must be a field of that class, never a standalone
+  `axiom` quantified over all instances.*
+* `spontaneous_symmetry_breaking_pointwise_min` → **deleted**. `ActionPrinciples`
+  now defines `PotentialEnergy` as `∫ x, V (phi x) ∂mu`, which makes the former
+  assumed fields `potential_const` and `potential_bound` *derivable*, and turns
+  the postulate into the theorem `pointwise_vacuum_of_global_min` (proved from
+  `integral_eq_zero_iff_of_nonneg`). Conclusion is now `∀ᵐ` rather than `∀` —
+  the old `∀ x` form was itself part of why the axiom was false.
+* `landauer_heat_eq` → field `StatisticalMechanics.heat_eq`.
+* `kl_bound_axiom` → field `StructuralResonance.kl_bound`, on a new class that
+  carries the system's own `P_ext`, `Q_int`, `transition` and `dt` rather than
+  quantifying over all distributions.
+* `phase_invariant_periodic`, `sync_to_section_eq` → fields of
+  `LocalSectionSynchronization`.
+* **Result: the development declares zero axioms.** `#print axioms` on every
+  headline theorem now reports only `propext`, `Classical.choice`, `Quot.sound`.
+
+### Non-vacuity — new `PhysicsOfConsciousness/Examples.lean`
+
+Moving postulates into classes is only progress if the classes are inhabitable;
+an uninhabitable class is as vacuous as an inconsistent axiom. Witnesses built:
+
+* ✓ `StatisticalMechanics Bool` — one-bit erasure with a real bath and a genuinely
+  bijective `U`, discharging `heat_eq`. Includes a worked `example` showing
+  `landauers_principle` fires on it (erasure ⇒ strictly positive heat).
+* ✓ `StructuralResonance Bool` — perfectly resonant system, `KL = 0`.
+* ✓ `ActionPrinciples Unit ℝ …` — scalar field on a one-point spacetime.
+* ✗ `LocalSectionSynchronization` / `ThermodynamicCover` — **no instance exists.**
+  Derivation 5's gluing results are conditional on structures not yet shown to be
+  realizable. Flagged "unwitnessed" in Table 1 and stated plainly in the
+  supplementary. **This is now the largest open gap in the formalization.**
+
+Before this pass, the only `instance` in the entire development was a
+`DecidableEq` helper — not one physical structure was ever inhabited.
+
+### Other verified findings
+
+| # | Finding | Status |
+|---|---|---|
+| A | `mesh_refinement_convergence` is **refutable**, not merely unproven: nothing forces `edge_region` to cover `M`, and `Metric.diam ∅ = 0 < δ`, so the all-empty triangulation forces `|0 - ∫f| < ε` for all ε | Doc-comment rewritten as an explicit warning; refutation compiled |
+| B | The same definition has a **dead binder**: `∀ (TM : TriangulatedManifold M)` binds `TM`, but the body writes `TriangulatedManifold.V M`, resolved by *instance search*. `TM` is never used — confirmed via `#print` | Documented |
+| C | Two different Kuramoto potentials. `dV_dt_le_zero` proves descent for `kuramoto_potential` (with the ω term, in `Phase3`); `phase_locked_minimizes_potential` characterises the minimum of `kuramoto_potential_dynamic` (without it, in `Phase4`). They are never chained — and `kuramoto_potential` is **unbounded below** when any ωᵢ ≠ 0, so it has no minimum to attain | Documented on the definition |
+| D | `defect_inevitability` proved the *opposite* of its name — that extendable boundary configurations are trivial, not that defects are inevitable | Renamed `contractible_interior_forces_trivial_boundary`; supplementary corrected |
+| E | `TriangulatedManifold` never links `complex`/`embedding` to `edge_region`, so `edge_weight` integrates over an unconstrained set and `weight_symm` just unfolds an assumed field | Documented; Table 1 row downgraded to "Theorem (weak)" |
+
+### Manuscript updates
+
+* New subsection **"Soundness of the formalization"** (`\label{sec:soundness}`)
+  reporting the inconsistencies, the root cause, the uniform fix, the design rule,
+  and the non-vacuity witnesses — including the `ThermodynamicCover` gap.
+* Table 1 rebuilt: no axiom column left standing; rows marked
+  "Theorem + instance postulate", "Theorem (abstract)", "Theorem (weak)",
+  "Conditional theorem", "Theorem (unwitnessed)".
+* Supplementary: Overview, Theorem 1, Theorem 2, Derivation 3 and Theorem 5
+  implementation notes all corrected.
+
+**Verification:** `lake build` succeeds (17,600 jobs). All three exploit files
+now fail to compile (`unknown identifier`, and for `heat_eq` the pleasing
+`Fields missing: heat_eq`). `main.tex` and `supplementary.tex` compile with zero
+errors and zero warnings.
+
+### Remaining open
+
+1. **Build a `ThermodynamicCover` instance.** Highest priority — without it,
+   Derivation 5 is conditional on a structure of unknown realizability.
+2. Link Phase 8's abstract gradient-flow theorems to `entropy_production_rate`.
+3. Restate `mesh_refinement_convergence` correctly (sequence of triangulations,
+   covering condition, `edge_region` tied to the simplicial data).
+4. Chain the two Kuramoto potentials via the rotating-frame reduction.
+5. Formalize a genuine continuous/discrete distinction if the hardware corollary
+   is to be more than an informal argument.

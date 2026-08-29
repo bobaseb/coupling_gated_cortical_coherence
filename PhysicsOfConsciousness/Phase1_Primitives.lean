@@ -14,6 +14,7 @@ import Mathlib.Geometry.Manifold.IsManifold.Basic
 import Mathlib.Geometry.Manifold.VectorBundle.Tangent
 import Mathlib.Analysis.Normed.Module.Basic
 import Mathlib.MeasureTheory.Measure.Basic
+import Mathlib.MeasureTheory.Integral.Bochner.Basic
 import Mathlib.CategoryTheory.Sites.Sheaf
 import Mathlib.Topology.Category.TopCat.Basic
 import Mathlib.Topology.Sets.Opens
@@ -129,61 +130,150 @@ class ContinuousSymmetryGroup (G Spacetime ValueSpace : Type*)
 def DynamicalVacuum (V : ValueSpace → ℝ) : Set ValueSpace :=
   { v | ∀ v', V v ≤ V v' }
 
-class ActionPrinciples (Spacetime ValueSpace : Type*) [TopologicalSpace Spacetime] [TopologicalSpace ValueSpace]
-  (KineticEnergy PotentialEnergy TotalEnergy : FieldState Spacetime ValueSpace → ℝ) (V : ValueSpace → ℝ) where
+/--
+Structure of the action functional.
+
+**Change of formulation (soundness fix).** Earlier versions took
+`potential_const` and `potential_bound` as *assumed* fields and left
+`PotentialEnergy` otherwise unconstrained, deferring the step "global energy
+minimum ⇒ pointwise vacuum" to the axiom
+`spontaneous_symmetry_breaking_pointwise_min`. That axiom was **inconsistent**:
+its `PotentialEnergy` parameter was implicit and occurred only in the
+hypothesis `PotentialEnergy phi = V v0`, so instantiating it with the constant
+function `fun _ => V v0` discharged the hypothesis by `rfl` and yielded the
+conclusion for *every* field. With `V := fun v => v^2`, `v0 := 0` and
+`phi := const 1` that gives `1 = 0`.
+
+The fix is to say what a potential energy functional actually *is*: the integral
+of the pointwise potential against a background measure. With
+`potential_integral` in place, `potential_const` and `potential_bound` become
+derivable (see below), and pointwise minimization becomes a **theorem**
+(`pointwise_vacuum_of_global_min`) rather than a postulate.
+-/
+class ActionPrinciples (Spacetime ValueSpace : Type*)
+  [TopologicalSpace Spacetime] [MeasurableSpace Spacetime] [TopologicalSpace ValueSpace]
+  (KineticEnergy PotentialEnergy TotalEnergy : FieldState Spacetime ValueSpace → ℝ)
+  (V : ValueSpace → ℝ) (mu : Measure Spacetime) where
   total_eq : ∀ phi, TotalEnergy phi = KineticEnergy phi + PotentialEnergy phi
   kinetic_nonneg : ∀ phi, 0 ≤ KineticEnergy phi
   kinetic_const : ∀ (v : ValueSpace), KineticEnergy (ContinuousMap.const Spacetime v) = 0
-  potential_const : ∀ (v : ValueSpace), PotentialEnergy (ContinuousMap.const Spacetime v) = V v
-  potential_bound : ∀ (phi : FieldState Spacetime ValueSpace) (v0 : ValueSpace), 
-    v0 ∈ DynamicalVacuum V → V v0 ≤ PotentialEnergy phi
+  /-- The potential energy of a field is the integral of the pointwise potential. -/
+  potential_integral : ∀ (phi : FieldState Spacetime ValueSpace),
+    PotentialEnergy phi = ∫ x, V (phi x) ∂mu
+  /-- The pointwise potential of any field configuration is integrable. -/
+  potential_integrable : ∀ (phi : FieldState Spacetime ValueSpace),
+    Integrable (fun x => V (phi x)) mu
+
+section ActionPrinciplesConsequences
+variable {Spacetime ValueSpace : Type*}
+  [TopologicalSpace Spacetime] [MeasurableSpace Spacetime] [TopologicalSpace ValueSpace]
+  {KineticEnergy PotentialEnergy TotalEnergy : FieldState Spacetime ValueSpace → ℝ}
+  {V : ValueSpace → ℝ} {mu : Measure Spacetime} [IsProbabilityMeasure mu]
+
+/-- Formerly an assumed field: the potential energy of a constant field is the
+    potential at that value. Now derived from `potential_integral`. -/
+theorem potential_const
+    (inst : ActionPrinciples Spacetime ValueSpace KineticEnergy PotentialEnergy TotalEnergy V mu)
+    (v : ValueSpace) :
+    PotentialEnergy (ContinuousMap.const Spacetime v) = V v := by
+  rw [inst.potential_integral]
+  simp
+
+/-- Formerly an assumed field: the potential energy of any field is at least the
+    vacuum value. Now derived by monotonicity of the integral. -/
+theorem potential_bound
+    (inst : ActionPrinciples Spacetime ValueSpace KineticEnergy PotentialEnergy TotalEnergy V mu)
+    (phi : FieldState Spacetime ValueSpace) (v0 : ValueSpace)
+    (hv0 : v0 ∈ DynamicalVacuum V) :
+    V v0 ≤ PotentialEnergy phi := by
+  rw [inst.potential_integral]
+  have h_le : ∀ x, V v0 ≤ V (phi x) := fun x => hv0 (phi x)
+  calc V v0 = ∫ _x : Spacetime, V v0 ∂mu := by simp
+    _ ≤ ∫ x, V (phi x) ∂mu :=
+        integral_mono (integrable_const _) (inst.potential_integrable phi) h_le
+
+/--
+**Pointwise vacuum from global energy minimization.** [THEOREM — formerly an axiom]
+
+If the potential energy functional attains the vacuum value `V v0`, then the
+field takes vacuum values almost everywhere.
+
+*Proof.* `g x := V (phi x) - V v0` is pointwise non-negative (since `v0`
+minimizes `V`) and has integral zero, so `g = 0` almost everywhere by
+`integral_eq_zero_iff_of_nonneg`.
+
+The conclusion is `∀ᵐ`, not `∀`: a field may deviate from the vacuum on a
+null set without changing its energy. This is the mathematically correct
+statement; the earlier `∀ x` version was one of the reasons the axiomatic
+formulation was unsound.
+-/
+theorem pointwise_vacuum_of_global_min
+    (inst : ActionPrinciples Spacetime ValueSpace KineticEnergy PotentialEnergy TotalEnergy V mu)
+    (phi : FieldState Spacetime ValueSpace) (v0 : ValueSpace)
+    (hv0 : v0 ∈ DynamicalVacuum V)
+    (h_pot_eq : PotentialEnergy phi = V v0) :
+    ∀ᵐ x ∂mu, V (phi x) = V v0 := by
+  have h_le : ∀ x, V v0 ≤ V (phi x) := fun x => hv0 (phi x)
+  set g : Spacetime → ℝ := fun x => V (phi x) - V v0 with hg
+  have hg_nonneg : 0 ≤ g := fun x => sub_nonneg.mpr (h_le x)
+  have hg_int : Integrable g mu := (inst.potential_integrable phi).sub (integrable_const _)
+  have hg_zero : ∫ x, g x ∂mu = 0 := by
+    rw [hg, integral_sub (inst.potential_integrable phi) (integrable_const _)]
+    rw [← inst.potential_integral, h_pot_eq]
+    simp
+  have := (integral_eq_zero_iff_of_nonneg hg_nonneg hg_int).mp hg_zero
+  filter_upwards [this] with x hx
+  have : V (phi x) - V v0 = 0 := hx
+  linarith
+
+end ActionPrinciplesConsequences
 
 -- An action principle is invariant under a continuous symmetry group (e.g. Poincaré invariance)
 class SymmetryInvariantAction (G Spacetime ValueSpace : Type*) 
-  [Group G] [TopologicalSpace Spacetime] [TopologicalSpace ValueSpace]
+  [Group G] [TopologicalSpace Spacetime] [MeasurableSpace Spacetime] [TopologicalSpace ValueSpace]
   (KineticEnergy PotentialEnergy TotalEnergy : FieldState Spacetime ValueSpace → ℝ) (V : ValueSpace → ℝ) 
-  [ActionPrinciples Spacetime ValueSpace KineticEnergy PotentialEnergy TotalEnergy V]
+  (mu : Measure Spacetime)
+  [ActionPrinciples Spacetime ValueSpace KineticEnergy PotentialEnergy TotalEnergy V mu]
   [ContinuousSymmetryGroup G Spacetime ValueSpace] where
   total_energy_invariant : ∀ (g : G) (phi : FieldState Spacetime ValueSpace), 
     TotalEnergy (ContinuousSymmetryGroup.field_action g phi) = TotalEnergy phi
 
+/--
+**Spontaneous symmetry breaking.** A field that globally minimizes the total
+energy sits in the vacuum manifold almost everywhere.
+
+Formerly this theorem invoked the axiom
+`spontaneous_symmetry_breaking_pointwise_min`, which was inconsistent (see the
+`ActionPrinciples` doc-string). It is now **axiom-free**: the pointwise step is
+`pointwise_vacuum_of_global_min`, proved from
+`MeasureTheory.integral_eq_zero_iff_of_nonneg`.
+
+The conclusion is almost-everywhere rather than everywhere. A field can leave
+the vacuum on a `mu`-null set without changing its energy, so `∀ x` is simply
+false at this level of generality; recovering it needs continuity of `V ∘ phi`
+plus full support for `mu`.
+-/
 theorem spontaneous_symmetry_breaking 
-  {Spacetime ValueSpace : Type*} [TopologicalSpace Spacetime] [TopologicalSpace ValueSpace]
+  {Spacetime ValueSpace : Type*}
+  [TopologicalSpace Spacetime] [MeasurableSpace Spacetime] [TopologicalSpace ValueSpace]
   {KineticEnergy PotentialEnergy TotalEnergy : FieldState Spacetime ValueSpace → ℝ}
-  {V : ValueSpace → ℝ}
-  (inst : ActionPrinciples Spacetime ValueSpace KineticEnergy PotentialEnergy TotalEnergy V)
+  {V : ValueSpace → ℝ} {mu : Measure Spacetime} [IsProbabilityMeasure mu]
+  (inst : ActionPrinciples Spacetime ValueSpace KineticEnergy PotentialEnergy TotalEnergy V mu)
   (phi : FieldState Spacetime ValueSpace)
   (v0 : ValueSpace) (hv0 : v0 ∈ DynamicalVacuum V)
   (h_min : ∀ phi', TotalEnergy phi ≤ TotalEnergy phi') :
-  ∀ x, phi x ∈ DynamicalVacuum V := by
+  ∀ᵐ x ∂mu, phi x ∈ DynamicalVacuum V := by
   have h1 : TotalEnergy phi ≤ TotalEnergy (ContinuousMap.const Spacetime v0) := h_min _
-  have h_tot_const : TotalEnergy (ContinuousMap.const Spacetime v0) = KineticEnergy (ContinuousMap.const Spacetime v0) + PotentialEnergy (ContinuousMap.const Spacetime v0) := inst.total_eq (ContinuousMap.const Spacetime v0)
-  rw [h_tot_const] at h1
-  have h_k_const : KineticEnergy (ContinuousMap.const Spacetime v0) = 0 := inst.kinetic_const v0
-  rw [h_k_const] at h1
-  have h_p_const : PotentialEnergy (ContinuousMap.const Spacetime v0) = V v0 := inst.potential_const v0
-  rw [h_p_const] at h1
-  rw [zero_add] at h1
-  
-  have h2 : TotalEnergy phi = KineticEnergy phi + PotentialEnergy phi := inst.total_eq phi
-  rw [h2] at h1
-  
+  rw [inst.total_eq (ContinuousMap.const Spacetime v0), inst.kinetic_const v0,
+      potential_const inst v0, zero_add, inst.total_eq phi] at h1
   have hK : 0 ≤ KineticEnergy phi := inst.kinetic_nonneg phi
-  have hP : V v0 ≤ PotentialEnergy phi := inst.potential_bound phi v0 hv0
-  
+  have hP : V v0 ≤ PotentialEnergy phi := potential_bound inst phi v0 hv0
   have hP_eq : PotentialEnergy phi = V v0 := by linarith
-  
-  -- We now invoke the irreducible physical postulate that global energy minimization
-  -- implies pointwise potential minimization (which requires localized perturbations in Sobolev spaces).
-  have h_pointwise_pot := spontaneous_symmetry_breaking_pointwise_min V phi v0 hv0 hP_eq
-  intro x
-  have h_pot_x : V (phi x) = V v0 := h_pointwise_pot x
-  unfold DynamicalVacuum
-  unfold DynamicalVacuum at hv0
-  simp only [Set.mem_ofPred_eq]
-  simp only [Set.mem_ofPred_eq] at hv0
-  rw [h_pot_x]
-  exact hv0
+  filter_upwards [pointwise_vacuum_of_global_min inst phi v0 hv0 hP_eq] with x hx
+  show ∀ v', V (phi x) ≤ V v'
+  intro v'
+  rw [hx]
+  exact hv0 v'
 
 -- 3. Symmetry Breaking and Topological Defects (Homotopy)
 -- A vacuum manifold is a topological space of degenerate energy minima resulting from broken symmetry.
@@ -203,7 +293,18 @@ def has_topological_defect {X V : Type*} [TopologicalSpace X] [TopologicalSpace 
   (f : BoundaryField X V) : Prop :=
   ¬ is_topologically_trivial f
 
-theorem defect_inevitability
+/--
+If the interior `D` is contractible, every boundary field that *extends* over it
+is null-homotopic.
+
+**Renamed from `defect_inevitability`.** The old name asserted the opposite of
+what the statement says: this proves *triviality* of extendable configurations,
+not the inevitability of defects. Nothing in this file shows that a defect must
+exist; the direction that carries the physical argument is the contrapositive,
+`boundary_defect_forces_interior_vacuum_break` below, which says a boundary
+defect *obstructs* extension over a contractible interior.
+-/
+theorem contractible_interior_forces_trivial_boundary
   {X D V : Type*} [TopologicalSpace X] [TopologicalSpace D] [TopologicalSpace V]
   (i : ContinuousMap X D) (f : ContinuousMap D V) (d0 : D)
   (H : ContinuousMap.Homotopy (ContinuousMap.id D) (ContinuousMap.const D d0)) :
@@ -222,7 +323,7 @@ theorem boundary_defect_forces_interior_vacuum_break
   (g : BoundaryField X V) (h_defect : has_topological_defect g) :
   ¬ ∃ (f : ContinuousMap D V), f.comp i = g := by
   intro ⟨f, h_ext⟩
-  have h_trivial := defect_inevitability i f d0 H
+  have h_trivial := contractible_interior_forces_trivial_boundary i f d0 H
   rw [h_ext] at h_trivial
   exact h_defect h_trivial
 

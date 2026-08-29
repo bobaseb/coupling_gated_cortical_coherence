@@ -11,6 +11,25 @@ structure KuramotoSystem (V : Type*) where
   A : V → V → ℝ
   symm : ∀ i j, A i j = A j i
 
+/--
+The full Kuramoto potential, including the natural-frequency term.
+
+**Caution — two different potentials live in this development.** `dV_dt_le_zero`
+below proves Lyapunov descent for *this* function, but
+`phase_locked_minimizes_potential` (in `Phase4_KuramotoDynamics.lean`) and
+everything downstream of it (Phase 5's `ThermodynamicCover`) characterise the
+minimum of `kuramoto_potential_dynamic`, which drops the `- ∑ ωᵢ θᵢ` term. They
+are different functionals, they live in different files, and the two results are
+not chained.
+
+The gap is substantive, not cosmetic: whenever some `ωᵢ ≠ 0` this potential is
+*unbounded below* — send `θ` to infinity along `ω` and the bounded cosine term
+cannot compensate — so it has no minimum for phase-locking to attain. The
+manuscript's phrase "the phase-locked state minimises the Lyapunov potential of
+the system" is therefore true of `kuramoto_potential_dynamic` and false of
+`kuramoto_potential`. Closing the gap needs the standard reduction to the
+rotating frame (θᵢ ↦ θᵢ - Ω t), which is not formalized here.
+-/
 noncomputable def kuramoto_potential (sys : KuramotoSystem V) (theta : V → ℝ) : ℝ :=
   - (1/2) * ∑ i, ∑ j, sys.A i j * Real.cos (theta i - theta j) - ∑ i, sys.omega i * theta i
 
@@ -250,17 +269,37 @@ class Thermodynamics (sys : Type*) where
   temperature : ℝ
   temperature_pos : temperature > 0
 
-class StatisticalMechanics (sys : Type*) [Fintype sys] [DecidableEq sys] extends Thermodynamics sys, BipartiteEnvironment sys
-
 /--
-[AXIOM] Landauer's Heat Equation.  [IRREDUCIBLE] — physical postulate,
-registered in `Axioms.lean` §1.
+Bundles the thermodynamic and bipartite-environment structure of a finite system.
 
-Heat dissipation of a transformation equals temperature times the change in
-Boltzmann entropy of the bath.  Links information theory to thermodynamics.
+The field `heat_eq` is **Landauer's heat equation** — heat dissipated equals
+temperature times the change in Boltzmann entropy of the bath. It is an
+irreducible physical postulate.
+
+**Why it is a class field and not an `axiom`.** An earlier version declared
+
+    axiom landauer_heat_eq (t : sys → sys) :
+      Thermodynamics.heat_dissipation t
+        = Thermodynamics.temperature * (boltzmann_entropy (final_bath t)
+                                        - boltzmann_entropy (initial_bath t))
+
+Because `heat_dissipation`, `temperature`, `initial_bath` and `final_bath` are
+all *free fields* of their classes, that axiom pinned them for **every**
+instance, including instances that contradict it. Taking `sys := Unit` with
+`heat_dissipation := fun _ => 0`, `temperature := 1`, `initial_bath := {false}`
+and `final_bath := Finset.univ : Finset Bool` yields `0 = log 2`, hence `False`.
+
+As a class field the postulate becomes an obligation each instance must
+discharge, which is what a physical assumption should be. See `Examples.lean`
+for an instance witnessing that the class is inhabited.
 -/
-axiom landauer_heat_eq {sys : Type*} [Fintype sys] [DecidableEq sys] [StatisticalMechanics sys] (t : sys → sys) :
-  Thermodynamics.heat_dissipation t = Thermodynamics.temperature (sys := sys) * (boltzmann_entropy (BipartiteEnvironment.final_bath t) - boltzmann_entropy (BipartiteEnvironment.initial_bath t))
+class StatisticalMechanics (sys : Type*) [Fintype sys] [DecidableEq sys]
+    extends Thermodynamics sys, BipartiteEnvironment sys where
+  heat_eq : ∀ t : sys → sys,
+    Thermodynamics.heat_dissipation t =
+      Thermodynamics.temperature (sys := sys) *
+        (boltzmann_entropy (BipartiteEnvironment.final_bath t) -
+         boltzmann_entropy (BipartiteEnvironment.initial_bath t))
 
 theorem second_law {sys : Type*} [Fintype sys] [DecidableEq sys] [StatisticalMechanics sys] [Nonempty sys] (t : sys → sys) :
   (boltzmann_entropy (BipartiteEnvironment.final_bath t) - boltzmann_entropy (BipartiteEnvironment.initial_bath t)) + 
@@ -282,7 +321,7 @@ theorem second_law {sys : Type*} [Fintype sys] [DecidableEq sys] [StatisticalMec
 theorem landauer_bound {sys : Type*} [Fintype sys] [DecidableEq sys] [StatisticalMechanics sys] [Nonempty sys] :
   ∀ (t : sys → sys), Thermodynamics.heat_dissipation (sys := sys) t ≥ Thermodynamics.temperature (sys := sys) * (entropy (id : sys → sys) - entropy t) := by
   intro t
-  rw [landauer_heat_eq t]
+  rw [StatisticalMechanics.heat_eq t]
   have h2 : Thermodynamics.temperature (sys := sys) > 0 := Thermodynamics.temperature_pos
   have h_sec := second_law (sys := sys) t
   nlinarith

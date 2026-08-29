@@ -14,13 +14,14 @@ from Derivation 3.
 
 **Key results:**
   • `KL_nonneg` (Gibbs' inequality) — a pure mathematical theorem.
-  • `kl_bound_axiom` — an irreducible physical postulate linking external
-    perturbation statistics to internal thermodynamic dissipation (same status
-    as `landauer_heat_eq`).
+  • `StructuralResonance` — an irreducible physical postulate, carried as a
+    class field rather than an `axiom`, linking external perturbation statistics
+    to internal thermodynamic dissipation. See its doc-string for why the
+    `axiom` formulation was inconsistent.
   • `structural_resonance_bound` — KL ≤ Δt · σ, a rearrangement of the axiom,
     bridging to the gradient descent formalism of Phase 8.
   • `discrete_entropy_rate_nonneg` — 0 ≤ σ, the one result that genuinely
-    combines Gibbs' inequality with the axiom.
+    combines Gibbs' inequality with the postulate.
 -/
 
 variable {V : Type*} [Fintype V]
@@ -86,28 +87,54 @@ noncomputable def discrete_entropy_rate {σ : Type*} [Thermodynamics σ] (t : σ
   Thermodynamics.heat_dissipation t / Thermodynamics.temperature (sys := σ)
 
 /--
-[AXIOM] **KL bound on entropy production.** [IRREDUCIBLE]
+**Structural resonance as an instance obligation.** [IRREDUCIBLE PHYSICAL POSTULATE]
 
-For any finite-state thermodynamic system with internal dynamics `t`, the
-entropy production rate σ = dissipation/T is bounded below by the KL divergence
-between the external perturbation distribution P(ext) and the internal
-transition distribution Q(int), scaled by the inverse time-step 1/Δt.
+The physical claim of Derivation 3 is that, for a *given* system, the entropy
+production rate of its internal dynamics is bounded below by the KL divergence
+between the environment's perturbation statistics `P_ext` and the system's own
+internal transition statistics `Q_int`, scaled by 1/Δt.
 
-This is a physical postulate — it links the statistical structure of external
-perturbations to internal thermodynamic dissipation, with no purely mathematical
-proof. Same status as `landauer_heat_eq`.
+**Why this is a class and not an `axiom`.** An earlier version of this file
+declared
+
+    axiom kl_bound_axiom (P Q : ProbDist V) (t : V → V) (dt : ℝ) (hdt : dt > 0) :
+      discrete_entropy_rate t ≥ KL P Q / dt
+
+which is *inconsistent*: `discrete_entropy_rate t` is a fixed real determined by
+the free class field `Thermodynamics.heat_dissipation`, while `KL P Q` ranges
+over an unbounded set as `P` and `Q` vary. Instantiating `Thermodynamics` with
+`heat_dissipation := fun _ => 0`, `temperature := 1` and taking `P` a point mass
+against uniform `Q` gives `0 ≥ log 2`, hence `False`. Quantifying over all `P`,
+`Q` turned a statement about one system into a claim about every distribution
+pair simultaneously.
+
+Bundling the postulate as a class fixes this: `P_ext`, `Q_int`, `transition` and
+`dt` are the *system's* data, and `kl_bound` constrains only that system. See
+`Examples.lean` for an instance witnessing that the class is inhabited.
 -/
-axiom kl_bound_axiom {V : Type*} [Fintype V] [DecidableEq V] [Thermodynamics V]
-  (P Q : ProbDist V) (t : V → V) (dt : ℝ) (hdt : dt > 0) :
-  discrete_entropy_rate (σ := V) t ≥ KL P Q / dt
+class StructuralResonance (V : Type*) [Fintype V] [DecidableEq V]
+    [Thermodynamics V] where
+  /-- Statistics of external environmental perturbations, P(ext). -/
+  P_ext : ProbDist V
+  /-- The system's internal transition statistics, Q(int). -/
+  Q_int : ProbDist V
+  /-- `Q_int` is strictly positive (required for Gibbs' inequality). -/
+  Q_int_pos : ∀ i, Q_int.p i > 0
+  /-- The internal dynamics whose dissipation is being bounded. -/
+  transition : V → V
+  /-- The physical time-step over which the comparison is made. -/
+  dt : ℝ
+  dt_pos : dt > 0
+  /-- **The postulate.** Entropy production dominates KL divergence per unit time. -/
+  kl_bound : discrete_entropy_rate (σ := V) transition ≥ KL P_ext Q_int / dt
 
 /--
-**Structural resonance bound:** KL(P ‖ Q) ≤ Δt · σ(t).
+**Structural resonance bound:** KL(P ‖ Q) ≤ Δt · σ.
 
-This is `kl_bound_axiom` rearranged (multiplying through by Δt > 0); it carries
-exactly the content of that postulate and no independent mathematical content.
-Gibbs' inequality is *not* used here — for the two-sided sandwich
-0 ≤ KL(P ‖ Q) ≤ Δt · σ see `discrete_entropy_rate_nonneg` below.
+This is `StructuralResonance.kl_bound` rearranged (multiplying through by
+Δt > 0); it carries exactly the content of that postulate and no independent
+mathematical content. Gibbs' inequality is *not* used here — for the two-sided
+sandwich 0 ≤ KL(P ‖ Q) ≤ Δt · σ see `discrete_entropy_rate_nonneg` below.
 
 This bound, together with gradient descent on entropy production (proved for
 continuous neural fields in `Phase8_ContinuousField.lean` as
@@ -118,33 +145,31 @@ gradient-flow theorems are stated over an abstract inner-product space and are
 not linked to `discrete_entropy_rate`.
 -/
 theorem structural_resonance_bound {V : Type*} [Fintype V] [DecidableEq V]
-  [Thermodynamics V] (P : ProbDist V) (Q : ProbDist V) (t : V → V)
-  (_hQ_pos : ∀ i, Q.p i > 0) (dt : ℝ) (hdt : dt > 0) :
-  KL P Q ≤ dt * discrete_entropy_rate (σ := V) t := by
-  have h_axiom := kl_bound_axiom P Q t dt hdt
-  -- h_axiom: σ ≥ KL / dt  i.e. KL / dt ≤ σ
+  [Thermodynamics V] [R : StructuralResonance V] :
+  KL R.P_ext R.Q_int ≤ R.dt * discrete_entropy_rate (σ := V) R.transition := by
+  have hdt : R.dt > 0 := R.dt_pos
+  have h_bound := R.kl_bound
   calc
-    KL P Q = (KL P Q / dt) * dt := by field_simp [hdt.ne']
-    _ ≤ discrete_entropy_rate (σ := V) t * dt :=
-      mul_le_mul_of_nonneg_right h_axiom (by linarith)
-    _ = dt * discrete_entropy_rate (σ := V) t := mul_comm _ _
+    KL R.P_ext R.Q_int = (KL R.P_ext R.Q_int / R.dt) * R.dt := by field_simp
+    _ ≤ discrete_entropy_rate (σ := V) R.transition * R.dt :=
+      mul_le_mul_of_nonneg_right h_bound (by linarith)
+    _ = R.dt * discrete_entropy_rate (σ := V) R.transition := mul_comm _ _
 
 /--
-**Second law in discrete form:** 0 ≤ σ(t).
+**Second law in discrete form:** 0 ≤ σ.
 
 This is the one place where Gibbs' inequality does real work. `KL_nonneg`
-(a theorem) gives KL(P ‖ Q) ≥ 0; `kl_bound_axiom` gives σ ≥ KL(P ‖ Q)/Δt.
-Chaining them yields non-negativity of the entropy production rate — so the
-postulate is at least consistent with the second law rather than assuming it
-separately.
+(a theorem) gives KL(P ‖ Q) ≥ 0; `StructuralResonance.kl_bound` gives
+σ ≥ KL(P ‖ Q)/Δt. Chaining them yields non-negativity of the entropy production
+rate — so the postulate is at least consistent with the second law rather than
+assuming it separately.
 -/
 theorem discrete_entropy_rate_nonneg {V : Type*} [Fintype V] [DecidableEq V]
-  [Thermodynamics V] (P : ProbDist V) (Q : ProbDist V) (t : V → V)
-  (hQ_pos : ∀ i, Q.p i > 0) (dt : ℝ) (hdt : dt > 0) :
-  0 ≤ discrete_entropy_rate (σ := V) t := by
-  have h_gibbs : 0 ≤ KL P Q := KL_nonneg P Q hQ_pos
-  have h_axiom := kl_bound_axiom P Q t dt hdt
-  have h_div : 0 ≤ KL P Q / dt := div_nonneg h_gibbs hdt.le
+  [Thermodynamics V] [R : StructuralResonance V] :
+  0 ≤ discrete_entropy_rate (σ := V) R.transition := by
+  have h_gibbs : 0 ≤ KL R.P_ext R.Q_int := KL_nonneg R.P_ext R.Q_int R.Q_int_pos
+  have h_bound := R.kl_bound
+  have h_div : 0 ≤ KL R.P_ext R.Q_int / R.dt := div_nonneg h_gibbs R.dt_pos.le
   linarith
 
 end PhysicsOfConsciousness
