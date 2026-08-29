@@ -20,6 +20,19 @@ theorem probability_is_sheaf : TopCat.Presheaf.IsSheaf (probabilityPresheaf X) :
 
 noncomputable def GlobalSection := (probabilityPresheaf X).obj (op ⊤)
 
+/--
+Structure bundling a cover with a coupling matrix that has already reached
+thermodynamic equilibrium.
+
+**Caveat.** The field `thermodynamic_equilibrium` *assumes* that the cover's
+phase configuration minimizes the Kuramoto potential; it is a hypothesis of the
+structure, not a result derived from dynamics. `global_section_from_thermodynamics`
+therefore proves "given a cover already at the potential minimum, the local
+sections glue uniquely" — the physical work of getting to that minimum is done
+by the informal argument in the manuscript (and, numerically, by
+`simulations/kuramoto.py`), not by Lean. Instances of this class are what carry
+the physical content.
+-/
 class ThermodynamicCover (X : TopCat.{u}) [MeasurableSpace X] [BorelSpace X] [TriangulatedManifold ↥X] 
   extends LocalSectionSynchronization X where
   I_fintype : Fintype I

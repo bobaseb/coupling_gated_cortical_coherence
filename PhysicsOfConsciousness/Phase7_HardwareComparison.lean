@@ -1,11 +1,43 @@
 import Mathlib
 
+/-!
+# Phase 7 — Hardware Comparison
+
+## Scope disclaimer (read before citing these results)
+
+This file does **not** formalize the distinction between a *continuous* coupling
+kernel and a *discrete rigid lattice*. Both `A_rigid` and the witness `A_flex`
+are functions `V → V → ℝ` on one and the same `Fintype V`; nothing in the type
+theory here distinguishes silicon from tissue, and no notion of continuity,
+manifold structure, or lattice rigidity appears.
+
+What is actually proved is a resource-reallocation statement: *given* a coupling
+matrix that wastes weight on a less-correlated pair while a more-correlated pair
+exists (the hypothesis `is_strictly_suboptimal`), one can shift that weight and
+strictly increase total phase correlation at constant total resource. The
+physical reading — that rigid hardware is *stuck* in such a suboptimal
+allocation while a biological field is not — is an informal modelling
+assumption imported through the hypothesis, not a Lean result.
+
+In particular `is_strictly_suboptimal` encodes most of the intended conclusion:
+`continuous_beats_rigid_topology` should be read as "suboptimal allocations can
+be improved", not as "discrete architectures are provably inferior to
+continuous ones". The corollary in the manuscript is argued informally; this
+file supplies only the reallocation step.
+-/
+
 namespace PhysicsOfConsciousness
 variable {V : Type} [Fintype V] [DecidableEq V]
 
 def is_valid_coupling (A : V → V → ℝ) : Prop :=
   ∀ i j, A i j ≥ 0 ∧ A i j = A j i
 def total_coupling_resources (A : V → V → ℝ) : ℝ := ∑ i : V, ∑ j : V, A i j
+
+/-- Hypothesis standing in for "the wiring is stuck in a wasteful allocation":
+    some pair `(i0, j0)` carries positive coupling weight while some other pair
+    `(k0, l0)` is more strongly phase-correlated. This is an *assumption about a
+    given matrix*, not a property derived from discreteness — see the scope
+    disclaimer at the top of this file. -/
 def is_strictly_suboptimal (A_rigid : V → V → ℝ) (theta : V → ℝ) : Prop :=
   ∃ i0 j0 k0 l0, A_rigid i0 j0 > 0 ∧ Real.cos (theta j0 - theta i0) < Real.cos (theta l0 - theta k0)
 
@@ -231,8 +263,9 @@ could use that resource), there exists a flexible (continuous-like) coupling all
 that uses the exact same total coupling resources but achieves strictly greater 
 thermodynamic synchronization (higher correlation / lower energy).
 
-This formally disqualifies rigid topologies from achieving optimal thermodynamic 
-efficiency compared to continuous phase-locking fields.
+Caveat: "rigid" and "continuous" are *not* formalized here — both matrices live on
+the same finite index type. The rigidity assumption enters only through
+`h_rigid_constraint`. See the scope disclaimer at the top of this file.
 -/
 theorem continuous_beats_rigid_topology (A_rigid : V → V → ℝ) (theta : V → ℝ)
   (h_valid : is_valid_coupling A_rigid)

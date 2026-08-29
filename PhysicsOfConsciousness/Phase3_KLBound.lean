@@ -17,8 +17,10 @@ from Derivation 3.
   • `kl_bound_axiom` — an irreducible physical postulate linking external
     perturbation statistics to internal thermodynamic dissipation (same status
     as `landauer_heat_eq`).
-  • `structural_resonance_bound` — KL ≤ Δt · σ, bridging to the gradient
-    descent formalism of Phase 8.
+  • `structural_resonance_bound` — KL ≤ Δt · σ, a rearrangement of the axiom,
+    bridging to the gradient descent formalism of Phase 8.
+  • `discrete_entropy_rate_nonneg` — 0 ≤ σ, the one result that genuinely
+    combines Gibbs' inequality with the axiom.
 -/
 
 variable {V : Type*} [Fintype V]
@@ -102,13 +104,18 @@ axiom kl_bound_axiom {V : Type*} [Fintype V] [DecidableEq V] [Thermodynamics V]
 /--
 **Structural resonance bound:** KL(P ‖ Q) ≤ Δt · σ(t).
 
-Combines the KL bound axiom with Gibbs' inequality to give an upper bound on
-the KL divergence in terms of the entropy production rate.
+This is `kl_bound_axiom` rearranged (multiplying through by Δt > 0); it carries
+exactly the content of that postulate and no independent mathematical content.
+Gibbs' inequality is *not* used here — for the two-sided sandwich
+0 ≤ KL(P ‖ Q) ≤ Δt · σ see `discrete_entropy_rate_nonneg` below.
 
 This bound, together with gradient descent on entropy production (proved for
 continuous neural fields in `Phase8_ContinuousField.lean` as
-`gradient_flow_implies_entropy_decrease`), implies that structural resonance
-forces KL(P ‖ Q) → 0 as the system approaches its minimum dissipation state.
+`gradient_flow_implies_entropy_decrease`), is what the informal argument of
+Derivation 3 appeals to when it claims structural resonance forces
+KL(P ‖ Q) → 0. Note that the limit itself is *not* formalized: Phase 8's
+gradient-flow theorems are stated over an abstract inner-product space and are
+not linked to `discrete_entropy_rate`.
 -/
 theorem structural_resonance_bound {V : Type*} [Fintype V] [DecidableEq V]
   [Thermodynamics V] (P : ProbDist V) (Q : ProbDist V) (t : V → V)
@@ -121,5 +128,23 @@ theorem structural_resonance_bound {V : Type*} [Fintype V] [DecidableEq V]
     _ ≤ discrete_entropy_rate (σ := V) t * dt :=
       mul_le_mul_of_nonneg_right h_axiom (by linarith)
     _ = dt * discrete_entropy_rate (σ := V) t := mul_comm _ _
+
+/--
+**Second law in discrete form:** 0 ≤ σ(t).
+
+This is the one place where Gibbs' inequality does real work. `KL_nonneg`
+(a theorem) gives KL(P ‖ Q) ≥ 0; `kl_bound_axiom` gives σ ≥ KL(P ‖ Q)/Δt.
+Chaining them yields non-negativity of the entropy production rate — so the
+postulate is at least consistent with the second law rather than assuming it
+separately.
+-/
+theorem discrete_entropy_rate_nonneg {V : Type*} [Fintype V] [DecidableEq V]
+  [Thermodynamics V] (P : ProbDist V) (Q : ProbDist V) (t : V → V)
+  (hQ_pos : ∀ i, Q.p i > 0) (dt : ℝ) (hdt : dt > 0) :
+  0 ≤ discrete_entropy_rate (σ := V) t := by
+  have h_gibbs : 0 ≤ KL P Q := KL_nonneg P Q hQ_pos
+  have h_axiom := kl_bound_axiom P Q t dt hdt
+  have h_div : 0 ≤ KL P Q / dt := div_nonneg h_gibbs hdt.le
+  linarith
 
 end PhysicsOfConsciousness

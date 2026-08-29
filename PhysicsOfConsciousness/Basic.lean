@@ -1,3 +1,0 @@
-namespace PhysicsOfConsciousness
-
-end PhysicsOfConsciousness

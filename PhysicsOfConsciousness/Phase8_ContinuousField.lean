@@ -1,5 +1,30 @@
 import Mathlib
 
+/-!
+# Phase 8 — Continuous Field
+
+## Scope disclaimer
+
+This file has two halves that are **not yet connected to each other**.
+
+1. A concrete half (`entropy_production_rate`, `phase_locked_achieves_minimum_entropy`)
+   defining the entropy production functional σ of a stochastic neural field
+   over a measure space `M`, and proving a *conditional* minimality result — see
+   the `h_mean` caveat on that theorem.
+2. An abstract half (`is_coupling_gradient_flow`,
+   `gradient_flow_implies_entropy_decrease`, `continuous_structural_resonance`,
+   `structural_resonance_implies_gradient_descent`) proving that a gradient flow
+   on *any* Fréchet-differentiable functional `S` over *any* inner-product space
+   `E` is monotonically non-increasing.
+
+Nothing instantiates `S := entropy_production_rate` or supplies a `gradS` for
+it, so the abstract descent theorems do not currently apply to σ. The manuscript's
+claim that structural resonance drives σ (and hence KL divergence) to its minimum
+therefore rests on the informal identification of the two halves, not on a Lean
+derivation. Establishing the link would require the Fréchet derivative of σ with
+respect to the coupling kernel `K`, which is not developed here.
+-/
+
 open Set MeasureTheory Topology
 
 namespace PhysicsOfConsciousness
@@ -67,6 +92,15 @@ private lemma sq_integral_le_integral_sq [IsFiniteMeasure (volume : Measure M)]
 
 `StochasticNeuralField.lower_bound` has been removed; minimality is now proved
 from the variance bound `sq_integral_le_integral_sq` (requires `[IsFiniteMeasure volume]`).
+
+**Caveat on `h_mean`.** The hypothesis quantifies over *every* competitor field
+`theta_other` and requires each to have the same spatial mean drift
+`Omega_avg`. This is a strong restriction: it confines the comparison class to
+configurations that already share the phase-locked state's first moment, and
+minimality then follows from Jensen/variance alone. It is therefore not a proof
+that phase-locking minimizes entropy production among *all* fields — only among
+those with matching mean drift. Removing this hypothesis would require modelling
+how `Omega_avg` itself varies with `theta_other`, which is not done here.
 -/
 theorem phase_locked_achieves_minimum_entropy [IsFiniteMeasure (volume : Measure M)]
   (sys : StochasticNeuralField M) (theta : M → ℝ)
