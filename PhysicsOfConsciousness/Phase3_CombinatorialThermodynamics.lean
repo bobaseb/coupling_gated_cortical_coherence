@@ -14,21 +14,29 @@ structure KuramotoSystem (V : Type*) where
 /--
 The full Kuramoto potential, including the natural-frequency term.
 
-**Caution — two different potentials live in this development.** `dV_dt_le_zero`
-below proves Lyapunov descent for *this* function, but
+**Two different potentials live in this development, and they are now chained.**
+`dV_dt_le_zero` below proves Lyapunov descent for *this* function, while
 `phase_locked_minimizes_potential` (in `Phase4_KuramotoDynamics.lean`) and
 everything downstream of it (Phase 5's `ThermodynamicCover`) characterise the
-minimum of `kuramoto_potential_dynamic`, which drops the `- ∑ ωᵢ θᵢ` term. They
-are different functionals, they live in different files, and the two results are
-not chained.
+minimum of `kuramoto_potential_dynamic`, which drops the `- ∑ ωᵢ θᵢ` term.
 
-The gap is substantive, not cosmetic: whenever some `ωᵢ ≠ 0` this potential is
-*unbounded below* — send `θ` to infinity along `ω` and the bounded cosine term
-cannot compensate — so it has no minimum for phase-locking to attain. The
-manuscript's phrase "the phase-locked state minimises the Lyapunov potential of
-the system" is therefore true of `kuramoto_potential_dynamic` and false of
-`kuramoto_potential`. Closing the gap needs the standard reduction to the
-rotating frame (θᵢ ↦ θᵢ - Ω t), which is not formalized here.
+The difference is substantive, not cosmetic: `kuramoto_potential_unbounded_below`
+proves that whenever some `ωᵢ ≠ 0` this potential is *unbounded below* — walk `θ`
+out along `ω` and the bounded cosine term cannot compensate — so it has no
+minimum for phase-locking to attain. The manuscript's phrase "the phase-locked
+state minimises the Lyapunov potential of the system" is therefore true of
+`kuramoto_potential_dynamic` and false of this one.
+
+`Phase4_RotatingFrame.lean` closes the gap by the standard reduction to the
+rotating frame (θᵢ ↦ θᵢ - Ω t). For *identical* natural frequencies `ω ≡ Ω`,
+`is_kuramoto_trajectory_rotate` sends a trajectory of this system to a trajectory
+of the zero-frequency system `sys.reduced`, on which the two potentials coincide
+(`kuramoto_potential_reduced`); `dynamic_potential_descent` then transports the
+descent proved here onto `kuramoto_potential_dynamic`, and `rotating_frame_chain`
+runs the whole chain through to phase-locking and `r² = 1`. The reduction is
+exact only for identical frequencies; a genuine spread leaves residual detunings,
+and phase-locking then requires a critical coupling `K_c` that this development
+does not formalize.
 -/
 noncomputable def kuramoto_potential (sys : KuramotoSystem V) (theta : V → ℝ) : ℝ :=
   - (1/2) * ∑ i, ∑ j, sys.A i j * Real.cos (theta i - theta j) - ∑ i, sys.omega i * theta i

@@ -499,7 +499,8 @@ compile with no undefined references and no float overflow.
 
 ### Remaining open (updated)
 
-1. Chain the two Kuramoto potentials via the rotating-frame reduction.
+1. ~~Chain the two Kuramoto potentials via the rotating-frame reduction.~~
+   **DONE 2026-08-29** — see below.
 2. Formalize a genuine continuous/discrete distinction if the hardware corollary
    is to be more than an informal argument.
 3. Prove the limit `lim_{t→∞} D_KL(P ‖ Q) = 0` asserted in supplementary
@@ -525,3 +526,120 @@ compile with no undefined references and no float overflow.
    intermediate step that at least exercises the 2D geometry. Until this is
    done, the mesh results are honest only for one-dimensional substrates, which
    is what the file header and both manuscripts say.
+
+---
+
+## Rotating-Frame Reduction — 2026-08-29 — DONE
+
+Closes open item 1, and retires finding (C) of the soundness audit: the
+development carried two Kuramoto potentials that were never chained.
+
+### The gap
+
+| Where | What it proves | About which functional |
+|---|---|---|
+| `dV_dt_le_zero` (`Phase3_CombinatorialThermodynamics`) | Lyapunov descent `V̇ = -∑ᵢ θ̇ᵢ²` along trajectories | `kuramoto_potential` = `-½∑∑Aᵢⱼcos(θᵢ-θⱼ) - ∑ωᵢθᵢ` |
+| `phase_locked_minimizes_potential`, `potential_min_implies_phase_locked` (`Phase4_KuramotoDynamics`), and Phase 5's `ThermodynamicCover` | The minimum is attained exactly at phase-locked configurations | `kuramoto_potential_dynamic` = `-½∑∑Aᵢⱼcos(θⱼ-θᵢ)` |
+
+Two different functionals in two different files, with nothing connecting them —
+so the manuscript sentence "the phase-locked state minimises the Lyapunov
+potential of the system" was, read literally, about neither result.
+
+The gap is not cosmetic, and this is now proved rather than asserted:
+`kuramoto_potential_unbounded_below` shows that as soon as one `ωᵢ ≠ 0` the full
+potential has **no minimum at all** — take `θ = c·ω` and let `c → ∞`; the
+frequency term drops without bound while the cosine sum stays inside
+`±½∑ᵢⱼ|Aᵢⱼ|`. So the descent theorem and the minimisation theorem could not have
+been about the same object.
+
+### What was built — `PhysicsOfConsciousness/Phase4_RotatingFrame.lean` (new)
+
+| Declaration | What it is |
+|---|---|
+| `kuramoto_potential_eq_dynamic_sub` | The two potentials differ exactly by `∑ ωᵢθᵢ`. The cosine halves agree because `cos` is even and the two definitions write the difference in opposite orders |
+| `KuramotoSystem.reduced` | Same coupling, all frequencies zero — definitionally the `⟨fun _ => 0, A, A_symm⟩` that Phase 5's `ThermodynamicCover` already used |
+| **`kuramoto_potential_reduced`** | **On the reduced system the two potentials coincide.** This is the identity that lets `dV_dt_le_zero` speak about the functional Phases 4 and 5 use |
+| **`kuramoto_potential_unbounded_below`** | **No minimum exists when some `ωᵢ ≠ 0`**: for every `C` there is a `θ` with `V(θ) < C`. Proved, not asserted in a doc-string |
+| `rotate Ω θ` | The change of variables `θᵢ(t) ↦ θᵢ(t) - Ω t` |
+| **`is_kuramoto_trajectory_rotate`** | **The reduction.** For `ω ≡ Ω`, a trajectory of `sys` maps to a trajectory of `sys.reduced` |
+| `rotate_sub`, `is_phase_locked_rotate` | Phase differences and phase-locking are frame-invariant |
+| `order_parameter_complex_shift`, `order_parameter_r_sq_shift`, `order_parameter_r_sq_rotate` | The order-parameter magnitude is frame-invariant: a uniform shift multiplies `r` by `e^{-iΩt}`, which `normSq` kills |
+| **`dynamic_potential_descent`** | **`dV_dt_le_zero` transported through the frame**: `d/dt V_dyn(rotate Ω θ t) = -∑ᵢ (velocity)²` |
+| `dynamic_potential_deriv_nonpos` | The corollary actually wanted: the dynamic potential is non-increasing along trajectories |
+| **`rotating_frame_chain`** | **End to end.** Rotated trajectory solves the zero-frequency equations ∧ dynamic potential descends ∧ if the rotated configuration minimises it then the *original* phases are locked ∧ `r² = 1` |
+
+### Non-vacuity — `Examples.lean` §7
+
+The chain restricts to identical frequencies *and* to configurations at the
+potential minimum. Both are real restrictions, so the chain is worth nothing
+until something satisfies them.
+
+| Declaration | What it is |
+|---|---|
+| `pairSystem Ω` | Two oscillators (`Bool`), unit coupling, common frequency `Ω` |
+| `pairTrajectory Ω` | The synchronized trajectory `θᵢ(t) = Ω t` |
+| `pairTrajectory_is_trajectory` | It solves the Kuramoto ODEs |
+| `rotate_pairTrajectory` | In the rotating frame it sits at the origin — where `phase_locked_minimizes_potential` puts the minimum |
+| **`pair_rotating_frame_chain`** | **`rotating_frame_chain` with every hypothesis discharged** |
+| `example` (potential difference) | The full potential differs from the dynamic one by `2Ω·(Ωt)` here — the frame change is doing real work, not a no-op |
+| `example` (unboundedness) | `kuramoto_potential_unbounded_below` fired on `pairSystem 1`: the hypothesis `∃ i, ωᵢ ≠ 0` is satisfiable |
+
+### What it does *not* establish
+
+* **Identical frequencies only.** A genuine spread `ωᵢ ≠ ωⱼ` leaves residual
+  detunings `ωᵢ - Ω` in the reduced system, to which
+  `kuramoto_potential_unbounded_below` still applies. There is no reduction to a
+  zero-frequency system in that case, and phase-locking then depends on the
+  coupling exceeding `K_c`.
+* **`K_c` is still absent from Lean.** Nothing here formalizes the
+  synchronization transition; that remains numerical
+  (`simulations/kuramoto.py`), as Table 1 says.
+* **Minimality is still a hypothesis, not a dynamical conclusion.**
+  `rotating_frame_chain` takes "this configuration minimises the dynamic
+  potential" as input. Getting there from an arbitrary initial condition needs
+  a convergence argument (LaSalle or similar) that is not developed.
+
+### Updates elsewhere
+
+* `Phase3_CombinatorialThermodynamics.lean` — the `kuramoto_potential`
+  doc-string said the gap "is not formalized here". Rewritten to describe the
+  chain, and to point at `kuramoto_potential_unbounded_below` for the claim it
+  previously only asserted.
+* `main.tex:117` — the Lyapunov claim now says *which* functional is minimised
+  and points at the soundness section.
+* `main.tex` Soundness subsection — new paragraph on this defect, noting it is
+  a third kind: not an inconsistent axiom, not a false conjecture, but a
+  bookkeeping gap across files where each half is individually correct. Covers
+  the unboundedness result, the reduction, the frame-invariance of the
+  observables, the witness, and the identical-frequency restriction.
+* `main.tex` Table 1 — new row "Kuramoto Lyapunov descent → Theorem". Several
+  cells and the caption trimmed to keep the float on the page.
+* `supplementary.tex` §Macroscopic Scaling — new implementation note for
+  `Phase4_RotatingFrame.lean`.
+
+**Verification:** `lake build` succeeds (17,604 jobs), no warnings from the new
+code. `#print axioms` on `kuramoto_potential_eq_dynamic_sub`,
+`kuramoto_potential_reduced`, `kuramoto_potential_unbounded_below`,
+`is_kuramoto_trajectory_rotate`, `is_phase_locked_rotate`,
+`order_parameter_r_sq_shift`, `dynamic_potential_descent`,
+`dynamic_potential_deriv_nonpos`, `rotating_frame_chain`,
+`pairTrajectory_is_trajectory` and `pair_rotating_frame_chain` each report only
+`[propext, Classical.choice, Quot.sound]`. `main.tex` and `supplementary.tex`
+compile with zero errors, zero undefined references and no float overflow.
+`arxiv_submit/ax.tar` regenerated; its merged `main.tex` compiles clean.
+
+### Remaining open (updated)
+
+1. Formalize a genuine continuous/discrete distinction if the hardware corollary
+   is to be more than an informal argument.
+2. Prove the limit `lim_{t→∞} D_KL(P ‖ Q) = 0` asserted in supplementary
+   Theorem 3 (needs a coercivity or Łojasiewicz-type estimate on σ).
+3. Prove the O(1/N²) rate for mesh refinement (midpoint error term; needs a
+   `C²` integrand and a second-derivative bound per cell).
+4. A mesh witness beyond one dimension.
+5. **Convergence to the potential minimum.** `rotating_frame_chain` assumes the
+   configuration is already a minimiser. A LaSalle-type argument — descent plus
+   compactness of the phase torus gives convergence to the critical set — would
+   turn Phase 4's static characterisation into a dynamical one and remove the
+   corresponding assumption from Phase 5's `ThermodynamicCover`. Mathlib has no
+   LaSalle invariance principle, so this is a substantial build.

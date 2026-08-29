@@ -27,6 +27,11 @@
   disjoint-yet-covering-yet-anchored conditions are in tension, so an instance is
   the only proof they are simultaneously satisfiable.
 
+  §7 witnesses the rotating-frame reduction (`Phase4_RotatingFrame`) on a
+  two-oscillator system with a common natural frequency, running
+  `rotating_frame_chain` with every hypothesis discharged, and exhibits a system
+  for which the full Kuramoto potential provably has no minimum.
+
   Every declaration in this file depends only on `propext`, `Classical.choice`
   and `Quot.sound`.
 -/
@@ -37,6 +42,7 @@ import PhysicsOfConsciousness.Phase3_KLBound
 import PhysicsOfConsciousness.Phase5_GlobalSection
 import PhysicsOfConsciousness.Phase8_ContinuousField
 import PhysicsOfConsciousness.Phase2_MeshConvergence
+import PhysicsOfConsciousness.Phase4_RotatingFrame
 
 open MeasureTheory CategoryTheory TopologicalSpace Opposite Filter Topology
 
@@ -683,6 +689,80 @@ example : discreteEnergy (gridTriangulation 1) volume (fun x => |x - 1/2|)
     ≠ discreteEnergy (gridTriangulation 2) volume (fun x => |x - 1/2|) := by
   rw [tent_energy_one, tent_energy_two]
   norm_num
+
+/-! ## 7. The rotating-frame reduction on a two-oscillator system
+
+`Phase4_RotatingFrame` chains the two Kuramoto potentials, but only for systems
+whose natural frequencies are identical, and only at configurations that
+minimise the dynamic potential. Both are real restrictions, so the chain is
+worth nothing unless something satisfies them. This section exhibits a system
+that does, and — on the other side — a system for which the full potential
+provably has no minimum at all, which is what forced the reduction in the first
+place. -/
+
+/-- Two oscillators, unit coupling, common natural frequency `Ω`. -/
+noncomputable def pairSystem (Ω : ℝ) : KuramotoSystem Bool where
+  omega := fun _ => Ω
+  A := fun _ _ => 1
+  symm := fun _ _ => rfl
+
+/-- The fully synchronized trajectory: both phases advance at the common
+frequency. -/
+noncomputable def pairTrajectory (Ω : ℝ) : ℝ → Bool → ℝ := fun t _ => Ω * t
+
+theorem pairTrajectory_is_trajectory (Ω : ℝ) :
+    is_kuramoto_trajectory (pairSystem Ω) (pairTrajectory Ω) := by
+  intro i t
+  have h : HasDerivAt (fun t : ℝ => Ω * t) Ω t := by
+    simpa using (hasDerivAt_id t).const_mul Ω
+  have hval : (pairSystem Ω).omega i
+      + ∑ j, (pairSystem Ω).A i j
+          * Real.sin (pairTrajectory Ω t j - pairTrajectory Ω t i) = Ω := by
+    simp [pairSystem, pairTrajectory]
+  rw [hval]
+  exact h
+
+/-- In the rotating frame the trajectory sits at the origin — where
+`phase_locked_minimizes_potential` says the dynamic potential is minimised. -/
+theorem rotate_pairTrajectory (Ω : ℝ) (t : ℝ) :
+    rotate Ω (pairTrajectory Ω) t = fun _ => 0 := by
+  funext i
+  simp [rotate, pairTrajectory]
+
+/-- **The chain fires.** Every hypothesis of `rotating_frame_chain` is
+discharged concretely: the rotated trajectory solves the zero-frequency
+equations, the dynamic potential is non-increasing along it, the original
+phases are locked, and the order parameter is `1`. -/
+theorem pair_rotating_frame_chain (Ω : ℝ) (t : ℝ) :
+    is_kuramoto_trajectory (pairSystem Ω).reduced (rotate Ω (pairTrajectory Ω))
+      ∧ deriv (fun t => kuramoto_potential_dynamic (pairSystem Ω)
+            (rotate Ω (pairTrajectory Ω) t)) t ≤ 0
+      ∧ is_phase_locked (pairTrajectory Ω t)
+      ∧ order_parameter_r_sq (pairTrajectory Ω t) = 1 := by
+  refine rotating_frame_chain (pairSystem Ω) Ω (fun _ => rfl) (fun _ _ => by
+    simp [pairSystem]) (pairTrajectory Ω) (pairTrajectory_is_trajectory Ω) t ?_
+  intro phi
+  rw [rotate_pairTrajectory]
+  exact phase_locked_minimizes_potential (pairSystem Ω) (fun _ _ => by
+    simp [pairSystem]) phi
+
+/-- The full potential really is non-constant along the reduction: at the
+synchronized configuration it differs from its value at the origin exactly by
+the frequency term. -/
+example (Ω : ℝ) (t : ℝ) :
+    kuramoto_potential (pairSystem Ω) (pairTrajectory Ω t)
+      = kuramoto_potential_dynamic (pairSystem Ω) (rotate Ω (pairTrajectory Ω) t)
+        - 2 * Ω * (Ω * t) := by
+  rw [kuramoto_potential_eq_dynamic_sub, rotate_pairTrajectory]
+  simp [kuramoto_potential_dynamic, pairSystem, pairTrajectory]
+  ring
+
+/-- **The other side.** With a non-zero natural frequency the full Kuramoto
+potential is unbounded below, so "the phase-locked state minimises the Lyapunov
+potential" is false of it — there is no minimum to attain. The hypothesis of
+`kuramoto_potential_unbounded_below` is satisfiable. -/
+example (C : ℝ) : ∃ theta : Bool → ℝ, kuramoto_potential (pairSystem 1) theta < C :=
+  kuramoto_potential_unbounded_below (pairSystem 1) ⟨true, by simp [pairSystem]⟩ C
 
 end Examples
 end PhysicsOfConsciousness
