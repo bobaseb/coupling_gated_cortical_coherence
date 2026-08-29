@@ -988,7 +988,7 @@ strong enough to mean anything.
 | # | Assumption | Where | Witness | Verdict |
 |---|---|---|---|---|
 | A1 | `StatisticalMechanics.heat_eq` — dissipated heat equals `T` times the bath's entropy change | `Phase3_CombinatorialThermodynamics:307` | `boolStatMech` (`Examples` §1), a real one-bit erasure with a bijective `U` | Irreducible physical postulate; witness is non-degenerate (it reproduces `ΔQ = k_B T ln 2`). **Leave.** |
-| A2 | `StructuralResonance.kl_bound` — `σ ≥ D_KL(P‖Q)/Δt` for the system's own distributions | `Phase3_KLBound:129` | `boolResonance` (`Examples` §2) | Witness is the *perfectly resonant* system, `KL = 0`, so it discharges the bound trivially. A witness with `KL > 0` and a genuinely positive `σ` would be worth more. **Cheap; worth doing.** |
+| A2 | `StructuralResonance.kl_bound` — `σ ≥ D_KL(P‖Q)/Δt` for the system's own distributions | `Phase3_KLBound:129` | `boolResonance` **and `boolDetuned`** (`Examples` §2) | **DONE 2026-08-29.** The perfectly-resonant witness (`KL = 0`) is joined by the one-bit eraser against a point-mass environment: `KL = log 2 > 0`, `σ = log 2 > 0`, and `boolDetuned_tight` proves the bound holds with *equality*, so it is attained and cannot be strengthened. |
 | A3 | `LocalSectionSynchronization.phase_invariant_periodic` and `sync_to_section_eq` | `Phase4_MacroscopicScaling:56,61` | `cortexSync` (`Examples` §4) | Marked `[MODELLING]` in the source and derivable in principle from invariant-measure theory. The witness sets `phase ≡ 0` and discharges `sync_to_section_eq` by `rfl` — i.e. the local sections *are* restrictions by construction. Non-vacuous but weak. |
 | A4 | `ThermodynamicCover.thermodynamic_equilibrium` — the cover's phase configuration already minimizes the Kuramoto potential | `Phase5_GlobalSection:43` | `cortexCover` (`Examples` §4) | **This is where Derivation 5's physics lives.** Lean proves "given a cover at the minimum, the sections glue"; getting there is the informal argument. The witness has constant phase, which is what makes the obligation dischargeable. Stated plainly in `Phase5`'s header and the supplementary. |
 
@@ -1014,7 +1014,7 @@ false because of them, but theorems about them say less than their names suggest
 
 | # | Gap | Where | Consequence |
 |---|---|---|---|
-| C1 | `TriangulatedManifold` never relates `complex` / `embedding` to `edge_region` | `Phase2_SimplicialBridge:29` | `edge_weight` integrates over an unconstrained set, and `weight_symm` merely unfolds the assumed `edge_region_symm`. Table 1 row is downgraded to "Theorem (weak)" for this reason. **The fix is known:** `IsRegularTriangulation` (`Phase2_MeshConvergence:310`) already adds `face_of_complex` and `anchored`, exactly the missing links, and is witnessed. Requiring it in `DiscreteThermodynamics` would close C1 and upgrade the row. Sized in hours, not weeks. |
+| C1 | `TriangulatedManifold` never relates `complex` / `embedding` to `edge_region` | `Phase2_SimplicialBridge` | **DONE 2026-08-29.** `DiscreteThermodynamics` now carries `region` + `regular : IsRegularTriangulation TM region` as fields, so its edge weights are integrals over a geometrically constrained family. `TriangulatedManifold` itself is left as bare data on purpose — see the new section at the end of this file. |
 | C2 | `ReflexiveBoundary.auto_resonance` is an arbitrary function of the global section | `Phase6_ReflexiveTopology:54` | Nothing constrains the avatar's state to track the field's. No theorem in the development mentions it. |
 | C3 | `DiscreteThermodynamics.scalar_magnitude` is arbitrary subject only to non-negativity | `Phase2_SimplicialBridge:42` | The map from a stress-energy tensor to a scalar is modelling, not derivation. |
 
@@ -1026,36 +1026,31 @@ and `Examples.lean` closed it for Phases 1, 3, 4, 5 and 8. It is **not** closed
 for the following.
 
 1. **`ReflexiveBoundary` / `PredictiveModel` — Derivation 6, the Self.**
-   No instance exists; nothing outside `Phase6_ReflexiveTopology.lean` mentions
-   either structure. `reflexive_topology_implies_self` is, read literally, the
-   Banach fixed-point theorem with every physical commitment in a hypothesis:
-   `GlobalSection X` is *assumed* to be a nonempty complete metric space (it is
-   defined as a sheafification's sections over `⊤`, with no metric constructed
-   anywhere), and `predict` is *assumed* to be a `1/2`-contraction. Supply those
-   and a fixed point follows by a Mathlib one-liner. **This is now the largest
-   open gap in the formalization**, in the same sense `ThermodynamicCover` was
-   before it was witnessed, and the manuscript's treatment of the Self rests on
-   it. Minimum useful work: construct *any* instance — a one-point space, a
-   metric on `GlobalSection`, a constant `predict` — to show the hypotheses are
-   jointly satisfiable. Until then the theorem is conditional on structures not
-   shown to be realizable.
+   **DONE 2026-08-29** — `Examples.lean` §10. `reflexive_topology_implies_self`
+   is still the Banach fixed-point theorem with every physical commitment in a
+   hypothesis, but the hypotheses are now known to be jointly satisfiable: a
+   metric on `GlobalSection Cortex`, a completeness proof, `Nonempty` from
+   `globalSect 0`, and a `ReflexiveBoundary` whose `auto_resonance` is the
+   presheaf restriction rather than an arbitrary function. The residual weakness
+   is recorded *as a theorem*: `contracting_implies_const` proves every
+   contraction is constant under the 0/1 metric supplied, so the fixed point is
+   that constant. Upgrading this needs a metric built from the measure-theoretic
+   structure of `GlobalSection` (Prokhorov), which is a real project.
 
 2. **`SymmetryInvariantAction` — and there is no Noether theorem.**
-   The class has one field, `total_energy_invariant`, has no instance, and is
-   referenced by no theorem. Nothing in the development derives a conservation
-   law from a symmetry. `ContinuousSymmetryGroup` is likewise instance-free.
-   **This one needs a prose fix, not just Lean:** `main.tex:87` says the
-   invariance "dictates the conservation of energy and momentum via Noether's
-   theorem," and its footnote says the "necessary physical symmetries, conserved
-   quantities, and phase space constraints naturally emerge" from the geometric
-   structures. Neither is true of the Lean — the invariance is an assumed class
-   field with no instance, and no conserved quantity is ever constructed. Either
-   the sentence is qualified the way every other scope note in the paper now is,
-   or a conservation law is proved. Recommend qualifying it: a real Noether
-   theorem over Mathlib is a project in itself.
+   **Prose fix DONE 2026-08-29.** The class still has one field, no instance and
+   no consumer; that is now what `main.tex:87` says. The claim that invariance
+   "dictates the conservation of energy and momentum via Noether's theorem" is
+   qualified in place, and the footnote's "naturally emerge" is replaced by a
+   statement that the formalization supplies vocabulary, not content, naming the
+   three instance-free classes (`ContinuousSymmetryGroup`,
+   `SymmetryInvariantAction`, `PseudoRiemannianManifold`). Proving an actual
+   Noether theorem over Mathlib remains a project in itself and is not started.
 
-3. **`VacuumManifold` is an empty class** (`class VacuumManifold (V) [TopologicalSpace V]`
-   with no fields), used nowhere. Dead code; delete it, as `Basic.lean` was.
+3. **`VacuumManifold` is an empty class.** **DONE 2026-08-29** — deleted, with a
+   comment in its place recording why. `supplementary.tex:26` claimed Derivation 1
+   was formalized "by defining a `VacuumManifold`"; it now names `DynamicalVacuum`,
+   which is the definition the theorems actually use.
 
 4. `PlasticNeuralField`, `StochasticMatrix`, `PseudoRiemannianManifold` — no
    instances either, but nothing headline rests on them. Low priority.
@@ -1084,14 +1079,131 @@ Recorded so the manuscript's claims and the Lean's claims stay separable.
 5. **Mesh refinement rate.** Lean proves convergence; the `O(1/N²)` rate is
    numerical only (`simulations/mesh_refinement.py`).
 
-### Suggested order of attack
+### Suggested order of attack — items 1–5 DONE 2026-08-29
 
-1. **C1** — requiring `IsRegularTriangulation` in `DiscreteThermodynamics`.
-   Known fix, existing witness, upgrades a Table 1 row from "Theorem (weak)".
-2. **D1** — any instance of `ReflexiveBoundary`. Turns Derivation 6 from
-   conditional-on-unrealizable-structures into conditional-on-strong-hypotheses.
-3. **D2** — qualify the Noether sentence in `main.tex:87` and its footnote. This
-   is a correctness fix to the prose and should not wait on anything.
-4. **D3** — delete `VacuumManifold`.
-5. **A2** — a non-degenerate `StructuralResonance` witness with `KL > 0`.
+1. ~~**C1**~~ — done. See "Regularity, the Self, and three smaller gaps" below.
+2. ~~**D1**~~ — done, with its residual weakness proved rather than asserted.
+3. ~~**D2**~~ — done (prose only, as recommended).
+4. ~~**D3**~~ — done.
+5. ~~**A2**~~ — done; the new witness also shows the bound is *tight*.
 6. Everything in E stays open and stays stated as open.
+
+Remaining from this inventory: A3, A4 (weak-but-real witnesses), B1–B6
+(hypotheses, all documented), C2, C3, D4, and all of E.
+
+---
+
+## Regularity, the Self, and three smaller gaps — 2026-08-29 — DONE
+
+Items 1–5 of the inventory's suggested order of attack, in one pass. Zero `sorry`,
+zero warnings, `#print axioms` on every new result reports only `propext`,
+`Classical.choice`, `Quot.sound`. Both documents compile.
+
+### C1 — `DiscreteThermodynamics` now carries its geometry
+
+**What changed structurally.** `IsRegularTriangulation` and the two symmetric-double-sum
+lemmas moved from `Phase2_MeshConvergence.lean` into `Phase2_SimplicialBridge.lean`, next
+to the class they constrain. The predicate was generalized from `[PseudoMetricSpace M]` to
+`[TopologicalSpace M]` (no metric is needed to *state* it — diameters only enter in the
+convergence file) and its unused `[Fintype TM.V]` binder dropped.
+`DiscreteThermodynamics` gained two fields:
+
+```lean
+region  : Set M
+regular : IsRegularTriangulation TM region
+```
+
+**A signature change that was forced, not cosmetic.** `TM` and `I` had been *instance*
+arguments of `DiscreteThermodynamics`, and neither appears in the resulting type
+`DiscreteThermodynamics M`. So no projection out of a value could recover them: writing a
+witness failed with `failed to synthesize TriangulatedManifold ℝ` even with the instance
+supplied explicitly via `@`, because the structure-instance elaborator re-synthesizes
+rather than unifies. They are now explicit parameters and the type reads
+`DiscreteThermodynamics TM I`. Without this the structure was unusable on any space
+carrying more than one triangulation — which is every space the convergence theorem is
+about.
+
+**What the geometry buys — three theorems that could not be stated before.**
+
+* `weight_self` — `w(u,u) = 0`. The coupling matrix has zero diagonal, which is the
+  precondition for reading `½ ∑ᵤ ∑ᵥ` as a sum over unordered edges.
+* `face_of_weight_ne_zero` — `w(u,v) ≠ 0 → {u,v} ∈ complex.faces`. The discretization
+  cannot invent a coupling between vertices the triangulation does not join. This is the
+  statement the old class made unstatable, since nothing tied `edge_region` to `complex`.
+* `total_weight_eq_setIntegral` — `½ ∑ᵤ ∑ᵥ w(u,v) = ∫_region |T|`. Nothing counted twice
+  (`disjoint_region`), nothing dropped (`covers`). This is the precise sense in which the
+  coupling matrix is *derived* from the continuum rather than posited, and it is what the
+  everywhere-empty triangulation violates.
+
+**Witness — `Examples.lean` §6.** `DiscreteThermodynamics` had **no instance anywhere**
+before this pass; every theorem about `edge_weight` was conditional on a structure not shown
+realizable, which the audit had not flagged. `gridThermo N` discretizes a constant unit
+stress-energy on the uniform grid of `[0,1)`, reusing `gridRegular`. Checked non-degenerate:
+`gridThermo_edge_weight` gives each consecutive edge weight exactly `1/N`, and
+`gridThermo_total` gives `½ ∑∑ w = 1` for every `N`.
+
+**What it does not establish.** The witness is one-dimensional and its tensor is constant,
+so nothing here exercises a 2- or 3-dimensional edge region or a spatially varying
+stress-energy. `TriangulatedManifold` is *still* bare data, deliberately: it is the data, and
+regularity is a property. The difference from before is that the one structure claiming to
+derive physics from it now requires the property instead of hoping for it.
+
+**Deduplication.** `support_meshOfTriangulation` in `Phase2_MeshConvergence` is now one line
+over the moved `iUnion_lt_edge_region` rather than a repeated proof.
+
+### D1 — the Self is witnessed, and the witness's weakness is a theorem
+
+`Examples.lean` §10, on the three-site cortex of §4. `gsMetric` (the 0/1 metric on
+`GlobalSection Cortex`), `gsComplete` (Cauchy ⟹ eventually constant), `Nonempty` from
+`globalSect 0`, `cortexReflexive` with `auto_resonance` the *presheaf restriction* to the
+avatar region — not an arbitrary function, which is the C2 gap shown to be avoidable even
+though the class does not force it. `cortexHasSelf` then applies
+`reflexive_topology_implies_self`, and `cortexFixedPoint` names the fixed point.
+
+The honest part is `contracting_implies_const`: under the 0/1 metric **every**
+`ContractingWith K` map with `K < 1` is constant. So the contraction hypothesis is
+discharged here in the only way it can be, and the "Self" this witness produces is the
+constant section. Stated as a proved theorem rather than a caveat so it cannot be read past.
+Upgrading needs a metric from the measure-theoretic structure of `GlobalSection` — the
+Prokhorov metric `Phase6`'s header names, which nothing constructs.
+
+Derivation 6 also gained a Table 1 row (`Theorem (conditional)`); it had none.
+
+### D2 — the Noether sentence
+
+`main.tex:87` no longer says the invariance "dictates the conservation of energy and
+momentum via Noether's theorem" full stop. It says what Noether's theorem does physically,
+then states that the Lean invariance is a class field with no instance, that no conserved
+quantity is constructed, and that nothing downstream depends on one. The footnote's
+"necessary physical symmetries, conserved quantities, and phase space constraints naturally
+emerge" — which was simply false — is replaced by a statement that the formalization
+supplies vocabulary rather than content, naming the three instance-free classes.
+
+### D3 — `VacuumManifold`
+
+Deleted, with a comment in its place saying why (an empty marker class asserts nothing, so
+nothing could rest on it, and its presence implied a notion of vacuum manifold the
+development does not have). `supplementary.tex:26` claimed Derivation 1 was formalized "by
+defining a `VacuumManifold`"; it now names `DynamicalVacuum`, which is what the theorems use.
+
+### A2 — a `StructuralResonance` witness that does work
+
+`boolDetuned` (`Examples.lean` §2): the one-bit eraser of §1 driven by a point-mass
+environment against uniform internal statistics. `KL = log 2 > 0`, `σ = log 2 > 0`, and
+`boolDetuned_tight` proves `KL = Δt · σ` — **equality**. So the postulate is not merely
+satisfiable, it is attained: it cannot be strengthened to a strict inequality, and this
+witness compares two positive numbers rather than a positive number to zero.
+
+It is a `def`, not an `instance`, because `boolResonance` already occupies
+`StructuralResonance Bool`; the two theorems are applied to it explicitly.
+
+### Manuscript
+
+* `main.tex`: Table 1's Phase 2 row records the partition and face-support results; a new
+  Derivation 6 row; the Derivation 6 section states what §10 does and does not establish;
+  the Axiom 1 section and its footnote rewritten (D2). The table dropped to `\scriptsize` —
+  the new row pushed the float over the page.
+* `supplementary.tex`: the Phase 2 note gains a paragraph on the three new theorems and the
+  grid witness; the Derivation 3 note records the tight witness; the Derivation 6 note
+  records the witness and the 0/1-metric limitation; the `VacuumManifold` reference fixed.
+* Both compile; the pre-existing count of overfull hboxes is unchanged.

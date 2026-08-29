@@ -276,8 +276,11 @@ theorem spontaneous_symmetry_breaking
   exact hv0 v'
 
 -- 3. Symmetry Breaking and Topological Defects (Homotopy)
--- A vacuum manifold is a topological space of degenerate energy minima resulting from broken symmetry.
-class VacuumManifold (V : Type*) [TopologicalSpace V]
+-- The set of degenerate energy minima is `DynamicalVacuum V`, defined above; an empty
+-- marker class `VacuumManifold` also lived here, carrying no fields and used by nothing.
+-- It was deleted rather than filled in: it asserted nothing, so no theorem could rest on
+-- it, and its presence suggested the development had a notion of vacuum manifold that it
+-- did not have.
 
 -- A field configuration on a spatial boundary (e.g., S^1, S^2) mapped to the vacuum V
 abbrev BoundaryField (X V : Type*) [TopologicalSpace X] [TopologicalSpace V] :=

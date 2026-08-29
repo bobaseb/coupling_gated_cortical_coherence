@@ -12,7 +12,8 @@
 
   **Coverage — every class carrying a physical postulate is now inhabited.**
     ✓ `StatisticalMechanics` — a one-bit erasure model with a genuine bath.
-    ✓ `StructuralResonance`  — a perfectly-resonant system (KL = 0).
+    ✓ `StructuralResonance`  — a perfectly-resonant system (KL = 0), and a detuned
+      one with KL = log 2 > 0 that attains the bound with equality (§2).
     ✓ `ActionPrinciples`     — a scalar field on a one-point spacetime.
     ✓ `LocalSectionSynchronization` / `ThermodynamicCover` — two overlapping
       patches on a three-site substrate, with sections of the sheafified
@@ -38,6 +39,14 @@
   single-site architecture carrying arbitrarily large weight yet registering
   exactly zero field correlation against a unit patch that registers one.
 
+  §10 witnesses `ReflexiveBoundary` / `PredictiveModel` (`Phase6_ReflexiveTopology`)
+  and the three ambient instances `reflexive_topology_implies_self` assumes about
+  `GlobalSection`. Read the section's own header before quoting it: the metric it
+  supplies is the 0/1 metric, under which — as `contracting_implies_const` proves
+  there — the only `1/2`-contraction is a constant map. The witness therefore
+  establishes joint satisfiability of the hypotheses and nothing about the
+  dynamics of self-prediction.
+
   Every declaration in this file depends only on `propext`, `Classical.choice`
   and `Quot.sound`.
 -/
@@ -46,6 +55,7 @@ import PhysicsOfConsciousness.Phase1_Primitives
 import PhysicsOfConsciousness.Phase3_CombinatorialThermodynamics
 import PhysicsOfConsciousness.Phase3_KLBound
 import PhysicsOfConsciousness.Phase5_GlobalSection
+import PhysicsOfConsciousness.Phase6_ReflexiveTopology
 import PhysicsOfConsciousness.Phase8_ContinuousField
 import PhysicsOfConsciousness.Phase2_MeshConvergence
 import PhysicsOfConsciousness.Phase4_RotatingFrame
@@ -103,7 +113,21 @@ example : heat_dissipation (fun _ => false : Bool → Bool) > 0 :=
     intro h
     exact absurd (h (a₁ := true) (a₂ := false) rfl) (by simp))
 
-/-! ## 2. A perfectly resonant system -/
+/-! ## 2. Structural resonance: a perfectly resonant system, and a detuned one
+
+The first witness below has `KL = 0`, so it discharges `StructuralResonance.kl_bound`
+trivially — `σ ≥ 0` is all that is being asked of it, and any system whatever would do. A
+witness like that shows the class is inhabited and nothing else.
+
+The second is the same one-bit eraser of §1 driven by an environment that is *not* matched
+to it: the perturbation statistics are a point mass while the system's internal transition
+statistics are uniform. There `KL = log 2 > 0`, the entropy production rate is
+`log 2 > 0`, and the postulate is satisfied with **equality** (`boolDetuned_tight`). So the
+bound is not merely consistent, it is attained: it cannot be strengthened to a strict
+inequality, and it is doing real work rather than comparing a positive number to zero.
+
+`boolDetuned` is a `def` rather than an `instance` because `boolResonance` already occupies
+`StructuralResonance Bool`; the theorems are applied to it explicitly. -/
 
 /-- Uniform internal statistics matched to uniform external statistics: the
     system has reached structural resonance, so KL = 0 and the postulate holds
@@ -130,6 +154,65 @@ noncomputable instance boolResonance : StructuralResonance Bool where
     have h : discrete_entropy_rate (σ := Bool) id = Real.log 2 / 1 := rfl
     rw [h, div_one]
     positivity
+
+/-- A point mass at `true`: an environment that only ever presents one perturbation,
+against internal statistics that are uniform. -/
+noncomputable def diracTrue : ProbDist Bool where
+  p := fun b => if b then 1 else 0
+  nonneg := by intro i; cases i <;> norm_num
+  sum_one := by rw [Fintype.sum_bool]; norm_num
+
+theorem KL_diracTrue_uniform : KL diracTrue uniformBool = Real.log 2 := by
+  unfold KL diracTrue uniformBool
+  rw [Fintype.sum_bool]
+  norm_num
+
+/-- The one-bit eraser of §1 against a mismatched environment. Not an `instance`: `Bool`
+already carries `boolResonance`. -/
+@[instance_reducible] noncomputable def boolDetuned : StructuralResonance Bool where
+  P_ext := diracTrue
+  Q_int := uniformBool
+  Q_int_pos := by intro i; norm_num [uniformBool]
+  transition := fun _ => false
+  dt := 1
+  dt_pos := one_pos
+  kl_bound := by
+    show discrete_entropy_rate (σ := Bool) (fun _ => false) ≥ KL diracTrue uniformBool / 1
+    rw [KL_diracTrue_uniform, div_one]
+    have h : discrete_entropy_rate (σ := Bool) (fun _ => false) = Real.log 2 / 1 := rfl
+    rw [h, div_one]
+
+/-- The divergence is strictly positive: the environment and the system genuinely disagree. -/
+theorem boolDetuned_KL_pos : 0 < KL boolDetuned.P_ext boolDetuned.Q_int := by
+  show 0 < KL diracTrue uniformBool
+  rw [KL_diracTrue_uniform]
+  exact Real.log_pos one_lt_two
+
+/-- And so is the entropy production rate it is being compared against. -/
+theorem boolDetuned_sigma_pos :
+    0 < discrete_entropy_rate (σ := Bool) boolDetuned.transition := by
+  have h : discrete_entropy_rate (σ := Bool) boolDetuned.transition = Real.log 2 / 1 := rfl
+  rw [h, div_one]
+  exact Real.log_pos one_lt_two
+
+/-- **The postulate is tight.** `KL = Δt · σ` exactly, so `StructuralResonance.kl_bound`
+cannot be strengthened to a strict inequality — a one-bit erasure dissipating `log 2`
+against a point-mass environment sits precisely on the bound. -/
+theorem boolDetuned_tight :
+    KL boolDetuned.P_ext boolDetuned.Q_int
+      = boolDetuned.dt * discrete_entropy_rate (σ := Bool) boolDetuned.transition := by
+  show KL diracTrue uniformBool = 1 * discrete_entropy_rate (σ := Bool) (fun _ => false)
+  have h : discrete_entropy_rate (σ := Bool) (fun _ => false) = Real.log 2 / 1 := rfl
+  rw [KL_diracTrue_uniform, h, div_one, one_mul]
+
+/-- Derivation 3's bound, on the non-degenerate witness. -/
+example : KL boolDetuned.P_ext boolDetuned.Q_int
+    ≤ boolDetuned.dt * discrete_entropy_rate (σ := Bool) boolDetuned.transition :=
+  @structural_resonance_bound Bool _ _ _ boolDetuned
+
+/-- The discrete second law, on the same witness. -/
+example : 0 ≤ discrete_entropy_rate (σ := Bool) boolDetuned.transition :=
+  @discrete_entropy_rate_nonneg Bool _ _ _ boolDetuned
 
 /-! ## 3. A scalar field on a one-point spacetime -/
 
@@ -462,9 +545,10 @@ convergence theorem on it. The witness is checked to be non-degenerate in three 
   is `1/2` at `N = 1` and `1/4` at `N = 2`, so the limit is not being reached by a constant
   sequence (`tent_energy_one`, `tent_energy_two`).
 
-The triangulation is one-dimensional. Nothing here witnesses the manifold-valued case of
-`DiscreteThermodynamics`, whose edge weights integrate a stress-energy magnitude over a
-genuinely 2- or 3-dimensional region.
+The triangulation is one-dimensional. The sub-section "The grid as a
+`DiscreteThermodynamics`" below carries it over to the discretization structure itself, but
+still in one dimension: nothing here witnesses the case of a genuinely 2- or 3-dimensional
+edge region.
 -/
 
 
@@ -697,6 +781,101 @@ example : discreteEnergy (gridTriangulation 1) volume (fun x => |x - 1/2|)
     ≠ discreteEnergy (gridTriangulation 2) volume (fun x => |x - 1/2|) := by
   rw [tent_energy_one, tent_energy_two]
   norm_num
+
+/-! ### The grid as a `DiscreteThermodynamics`
+
+`DiscreteThermodynamics` now carries its own `IsRegularTriangulation` field, so its edge
+weights are integrals over a geometrically constrained family of regions rather than over
+arbitrary sets. That strengthening is worth nothing unless something satisfies it, and
+until now the structure had **no instance anywhere in the development** — every theorem
+about `edge_weight` was conditional on a structure not shown to be realizable.
+
+This section supplies one, on the same uniform grid, and checks it is not degenerate:
+
+* each consecutive edge carries weight exactly `1/N` (`gridThermo_edge_weight`), so the
+  weights are positive and genuinely track the mesh;
+* the weights sum to the total energy of the covered region — `½ ∑ᵤ ∑ᵥ w(u,v) = 1` for every
+  `N` (`gridThermo_total`), which is `total_weight_eq_setIntegral` on this instance and is
+  exactly what the everywhere-empty triangulation would violate.
+
+Two limitations, stated so they are not read as more than they are. The scalar magnitude is
+`|T(∂,∂)|` on the one-dimensional tangent space, so it *is* a function of the stress-energy
+tensor, but the tensor exhibited (`unitTensor`) is constant; nothing here witnesses a
+spatially varying stress-energy. And the substrate is `ℝ` as a manifold over itself, so the
+edge regions are intervals, not the 2- or 3-dimensional cells of the intended application.
+-/
+
+/-- The constant unit bilinear form on the tangent spaces of `ℝ`, used as a concrete
+stress-energy tensor. -/
+noncomputable def unitTensor : CovariantTensor2 (modelWithCornersSelf ℝ ℝ) ℝ :=
+  fun _ => ContinuousLinearMap.mul ℝ ℝ
+
+@[simp] theorem unitTensor_apply (x a b : ℝ) : unitTensor x a b = a * b := rfl
+
+/-- The uniform grid, discretizing the constant unit stress-energy on `[0,1)`.
+
+The triangulation and the model are explicit arguments of `DiscreteThermodynamics` — see
+its doc-string — which is what lets a *sequence* of triangulations of the same space each
+carry their own thermodynamics. -/
+noncomputable def gridThermo (N : ℕ) (hN : 0 < N) :
+    DiscreteThermodynamics (gridTriangulation N) (modelWithCornersSelf ℝ ℝ) where
+  volume_measure := volume
+  scalar_magnitude := fun T x => |T x (1:ℝ) (1:ℝ)|
+  magnitude_nonneg := fun _ _ => abs_nonneg _
+  region := Set.Ico 0 1
+  regular := gridRegular N hN
+
+@[simp] theorem gridThermo_magnitude (N : ℕ) (hN : 0 < N) (x : ℝ) :
+    (gridThermo N hN).scalar_magnitude unitTensor x = 1 := by
+  show |unitTensor x (1:ℝ) (1:ℝ)| = 1
+  rw [unitTensor_apply]
+  norm_num
+
+@[simp] theorem gridThermo_volume (N : ℕ) (hN : 0 < N) :
+    (gridThermo N hN).volume_measure = volume := rfl
+
+@[simp] theorem gridThermo_region (N : ℕ) (hN : 0 < N) :
+    (gridThermo N hN).region = Set.Ico 0 1 := rfl
+
+/-- Consecutive vertices are coupled with weight `1/N`: the weights are positive, and they
+shrink with the mesh. -/
+theorem gridThermo_edge_weight (N : ℕ) (hN : 0 < N) (u v : Fin (N + 1))
+    (h : (u : ℕ) + 1 = (v : ℕ)) :
+    DiscreteThermodynamics.edge_weight (gridThermo N hN) unitTensor u v = 1 / N := by
+  have hreg : (gridTriangulation N).edge_region u v = gridCell N u := by
+    rw [grid_edge_region]
+    simp [h]
+  rw [DiscreteThermodynamics.edge_weight]
+  simp only [gridThermo_magnitude, gridThermo_volume, hreg]
+  rw [setIntegral_const, smul_eq_mul, mul_one]
+  exact gridCell_measure N hN u
+
+/-- **The coupling weights partition the energy.** `total_weight_eq_setIntegral` on this
+instance: the whole coupling matrix sums to the energy of `[0,1)`, which is `1`, for every
+`N`. Nothing is double counted by the overlapping double sum and nothing is left uncovered.
+-/
+theorem gridThermo_total (N : ℕ) (hN : 0 < N) :
+    (1 / 2 : ℝ) * ∑ u, ∑ v,
+        DiscreteThermodynamics.edge_weight (gridThermo N hN) unitTensor u v = 1 := by
+  have hfun : (gridThermo N hN).scalar_magnitude unitTensor = fun _ : ℝ => (1:ℝ) := by
+    funext x
+    exact gridThermo_magnitude N hN x
+  have hint : IntegrableOn ((gridThermo N hN).scalar_magnitude unitTensor)
+      (gridThermo N hN).region (gridThermo N hN).volume_measure := by
+    rw [hfun, gridThermo_volume, gridThermo_region]
+    exact integrableOn_const (by simp)
+  rw [DiscreteThermodynamics.total_weight_eq_setIntegral (gridThermo N hN) unitTensor hint]
+  simp only [gridThermo_magnitude, gridThermo_volume, gridThermo_region]
+  rw [setIntegral_const, smul_eq_mul, mul_one, Real.volume_real_Ico_of_le (by norm_num)]
+  norm_num
+
+/-- A nonzero weight forces an actual face of the complex: on the grid, `face_of_weight_ne_zero`
+says the coupling graph is the path graph the triangulation describes and nothing more. -/
+example (N : ℕ) (hN : 0 < N) (u v : Fin (N + 1))
+    (h : DiscreteThermodynamics.edge_weight (gridThermo N hN) unitTensor u v ≠ 0) :
+    ({u, v} : Finset (Fin (N + 1))) ∈ (gridTriangulation N).complex.faces :=
+  DiscreteThermodynamics.face_of_weight_ne_zero (gridThermo N hN) unitTensor h
+
 
 /-! ## 7. The rotating-frame reduction on a two-oscillator system
 
@@ -971,6 +1150,126 @@ theorem duoWeak_inflated :
   · show (1/2 : ℝ) < critical_coupling (1/2 : ℝ)
     rw [critical_coupling]
     norm_num
+
+/-! ## 10. The reflexive boundary, and exactly how little this witness says
+
+`reflexive_topology_implies_self` (Derivation 6, the Self) had **no instance of any
+structure it mentions**. Read literally it is the Banach fixed-point theorem with every
+physical commitment pushed into a hypothesis: `GlobalSection X` is *assumed* to be a
+nonempty complete metric space — it is defined as a sheafification's sections over `⊤`,
+and no metric is constructed for it anywhere — and `predict` is *assumed* to be a
+`1/2`-contraction. Until now nothing showed those assumptions were jointly satisfiable,
+so the theorem was conditional on structures of unknown realizability, which is the same
+failure mode an uninhabited class has.
+
+This section removes that particular doubt and creates no illusions about what remains.
+
+* `gsMetric` puts the 0/1 metric on `GlobalSection Cortex`, and `gsComplete` proves it
+  complete (a Cauchy sequence is eventually constant). `Nonempty` comes from `globalSect 0`
+  of §4, so all three ambient instances are discharged on a substrate that already carries
+  a genuine two-patch thermodynamic cover.
+* `cortexReflexive` is a `ReflexiveBoundary`. Its `auto_resonance` is the *restriction map*
+  of the presheaf, not an arbitrary function: the avatar's state is literally the global
+  field read on the avatar region. The class does not require this — that is gap C2 in the
+  audit — but the witness shows the intended reading is available.
+* `reflexive_topology_implies_self` then applies, and `cortexFixedPoint` exhibits the fixed
+  point explicitly rather than only asserting one exists.
+
+**What this does not establish, stated as a theorem rather than a caveat.**
+`contracting_implies_const` proves that under the 0/1 metric *every* `ContractingWith K`
+map with `K < 1` is constant. So the contraction hypothesis, on this witness, is not a
+statement about dissipative self-prediction; it is satisfiable here only in the trivial
+way, and the fixed point it produces is the constant value. A witness that says something
+about the dynamics needs a metric built from the measure-theoretic structure of
+`GlobalSection` — the Prokhorov metric the file's header names — which is not constructed
+here.
+-/
+
+open scoped Classical in
+/-- The 0/1 metric on global sections. Nothing about the space is used; see the section
+header for what this costs. -/
+noncomputable instance gsMetric : MetricSpace (GlobalSection (X := Cortex)) where
+  dist x y := if x = y then 0 else 1
+  dist_self x := by simp
+  dist_comm x y := by split_ifs <;> simp_all
+  dist_triangle x y z := by split_ifs <;> simp_all
+  eq_of_dist_eq_zero := by
+    intro x y h
+    by_contra hne
+    simp only [hne, ite_false] at h
+    norm_num at h
+
+open scoped Classical in
+theorem gsDist_of_ne {x y : GlobalSection (X := Cortex)} (h : x ≠ y) : dist x y = 1 := by
+  show (if x = y then (0:ℝ) else 1) = 1
+  simp [h]
+
+open scoped Classical in
+theorem gsDist_le_one (x y : GlobalSection (X := Cortex)) : dist x y ≤ 1 := by
+  show (if x = y then (0:ℝ) else 1) ≤ 1
+  split_ifs <;> norm_num
+
+/-- The substrate has at least one global state: the phase-0 section of §4. -/
+instance : Nonempty (GlobalSection (X := Cortex)) := ⟨globalSect 0⟩
+
+/-- Completeness: with the 0/1 metric a Cauchy sequence is eventually constant. -/
+instance gsComplete : CompleteSpace (GlobalSection (X := Cortex)) := by
+  refine Metric.complete_of_cauchySeq_tendsto fun u hu => ?_
+  obtain ⟨N, hN⟩ := Metric.cauchySeq_iff'.1 hu 1 one_pos
+  refine ⟨u N, Tendsto.congr' ?_ tendsto_const_nhds⟩
+  filter_upwards [eventually_ge_atTop N] with n hn
+  by_contra hne
+  have h1 := hN n hn
+  rw [gsDist_of_ne (Ne.symm hne)] at h1
+  exact lt_irrefl 1 h1
+
+/-- **The price of the 0/1 metric, made explicit.** Every contraction on it is constant, so
+the contraction hypothesis of `reflexive_topology_implies_self` is discharged here in the
+only way it can be. -/
+theorem contracting_implies_const {K : NNReal} (hK : K < 1)
+    (f : GlobalSection (X := Cortex) → GlobalSection (X := Cortex))
+    (hf : LipschitzWith K f) (x y : GlobalSection (X := Cortex)) : f x = f y := by
+  by_contra hne
+  have h1 : dist (f x) (f y) ≤ (K : ℝ) * dist x y := hf.dist_le_mul x y
+  rw [gsDist_of_ne hne] at h1
+  have h2 : (K : ℝ) * dist x y ≤ (K : ℝ) := by
+    calc (K : ℝ) * dist x y ≤ (K : ℝ) * 1 :=
+          mul_le_mul_of_nonneg_left (gsDist_le_one x y) K.coe_nonneg
+      _ = (K : ℝ) := mul_one _
+  have h3 : (K : ℝ) < 1 := by exact_mod_cast hK
+  linarith
+
+/-- The avatar region: the shared site `mid`, the one point both patches of §4 see. -/
+def avatarPatch : Opens ↥Cortex := ⟨{Site.mid}, isOpen_discrete _⟩
+
+/-- The phase-0 global section, typed as a `GlobalSection` so that `gsMetric` is found. -/
+noncomputable def cortexState : GlobalSection (X := Cortex) := globalSect 0
+
+noncomputable def cortexPredict : PredictiveModel Cortex := ⟨fun _ => cortexState⟩
+
+/-- A reflexive boundary on the three-site cortex. `auto_resonance` is the presheaf
+restriction to the avatar region, so the avatar's state does track the global field —
+which the class itself never requires. -/
+noncomputable def cortexReflexive : ReflexiveBoundary Cortex where
+  avatar_region := avatarPatch
+  auto_resonance := fun s =>
+    (probabilityPresheaf Cortex).map (homOfLE (le_top : avatarPatch ≤ ⊤)).op s
+  predictive_model := cortexPredict
+
+theorem cortexPredict_contracting :
+    ContractingWith (1/2) cortexReflexive.predictive_model.predict :=
+  ⟨by norm_num, (LipschitzWith.const cortexState).weaken (by norm_num)⟩
+
+/-- Derivation 6, applied to the witness: the hypotheses of
+`reflexive_topology_implies_self` are jointly satisfiable. -/
+theorem cortexHasSelf : ∃ s : GlobalSection (X := Cortex),
+    cortexReflexive.predictive_model.predict s = s :=
+  reflexive_topology_implies_self cortexReflexive cortexPredict_contracting
+
+/-- The fixed point named. A constant map's fixed point is its value, so the "Self" this
+witness produces is `cortexState` — the phase-0 section, and nothing more. -/
+theorem cortexFixedPoint : cortexReflexive.predictive_model.predict cortexState = cortexState :=
+  rfl
 
 end Examples
 end PhysicsOfConsciousness

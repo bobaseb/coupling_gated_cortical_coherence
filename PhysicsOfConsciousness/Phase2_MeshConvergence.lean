@@ -22,14 +22,16 @@ This file replaces it with a proved statement. The repair has three parts.
    *sequence* of meshes with fineness tending to `0` is supplied — the second thing the old
    statement lacked.
 
-3. **`IsRegularTriangulation`** — exactly the conditions `TriangulatedManifold` fails to
-   impose: edge regions are measurable, carry no self-loops, are disjoint across distinct
-   edges, cover `M`, are *anchored* to the simplicial data (`embedding u` lies in every
-   nonempty `edge_region u v`) and only occur on faces of the complex. Under these,
+3. **`IsRegularTriangulation`** (defined in `Phase2_SimplicialBridge.lean`, alongside the
+   class it constrains) — exactly the conditions `TriangulatedManifold` fails to impose:
+   edge regions are measurable, carry no self-loops, are disjoint across distinct edges,
+   cover `S`, are *anchored* to the simplicial data (`embedding u` lies in the closure of
+   every nonempty `edge_region u v`) and only occur on faces of the complex. Under these,
    `mesh_refinement_convergence` is a theorem.
 
 The discrete energy `½ ∑ᵤ ∑ᵥ μ(R u v)·f(embedding u)` of the manuscript is *not* an
-arbitrary choice of sample point: by `sum_sum_mul_of_symm` it is exactly the midpoint rule
+arbitrary choice of sample point: by `sum_sum_mul_of_symm` (also in
+`Phase2_SimplicialBridge.lean`) it is exactly the midpoint rule
 `∑_{u<v} μ(R u v)·(f(embedding u) + f(embedding v))/2` over unordered edges. That
 identification is what lets the symmetric double sum be read as a Riemann sum at all.
 
@@ -228,102 +230,7 @@ theorem dist_le_of_mem_closure {S : Set M} {a x : M} {r : ℝ} (ha : a ∈ closu
 
 end Mesh
 
-/-! ### Symmetric double sums over edges -/
-
-/--
-A symmetric function with vanishing diagonal, summed over all ordered pairs, is twice its
-sum over the pairs `u < v`. The linear order is only bookkeeping: it selects one
-representative of each unordered pair.
--/
-theorem sum_sum_of_symm {V : Type*} [Fintype V] [LinearOrder V] (g : V → V → ℝ)
-    (hsymm : ∀ u v, g u v = g v u) (hdiag : ∀ u, g u u = 0) :
-    ∑ u, ∑ v, g u v
-      = 2 * ∑ p ∈ Finset.univ.filter (fun p : V × V => p.1 < p.2), g p.1 p.2 := by
-  classical
-  have hprod : ∑ u, ∑ v, g u v = ∑ p ∈ (Finset.univ : Finset (V × V)), g p.1 p.2 := by
-    rw [Fintype.sum_prod_type]
-  have hgt : ∑ p ∈ Finset.univ.filter (fun p : V × V => p.2 < p.1), g p.1 p.2
-      = ∑ p ∈ Finset.univ.filter (fun p : V × V => p.1 < p.2), g p.1 p.2 := by
-    refine Finset.sum_nbij' (fun p => (p.2, p.1)) (fun p => (p.2, p.1)) ?_ ?_ ?_ ?_ ?_ <;>
-      simp_all
-  have hsplit : ∑ p ∈ (Finset.univ : Finset (V × V)), g p.1 p.2
-      = ∑ p ∈ Finset.univ.filter (fun p : V × V => p.1 < p.2), g p.1 p.2
-        + ∑ p ∈ Finset.univ.filter (fun p : V × V => p.2 < p.1), g p.1 p.2 := by
-    rw [← Finset.sum_filter_add_sum_filter_not Finset.univ (fun p : V × V => p.1 < p.2)]
-    congr 1
-    refine (Finset.sum_subset ?_ ?_).symm
-    · intro p hp
-      simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp ⊢
-      exact not_lt.2 hp.le
-    · intro p hp hp'
-      simp only [Finset.mem_filter, Finset.mem_univ, true_and, not_lt] at hp hp'
-      have : p.1 = p.2 := le_antisymm hp' hp
-      rw [this]
-      exact hdiag _
-  rw [hprod, hsplit, hgt]
-  ring
-
-/--
-**The half-sum is the midpoint rule.** For a symmetric weight `w` with no self-loops, the
-manuscript's discrete energy `½ ∑ᵤ ∑ᵥ w u v · φ u` — which samples the *first* endpoint,
-and so is not itself symmetric — equals the sum over unordered edges of the weight times
-the *average* of `φ` over the two endpoints.
-
-Without this, reading `½ ∑ᵤ ∑ᵥ` as a Riemann sum would be a category error: the double sum
-visits each edge region twice, and only after pairing the two visits does a single sampled
-value per cell appear.
--/
-theorem sum_sum_mul_of_symm {V : Type*} [Fintype V] [LinearOrder V] (w : V → V → ℝ)
-    (φ : V → ℝ) (hsymm : ∀ u v, w u v = w v u) (hdiag : ∀ u, w u u = 0) :
-    (1 / 2 : ℝ) * ∑ u, ∑ v, w u v * φ u
-      = ∑ p ∈ Finset.univ.filter (fun p : V × V => p.1 < p.2),
-          w p.1 p.2 * ((φ p.1 + φ p.2) / 2) := by
-  classical
-  have hswap : ∑ u, ∑ v, w u v * φ v = ∑ u, ∑ v, w u v * φ u := by
-    rw [Finset.sum_comm]
-    exact Finset.sum_congr rfl fun u _ =>
-      Finset.sum_congr rfl fun v _ => by rw [hsymm]
-  have hg := sum_sum_of_symm (fun u v => w u v * ((φ u + φ v) / 2))
-    (fun u v => by rw [hsymm]; ring) (fun u => by rw [hdiag]; ring)
-  have hexpand : ∑ u, ∑ v, w u v * ((φ u + φ v) / 2)
-      = ((∑ u, ∑ v, w u v * φ u) + ∑ u, ∑ v, w u v * φ v) / 2 := by
-    rw [← Finset.sum_add_distrib, Finset.sum_div]
-    refine Finset.sum_congr rfl fun u _ => ?_
-    rw [← Finset.sum_add_distrib, Finset.sum_div]
-    exact Finset.sum_congr rfl fun v _ => by ring
-  rw [hexpand, hswap] at hg
-  linarith
-
-/-! ### Regular triangulations -/
-
-/--
-The conditions `TriangulatedManifold` leaves unimposed, and which the false conjecture in
-`Phase2_SimplicialBridge.lean` silently needed. `S` is the region the triangulation covers.
-
-`anchored` and `face_of_complex` are what tie `edge_region` to the simplicial data: a
-region may only sit on an actual face of the complex, and the embedded vertices of that
-face must lie in its closure. Closure, not membership: cells are disjoint, so a vertex
-shared by two edges belongs to at most one of them — in the standard half-open partition of
-an interval it is a boundary point of both. Without `covers` the everywhere-empty
-triangulation refutes convergence.
--/
-structure IsRegularTriangulation {M : Type u} [PseudoMetricSpace M] [MeasurableSpace M]
-    (TM : TriangulatedManifold M) [Fintype TM.V] [LinearOrder TM.V] (S : Set M) : Prop where
-  /-- Edge regions can be integrated over. -/
-  measurable_region : ∀ u v, MeasurableSet (TM.edge_region u v)
-  /-- A vertex has no edge to itself. -/
-  no_self_region : ∀ u, TM.edge_region u u = ∅
-  /-- A region only occurs on an actual edge of the complex. -/
-  face_of_complex : ∀ u v, (TM.edge_region u v).Nonempty →
-    ({u, v} : Finset TM.V) ∈ TM.complex.faces
-  /-- Regions are anchored to the embedded vertices of their edge. -/
-  anchored : ∀ u v, (TM.edge_region u v).Nonempty →
-    TM.embedding u ∈ closure (TM.edge_region u v)
-  /-- Distinct edges have disjoint regions. -/
-  disjoint_region : ∀ u v u' v', u < v → u' < v' → (u, v) ≠ (u', v') →
-    Disjoint (TM.edge_region u v) (TM.edge_region u' v')
-  /-- The regions cover `S`. -/
-  covers : ⋃ u, ⋃ v, TM.edge_region u v = S
+/-! ### Meshes from regular triangulations -/
 
 variable {M : Type u} [PseudoMetricSpace M] [MeasurableSpace M]
 
@@ -354,20 +261,8 @@ theorem support_eq_iUnion (TM : TriangulatedManifold M) [Fintype TM.V]
 conjecture lacked, and without which it was refutable. -/
 theorem support_meshOfTriangulation (TM : TriangulatedManifold M) [Fintype TM.V]
     [LinearOrder TM.V] {S : Set M} (h : IsRegularTriangulation TM S) :
-    (meshOfTriangulation TM h).support = S := by
-  rw [support_eq_iUnion]
-  refine Set.Subset.antisymm (Set.iUnion_subset fun p => ?_) fun x hxS => ?_
-  · rw [← h.covers]
-    exact Set.subset_iUnion_of_subset p.1.1 (Set.subset_iUnion _ p.1.2)
-  have hx : x ∈ ⋃ u, ⋃ v, TM.edge_region u v := by rw [h.covers]; exact hxS
-  simp only [Set.mem_iUnion] at hx
-  obtain ⟨u, v, hxuv⟩ := hx
-  rcases lt_trichotomy u v with hlt | heq | hgt
-  · exact Set.mem_iUnion.2 ⟨⟨(u, v), hlt⟩, hxuv⟩
-  · exact absurd (heq ▸ hxuv) (by rw [h.no_self_region]; exact Set.notMem_empty x)
-  · refine Set.mem_iUnion.2 ⟨⟨(v, u), hgt⟩, ?_⟩
-    rw [TM.edge_region_symm]
-    exact hxuv
+    (meshOfTriangulation TM h).support = S :=
+  (support_eq_iUnion TM h).trans (iUnion_lt_edge_region TM h)
 
 /--
 The discrete energy of a triangulation: the manuscript's `½ ∑ᵤ ∑ᵥ w(u,v) f(u)`, with the
