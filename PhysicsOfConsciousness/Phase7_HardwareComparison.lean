@@ -14,16 +14,25 @@ manifold structure, or lattice rigidity appears.
 What is actually proved is a resource-reallocation statement: *given* a coupling
 matrix that wastes weight on a less-correlated pair while a more-correlated pair
 exists (the hypothesis `is_strictly_suboptimal`), one can shift that weight and
-strictly increase total phase correlation at constant total resource. The
-physical reading — that rigid hardware is *stuck* in such a suboptimal
-allocation while a biological field is not — is an informal modelling
-assumption imported through the hypothesis, not a Lean result.
+strictly increase total phase correlation at constant total resource.
 
-In particular `is_strictly_suboptimal` encodes most of the intended conclusion:
-`continuous_beats_rigid_topology` should be read as "suboptimal allocations can
-be improved", not as "discrete architectures are provably inferior to
-continuous ones". The corollary in the manuscript is argued informally; this
-file supplies only the reallocation step.
+**`Phase7_Rigidity.lean` supplies what this file assumes.** The hypothesis
+`is_strictly_suboptimal` encodes most of the intended conclusion, which was the
+central objection to this file. It is no longer assumed: model an architecture by
+the set `S` of site-pairs it has a wire for, require its couplings to vanish off
+`S`, and `rigid_is_strictly_suboptimal` *derives* the hypothesis from the wiring
+whenever the best-correlated pair in the substrate is one `S` misses.
+`rigid_gap` makes the improvement quantitative. That is a claim about fixed
+wiring support at matched resource, not about continuity.
+
+The continuity claim proper is addressed separately in `Phase7_Rigidity.lean` §3,
+where the two architectures do live in different types — a `Finset X` of sites
+against a positive-measure region — and a finitely-sited kernel is shown to
+contribute exactly zero to the continuum coupling energy. That separation is not
+resource-matched, and its limits are stated there.
+
+The manuscript's hardware corollary rests on those two results plus an informal
+modelling step; this file supplies only the reallocation.
 -/
 
 namespace PhysicsOfConsciousness
@@ -41,7 +50,9 @@ def total_coupling_resources (A : V → V → ℝ) : ℝ := ∑ i : V, ∑ j : V
 def is_strictly_suboptimal (A_rigid : V → V → ℝ) (theta : V → ℝ) : Prop :=
   ∃ i0 j0 k0 l0, A_rigid i0 j0 > 0 ∧ Real.cos (theta j0 - theta i0) < Real.cos (theta l0 - theta k0)
 
-private lemma sum_sym_pair {a b : V} (hab : a ≠ b) (f : V → V → ℝ) :
+/-- Sum of a symmetric two-point indicator: `∑ᵢ∑ⱼ [(i,j) = (a,b) ∨ (i,j) = (b,a)] f i j = f a b + f b a`.
+    Used to compute the resource and correlation of a two-point coupling allocation. -/
+lemma sum_sym_pair {a b : V} (hab : a ≠ b) (f : V → V → ℝ) :
     ∑ i : V, ∑ j : V, (if (i = a ∧ j = b) ∨ (i = b ∧ j = a) then f i j else 0) =
     f a b + f b a := by
   have hinner : ∀ i : V, (∑ j : V, (if (i = a ∧ j = b) ∨ (i = b ∧ j = a) then f i j else 0)) = 

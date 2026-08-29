@@ -630,16 +630,126 @@ compile with zero errors, zero undefined references and no float overflow.
 
 ### Remaining open (updated)
 
-1. Formalize a genuine continuous/discrete distinction if the hardware corollary
-   is to be more than an informal argument.
+1. ~~Formalize a genuine continuous/discrete distinction if the hardware
+   corollary is to be more than an informal argument.~~ **DONE 2026-08-29** —
+   see below.
 2. Prove the limit `lim_{t→∞} D_KL(P ‖ Q) = 0` asserted in supplementary
    Theorem 3 (needs a coercivity or Łojasiewicz-type estimate on σ).
 3. Prove the O(1/N²) rate for mesh refinement (midpoint error term; needs a
    `C²` integrand and a second-derivative bound per cell).
 4. A mesh witness beyond one dimension.
-5. **Convergence to the potential minimum.** `rotating_frame_chain` assumes the
-   configuration is already a minimiser. A LaSalle-type argument — descent plus
-   compactness of the phase torus gives convergence to the critical set — would
-   turn Phase 4's static characterisation into a dynamical one and remove the
-   corresponding assumption from Phase 5's `ThermodynamicCover`. Mathlib has no
-   LaSalle invariance principle, so this is a substantial build.
+5. Convergence to the potential minimum (LaSalle-type argument; Mathlib has no
+   invariance principle).
+
+---
+
+## Hardware Rigidity and the Continuum Separation — 2026-08-29 — DONE
+
+Closes open item 1, and retires findings #3 and #4 of the Opus 5 deep
+evaluation (`is_strictly_suboptimal` smuggles the conclusion; Phase 7
+formalizes nothing continuous or rigid).
+
+### The two defects
+
+| # | Defect | Why it mattered |
+|---|---|---|
+| 3 | `is_strictly_suboptimal A θ` — "some pair carries weight while a better-correlated pair exists" — was a *hypothesis*. `continuous_beats_rigid_topology` therefore proved "suboptimal allocations can be improved", which is nearly a tautology dressed as a hardware result | The physical claim (silicon is *stuck*) entered as an assumption |
+| 4 | `A_rigid` and `A_flex` are both `V → V → ℝ` on one `Fintype`. No continuity, no manifold, no lattice | The corollary about continuous vs. discrete hardware could not follow from anything in the file |
+
+Both are now addressed, in the two different ways that are actually available —
+and they are different results, which the file says explicitly.
+
+### What was built — `PhysicsOfConsciousness/Phase7_Rigidity.lean` (new)
+
+**§1–2. Rigidity as a support constraint (finite, resource-matched).**
+
+| Declaration | What it is |
+|---|---|
+| `totalCorrelation θ A` | `∑ᵢ∑ⱼ Aᵢⱼ cos(θⱼ-θᵢ)` — the quantity Phase 7 increases |
+| `RealizableIn S R A` | Valid coupling, budget `R`, **and zero on every pair the architecture has no wire for**. This is the formal content of "rigid": weights tunable, wiring not |
+| **`totalCorrelation_le_of_realizable`** | **A rigid architecture cannot beat its own best wire**: if every wired pair has correlation ≤ `M`, no realizable coupling exceeds `R·M` |
+| `exists_realizable_pair` | The bound is attained — whole budget on one wired pair |
+| **`rigid_is_strictly_suboptimal`** | **The hypothesis is now derived.** If the substrate's best-correlated pair is one the wiring misses, every realizable coupling at positive budget satisfies `is_strictly_suboptimal` |
+| **`rigid_gap`** | Quantitative: an unconstrained reallocation of the *same* budget gains at least `R·(best unwired − M) > 0` |
+
+**§3. Continuity as a measure-theoretic distinction (genuinely typed).**
+
+| Declaration | What it is |
+|---|---|
+| `fieldCorrelation μ θ K` | `∫∫ K(x,y) cos(θy-θx) dμ dμ` — the continuum analogue, matching Phase 8's setting |
+| `SitedOn F K` | All coupling originates at one of finitely many sites: `F : Finset X` |
+| **`fieldCorrelation_sited_eq_zero`** | **On an atomless substrate a finitely-sited kernel contributes exactly zero** — whatever weights it carries, whatever the phase field does |
+| `patchKernel U c`, `patchKernel_symm`, `patchKernel_nonneg` | A valid field coupling of strength `c` across a region `U` |
+| `fieldCorrelation_patchKernel` | The patch achieves `c·μ(U)²` |
+| **`sited_architecture_below_field_optimum`** | **The separation**: `Finset X` against a positive-measure set |
+
+### Non-vacuity — `Examples.lean` §8
+
+| Declaration | What it is |
+|---|---|
+| `rigidWiring` | Three sites, wired only between `0` and `1` |
+| `rigidPhases` | `0` and `2` in phase, `1` in antiphase — so the one wire joins the maximally *anti*-correlated pair and the perfect pair `(0,2)` is unwired |
+| `exists_rigid_coupling` | The architecture can spend its whole budget and the best it buys is `-1` |
+| **`rigid_architecture_is_beaten`** | **`is_strictly_suboptimal` derived, gap exactly `2`** — the full swing from anti-correlation to correlation |
+| `rigid_architecture_beaten_by_phase7` | `exists_better_coupling_allocation` fires with *no assumed hypothesis* |
+| `pointArchitecture` | A thousand units of coupling weight, all at the origin of ℝ |
+| **`pointArchitecture_field_zero`** | **Registers exactly zero**, for every phase field |
+| `patch_field_one` | The unit patch registers `1` |
+
+### What it does *not* establish
+
+* **§1–2 turns on wiring support, not continuity.** An architecture whose wires
+  *do* reach the best pair is not beaten by this argument. The result is honest
+  and resource-matched, but "continuous" does no work in it.
+* **§3 is not resource-matched.** A measure-zero substrate carries zero resource
+  in the `μ⊗μ` sense as well as zero correlation, so the comparison is not
+  like-for-like. What it establishes is that the continuum coupling energy is
+  *blind* to a finitely-sited architecture — a statement about which functional
+  such an architecture can register in, not a proof that digital hardware
+  computes worse. The file header says this in as many words.
+* **No manifold structure, no lattice geometry.** Neither result formalizes the
+  spatial layout of silicon or of cortex.
+* The step from either result to "von Neumann architectures cannot experience
+  unified consciousness" remains an informal argument, now with two verified
+  steps under it rather than one.
+
+### Updates elsewhere
+
+* `Phase7_HardwareComparison.lean` — `sum_sym_pair` made public (reused by the
+  new file). The scope disclaimer rewritten: it still says what this file does
+  not formalize, and now points at what does.
+* `main.tex` Corollary section — the "what this does and does not establish"
+  paragraph replaced. It now names both objections, says how each was answered,
+  and states the limits of each answer.
+* `main.tex` Table 1 — the Continuous vs. Rigid Topology row moves from
+  "Conditional" to "Theorem", citing the new file. Two cells trimmed to keep the
+  float on the page.
+* `supplementary.tex` §Topological Rigidity — new implementation note and a
+  rewritten scope caveat.
+
+**Verification:** `lake build` succeeds (17,606 jobs), no warnings from the new
+code. `#print axioms` on `totalCorrelation_le_of_realizable`,
+`exists_realizable_pair`, `rigid_is_strictly_suboptimal`, `rigid_gap`,
+`fieldCorrelation_sited_eq_zero`, `fieldCorrelation_patchKernel`,
+`sited_architecture_below_field_optimum`, `rigid_architecture_is_beaten`,
+`rigid_architecture_beaten_by_phase7`, `pointArchitecture_field_zero` and
+`patch_field_one` each report only `[propext, Classical.choice, Quot.sound]`.
+`main.tex` and `supplementary.tex` compile with zero errors, zero undefined
+references and no float overflow. `arxiv_submit/ax.tar` regenerated; its merged
+`main.tex` compiles clean.
+
+### Remaining open (updated)
+
+1. Prove the limit `lim_{t→∞} D_KL(P ‖ Q) = 0` asserted in supplementary
+   Theorem 3 (needs a coercivity or Łojasiewicz-type estimate on σ).
+2. Prove the O(1/N²) rate for mesh refinement (midpoint error term; needs a
+   `C²` integrand and a second-derivative bound per cell).
+3. A mesh witness beyond one dimension.
+4. Convergence to the potential minimum (LaSalle-type argument; Mathlib has no
+   invariance principle).
+5. **A resource-matched continuum comparison.** `Phase7_Rigidity` §3 separates a
+   finitely-sited architecture from a field patch, but not at equal resource —
+   the sited architecture has zero `μ⊗μ` resource. A comparison with real
+   content would fix a budget in a common currency (say, total dissipated power)
+   and show what each substrate buys with it. That needs a physical cost model
+   the development does not have, and is closer to new physics than to new Lean.
