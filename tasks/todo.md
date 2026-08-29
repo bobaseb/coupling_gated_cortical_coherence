@@ -747,9 +747,100 @@ references and no float overflow. `arxiv_submit/ax.tar` regenerated; its merged
 3. A mesh witness beyond one dimension.
 4. Convergence to the potential minimum (LaSalle-type argument; Mathlib has no
    invariance principle).
-5. **A resource-matched continuum comparison.** `Phase7_Rigidity` §3 separates a
+5. **The critical coupling threshold `K_c = 2D`** — the last row of Table 1 that
+   is not a theorem, and the one gap every other file's scope note points at.
+   See "Open: Critical Coupling Threshold" at the end of this file.
+6. **A resource-matched continuum comparison.** `Phase7_Rigidity` §3 separates a
    finitely-sited architecture from a field patch, but not at equal resource —
    the sited architecture has zero `μ⊗μ` resource. A comparison with real
    content would fix a budget in a common currency (say, total dissipated power)
    and show what each substrate buys with it. That needs a physical cost model
    the development does not have, and is closer to new physics than to new Lean.
+
+
+---
+
+## Open: Critical Coupling Threshold `K_c = 2D`
+
+Not started. Recorded here because three files now defer to it in their scope
+notes (`Phase3_CombinatorialThermodynamics`, `Phase4_RotatingFrame`,
+`Phase8_ContinuousField`) and it is the only Table 1 row still marked
+"Numerical", yet it appeared in no open item.
+
+### Current state in Lean — definitions only, zero theorems
+
+| Declaration | What it is | What is proved about it |
+|---|---|---|
+| `critical_coupling D := 2 * D` (`Phase8:176`) | A named real number | Nothing |
+| `exhibits_phase_transition sys := (∫∫ sys.K) > critical_coupling sys.D` (`Phase8:178`) | A predicate | Nothing — flagged as an unused declaration in the Opus 5 evaluation (finding #12) |
+
+Neither is connected to `order_parameter_r_sq`, `is_phase_locked`,
+`is_continuous_kuramoto_trajectory`, or any dynamics. `2 * D` is a *stipulation*
+in the Lean source; the content lives entirely in `simulations/kuramoto.py`,
+which sweeps `K` and plots the measured order parameter against a drawn line at
+`2D`.
+
+### A defect to check first (cheap, and independent of everything below)
+
+`exhibits_phase_transition` compares `∫ₓ∫_y K(x,y)` against `2D`. For a constant
+kernel `K(x,y) = K` on a substrate of measure `m` that integral is `K·m²`, so the
+comparison is only dimensionally right when `m = 1`. `StochasticNeuralField`
+imposes no finiteness or normalization on `volume`, so as written the predicate
+means different things on different substrates and is trivially satisfiable by
+inflating the substrate. Either require a probability measure or state the
+threshold in terms of the kernel's strength rather than its total mass. This is a
+one-line fix to a definition nothing depends on, and should be done regardless of
+whether the analysis below is ever attempted.
+
+### What `K_c = 2D` actually is
+
+For the noisy mean-field Kuramoto model with identical frequencies, the
+stationary density of the Fokker-Planck equation at order parameter `r` is
+`ρ(θ) ∝ exp((K r / D) cos θ)`, and self-consistency requires
+
+    r = I₁(Kr/D) / I₀(Kr/D)
+
+where `I₀`, `I₁` are modified Bessel functions. The right side has slope
+`Kr/(2D)` at `r = 0`, so `r = 0` is the only solution when `K < 2D` and a
+positive solution branches off when `K > 2D`. That is the whole content of the
+threshold.
+
+### Split the work — the reachable half and the unreachable half
+
+**(a) Reachable: the self-consistency equation as real analysis.** Define
+
+    R(K, r) := (∫_{-π}^{π} cos θ · exp((K r / D) cos θ) dθ)
+             / (∫_{-π}^{π} exp((K r / D) cos θ) dθ)
+
+and prove: for `K < 2D` the only `r ∈ [0,1]` with `r = R(K,r)` is `r = 0`; for
+`K > 2D` there is an `r > 0` with `r = R(K,r)`. This is self-contained hard
+analysis over Mathlib's integral API — no SDEs, no operator theory. It needs the
+derivative of `R` in `r` at `0` (which is `K/(2D)`, the Bessel ratio's slope),
+plus enough concavity or a monotonicity argument to rule out or produce a
+crossing. Mathlib has no `Real.besselI`, so the Bessel ratio would have to be
+handled directly as a ratio of integrals — which is probably easier than building
+Bessel theory, since only the value and first derivative at `0` are needed.
+
+Delivered on its own, (a) turns `K_c = 2D` into a **theorem about the
+self-consistency equation**, with the stationary-density ansatz remaining a
+postulate. Per the design rule in `Axioms.lean` §5 that postulate must be a
+**field of a class** carrying the system's own stationary density, never a
+standalone axiom — the shape that made three earlier axioms inconsistent. And,
+per `Examples.lean`, the class then needs a witness or the theorem is vacuous:
+the uniform density at `r = 0` is the obvious one, and a non-trivial witness
+above threshold would need the positive root from (a) itself.
+
+**(b) Not currently reachable: deriving the ansatz.** Getting from the SDE
+`dθ = (ω + K·mean-field) dt + √(2D) dW` to that stationary density needs the
+Fokker-Planck equation, existence and uniqueness of its stationary solution, and
+the spectral argument that the uniform state loses stability at `K = 2D`. Mathlib
+has Brownian motion but no Fokker-Planck operator, no stationary-measure theory
+for SPDEs, and no bifurcation theory. This is a research-scale formalization
+project, not a task.
+
+### Recommendation
+
+Do the dimensional fix now; treat (a) as the real task, sized in weeks rather
+than hours; leave (b) alone and keep saying so. Until (a) lands, Table 1 should
+continue to read "Numerical" for this row, and the scope notes in Phases 3, 4 and
+8 stay as they are — they are currently accurate.
