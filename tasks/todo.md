@@ -1370,7 +1370,7 @@ list is to keep it that way.
 | **O9** | **B1 — the Self's metric is 0/1, and `contracting_implies_const` proves that forces the fixed point to be constant.** The Banach argument is sound; the metric makes its conclusion trivial | A metric on `GlobalSection` built from the measure-theoretic structure — the Prokhorov metric named in `Phase6`'s header, which nothing constructs. Mathlib has `MeasureTheory.LevyProkhorov`; whether `GlobalSection`'s sheafified measures fit its hypotheses is the first thing to check |
 | **O10** | **B3 — the σ/gradient-flow link holds for finite substrates only** (`hvol : volume = Measure.count`) | Differentiation under the integral sign with respect to the kernel. Mathlib has `hasDerivAt_integral_of_dominated_loc_of_deriv_le`; the work is in the domination hypotheses |
 | **O11** | **B2 — `h_mean` restricts the comparison class** to fields sharing the phase-locked state's mean drift, so minimality is Jensen alone | Model how `Omega_avg` varies with the competitor field. Stated as the honest scope on the theorem; removing it changes what is claimed |
-| **O12** | **D2 — there is still no Noether theorem.** The class is now inhabited (`Examples.lean` §11, a `ℤ₂` action on a double well, with symmetry breaking exhibited), but no conserved quantity is constructed and no theorem consumes a symmetry group | Proving an actual Noether theorem over Mathlib is a project in itself, and would first need a *continuous* symmetry group — `ℤ₂` is discrete, so there is no one-parameter family to differentiate along. `ContinuousSymmetryGroup` carries no continuity or homomorphism law at all, which is the first thing to fix if this is ever attempted |
+| **O12** | **D2 — there is still no Noether theorem.** The class is now inhabited (`Examples.lean` §11, a `ℤ₂` action on a double well, with symmetry breaking exhibited), but no conserved quantity is constructed and no theorem consumes a symmetry group | **Estimate corrected 2026-08-29 — see "Noether: a feasibility probe" at the end of this file.** "A project in itself" is right for the *field-theoretic* theorem and wrong for point mechanics, which was prototyped end to end in one session (~200 lines, zero `sorry`). The structural obstacle is not difficulty: `SymmetryInvariantAction` has **no dynamics**, so no conserved quantity can be attached to it at all |
 
 ### Group 3 — out of reach with current Mathlib
 
@@ -1529,3 +1529,79 @@ and pass those as the fields, where the defeq check succeeds.
   double-well witness and the proof that the a.e. cannot be strengthened.
 * `supplementary.tex`: Theorem 1's implementation note gains the §11 witness, the
   discharged minimisation hypothesis, and the necessity of the almost-everywhere.
+
+---
+
+## Noether: a feasibility probe — 2026-08-29
+
+Asked whether Noether's theorem is out of reach. It splits in two, and the two
+halves have opposite answers. Recorded here because the O12 estimate said
+"a project in itself" without distinguishing them, and half of that is wrong.
+
+### Mathlib has nothing — and it does not matter
+
+`grep` over all of Mathlib: **no** Euler–Lagrange equations, **no** calculus of
+variations, no Noether (the `Noetherian` files are ring theory). But the
+theorem does not need that infrastructure. Take the Euler–Lagrange equation as
+the *definition* of a physical trajectory — which is standard, and is not
+laundering, since it is a condition on the trajectory, not on the conclusion —
+and Noether is a product rule.
+
+### Prototyped end to end, ~200 lines, zero `sorry`
+
+Not committed; it lives in the session scratchpad. All of the following compiles
+and reports only `propext`, `Classical.choice`, `Quot.sound`.
+
+| Result | Statement |
+|---|---|
+| `Lq`, `Lv` | The partial derivatives, **read off a supplied total derivative** `dL p : ℝ × ℝ →L[ℝ] ℝ` rather than posited as separate data. The only hypothesis on `L` is `∀ p, HasFDerivAt L (dL p) p` — plain differentiability |
+| `ELTrajectory` | `q`, `v`, `a` with `q' = v`, `v' = a`, and `d/dt (∂L/∂v) = ∂L/∂q` |
+| `noether` | **For a generator `X` with `∂L/∂q · X + ∂L/∂v · (X' · v) = 0`, the charge `∂L/∂v · X(q)` is constant along any EL trajectory.** Two lines from the product rule |
+| `energy_conserved` | **`v · ∂L/∂v − L` is constant along any EL trajectory**, `L` having no explicit `t`-dependence. Three lines |
+| `Lq_eq_zero_of_translation_invariant` | `L(q + c, v) = L(q, v)` for all `c` **implies** `∂L/∂q = 0` — derived by uniqueness of derivatives, not assumed. Momentum conservation then follows from `noether` with `X ≡ 1` |
+
+Witnesses, chosen so the theorems are actually tested:
+
+* **Harmonic oscillator** `L = v²/2 − q²/2`, trajectory `q = sin`, `v = cos`.
+  `swing_moves` proves both coordinates genuinely vary, and `swing_energy` gives
+  energy `= 1/2` at every time — so the conservation is a real cancellation, not
+  a consequence of nothing moving. This is the lesson from `Examples.lean` §11
+  applied in advance.
+* **Free particle** `L = v²/2` with uniform motion: momentum conserved via the
+  general theorem.
+* **Negative checks**, so the symmetry predicate is not vacuously true: scaling
+  (`X = id`) is *not* a symmetry of the free particle, and the oscillator has
+  *no* translation symmetry — so momentum is genuinely not conserved there while
+  energy still is. The two theorems are not proving the same thing.
+
+### What stays out of reach — and it is the one the manuscript invokes
+
+`main.tex` claims invariance under the **Poincaré group** dictates conservation
+of energy and momentum. That is the field-theoretic Noether theorem: an action
+functional over spacetime, invariance under a Lie group acting on fields, and a
+conserved *current* with `∂_μ T^{μν} = 0`. It needs functional derivatives on
+infinite-dimensional configuration spaces, field-theoretic Euler–Lagrange
+equations, group actions on jet bundles, and the divergence theorem on
+manifolds. Mathlib has none of it. The point-mechanics theorem above is one
+degree of freedom and one time variable; the gap in generality is large and
+would have to be stated, not glossed.
+
+### The structural finding, which matters more than the estimate
+
+**`SymmetryInvariantAction` cannot carry a Noether theorem, however much work is
+done on it.** Its one field says `TotalEnergy` is invariant under a group action
+on *static* field configurations. A conserved quantity is a statement about time
+evolution — something is conserved *along a trajectory* — and the class has no
+time, no Lagrangian, and no equation of motion. Noether needs three things: an
+action, a notion of trajectory, and a symmetry. The development has only the
+third. So the honest options are:
+
+1. **Land the mechanics theorem as its own file**, stated at its own level of
+   generality, and have `main.tex` say that Noether is proved for one degree of
+   freedom while the Poincaré/field-theoretic version it invokes is not. This is
+   a real theorem where there is currently only vocabulary.
+2. **Leave it**, and keep the current prose, which already says plainly that
+   there is no Noether theorem and that nothing downstream depends on one.
+
+Option 1 introduces Lagrangian point mechanics, a topic the development does not
+otherwise touch, so it is a scope decision rather than a formalization one.
