@@ -1333,3 +1333,124 @@ check on the statements, not part of the proof; not committed.
   "`K_c`, which is not formalized" corrected.
 * Both compile with zero errors, zero undefined references, and the same
   overfull-hbox counts as `HEAD`.
+
+---
+
+## Open items — consolidated ledger, 2026-08-29
+
+Everything still open in one place, gathered from the Opus 5 evaluation, the
+soundness audit, the assumption inventory and the sections above, so that no
+future pass has to reconstruct the list by reading the whole file. Items are
+grouped by whether they are *reachable now*, *reachable with real work*, or
+*out of reach with current Mathlib*; within each group they are ordered by how
+much of a headline claim rests on them.
+
+Nothing here is a defect in what is currently proved. These are the places where
+the Lean says less than the prose would like it to, and every one of them is
+already stated as such in a doc-string and in the manuscript. The purpose of the
+list is to keep it that way.
+
+### Group 1 — reachable now
+
+| # | Item | Where | What it takes |
+|---|---|---|---|
+| ~~**O1**~~ | **DONE 2026-08-29** — see the final section of this file. ~~**`selfConsistency` names a fixed-point equation but nothing in Lean says it is about an order parameter.**~~ The reading "`r` is the mean of `cos θ` under the density it induces" lives entirely in the doc-string; `selfConsistency K D r` is literally `besselRatio (K * r / D)` and could be any function of `r` for all the Lean knows | `Phase8_SelfConsistency` §4 | Define the von Mises *density* `e^{a cos θ}/Z(a)`, prove it is a probability density on `[-π, π]`, define the continuum order parameter `∫ e^{iθ} ρ(θ) dθ` mirroring `order_parameter_complex`, and prove it equals `besselRatio a` — real part `R(a)`, imaginary part `0` by oddness. Then a fixed point of `selfConsistency` is exactly a density reproducing its own order parameter. This is the cheapest item on the list and it is the one that makes the file's central definition non-tautological |
+| **O2** | **C2 — `ReflexiveBoundary.auto_resonance` is an arbitrary function of the global section.** Nothing constrains the avatar's state to track the field's, and no theorem in the development mentions the field | `Phase6_ReflexiveTopology:54` | `Examples.lean` §10 already shows the presheaf restriction is a legal choice, so the constraint is known satisfiable. Either add a predicate `IsRestrictionResonance` and a theorem that uses it, or state as a theorem what goes wrong without it. Do **not** strengthen the class to a field without checking rule §3 of `PhysicsOfConsciousness/AGENTS.md` |
+| **O3** | **B5 — existence of a global energy minimizer is a hypothesis, never a witness.** `spontaneous_symmetry_breaking` takes `h_min : ∀ phi', TotalEnergy phi ≤ TotalEnergy phi'` as given; no compactness or direct-method argument exists anywhere in the development | `Phase1_Primitives` | Exhibit one system where `h_min` is discharged rather than assumed — the `unitAction` witness of `Examples.lean` §3 is on a one-point spacetime, where the minimizer is whatever minimizes `V` pointwise, so this may be a short addition. That would make the theorem non-vacuous in the same sense the other witnesses do. A general direct-method argument is Group 2 |
+| **O4** | **A3 — the `LocalSectionSynchronization` witness is weak.** `cortexSync` sets `phase ≡ 0` and discharges `sync_to_section_eq` by `rfl`; the local sections *are* restrictions by construction | `Phase4_MacroscopicScaling:56,61`, `Examples` §4 | A witness with a non-constant phase field, or a proof that no such witness exists under the current class shape (which would be the more useful outcome, as `contracting_implies_const` was for D1) |
+| **O5** | **A4 — the `ThermodynamicCover` witness has constant phase**, which is what makes `thermodynamic_equilibrium` dischargeable at all. This is where Derivation 5's physics lives | `Phase5_GlobalSection:43`, `Examples` §4 | Same shape as O4: a cover at a non-trivial minimum of the Kuramoto potential. `Phase4_RotatingFrame` now characterizes those minima in both directions, so the ingredients exist |
+| **O6** | **D4 — four classes still have no instance:** `PlasticNeuralField`, `StochasticMatrix`, `PseudoRiemannianManifold`, `ContinuousSymmetryGroup`. Nothing headline rests on them, but rule §2 of the Lean `AGENTS.md` applies to them as much as to the others | `Phase8_ContinuousField:155`, `Phase3_CombinatorialThermodynamics:192`, `Phase1_Primitives:47,123` | Each is a short witness. `StochasticMatrix` on `Bool` and `PlasticNeuralField` on the `Duo` substrate of `Examples` §5 are both nearly free. Alternatively delete what is unused, as `VacuumManifold` was |
+| **O7** | **C3 — `DiscreteThermodynamics.scalar_magnitude` is arbitrary subject only to non-negativity.** The map from a stress-energy tensor to a scalar is modelling, not derivation | `Phase2_SimplicialBridge:42` | Probably *leave*, but say so in the source: if it is a modelling choice, mark it `[MODELLING]` the way `Phase4_MacroscopicScaling`'s fields are, so it is not mistaken for an oversight. Listed here so the decision gets recorded either way |
+
+### Group 2 — reachable, but real work
+
+| # | Item | What it takes |
+|---|---|---|
+| **O8** | **The coherent branch, beyond existence.** `supercritical_fixed_point_exists` gives *some* `r ∈ (0,1]`; uniqueness, dynamical selection and continuity in `K` are all unproved, so a discontinuous jump at threshold is not excluded and the bifurcation is not shown supercritical in the technical sense. `K = 2D` exactly is covered by neither theorem | Monotonicity of `R`, or an implicit-function-theorem argument. `R` is nowhere shown increasing. Uniqueness plausibly follows from strict concavity of `R` in `a`, which would be a third bound on the von Mises moments in the style of §5 |
+| **O9** | **B1 — the Self's metric is 0/1, and `contracting_implies_const` proves that forces the fixed point to be constant.** The Banach argument is sound; the metric makes its conclusion trivial | A metric on `GlobalSection` built from the measure-theoretic structure — the Prokhorov metric named in `Phase6`'s header, which nothing constructs. Mathlib has `MeasureTheory.LevyProkhorov`; whether `GlobalSection`'s sheafified measures fit its hypotheses is the first thing to check |
+| **O10** | **B3 — the σ/gradient-flow link holds for finite substrates only** (`hvol : volume = Measure.count`) | Differentiation under the integral sign with respect to the kernel. Mathlib has `hasDerivAt_integral_of_dominated_loc_of_deriv_le`; the work is in the domination hypotheses |
+| **O11** | **B2 — `h_mean` restricts the comparison class** to fields sharing the phase-locked state's mean drift, so minimality is Jensen alone | Model how `Omega_avg` varies with the competitor field. Stated as the honest scope on the theorem; removing it changes what is claimed |
+| **O12** | **D2 — there is no Noether theorem.** `SymmetryInvariantAction` has one field, no instance, no consumer; the prose now says exactly that | Proving an actual Noether theorem over Mathlib is a project in itself. The intermediate step is a witness for `ContinuousSymmetryGroup` (see O6) so the vocabulary is at least inhabited |
+
+### Group 3 — out of reach with current Mathlib
+
+| # | Item | Blocker |
+|---|---|---|
+| **O13** | **The von Mises ansatz** — deriving the stationary density from the SDE. This is part (b) of the critical-coupling item | Fokker–Planck operator, existence and uniqueness of stationary solutions, bifurcation theory. None in Mathlib |
+| **O14** | **The link from `selfConsistency` to the dynamics.** O1 is done, so the fixed point is now the order parameter of a *density*; it is still not the order parameter of a *trajectory*. `circularOrderParameter` is an integral against a density, `order_parameter_complex` is an average over finitely many oscillators, and no theorem relates them | The mean-field limit — propagation of chaos for the finite Kuramoto system. This is a research programme, not a task. **With O1 done this is the only thing standing between `exhibits_phase_transition` and a statement about a trajectory**, and the doc-strings and manuscript now state the gap in exactly those terms |
+| **O15** | **`lim_{t→∞} D_KL(P‖Q) = 0`** (supplementary Theorem 3, audit item #6). Monotone descent of σ plus `D_KL ≤ Δt·σ` does not give it: monotone-and-bounded yields *some* infimum, possibly positive, and the KL bound would additionally have to be tight | A Łojasiewicz or coercivity estimate on σ, plus a statement relating the σ-minimizer to `KL = 0`. Neither exists in the development. The prose must keep saying it is unformalized until it does |
+| **O16** | **Mesh refinement rate.** Lean proves convergence; the `O(1/N²)` rate is numerical only | A Riemann-sum error expansion. The convergence proof does not carry the rate |
+| **O17** | **Hardware.** The step from the wiring-support result and the measure-theoretic continuity result to "von Neumann architectures cannot experience unified consciousness" is informal | Not a formalization gap so much as a philosophical one; `main.tex` says so |
+| **O18** | **Sheaf global section ↔ unity of experience is a stipulation, not a derivation** | The framework's core philosophical commitment, fenced by the Russellian-monism framing. Not a fixable defect; recorded so it is not mistaken for one |
+
+---
+
+## O1 — the self-consistency equation is about an order parameter — 2026-08-29 — DONE
+
+`Phase8_SelfConsistency.lean` §7 (the non-vacuity section becomes §8). File is
+now ~880 lines. Zero `sorry`, zero warnings, `#print axioms` on every new result
+reports only `propext`, `Classical.choice`, `Quot.sound`. `lake build` clean
+(17,608 jobs). Both documents compile with overfull-hbox counts unchanged from
+`HEAD` (main 20, supplementary 14); Table 1 re-checked visually and still fits
+its page with room to spare.
+
+### The gap this closes
+
+`selfConsistency K D r` is *defined* as `besselRatio (K * r / D)`. Everything
+proved about it before this pass — subcritical uniqueness, supercritical
+existence, the threshold — was a statement about fixed points of that function,
+and nothing in the Lean source said the function had anything to do with an
+order parameter. The reading that gives the equation its name lived entirely in
+doc-strings. This is a mild version of the failure mode `AGENTS.md` §1 warns
+about: not a laundered axiom, but a definition whose physical meaning was
+carried by prose.
+
+### What landed
+
+| Declaration | Statement |
+|---|---|
+| `vonMisesDensity a θ := vonMisesWeight a θ / vonMisesZ a` | The actual density, not the unnormalized weight |
+| `vonMisesDensity_pos`, `vonMisesDensity_integral_eq_one` | It is a probability density on `[-π, π]`. Without this, "the mean of `cos θ` under the density" is an abuse of language |
+| `vonMisesDensity_zero` | At zero concentration the density is uniform, `1/(2π)` |
+| `vonMises_mean_cos` | `E_a[cos θ] = R(a)` — the Bessel ratio read as a mean |
+| `vonMises_mean_sin` | `E_a[sin θ] = 0`, by oddness. This is why the order parameter is real |
+| `circularOrderParameter rho := ∫_{-π}^{π} e^{iθ} ρ(θ) dθ` | The continuum analogue of `Phase4`'s `order_parameter_complex` |
+| `circularOrderParameter_vonMises` | **That average is exactly `besselRatio a`** |
+| `fixedPoint_iff_selfReproducing` | **`r = R(K, r)` ⟺ the density `r` induces has order parameter `r`.** The equivalence the name promised |
+| `incoherent_density_uniform` | The solution `r = 0` *is* the uniform density, order parameter `0` |
+| `supercritical_coherent_density` | Above threshold there is a von Mises density whose own order parameter is positive |
+
+Mathlib supplied everything: `intervalIntegral.integral_ofReal`,
+`Complex.exp_mul_I`, `intervalIntegral.integral_comp_neg`,
+`intervalIntegral.integral_mul_const`. The complex-valued interval integral
+needed no special handling — split the integrand into real and imaginary parts
+pointwise, then `integral_add` and `integral_ofReal`.
+
+### What it does not establish
+
+* **No link to `order_parameter_complex`.** That is `(1/N) ∑ e^{iθⱼ}` over a
+  finite system; `circularOrderParameter` is an integral against a density.
+  Relating them is the mean-field limit (propagation of chaos), which is O14 and
+  stays out of reach. Said explicitly in the doc-string of
+  `circularOrderParameter`, in the file header, in `main.tex` and in the
+  supplementary — this is now the *whole* of what separates the threshold
+  predicate from a statement about dynamics, and it is worth keeping it stated
+  that sharply.
+* **No trajectory anywhere.** `is_continuous_kuramoto_trajectory` and
+  `entropy_production_rate` are still unmentioned in this file.
+* **The ansatz is unchanged.** `vonMisesDensity` is *defined* to be the von
+  Mises density; nothing derives it from the SDE. O13.
+
+### Non-vacuity
+
+§8 gains a third example: at `K = 3`, `D = 1` the density statement fires and
+produces a positive-order-parameter density, alongside the existing pair of
+examples on the two sides of the threshold.
+
+### Manuscript
+
+* `main.tex`: Table 1's `K_c` row records the density reading; Derivation 4 gains
+  a paragraph on the identification and has its closing gap statement rewritten
+  around the mean-field limit as the single remaining separation.
+* `supplementary.tex`: the `Phase8_SelfConsistency` note gains the §7 results and
+  a correspondingly sharpened scope sentence.

@@ -51,6 +51,13 @@ which is all the argument needs.
   `exhibits_phase_transition` of `Phase8_ContinuousField.lean` admits a positive
   stationary order parameter. This is what stops `critical_coupling` from being
   an inert stipulation: exceeding it now *implies* something.
+* `circularOrderParameter_vonMises` and `fixedPoint_iff_selfReproducing` — §7.
+  `selfConsistency` is *named* for a self-consistency condition, but as a
+  definition it is just `besselRatio (K * r / D)` and could be any function of
+  `r`. These identify it: `vonMisesDensity` is the actual probability density,
+  `circularOrderParameter` is the continuum analogue of `Phase4`'s
+  `order_parameter_complex`, and a fixed point of `selfConsistency` is exactly a
+  density whose own order parameter is the `r` that generated it.
 
 `subcritical_fixed_point_eq_zero` and `besselRatio_le_self` are the crude
 versions of the last two, obtained from the pointwise bound `sin² ≤ 1` alone.
@@ -78,12 +85,14 @@ operator, existence and uniqueness of its stationary solution, and a spectral
 stability argument, none of which Mathlib has. The density is an input to this
 file, not an output of it.
 
-**The dynamics.** `selfConsistency` is not connected to
-`is_continuous_kuramoto_trajectory`, `order_parameter_r_sq` or
-`entropy_production_rate`. What is now a theorem is a statement about the
-self-consistency equation; `exhibits_phase_transition` still stands on the
-ansatz, and Table 1 of the manuscript accordingly still reads "Numerical" for
-this row.
+**The dynamics.** §7 connects `selfConsistency` to the order parameter *of a
+density*. It does not connect it to a *trajectory*: nothing here mentions
+`is_continuous_kuramoto_trajectory` or `entropy_production_rate`, and
+`circularOrderParameter` is not linked to `Phase4`'s `order_parameter_complex`
+— the latter is the empirical average `(1/N) ∑ e^{iθⱼ}` over a finite system,
+the former an integral against a density, and closing that gap is the mean-field
+limit (propagation of chaos), not a lemma. Table 1 of the manuscript accordingly
+reads "Theorem (partial)" for this row rather than "Theorem".
 -/
 
 open Real MeasureTheory intervalIntegral Set
@@ -661,13 +670,164 @@ theorem exhibits_phase_transition_coherent [IsProbabilityMeasure (volume : Measu
 
 end PhaseTransition
 
-/-! ## 7. Non-vacuity
+/-! ## 7. The density, and why the equation deserves its name
+
+Everything above treats `selfConsistency K D r = besselRatio (K * r / D)` as a
+function of `r` and asks when it has fixed points. Nothing above says it is a
+*self-consistency* condition — as a Lean definition it could be any function at
+all, and the reading "`r` is the mean of `cos θ` under the density that `r`
+itself induces" lives only in the doc-strings.
+
+This section supplies the missing identification. `vonMisesDensity a` is the
+normalized weight, a genuine probability density on `[-π, π]`;
+`circularOrderParameter` is the continuum analogue of `Phase4`'s
+`order_parameter_complex`, the average of `e^{iθ}` — over a density here rather
+than over finitely many oscillators. The content is
+`circularOrderParameter_vonMises`: that average is exactly `besselRatio a`, real
+because the density is even. `fixedPoint_iff_selfReproducing` then says a fixed
+point of `selfConsistency` is precisely a density that reproduces its own order
+parameter, which is what self-consistency means.
+
+Two things this does *not* do. It does not link `circularOrderParameter` to
+`order_parameter_complex`: that one is the empirical average `(1/N) ∑ e^{iθⱼ}`
+over a finite system, and relating the two is the mean-field limit, not a lemma.
+And it says nothing about any trajectory. -/
+
+/-- The von Mises probability density at concentration `a`: the weight of §1
+divided by its own partition function. -/
+noncomputable def vonMisesDensity (a θ : ℝ) : ℝ := vonMisesWeight a θ / vonMisesZ a
+
+theorem vonMisesDensity_pos (a θ : ℝ) : 0 < vonMisesDensity a θ :=
+  div_pos (vonMisesWeight_pos a θ) (vonMisesZ_pos a)
+
+theorem intervalIntegrable_vonMisesDensity (a c d : ℝ) :
+    IntervalIntegrable (vonMisesDensity a) volume c d :=
+  ((continuous_vonMisesWeight a).div_const _).intervalIntegrable c d
+
+/-- It is a probability density: positive, and of total mass `1` on `[-π, π]`.
+Without this the "mean of `cos θ` under the density" reading would be an abuse
+of language. -/
+theorem vonMisesDensity_integral_eq_one (a : ℝ) :
+    ∫ θ in (-π)..π, vonMisesDensity a θ = 1 := by
+  unfold vonMisesDensity
+  rw [intervalIntegral.integral_div]
+  exact div_self (vonMisesZ_pos a).ne'
+
+/-- At zero concentration the density is uniform. This is the incoherent state,
+and it is the density the fixed point `r = 0` induces. -/
+@[simp] theorem vonMisesDensity_zero (θ : ℝ) : vonMisesDensity 0 θ = 1 / (2 * π) := by
+  simp [vonMisesDensity, vonMisesWeight, vonMisesZ_zero]
+
+/-- `E_a[cos θ] = R(a)`. The Bessel ratio of §3, read as a mean rather than as a
+ratio of integrals. -/
+theorem vonMises_mean_cos (a : ℝ) :
+    ∫ θ in (-π)..π, Real.cos θ * vonMisesDensity a θ = besselRatio a := by
+  unfold vonMisesDensity besselRatio vonMisesM
+  rw [← intervalIntegral.integral_div]
+  refine intervalIntegral.integral_congr (fun θ _ => ?_)
+  ring
+
+lemma sin_density_neg (a x : ℝ) :
+    Real.sin (-x) * vonMisesDensity a (-x) = -(Real.sin x * vonMisesDensity a x) := by
+  simp [vonMisesDensity, vonMisesWeight, Real.cos_neg, Real.sin_neg]
+
+/-- `E_a[sin θ] = 0`: the density is even, so its mean direction is `0` and the
+order parameter is real. -/
+theorem vonMises_mean_sin (a : ℝ) :
+    ∫ θ in (-π)..π, Real.sin θ * vonMisesDensity a θ = 0 := by
+  have hint : ∀ c d : ℝ, IntervalIntegrable
+      (fun θ => Real.sin θ * vonMisesDensity a θ) volume c d := fun c d =>
+    (Real.continuous_sin.mul
+      ((continuous_vonMisesWeight a).div_const _)).intervalIntegrable c d
+  have hadd := intervalIntegral.integral_add_adjacent_intervals
+    (a := -π) (b := (0:ℝ)) (c := π) (hint _ _) (hint _ _)
+  have hneg := intervalIntegral.integral_comp_neg (a := (0:ℝ)) (b := π)
+    (f := fun θ => Real.sin θ * vonMisesDensity a θ)
+  simp only [sin_density_neg, intervalIntegral.integral_neg, neg_zero] at hneg
+  linarith [hadd, hneg]
+
+/-- The order parameter of a density on the circle: the average of `e^{iθ}`.
+
+This is the continuum analogue of `Phase4_KuramotoDynamics.order_parameter_complex`,
+which averages `e^{iθⱼ}` over finitely many oscillators. **No theorem in this
+development relates the two** — that relation is the mean-field limit. -/
+noncomputable def circularOrderParameter (rho : ℝ → ℝ) : ℂ :=
+  ∫ θ in (-π)..π, Complex.exp (Complex.I * θ) * (rho θ : ℂ)
+
+/-- **The Bessel ratio is an order parameter.** The average of `e^{iθ}` under the
+von Mises density of concentration `a` is exactly `R(a)` — real, because the
+density is even (`vonMises_mean_sin`), and equal to `E_a[cos θ]`
+(`vonMises_mean_cos`). -/
+theorem circularOrderParameter_vonMises (a : ℝ) :
+    circularOrderParameter (vonMisesDensity a) = (besselRatio a : ℂ) := by
+  have hfun : ∀ θ : ℝ, Complex.exp (Complex.I * θ) * (vonMisesDensity a θ : ℂ)
+      = ((Real.cos θ * vonMisesDensity a θ : ℝ) : ℂ)
+        + ((Real.sin θ * vonMisesDensity a θ : ℝ) : ℂ) * Complex.I := by
+    intro θ
+    rw [mul_comm Complex.I, Complex.exp_mul_I]
+    push_cast
+    ring
+  have hc : IntervalIntegrable
+      (fun θ => ((Real.cos θ * vonMisesDensity a θ : ℝ) : ℂ)) volume (-π) π := by
+    refine Continuous.intervalIntegrable ?_ _ _
+    unfold vonMisesDensity vonMisesWeight; fun_prop
+  have hs : IntervalIntegrable
+      (fun θ => ((Real.sin θ * vonMisesDensity a θ : ℝ) : ℂ) * Complex.I) volume (-π) π := by
+    refine Continuous.intervalIntegrable ?_ _ _
+    unfold vonMisesDensity vonMisesWeight; fun_prop
+  unfold circularOrderParameter
+  rw [intervalIntegral.integral_congr (g := fun θ =>
+        ((Real.cos θ * vonMisesDensity a θ : ℝ) : ℂ)
+          + ((Real.sin θ * vonMisesDensity a θ : ℝ) : ℂ) * Complex.I)
+      (fun θ _ => hfun θ),
+    intervalIntegral.integral_add hc hs, intervalIntegral.integral_mul_const,
+    intervalIntegral.integral_ofReal, intervalIntegral.integral_ofReal,
+    vonMises_mean_cos, vonMises_mean_sin]
+  simp
+
+theorem selfConsistency_eq_orderParameter (K D r : ℝ) :
+    ((selfConsistency K D r : ℝ) : ℂ)
+      = circularOrderParameter (vonMisesDensity (K * r / D)) := by
+  rw [circularOrderParameter_vonMises, selfConsistency]
+
+/-- **The equation deserves its name.** `r` solves `r = R(K, r)` exactly when the
+von Mises density it induces, at concentration `K r / D`, has order parameter
+`r`. This is the statement the whole file has been *about*; until now it was in
+the doc-strings only. -/
+theorem fixedPoint_iff_selfReproducing (K D r : ℝ) :
+    r = selfConsistency K D r
+      ↔ circularOrderParameter (vonMisesDensity (K * r / D)) = (r : ℂ) := by
+  constructor
+  · intro h; rw [← selfConsistency_eq_orderParameter, ← h]
+  · intro h; rw [← selfConsistency_eq_orderParameter] at h; exact_mod_cast h.symm
+
+/-- The incoherent solution, read through the density: `r = 0` induces the
+uniform density, whose order parameter is `0`. -/
+theorem incoherent_density_uniform (K D : ℝ) :
+    (∀ θ, vonMisesDensity (K * 0 / D) θ = 1 / (2 * π))
+      ∧ circularOrderParameter (vonMisesDensity (K * 0 / D)) = 0 := by
+  refine ⟨fun θ => by simp, by simp [circularOrderParameter_vonMises]⟩
+
+/-- **The supercritical theorem, restated as physics.** Above threshold there is
+a von Mises density whose own order parameter is positive — a coherent
+stationary state, rather than a fixed point of an unexplained function.
+
+Still an existence statement about a *density*, not about a trajectory; see the
+file header. -/
+theorem supercritical_coherent_density {K D : ℝ} (hD : 0 < D)
+    (hKD : critical_coupling D < K) :
+    ∃ r : ℝ, 0 < r ∧ r ≤ 1 ∧
+      circularOrderParameter (vonMisesDensity (K * r / D)) = (r : ℂ) := by
+  obtain ⟨r, hr0, hr1, hfix⟩ := supercritical_fixed_point_exists hD hKD
+  exact ⟨r, hr0, hr1, (fixedPoint_iff_selfReproducing K D r).mp hfix⟩
+
+/-! ## 8. Non-vacuity
 
 The uniqueness theorem quantifies over solutions of `r = R(K, r)`; if that
 equation had no solutions it would be an empty statement, so we exhibit one and
 check that the theorem returns it. The existence theorem has the opposite
 failure mode — vacuous hypotheses — so we discharge those at a concrete `K` and
-`D` too. -/
+`D` too, on both sides of the threshold and in both readings of the equation. -/
 
 /-- The incoherent state solves the self-consistency equation. -/
 example (K D : ℝ) : (0 : ℝ) = selfConsistency K D 0 := (selfConsistency_zero K D).symm
@@ -690,5 +850,11 @@ different regimes rather than always falling on one side. -/
 example (r : ℝ) (hr : 0 ≤ r) (hfix : r = selfConsistency 3 2 r) : r = 0 :=
   subcritical_fixed_point_eq_zero' (by norm_num) (by norm_num)
     (by rw [critical_coupling]; norm_num) hr hfix
+
+/-- The same statement read through §7: at `D = 1`, `K = 3` there is a von Mises
+density whose own order parameter is positive. -/
+example : ∃ r : ℝ, 0 < r ∧ r ≤ 1 ∧
+    circularOrderParameter (vonMisesDensity (3 * r / 1)) = (r : ℂ) :=
+  supercritical_coherent_density one_pos (by rw [critical_coupling]; norm_num)
 
 end PhysicsOfConsciousness
