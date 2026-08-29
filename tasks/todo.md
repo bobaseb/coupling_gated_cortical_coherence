@@ -1356,10 +1356,10 @@ list is to keep it that way.
 |---|---|---|---|
 | ~~**O1**~~ | **DONE 2026-08-29** — see the final section of this file. ~~**`selfConsistency` names a fixed-point equation but nothing in Lean says it is about an order parameter.**~~ The reading "`r` is the mean of `cos θ` under the density it induces" lives entirely in the doc-string; `selfConsistency K D r` is literally `besselRatio (K * r / D)` and could be any function of `r` for all the Lean knows | `Phase8_SelfConsistency` §4 | Define the von Mises *density* `e^{a cos θ}/Z(a)`, prove it is a probability density on `[-π, π]`, define the continuum order parameter `∫ e^{iθ} ρ(θ) dθ` mirroring `order_parameter_complex`, and prove it equals `besselRatio a` — real part `R(a)`, imaginary part `0` by oddness. Then a fixed point of `selfConsistency` is exactly a density reproducing its own order parameter. This is the cheapest item on the list and it is the one that makes the file's central definition non-tautological |
 | **O2** | **C2 — `ReflexiveBoundary.auto_resonance` is an arbitrary function of the global section.** Nothing constrains the avatar's state to track the field's, and no theorem in the development mentions the field | `Phase6_ReflexiveTopology:54` | `Examples.lean` §10 already shows the presheaf restriction is a legal choice, so the constraint is known satisfiable. Either add a predicate `IsRestrictionResonance` and a theorem that uses it, or state as a theorem what goes wrong without it. Do **not** strengthen the class to a field without checking rule §3 of `PhysicsOfConsciousness/AGENTS.md` |
-| **O3** | **B5 — existence of a global energy minimizer is a hypothesis, never a witness.** `spontaneous_symmetry_breaking` takes `h_min : ∀ phi', TotalEnergy phi ≤ TotalEnergy phi'` as given; no compactness or direct-method argument exists anywhere in the development | `Phase1_Primitives` | Exhibit one system where `h_min` is discharged rather than assumed — the `unitAction` witness of `Examples.lean` §3 is on a one-point spacetime, where the minimizer is whatever minimizes `V` pointwise, so this may be a short addition. That would make the theorem non-vacuous in the same sense the other witnesses do. A general direct-method argument is Group 2 |
+| ~~**O3**~~ | **DONE 2026-08-29.** ~~**B5 — existence of a global energy minimizer is a hypothesis, never a witness.**~~ `spontaneous_symmetry_breaking` takes `h_min : ∀ phi', TotalEnergy phi ≤ TotalEnergy phi'` as given; no compactness or direct-method argument exists anywhere in the development | `Phase1_Primitives` | Exhibit one system where `h_min` is discharged rather than assumed — the `unitAction` witness of `Examples.lean` §3 is on a one-point spacetime, where the minimizer is whatever minimizes `V` pointwise, so this may be a short addition. That would make the theorem non-vacuous in the same sense the other witnesses do. A general direct-method argument is Group 2 |
 | **O4** | **A3 — the `LocalSectionSynchronization` witness is weak.** `cortexSync` sets `phase ≡ 0` and discharges `sync_to_section_eq` by `rfl`; the local sections *are* restrictions by construction | `Phase4_MacroscopicScaling:56,61`, `Examples` §4 | A witness with a non-constant phase field, or a proof that no such witness exists under the current class shape (which would be the more useful outcome, as `contracting_implies_const` was for D1) |
 | **O5** | **A4 — the `ThermodynamicCover` witness has constant phase**, which is what makes `thermodynamic_equilibrium` dischargeable at all. This is where Derivation 5's physics lives | `Phase5_GlobalSection:43`, `Examples` §4 | Same shape as O4: a cover at a non-trivial minimum of the Kuramoto potential. `Phase4_RotatingFrame` now characterizes those minima in both directions, so the ingredients exist |
-| **O6** | **D4 — four classes still have no instance:** `PlasticNeuralField`, `StochasticMatrix`, `PseudoRiemannianManifold`, `ContinuousSymmetryGroup`. Nothing headline rests on them, but rule §2 of the Lean `AGENTS.md` applies to them as much as to the others | `Phase8_ContinuousField:155`, `Phase3_CombinatorialThermodynamics:192`, `Phase1_Primitives:47,123` | Each is a short witness. `StochasticMatrix` on `Bool` and `PlasticNeuralField` on the `Duo` substrate of `Examples` §5 are both nearly free. Alternatively delete what is unused, as `VacuumManifold` was |
+| ~~**O6**~~ | **DONE 2026-08-29.** ~~**D4 — four classes still have no instance:**~~ `PlasticNeuralField`, `StochasticMatrix`, `PseudoRiemannianManifold`, `ContinuousSymmetryGroup`. Nothing headline rests on them, but rule §2 of the Lean `AGENTS.md` applies to them as much as to the others | `Phase8_ContinuousField:155`, `Phase3_CombinatorialThermodynamics:192`, `Phase1_Primitives:47,123` | Each is a short witness. `StochasticMatrix` on `Bool` and `PlasticNeuralField` on the `Duo` substrate of `Examples` §5 are both nearly free. Alternatively delete what is unused, as `VacuumManifold` was |
 | **O7** | **C3 — `DiscreteThermodynamics.scalar_magnitude` is arbitrary subject only to non-negativity.** The map from a stress-energy tensor to a scalar is modelling, not derivation | `Phase2_SimplicialBridge:42` | Probably *leave*, but say so in the source: if it is a modelling choice, mark it `[MODELLING]` the way `Phase4_MacroscopicScaling`'s fields are, so it is not mistaken for an oversight. Listed here so the decision gets recorded either way |
 
 ### Group 2 — reachable, but real work
@@ -1370,7 +1370,7 @@ list is to keep it that way.
 | **O9** | **B1 — the Self's metric is 0/1, and `contracting_implies_const` proves that forces the fixed point to be constant.** The Banach argument is sound; the metric makes its conclusion trivial | A metric on `GlobalSection` built from the measure-theoretic structure — the Prokhorov metric named in `Phase6`'s header, which nothing constructs. Mathlib has `MeasureTheory.LevyProkhorov`; whether `GlobalSection`'s sheafified measures fit its hypotheses is the first thing to check |
 | **O10** | **B3 — the σ/gradient-flow link holds for finite substrates only** (`hvol : volume = Measure.count`) | Differentiation under the integral sign with respect to the kernel. Mathlib has `hasDerivAt_integral_of_dominated_loc_of_deriv_le`; the work is in the domination hypotheses |
 | **O11** | **B2 — `h_mean` restricts the comparison class** to fields sharing the phase-locked state's mean drift, so minimality is Jensen alone | Model how `Omega_avg` varies with the competitor field. Stated as the honest scope on the theorem; removing it changes what is claimed |
-| **O12** | **D2 — there is no Noether theorem.** `SymmetryInvariantAction` has one field, no instance, no consumer; the prose now says exactly that | Proving an actual Noether theorem over Mathlib is a project in itself. The intermediate step is a witness for `ContinuousSymmetryGroup` (see O6) so the vocabulary is at least inhabited |
+| **O12** | **D2 — there is still no Noether theorem.** The class is now inhabited (`Examples.lean` §11, a `ℤ₂` action on a double well, with symmetry breaking exhibited), but no conserved quantity is constructed and no theorem consumes a symmetry group | Proving an actual Noether theorem over Mathlib is a project in itself, and would first need a *continuous* symmetry group — `ℤ₂` is discrete, so there is no one-parameter family to differentiate along. `ContinuousSymmetryGroup` carries no continuity or homomorphism law at all, which is the first thing to fix if this is ever attempted |
 
 ### Group 3 — out of reach with current Mathlib
 
@@ -1454,3 +1454,78 @@ examples on the two sides of the threshold.
   around the mean-field limit as the single remaining separation.
 * `supplementary.tex`: the `Phase8_SelfConsistency` note gains the §7 results and
   a correspondingly sharpened scope sentence.
+
+---
+
+## O3 and O6 — the minimizer hypothesis and the last uninhabited classes — 2026-08-29 — DONE
+
+`PhysicsOfConsciousness/Examples.lean` gains §11 and §12. Zero `sorry`, zero
+warnings, `#print axioms` on every new result reports only `propext`,
+`Classical.choice`, `Quot.sound`. `lake build` clean (17,608 jobs). Both
+documents compile with overfull-hbox counts unchanged from `HEAD`; Table 1
+re-checked visually and still fits its page.
+
+### §11 — a double well, and three things it settles
+
+`§3`'s existing `ActionPrinciples` witness is `V v = v²` on a one-point
+spacetime. It proves inhabitability and nothing else: the vacuum is a single
+point, so there is no symmetry to break, and on a one-point spacetime "almost
+everywhere" and "everywhere" coincide, so the theorem's actual conclusion is
+invisible. §11 uses `Bool` with `Measure.dirac true` — a probability measure
+supported on one of two points — and the double well `V v = (v² - 1)²`, whose
+vacuum manifold `{-1, 1}` is degenerate.
+
+* **O3/B5 — `h_min` is discharged.** `spontaneous_symmetry_breaking` takes
+  `h_min : ∀ phi', TotalEnergy phi ≤ TotalEnergy phi'` as a hypothesis, and no
+  compactness or direct-method argument exists anywhere in the development.
+  `wellSpike_global_min` proves it. The theorem is now applied at least once to a
+  system where its own hypothesis is a fact rather than an assumption.
+* **The `∀ᵐ` is proved necessary.** `wellSpike` sits at the vacuum on the support
+  and at `0` off it. `wellSpike_ae_vacuum` holds; `wellSpike_not_everywhere_vacuum`
+  proves the pointwise version *fails* for that same field. The doc-string on
+  `pointwise_vacuum_of_global_min` had asserted that the old `∀ x` form was "one
+  of the reasons the axiomatic formulation was unsound"; that is now a theorem,
+  in the style of `contracting_implies_const`.
+* **Symmetry breaking exhibited, not typed.** `signSymmetry` is the `ℤ₂` action
+  `v ↦ ±v` (`G = ℤˣ`); `signInvariant` discharges `total_energy_invariant`
+  because `(±v)² = v²` — the first instance of `SymmetryInvariantAction` in the
+  development. `symmetry_swaps_vacua` shows the action exchanges the two minima,
+  and `wellSpike_partner_same_energy` / `wellSpike_partner_ne` show the minimizer
+  and its image have equal energy and differ: a symmetric functional with a
+  non-symmetric minimizer.
+
+**What §11 does not establish.** No conserved quantity, so no Noether theorem —
+and `ℤ₂` is discrete, so there is no one-parameter family to differentiate along
+even in principle. The `Continuous` in `ContinuousSymmetryGroup` is a name: the
+class carries no continuity or homomorphism law, which is why the instance is
+cheap and why it proves less than its name suggests. The spacetime is two points
+with a Dirac measure, so no geometry is exercised.
+
+### §12 — the last three structures
+
+| Witness | Non-degeneracy |
+|---|---|
+| `boolStochastic : StochasticMatrix Bool` | The fair coin. Nothing consumes `StochasticMatrix`; the witness settles rule §2 rather than adding content |
+| `duoPlastic : PlasticNeuralField Duo` | Reuses `duoFlow` from §5, so `duoPlastic_gradient_descent` proves `is_gradient_descent` with σ`(t) = e^{-2t}` — strictly decreasing, not `Antitone` discharged by a constant |
+| `realMetric : PseudoRiemannianManifold 𝓘(ℝ,ℝ) ℝ` | The Euclidean form `g(u,v) = u·v`. Positive definite, so Riemannian rather than properly pseudo-Riemannian; the class asks only for symmetry and non-degeneracy, and a Lorentzian witness needs a 2-dimensional model |
+
+**A Mathlib obstacle worth recording** (also in `tasks/lessons.md`):
+`TangentSpace I x` is a plain `def`, so its `Mul`, `AddCommGroup` and `Module`
+instances are *not* the ones instance search finds for `ℝ`, and writing the
+`PseudoRiemannianManifold` field proofs inline fails with application-type
+mismatches even though everything is definitionally equal — and `(u : ℝ)`
+ascription does not repair it. The fix is to state the form and its two laws as
+separate `ℝ`-typed lemmas (`realForm_apply`, `realForm_symm`, `realForm_nondeg`)
+and pass those as the fields, where the defeq check succeeds.
+
+### Manuscript
+
+* `main.tex`: the Axiom 1 section no longer says `SymmetryInvariantAction` "has
+  no instance in the development" — it describes the `ℤ₂` witness and what it
+  does and does not establish; the footnote's claim that all three classes are
+  instance-free is replaced by a statement that they are now inhabited but that
+  no theorem consumes a symmetry group or a metric, so the section still supplies
+  vocabulary rather than content. Table 1's first and third rows record the
+  double-well witness and the proof that the a.e. cannot be strengthened.
+* `supplementary.tex`: Theorem 1's implementation note gains the §11 witness, the
+  discharged minimisation hypothesis, and the necessity of the almost-everywhere.

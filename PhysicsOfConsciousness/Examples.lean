@@ -1271,5 +1271,217 @@ witness produces is `cortexState` — the phase-0 section, and nothing more. -/
 theorem cortexFixedPoint : cortexReflexive.predictive_model.predict cortexState = cortexState :=
   rfl
 
+/-! ## 11. A double well: the symmetry, its breaking, and why the conclusion is a.e.
+
+`§3` witnesses `ActionPrinciples` on a one-point spacetime with `V v = v²`. That
+suffices to show the class is inhabitable and nothing more: the vacuum is a
+single point, so there is no symmetry to break, and on a one-point spacetime
+"almost everywhere" and "everywhere" coincide, so the theorem's actual
+conclusion is invisible. This section fixes both.
+
+The substrate is `Bool` carrying `Measure.dirac true` — a probability measure
+whose support is one of the two points, so a field can deviate off the support
+for free. The potential is the double well `V v = (v² - 1)²`, whose vacuum
+manifold is `{-1, 1}`: **degenerate**, which is the premise the phrase
+"spontaneous symmetry breaking" presupposes and which `§3`'s `v²` does not have.
+
+Three things get proved here that were previously assumed or unstated.
+
+* **`h_min` is discharged, not hypothesised.** `spontaneous_symmetry_breaking`
+  takes `h_min : ∀ phi', TotalEnergy phi ≤ TotalEnergy phi'` as an assumption,
+  and no compactness or direct-method argument anywhere in the development
+  produces one. Here `wellSpike_global_min` proves it outright, so the theorem is
+  applied to a system where its hypothesis is a fact.
+* **The `∀ᵐ` cannot be strengthened to `∀`.** `wellSpike` sits at the vacuum on
+  the support and at `0` off it; `wellSpike_ae_vacuum` holds and
+  `wellSpike_not_everywhere_vacuum` proves the pointwise version *fails* for the
+  same field. The doc-string on `pointwise_vacuum_of_global_min` says the old
+  `∀ x` form "was one of the reasons the axiomatic formulation was unsound"; this
+  is that claim as a theorem.
+* **The symmetry classes are inhabited, and the symmetry is a real one.**
+  `signSymmetry` is the `ℤ₂` action `v ↦ ±v` on the value space;
+  `signInvariant` discharges `total_energy_invariant` because `(±v)² = v²`. The
+  action is not trivial — `symmetry_swaps_vacua` sends one vacuum to the other —
+  so `wellSpike` and its image have equal energy and differ
+  (`wellSpike_partner_same_energy`, `wellSpike_partner_ne`): a symmetric
+  functional with a non-symmetric minimiser, which is what symmetry breaking is.
+
+**What this does not establish.** There is still no Noether theorem: nothing
+constructs a conserved quantity from `signInvariant`, and `ℤ₂` is discrete, so
+there is no one-parameter family to differentiate along in the first place. The
+`Continuous` in `ContinuousSymmetryGroup` is a name, not a hypothesis — the class
+carries no continuity or homomorphism law at all, which is why this instance is
+cheap. And the spacetime is two points with a Dirac measure, so nothing here
+exercises any geometry. -/
+
+/-- The double well `V v = (v² - 1)²`. Vacuum manifold `{-1, 1}`. -/
+noncomputable def wellV (v : ℝ) : ℝ := (v ^ 2 - 1) ^ 2
+
+/-- Total energy on the two-point spacetime: the potential integrated against
+`δ_true`, so only the value at `true` counts. -/
+noncomputable def wellEnergy (phi : FieldState Bool ℝ) : ℝ :=
+  ∫ x, wellV (phi x) ∂(Measure.dirac true)
+
+noncomputable instance wellAction :
+    ActionPrinciples Bool ℝ (fun _ => 0) wellEnergy wellEnergy wellV
+      (Measure.dirac true) where
+  total_eq := by intro phi; simp
+  kinetic_nonneg := by intro phi; norm_num
+  kinetic_const := by intro v; rfl
+  potential_integral := by intro phi; rfl
+  potential_integrable := by intro phi; exact Integrable.of_finite
+
+@[simp] theorem wellEnergy_apply (phi : FieldState Bool ℝ) :
+    wellEnergy phi = wellV (phi true) := by
+  unfold wellEnergy; simp
+
+/-- The vacuum is degenerate: both `1` and `-1` minimise, and they differ. This
+is what `§3`'s single-well witness lacks. -/
+theorem one_mem_vacuum : (1 : ℝ) ∈ DynamicalVacuum wellV := by
+  intro v'; simp [wellV]; positivity
+
+theorem neg_one_mem_vacuum : (-1 : ℝ) ∈ DynamicalVacuum wellV := by
+  intro v'; simp [wellV]; positivity
+
+theorem vacuum_degenerate :
+    (1 : ℝ) ∈ DynamicalVacuum wellV ∧ (-1 : ℝ) ∈ DynamicalVacuum wellV
+      ∧ (1 : ℝ) ≠ -1 :=
+  ⟨one_mem_vacuum, neg_one_mem_vacuum, by norm_num⟩
+
+theorem zero_not_mem_vacuum : (0 : ℝ) ∉ DynamicalVacuum wellV := by
+  intro h
+  have := h 1
+  simp [wellV] at this
+  linarith
+
+/-- At the vacuum on the support of the measure, off it elsewhere. -/
+noncomputable def wellSpike : FieldState Bool ℝ :=
+  ⟨fun b => if b then 1 else 0, continuous_of_discreteTopology⟩
+
+/-- **The minimisation hypothesis, discharged.** `h_min` of
+`spontaneous_symmetry_breaking` is an assumption everywhere else in the
+development; here it is a proof. -/
+theorem wellSpike_global_min : ∀ phi', wellEnergy wellSpike ≤ wellEnergy phi' := by
+  intro phi'
+  rw [wellEnergy_apply, wellEnergy_apply]
+  have h : wellV (wellSpike true) = 0 := by simp [wellSpike, wellV]
+  rw [h]
+  simp [wellV]
+  positivity
+
+/-- Derivation 1 applied to a system whose every hypothesis is proved. -/
+theorem wellSpike_ae_vacuum :
+    ∀ᵐ x ∂(Measure.dirac true), wellSpike x ∈ DynamicalVacuum wellV :=
+  spontaneous_symmetry_breaking wellAction wellSpike 1 one_mem_vacuum wellSpike_global_min
+
+/-- **And the almost-everywhere is necessary.** The same energy-minimising field
+leaves the vacuum at `false`, which the measure does not see. -/
+theorem wellSpike_not_everywhere_vacuum :
+    ¬ ∀ b : Bool, wellSpike b ∈ DynamicalVacuum wellV := by
+  intro h
+  exact zero_not_mem_vacuum (by simpa [wellSpike] using h false)
+
+/-- The `ℤ₂` sign symmetry `v ↦ ±v`, acting trivially on spacetime. The class
+carries no law, so the content is entirely in `signInvariant` below. -/
+noncomputable instance signSymmetry : ContinuousSymmetryGroup ℤˣ Bool ℝ where
+  space_action := fun _ x => x
+  value_action := fun g v => ((g : ℤ) : ℝ) * v
+  field_action := fun g phi =>
+    ⟨fun x => ((g : ℤ) : ℝ) * phi x, continuous_of_discreteTopology⟩
+
+/-- **The energy really is invariant**, because `(±v)² = v²`. This is the first
+instance of `SymmetryInvariantAction` in the development; the class previously
+had none, and `main.tex` said so. -/
+instance signInvariant :
+    SymmetryInvariantAction ℤˣ Bool ℝ (fun _ => 0) wellEnergy wellEnergy wellV
+      (Measure.dirac true) where
+  total_energy_invariant := by
+    intro g phi
+    rw [wellEnergy_apply, wellEnergy_apply]
+    show wellV (((g : ℤ) : ℝ) * phi true) = wellV (phi true)
+    rcases Int.units_eq_one_or g with h | h <;> simp [h, wellV]
+
+/-- The symmetry is not trivial on the vacuum: it exchanges the two minima. -/
+theorem symmetry_swaps_vacua :
+    ContinuousSymmetryGroup.value_action (G := ℤˣ) (Spacetime := Bool) (-1 : ℤˣ) (1 : ℝ)
+      = -1 := by
+  show ((((-1 : ℤˣ) : ℤ)) : ℝ) * 1 = -1
+  norm_num
+
+/-- **Symmetry breaking, exhibited.** The minimiser has a distinct image under a
+symmetry of the energy, and the image has the same energy. So the minimiser is
+not invariant even though the functional is. -/
+theorem wellSpike_partner_same_energy :
+    wellEnergy (ContinuousSymmetryGroup.field_action (-1 : ℤˣ) wellSpike)
+      = wellEnergy wellSpike :=
+  signInvariant.total_energy_invariant (-1 : ℤˣ) wellSpike
+
+theorem wellSpike_partner_ne :
+    (ContinuousSymmetryGroup.field_action (-1 : ℤˣ) wellSpike) true ≠ wellSpike true := by
+  show ((((-1 : ℤˣ) : ℤ)) : ℝ) * wellSpike true ≠ wellSpike true
+  simp [wellSpike]
+  norm_num
+
+/-! ## 12. The last three structures without instances
+
+Rule §2 of `PhysicsOfConsciousness/AGENTS.md` requires every structure carrying
+physical content to be inhabited. These three were the remainder: nothing
+headline rests on them, which is exactly why they went unnoticed. Each witness
+is short; the `PlasticNeuralField` one is not, because it reuses the gradient
+flow of §5 and therefore satisfies `is_gradient_descent` with a genuinely
+decreasing σ rather than by being constant. -/
+
+/-- A two-state stochastic matrix: the fair coin. -/
+noncomputable def boolStochastic : StochasticMatrix Bool where
+  P := fun _ _ => 1 / 2
+  nonneg := by intro i j; norm_num
+  sum_eq_one := by intro i; simp
+
+/-- The plastic field on the `Duo` substrate of §5: the coupling kernel is the
+gradient flow `duoFlow`, whose off-diagonal entries relax as `e^{-t}`. -/
+noncomputable def duoPlastic : PlasticNeuralField Duo where
+  toStochasticNeuralField := duoSys.withKernel (duoFlow 0)
+  K_t := fun t x y => duoFlow t (x, y)
+  h_K_init := rfl
+
+/-- The witness is not degenerate: it satisfies `is_gradient_descent`, and §5
+already showed the descent along `duoFlow` is *strict* (`σ(t) = e^{-2t}`), so
+this is not `Antitone` discharged by a constant. -/
+theorem duoPlastic_gradient_descent :
+    is_gradient_descent duoPlastic (fun _ => duoTheta) := fun _ _ h =>
+  entropy_production_antitone_of_gradient_flow duo_volume duoSys duoTheta duoFlow
+    duoFlow_hasDerivAt h
+
+/-- The Euclidean bilinear form `g(u, v) = u * v` on the tangent space of `ℝ`.
+
+Stated through `ℝ`-typed helpers on purpose: `TangentSpace I x` is a `def`, so
+its `Mul` and `AddCommGroup` instances are not the ones instance search finds for
+`ℝ`, and writing the proofs directly in the class fields fails with instance
+mismatches even though everything is definitionally equal. -/
+noncomputable def realForm (x : ℝ) :
+    TangentSpace (modelWithCornersSelf ℝ ℝ) x →L[ℝ]
+      TangentSpace (modelWithCornersSelf ℝ ℝ) x →L[ℝ] ℝ :=
+  ContinuousLinearMap.mul ℝ ℝ
+
+theorem realForm_apply (x u v : ℝ) : realForm x u v = u * v := rfl
+
+theorem realForm_symm (x u v : ℝ) : realForm x u v = realForm x v u := by
+  rw [realForm_apply, realForm_apply, mul_comm]
+
+theorem realForm_nondeg (x u : ℝ) (h : ∀ v : ℝ, realForm x u v = 0) : u = 0 := by
+  have h1 : u * 1 = 0 := by rw [← realForm_apply]; exact h 1
+  linarith
+
+/-- The real line with the Euclidean metric. Positive definite, so this is a
+Riemannian rather than a properly pseudo-Riemannian witness — the class asks only
+for symmetry and non-degeneracy, and a Lorentzian example would need a
+two-dimensional model. -/
+noncomputable instance realMetric :
+    PseudoRiemannianManifold (modelWithCornersSelf ℝ ℝ) ℝ where
+  metric := realForm
+  symm := realForm_symm
+  nondeg := realForm_nondeg
+
+
 end Examples
 end PhysicsOfConsciousness
