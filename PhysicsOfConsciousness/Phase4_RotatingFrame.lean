@@ -37,8 +37,11 @@ The reduction is exact only for identical natural frequencies. For a spread of
 frequencies the change of variables `θᵢ ↦ θᵢ - Ω t` leaves residual detunings
 `ωᵢ - Ω` in the reduced system, `kuramoto_potential_unbounded_below` still
 applies to it, and phase-locking exists only above a critical coupling `K_c`.
-`K_c` appears nowhere in this development — it is studied numerically in
-`simulations/kuramoto.py`. Nothing here should be read as formalizing the
+`K_c` appears nowhere in *this* file. `Phase8_SelfConsistency.lean` proves one
+direction of it — below `K_c = 2D` the incoherent state is the unique
+non-negative solution of the mean-field self-consistency equation — from an
+assumed stationary density, and the supercritical branch remains numerical
+(`simulations/kuramoto.py`). Nothing here should be read as formalizing the
 synchronization transition; what is formalized is the reduction that makes the
 *zero-frequency* system used by Phase 5 the honest reduced description of a
 uniform-frequency one.

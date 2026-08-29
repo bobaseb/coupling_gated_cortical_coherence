@@ -762,8 +762,9 @@ references and no float overflow. `arxiv_submit/ax.tar` regenerated; its merged
 
 ## Open: Critical Coupling Threshold `K_c = 2D`
 
-Dimensional fix done (2026-08-29); the analysis is not started. Recorded here
-because three files defer to it in their scope notes (`Phase3_CombinatorialThermodynamics`, `Phase4_RotatingFrame`,
+Dimensional fix done and part (a) done, both 2026-08-29; part (b) untouched and
+staying that way. Recorded here because three files defer to it in their scope
+notes (`Phase3_CombinatorialThermodynamics`, `Phase4_RotatingFrame`,
 `Phase8_ContinuousField`) and it is the only Table 1 row still marked
 "Numerical", yet it appeared in no open item.
 
@@ -775,9 +776,11 @@ because three files defer to it in their scope notes (`Phase3_CombinatorialTherm
 | `mean_field_coupling sys := ∫ x, ∫ y, sys.K x y` | The kernel averaged over both arguments | `mean_field_coupling_const` — on a probability substrate a constant kernel has strength exactly that constant |
 | `exhibits_phase_transition sys` (needs `[IsProbabilityMeasure volume]`) | `mean_field_coupling sys > critical_coupling sys.D` | `exhibits_phase_transition_const_iff` — reduces to `K > 2D` for constant kernels; witnessed both ways in `Examples.lean` §9 |
 
-The lemmas fix what the predicate *means*; they say nothing about whether `2D`
-is the right number. Nothing is connected to `order_parameter_r_sq`,
-`is_phase_locked`, `is_continuous_kuramoto_trajectory`, or any dynamics. `2 * D` is a *stipulation*
+`critical_coupling` is no longer inert: `subcritical_fixed_point_eq_zero'` in the
+new `Phase8_SelfConsistency.lean` is stated in terms of it (see below). What is
+still true is that nothing is connected to `order_parameter_r_sq`,
+`is_phase_locked`, `is_continuous_kuramoto_trajectory`, or any dynamics — the
+new theorem is about the self-consistency equation, not about a trajectory. `2 * D` is a *stipulation*
 in the Lean source; the content lives entirely in `simulations/kuramoto.py`,
 which sweeps `K` and plots the measured order parameter against a drawn line at
 `2D`.
@@ -867,38 +870,95 @@ has Brownian motion but no Fokker-Planck operator, no stationary-measure theory
 for SPDEs, and no bifurcation theory. This is a research-scale formalization
 project, not a task.
 
-### Recommendation
+### Recommendation — superseded
 
-~~Do the dimensional fix now~~ — done, see above. Treat (a) as the real task,
-sized in weeks rather than hours; leave (b) alone and keep saying so. Until (a)
-lands, Table 1 continues to read "Numerical" for this row, and the scope notes in
-Phases 3, 4 and 8 stay as they are — they are currently accurate.
+The dimensional fix and part (a) are both done. What remains is (b), which stays
+untouched: it needs the Fokker-Planck operator, stationary-measure theory for
+SPDEs and bifurcation theory, none of which Mathlib has.
 
-### Notes toward (a), for whoever picks it up
+---
 
-Two things found while doing the dimensional fix, worth recording so they are not
-re-derived:
+## Self-Consistency Equation (part (a)) — 2026-08-29 — DONE
 
-* **The subcritical direction reduces to one inequality.** Writing `a = Kr/D`,
-  integration by parts on `[-π, π]` gives the identity
-  `∫ cos θ · e^{a cos θ} dθ = a ∫ sin²θ · e^{a cos θ} dθ`
-  (take `u = sin θ`, `dv = a sin θ e^{a cos θ} dθ`; the boundary term vanishes by
-  periodicity). So `R(K, r) = a · E_a[sin²θ]` under the von Mises density, and
-  `r = R(K,r)` with `r > 0` forces `E_a[sin²θ] = D/K`. Since `E_a[sin²θ] ≤ 1`
-  outright, this already rules out a positive fixed point for `K < D` — half the
-  threshold, with no Bessel theory at all, and probably a day's work in Lean.
-* **Getting from `D` to `2D` is exactly the claim `E_a[sin²θ] ≤ 1/2`,** i.e.
-  `∫ cos 2θ · e^{a cos θ} dθ ≥ 0` (the statement `I₂(a) ≥ 0`). An elementary
-  proof avoiding Bessel series: fold `[-π, π]` onto `[0, π/2]` by `θ ↦ π - θ`,
-  giving `4∫₀^{π/2} cos 2θ · cosh(a cos θ) dθ`, then fold `[π/4, π/2]` onto
-  `[0, π/4]` by `θ ↦ π/2 - θ`, giving
-  `4∫₀^{π/4} cos 2θ · (cosh(a cos θ) - cosh(a sin θ)) dθ`.
-  On `(0, π/4)` both factors are non-negative — `cos 2θ ≥ 0`, and
-  `cos θ > sin θ ≥ 0` with `cosh` monotone on `[0, ∞)` — so the integral is
-  non-negative. This is the substantive piece: interval-integral substitution and
-  splitting over Mathlib's API, no new analysis.
-* **The supercritical direction is the harder one.** Producing an `r > 0` with
-  `r = R(K, r)` when `K > 2D` needs `R(K, r) > r` for small `r`, i.e. a
-  *lower* bound `R(K,r) ≥ ar/2 - C a³`, which is a second-order expansion of the
-  Bessel ratio rather than a single monotonicity argument. Nothing above helps
-  with it.
+`PhysicsOfConsciousness/Phase8_SelfConsistency.lean`, 400 lines, imported by
+`PhysicsOfConsciousness.lean`. Zero `sorry`; every declaration depends only on
+`propext`, `Classical.choice`, `Quot.sound`.
+
+### What landed
+
+Part (a) as scoped above, at the **sharp** threshold rather than the crude one.
+
+| Declaration | Statement |
+|---|---|
+| `vonMisesZ`, `vonMisesM`, `vonMisesS`, `vonMisesC2` | `∫_{-π}^{π}` of `e^{a cos θ}` against `1`, `cos θ`, `sin²θ`, `cos 2θ` — i.e. `2π I₀`, `2π I₁`, and `2π I₂` |
+| `besselRatio a` | `vonMisesM a / vonMisesZ a`, i.e. `I₁(a)/I₀(a)` as a ratio of integrals. Mathlib has no `Real.besselI`, and building one is unnecessary: only the ratio is ever needed |
+| `vonMisesM_eq_mul_vonMisesS` | **`∫ cos θ·e^{a cos θ} = a ∫ sin²θ·e^{a cos θ}`.** Integration by parts with `u = sin`, `v = -e^{a cos}`; exact, since `sin (±π) = 0` kills the boundary term |
+| `vonMisesC2_nonneg` | **`I₂(a) ≥ 0` for `a ≥ 0`** — the substantive result; see the proof sketch below |
+| `vonMisesS_le_half_vonMisesZ` | `E_a[sin²θ] ≤ 1/2`, the same statement rearranged through `sin²θ = 1/2 - cos 2θ/2` |
+| `besselRatio_le_half_self` | `R(a) ≤ a/2` |
+| `subcritical_fixed_point_eq_zero'` | **For `0 ≤ K < critical_coupling D` and `D > 0`, the only `r ≥ 0` with `r = R(K,r)` is `r = 0`.** |
+| `selfConsistency_zero` | `r = 0` *is* a solution, always — so the uniqueness theorem is about a non-empty solution set. §6 exercises the theorem on it |
+| `subcritical_fixed_point_eq_zero`, `besselRatio_le_self` | The crude `K < D` versions from `sin² ≤ 1`. Kept deliberately: they localize the missing factor of two to a single pointwise bound |
+
+`subcritical_fixed_point_eq_zero'` is the first theorem anywhere in the
+development that mentions `critical_coupling`.
+
+### The proof of `I₂(a) ≥ 0`, since it is the whole content
+
+The predicted route was "handle the Bessel ratio directly as a ratio of
+integrals," and that worked, but the useful decomposition turned out to be
+different from the one anticipated. Two steps, no series and no Bessel theory:
+
+1. **Integration by parts** turns `R` into `a · E_a[sin²θ]`. Bounding
+   `E_a[sin²θ] ≤ 1` is immediate and gives a threshold at `D`.
+2. **The factor of two is exactly `E_a[sin²θ] ≤ 1/2`,** equivalently `I₂(a) ≥ 0`.
+   Fold `[-π, π]` onto `[0, π/4]` twice: `θ ↦ -θ` (evenness), then
+   `θ ↦ π - θ`, which turns `e^{a cos θ}` into `e^{-a cos θ}` and leaves
+   `cos 2θ` alone, then `θ ↦ π/2 - θ`, which flips the sign of `cos 2θ` and
+   swaps `cos θ` for `sin θ`. What is left is
+   `∫₀^{π/4} cos 2θ · (2 cosh(a cos θ) - 2 cosh(a sin θ)) dθ`,
+   where both factors are visibly non-negative: `cos 2θ ≥ 0` on `[0, π/4]`, and
+   `0 ≤ sin θ ≤ cos θ` there with `cosh` increasing in `|·|`.
+
+Mathlib supplied every piece: `intervalIntegral.integral_deriv_mul_eq_sub`,
+`integral_comp_neg`, `integral_comp_sub_left`, `Real.cos_two_pi_sub`,
+`Real.cos_pi_div_two_sub`, `Real.sin_le_sin_of_le_of_le_pi_div_two`,
+`Real.cosh_le_cosh`, `intervalIntegral_pos_of_pos_on`. No new analysis
+infrastructure was needed, and the "sized in weeks" estimate above was wrong by
+about an order of magnitude — recorded because the same estimate was wrong in
+the same direction for mesh refinement.
+
+### Independently checked numerically
+
+Quadrature over `a ∈ [0, 20]` confirms `|M - a·S| / Z < 1.4e-15`,
+`S - Z/2 ≤ -3.9e-13` (equality only at `a = 0`, as it should be), and
+`min C₂ ≥ -1.4e-16`. This was a sanity check on the statements, not part of the
+proof; it is not committed.
+
+### What is still open, stated precisely
+
+1. **The supercritical direction.** That some `r > 0` solves `r = R(K,r)` when
+   `K > 2D`. Needs `R(K,r) > r` for small `r`, i.e. a *lower* bound
+   `R(a) ≥ a/2 - C a³` — a second-order expansion of the Bessel ratio, not a
+   monotonicity argument. Nothing above helps. Without it the file proves that
+   coherence cannot begin below `2D`, not that it begins there.
+2. **The ansatz — this is item (b) and stays out of reach.** The von Mises
+   density is an input. Per the design rule in `Axioms.lean` §5 it must become a
+   field of a class carrying the system's own stationary density if it is ever
+   assumed in Lean rather than in prose; at present it is assumed in prose only,
+   which is why the file declares no class and no axiom.
+3. **The link to the dynamics.** `selfConsistency` touches neither
+   `is_continuous_kuramoto_trajectory` nor `order_parameter_r_sq`. Until it does,
+   `exhibits_phase_transition` still stands on the ansatz.
+
+### Manuscript
+
+* Table 1 row for `K_c` is now "Theorem (partial)" with the Lean column naming
+  `Phase8_SelfConsistency` and stating what is assumed. Verified the table still
+  fits the page — the first two phrasings overflowed it.
+* `main.tex` Derivation 4: two new paragraphs, one giving the argument and one
+  separating the three things it does not establish.
+* `supplementary.tex`: a `Phase8_SelfConsistency.lean` implementation note under
+  Theorem 4, and the Phase 4 note's "we do not formalize" corrected to "we
+  formalize in one direction only."
+* Both documents compile with zero warnings and zero errors.

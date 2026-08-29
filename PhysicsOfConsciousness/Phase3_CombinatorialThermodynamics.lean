@@ -35,8 +35,9 @@ of the zero-frequency system `sys.reduced`, on which the two potentials coincide
 descent proved here onto `kuramoto_potential_dynamic`, and `rotating_frame_chain`
 runs the whole chain through to phase-locking and `r² = 1`. The reduction is
 exact only for identical frequencies; a genuine spread leaves residual detunings,
-and phase-locking then requires a critical coupling `K_c` that this development
-does not formalize.
+and phase-locking then requires a critical coupling `K_c` that this file does not
+formalize. For what is proved about `K_c` — one direction, from an assumed
+stationary density — see `Phase8_SelfConsistency.lean`.
 -/
 noncomputable def kuramoto_potential (sys : KuramotoSystem V) (theta : V → ℝ) : ℝ :=
   - (1/2) * ∑ i, ∑ j, sys.A i j * Real.cos (theta i - theta j) - ∑ i, sys.omega i * theta i
