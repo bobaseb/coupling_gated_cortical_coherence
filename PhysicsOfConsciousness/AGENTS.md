@@ -41,7 +41,10 @@ in `Examples.lean`, and the witness must be checked non-degenerate.
 * A witness that discharges its obligation trivially (a constant field, `KL = 0`,
   `rfl`) proves inhabitability and nothing more. Prefer one that exercises the
   obligation — and where the trivial one is all that is available, prove *why*, as
-  `contracting_implies_const` does for the 0/1 metric in `Examples.lean` §10.
+  `contracting_implies_const` does for the 0/1 metric in `Examples.lean` §10. That
+  theorem is also the model for what to do next: it stood as the recorded reason
+  the Self's witness was empty until the metric was replaced by one built from the
+  measures, and it is kept, demoted to a local instance, as the record of why.
 * State non-degeneracy as theorems, not comments: measures that are nonzero,
   approximations that genuinely change with `N`, families that really depend on
   their parameter.

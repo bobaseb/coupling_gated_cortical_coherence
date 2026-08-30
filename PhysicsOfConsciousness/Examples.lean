@@ -41,11 +41,15 @@
 
   §10 witnesses `ReflexiveBoundary` / `PredictiveModel` (`Phase6_ReflexiveTopology`)
   and the three ambient instances `reflexive_topology_implies_self` assumes about
-  `GlobalSection`. Read the section's own header before quoting it: the metric it
-  supplies is the 0/1 metric, under which — as `contracting_implies_const` proves
-  there — the only `1/2`-contraction is a constant map. The witness therefore
-  establishes joint satisfiability of the hypotheses and nothing about the
-  dynamics of self-prediction.
+  `GlobalSection`. It first pierces the sheafification: `massEquiv` proves the global
+  sections of the probability sheaf on the three-site cortex *are* the finite measures
+  on it, read as densities against counting measure. The metric is then the
+  uniform distance between their densities, complete, and the self-prediction map
+  contracts by exactly one half (`relax_dist`) without being constant
+  (`relax_not_const`), with a unique fixed point (`relax_fixed_unique`). The earlier
+  0/1 metric is kept as `gsDiscreteMetric`, and `contracting_implies_const` records
+  why it was empty. What is still not established is that any field dynamics produces
+  this particular map or this particular contraction constant.
 
   Every declaration in this file depends only on `propext`, `Classical.choice`
   and `Quot.sound`.
@@ -1151,44 +1155,317 @@ theorem duoWeak_inflated :
     rw [critical_coupling]
     norm_num
 
-/-! ## 10. The reflexive boundary, and exactly how little this witness says
+/-! ## 10. The reflexive boundary: the Self as a non-trivial attractor
 
-`reflexive_topology_implies_self` (Derivation 6, the Self) had **no instance of any
-structure it mentions**. Read literally it is the Banach fixed-point theorem with every
-physical commitment pushed into a hypothesis: `GlobalSection X` is *assumed* to be a
-nonempty complete metric space — it is defined as a sheafification's sections over `⊤`,
-and no metric is constructed for it anywhere — and `predict` is *assumed* to be a
-`1/2`-contraction. Until now nothing showed those assumptions were jointly satisfiable,
-so the theorem was conditional on structures of unknown realizability, which is the same
-failure mode an uninhabited class has.
+`reflexive_topology_implies_self` (Derivation 6, the Self) is the Banach fixed-point
+theorem with every physical commitment pushed into a hypothesis: `GlobalSection X` is
+*assumed* to be a nonempty complete metric space, and `predict` is *assumed* to be a
+`1/2`-contraction. `GlobalSection` is defined as the sections over `⊤` of a
+sheafification — a subtype of families of germs — so nothing about it is a measure until
+that layer is pierced, and an earlier pass discharged the metric hypothesis with the 0/1
+metric. That witness was honest but empty: `contracting_implies_const` (kept below) proves
+that under the 0/1 metric *every* `ContractingWith K` map with `K < 1` is constant, so on
+that model the Self was the constant section.
 
-This section removes that particular doubt and creates no illusions about what remains.
+This section replaces it. The work is in three stages.
 
-* `gsMetric` puts the 0/1 metric on `GlobalSection Cortex`, and `gsComplete` proves it
-  complete (a Cauchy sequence is eventually constant). `Nonempty` comes from `globalSect 0`
-  of §4, so all three ambient instances are discharged on a substrate that already carries
-  a genuine two-patch thermodynamic cover.
-* `cortexReflexive` is a `ReflexiveBoundary`. Its `auto_resonance` is the *restriction map*
-  of the presheaf, not an arbitrary function: the avatar's state is literally the global
-  field read on the avatar region. The class does not require this — that is gap C2 in the
-  audit — but the witness shows the intended reading is available.
-* `reflexive_topology_implies_self` then applies, and `cortexFixedPoint` exhibits the fixed
-  point explicitly rather than only asserting one exists.
+* **The germ–measure dictionary.** On this discrete substrate every point has a smallest
+  open neighbourhood, so "mass carried at `x`" is a well-defined map out of the stalk at
+  `x` (`stalkMass`, built as `colimit.desc` of `massCocone`; the cocone law is exactly
+  that restriction preserves the mass at a point). Reading a global section's germ at each
+  site gives `density : GlobalSection Cortex → (Site → ℝ≥0)`, and `massEquiv` proves this a
+  **bijection**: `density` is injective because a germ on a discrete space is determined by its
+  restriction to the point (`stalkMass_injective`), and surjective because any prescribed
+  density is realized by a finite measure (`massMeasure`). Global sections of the
+  probability sheaf on `Cortex` *are* the finite measures on it, read as densities against
+  counting measure. Nothing in Mathlib supplied this: `TopCat.Presheaf.sheafify` has no
+  adjunction and no `isIso_toSheafify`, so the inverse had to be constructed.
+* **The metric.** `gsMetric` transports the metric of `Site → ℝ≥0` along `density`: the
+  distance between two sections is the largest difference of the masses their measures put
+  on a site: the uniform distance between their densities. (On a finite substrate that is
+  equivalent to the total-variation distance of the measures, within a factor of the number
+  of sites, but it is not equal to it — total variation sums the differences where this
+  takes their maximum. Nothing below uses the comparison.) It is complete
+  (`gsComplete`, via surjectivity of `density`, not via "Cauchy sequences are eventually
+  constant"), and `exists_dist_lt_one` exhibits distinct sections at distance `1/2`, which
+  is exactly the hypothesis `contracting_implies_const` needs and no longer has.
+* **The Self.** `relax` is the self-prediction map "average the current field with the
+  baseline": a genuine dissipative relaxation, not a constant. `relax_dist` proves it
+  contracts distances by *exactly* one half, `relax_not_const` proves it is not constant,
+  `relax_fixed` names its fixed point and `relax_fixed_unique` proves that fixed point is
+  the only one — Banach uniqueness re-derived by hand on the witness.
 
-**What this does not establish, stated as a theorem rather than a caveat.**
-`contracting_implies_const` proves that under the 0/1 metric *every* `ContractingWith K`
-map with `K < 1` is constant. So the contraction hypothesis, on this witness, is not a
-statement about dissipative self-prediction; it is satisfiable here only in the trivial
-way, and the fixed point it produces is the constant value. A witness that says something
-about the dynamics needs a metric built from the measure-theoretic structure of
-`GlobalSection` — the Prokhorov metric the file's header names — which is not constructed
-here.
+**What this still does not establish.** `relax` is a modelling choice: nothing in the
+development derives it from field dynamics, and the contraction constant `1/2` is built
+into its definition rather than read off an entropy production rate. The Lévy–Prokhorov
+metric named in the header of `Phase6_ReflexiveTopology.lean` is *not* what is constructed
+here, and the substitution is not cosmetic: on this substrate `μ ↦ ½μ + ½μ₀` is **not** a
+Lévy–Prokhorov contraction (two measures of mass 5 sitting at different sites stay at
+Lévy–Prokhorov distance 1 under it, because the thickening of a set by `ε < 1` is the set
+itself), and Mathlib has no completeness result for that metric to build on. The uniform
+distance between densities is what this substrate actually supports; it and Lévy–Prokhorov
+agree on small scales and differ in the large, and no claim about their equivalence is made
+or used here.
 -/
 
+section ReflexiveSelf
+
+open CategoryTheory.Limits
+open scoped NNReal
+
+/-! ### The germ–measure dictionary -/
+
+/-- The probability presheaf on the cortex, before sheafification, with its type spelled
+out so that the presheaf API is available by dot notation. -/
+noncomputable abbrev Fpre : TopCat.Presheaf (Type) Cortex := probabilityPresheaf_pre Cortex
+
+/-- Presheaf restriction, with the types spelled out. -/
+noncomputable def res {U V : Opens ↥Cortex} (hle : V ≤ U) (μ : FiniteMeasure ↥U) :
+    FiniteMeasure ↥V := Fpre.map (homOfLE hle).op μ
+
+/-- Restricting a finite measure along an inclusion of opens preserves the mass carried by
+a point of the smaller open. This is the whole content of the dictionary below. -/
+lemma restrict_singleton_mass {U V : Opens ↥Cortex} (hle : V ≤ U) (x : Site) (hxV : x ∈ V)
+    (μ : FiniteMeasure ↥U) :
+    (res hle μ) {(⟨x, hxV⟩ : ↥V)} = μ {(⟨x, hle hxV⟩ : ↥U)} := by
+  rw [res]
+  have hemb := inc_is_measurable_embedding Cortex hle
+  show ⇑(FiniteMeasure.comap (fun y : ↥V => (⟨y.val, hle y.property⟩ : ↥U)) μ) {(⟨x, hxV⟩ : ↥V)}
+      = ⇑μ {(⟨x, hle hxV⟩ : ↥U)}
+  rw [FiniteMeasure.coeFn_def, FiniteMeasure.coeFn_def]
+  simp only [FiniteMeasure.toMeasure_comap]
+  rw [hemb.comap_apply]
+  congr 2
+  rw [Set.image_singleton]
+
+/-- The mass a local finite measure puts on one point of its domain. -/
+noncomputable def massAt (V : Opens ↥Cortex) (x : Site) (hx : x ∈ V) (μ : FiniteMeasure ↥V) :
+    ℝ≥0 := μ {(⟨x, hx⟩ : ↥V)}
+
+lemma massAt_res {U V : Opens ↥Cortex} (hle : V ≤ U) (x : Site) (hxV : x ∈ V)
+    (μ : FiniteMeasure ↥U) : massAt V x hxV (res hle μ) = massAt U x (hle hxV) μ :=
+  restrict_singleton_mass hle x hxV μ
+
+/-- The cocone over the neighbourhood diagram at `x` given by "mass carried at `x`".
+`massAt_res` is exactly the cocone law. -/
+noncomputable def massCocone (x : ↥Cortex) : Cocone ((OpenNhds.inclusion x).op ⋙ Fpre) where
+  pt := ℝ≥0
+  ι :=
+  { app := fun V => ↾(fun (μ : FiniteMeasure ↥(V.unop.1)) => massAt V.unop.1 x V.unop.2 μ)
+    naturality := by
+      intro U V i
+      ext μ
+      have hle : V.unop.1 ≤ U.unop.1 := leOfHom ((OpenNhds.inclusion x).map i.unop)
+      have hmap : (OpenNhds.inclusion x).op.map i = (homOfLE hle).op := Subsingleton.elim _ _
+      have key : (((OpenNhds.inclusion x).op ⋙ Fpre).map i μ : FiniteMeasure ↥(V.unop.1))
+          = res hle μ := by
+        rw [Functor.comp_map, hmap]; rfl
+      show massAt V.unop.1 x V.unop.2 (((OpenNhds.inclusion x).op ⋙ Fpre).map i μ)
+        = massAt U.unop.1 x U.unop.2 μ
+      rw [key]
+      exact massAt_res hle x V.unop.2 μ }
+
+/-- The mass a germ at `x` carries at `x`. This is the map out of the stalk that the
+sheafification hides; it exists because restriction preserves point masses. -/
+noncomputable def stalkMass (x : ↥Cortex) : Fpre.stalk x → ℝ≥0 :=
+  colimit.desc _ (massCocone x)
+
+lemma stalkMass_germ (V : Opens ↥Cortex) (x : Site) (hx : x ∈ V) (μ : FiniteMeasure ↥V) :
+    stalkMass x (Fpre.germ V x hx μ) = massAt V x hx μ :=
+  ConcreteCategory.congr_hom (colimit.ι_desc (massCocone x) (op ⟨V, hx⟩)) μ
+
+/-- The singleton open around a site — the smallest neighbourhood, which exists because the
+topology is discrete. Every germ is represented on it. -/
+def sing (x : Site) : Opens ↥Cortex := ⟨{x}, isOpen_discrete _⟩
+
+theorem memSing (x : Site) : x ∈ sing x := rfl
+
+theorem sing_le {x : Site} {U : Opens ↥Cortex} (hx : x ∈ U) : sing x ≤ U := by
+  intro y hy
+  have : y = x := hy
+  subst this
+  exact hx
+
+instance singSubsingleton (x : Site) : Subsingleton ↥(sing x) :=
+  ⟨fun a b => Subtype.ext (a.2.trans b.2.symm)⟩
+
+/-- A finite measure on a one-point open is determined by the mass it puts on that point. -/
+lemma sing_measure_ext (x : Site) (m m' : FiniteMeasure ↥(sing x))
+    (h : massAt (sing x) x (memSing x) m = massAt (sing x) x (memSing x) m') : m = m' := by
+  refine FiniteMeasure.eq_of_forall_apply_eq _ _ ?_
+  intro s _
+  rcases Set.eq_empty_or_nonempty s with rfl | ⟨a, ha⟩
+  · simp [FiniteMeasure.coeFn_def]
+  · have hs : s = {(⟨x, memSing x⟩ : ↥(sing x))} := by
+      ext b
+      simp only [Set.mem_singleton_iff]
+      refine ⟨fun _ => Subsingleton.elim b _, fun _ => ?_⟩
+      have : a = b := Subsingleton.elim a b
+      exact this ▸ ha
+    rw [hs]
+    exact h
+
+/-- Germs on a discrete space are determined by the mass they carry: restrict a
+representative to the smallest neighbourhood, where a finite measure is one number. -/
+lemma stalkMass_injective (x : Site) : Function.Injective (stalkMass x) := by
+  intro a b hab
+  obtain ⟨U, hU, μ, rfl⟩ := Fpre.exists_germ_eq a
+  obtain ⟨V, hV, ν, rfl⟩ := Fpre.exists_germ_eq b
+  have eU := Fpre.germ_res_apply (homOfLE (sing_le hU)) x (memSing x) μ
+  have eV := Fpre.germ_res_apply (homOfLE (sing_le hV)) x (memSing x) ν
+  have hab' : massAt U x hU μ = massAt V x hV ν :=
+    (stalkMass_germ U x hU μ).symm.trans (hab.trans (stalkMass_germ V x hV ν))
+  rw [← eU, ← eV]
+  congr 1
+  refine sing_measure_ext x _ _ ?_
+  exact (massAt_res (sing_le hU) x (memSing x) μ).trans
+    (hab'.trans (massAt_res (sing_le hV) x (memSing x) ν).symm)
+
+theorem memTop (x : Site) : x ∈ (⊤ : Opens ↥Cortex) := trivial
+
+/-- The **density** of a global section: the mass its germ carries at each site. -/
+noncomputable def density (s : GlobalSection (X := Cortex)) : Site → ℝ≥0 :=
+  fun x => stalkMass x (s.1 ⟨x, memTop x⟩)
+
+/-- The density of a section glued from an honest global measure is that measure's
+density. This is the bridge between the sheafified world and the measure world. -/
+lemma Phi_sheafify (μ : FiniteMeasure ↥(⊤ : Opens ↥Cortex)) (x : Site) :
+    density ((TopCat.Presheaf.toSheafify Fpre).app (op ⊤) μ) x
+      = μ {(⟨x, memTop x⟩ : ↥(⊤ : Opens ↥Cortex))} :=
+  stalkMass_germ ⊤ x (memTop x) μ
+
+lemma Phi_injective : Function.Injective density := by
+  intro s t h
+  apply Subtype.ext
+  funext y
+  exact stalkMass_injective y.1 (congrFun h y.1)
+
+instance : Nonempty Site := ⟨Site.mid⟩
+
+instance : MeasurableSingletonClass Site := ⟨fun x => (isOpen_discrete {x}).measurableSet⟩
+
+noncomputable instance topFintype : Fintype ↥(⊤ : Opens ↥Cortex) := Fintype.ofFinite _
+
+instance topSingleton : MeasurableSingletonClass ↥(⊤ : Opens ↥Cortex) :=
+  ⟨fun z => by
+    have h : MeasurableSet ((Subtype.val : ↥(⊤ : Opens ↥Cortex) → Site) ⁻¹' {z.1}) :=
+      measurable_subtype_coe (measurableSet_singleton z.1)
+    have himg : (Subtype.val : ↥(⊤ : Opens ↥Cortex) → Site) ⁻¹' {z.1} = {z} := by
+      ext b
+      exact ⟨fun hb => Subtype.ext hb, fun hb => congrArg Subtype.val hb⟩
+    rwa [himg] at h⟩
+
+/-- The unit point mass at a site, as a finite measure on the whole substrate. -/
+noncomputable def diracFM (y : ↥(⊤ : Opens ↥Cortex)) : FiniteMeasure ↥(⊤ : Opens ↥Cortex) :=
+  ⟨Measure.dirac y, inferInstance⟩
+
+/-- The finite measure on the whole substrate with prescribed mass at each site. -/
+noncomputable def massMeasure (w : Site → ℝ≥0) : FiniteMeasure ↥(⊤ : Opens ↥Cortex) :=
+  ∑ y : ↥(⊤ : Opens ↥Cortex), w y.1 • diracFM y
+
+lemma fm_sum_apply {Ω : Type*} [MeasurableSpace Ω] {ι : Type*} (S : Finset ι)
+    (f : ι → FiniteMeasure Ω) (s : Set Ω) : (∑ i ∈ S, f i) s = ∑ i ∈ S, (f i) s := by
+  classical
+  induction S using Finset.induction with
+  | empty => simp [FiniteMeasure.coeFn_def]
+  | insert a S ha ih =>
+      rw [Finset.sum_insert ha, Finset.sum_insert ha, ← ih, FiniteMeasure.coeFn_add]
+      rfl
+
+lemma diracFM_apply (y z : ↥(⊤ : Opens ↥Cortex)) :
+    diracFM y {z} = if y = z then 1 else 0 := by
+  rw [FiniteMeasure.coeFn_def]
+  show ((Measure.dirac y) {z}).toNNReal = _
+  rw [Measure.dirac_apply' _ (measurableSet_singleton z)]
+  by_cases h : y = z <;> simp [h, Set.indicator]
+
+lemma massMeasure_apply (w : Site → ℝ≥0) (x : Site) :
+    massAt ⊤ x (memTop x) (massMeasure w) = w x := by
+  show (massMeasure w) {(⟨x, memTop x⟩ : ↥(⊤ : Opens ↥Cortex))} = w x
+  rw [massMeasure, fm_sum_apply,
+    Finset.sum_eq_single (⟨x, memTop x⟩ : ↥(⊤ : Opens ↥Cortex))]
+  · rw [FiniteMeasure.smul_apply, diracFM_apply]
+    simp
+  · intro b _ hb
+    rw [FiniteMeasure.smul_apply, diracFM_apply]
+    simp [hb]
+  · intro h
+    exact absurd (Finset.mem_univ _) h
+
+/-- The global section with prescribed mass at each site. -/
+noncomputable def sectionOfMass (w : Site → ℝ≥0) : GlobalSection (X := Cortex) :=
+  (TopCat.Presheaf.toSheafify Fpre).app (op ⊤) (massMeasure w)
+
+@[simp] lemma Phi_sectionOfMass (w : Site → ℝ≥0) : density (sectionOfMass w) = w := by
+  funext x
+  exact (Phi_sheafify (massMeasure w) x).trans (massMeasure_apply w x)
+
+lemma Phi_surjective : Function.Surjective density :=
+  fun w => ⟨sectionOfMass w, Phi_sectionOfMass w⟩
+
+/-- **Global sections are measures.** On the three-site substrate the sections of the
+sheafified probability presheaf over `⊤` correspond exactly to the finite measures on it,
+read off as densities against counting measure. -/
+noncomputable def massEquiv : GlobalSection (X := Cortex) ≃ (Site → ℝ≥0) :=
+  Equiv.ofBijective density ⟨Phi_injective, Phi_surjective⟩
+
+/-! ### The metric, from the measures rather than from nothing -/
+
+/-- The metric on global sections: the largest difference between the masses the two glued
+measures put on a site: the uniform distance between their densities. -/
+noncomputable instance gsMetric : MetricSpace (GlobalSection (X := Cortex)) :=
+  MetricSpace.induced density Phi_injective inferInstance
+
+lemma gs_dist_eq (s t : GlobalSection (X := Cortex)) : dist s t = dist (density s) (density t) := rfl
+
+lemma gs_dist_sectionOfMass (w w' : Site → ℝ≥0) :
+    dist (sectionOfMass w) (sectionOfMass w') = dist w w' := by
+  rw [gs_dist_eq, Phi_sectionOfMass, Phi_sectionOfMass]
+
+/-- Completeness, proved from the dictionary: a Cauchy sequence of sections is a Cauchy
+sequence of densities, its limit density is realized by a section, and the section
+converges. Not "every Cauchy sequence is eventually constant". -/
+instance gsComplete : CompleteSpace (GlobalSection (X := Cortex)) := by
+  refine Metric.complete_of_cauchySeq_tendsto fun u hu => ?_
+  have hPhi : CauchySeq (fun n => density (u n)) := by
+    rw [Metric.cauchySeq_iff] at hu ⊢
+    intro ε hε
+    obtain ⟨N, hN⟩ := hu ε hε
+    exact ⟨N, fun m hm n hn => hN m hm n hn⟩
+  obtain ⟨L, hL⟩ := cauchySeq_tendsto_of_complete hPhi
+  refine ⟨sectionOfMass L, ?_⟩
+  rw [Metric.tendsto_atTop] at hL ⊢
+  intro ε hε
+  obtain ⟨N, hN⟩ := hL ε hε
+  refine ⟨N, fun n hn => ?_⟩
+  have hd : dist (u n) (sectionOfMass L) = dist (density (u n)) L := by
+    rw [gs_dist_eq, Phi_sectionOfMass]
+  rw [hd]
+  exact hN n hn
+
+/-- The substrate has at least one global state: the phase-0 section of §4. -/
+instance : Nonempty (GlobalSection (X := Cortex)) := ⟨globalSect 0⟩
+
+/-- **The metric is not the 0/1 metric.** Distinct sections sit at distance `1/2`, which is
+precisely what `contracting_implies_const` below needs and cannot get here. -/
+theorem exists_dist_lt_one :
+    ∃ s t : GlobalSection (X := Cortex), s ≠ t ∧ dist s t = 1/2 := by
+  refine ⟨sectionOfMass (fun _ => 0), sectionOfMass (fun _ => 1/2), ?_, ?_⟩
+  · intro h
+    have := congrArg (fun u => density u Site.mid) h
+    rw [Phi_sectionOfMass, Phi_sectionOfMass] at this
+    norm_num at this
+  · rw [gs_dist_sectionOfMass, dist_pi_const, NNReal.dist_eq]
+    push_cast
+    norm_num
+
+/-! ### The 0/1 metric, kept as the record of why the old witness was empty -/
+
 open scoped Classical in
-/-- The 0/1 metric on global sections. Nothing about the space is used; see the section
-header for what this costs. -/
-noncomputable instance gsMetric : MetricSpace (GlobalSection (X := Cortex)) where
+/-- The 0/1 metric on global sections. Nothing about the space is used. It is no longer an
+instance; `contracting_implies_const` is why. -/
+@[instance_reducible]
+noncomputable def gsDiscreteMetric : MetricSpace (GlobalSection (X := Cortex)) where
   dist x y := if x = y then 0 else 1
   dist_self x := by simp
   dist_comm x y := by split_ifs <;> simp_all
@@ -1198,6 +1475,10 @@ noncomputable instance gsMetric : MetricSpace (GlobalSection (X := Cortex)) wher
     by_contra hne
     simp only [hne, ite_false] at h
     norm_num at h
+
+section DiscreteMetric
+
+attribute [local instance 10000] gsDiscreteMetric
 
 open scoped Classical in
 theorem gsDist_of_ne {x y : GlobalSection (X := Cortex)} (h : x ≠ y) : dist x y = 1 := by
@@ -1209,23 +1490,10 @@ theorem gsDist_le_one (x y : GlobalSection (X := Cortex)) : dist x y ≤ 1 := by
   show (if x = y then (0:ℝ) else 1) ≤ 1
   split_ifs <;> norm_num
 
-/-- The substrate has at least one global state: the phase-0 section of §4. -/
-instance : Nonempty (GlobalSection (X := Cortex)) := ⟨globalSect 0⟩
-
-/-- Completeness: with the 0/1 metric a Cauchy sequence is eventually constant. -/
-instance gsComplete : CompleteSpace (GlobalSection (X := Cortex)) := by
-  refine Metric.complete_of_cauchySeq_tendsto fun u hu => ?_
-  obtain ⟨N, hN⟩ := Metric.cauchySeq_iff'.1 hu 1 one_pos
-  refine ⟨u N, Tendsto.congr' ?_ tendsto_const_nhds⟩
-  filter_upwards [eventually_ge_atTop N] with n hn
-  by_contra hne
-  have h1 := hN n hn
-  rw [gsDist_of_ne (Ne.symm hne)] at h1
-  exact lt_irrefl 1 h1
-
 /-- **The price of the 0/1 metric, made explicit.** Every contraction on it is constant, so
-the contraction hypothesis of `reflexive_topology_implies_self` is discharged here in the
-only way it can be. -/
+the contraction hypothesis of `reflexive_topology_implies_self` could only ever be
+discharged there in the trivial way. This is the theorem the rest of this section exists to
+avoid; `exists_dist_lt_one` shows its hypothesis fails for `gsMetric`. -/
 theorem contracting_implies_const {K : NNReal} (hK : K < 1)
     (f : GlobalSection (X := Cortex) → GlobalSection (X := Cortex))
     (hf : LipschitzWith K f) (x y : GlobalSection (X := Cortex)) : f x = f y := by
@@ -1239,13 +1507,154 @@ theorem contracting_implies_const {K : NNReal} (hK : K < 1)
   have h3 : (K : ℝ) < 1 := by exact_mod_cast hK
   linarith
 
+end DiscreteMetric
+
+/-! ### The Self -/
+
+/-- The density of the phase-`t` global section: all its mass sits at the shared site,
+with the amplitude `(1 + cos t)⁺` of §4. -/
+lemma Phi_globalSect (t : ℝ) (x : Site) :
+    density (globalSect t) x = if x = Site.mid then Real.toNNReal (1 + Real.cos t) else 0 := by
+  have h := Phi_sheafify (phaseMeasure t) x
+  rw [show density (globalSect t) x = density ((TopCat.Presheaf.toSheafify Fpre).app (op ⊤)
+      (phaseMeasure t)) x from rfl, h, phaseMeasure, FiniteMeasure.smul_apply]
+  have hd : (midDirac : FiniteMeasure ↥(⊤ : Opens ↥Cortex)) {(⟨x, memTop x⟩ : ↥(⊤ : Opens ↥Cortex))}
+      = if midPt = (⟨x, memTop x⟩ : ↥(⊤ : Opens ↥Cortex)) then 1 else 0 :=
+    diracFM_apply midPt ⟨x, memTop x⟩
+  rw [hd]
+  by_cases hx : x = Site.mid
+  · subst hx
+    simp [midPt]
+  · have : midPt ≠ (⟨x, memTop x⟩ : ↥(⊤ : Opens ↥Cortex)) := by
+      intro hcon
+      exact hx (congrArg Subtype.val hcon).symm
+    simp [this, hx]
+
+/-- The phase-0 global section, typed as a `GlobalSection` so that `gsMetric` is found.
+This is the baseline the field relaxes toward, and the Self it converges to. -/
+noncomputable def cortexState : GlobalSection (X := Cortex) := globalSect 0
+
+lemma Phi_cortexState (x : Site) :
+    density cortexState x = if x = Site.mid then 2 else 0 := by
+  rw [cortexState, Phi_globalSect]
+  simp only [Real.cos_zero]
+  split_ifs <;> norm_num
+
+/-- The phase-π section: the envelope `(1 + cos t)⁺` vanishes, so the field carries no
+mass anywhere. -/
+noncomputable def cortexSilent : GlobalSection (X := Cortex) := globalSect Real.pi
+
+lemma Phi_cortexSilent (x : Site) : density cortexSilent x = 0 := by
+  rw [cortexSilent, Phi_globalSect]
+  simp only [Real.cos_pi]
+  norm_num
+
+/-- The two extreme phase sections of §4 are two apart: the metric reads off the amplitude
+difference, so distances here are amplitudes and not bookkeeping. -/
+theorem dist_cortexSilent_cortexState : dist cortexSilent cortexState = 2 := by
+  refine le_antisymm ?_ ?_
+  · rw [gs_dist_eq, dist_pi_le_iff (by norm_num)]
+    intro x
+    rw [Phi_cortexSilent, Phi_cortexState, NNReal.dist_eq]
+    split_ifs <;> push_cast <;> norm_num
+  · have h := dist_le_pi_dist (density cortexSilent) (density cortexState) Site.mid
+    rw [← gs_dist_eq] at h
+    rw [Phi_cortexSilent, Phi_cortexState] at h
+    simpa [NNReal.dist_eq] using h
+
+/-- **The self-prediction map.** The field's model of its next state is the average of its
+current state and the baseline: a dissipative relaxation. It is a function of the section
+it is applied to — unlike the constant map the 0/1 metric forced. -/
+noncomputable def relax (s : GlobalSection (X := Cortex)) : GlobalSection (X := Cortex) :=
+  sectionOfMass (fun x => (density s x + density cortexState x) / 2)
+
+@[simp] lemma Phi_relax (s : GlobalSection (X := Cortex)) :
+    density (relax s) = fun x => (density s x + density cortexState x) / 2 :=
+  Phi_sectionOfMass _
+
+lemma Phi_relax_apply (s : GlobalSection (X := Cortex)) (x : Site) :
+    density (relax s) x = (density s x + density cortexState x) / 2 := by
+  rw [Phi_relax]
+
+lemma nnreal_dist_avg (a b c : ℝ≥0) : dist ((a + c)/2) ((b + c)/2) = dist a b / 2 := by
+  rw [NNReal.dist_eq, NNReal.dist_eq]
+  push_cast
+  rw [show ((a:ℝ) + c)/2 - ((b:ℝ) + c)/2 = ((a:ℝ) - b)/2 by ring, abs_div]
+  norm_num
+
+lemma relax_lipschitz : LipschitzWith (1/2) relax := by
+  refine LipschitzWith.of_dist_le_mul fun s t => ?_
+  rw [gs_dist_eq, Phi_relax, Phi_relax]
+  push_cast
+  have hb : (0:ℝ) ≤ 1/2 * dist s t := by positivity
+  rw [dist_pi_le_iff hb]
+  intro x
+  rw [nnreal_dist_avg]
+  have h1 : dist (density s x) (density t x) ≤ dist s t := by
+    rw [gs_dist_eq]; exact dist_le_pi_dist _ _ x
+  linarith
+
+theorem relax_contracting : ContractingWith (1/2) relax :=
+  ⟨by norm_num, relax_lipschitz⟩
+
+/-- The contraction factor is exactly one half, not merely at most one half: the map
+genuinely moves sections and genuinely damps the distance between them. -/
+theorem relax_dist (s t : GlobalSection (X := Cortex)) :
+    dist (relax s) (relax t) = dist s t / 2 := by
+  refine le_antisymm ?_ ?_
+  · have := relax_lipschitz.dist_le_mul s t
+    push_cast at this
+    linarith
+  · have key : dist s t ≤ 2 * dist (relax s) (relax t) := by
+      have hnn : (0:ℝ) ≤ 2 * dist (relax s) (relax t) := by
+        have := dist_nonneg (x := relax s) (y := relax t)
+        linarith
+      rw [gs_dist_eq, dist_pi_le_iff hnn]
+      intro x
+      have h2 : dist (density s x) (density t x) = 2 * dist (density (relax s) x) (density (relax t) x) := by
+        rw [Phi_relax_apply, Phi_relax_apply, nnreal_dist_avg]
+        ring
+      rw [h2]
+      have := dist_le_pi_dist (density (relax s)) (density (relax t)) x
+      rw [← gs_dist_eq] at this
+      linarith
+    linarith
+
+/-- **The map is not constant** — the exact failure of `contracting_implies_const` on this
+metric. The silent field and the baseline have different predictions. -/
+theorem relax_not_const : relax cortexSilent ≠ relax cortexState := by
+  intro h
+  have h' : density (relax cortexSilent) Site.mid = density (relax cortexState) Site.mid := by rw [h]
+  rw [Phi_relax_apply, Phi_relax_apply, Phi_cortexSilent, Phi_cortexState] at h'
+  norm_num at h'
+
+theorem relax_fixed : relax cortexState = cortexState := by
+  apply Phi_injective
+  rw [Phi_relax]
+  funext x
+  apply NNReal.coe_injective
+  push_cast
+  ring
+
+/-- The fixed point is unique, proved directly rather than quoted from Banach: a section
+that predicts itself has the baseline's density. -/
+theorem relax_fixed_unique (s : GlobalSection (X := Cortex)) (h : relax s = s) :
+    s = cortexState := by
+  apply Phi_injective
+  funext x
+  have hx : (density s x + density cortexState x) / 2 = density s x := by
+    have h' : density (relax s) x = density s x := by rw [h]
+    rw [Phi_relax_apply] at h'
+    exact h'
+  apply NNReal.coe_injective
+  have := congrArg NNReal.toReal hx
+  push_cast at this
+  linarith
+
 /-- The avatar region: the shared site `mid`, the one point both patches of §4 see. -/
 def avatarPatch : Opens ↥Cortex := ⟨{Site.mid}, isOpen_discrete _⟩
 
-/-- The phase-0 global section, typed as a `GlobalSection` so that `gsMetric` is found. -/
-noncomputable def cortexState : GlobalSection (X := Cortex) := globalSect 0
-
-noncomputable def cortexPredict : PredictiveModel Cortex := ⟨fun _ => cortexState⟩
+noncomputable def cortexPredict : PredictiveModel Cortex := ⟨relax⟩
 
 /-- A reflexive boundary on the three-site cortex. `auto_resonance` is the presheaf
 restriction to the avatar region, so the avatar's state does track the global field —
@@ -1258,18 +1667,23 @@ noncomputable def cortexReflexive : ReflexiveBoundary Cortex where
 
 theorem cortexPredict_contracting :
     ContractingWith (1/2) cortexReflexive.predictive_model.predict :=
-  ⟨by norm_num, (LipschitzWith.const cortexState).weaken (by norm_num)⟩
+  relax_contracting
 
 /-- Derivation 6, applied to the witness: the hypotheses of
-`reflexive_topology_implies_self` are jointly satisfiable. -/
+`reflexive_topology_implies_self` hold on a substrate where the metric is the
+uniform distance between the glued measures' densities and the contraction is not
+constant. -/
 theorem cortexHasSelf : ∃ s : GlobalSection (X := Cortex),
     cortexReflexive.predictive_model.predict s = s :=
   reflexive_topology_implies_self cortexReflexive cortexPredict_contracting
 
-/-- The fixed point named. A constant map's fixed point is its value, so the "Self" this
-witness produces is `cortexState` — the phase-0 section, and nothing more. -/
+/-- The fixed point named — and, by `relax_fixed_unique`, the only one. The Self this
+witness produces is the attractor of a non-constant dissipative map, not the value of a
+constant one. -/
 theorem cortexFixedPoint : cortexReflexive.predictive_model.predict cortexState = cortexState :=
-  rfl
+  relax_fixed
+
+end ReflexiveSelf
 
 /-! ## 11. A double well: the symmetry, its breaking, and why the conclusion is a.e.
 

@@ -12,10 +12,25 @@
   continuous self-map. We prove it has a fixed point via the **Banach Contraction
   Mapping Theorem** (`ContractingWith.fixedPoint_isFixedPt` in Mathlib), which
   requires:
-    - `GlobalSection X` is a nonempty complete metric space (physically: the space
-      of finite measures on X with the Prokhorov/weak-* metric is complete).
+    - `GlobalSection X` is a nonempty complete metric space.
     - `predict` is a contracting map (physically: successive predictions lose
       entropy, i.e., the prediction process is dissipative).
+
+  Both are hypotheses here, and neither is idle. `Examples.lean` §10 discharges them
+  on the three-site cortex: it pierces the sheafification layer (`massEquiv` proves
+  the global sections there *are* the finite measures on the substrate, read as
+  densities), metrizes them by the uniform distance between those densities,
+  proves that metric complete, and supplies a self-prediction map that contracts by
+  exactly one half without being constant. An earlier witness used the 0/1 metric
+  instead; `contracting_implies_const` in the same section records why that was
+  empty — under the 0/1 metric every contraction is constant.
+
+  A caveat worth keeping: the Lévy–Prokhorov metric is *not* what is constructed
+  there, and the substitution is not cosmetic. On a discrete substrate the
+  ε-thickening of a set is the set itself for ε < 1, so the natural relaxation map
+  `μ ↦ ½μ + ½μ₀` fails to be a Lévy–Prokhorov contraction; Mathlib also has no
+  completeness result for that metric to build on. The uniform distance between
+  densities is what the substrate supports.
 
   Note: Brouwer/Schauder fixed-point theorems are not available in this Mathlib
   version; Banach contraction is the constructive alternative.
@@ -72,9 +87,9 @@ predictions converge: the field's model of itself is dissipative, not amplifying
 **Hypotheses (replacing the former `is_self_predictive : True`):**
 - `[Nonempty (GlobalSection X)]`: The system has at least one possible state.
 - `[MetricSpace (GlobalSection X)]`: The space of global sections has a metric
-  (e.g., the Prokhorov metric on `FiniteMeasure X`).
-- `[CompleteSpace (GlobalSection X)]`: The metric is complete
-  (standard for weak-* topology on measures over a Polish space).
+  (on a finite discrete substrate, the uniform distance between the densities of the
+  measures the sections glue to — constructed in `Examples.lean` §10).
+- `[CompleteSpace (GlobalSection X)]`: The metric is complete.
 - `h_contracting : ContractingWith (1/2) predict`: The prediction map contracts
   distances by at least 1/2 — a quantitative form of "predictions converge".
 -/
