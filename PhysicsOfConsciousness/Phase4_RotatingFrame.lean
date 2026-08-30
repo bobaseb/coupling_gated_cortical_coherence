@@ -453,17 +453,15 @@ This is the quantitative form of "the motion stops": the total squared speed
 accumulated over all of time is finite, so the trajectory cannot keep moving at
 a rate bounded away from zero.
 
-**What it does not establish, and what would.** Finiteness of the integral does
-*not* by itself give `∑ᵢ θ̇ᵢ² → 0` — an integrable function can spike forever, on
-ever narrower intervals. The classical bridge is Barbalat's lemma: an integrable
-uniformly continuous function tends to zero. The dissipation rate here *is*
-uniformly continuous (it is bounded, and so is its derivative, since
-`kuramotoField_norm_le` bounds the velocities and the coupling bounds the
-accelerations), so Barbalat would give `θ̇ → 0` — but Mathlib does not have
-Barbalat's lemma, and this development does not prove it. Note that this is a
-strictly weaker requirement than the LaSalle principle that O20(d) needs:
-velocity tending to zero does not locate the limit, and locating it needs a
-compact invariant set the state space `V → ℝ` does not supply. -/
+**What it does not establish on its own.** Finiteness of the integral does *not*
+by itself give `∑ᵢ θ̇ᵢ² → 0` — an integrable function can spike forever, on ever
+narrower intervals. The classical bridge is Barbalat's lemma, which Mathlib does
+not have; §6 proves it (`tendsto_zero_of_lipschitz_of_integral_le`), checks its
+Lipschitz hypothesis for the dissipation rate, and concludes `θ̇ → 0`
+(`velocity_sq_tendsto_zero`). That is still strictly weaker than the LaSalle
+principle O20(d) needs: velocity tending to zero does not locate the limit, and
+locating it needs a compact invariant set the state space `V → ℝ` does not
+supply. -/
 theorem dissipation_integral_tendsto :
     ∃ L : ℝ, Tendsto (fun t => kuramoto_potential_dynamic sys (theta t)) atTop (𝓝 L)
       ∧ Tendsto (fun T => ∫ t in (0:ℝ)..T, ∑ i, (kuramoto_velocity sys (theta t) i) ^ 2)
@@ -502,5 +500,299 @@ theorem rotating_frame_dissipation (sys : KuramotoSystem V) (Ω : ℝ)
               ≤ kuramoto_potential_dynamic sys (rotate Ω theta 0) - L :=
   dissipation_integral_tendsto sys.reduced (fun _ => rfl) (rotate Ω theta)
     (is_kuramoto_trajectory_rotate sys Ω h_omega theta h_traj)
+
+/-! ## 6. Barbalat's lemma: the motion stops
+
+§5 leaves a specific gap. `dissipation_integral_tendsto` says `∫₀^∞ ∑ᵢ θ̇ᵢ² dt`
+is finite, and finiteness of an integral does **not** imply that the integrand
+tends to zero — an integrable function can spike to height `1` forever, on
+intervals of width `2⁻ⁿ`. The classical repair is Barbalat's lemma: an
+integrable function that is *uniformly* continuous cannot do that, because a
+spike of height `ε` drags a whole window of fixed width `δ` up with it, and only
+finitely many such windows fit under a finite integral.
+
+Mathlib does not have Barbalat's lemma, so `tendsto_zero_of_lipschitz_of_integral_le`
+proves it here, in the Lipschitz form the dissipation rate satisfies. The rest of
+the section checks that hypothesis for the Kuramoto dissipation rate — it is
+Lipschitz because the velocities are bounded (`kuramotoField_norm_le`), the field
+is Lipschitz in the configuration (`kuramotoField_lipschitz`), and the trajectory
+is Lipschitz in time because its derivative *is* the bounded field — and concludes
+`∑ᵢ θ̇ᵢ² → 0`.
+
+**What this is not.** It is strictly weaker than O20(d), convergence to an
+equilibrium. `θ̇ → 0` says the motion stops; it does not say *where*, and locating
+the limit needs a compact invariant set that the state space `V → ℝ` does not
+supply. What it does give is the first statement in this development about the
+asymptotics of an *arbitrary* trajectory of an *arbitrary* system, rather than
+about the one witness of `Examples.lean` §15.
+-/
+
+section Barbalat
+
+/-- **Barbalat's lemma**, in Lipschitz form: a non-negative Lipschitz function
+whose integrals `∫₀^T g` are bounded above tends to zero at infinity.
+
+Not in Mathlib, and not a consequence of integrability alone: `g` could be a
+sequence of ever narrower unit spikes, whose integral converges while `g` does
+not. Uniform continuity is what forbids that, and Lipschitz is the form of it
+available here.
+
+The proof is the standard window argument. `F T = ∫₀^T g` is monotone (`g ≥ 0`)
+and bounded, so it converges to its supremum, and hence `∫ₜ^{t+δ} g` is small
+for all large `t`. If `g t ≥ ε` at some large `t`, the Lipschitz bound keeps
+`g ≥ ε/2` across a window of width `δ ≈ ε/2K` that does not depend on `t`, so
+that same integral is at least `εδ/2` — a contradiction once `δ` is chosen to
+make `εδ/2` exceed the tolerance. -/
+theorem tendsto_zero_of_lipschitz_of_integral_le
+    {g : ℝ → ℝ} {K M : ℝ}
+    (hg_cont : Continuous g)
+    (hg_nonneg : ∀ t, 0 ≤ g t)
+    (hg_lip : ∀ s t, |g s - g t| ≤ K * |s - t|)
+    (hbdd : ∀ T, ∫ t in (0:ℝ)..T, g t ≤ M) :
+    Tendsto g atTop (𝓝 0) := by
+  have hint : ∀ a b : ℝ, IntervalIntegrable g volume a b :=
+    fun a b => hg_cont.intervalIntegrable a b
+  set F : ℝ → ℝ := fun T => ∫ t in (0:ℝ)..T, g t with hFdef
+  have hFmono : Monotone F := by
+    intro a b hab
+    have hadd : F a + ∫ t in a..b, g t = F b :=
+      intervalIntegral.integral_add_adjacent_intervals (hint 0 a) (hint a b)
+    have hnn : 0 ≤ ∫ t in a..b, g t :=
+      intervalIntegral.integral_nonneg hab (fun x _ => hg_nonneg x)
+    linarith
+  have hbddA : BddAbove (Set.range F) := ⟨M, by rintro x ⟨T, rfl⟩; exact hbdd T⟩
+  have hFL : Tendsto F atTop (𝓝 (⨆ T, F T)) := tendsto_atTop_ciSup hFmono hbddA
+  have hFle : ∀ T, F T ≤ ⨆ T, F T := fun T => le_ciSup hbddA T
+  have hK0 : 0 ≤ K := le_trans (abs_nonneg _) (by simpa using hg_lip 0 1)
+  rw [Metric.tendsto_atTop]
+  intro ε hε
+  -- `K'` replaces `K` by a strictly positive constant, so that `δ` is well defined
+  -- even for a constant `g`.
+  obtain ⟨K', hK'pos, hKK'⟩ : ∃ K' : ℝ, 0 < K' ∧ K ≤ K' := ⟨K + 1, by linarith, by linarith⟩
+  obtain ⟨δ, hδpos, hKδ⟩ : ∃ δ : ℝ, 0 < δ ∧ K' * δ = ε / 2 :=
+    ⟨ε / (2 * K'), by positivity, by field_simp⟩
+  obtain ⟨T₀, hT₀⟩ := (Metric.tendsto_atTop.1 hFL) (ε * δ / 4) (by positivity)
+  refine ⟨T₀, fun t ht => ?_⟩
+  rw [Real.dist_eq, sub_zero, abs_of_nonneg (hg_nonneg t)]
+  by_contra hcon
+  rw [not_lt] at hcon
+  -- A spike at `t` drags the whole window `[t, t+δ]` up to `ε/2`.
+  have hlow : ∀ s ∈ Set.Icc t (t + δ), ε / 2 ≤ g s := by
+    intro s hs
+    have h1 : |g t - g s| ≤ K * |t - s| := hg_lip t s
+    have h2 : |t - s| ≤ δ := by
+      rw [abs_sub_comm, abs_of_nonneg (by linarith [hs.1])]
+      linarith [hs.2]
+    have h3 : g t - g s ≤ K * δ := le_trans (le_trans (le_abs_self _) h1)
+      (mul_le_mul_of_nonneg_left h2 hK0)
+    have h4 : K * δ ≤ K' * δ := mul_le_mul_of_nonneg_right hKK' hδpos.le
+    linarith
+  have hIlow : ε / 2 * δ ≤ ∫ s in t..(t + δ), g s := by
+    have hc : ∫ _ in t..(t + δ), (ε / 2 : ℝ) = ε / 2 * δ := by
+      rw [intervalIntegral.integral_const]; simp; ring
+    rw [← hc]
+    exact intervalIntegral.integral_mono_on (by linarith)
+      (intervalIntegrable_const) (hint _ _) hlow
+  -- But the tail of a convergent monotone integral carries no such mass.
+  have hIup : ∫ s in t..(t + δ), g s < ε * δ / 4 := by
+    have hadd : F t + ∫ s in t..(t + δ), g s = F (t + δ) :=
+      intervalIntegral.integral_add_adjacent_intervals (hint 0 t) (hint t (t + δ))
+    have h1 : |F t - ⨆ T, F T| < ε * δ / 4 := by
+      simpa [Real.dist_eq] using hT₀ t ht
+    have h3 : (⨆ T, F T) - ε * δ / 4 < F t := by
+      have := (abs_lt.1 h1).1; linarith
+    have h2 : F (t + δ) ≤ ⨆ T, F T := hFle _
+    linarith
+  nlinarith [mul_pos hε hδpos]
+
+end Barbalat
+
+section MotionStops
+
+omit [DecidableEq V] in
+/-- Each individual velocity is bounded by the field bound of
+`kuramotoField_norm_le`, uniformly in the configuration. The sup norm on
+`V → ℝ` is what turns the bound on the field into a bound on each component. -/
+lemma velocity_abs_le (sys : KuramotoSystem V) (phi : V → ℝ) (i : V) :
+    |kuramoto_velocity sys phi i| ≤ (∑ i, |sys.omega i|) + ∑ i, ∑ j, |sys.A i j| := by
+  calc |kuramoto_velocity sys phi i| = ‖kuramotoField sys phi i‖ := by
+        rw [Real.norm_eq_abs]; rfl
+    _ ≤ ‖kuramotoField sys phi‖ := norm_le_pi_norm _ i
+    _ ≤ _ := kuramotoField_norm_le sys phi
+
+omit [DecidableEq V] in
+/-- **A trajectory is Lipschitz in time**, with the field bound as constant.
+This is the mean value theorem applied to `theta`, whose derivative *is* the
+field, and the field is bounded on the whole state space — so unlike the usual
+ODE estimate this needs no invariant region. -/
+lemma trajectory_dist_le (sys : KuramotoSystem V) (theta : ℝ → V → ℝ)
+    (h_traj : is_kuramoto_trajectory sys theta) (s t : ℝ) :
+    dist (theta s) (theta t)
+      ≤ ((∑ i, |sys.omega i|) + ∑ i, ∑ j, |sys.A i j|) * dist s t := by
+  set C : ℝ := (∑ i, |sys.omega i|) + ∑ i, ∑ j, |sys.A i j| with hC
+  have hC0 : 0 ≤ C := by
+    have h1 : (0:ℝ) ≤ ∑ i, |sys.omega i| := Finset.sum_nonneg fun i _ => abs_nonneg _
+    have h2 : (0:ℝ) ≤ ∑ i, ∑ j, |sys.A i j| :=
+      Finset.sum_nonneg fun i _ => Finset.sum_nonneg fun j _ => abs_nonneg _
+    rw [hC]; linarith
+  have hd : ∀ u, HasDerivAt theta (kuramotoField sys (theta u)) u :=
+    (is_kuramoto_trajectory_iff sys theta).1 h_traj
+  have hlip : LipschitzWith (Real.toNNReal C) theta := by
+    refine lipschitzWith_of_nnnorm_deriv_le (fun u => (hd u).differentiableAt) fun u => ?_
+    rw [← NNReal.coe_le_coe, coe_nnnorm, Real.coe_toNNReal _ hC0, (hd u).deriv]
+    exact kuramotoField_norm_le sys (theta u)
+  have h := hlip.dist_le_mul s t
+  rwa [Real.coe_toNNReal _ hC0] at h
+
+omit [DecidableEq V] in
+/-- **The dissipation rate is Lipschitz in time.** This is the hypothesis
+Barbalat's lemma needs, and the constant is explicit: with
+`C = ∑ᵢ|ωᵢ| + ∑ᵢⱼ|Aᵢⱼ|` it is `|V| · 4C³`.
+
+Three bounds compose. The velocities are bounded by `C` (`velocity_abs_le`), so
+`x ↦ x²` is `2C`-Lipschitz where it is evaluated; the field is `2∑ᵢⱼ|Aᵢⱼ|`-Lipschitz
+in the configuration (`kuramotoField_lipschitz`); and the configuration is
+`C`-Lipschitz in time (`trajectory_dist_le`). No derivative of the dissipation
+rate is ever computed. -/
+lemma velocity_sq_lipschitz (sys : KuramotoSystem V) (theta : ℝ → V → ℝ)
+    (h_traj : is_kuramoto_trajectory sys theta) (s t : ℝ) :
+    |(∑ i, (kuramoto_velocity sys (theta s) i) ^ 2)
+        - ∑ i, (kuramoto_velocity sys (theta t) i) ^ 2|
+      ≤ (Fintype.card V * (4 * ((∑ i, |sys.omega i|) + ∑ i, ∑ j, |sys.A i j|) ^ 3)) * |s - t| := by
+  set C : ℝ := (∑ i, |sys.omega i|) + ∑ i, ∑ j, |sys.A i j| with hC
+  have hw0 : (0:ℝ) ≤ ∑ i, |sys.omega i| := Finset.sum_nonneg fun i _ => abs_nonneg _
+  have hSA0 : (0:ℝ) ≤ ∑ i, ∑ j, |sys.A i j| :=
+    Finset.sum_nonneg fun i _ => Finset.sum_nonneg fun j _ => abs_nonneg _
+  have hC0 : 0 ≤ C := by rw [hC]; linarith
+  have hSA : ∑ i, ∑ j, |sys.A i j| ≤ C := by rw [hC]; linarith
+  have hD0 : (0:ℝ) ≤ dist (theta s) (theta t) := dist_nonneg
+  have hD := trajectory_dist_le sys theta h_traj s t
+  rw [Real.dist_eq] at hD
+  have hfield := (kuramotoField_lipschitz sys).dist_le_mul (theta s) (theta t)
+  rw [Real.coe_toNNReal _ (by positivity)] at hfield
+  have hvdiff : ∀ i, |kuramoto_velocity sys (theta s) i - kuramoto_velocity sys (theta t) i|
+      ≤ 2 * C * (C * |s - t|) := by
+    intro i
+    calc |kuramoto_velocity sys (theta s) i - kuramoto_velocity sys (theta t) i|
+        = dist (kuramotoField sys (theta s) i) (kuramotoField sys (theta t) i) := by
+          rw [Real.dist_eq]; rfl
+      _ ≤ dist (kuramotoField sys (theta s)) (kuramotoField sys (theta t)) :=
+          dist_le_pi_dist _ _ i
+      _ ≤ 2 * (∑ i, ∑ j, |sys.A i j|) * dist (theta s) (theta t) := hfield
+      _ ≤ 2 * C * (C * |s - t|) := by nlinarith
+  have hterm : ∀ i, |(kuramoto_velocity sys (theta s) i) ^ 2
+      - (kuramoto_velocity sys (theta t) i) ^ 2| ≤ 4 * C ^ 3 * |s - t| := by
+    intro i
+    have hfac : (kuramoto_velocity sys (theta s) i) ^ 2
+        - (kuramoto_velocity sys (theta t) i) ^ 2
+        = (kuramoto_velocity sys (theta s) i + kuramoto_velocity sys (theta t) i)
+          * (kuramoto_velocity sys (theta s) i - kuramoto_velocity sys (theta t) i) := by ring
+    have hsum : |kuramoto_velocity sys (theta s) i + kuramoto_velocity sys (theta t) i|
+        ≤ 2 * C := by
+      calc |kuramoto_velocity sys (theta s) i + kuramoto_velocity sys (theta t) i|
+          ≤ |kuramoto_velocity sys (theta s) i| + |kuramoto_velocity sys (theta t) i| :=
+            abs_add_le _ _
+        _ ≤ C + C := add_le_add (velocity_abs_le sys _ i) (velocity_abs_le sys _ i)
+        _ = 2 * C := by ring
+    rw [hfac, abs_mul]
+    calc |kuramoto_velocity sys (theta s) i + kuramoto_velocity sys (theta t) i|
+          * |kuramoto_velocity sys (theta s) i - kuramoto_velocity sys (theta t) i|
+        ≤ (2 * C) * (2 * C * (C * |s - t|)) :=
+          mul_le_mul hsum (hvdiff i) (abs_nonneg _) (by positivity)
+      _ = 4 * C ^ 3 * |s - t| := by ring
+  calc |(∑ i, (kuramoto_velocity sys (theta s) i) ^ 2)
+          - ∑ i, (kuramoto_velocity sys (theta t) i) ^ 2|
+      = |∑ i, ((kuramoto_velocity sys (theta s) i) ^ 2
+          - (kuramoto_velocity sys (theta t) i) ^ 2)| := by
+        rw [Finset.sum_sub_distrib]
+    _ ≤ ∑ i, |(kuramoto_velocity sys (theta s) i) ^ 2
+          - (kuramoto_velocity sys (theta t) i) ^ 2| := Finset.abs_sum_le_sum_abs _ _
+    _ ≤ ∑ _i : V, 4 * C ^ 3 * |s - t| := Finset.sum_le_sum fun i _ => hterm i
+    _ = (Fintype.card V * (4 * C ^ 3)) * |s - t| := by
+        rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]; ring
+
+omit [DecidableEq V] in
+/-- **O22: the dissipation rate tends to zero along every trajectory.**
+`∑ᵢ θ̇ᵢ² → 0` as `t → ∞`, for every zero-frequency system and every initial
+condition.
+
+This is Barbalat's lemma applied to the two halves proved above: the integral
+bound is `dissipation_integral_tendsto` and the Lipschitz hypothesis is
+`velocity_sq_lipschitz`. It is the first asymptotic statement in this development
+about an arbitrary trajectory rather than about a single witness.
+
+**It does not locate the limit.** The motion stops, but "stops where" is O20(d),
+and the trajectory may stop at a splay or twisted equilibrium rather than at the
+phase-locked minimum. -/
+theorem velocity_sq_tendsto_zero (sys : KuramotoSystem V) (hw : ∀ i, sys.omega i = 0)
+    (theta : ℝ → V → ℝ) (h_traj : is_kuramoto_trajectory sys theta) :
+    Tendsto (fun t => ∑ i, (kuramoto_velocity sys (theta t) i) ^ 2) atTop (𝓝 0) := by
+  obtain ⟨L, _, _, hle⟩ := dissipation_integral_tendsto sys hw theta h_traj
+  exact tendsto_zero_of_lipschitz_of_integral_le
+    (velocity_sq_continuous sys theta h_traj)
+    (fun t => Finset.sum_nonneg fun i _ => sq_nonneg _)
+    (velocity_sq_lipschitz sys theta h_traj) hle
+
+omit [DecidableEq V] in
+/-- Each oscillator's velocity tends to zero: the sum of squares dominates each
+square, so squeezing gives `θ̇ᵢ² → 0`, and the square root is continuous. -/
+theorem velocity_tendsto_zero (sys : KuramotoSystem V) (hw : ∀ i, sys.omega i = 0)
+    (theta : ℝ → V → ℝ) (h_traj : is_kuramoto_trajectory sys theta) (i : V) :
+    Tendsto (fun t => kuramoto_velocity sys (theta t) i) atTop (𝓝 0) := by
+  have hsum := velocity_sq_tendsto_zero sys hw theta h_traj
+  have hsq : Tendsto (fun t => (kuramoto_velocity sys (theta t) i) ^ 2) atTop (𝓝 0) :=
+    squeeze_zero (fun t => sq_nonneg _)
+      (fun t => Finset.single_le_sum
+        (f := fun j => (kuramoto_velocity sys (theta t) j) ^ 2)
+        (fun j _ => sq_nonneg _) (Finset.mem_univ i)) hsum
+  have h1 : Tendsto (fun t => Real.sqrt ((kuramoto_velocity sys (theta t) i) ^ 2)) atTop
+      (𝓝 (Real.sqrt 0)) := (Real.continuous_sqrt.tendsto 0).comp hsq
+  rw [Real.sqrt_zero] at h1
+  rw [tendsto_zero_iff_norm_tendsto_zero]
+  simpa [Real.sqrt_sq_eq_abs, Real.norm_eq_abs] using h1
+
+omit [DecidableEq V] in
+/-- **The trajectory approaches the equilibrium set**, in the sense that the
+vector field evaluated along it tends to `0` in the state space. Equivalently:
+the distance from `theta t` to the zero set of `kuramotoField` — the set of
+equilibria — tends to zero in the field's own scale. It does *not* follow that
+`theta t` converges, and it does not follow that any particular equilibrium is
+approached. -/
+theorem kuramotoField_tendsto_zero (sys : KuramotoSystem V) (hw : ∀ i, sys.omega i = 0)
+    (theta : ℝ → V → ℝ) (h_traj : is_kuramoto_trajectory sys theta) :
+    Tendsto (fun t => kuramotoField sys (theta t)) atTop (𝓝 0) := by
+  rw [tendsto_pi_nhds]
+  intro i
+  have hz : (0 : V → ℝ) i = 0 := rfl
+  rw [hz]
+  exact velocity_tendsto_zero sys hw theta h_traj i
+
+omit [DecidableEq V] in
+/-- The same statement read off the trajectory rather than the field: every
+phase's time derivative tends to zero. This is the literal reading of "the
+motion stops". -/
+theorem phase_deriv_tendsto_zero (sys : KuramotoSystem V) (hw : ∀ i, sys.omega i = 0)
+    (theta : ℝ → V → ℝ) (h_traj : is_kuramoto_trajectory sys theta) (i : V) :
+    Tendsto (fun t => deriv (fun u => theta u i) t) atTop (𝓝 0) := by
+  have heq : (fun t => deriv (fun u => theta u i) t)
+      = fun t => kuramoto_velocity sys (theta t) i := by
+    funext t; exact (h_traj i t).deriv
+  rw [heq]
+  exact velocity_tendsto_zero sys hw theta h_traj i
+
+omit [DecidableEq V] in
+/-- **The motion stops in the rotating frame.** For a system of identical natural
+frequencies, read in the frame rotating with them, the dissipation rate tends to
+zero. In the original frame the phases keep turning at rate `Ω` forever; what
+this says is that the *relative* motion stops. -/
+theorem rotating_frame_velocity_tendsto_zero (sys : KuramotoSystem V) (Ω : ℝ)
+    (h_omega : ∀ i, sys.omega i = Ω)
+    (theta : ℝ → V → ℝ) (h_traj : is_kuramoto_trajectory sys theta) :
+    Tendsto (fun t => ∑ i, (kuramoto_velocity sys.reduced (rotate Ω theta t) i) ^ 2)
+      atTop (𝓝 0) :=
+  velocity_sq_tendsto_zero sys.reduced (fun _ => rfl) (rotate Ω theta)
+    (is_kuramoto_trajectory_rotate sys Ω h_omega theta h_traj)
+
+end MotionStops
 
 end PhysicsOfConsciousness

@@ -2551,3 +2551,92 @@ still ends with "so no row is vacuous" in the compiled PDF.
 4. **O21** — build §10's germ–measure dictionary at an arbitrary open.
 5. **O20(d)** — convergence to an equilibrium. Blocked on LaSalle and on the
    state space being unbounded.
+
+## The motion stops — 2026-08-30 — O22 DONE
+
+Ranked first after O20(b)+(c), and it landed as scoped: Barbalat's lemma is not
+in Mathlib, so it is proved here, and applied. Zero `sorry`, zero warnings,
+`lake build` clean (17,608 jobs). `#print axioms` on all twelve new results
+reports only `propext`, `Classical.choice`, `Quot.sound`.
+
+### What landed — `Phase4_RotatingFrame.lean` §6, plus a witness in `Examples.lean` §15
+
+| Declaration | Content |
+|---|---|
+| `tendsto_zero_of_lipschitz_of_integral_le` | **Barbalat's lemma**, Lipschitz form: `g ≥ 0`, `g` Lipschitz, `∫₀^T g ≤ M` for all `T` ⟹ `g → 0`. General analysis, no Kuramoto |
+| `velocity_abs_le` | Each `\|θ̇ᵢ\|` is bounded by the field bound, uniformly in the configuration |
+| `trajectory_dist_le` | **A trajectory is Lipschitz in time**, with the field bound as constant |
+| `velocity_sq_lipschitz` | **The dissipation rate is Lipschitz in `t`**, constant `\|V\|·4C³` with `C = ∑ᵢ\|ωᵢ\| + ∑ᵢⱼ\|Aᵢⱼ\|` |
+| `velocity_sq_tendsto_zero` | **O22: `∑ᵢ θ̇ᵢ² → 0` along every trajectory** of a zero-frequency system |
+| `velocity_tendsto_zero` | Each `θ̇ᵢ → 0` |
+| `kuramotoField_tendsto_zero` | The field along the trajectory tends to `0` in the state space |
+| `phase_deriv_tendsto_zero` | The same read off the trajectory: `deriv (θ · i) → 0` |
+| `rotating_frame_velocity_tendsto_zero` | Transported to a uniform-frequency system through §3 — the *relative* motion stops |
+| `pairRelax_velocity` | The witness's velocity in closed form, `-2u/(1+u²)` |
+| `pairRelax_velocity_at_zero` | It is `-1` at `t = 0`: the witness is not already at rest |
+| `pairRelax_velocity_sq_tendsto_zero` | O22 fired on the witness |
+
+### The plan's proof was not the proof: compose Lipschitz estimates, do not differentiate
+
+The scoping paragraph proposed bounding `g' = 2∑ᵢ θ̇ᵢ θ̈ᵢ` with
+`θ̈ᵢ = ∑ⱼ Aᵢⱼ cos(θⱼ-θᵢ)(θ̇ⱼ - θ̇ᵢ)`, i.e. differentiating the dissipation rate
+and bounding the derivative. Nothing here differentiates it. `g` is
+`Q ∘ θ` for `Q φ = ∑ᵢ (kuramoto_velocity sys φ i)²`, and all three factors were
+already in the development:
+
+* `kuramotoField_norm_le` — the field is bounded by `C` on the *whole* state
+  space, so `x ↦ x²` is `2C`-Lipschitz wherever it is evaluated;
+* `kuramotoField_lipschitz` — the field is `2∑ᵢⱼ|Aᵢⱼ|`-Lipschitz in the
+  configuration;
+* and `θ` is `C`-Lipschitz in `t` because its derivative *is* the bounded field
+  (`trajectory_dist_le`, mean value theorem via `lipschitzWith_of_nnnorm_deriv_le`
+  — with the global bound there is no invariant region to construct).
+
+Multiplying the three constants gives `|V|·4C³` and the whole estimate is
+`abs_mul`, `abs_add_le`, `Finset.abs_sum_le_sum_abs`. The derivative route would
+have needed the second derivative of the trajectory to exist, which costs a
+bootstrap the plan did not budget.
+
+### The general lemma, and why it needed no case split
+
+`tendsto_zero_of_lipschitz_of_integral_le` is the standard window argument.
+`F T = ∫₀^T g` is monotone (`g ≥ 0`) and bounded, so `tendsto_atTop_ciSup` gives
+`F → ⨆ F` with `F T ≤ ⨆ F` — that one lemma is the whole of the "the tail carries
+no mass" half, no Cauchy-sequence reasoning. A spike `g t ≥ ε` then holds
+`g ≥ ε/2` across a window of width `δ` with `Kδ = ε/2`, so `∫ₜ^{t+δ} g ≥ εδ/2`,
+against a tolerance of `εδ/4`.
+
+The one wrinkle: `δ = ε/2K` is undefined for `K = 0` (a constant `g`, which the
+statement does allow). Rather than a case split, `obtain ⟨K', hK'pos, hKK'⟩ :
+∃ K', 0 < K' ∧ K ≤ K' := ⟨K + 1, …⟩` replaces `K` by a strictly positive constant
+once and for all, and the rest of the proof never mentions `K` again. The
+constant is existential in the conclusion anyway.
+
+### Manuscript
+
+`main.tex`: Table 1's dynamics row records Barbalat and `velocity_sq_tendsto_zero`,
+and now says "where it stops is not proved" rather than the weaker claim about the
+limit of the potential. Derivation 5's closing paragraph gains the same, phrased
+so that the remaining gap is "comes to rest, but not necessarily at a global
+minimum". `supplementary.tex`: the "Trajectories that run" note replaces its
+"Mathlib does not have Barbalat, so this is a gap in the library" sentence with
+the proof, the composition of the three Lipschitz estimates, and the witness.
+
+Compile gate: overfull hboxes `main` 24 → 24, `supplementary` 13 → 13; zero
+undefined references or citations; `grep -i "too large"` clean; Table 1's caption
+still ends with "so no row is vacuous" in the compiled PDF.
+
+### Ranking after this pass
+
+1. **O8 uniqueness** — injectivity of `E(a) = 𝔼_a[sin²θ]` on `(0, ∞)`. Obstacle 3
+   (the covariance is not sign-definite pointwise) makes it the hardest of the
+   remaining items, and it is the one that would finish a named theorem rather
+   than add a new one.
+2. **O2** — `auto_resonance` is unconstrained by the field (Derivation 6). Cheap,
+   and it removes a free class field rather than proving something new.
+3. **O21** — build §10's germ–measure dictionary at an arbitrary open.
+4. **O20(d)** — convergence to an equilibrium. Still blocked, and O22 does not
+   move it: `θ̇ → 0` is the *hypothesis* LaSalle's argument starts from, not a
+   substitute for the compact invariant set. The state space `V → ℝ` is
+   unbounded, and the honest route is to quotient by the phase-shift symmetry and
+   work on a torus — a change of state space, not a change of proof.

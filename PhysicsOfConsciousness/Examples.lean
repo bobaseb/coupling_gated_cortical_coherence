@@ -2479,17 +2479,21 @@ end GluedCover
   `is_kuramoto_trajectory_unique` this is the *only* trajectory through its
   initial state, so it is not one solution among many.
 
-  It does not settle O20. Nothing here is general: there is still no theorem
-  that an arbitrary Kuramoto system has a solution (O20(a) — Mathlib's ODE
-  library gives existence only on bounded intervals), that an arbitrary
-  trajectory's potential converges (O20(b)), or that it converges to an
-  equilibrium (O20(d), which needs a LaSalle principle Mathlib does not have).
-  And the general statement of O20(e) is **false**: splay and twisted
+  It does not settle O20 by itself, and the general theorems that have since
+  landed say less than this witness does. `is_kuramoto_trajectory_exists`
+  (O20(a)) gives every system a solution on all of `ℝ`;
+  `dynamic_potential_tendsto` (O20(b)) makes every trajectory's potential
+  converge; `velocity_sq_tendsto_zero` (O22) makes every trajectory's velocity
+  tend to zero, and `pairRelax_velocity_sq_tendsto_zero` below is that theorem
+  fired on this trajectory. What none of them gives is *where* the motion stops
+  — that is O20(d), and it needs a LaSalle principle Mathlib does not have.
+
+  The general statement of O20(e) is in fact **false**: splay and twisted
   configurations are equilibria too, so no theorem of the form "every trajectory
   reaches the phase-locked state" can be proved. The arc condition that makes it
   true — all phases starting within a half-circle — is satisfied here for every
   `c`, since `2 arctan` lands in `(-π, π)`, and that is exactly why this witness
-  converges.
+  converges to the minimum and a general trajectory need not.
 -/
 
 section RunningDynamics
@@ -2673,6 +2677,41 @@ theorem pairRelax_order_parameter_tendsto (c : ℝ) :
   rw [heq]
   have h := ((pairRelax_tendsto_locked c).const_add 1).div_const 2
   simpa using h
+
+/-! ### The motion stops -/
+
+/-- The velocity of the upper oscillator along the relaxing trajectory, in closed
+form: it is exactly the derivative `hasDerivAt_relaxAngle` computes, which is
+what makes `pairRelax` a solution in the first place. -/
+lemma pairRelax_velocity (c t : ℝ) :
+    kuramoto_velocity (pairSystem 0) (pairRelax c t) true
+      = -2 * relaxU c t / (1 + relaxU c t ^ 2) := by
+  have hsin := sin_two_arctan (relaxU c t)
+  simp only [kuramoto_velocity, pairSystem, pairRelax, relaxAngle, Fintype.sum_bool]
+  norm_num
+  rw [show -Real.arctan (relaxU c t) - Real.arctan (relaxU c t)
+      = -(2 * Real.arctan (relaxU c t)) by ring, Real.sin_neg, hsin]
+  ring
+
+/-- **The witness is not already at rest.** With `c = 1` the upper oscillator
+moves at speed `1` at time zero, so the convergence below is a statement about a
+trajectory that has somewhere to go. -/
+theorem pairRelax_velocity_at_zero :
+    kuramoto_velocity (pairSystem 0) (pairRelax 1 0) true = -1 := by
+  rw [pairRelax_velocity]
+  have hu : relaxU 1 0 = 1 := by simp [relaxU]
+  rw [hu]; norm_num
+
+/-- **O22 on the witness.** `velocity_sq_tendsto_zero` is a statement about an
+arbitrary trajectory of an arbitrary zero-frequency system; here it fires on the
+one trajectory this development writes down, whose velocity starts at `-1`
+(`pairRelax_velocity_at_zero`) and is therefore genuinely decaying rather than
+identically zero. -/
+theorem pairRelax_velocity_sq_tendsto_zero (c : ℝ) :
+    Tendsto (fun t => ∑ i, (kuramoto_velocity (pairSystem 0) (pairRelax c t) i) ^ 2)
+      atTop (𝓝 0) :=
+  velocity_sq_tendsto_zero (pairSystem 0) (fun _ => rfl) (pairRelax c)
+    (pairRelax_is_trajectory c)
 
 /-- **Uniqueness applied to the witness.** The relaxing trajectory is the *only*
 solution through its initial state — so the convergence above is not a property
