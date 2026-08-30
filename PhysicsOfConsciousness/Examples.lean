@@ -45,9 +45,10 @@
 
   §10 witnesses `ReflexiveBoundary` / `PredictiveModel` (`Phase6_ReflexiveTopology`)
   and the three ambient instances `reflexive_topology_implies_self` assumes about
-  `GlobalSection`. It first pierces the sheafification: `massEquiv` proves the global
-  sections of the probability sheaf on the three-site cortex *are* the finite measures
-  on it, read as densities against counting measure. The metric is then the
+  `GlobalSection`. It first pierces the sheafification: `massEquivOn` proves that over
+  *any* open of the three-site cortex the sections of the probability sheaf are exactly
+  the mass profiles on that open, read as densities against counting measure;
+  `massEquiv` is the case `U = ⊤`. The metric is then the
   uniform distance between their densities, complete, and the self-prediction map
   contracts by exactly one half (`relax_dist`) without being constant
   (`relax_not_const`), with a unique fixed point (`relax_fixed_unique`). The earlier
@@ -1189,14 +1190,18 @@ This section replaces it. The work is in three stages.
 * **The germ–measure dictionary.** On this discrete substrate every point has a smallest
   open neighbourhood, so "mass carried at `x`" is a well-defined map out of the stalk at
   `x` (`stalkMass`, built as `colimit.desc` of `massCocone`; the cocone law is exactly
-  that restriction preserves the mass at a point). Reading a global section's germ at each
-  site gives `density : GlobalSection Cortex → (Site → ℝ≥0)`, and `massEquiv` proves this a
-  **bijection**: `density` is injective because a germ on a discrete space is determined by its
-  restriction to the point (`stalkMass_injective`), and surjective because any prescribed
-  density is realized by a finite measure (`massMeasure`). Global sections of the
-  probability sheaf on `Cortex` *are* the finite measures on it, read as densities against
-  counting measure. Nothing in Mathlib supplied this: `TopCat.Presheaf.sheafify` has no
-  adjunction and no `isIso_toSheafify`, so the inverse had to be constructed.
+  that restriction preserves the mass at a point). Reading a section's germ at each site of
+  an open `U` gives `densityOn`, and `massEquivOn U` proves this a **bijection** onto the
+  mass profiles on `U`: injective because a germ on a discrete space is determined by its
+  restriction to the point (`stalkMass_injective`), surjective because any prescribed
+  profile is realized by a finite measure (`massMeasureOn`, `sectionOfMassOn`). Sections of
+  the probability sheaf over `U` *are* the finite measures on `U`, read as densities against
+  counting measure; `density`, `massMeasure`, `sectionOfMass` and `massEquiv` are the case
+  `U = ⊤`, kept under their own names because there the profile is indexed by `Site`
+  outright. Nothing in Mathlib supplied this: `TopCat.Presheaf.sheafify` has no adjunction
+  and no `isIso_toSheafify`, so the inverse had to be constructed. Until 2026-08-30 only
+  the `⊤` case existed, which is what forced §14 to write its patch-local sections as
+  restrictions of global measures (open item **O21**).
 * **The metric.** `gsMetric` transports the metric of `Site → ℝ≥0` along `density`: the
   distance between two sections is the largest difference of the masses their measures put
   on a site: the uniform distance between their densities. (On a finite substrate that is
@@ -1348,45 +1353,83 @@ lemma stalkMass_injective (x : Site) : Function.Injective (stalkMass x) := by
 
 theorem memTop (x : Site) : x ∈ (⊤ : Opens ↥Cortex) := trivial
 
-/-- The **density** of a global section: the mass its germ carries at each site. -/
-noncomputable def density (s : GlobalSection (X := Cortex)) : Site → ℝ≥0 :=
-  fun x => stalkMass x (s.1 ⟨x, memTop x⟩)
+/-- The **density** of a section over an arbitrary open, read at a site that open contains:
+the mass its germ carries there.
 
-/-- The density of a section glued from an honest global measure is that measure's
-density. This is the bridge between the sheafified world and the measure world. -/
+Stated at an arbitrary `U` because `stalkMass` is: nothing in the dictionary needs the
+section to be global. Until 2026-08-30 the construction half below was built at `⊤` only,
+which forced `Examples.lean` §14 to write its patch-local sections as restrictions of
+global measures; that was open item **O21**. -/
+noncomputable def densityOn {U : Opens ↥Cortex} (s : (probabilityPresheaf Cortex).obj (op U))
+    (x : Site) (hx : x ∈ U) : ℝ≥0 := stalkMass x (s.1 ⟨x, hx⟩)
+
+/-- The density of a **global** section, as a function of the site alone: `densityOn` at
+`⊤`, where the membership proof carries no information. -/
+noncomputable def density (s : GlobalSection (X := Cortex)) : Site → ℝ≥0 :=
+  fun x => densityOn s x (memTop x)
+
+/-- **Restriction moves no mass**, at any pair of opens. True by `rfl`: restriction in the
+sheafification is restriction of the germ family, so the germ at a point of the smaller
+open is unchanged. -/
+theorem densityOn_res {U V : Opens ↥Cortex} (hVU : V ≤ U)
+    (s : (probabilityPresheaf Cortex).obj (op U)) (x : Site) (hx : x ∈ V) :
+    densityOn ((probabilityPresheaf Cortex).map (homOfLE hVU).op s) x hx
+      = densityOn s x (hVU hx) := rfl
+
+/-- The case of `densityOn_res` where the larger open is `⊤`, stated against `density`. -/
+theorem densityOn_restrict {U : Opens ↥Cortex} (hU : U ≤ ⊤)
+    (s : GlobalSection (X := Cortex)) (x : Site) (hx : x ∈ U) :
+    densityOn ((probabilityPresheaf Cortex).map (homOfLE hU).op s) x hx = density s x := rfl
+
+/-- **A section over an open is determined by its density on that open.** The injectivity
+half of the dictionary, at an arbitrary `U`: a germ on a discrete space is recovered from
+the mass it carries (`stalkMass_injective`), and a section is its family of germs. -/
+theorem densityOn_injective {U : Opens ↥Cortex}
+    {s t : (probabilityPresheaf Cortex).obj (op U)}
+    (h : ∀ x (hx : x ∈ U), densityOn s x hx = densityOn t x hx) : s = t := by
+  apply Subtype.ext
+  funext y
+  exact stalkMass_injective y.1 (h y.1 y.2)
+
+/-- The density of a section glued from an honest local measure is that measure's mass
+function. This is the bridge between the sheafified world and the measure world, at an
+arbitrary open. -/
+lemma densityOn_sheafify {U : Opens ↥Cortex} (μ : FiniteMeasure ↥U) (x : Site) (hx : x ∈ U) :
+    densityOn ((TopCat.Presheaf.toSheafify Fpre).app (op U) μ) x hx = massAt U x hx μ :=
+  stalkMass_germ U x hx μ
+
 lemma Phi_sheafify (μ : FiniteMeasure ↥(⊤ : Opens ↥Cortex)) (x : Site) :
     density ((TopCat.Presheaf.toSheafify Fpre).app (op ⊤) μ) x
       = μ {(⟨x, memTop x⟩ : ↥(⊤ : Opens ↥Cortex))} :=
-  stalkMass_germ ⊤ x (memTop x) μ
+  densityOn_sheafify μ x (memTop x)
 
-lemma Phi_injective : Function.Injective density := by
-  intro s t h
-  apply Subtype.ext
-  funext y
-  exact stalkMass_injective y.1 (congrFun h y.1)
+lemma Phi_injective : Function.Injective density :=
+  fun _ _ h => densityOn_injective fun x _ => congrFun h x
 
 instance : Nonempty Site := ⟨Site.mid⟩
 
 instance : MeasurableSingletonClass Site := ⟨fun x => (isOpen_discrete {x}).measurableSet⟩
 
-noncomputable instance topFintype : Fintype ↥(⊤ : Opens ↥Cortex) := Fintype.ofFinite _
+noncomputable instance opensFintype (U : Opens ↥Cortex) : Fintype ↥U := Fintype.ofFinite _
 
-instance topSingleton : MeasurableSingletonClass ↥(⊤ : Opens ↥Cortex) :=
+instance opensSingleton (U : Opens ↥Cortex) : MeasurableSingletonClass ↥U :=
   ⟨fun z => by
-    have h : MeasurableSet ((Subtype.val : ↥(⊤ : Opens ↥Cortex) → Site) ⁻¹' {z.1}) :=
+    have h : MeasurableSet ((Subtype.val : ↥U → Site) ⁻¹' {z.1}) :=
       measurable_subtype_coe (measurableSet_singleton z.1)
-    have himg : (Subtype.val : ↥(⊤ : Opens ↥Cortex) → Site) ⁻¹' {z.1} = {z} := by
+    have himg : (Subtype.val : ↥U → Site) ⁻¹' {z.1} = {z} := by
       ext b
       exact ⟨fun hb => Subtype.ext hb, fun hb => congrArg Subtype.val hb⟩
     rwa [himg] at h⟩
 
-/-- The unit point mass at a site, as a finite measure on the whole substrate. -/
-noncomputable def diracFM (y : ↥(⊤ : Opens ↥Cortex)) : FiniteMeasure ↥(⊤ : Opens ↥Cortex) :=
+/-- The unit point mass at a point of an open, as a finite measure on that open. -/
+noncomputable def diracFM {U : Opens ↥Cortex} (y : ↥U) : FiniteMeasure ↥U :=
   ⟨Measure.dirac y, inferInstance⟩
 
-/-- The finite measure on the whole substrate with prescribed mass at each site. -/
-noncomputable def massMeasure (w : Site → ℝ≥0) : FiniteMeasure ↥(⊤ : Opens ↥Cortex) :=
-  ∑ y : ↥(⊤ : Opens ↥Cortex), w y.1 • diracFM y
+/-- The finite measure on an open with prescribed mass at each of its sites. The profile is
+given on all of `Site`; what it says off `U` is invisible, which is what lets a patch be
+handed a profile defined everywhere without thereby carrying global data. -/
+noncomputable def massMeasureOn (U : Opens ↥Cortex) (w : Site → ℝ≥0) : FiniteMeasure ↥U :=
+  ∑ y : ↥U, w y.1 • diracFM y
 
 lemma fm_sum_apply {Ω : Type*} [MeasurableSpace Ω] {ι : Type*} (S : Finset ι)
     (f : ι → FiniteMeasure Ω) (s : Set Ω) : (∑ i ∈ S, f i) s = ∑ i ∈ S, (f i) s := by
@@ -1397,18 +1440,17 @@ lemma fm_sum_apply {Ω : Type*} [MeasurableSpace Ω] {ι : Type*} (S : Finset ι
       rw [Finset.sum_insert ha, Finset.sum_insert ha, ← ih, FiniteMeasure.coeFn_add]
       rfl
 
-lemma diracFM_apply (y z : ↥(⊤ : Opens ↥Cortex)) :
+lemma diracFM_apply {U : Opens ↥Cortex} (y z : ↥U) :
     diracFM y {z} = if y = z then 1 else 0 := by
   rw [FiniteMeasure.coeFn_def]
   show ((Measure.dirac y) {z}).toNNReal = _
   rw [Measure.dirac_apply' _ (measurableSet_singleton z)]
   by_cases h : y = z <;> simp [h, Set.indicator]
 
-lemma massMeasure_apply (w : Site → ℝ≥0) (x : Site) :
-    massAt ⊤ x (memTop x) (massMeasure w) = w x := by
-  show (massMeasure w) {(⟨x, memTop x⟩ : ↥(⊤ : Opens ↥Cortex))} = w x
-  rw [massMeasure, fm_sum_apply,
-    Finset.sum_eq_single (⟨x, memTop x⟩ : ↥(⊤ : Opens ↥Cortex))]
+lemma massMeasureOn_apply (U : Opens ↥Cortex) (w : Site → ℝ≥0) (x : Site) (hx : x ∈ U) :
+    massAt U x hx (massMeasureOn U w) = w x := by
+  show (massMeasureOn U w) {(⟨x, hx⟩ : ↥U)} = w x
+  rw [massMeasureOn, fm_sum_apply, Finset.sum_eq_single (⟨x, hx⟩ : ↥U)]
   · rw [FiniteMeasure.smul_apply, diracFM_apply]
     simp
   · intro b _ hb
@@ -1417,20 +1459,65 @@ lemma massMeasure_apply (w : Site → ℝ≥0) (x : Site) :
   · intro h
     exact absurd (Finset.mem_univ _) h
 
+/-- **The section over `U` with prescribed mass at each of its sites.** The surjectivity
+half of the dictionary, at an arbitrary open: no global measure is involved, and nothing
+outside `U` is chosen. -/
+noncomputable def sectionOfMassOn (U : Opens ↥Cortex) (w : Site → ℝ≥0) :
+    (probabilityPresheaf Cortex).obj (op U) :=
+  (TopCat.Presheaf.toSheafify Fpre).app (op U) (massMeasureOn U w)
+
+@[simp] lemma densityOn_sectionOfMassOn (U : Opens ↥Cortex) (w : Site → ℝ≥0)
+    (x : Site) (hx : x ∈ U) : densityOn (sectionOfMassOn U w) x hx = w x :=
+  (densityOn_sheafify (massMeasureOn U w) x hx).trans (massMeasureOn_apply U w x hx)
+
+open scoped Classical in
+/-- A profile given on `U` only, extended to all of `Site` by zero — the bookkeeping that
+lets `sectionOfMassOn`, whose argument is a profile on the whole substrate, realize a
+profile that exists only on `U`. -/
+noncomputable def extendW {U : Opens ↥Cortex} (w : ↥U → ℝ≥0) : Site → ℝ≥0 :=
+  fun x => if hx : x ∈ U then w ⟨x, hx⟩ else 0
+
+lemma extendW_apply {U : Opens ↥Cortex} (w : ↥U → ℝ≥0) (y : ↥U) : extendW w y.1 = w y :=
+  dite_eq_left y.2
+
+/-- **Sections over `U` are the mass profiles on `U`.** The dictionary at an arbitrary
+open, in the form that says both halves at once. `massEquiv` is the case `U = ⊤`, stated
+against `Site → ℝ≥0` because there the two indexings agree.
+
+Note what the *inverse* discards: `sectionOfMassOn U w` depends on `w` only through its
+values on `U`, which is why the equivalence is stated on `↥U → ℝ≥0` and not on
+`Site → ℝ≥0`. A profile handed to a patch says nothing about the patch. -/
+noncomputable def massEquivOn (U : Opens ↥Cortex) :
+    (probabilityPresheaf Cortex).obj (op U) ≃ (↥U → ℝ≥0) :=
+  Equiv.ofBijective (fun s y => densityOn s y.1 y.2)
+    ⟨fun _ _ h => densityOn_injective fun x hx => congrFun h ⟨x, hx⟩,
+     fun w => ⟨sectionOfMassOn U (extendW w), by
+       funext y
+       show densityOn (sectionOfMassOn U (extendW w)) y.1 y.2 = w y
+       rw [densityOn_sectionOfMassOn, extendW_apply]⟩⟩
+
+/-- The finite measure on the whole substrate with prescribed mass at each site. -/
+noncomputable def massMeasure (w : Site → ℝ≥0) : FiniteMeasure ↥(⊤ : Opens ↥Cortex) :=
+  massMeasureOn ⊤ w
+
+lemma massMeasure_apply (w : Site → ℝ≥0) (x : Site) :
+    massAt ⊤ x (memTop x) (massMeasure w) = w x :=
+  massMeasureOn_apply ⊤ w x (memTop x)
+
 /-- The global section with prescribed mass at each site. -/
 noncomputable def sectionOfMass (w : Site → ℝ≥0) : GlobalSection (X := Cortex) :=
-  (TopCat.Presheaf.toSheafify Fpre).app (op ⊤) (massMeasure w)
+  sectionOfMassOn ⊤ w
 
-@[simp] lemma Phi_sectionOfMass (w : Site → ℝ≥0) : density (sectionOfMass w) = w := by
-  funext x
-  exact (Phi_sheafify (massMeasure w) x).trans (massMeasure_apply w x)
+@[simp] lemma Phi_sectionOfMass (w : Site → ℝ≥0) : density (sectionOfMass w) = w :=
+  funext fun x => densityOn_sectionOfMassOn ⊤ w x (memTop x)
 
 lemma Phi_surjective : Function.Surjective density :=
   fun w => ⟨sectionOfMass w, Phi_sectionOfMass w⟩
 
 /-- **Global sections are measures.** On the three-site substrate the sections of the
 sheafified probability presheaf over `⊤` correspond exactly to the finite measures on it,
-read off as densities against counting measure. -/
+read off as densities against counting measure. The case `U = ⊤` of `massEquivOn`, kept
+under its own name because `density` is indexed by `Site` rather than by `↥⊤`. -/
 noncomputable def massEquiv : GlobalSection (X := Cortex) ≃ (Site → ℝ≥0) :=
   Equiv.ofBijective density ⟨Phi_injective, Phi_surjective⟩
 
@@ -1723,19 +1810,6 @@ substrate whose avatar region cannot tell two field states apart, so
 and the baseline differ *at the avatar site*, not merely somewhere.
 -/
 
-/-- The mass an avatar-local section carries at a site of its region. This is `density` at
-an arbitrary open, in the one case the results below need; **O21** is the general version. -/
-noncomputable def avatarMass {U : Opens ↥Cortex} (x : Site) (hx : x ∈ U)
-    (a : (probabilityPresheaf Cortex).obj (op U)) : ℝ≥0 :=
-  stalkMass x (a.1 ⟨x, hx⟩)
-
-/-- Restricting a global section and then reading the mass at a site of the region is
-reading the global section's density there: the avatar sees the field, unrotated. -/
-lemma avatarMass_restrict {U : Opens ↥Cortex} (x : Site) (hx : x ∈ U)
-    (s : GlobalSection (X := Cortex)) :
-    avatarMass x hx ((probabilityPresheaf Cortex).map (homOfLE (le_top : U ≤ ⊤)).op s)
-      = density s x := rfl
-
 theorem memAvatarPatch : Site.mid ∈ avatarPatch := rfl
 
 /-- **The avatar region is not blind.** The silent field and the baseline differ at the
@@ -1745,9 +1819,9 @@ theorem cortexReflexive_restrict_ne :
     cortexReflexive.restrictToAvatar cortexSilent ≠ cortexReflexive.restrictToAvatar cortexState := by
   intro h
   have h2 : density cortexSilent Site.mid = density cortexState Site.mid :=
-    (avatarMass_restrict Site.mid memAvatarPatch cortexSilent).symm.trans
-      ((congrArg (avatarMass (U := avatarPatch) Site.mid memAvatarPatch) h).trans
-        (avatarMass_restrict Site.mid memAvatarPatch cortexState))
+    (densityOn_restrict (le_top : avatarPatch ≤ ⊤) cortexSilent Site.mid memAvatarPatch).symm.trans
+      ((congrArg (fun a => densityOn a Site.mid memAvatarPatch) h).trans
+        (densityOn_restrict (le_top : avatarPatch ≤ ⊤) cortexState Site.mid memAvatarPatch))
   rw [Phi_cortexSilent, Phi_cortexState] at h2
   norm_num at h2
 
@@ -2195,18 +2269,6 @@ noncomputable def cortexCoverTwisted : ThermodynamicCover Cortex where
 §4 could say nothing about what its patch-local sections contained; §10's
 `stalkMass` makes that readable at any open, not just at `⊤`. -/
 
-/-- The density of a section over an arbitrary open, read at a site it contains.
-§10's `density` is the case `U = ⊤`. -/
-noncomputable def densityOn {U : Opens ↥Cortex} (s : (probabilityPresheaf Cortex).obj (op U))
-    (x : Site) (hx : x ∈ U) : ℝ≥0 := stalkMass x (s.1 ⟨x, hx⟩)
-
-/-- Restriction moves no mass: the density of a restricted global section at a
-site of the smaller open is the global density there. True by `rfl` —
-restriction in the sheafification is restriction of the germ family. -/
-theorem densityOn_restrict {U : Opens ↥Cortex} (hU : U ≤ ⊤)
-    (s : GlobalSection (X := Cortex)) (x : Site) (hx : x ∈ U) :
-    densityOn ((probabilityPresheaf Cortex).map (homOfLE hU).op s) x hx = density s x := rfl
-
 theorem left_mem_patch_false : Site.left ∈ patch false := by
   show Site.left ≠ Site.right
   decide
@@ -2347,38 +2409,35 @@ theorem cortexCoverTwisted_glued (s : GlobalSection (X := Cortex))
   and here it is discharged by computing two numbers rather than by declaring the
   sections to be restrictions of something.
 
-  **One honest caveat.** The local sections are still *defined* by restricting a
-  measure on all of `Cortex`, because §10's germ–measure dictionary is built at
-  `⊤`. That is a limitation of the dictionary, not of the class: the instance
-  stores only the restrictions, no global object is shared between the two
-  patches, and the profiles differ off their own patches (`leftW` puts mass `7`
-  at `right`, which the first patch cannot see) precisely so that neither can be
-  mistaken for the global state.
+  **The caveat that used to stand here is gone.** Until 2026-08-30 the local sections
+  were still *defined* by restricting a measure on all of `Cortex`, because §10's
+  germ–measure dictionary was built at `⊤`; that was open item **O21**. The
+  dictionary is now built at an arbitrary open, so `sync_to_section i` is
+  `sectionOfMassOn (patch i) (patchW i)` — a section over the patch, constructed
+  from the patch's own profile, with no measure on `Cortex` appearing anywhere in
+  the instance. `glued_section_eq_restrict` records that the object did not change
+  when the construction did, so the computations below are the same ones.
+
+  The profiles are still functions on all of `Site`, and deliberately differ off
+  their own patches (`leftW` puts mass `7` at `right`, which the first patch cannot
+  see): `sectionOfMassOn` reads a profile only on its own open, so those values are
+  invisible to the section, and their presence is what makes the profiles
+  unmistakable for the global state.
 -/
 
 section GluedCover
 
 open CategoryTheory.Limits
 
-/-- Two global sections restrict to the same section over `U` as soon as their
-densities agree on `U`. The germ family of a restriction is the germ family of
-the section reindexed, and `stalkMass_injective` recovers each germ from its
-mass. -/
-theorem restrict_eq_of_density_eqOn {U : Opens ↥Cortex} {s t : GlobalSection (X := Cortex)}
-    (h : ∀ x ∈ U, density s x = density t x) :
-    (probabilityPresheaf Cortex).map (homOfLE (le_top : U ≤ ⊤)).op s
-      = (probabilityPresheaf Cortex).map (homOfLE (le_top : U ≤ ⊤)).op t := by
-  apply Subtype.ext
-  funext x
-  exact stalkMass_injective x.1 (h x.1 x.2)
+/-! ### Two patches with independent local data
 
-/-- Restricting to `U` and then to `V ≤ U` is restricting to `V`, on the nose. -/
-theorem restrict_restrict {U V : Opens ↥Cortex} (hUV : V ≤ U) (g : GlobalSection (X := Cortex)) :
-    (probabilityPresheaf Cortex).map (homOfLE hUV).op
-        ((probabilityPresheaf Cortex).map (homOfLE (le_top : U ≤ ⊤)).op g)
-      = (probabilityPresheaf Cortex).map (homOfLE (le_top : V ≤ ⊤)).op g := rfl
-
-/-! ### Two patches with independent local data -/
+Two lemmas that used to open this block are gone, and their absence is the point.
+`restrict_eq_of_density_eqOn` compared two *global* sections by their densities on a
+patch, and `restrict_restrict` collapsed a restriction of a restriction; both were needed
+only because the local sections were restrictions of global measures. §10's dictionary is
+now built at an arbitrary open (**O21**), so `densityOn_injective` and `densityOn_res`
+say the same things about sections that were never global, and the detour is unnecessary.
+-/
 
 /-- The mass profile the first patch reports. Its value at `right` is invisible
 to that patch, and is chosen different from `rightW`'s so that the profile
@@ -2422,14 +2481,11 @@ noncomputable def cortexSyncGlued : LocalSectionSynchronization Cortex where
   cover := patch
   is_cover := patch_cover
   phase := fun _ => 0
-  sync_to_section := fun i =>
-    (probabilityPresheaf Cortex).map (homOfLE (le_top : patch i ≤ ⊤)).op
-      (sectionOfMass (patchW i))
+  sync_to_section := fun i => sectionOfMassOn (patch i) (patchW i)
   section_agrees_of_phase_eq := by
     intro i j _
-    rw [restrict_restrict, restrict_restrict]
-    refine restrict_eq_of_density_eqOn (fun x hx => ?_)
-    rw [Phi_sectionOfMass, Phi_sectionOfMass]
+    refine densityOn_injective (fun x hx => ?_)
+    rw [densityOn_res, densityOn_res, densityOn_sectionOfMassOn, densityOn_sectionOfMassOn]
     exact patchW_agree i j x hx
 
 /-- The same uniform unit coupling as §4, at the same phase-`0` configuration. -/
@@ -2447,32 +2503,45 @@ noncomputable def cortexCoverGlued : ThermodynamicCover Cortex where
 
 /-! ### Reading the local data -/
 
+/-- **The rebuild changed the construction, not the object.** The patch-local section built
+directly from `patchW i` on `patch i` is the very section the old shape produced by
+restricting a global measure to that patch.
+
+Recorded so that O21's refactor is auditable: every computation below would read the same
+either way, and what changed is that no measure on all of `Cortex` is mentioned anywhere in
+the instance. It also says the earlier shape was a special case rather than a different
+witness, which is the same thing `LocalSectionSynchronization.ofInvariantMeasure` records
+one level up. -/
+theorem glued_section_eq_restrict (i : Bool) :
+    cortexCoverGlued.sync_to_section i
+      = (probabilityPresheaf Cortex).map (homOfLE (le_top : patch i ≤ ⊤)).op
+          (sectionOfMass (patchW i)) := by
+  refine densityOn_injective (fun x hx => ?_)
+  show densityOn (sectionOfMassOn (patch i) (patchW i)) x hx = _
+  rw [densityOn_sectionOfMassOn, densityOn_restrict, Phi_sectionOfMass]
+
 theorem glued_density_left :
     densityOn (cortexCoverGlued.sync_to_section false) Site.left left_mem_patch_false = 2 := by
-  show densityOn ((probabilityPresheaf Cortex).map (homOfLE (le_top : patch false ≤ ⊤)).op
-    (sectionOfMass (patchW false))) Site.left left_mem_patch_false = 2
-  rw [densityOn_restrict, Phi_sectionOfMass]
+  show densityOn (sectionOfMassOn (patch false) (patchW false)) Site.left left_mem_patch_false = 2
+  rw [densityOn_sectionOfMassOn]
   rfl
 
 theorem glued_density_right :
     densityOn (cortexCoverGlued.sync_to_section true) Site.right right_mem_patch_true = 3 := by
-  show densityOn ((probabilityPresheaf Cortex).map (homOfLE (le_top : patch true ≤ ⊤)).op
-    (sectionOfMass (patchW true))) Site.right right_mem_patch_true = 3
-  rw [densityOn_restrict, Phi_sectionOfMass]
+  show densityOn (sectionOfMassOn (patch true) (patchW true)) Site.right right_mem_patch_true = 3
+  rw [densityOn_sectionOfMassOn]
   rfl
 
 theorem glued_overlap_mass_false :
     densityOn (cortexCoverGlued.sync_to_section false) Site.mid mid_mem_patch_false = 1 := by
-  show densityOn ((probabilityPresheaf Cortex).map (homOfLE (le_top : patch false ≤ ⊤)).op
-    (sectionOfMass (patchW false))) Site.mid mid_mem_patch_false = 1
-  rw [densityOn_restrict, Phi_sectionOfMass]
+  show densityOn (sectionOfMassOn (patch false) (patchW false)) Site.mid mid_mem_patch_false = 1
+  rw [densityOn_sectionOfMassOn]
   rfl
 
 theorem glued_overlap_mass_true :
     densityOn (cortexCoverGlued.sync_to_section true) Site.mid mid_mem_patch_true = 1 := by
-  show densityOn ((probabilityPresheaf Cortex).map (homOfLE (le_top : patch true ≤ ⊤)).op
-    (sectionOfMass (patchW true))) Site.mid mid_mem_patch_true = 1
-  rw [densityOn_restrict, Phi_sectionOfMass]
+  show densityOn (sectionOfMassOn (patch true) (patchW true)) Site.mid mid_mem_patch_true = 1
+  rw [densityOn_sectionOfMassOn]
   rfl
 
 /-- The overlap agreement, computed: both patches put mass `1` on the shared
@@ -2503,9 +2572,8 @@ theorem glued_density_of (s : GlobalSection (X := Cortex))
   have hL : densityOn ((probabilityPresheaf Cortex).map
       (homOfLE (le_top : cortexCoverGlued.cover i ≤ ⊤)).op s) x hx = density s x := rfl
   rw [← hL, hs i]
-  show densityOn ((probabilityPresheaf Cortex).map (homOfLE (le_top : patch i ≤ ⊤)).op
-    (sectionOfMass (patchW i))) x hx = _
-  rw [densityOn_restrict, Phi_sectionOfMass]
+  show densityOn (sectionOfMassOn (patch i) (patchW i)) x hx = _
+  rw [densityOn_sectionOfMassOn]
 
 /-- **The glued section, computed.** Any section restricting to both patches has
 profile `(2, 1, 3)`. -/

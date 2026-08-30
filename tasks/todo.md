@@ -1372,7 +1372,7 @@ list is to keep it that way.
 | **O11** | **B2 — `h_mean` restricts the comparison class** to fields sharing the phase-locked state's mean drift, so minimality is Jensen alone | Model how `Omega_avg` varies with the competitor field. Stated as the honest scope on the theorem; removing it changes what is claimed |
 | **O12** | **D2 — there is still no Noether theorem.** The class is now inhabited (`Examples.lean` §11, a `ℤ₂` action on a double well, with symmetry breaking exhibited), but no conserved quantity is constructed and no theorem consumes a symmetry group | **Estimate corrected 2026-08-29 — see "Noether: a feasibility probe" at the end of this file.** "A project in itself" is right for the *field-theoretic* theorem and wrong for point mechanics, which was prototyped end to end in one session (~200 lines, zero `sorry`). The structural obstacle is not difficulty: `SymmetryInvariantAction` has **no dynamics**, so no conserved quantity can be attached to it at all |
 | ~~**O19**~~ | **DONE 2026-08-30 — see "The gluing produces its object" at the end of this file.** ~~Derivation 5's gluing is a uniqueness theorem, not an emergence theorem~~ Both global-object fields are removed from `LocalSectionSynchronization`; `probability_glue_unique` isolates the sheaf condition, `ThermodynamicCover.invariantMeasure` constructs the section, and `sync_to_section_eq` is now a theorem. `Examples.lean` §14 is a cover whose glued section is neither of the profiles it was built from | ~~Restate `LocalSectionSynchronization` …~~ done as described; the estimate "touches a class every downstream file uses" was right about the blast radius and wrong about the cost — see the section for why |
-| **O21** | **§10's germ–measure dictionary is built at `⊤` only.** `density`, `massEquiv` and `sectionOfMass` all speak about sections over `⊤`, so `Examples.lean` §14's patch-local sections have to be written as restrictions of global measures even though nothing in the class requires it. Opened 2026-08-30 by O19 | Generalise `massMeasure`/`sectionOfMass` to an arbitrary open `U` — `stalkMass` and `massAt` are already stated at arbitrary opens, so this is bookkeeping — and rebuild §14's local sections directly. Small; Group 1 really, listed here only because it was opened alongside O19 |
+| ~~**O21**~~ | **DONE 2026-08-30 — see "The dictionary at an arbitrary open" at the end of this file.** `densityOn`, `massMeasureOn`, `sectionOfMassOn` and `massEquivOn` are stated at an arbitrary open; `density`, `massMeasure`, `sectionOfMass` and `massEquiv` are the case `U = ⊤`, kept under their own names. §14's local sections are `sectionOfMassOn (patch i) (patchW i)` and no measure on `Cortex` appears in the instance; `glued_section_eq_restrict` records that the object did not change when the construction did. ~~**§10's germ–measure dictionary is built at `⊤` only.**~~ | `Examples.lean` §10, §14 | Done. The estimate "bookkeeping" was right |
 | **O20** | **PARTLY DONE 2026-08-30 — see "A dynamics that runs" at the end of this file.** Uniqueness of trajectories is proved on all of `ℝ` (`is_kuramoto_trajectory_unique`, from `kuramotoField_lipschitz`), and `Examples.lean` §15 exhibits a trajectory that starts unsynchronised and converges to the potential's global minimum with `r² → 1`. Parts (a-existence), (b), (c), (d) and (e) remain open in general. ~~Nothing in the development runs a dynamics into the minimum.~~ `ThermodynamicCover.thermodynamic_equilibrium` *assumes* the cover sits at the potential minimum; `Phase4_RotatingFrame` says what that minimum is and `potential_min_iff_phase_locked` (2026-08-30) says exactly which configurations attain it, but no trajectory is shown to reach one. The only trajectory in the whole development is `pairTrajectory Ω t = Ω·t` (`Examples.lean` §7) — a rigid rotation that *starts* synchronised, so it never converges to anything. Neither is any solution shown to **exist**: `is_kuramoto_trajectory` is a predicate, and outside §7 nothing inhabits it | See the decomposition below — parts (a)–(c) are reachable now, (d) is blocked on Mathlib, and (e) is **false as usually stated** |
 
 ### Group 3 — out of reach with current Mathlib
@@ -2948,4 +2948,111 @@ at 50 pages, `supplementary` at 9.
    route is to quotient by the phase-shift symmetry and work on a torus.
 4. **The mean-field limit** (propagation of chaos), which is what would connect
    item 3 to the whole of `Phase8_SelfConsistency`. A research programme, not a
+   task.
+
+---
+
+## The dictionary at an arbitrary open — 2026-08-30 — O21 DONE
+
+Ranked first and costed as bookkeeping; that was right, and the pass found one
+thing the ledger had not: `densityOn` — the *reading* half at an arbitrary open —
+already existed, written in §13 for a different purpose, and the previous pass
+had duplicated it in §10 under the name `avatarMass` because it sits above §13 in
+the file. Both copies are now one declaration, in §10 where the dictionary lives.
+Zero `sorry`, zero warnings, `lake build` clean (17,608 jobs); `#print axioms`
+reports only `propext`, `Classical.choice`, `Quot.sound`.
+
+### What was actually missing
+
+The ledger said `density`, `massEquiv` and `sectionOfMass` speak about `⊤` only.
+Half of that was already false and half was the whole problem. `stalkMass`,
+`massAt` and `massAt_res` were general from the start, and `densityOn` had been
+added at an arbitrary open in §13, so *reading* a patch-local section was
+possible. What did not exist was any way to **build** one: `massMeasure` summed
+`diracFM` over `↥⊤`, and `sectionOfMass` pushed it through `toSheafify` at `op ⊤`.
+So §14 — the emergence witness, whose whole point is that no global object is
+supplied — had to define its patch-local sections by restricting a global
+measure, and say so in a paragraph of apology.
+
+The generalisation is exactly as mechanical as the estimate said. `Fintype ↥U`
+and `MeasurableSingletonClass ↥U` replace the two `⊤`-only instances with the
+same proofs; `diracFM` and the sum are already generic in the space.
+
+### What landed — `Examples.lean` §10
+
+| Declaration | Content |
+|---|---|
+| `densityOn`, `densityOn_res` | The reading half, moved up from §13 into the dictionary. `densityOn_res` generalises the old `densityOn_restrict` from `V ≤ ⊤` to `V ≤ U`; `rfl` either way |
+| `densityOn_injective` | **A section over `U` is determined by its density on `U`.** Subsumes §14's `restrict_eq_of_density_eqOn`, which compared two *global* sections and is deleted |
+| `densityOn_sheafify` | The measure-to-germ bridge at an arbitrary open. `Phi_sheafify` is now its `⊤` case |
+| `opensFintype`, `opensSingleton` | Replace `topFintype`, `topSingleton` |
+| `diracFM`, `massMeasureOn`, `massMeasureOn_apply` | The measure with prescribed mass at each site of `U` |
+| `sectionOfMassOn`, `densityOn_sectionOfMassOn` | **The building half at an arbitrary open** |
+| `extendW`, `extendW_apply` | Extension by zero, the bookkeeping between a profile on `↥U` and one on `Site` |
+| `massEquivOn` | **Sections over `U` are the mass profiles on `U`** — the dictionary, at an arbitrary open |
+| `density`, `massMeasure`, `sectionOfMass`, `massEquiv` | Kept, now *defined* as the `U = ⊤` cases. Their statements and every downstream use are unchanged |
+
+`avatarMass` and `avatarMass_restrict`, added in the O2 pass earlier the same
+day, are deleted: they were `densityOn` and `densityOn_res` under other names.
+`cortexReflexive_restrict_ne` now uses `densityOn_restrict` directly. §14's
+`restrict_eq_of_density_eqOn` and `restrict_restrict` are deleted for the same
+reason, with a note in place of the block explaining that both existed only to
+route around the `⊤`-only dictionary.
+
+### §14, rebuilt
+
+`cortexSyncGlued.sync_to_section i` is now `sectionOfMassOn (patch i) (patchW i)`
+— a section over the patch, built from the patch's own profile. No measure on
+`Cortex` occurs anywhere in the instance. `section_agrees_of_phase_eq` is
+discharged by `densityOn_injective` after two `densityOn_res` rewrites, which is
+shorter than the old route through `restrict_restrict`.
+
+`glued_section_eq_restrict` is new and is the reason the refactor is auditable:
+it proves the new section *equals* the old one, so every computation in §14 —
+`glued_density_left`, `glued_overlap_agrees`, `glued_eq_sectionOfMass`,
+`cortexCoverGlued_invariantMeasure` — is about the same object as before. The
+construction moved; the content did not.
+
+### What is still open, stated precisely
+
+* **The profiles are still functions on all of `Site`.** `sectionOfMassOn U w`
+  reads `w` only on `U`, and `massEquivOn` is stated on `↥U → ℝ≥0` precisely to
+  record that. The alternative — taking the argument as `↥U → ℝ≥0` outright —
+  would make every caller carry a subtype, and `extendW` would move from the
+  equivalence to the call sites. Nothing is lost either way; this is a spelling.
+* **The dictionary is still about `Cortex`.** Every declaration here is specific
+  to the three-site substrate, because `sing`, `stalkMass_injective` and
+  `sing_measure_ext` all use that every point has a smallest open neighbourhood.
+  Generalising to an arbitrary Alexandrov or discrete space is possible and
+  nothing in the development needs it.
+* **Nothing about O19's remaining hypotheses changed.** The cover is still assumed
+  to sit at the potential minimum (**O20**), and the patches are still assumed to
+  agree on overlaps. This pass moved a construction, not an assumption.
+
+### Manuscript
+
+`main.tex`: the Derivation 5 row of Table 1 records that each section is
+constructed over its own patch; Derivation 6's account of §10 now says
+`massEquivOn` is stated at an arbitrary open, with `massEquiv` its `⊤` case.
+`supplementary.tex`: the Derivation 5 note gains the removal of §14's caveat and
+names the three new declarations; the `Phase6_ReflexiveTopology` note's stage (i)
+is restated at an arbitrary open.
+
+Compile gate: overfull hboxes `main` 24 → 24, `supplementary` 13 → 13; zero
+undefined references or citations; `grep -i "too large"` clean; Table 1's caption
+still ends with "so no row is vacuous"; `main` 50 pages, `supplementary` 9.
+
+### Ranking after this pass
+
+1. **O7** — decide and record whether `DiscreteThermodynamics.scalar_magnitude`
+   is a modelling choice, and mark it `[MODELLING]` if so. The last Group-1 item,
+   and it is a decision plus a doc-string, not a proof.
+2. **O10** — the σ/gradient-flow link beyond finite substrates. Differentiation
+   under the integral sign with respect to the kernel; Mathlib has
+   `hasDerivAt_integral_of_dominated_loc_of_deriv_le` and the work is in the
+   domination hypotheses. The cheapest of the remaining Group-2 items.
+3. **O20(d)** — convergence to an equilibrium. Still blocked: the state space
+   `V → ℝ` is unbounded and the honest route is to quotient by the phase-shift
+   symmetry and work on a torus.
+4. **The mean-field limit** (propagation of chaos). A research programme, not a
    task.
