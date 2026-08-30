@@ -1366,7 +1366,7 @@ list is to keep it that way.
 
 | # | Item | What it takes |
 |---|---|---|
-| **O8** | **PARTLY DONE 2026-08-30 — see "The coherent branch" at the end of this file.** Two of the three gaps are closed: `K = 2D` is now covered (`fixed_point_eq_zero_of_le_critical`, and it falls on the incoherent side), and a discontinuous jump at threshold is excluded (`coherent_branch_continuous_at_threshold`) *without* needing uniqueness. ~~**The coherent branch, beyond existence.** `supercritical_fixed_point_exists` gives *some* `r ∈ (0,1]`; uniqueness, dynamical selection and continuity in `K` are all unproved~~ **Uniqueness remains open**, and `coherent_iff_sRatio_eq` now says exactly what it is: the injectivity of `E(a) = 𝔼_a[sin²θ]` on `(0,∞)` | ~~Monotonicity of `R`, or an implicit-function-theorem argument. Uniqueness plausibly follows from strict concavity of `R` in `a`~~ — the concavity guess was one step too indirect. `E' (a) = -Cov_a(cos²θ, cos θ)`, so the target is `Cov_a(cos²θ, cos θ) > 0` for `a > 0`. Needs differentiation under the integral sign (same obstacle as O10), and the covariance is **not** sign-definite pointwise: the symmetrised form `½𝔼[(X-X')²(X+X')]` with `X = cos θ` has an integrand that changes sign, so the tilt `e^{a(X+X')}` has to do the work. `E'(0) = 0`, so nothing first-order at the origin reaches it |
+| ~~**O8**~~ | **DONE 2026-08-30 — see "The coherent branch is a single point" at the end of this file.** All three gaps are closed. `K = 2D` is covered (`fixed_point_eq_zero_of_le_critical`), a discontinuous jump at threshold is excluded (`coherent_branch_continuous_at_threshold`), and **uniqueness** is now `vonMisesSRatio_strictAntiOn` — `E` is strictly *decreasing* on `[0, ∞)`, which is more than the injectivity the level-set form asked for. The route recorded here was not the route taken and was the harder one: no derivative of `E`, no differentiation under the integral sign, and the covariance never appears. Fold `[-π, π]` onto `[0, π/2]` first (the reflection *is* the `X ↦ -X` symmetrisation the tilt was supposed to beat), then cross at the mean instead of integrating over a square. `besselRatio_strictMono` (`R` strictly increasing on `ℝ`) came out of the same argument with no fold, and closed the separate "Monotonicity of `R`" gap the file header carried | `Phase8_SelfConsistency` §7 | Done |
 | ~~**O9**~~ | **DONE 2026-08-30 — see "The Self's metric" at the end of this file.** ~~**B1 — the Self's metric is 0/1, and `contracting_implies_const` proves that forces the fixed point to be constant.**~~ The metric is now the uniform distance between the densities of the measures the sections glue to, `massEquiv` proves global sections *are* those measures, and `relax_dist` gives a non-constant map contracting by exactly `1/2` with a unique fixed point. Two premises of the recorded plan were wrong and are corrected there: `isIso_toSheafify` is for the *Grothendieck* sheafification, not `TopCat.Presheaf.sheafify`, which has no adjunction in Mathlib; and `μ ↦ ½μ + ½μ₀` is **not** a Lévy–Prokhorov contraction on a discrete substrate | 
 | **O10** | **B3 — the σ/gradient-flow link holds for finite substrates only** (`hvol : volume = Measure.count`) | Differentiation under the integral sign with respect to the kernel. Mathlib has `hasDerivAt_integral_of_dominated_loc_of_deriv_le`; the work is in the domination hypotheses |
 | **O11** | **B2 — `h_mean` restricts the comparison class** to fields sharing the phase-locked state's mean drift, so minimality is Jensen alone | Model how `Omega_avg` varies with the competitor field. Stated as the honest scope on the theorem; removing it changes what is claimed |
@@ -2640,3 +2640,177 @@ still ends with "so no row is vacuous" in the compiled PDF.
    substitute for the compact invariant set. The state space `V → ℝ` is
    unbounded, and the honest route is to quotient by the phase-shift symmetry and
    work on a torus — a change of state space, not a change of proof.
+
+---
+
+## The coherent branch is a single point — 2026-08-30 — O8 DONE
+
+Ranked first, and it landed with more than was asked. The item wanted the
+injectivity of `E(a) = 𝔼_a[sin²θ]` on `(0, ∞)`; what is proved is that `E` is
+**strictly decreasing on `[0, ∞)`**, and — by the same argument run on a
+different integrand — that the Bessel ratio `R` is **strictly increasing on all
+of `ℝ`**, which closes the separate "Monotonicity of `R`" gap the file header had
+carried since the file was written. Zero `sorry`, zero warnings, `lake build`
+clean (17,608 jobs). `#print axioms` on all seventeen new results reports only
+`propext`, `Classical.choice`, `Quot.sound`.
+
+### The recorded obstacle was real, and the proof does not meet it
+
+Three obstacles were recorded, all correct as far as they went, and all about a
+route that is not the one taken:
+
+1. `E'(a) = -Cov_a(cos²θ, cos θ)`, so the target is `Cov_a(cos²θ, cos θ) > 0`;
+2. that identity needs differentiation under the integral sign;
+3. the covariance is not sign-definite pointwise — symmetrised,
+   `½𝔼[(X-X')²(X+X')]` with `X = cos θ` has an integrand changing sign with
+   `X + X'`, so the tilt `e^{a(X+X')}` has to beat the region where it is
+   negative.
+
+Nothing in §7 differentiates anything, and no covariance appears. Obstacle 3 is
+what points at the fix rather than away from it: the sign problem is exactly what
+the reflection `X ↦ -X` repairs, and on `[-π, π]` that reflection is the fold
+`θ ↦ π - θ` **already written in §5** for `I₂ ≥ 0`. Performing the symmetry as a
+change of variables *before* forming the two-point difference costs one
+substitution; performing it inside the double integral costs the tilt argument
+that obstacle 3 says is hard.
+
+### The two moves
+
+The statement is kept as the two-point inequality `C₂(a)·Z(b) < C₂(b)·Z(a)` for
+`0 ≤ a < b` — equivalent to `E(b) < E(a)` by `vonMisesS_eq`, with the `Z/2`
+and `C₂/2` bookkeeping.
+
+**Fold.** `vonMisesZ_eq_foldW` folds `Z` the same two ways §5 folds `C₂`
+(evenness, then `θ ↦ π - θ`), landing both on `[0, π/2]` with
+`W(a, x) = 2cosh(a cos x)`. There `cos x ∈ [0, 1]`, and
+`crossIntegrand_nonneg` shows `cos 2x - cos 2y` and
+`W(b,x)W(a,y) - W(a,x)W(b,y)` have the same sign — the first is `2(p² - q²)` and
+the second `4(cosh(bp)cosh(aq) - cosh(ap)cosh(bq))` with `p = cos x`, `q = cos y`,
+both governed by `p` against `q` alone. On `[-π, π]`, where `p, q ∈ [-1, 1]`,
+`p² - q²` is *not* governed by `p - q`; the fold is precisely what buys that.
+
+**Cross.** With both factors monovarying, the classical Chebyshev-association
+argument would still integrate over a square — Fubini, a product measure, a
+two-variable change of variables. Instead `foldA_mul_foldW_lt` takes `α` to be
+the mean of `cos 2x` under `W(a, ·)` and `x₀ ∈ [0, π/2]` a point where
+`cos 2x₀ = α` (`intermediate_value_Icc'`; `|α| ≤ 1` because `|cos 2x| ≤ 1`),
+evaluates the pointwise inequality at `y = x₀`, and integrates in `x` alone. The
+`W(b, x₀)` term is `∫cos 2x·W(a,x) - α∫W(a,x) = 0` by the choice of `α`, so what
+survives is `W(a,x₀)·(∫cos 2x·W(b,x) - α∫W(b,x)) ≥ 0`, which is the result.
+Strictness comes from `crossIntegrand_pos` on a subinterval missing `x₀`.
+
+The whole analytic input is one identity: `2cosh X cosh Y = cosh(X+Y) + cosh(X-Y)`
+(`Real.cosh_add`, `Real.cosh_sub`, `ring`) with `cosh` increasing in `|·|`, which
+gives `cosh_mul_cosh_cross`: `cosh(ap)cosh(bq) ≤ cosh(bp)cosh(aq)` for
+`0 ≤ a ≤ b`, `0 ≤ q ≤ p`. The sums compare because `(b-a)(p-q) ≥ 0`; the
+differences because `bp - aq ≥ |ap - bq|`, which is `(b-a)(p+q) ≥ 0` and
+`(a+b)(p-q) ≥ 0`.
+
+### `R` came for free, and it was on the "not proved" list
+
+Run the same crossing argument with `cos θ` in place of `sin²θ` and **no fold is
+needed**: `R(a) = 𝔼_a[cos θ]` is the mean of the very variable the exponential
+family is tilted by, so `(cos x - cos y)(e^{b cos x + a cos y} - e^{a cos x + b cos y}) ≥ 0`
+holds on all of `[-π, π]²` — the sign of the exponential difference is that of
+`(b-a)(cos x - cos y)` outright. `weightCross_nonneg` is four lines of
+`Real.exp_le_exp`. `besselRatio_strictMono` needs no sign condition on `a` at
+all.
+
+### What landed — `Phase8_SelfConsistency.lean` §7 (new; old §7 → §8, §8 → §9)
+
+| Declaration | Content |
+|---|---|
+| `foldW`, `vonMisesZ_eq_foldW`, `vonMisesC2_eq_foldA` | `Z` and `C₂` on `[0, π/2]` with `W(a,x) = 2cosh(a cos x)`. `foldA a x = cos 2x · foldW a x` by `rfl` |
+| `integral_pos_of_pos_on_subinterval` | Continuous, `≥ 0` on `[A,B]`, `> 0` on some `(c,d)` ⟹ `∫ > 0`. Both crossing arguments need it, since the integrand vanishes at the crossing point |
+| `cosh_mul_cosh_cross`, `cosh_mul_cosh_cross_lt` | `t ↦ cosh(bt)/cosh(at)` increasing on `[0,∞)`, as a product inequality. The only analytic input |
+| `crossIntegrand_nonneg`, `crossIntegrand_pos` | The two folded factors have the same sign; strict off the diagonal (`Real.injOn_cos`) |
+| `foldA_mul_foldW_lt` | The crossing argument, in folded coordinates |
+| `vonMisesC2_mul_vonMisesZ_lt` | `I₂/I₀` strictly increasing: `C₂(a)Z(b) < C₂(b)Z(a)` |
+| `vonMisesSRatio_strictAntiOn` | **`E` is strictly decreasing on `[0, ∞)`** |
+| `vonMisesSRatio_injOn` | **O8: the injectivity `coherent_iff_sRatio_eq` asked for** |
+| `weightCross_nonneg`, `weightCross_pos`, `vonMisesM_mul_vonMisesZ_lt` | The unfolded crossing argument on `[-π, π]` |
+| `besselRatio_strictMono` | **`R` strictly increasing on `ℝ`** — the header's "Monotonicity of `R`" gap |
+| `coherent_fixed_point_unique` | At most one positive solution of `r = R(K,r)` |
+| `supercritical_fixed_point_existsUnique` | **Above threshold, exactly one coherent solution** |
+| `supercritical_solution_set` | The non-negative solutions are exactly `{0, r}` above threshold (and `{0}` at or below, by `fixed_point_eq_zero_of_le_critical`) |
+| `critical_coupling_is_threshold_unique` | `critical_coupling_is_threshold` with the coherent side sharpened to `∃!` |
+| `coherent_concentration_strictMono` | `K₁ < K₂` ⟹ `a₁ < a₂`: a larger coupling puts the density at a strictly larger concentration |
+| `coherent_branch_strictMono` | **The coherent order parameter grows strictly with the coupling.** Uses both halves: `E` decreasing moves `a`, `R` increasing moves `r` |
+| `exhibits_phase_transition_unique_coherent` | A substrate above threshold has exactly one coherent order parameter |
+
+Six non-vacuity examples in §9, including the two-coupling one: at `D = 1` the
+solutions at `K = 3` and `K = 4` both exist and are *strictly* ordered, so
+`coherent_branch_strictMono` is not about a constant family.
+
+### Why `critical_coupling_is_threshold` was not edited in place
+
+It lives in §6 and would then depend on §7. It is left as it stands — nothing in
+it depends on the new section, which is worth recording — and
+`critical_coupling_is_threshold_unique` states the sharpened package. The same
+choice was made for `coherent_branch_continuous_at_threshold`: its proof avoids
+monotonicity of `E` entirely, and keeping it is what records that no-jump is the
+weaker fact.
+
+### What is still open, stated precisely
+
+* **Dynamical selection.** The unique coherent solution is a solution of the
+  *equation*. Nothing says a trajectory converges to it, or that it is stable.
+  No theorem in the file mentions a trajectory, so this is not a gap in the file
+  but a statement it cannot make; it is O20(d) territory.
+* **The density.** Unchanged: the von Mises stationary density is an input, not
+  derived from the Fokker–Planck operator.
+* **Derivatives and rates.** `E` and `R` are strictly monotone, not
+  differentiable. `E(a) = 1/2 - a²/16 + O(a⁴)`, `R(a) → 1`, and concavity of `R`
+  are all unformalized, and nothing needs them — the threshold theorems still run
+  on §5 and §6, which do not import §7.
+* **The mean-field limit.** `circularOrderParameter` against
+  `order_parameter_complex` is still propagation of chaos, not a lemma.
+
+### Independently checked numerically
+
+Trapezoid quadrature over `[-π, π]` with 2·10⁵ points: `E` strictly decreasing
+over `a ∈ [0, 20]` (largest forward difference `-1.2e-4`), `R` strictly
+increasing (smallest forward difference `6.4e-5`), and both cross inequalities
+`C₂(a)Z(b) < C₂(b)Z(a)`, `M(a)Z(b) < M(b)Z(a)` hold on all 780 pairs from a
+40-point grid of `[0, 10]`. The coherent root is `r ≈ 0.3037` at `K = 2.1`,
+`0.7242` at `K = 3`, `0.8315` at `K = 4` — strictly increasing, matching
+`coherent_branch_strictMono` — and a scan of `R(3r) - r` on `(0, 1]` finds a
+single sign change, matching uniqueness. A sanity check on the statements, not
+part of the proof; not committed.
+
+### Manuscript
+
+`main.tex`: Table 1's critical-coupling row now reads "exactly one" above
+threshold, records `coherent_branch_strictMono`, and moves from
+**Theorem (partial)** to **Theorem (conditional)** — the qualifier is now the
+assumed density and the missing link to a trajectory, not an unproved part of the
+analysis. Derivation 6's account of the threshold replaces its "what remains open
+is precisely that uniqueness" paragraph with the fold-then-cross proof and the
+monotonicity of `R`, and the following paragraph gains the sharpened packages and
+the bifurcation-diagram consequence. The "what remains not established" paragraph
+now disclaims dynamical selection rather than uniqueness. `supplementary.tex`:
+the `Phase8_SelfConsistency` note gains the same, in more detail, and its scope
+sentence is rewritten; the `Phase8_ContinuousField` note gains
+`exhibits_phase_transition_unique_coherent`.
+
+Compile gate: overfull hboxes `main` 24 → 24, `supplementary` 13 → 13; zero
+undefined references or citations; `grep -i "too large"` clean; Table 1's caption
+still ends with "so no row is vacuous" in the compiled PDF; `main` 48 → 50 pages.
+Note the gate itself needed repair — see `tasks/lessons.md` on `grep` and
+`main.log`, where the naive count reads as `0` rather than `24`.
+
+### Ranking after this pass
+
+1. **O2** — `auto_resonance` is unconstrained by the field (Derivation 6). Cheap,
+   and it removes a free class field rather than proving something new. Now the
+   only reachable item that touches a class field.
+2. **O21** — build §10's germ–measure dictionary at an arbitrary open.
+3. **O20(d)** — convergence to an equilibrium. Still blocked, and neither O22 nor
+   this pass moves it: `θ̇ → 0` is the *hypothesis* LaSalle's argument starts
+   from, and the uniqueness proved here is about the mean-field self-consistency
+   equation, not about the finite-`N` dynamics. The state space `V → ℝ` is
+   unbounded, and the honest route is to quotient by the phase-shift symmetry and
+   work on a torus — a change of state space, not a change of proof.
+4. **The mean-field limit** (propagation of chaos), which is what would connect
+   items 3 and the whole of `Phase8_SelfConsistency`. A research programme, not a
+   task; recorded so the ranking does not keep rediscovering it as the next thing.

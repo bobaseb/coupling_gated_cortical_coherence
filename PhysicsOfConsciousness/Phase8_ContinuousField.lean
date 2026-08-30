@@ -178,8 +178,10 @@ equation `r = I₁(Kr/D) / I₀(Kr/D)` for the noisy mean-field Kuramoto model, 
 that bifurcation *is* formalized, in `Phase8_SelfConsistency.lean`: below `2 * D`
 the incoherent state is the only non-negative solution
 (`subcritical_fixed_point_eq_zero'`), above it a solution with `0 < r ≤ 1` exists
-(`supercritical_fixed_point_exists`); `critical_coupling_is_threshold` packages
-the two. `exhibits_phase_transition_coherent` there applies this to any substrate
+and is unique (`supercritical_fixed_point_existsUnique`), and it increases
+strictly with the coupling (`coherent_branch_strictMono`);
+`critical_coupling_is_threshold_unique` packages the two regimes.
+`exhibits_phase_transition_unique_coherent` there applies this to any substrate
 satisfying `exhibits_phase_transition` below.
 
 What remains assumed is the *von Mises stationary density* those theorems take as
