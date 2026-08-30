@@ -1211,6 +1211,14 @@ This section replaces it. The work is in three stages.
   contracts distances by *exactly* one half, `relax_not_const` proves it is not constant,
   `relax_fixed` names its fixed point and `relax_fixed_unique` proves that fixed point is
   the only one — Banach uniqueness re-derived by hand on the witness.
+* **The avatar** (added 2026-08-30 for open item O2). `cortexReflexive_resonant`
+  discharges `ReflexiveBoundary.IsRestrictionResonance`, and `cortexReflexive_restrict_ne`
+  checks it is not empty here — the avatar region separates two of the substrate's states.
+  `siteReflexive` is one avatar per site; their regions cover, so `cortex_eq_of_avatar_eq`
+  reconstructs the global state from the local readings alone. `cortexBlind` is the same
+  boundary with a constant avatar: still a legal `ReflexiveBoundary`, still has the same
+  Self (`cortexBlind_hasSelf`), and `cortexBlind_not_determined` exhibits two distinct
+  states it cannot tell apart.
 
 **What this still does not establish.** `relax` is a modelling choice: nothing in the
 development derives it from field dynamics, and the contraction constant `1/2` is built
@@ -1699,6 +1707,130 @@ witness produces is the attractor of a non-constant dissipative map, not the val
 constant one. -/
 theorem cortexFixedPoint : cortexReflexive.predictive_model.predict cortexState = cortexState :=
   relax_fixed
+
+/-! ### The avatar reads the field — and what it costs when it does not
+
+`cortexReflexive` was already built with the presheaf restriction as its `auto_resonance`,
+which is what made open item **O2** a bookkeeping item rather than a research one: the
+constraint was known satisfiable before it was stated. What was missing is that nothing
+*required* it, and no theorem mentioned the field. `ReflexiveBoundary.IsRestrictionResonance`
+and `ReflexiveBoundary.eq_of_avatar_eq` supply the requirement and the theorem; this block
+discharges both on the cortex, and exhibits the blind boundary they exclude.
+
+The non-degeneracy check is the one that matters. A resonance condition is empty on a
+substrate whose avatar region cannot tell two field states apart, so
+`cortexReflexive_restrict_ne` is proved before anything is claimed for it: the silent field
+and the baseline differ *at the avatar site*, not merely somewhere.
+-/
+
+/-- The mass an avatar-local section carries at a site of its region. This is `density` at
+an arbitrary open, in the one case the results below need; **O21** is the general version. -/
+noncomputable def avatarMass {U : Opens ↥Cortex} (x : Site) (hx : x ∈ U)
+    (a : (probabilityPresheaf Cortex).obj (op U)) : ℝ≥0 :=
+  stalkMass x (a.1 ⟨x, hx⟩)
+
+/-- Restricting a global section and then reading the mass at a site of the region is
+reading the global section's density there: the avatar sees the field, unrotated. -/
+lemma avatarMass_restrict {U : Opens ↥Cortex} (x : Site) (hx : x ∈ U)
+    (s : GlobalSection (X := Cortex)) :
+    avatarMass x hx ((probabilityPresheaf Cortex).map (homOfLE (le_top : U ≤ ⊤)).op s)
+      = density s x := rfl
+
+theorem memAvatarPatch : Site.mid ∈ avatarPatch := rfl
+
+/-- **The avatar region is not blind.** The silent field and the baseline differ at the
+shared site, which is the whole of the avatar region — so the resonance condition below is
+a constraint on this substrate and not a formality. -/
+theorem cortexReflexive_restrict_ne :
+    cortexReflexive.restrictToAvatar cortexSilent ≠ cortexReflexive.restrictToAvatar cortexState := by
+  intro h
+  have h2 : density cortexSilent Site.mid = density cortexState Site.mid :=
+    (avatarMass_restrict Site.mid memAvatarPatch cortexSilent).symm.trans
+      ((congrArg (avatarMass (U := avatarPatch) Site.mid memAvatarPatch) h).trans
+        (avatarMass_restrict Site.mid memAvatarPatch cortexState))
+  rw [Phi_cortexSilent, Phi_cortexState] at h2
+  norm_num at h2
+
+/-- **The resonance condition holds here**, by construction and by `rfl`: the avatar's
+state is the field's own restriction. This is what makes `IsRestrictionResonance` a
+satisfiable requirement rather than an exclusion. -/
+theorem cortexReflexive_resonant : cortexReflexive.IsRestrictionResonance := fun _ => rfl
+
+theorem cortexReflexive_avatar_separates :
+    cortexReflexive.auto_resonance cortexSilent ≠ cortexReflexive.auto_resonance cortexState := by
+  rw [cortexReflexive_resonant cortexSilent, cortexReflexive_resonant cortexState]
+  exact cortexReflexive_restrict_ne
+
+/-! #### A covering family of avatars, and the field they reconstruct -/
+
+/-- One avatar per site, each reading the field on its own smallest neighbourhood. Their
+regions cover the substrate, which is what `eq_of_avatar_eq` needs; a single avatar on one
+site could never determine the field elsewhere. -/
+noncomputable def siteReflexive (x : Site) : ReflexiveBoundary Cortex where
+  avatar_region := sing x
+  auto_resonance := fun s => (probabilityPresheaf Cortex).map (homOfLE (le_top : sing x ≤ ⊤)).op s
+  predictive_model := cortexPredict
+
+theorem siteReflexive_resonant (x : Site) : (siteReflexive x).IsRestrictionResonance :=
+  fun _ => rfl
+
+theorem sing_cover : (⨆ x : Site, sing x) = (⊤ : Opens ↥Cortex) := by
+  ext y
+  simp only [Opens.coe_iSup, Set.mem_iUnion, Opens.coe_top, Set.mem_univ, iff_true]
+  exact ⟨y, rfl⟩
+
+/-- **Unity, reconstructed from the localized self-encodings.** Two global states whose
+avatars read the same at every site are the same state. The avatars are local — each sees
+one site — and no access to the global section is used; the sheaf condition does the rest. -/
+theorem cortex_eq_of_avatar_eq {s t : GlobalSection (X := Cortex)}
+    (h : ∀ x, (siteReflexive x).auto_resonance s = (siteReflexive x).auto_resonance t) : s = t :=
+  ReflexiveBoundary.eq_of_avatar_eq siteReflexive siteReflexive_resonant sing_cover h
+
+/-- Derivation 6 on the witness, with the avatar doing work: the Self exists, and it is the
+only global state producing its avatar readings. -/
+theorem cortexSelfEncoded : ∃ s : GlobalSection (X := Cortex),
+    cortexReflexive.predictive_model.predict s = s ∧
+      ∀ t : GlobalSection (X := Cortex),
+        (∀ x, (siteReflexive x).auto_resonance t = (siteReflexive x).auto_resonance s) → t = s :=
+  ReflexiveBoundary.self_eq_of_avatar_eq siteReflexive siteReflexive_resonant sing_cover
+    cortexReflexive cortexPredict_contracting
+
+/-- Naming the Self of the previous theorem: it is `cortexState`, and the avatars pin it
+down. Combines `relax_fixed_unique` (the fixed point is the baseline) with the
+reconstruction. -/
+theorem cortexState_determined_by_avatars (t : GlobalSection (X := Cortex))
+    (h : ∀ x, (siteReflexive x).auto_resonance t = (siteReflexive x).auto_resonance cortexState) :
+    t = cortexState :=
+  cortex_eq_of_avatar_eq h
+
+/-! #### The blind boundary, which the class cannot exclude -/
+
+/-- The same avatar region and the same predictive model as `cortexReflexive`, with an
+avatar that ignores the field. A legal `ReflexiveBoundary`: this is what O2 recorded. -/
+noncomputable def cortexBlind : ReflexiveBoundary Cortex :=
+  cortexReflexive.constResonance (cortexReflexive.auto_resonance cortexState)
+
+theorem cortexBlind_not_resonant : ¬ cortexBlind.IsRestrictionResonance :=
+  ReflexiveBoundary.constResonance_not_isRestrictionResonance _ _ cortexReflexive_restrict_ne
+
+/-- **The Self survives the blinding**, so `reflexive_topology_implies_self` alone says
+nothing about the avatar: same conclusion, same fixed point, and an avatar that has stopped
+reading anything. -/
+theorem cortexBlind_hasSelf : ∃ s : GlobalSection (X := Cortex),
+    cortexBlind.predictive_model.predict s = s :=
+  ReflexiveBoundary.self_of_constResonance _ _ cortexPredict_contracting
+
+/-- …and the reconstruction genuinely fails there: two *distinct* global states with
+identical avatar readings. This is the exact statement `cortex_eq_of_avatar_eq` buys, and
+the exact price of dropping the predicate. -/
+theorem cortexBlind_not_determined :
+    ∃ s t : GlobalSection (X := Cortex), s ≠ t ∧
+      cortexBlind.auto_resonance s = cortexBlind.auto_resonance t := by
+  refine ⟨cortexSilent, cortexState, ?_, rfl⟩
+  intro h
+  have h2 : density cortexSilent Site.mid = density cortexState Site.mid := by rw [h]
+  rw [Phi_cortexSilent, Phi_cortexState] at h2
+  norm_num at h2
 
 end ReflexiveSelf
 

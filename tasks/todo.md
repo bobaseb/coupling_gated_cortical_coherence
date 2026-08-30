@@ -1355,7 +1355,7 @@ list is to keep it that way.
 | # | Item | Where | What it takes |
 |---|---|---|---|
 | ~~**O1**~~ | **DONE 2026-08-29** — see the final section of this file. ~~**`selfConsistency` names a fixed-point equation but nothing in Lean says it is about an order parameter.**~~ The reading "`r` is the mean of `cos θ` under the density it induces" lives entirely in the doc-string; `selfConsistency K D r` is literally `besselRatio (K * r / D)` and could be any function of `r` for all the Lean knows | `Phase8_SelfConsistency` §4 | Define the von Mises *density* `e^{a cos θ}/Z(a)`, prove it is a probability density on `[-π, π]`, define the continuum order parameter `∫ e^{iθ} ρ(θ) dθ` mirroring `order_parameter_complex`, and prove it equals `besselRatio a` — real part `R(a)`, imaginary part `0` by oddness. Then a fixed point of `selfConsistency` is exactly a density reproducing its own order parameter. This is the cheapest item on the list and it is the one that makes the file's central definition non-tautological |
-| **O2** | **C2 — `ReflexiveBoundary.auto_resonance` is an arbitrary function of the global section.** Nothing constrains the avatar's state to track the field's, and no theorem in the development mentions the field | `Phase6_ReflexiveTopology:54` | `Examples.lean` §10 already shows the presheaf restriction is a legal choice, so the constraint is known satisfiable. Either add a predicate `IsRestrictionResonance` and a theorem that uses it, or state as a theorem what goes wrong without it. Do **not** strengthen the class to a field without checking rule §3 of `PhysicsOfConsciousness/AGENTS.md` |
+| ~~**O2**~~ | **DONE 2026-08-30 — see "The avatar reads the field" at the end of this file.** Both routes the plan offered were taken, not one: `IsRestrictionResonance` is the predicate, `eq_of_avatar_eq` is the theorem that uses it (a covering family of resonant avatars determines the global state, by the sheaf condition), and `self_of_constResonance` is the theorem that says what goes wrong without it (the Self is unchanged when the avatar is blinded). ~~**C2 — `ReflexiveBoundary.auto_resonance` is an arbitrary function of the global section.**~~ | `Phase6_ReflexiveTopology` §"The avatar has to read the field", `Examples.lean` §10 | Done. The class was **not** strengthened to a field, per rule §3 |
 | ~~**O3**~~ | **DONE 2026-08-29.** ~~**B5 — existence of a global energy minimizer is a hypothesis, never a witness.**~~ `spontaneous_symmetry_breaking` takes `h_min : ∀ phi', TotalEnergy phi ≤ TotalEnergy phi'` as given; no compactness or direct-method argument exists anywhere in the development | `Phase1_Primitives` | Exhibit one system where `h_min` is discharged rather than assumed — the `unitAction` witness of `Examples.lean` §3 is on a one-point spacetime, where the minimizer is whatever minimizes `V` pointwise, so this may be a short addition. That would make the theorem non-vacuous in the same sense the other witnesses do. A general direct-method argument is Group 2 |
 | ~~**O4**~~ | **SUBSUMED 2026-08-30 by O5** — `ThermodynamicCover.phase_locked` answers the same question one class up, and what remains of it is recorded as **O19** in the final section. ~~**A3 — the `LocalSectionSynchronization` witness is weak.**~~ `cortexSync` sets `phase ≡ 0` and discharges `sync_to_section_eq` by `rfl`; the local sections *are* restrictions by construction | `Phase4_MacroscopicScaling:56,61`, `Examples` §4 | ~~A witness with a non-constant phase field, or a proof that no such witness exists under the current class shape (which would be the more useful outcome, as `contracting_implies_const` was for D1)~~ — the second outcome is what happened |
 | ~~**O5**~~ | **DONE 2026-08-30 — see "A cover with a non-constant phase" at the end of this file.** The answer has a negative half: `ThermodynamicCover.phase_locked` proves the class shape *forbids* a phase field that is non-constant modulo `2π`, and `ThermodynamicCover.glued_section_eq` proves the glued section is the invariant measure the cover already carried. ~~**A4 — the `ThermodynamicCover` witness has constant phase**, which is what makes `thermodynamic_equilibrium` dischargeable at all. This is where Derivation 5's physics lives~~ | `Phase5_GlobalSection:43`, `Examples` §4, §13 | ~~Same shape as O4: a cover at a non-trivial minimum of the Kuramoto potential.~~ Done both ways: the witness in §13 and the impossibility proof in `Phase5_GlobalSection` |
@@ -2814,3 +2814,138 @@ Note the gate itself needed repair — see `tasks/lessons.md` on `grep` and
 4. **The mean-field limit** (propagation of chaos), which is what would connect
    items 3 and the whole of `Phase8_SelfConsistency`. A research programme, not a
    task; recorded so the ranking does not keep rediscovering it as the next thing.
+
+---
+
+## The avatar reads the field — 2026-08-30 — O2 DONE
+
+Ranked first and it was cheap, as the ranking said. Zero `sorry`, zero warnings,
+`lake build` clean (17,608 jobs). `#print axioms` on all twenty new results
+reports only `propext`, `Classical.choice`, `Quot.sound`. Both routes the ledger
+offered were taken rather than one, because each says something the other does
+not: the predicate makes the avatar mean something, and the blinding theorem is
+what proves the predicate is not decoration.
+
+### The gap was not that the constraint was missing — it was that nothing wanted it
+
+`ReflexiveBoundary.auto_resonance : GlobalSection → F(avatar_region)` is data,
+and `Examples.lean` §10's `cortexReflexive` had *already* been built with the
+presheaf restriction as its value. So the constraint was known satisfiable before
+this pass began, and adding it would have been a formality. The real defect was
+one clause further on: `reflexive_topology_implies_self` takes `rb` and uses only
+`rb.predictive_model`. Its statement and its proof never mention
+`auto_resonance`, so the field could be a constant function and the Self would be
+the same object with the same proof. That is what "no theorem in the development
+mentions the field" meant, and it is why the fix had to be a *theorem*, not a
+definition.
+
+### The two halves
+
+**Negative.** `constResonance rb a₀` rebuilds a boundary with the same
+`avatar_region` and the same `predictive_model` and `fun _ => a₀` as its
+resonance. It is a legal `ReflexiveBoundary` — the structure has nothing to
+object with — and `self_of_constResonance` is one line: `reflexive_topology_-
+implies_self (rb.constResonance a₀) h_contracting`, the *same* hypothesis, the
+same fixed point. `constResonance_not_isRestrictionResonance` then says it fails
+the predicate, on the hypothesis that two global sections differ on the avatar
+region. That hypothesis is load-bearing and is why the witness proves
+`cortexReflexive_restrict_ne` before anything else: on a substrate whose avatar
+region sees nothing, "blind" and "resonant" coincide and the distinction is
+empty. This is the same shape as `contracting_implies_const` in §10 — a proof of
+what the weaker structure costs, kept beside the thing that pays it.
+
+**Positive.** `eq_of_avatar_eq` is the theorem that mentions the field. Given a
+family of boundaries whose avatar regions *cover* `X` and each of which satisfies
+`IsRestrictionResonance`, two global sections with the same reading at every
+avatar are equal. The proof is three lines: rewrite the readings into
+restrictions with the predicate, feed the restrictions to `probability_glue_unique`
+as a compatible family, and use its uniqueness half twice. Nothing new is
+proved about sheaves; the point is what the statement says. The avatars are
+local — each `auto_resonance` lands in a section over one region — and unity is
+not assumed alongside them but recovered from them. `self_eq_of_avatar_eq`
+packages it with Banach: the Self exists, and it is the only global state
+producing its avatar readings, which is the module header's sentence made into a
+theorem.
+
+The cover hypothesis is not removable and should not be read as a defect. A
+single avatar on a proper sub-region determines the field where it sits and
+nowhere else; "the field encodes its global state in a *localized* sub-region"
+is true only in the sense that the encodings are local, not that one of them is
+enough.
+
+### What landed
+
+`Phase6_ReflexiveTopology.lean`, new section "The avatar has to read the field"
+(the file goes 109 → ~300 lines):
+
+| Declaration | Content |
+|---|---|
+| `restrictToAvatar` | The global state read on the avatar region: the presheaf restriction |
+| `IsRestrictionResonance` | **The constraint, as a predicate** — `auto_resonance s = restrictToAvatar s`. Not a field, per rule §3 |
+| `restrictToAvatar_compatible` | Restrictions of one section to a family agree on overlaps. Functoriality; what lets avatar readings be fed to the sheaf condition |
+| `auto_resonance_eq_iff` | Under the predicate, the reading is exactly as informative as the field on the region |
+| `eq_of_avatar_eq` | **A covering family of resonant avatars determines the global state** |
+| `self_eq_of_avatar_eq` | Derivation 6 with both halves: the Self exists and is the only state with its avatar readings |
+| `self_unique` | Banach's uniqueness half, which the original statement did not record |
+| `constResonance` | The same region, the same model, an avatar that ignores the field |
+| `self_of_constResonance` | **The Self theorem is blind to the avatar** — same conclusion on the blinded boundary |
+| `constResonance_not_isRestrictionResonance` | …and the blinded boundary fails the predicate, given a separating pair |
+
+`Examples.lean` §10, new block after `cortexFixedPoint`:
+
+| Declaration | Content |
+|---|---|
+| `avatarMass`, `avatarMass_restrict` | Reading the mass of an avatar-local section at a site of its region. `rfl`; **O21** is the general version |
+| `cortexReflexive_restrict_ne` | **Non-degeneracy**: the avatar region separates `cortexSilent` from `cortexState` |
+| `cortexReflexive_resonant` | The predicate, discharged by `rfl` — the witness was already built this way |
+| `siteReflexive`, `sing_cover`, `siteReflexive_resonant` | One avatar per site; the singletons cover |
+| `cortex_eq_of_avatar_eq` | Unity from three local readings |
+| `cortexSelfEncoded`, `cortexState_determined_by_avatars` | Derivation 6 on the witness, with the Self named |
+| `cortexBlind`, `cortexBlind_not_resonant`, `cortexBlind_hasSelf`, `cortexBlind_not_determined` | The blinded boundary: legal, self-possessing, and unable to tell two distinct states apart |
+
+### What is still open, stated precisely
+
+* **Nothing derives the restriction.** `IsRestrictionResonance` is a modelling
+  condition on an instance, in exactly the class of
+  `section_agrees_of_phase_eq`: no dynamics in the development makes an avatar
+  perform a restriction. Adding it as a *field* would have hidden that, which is
+  why rule §3 forbids it.
+* **`relax` is unchanged.** The self-prediction map is still a modelling choice
+  and its contraction constant is still built into its definition rather than
+  read off an entropy production rate. This pass touched the avatar, not the
+  dynamics.
+* **The cover is a hypothesis about the boundaries, not about the physics.**
+  Nothing says a physical system carries a covering family of avatars; §10
+  supplies one by construction.
+
+### Manuscript
+
+`main.tex`: Table 1's reflexive-topology row records the predicate, the
+reconstruction theorem and the blinding theorem; status stays **Theorem
+(witnessed)**, since what changed is what the row claims, not how much is
+assumed. Derivation 6 gains a paragraph stating the gap in the terms above and
+both theorems that close it, and its closing "what is still not established"
+sentence now disclaims the restriction as well as the map.
+`supplementary.tex`: the `Phase6_ReflexiveTopology` note gains a stage (iv) with
+the same content in more detail, and its limitation list goes from two to three.
+
+Compile gate: overfull hboxes `main` 24 → 24, `supplementary` 13 → 13; zero
+undefined references or citations; `grep -i "too large"` clean on both; Table 1's
+caption still ends with "so no row is vacuous" in the compiled PDF; `main` stays
+at 50 pages, `supplementary` at 9.
+
+### Ranking after this pass
+
+1. **O21** — build §10's germ–measure dictionary at an arbitrary open. Now the
+   cheapest reachable item, and this pass added a small piece of it
+   (`avatarMass` is `density` at an arbitrary open, in the special case the
+   avatar results needed). Generalising `massMeasure`/`sectionOfMass` would let
+   §14's local sections be written directly and would subsume `avatarMass`.
+2. **O7** — decide and record whether `scalar_magnitude` is a modelling choice,
+   and mark it `[MODELLING]` if so. Trivial, and it is the last Group-1 item.
+3. **O20(d)** — convergence to an equilibrium. Still blocked for the reason
+   recorded twice above: the state space `V → ℝ` is unbounded and the honest
+   route is to quotient by the phase-shift symmetry and work on a torus.
+4. **The mean-field limit** (propagation of chaos), which is what would connect
+   item 3 to the whole of `Phase8_SelfConsistency`. A research programme, not a
+   task.
