@@ -8,7 +8,8 @@ import Mathlib
 1. A concrete half (`entropy_production_rate`, `phase_locked_achieves_minimum_entropy`)
    defining the entropy production functional σ of a stochastic neural field
    over a measure space `M`, and proving a *conditional* minimality result — see
-   the `h_mean` caveat on that theorem.
+   the `h_mean` caveat on that theorem — since discharged for symmetric kernels
+   in §2a, which is the case Derivation 5 and Derivation 7 both work in.
 2. An abstract half (`is_coupling_gradient_flow`,
    `gradient_flow_implies_entropy_decrease`, `continuous_structural_resonance`,
    `structural_resonance_implies_gradient_descent`) proving that a gradient flow
@@ -20,15 +21,24 @@ import Mathlib
    `entropy_production_rate` itself (`sigmaOfKernel_eq_entropy_production_rate`),
    and transfers the descent results to σ
    (`structural_resonance_decreases_entropy_production`).
+4. §8, which factors §7's computation through an abstract lemma
+   (`hasFDerivAt_quadratic_of_affine`) and thereby narrows what the continuum
+   case still needs to a single bounded operator.
 
 ## Scope
 
 The link in §7 is proved for a **finite** substrate whose `volume` is counting
-measure; the continuum case would need differentiation under the integral sign
-with respect to the kernel, which is not developed here. Throughout §7 the phase
+measure. §8 shows what that restriction costs and corrects the estimate this
+header used to carry: σ is a quadratic functional of an affine image of the
+kernel, so its differentiability needs no limiting argument at all, and the
+continuum case is blocked only on exhibiting the drift map as a bounded operator
+between `Lp` spaces — a Cauchy–Schwarz estimate, not differentiation under the
+integral sign. Throughout §7 the phase
 field is held fixed: this is plasticity of the coupling at frozen phases, not
-joint (θ, K) dynamics. And `phase_locked_achieves_minimum_entropy` remains
-conditional on `h_mean` — see its own caveat.
+joint (θ, K) dynamics. `phase_locked_achieves_minimum_entropy` remains
+conditional on `h_mean`; §2a discharges that condition whenever the kernel is
+symmetric, so the unrestricted minimality statement is
+`phase_locked_minimizes_entropy_of_symm`.
 -/
 
 open Set MeasureTheory Topology
@@ -101,12 +111,16 @@ from the variance bound `sq_integral_le_integral_sq` (requires `[IsFiniteMeasure
 
 **Caveat on `h_mean`.** The hypothesis quantifies over *every* competitor field
 `theta_other` and requires each to have the same spatial mean drift
-`Omega_avg`. This is a strong restriction: it confines the comparison class to
-configurations that already share the phase-locked state's first moment, and
-minimality then follows from Jensen/variance alone. It is therefore not a proof
-that phase-locking minimizes entropy production among *all* fields — only among
-those with matching mean drift. Removing this hypothesis would require modelling
-how `Omega_avg` itself varies with `theta_other`, which is not done here.
+`Omega_avg`. Read on its own this is a strong restriction: it confines the
+comparison class to configurations that already share the phase-locked state's
+first moment, and minimality then follows from Jensen/variance alone.
+
+**It is, however, free for a symmetric kernel**, which is the case the framework
+uses. `mean_drift_of_symm` (§2a below) proves `h_mean` from `h_lock` and
+`K x y = K y x`, and `phase_locked_minimizes_entropy_of_symm` is the resulting
+unrestricted statement. This theorem is kept in its general form because the
+symmetric result is derived from it and because it is the sharper statement about
+what the variance bound alone gives: nothing about symmetry enters here.
 -/
 theorem phase_locked_achieves_minimum_entropy [IsFiniteMeasure (volume : Measure M)]
   (sys : StochasticNeuralField M) (theta : M → ℝ)
@@ -150,6 +164,134 @@ theorem phase_locked_achieves_minimum_entropy [IsFiniteMeasure (volume : Measure
     rw [h_lhs, h_rhs]
     have h_inv_pos : (0 : ℝ) < 1 / sys.D := div_pos one_pos sys.h_D_pos
     nlinarith [h_lb, (volume (Set.univ : Set M)).toReal_nonneg]
+
+/-!
+### 2a. Removing the comparison-class restriction: symmetric kernels
+
+The `h_mean` caveat above was recorded as open item **O11**, on the reading that
+removing it "would require modelling how `Omega_avg` varies with the competitor
+field". That estimate was wrong, and in the direction that matters: for a
+**symmetric** kernel the hypothesis is not a restriction at all but a theorem,
+so on the class of kernels the framework actually uses the minimality result
+quantifies over every competitor.
+
+The reason is one line of antisymmetry. The coupling integrand
+`K x y · sin(θ y − θ x)` picks up a sign under swapping its two sites when `K`
+is symmetric, because `sin` is odd; Fubini then identifies the double integral
+with its own negative, so the total coupling contribution vanishes
+(`coupling_integral_eq_zero`). Hence the *total* drift `∫ (ω + coupling)` equals
+`∫ ω` for **every** phase field (`total_drift_eq_of_symm`) — the coupling moves
+drift between sites but cannot create or destroy it. Evaluating that invariant at
+the phase-locked field, where the drift is the constant `Omega_avg`, pins the
+common value, which is exactly `h_mean` (`mean_drift_of_symm`).
+
+Symmetry is imposed as a **hypothesis**, not as a field of `ContinuousNeuralField`,
+per rule §3 of `PhysicsOfConsciousness/AGENTS.md`: the results quantify over
+instances. It is the same condition `ThermodynamicCover.A_symm` already carries in
+Derivation 5, and it is the physical one — a reciprocal ephaptic coupling, in which
+the influence of site `x` on `y` equals that of `y` on `x`.
+
+**What this does not establish.** The integrability side conditions are
+hypotheses, discharged on the finite witness in `Examples.lean` §16 and not in
+general. And the result is still about a *comparison*: the phase-locked field has
+the least entropy production of any field, but no dynamics is shown to reach it —
+that is **O20**, and it is unaffected by this.
+-/
+
+omit [TopologicalSpace M] in
+/-- **The total coupling contribution vanishes for a symmetric kernel.** The
+integrand is antisymmetric under swapping sites, since `K x y = K y x` while
+`sin (θ y − θ x) = −sin (θ x − θ y)`; Fubini then makes the double integral equal
+to its own negative.
+
+The integrability hypothesis is on the product measure and is what Fubini needs;
+it is not implied by integrability of the iterated integrals. -/
+lemma coupling_integral_eq_zero [SFinite (volume : Measure M)]
+    (K : M → M → ℝ) (hK : ∀ x y, K x y = K y x) (theta : M → ℝ)
+    (hint : Integrable (Function.uncurry fun x y => K x y * Real.sin (theta y - theta x))
+      ((volume : Measure M).prod volume)) :
+    ∫ x : M, ∫ y : M, K x y * Real.sin (theta y - theta x) = 0 := by
+  set F : M → M → ℝ := fun x y => K x y * Real.sin (theta y - theta x) with hF
+  have hanti : ∀ x y, F x y = -F y x := by
+    intro x y
+    have h : theta x - theta y = -(theta y - theta x) := by ring
+    simp only [hF, hK x y, h, Real.sin_neg]; ring
+  have h1 : ∫ x : M, ∫ y : M, F x y = ∫ y : M, ∫ x : M, F x y := integral_integral_swap hint
+  have h2 : ∀ y : M, ∫ x : M, F x y = -∫ x : M, F y x := by
+    intro y; rw [← integral_neg]; congr 1; funext x; exact hanti x y
+  have h3 : ∫ y : M, ∫ x : M, F x y = -∫ y : M, ∫ x : M, F y x := by
+    rw [← integral_neg]; congr 1; funext y; exact h2 y
+  -- `∫ y, ∫ x, F y x` is `∫ x, ∫ y, F x y` up to renaming the bound variables.
+  have h4 : (∫ x : M, ∫ y : M, F x y) = -(∫ x : M, ∫ y : M, F x y) := h1.trans h3
+  linarith
+
+/-- **The total drift is a conserved quantity of the phase field.** For a
+symmetric kernel, `∫ (ω + coupling)` equals `∫ ω` whatever the phases are: the
+coupling redistributes drift between sites without changing its total. This is
+the invariant that makes `h_mean` free. -/
+theorem total_drift_eq_of_symm [SFinite (volume : Measure M)]
+    (sys : StochasticNeuralField M) (hK : ∀ x y, sys.K x y = sys.K y x)
+    (hom : Integrable sys.omega) (theta : M → ℝ)
+    (hcoup : Integrable (fun x => ∫ y : M, sys.K x y * Real.sin (theta y - theta x)))
+    (hprod : Integrable (Function.uncurry fun x y => sys.K x y * Real.sin (theta y - theta x))
+      ((volume : Measure M).prod volume)) :
+    ∫ x : M, (sys.omega x + ∫ y : M, sys.K x y * Real.sin (theta y - theta x))
+      = ∫ x : M, sys.omega x := by
+  rw [integral_add hom hcoup, coupling_integral_eq_zero sys.K hK theta hprod, add_zero]
+
+/-- **`h_mean` is a theorem, not a restriction, when the kernel is symmetric.**
+
+Every phase field has the same total drift (`total_drift_eq_of_symm`); the
+phase-locked field fixes that total at `Omega_avg · μ(M)`, since its drift is
+constant. So every competitor meets the mean-matching condition automatically. -/
+theorem mean_drift_of_symm [IsFiniteMeasure (volume : Measure M)]
+    (sys : StochasticNeuralField M) (theta : M → ℝ)
+    (hK : ∀ x y, sys.K x y = sys.K y x)
+    (h_lock : is_dynamically_phase_locked sys theta)
+    (hom : Integrable sys.omega)
+    (hcoup : ∀ t : M → ℝ, Integrable (fun x => ∫ y : M, sys.K x y * Real.sin (t y - t x)))
+    (hprod : ∀ t : M → ℝ,
+      Integrable (Function.uncurry fun x y => sys.K x y * Real.sin (t y - t x))
+        ((volume : Measure M).prod volume)) :
+    ∀ t : M → ℝ, ∫ x : M, (sys.omega x + ∫ y : M, sys.K x y * Real.sin (t y - t x))
+      = sys.Omega_avg * (volume (Set.univ : Set M)).toReal := by
+  have key : ∫ x : M, sys.omega x = sys.Omega_avg * (volume (Set.univ : Set M)).toReal := by
+    have h1 := total_drift_eq_of_symm sys hK hom theta (hcoup theta) (hprod theta)
+    have h2 : ∫ x : M, (sys.omega x + ∫ y : M, sys.K x y * Real.sin (theta y - theta x))
+        = sys.Omega_avg * (volume (Set.univ : Set M)).toReal := by
+      have hc : (fun x : M => sys.omega x + ∫ y : M, sys.K x y * Real.sin (theta y - theta x))
+          = fun _ => sys.Omega_avg := funext h_lock
+      rw [hc, integral_const]
+      simp only [smul_eq_mul]
+      rw [MeasureTheory.measureReal_def]; ring
+    rw [← h1, h2]
+  intro t
+  rw [total_drift_eq_of_symm sys hK hom t (hcoup t) (hprod t), key]
+
+/-- **Phase-locking minimizes entropy production among *all* competitor fields**,
+for a symmetric kernel. This is `phase_locked_achieves_minimum_entropy` with its
+comparison-class restriction discharged rather than assumed (open item **O11**),
+and it is the form the manuscript's Derivation 7 claim needs.
+
+The integrability of the drift itself is discharged too, from `hom` and `hcoup`;
+only integrability of its *square*, which the variance bound genuinely needs,
+survives as a hypothesis on the competitor. -/
+theorem phase_locked_minimizes_entropy_of_symm [IsFiniteMeasure (volume : Measure M)]
+    (sys : StochasticNeuralField M) (theta : M → ℝ)
+    (hK : ∀ x y, sys.K x y = sys.K y x)
+    (h_lock : is_dynamically_phase_locked sys theta)
+    (hom : Integrable sys.omega)
+    (hcoup : ∀ t : M → ℝ, Integrable (fun x => ∫ y : M, sys.K x y * Real.sin (t y - t x)))
+    (hprod : ∀ t : M → ℝ,
+      Integrable (Function.uncurry fun x y => sys.K x y * Real.sin (t y - t x))
+        ((volume : Measure M).prod volume)) :
+    entropy_production_rate sys theta = (∫ _x : M, (1 / sys.D) * sys.Omega_avg ^ 2) ∧
+    ∀ (t : M → ℝ) (_hf2 : Integrable
+        (fun x => (sys.omega x + ∫ y : M, sys.K x y * Real.sin (t y - t x)) ^ 2)),
+      entropy_production_rate sys theta ≤ entropy_production_rate sys t := by
+  obtain ⟨heq, hmin⟩ := phase_locked_achieves_minimum_entropy sys theta h_lock
+    (mean_drift_of_symm sys theta hK h_lock hom hcoup hprod)
+  exact ⟨heq, fun t hf2 => hmin t (hom.add (hcoup t)) hf2⟩
 
 -- 3. Topology Deformation
 structure PlasticNeuralField (M : Type*) [MeasureSpace M] [TopologicalSpace M] 
@@ -487,5 +629,119 @@ theorem structural_resonance_decreases_entropy_production [DecidableEq M]
   exact hA hab
 
 end FiniteCoupling
+
+/-!
+## 8. What the finite restriction in §7 actually costs
+
+Open item **O10** recorded the obstacle to extending §7 beyond finite substrates
+as "differentiation under the integral sign with respect to the kernel", to be
+attacked with `hasDerivAt_integral_of_dominated_loc_of_deriv_le` and a domination
+argument. That diagnosis is wrong, and this section says why, because the
+correction shrinks the item rather than growing it.
+
+σ is not a general functional that happens to be given by an integral. It is a
+**quadratic functional of an affine image**: the drift depends on the kernel
+affinely — a fixed `ω` plus a linear operator applied to `K` — and σ is a
+constant times the squared norm of that drift. Squared norm is Fréchet
+differentiable on any real inner-product space, and an affine map is its own
+derivative, so the composite is differentiable by the chain rule with no
+limiting argument anywhere. `hasFDerivAt_quadratic_of_affine` is that statement,
+in three lines and with no measure theory in sight.
+
+The finite case is the instance where the operator is a matrix.
+`driftCLM` packages §7's coupling sum as a continuous linear map,
+`sigmaOfKernel_eq_norm_sq` identifies σ with `c‖A K + ω‖²`, and
+`hasFDerivAt_sigmaOfKernel_of_operator` re-derives §7's gradient from the
+abstract lemma — so the closed-form computation in `hasFDerivAt_sigmaOfKernel`
+is a *convenience*, not the content.
+
+**What this leaves.** Extending §7 to a continuum needs exactly one thing: the
+continuum drift map `K ↦ (x ↦ ∫ K(x,y) sin(θ_y − θ_x) dy)` as a bounded operator
+`L²(μ⊗μ) → L²(μ)`. That is a Cauchy–Schwarz estimate — the kernel of the
+integral is bounded by `1`, so on a finite measure space the operator norm is at
+most `μ(M)^{1/2}` — and not a theorem about differentiating anything. We have not
+built it, because it needs the `Lp` API and the construction of a continuous
+linear map between two `Lp` spaces, which is bookkeeping we have not done. But
+the item is "construct one bounded operator", not "differentiate under the
+integral sign", and the difference is worth recording: the second is an analytic
+obstruction and the first is not.
+-/
+
+/-- **A quadratic functional of an affine image is Fréchet differentiable.**
+`c‖A K + w‖²` has derivative `c · 2⟪A K + w, A ·⟫`, for any continuous linear
+`A` between real inner-product spaces.
+
+This is the whole analytic content of §7. Nothing here is finite-dimensional and
+nothing is an integral: given the operator, the derivative follows. -/
+theorem hasFDerivAt_quadratic_of_affine {H E : Type*}
+    [NormedAddCommGroup H] [InnerProductSpace ℝ H]
+    [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    (A : H →L[ℝ] E) (w : E) (c : ℝ) (K : H) :
+    HasFDerivAt (fun K' : H => c * ‖A K' + w‖ ^ 2)
+      (c • (2 • (innerSL ℝ (A K + w)).comp A)) K :=
+  (((A.hasFDerivAt).add_const w).norm_sq).const_mul c
+
+section OperatorForm
+
+variable {M : Type*} [Fintype M] [MeasureSpace M] [TopologicalSpace M] [DecidableEq M]
+
+private lemma inner_euclid' {ι : Type*} [Fintype ι] (u v : EuclideanSpace ℝ ι) :
+    (inner ℝ u v : ℝ) = ∑ i, u i * v i := by
+  rw [PiLp.inner_apply]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  simp [RCLike.inner_apply, mul_comm]
+
+/-- §7's coupling sum, as a linear map of the kernel. This is the operator whose
+continuum analogue is all that O10 still needs. -/
+noncomputable def driftLin (theta : M → ℝ) : CouplingSpace M →ₗ[ℝ] EuclideanSpace ℝ M where
+  toFun K := WithLp.toLp 2 (fun x => ∑ y : M, K (x, y) * Real.sin (theta y - theta x))
+  map_add' K L := by ext x; simp [Finset.sum_add_distrib, add_mul]
+  map_smul' c K := by ext x; simp [Finset.mul_sum, mul_assoc]
+
+/-- Continuity is free in finite dimension; in the continuum it is the
+Cauchy–Schwarz estimate described in the section header. -/
+noncomputable def driftCLM (theta : M → ℝ) : CouplingSpace M →L[ℝ] EuclideanSpace ℝ M :=
+  LinearMap.toContinuousLinearMap (driftLin theta)
+
+/-- The natural frequencies, as the affine offset. -/
+noncomputable def omegaVec (sys : StochasticNeuralField M) : EuclideanSpace ℝ M :=
+  WithLp.toLp 2 sys.omega
+
+omit [DecidableEq M] in
+lemma driftCLM_apply (sys : StochasticNeuralField M) (theta : M → ℝ)
+    (K : CouplingSpace M) (x : M) :
+    (driftCLM theta K + omegaVec sys) x = drift sys theta K x := by
+  show (∑ y : M, K (x, y) * Real.sin (theta y - theta x)) + sys.omega x = _
+  rw [drift]; ring
+
+omit [DecidableEq M] in
+/-- **σ is `c‖A K + ω‖²`.** The identification that makes the abstract lemma
+apply. -/
+lemma sigmaOfKernel_eq_norm_sq (sys : StochasticNeuralField M) (theta : M → ℝ)
+    (K : CouplingSpace M) :
+    sigmaOfKernel sys theta K = (1 / sys.D) * ‖driftCLM theta K + omegaVec sys‖ ^ 2 := by
+  rw [← real_inner_self_eq_norm_sq, inner_euclid']
+  rw [sigmaOfKernel, ← Finset.mul_sum]
+  refine congrArg _ (Finset.sum_congr rfl fun x _ => ?_)
+  rw [driftCLM_apply]; ring
+
+omit [DecidableEq M] in
+/-- **§7's gradient, re-derived from the abstract lemma.** The point is not a new
+result — `hasFDerivAt_sigmaOfKernel` already proves this, in the closed form the
+manuscript quotes — but that the closed form is inessential. Everything §7 needs
+follows from the operator, so the continuum case is blocked only on producing
+one. -/
+theorem hasFDerivAt_sigmaOfKernel_of_operator (sys : StochasticNeuralField M)
+    (theta : M → ℝ) (K : CouplingSpace M) :
+    HasFDerivAt (sigmaOfKernel sys theta)
+      ((1 / sys.D) • (2 • (innerSL ℝ (driftCLM theta K + omegaVec sys)).comp (driftCLM theta)))
+      K := by
+  have hfun : sigmaOfKernel sys theta
+      = fun K' => (1 / sys.D) * ‖driftCLM theta K' + omegaVec sys‖ ^ 2 :=
+    funext fun K' => sigmaOfKernel_eq_norm_sq sys theta K'
+  rw [hfun]
+  exact hasFDerivAt_quadratic_of_affine _ _ _ _
+
+end OperatorForm
 
 end PhysicsOfConsciousness

@@ -3012,5 +3012,155 @@ theorem pairRelax_unique (c : ℝ) (psi : ℝ → Bool → ℝ)
 
 end RunningDynamics
 
+/-!
+## §16 — A symmetric kernel, and a one-way one that breaks the theorem
+
+Open item **O11** asked whether `phase_locked_achieves_minimum_entropy`'s
+`h_mean` hypothesis could be removed. It can, for symmetric kernels, and
+`Phase8_ContinuousField` §2a proves it. This section discharges that theorem's
+integrability hypotheses on a concrete substrate and then answers the question
+the theorem itself cannot: whether the symmetry hypothesis that replaced
+`h_mean` is doing work.
+
+It is, and the check is a counterexample rather than a remark. `asymSys` is the
+same two sites with a **one-way** coupling — `a` feels `b`, `b` does not feel
+`a` — and there the phase-locked field is *strictly beaten*
+(`asymSys_locked_not_minimal`): moving `b` to `−π/2` cancels `a`'s natural drift
+without adding any drift at `b`, halving the entropy production. So
+"phase-locking minimizes entropy production" is **false** for general kernels and
+true for reciprocal ones, which is the physically intended case and the one
+`ThermodynamicCover.A_symm` already imposes in Derivation 5.
+
+Both systems live on the `Duo` substrate of §5, whose `volume` is counting
+measure; `Integrable.of_finite` discharges every integrability hypothesis there,
+including the one on the product measure that Fubini needs.
+-/
+
+section SymmetricKernel
+
+/-- Counting measure on two sites is finite, which the variance bound needs. -/
+instance : IsFiniteMeasure (volume : Measure Duo) := by
+  constructor
+  show (Measure.count : Measure Duo) Set.univ < ⊤
+  rw [Measure.count_univ]; simp
+
+/-- Entropy production on `Duo`, written out. Both integrals are sums against
+counting measure, so the functional is four `sin` evaluations. -/
+lemma duo_entropy (sys : StochasticNeuralField Duo) (theta : Duo → ℝ) :
+    entropy_production_rate sys theta
+      = (1/sys.D) * (sys.omega Duo.a + (sys.K Duo.a Duo.a * Real.sin (theta Duo.a - theta Duo.a)
+          + sys.K Duo.a Duo.b * Real.sin (theta Duo.b - theta Duo.a)))^2
+      + (1/sys.D) * (sys.omega Duo.b + (sys.K Duo.b Duo.a * Real.sin (theta Duo.a - theta Duo.b)
+          + sys.K Duo.b Duo.b * Real.sin (theta Duo.b - theta Duo.b)))^2 := by
+  unfold entropy_production_rate
+  simp only [duo_volume, integral_count, duo_sum]
+
+/-- Reciprocal coupling: every pair of sites influences the other equally. -/
+noncomputable def symmSys : StochasticNeuralField Duo where
+  omega := fun _ => 0
+  K := fun _ _ => 1
+  tau := 1
+  D := 2
+  h_D_pos := by norm_num
+  Omega_avg := 0
+
+theorem symmSys_symm : ∀ x y, symmSys.K x y = symmSys.K y x := fun _ _ => rfl
+
+theorem symmSys_locked : is_dynamically_phase_locked symmSys (fun _ => 0) := by
+  intro x
+  show (0:ℝ) + ∫ y : Duo, (1:ℝ) * Real.sin (0 - 0) = 0
+  simp
+
+/-- **The unrestricted minimality theorem fires.** No `h_mean`: the conclusion
+holds against *every* competitor field, with only integrability of its squared
+drift assumed — and that is discharged here too, by finiteness. -/
+theorem symmSys_minimizes :
+    ∀ (t : Duo → ℝ) (_hf2 : Integrable
+        (fun x => (symmSys.omega x + ∫ y : Duo, symmSys.K x y * Real.sin (t y - t x)) ^ 2)),
+      entropy_production_rate symmSys (fun _ => 0) ≤ entropy_production_rate symmSys t :=
+  (phase_locked_minimizes_entropy_of_symm symmSys (fun _ => 0) symmSys_symm symmSys_locked
+    Integrable.of_finite (fun _ => Integrable.of_finite) (fun _ => Integrable.of_finite)).2
+
+theorem symmSys_locked_entropy : entropy_production_rate symmSys (fun _ => 0) = 0 := by
+  rw [duo_entropy]; norm_num [symmSys]
+
+theorem symmSys_competitor_entropy : entropy_production_rate symmSys duoTheta = 1 := by
+  rw [duo_entropy]
+  norm_num [symmSys, duoTheta, Real.sin_pi_div_two]
+
+/-- **The minimum is attained strictly.** `duoTheta` produces entropy `1` where
+the locked field produces `0`, so `symmSys_minimizes` is not the observation that
+every field is equally good. -/
+theorem symmSys_gap :
+    entropy_production_rate symmSys (fun _ => 0) < entropy_production_rate symmSys duoTheta := by
+  rw [symmSys_locked_entropy, symmSys_competitor_entropy]; norm_num
+
+/-- A **one-way** coupling: `a` feels `b`, `b` does not feel `a`. Physically this
+is a directed synapse rather than a reciprocal field. -/
+noncomputable def asymSys : StochasticNeuralField Duo where
+  omega := fun _ => 1
+  K := fun x y => if x = Duo.a ∧ y = Duo.b then 1 else 0
+  tau := 1
+  D := 2
+  h_D_pos := by norm_num
+  Omega_avg := 1
+
+theorem asymSys_not_symm : ¬ ∀ x y, asymSys.K x y = asymSys.K y x := by
+  intro h
+  have hab := h Duo.a Duo.b
+  simp [asymSys] at hab
+
+theorem asymSys_locked : is_dynamically_phase_locked asymSys (fun _ => 0) := by
+  intro x
+  show (1:ℝ) + ∫ y : Duo, asymSys.K x y * Real.sin (0 - 0) = 1
+  simp
+
+/-- Phases `0` and `−π/2`. The one-way coupling subtracts exactly `a`'s natural
+drift and adds nothing at `b`, which is what a reciprocal kernel cannot do. -/
+noncomputable def asymTheta : Duo → ℝ
+  | Duo.a => 0
+  | Duo.b => -(Real.pi / 2)
+
+theorem asymSys_locked_entropy : entropy_production_rate asymSys (fun _ => 0) = 1 := by
+  rw [duo_entropy]; norm_num [asymSys]
+
+theorem asymSys_competitor_entropy : entropy_production_rate asymSys asymTheta = 1/2 := by
+  rw [duo_entropy]
+  norm_num [asymSys, asymTheta, Real.sin_neg, Real.sin_pi_div_two]
+  exact Or.inl (by decide)
+
+/-- **Symmetry is necessary, not decorative.** Drop it and the theorem is false:
+here a phase-locked field is strictly beaten by a competitor, so no amount of
+extra work could remove `hK` from `phase_locked_minimizes_entropy_of_symm`.
+
+This is the same kind of result as `contracting_implies_const` in §10 and
+`ThermodynamicCover.phase_locked` in §13 — a proof that a hypothesis is as weak
+as it can be made, rather than a hope that it is. -/
+theorem asymSys_locked_not_minimal :
+    entropy_production_rate asymSys asymTheta
+      < entropy_production_rate asymSys (fun _ => 0) := by
+  rw [asymSys_locked_entropy, asymSys_competitor_entropy]; norm_num
+
+/-- The mechanism of the counterexample, isolated: for the one-way kernel the
+total drift is *not* conserved, so `h_mean` fails and the variance bound has
+nothing to stand on. Compare `total_drift_eq_of_symm`. -/
+theorem asymSys_mean_drift_fails :
+    (∫ x : Duo, (asymSys.omega x + ∫ y : Duo, asymSys.K x y
+        * Real.sin (asymTheta y - asymTheta x)))
+      ≠ asymSys.Omega_avg * (volume (Set.univ : Set Duo)).toReal := by
+  have hlhs : (∫ x : Duo, (asymSys.omega x + ∫ y : Duo, asymSys.K x y
+      * Real.sin (asymTheta y - asymTheta x))) = 1 := by
+    simp only [duo_volume, integral_count, duo_sum]
+    norm_num [asymSys, asymTheta, Real.sin_neg, Real.sin_pi_div_two]
+    decide
+  have hrhs : asymSys.Omega_avg * (volume (Set.univ : Set Duo)).toReal = 2 := by
+    show (1:ℝ) * ((Measure.count : Measure Duo) Set.univ).toReal = 2
+    rw [Measure.count_univ]
+    have hcard : Fintype.card Duo = 2 := rfl
+    simp [hcard]
+  rw [hlhs, hrhs]; norm_num
+
+end SymmetricKernel
+
 end Examples
 end PhysicsOfConsciousness

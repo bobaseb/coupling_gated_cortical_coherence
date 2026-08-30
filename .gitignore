@@ -11,6 +11,10 @@ __pycache__/
 *.log
 *.out
 *.pdf
+# ...but the two published PDFs are the deliverables: README and the project
+# website (index.html) link to them directly, so they must be tracked.
+!main.pdf
+!supplementary.pdf
 *.toc
 *.fls
 *.fdb_latexmk

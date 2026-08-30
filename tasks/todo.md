@@ -1368,8 +1368,8 @@ list is to keep it that way.
 |---|---|---|
 | ~~**O8**~~ | **DONE 2026-08-30 — see "The coherent branch is a single point" at the end of this file.** All three gaps are closed. `K = 2D` is covered (`fixed_point_eq_zero_of_le_critical`), a discontinuous jump at threshold is excluded (`coherent_branch_continuous_at_threshold`), and **uniqueness** is now `vonMisesSRatio_strictAntiOn` — `E` is strictly *decreasing* on `[0, ∞)`, which is more than the injectivity the level-set form asked for. The route recorded here was not the route taken and was the harder one: no derivative of `E`, no differentiation under the integral sign, and the covariance never appears. Fold `[-π, π]` onto `[0, π/2]` first (the reflection *is* the `X ↦ -X` symmetrisation the tilt was supposed to beat), then cross at the mean instead of integrating over a square. `besselRatio_strictMono` (`R` strictly increasing on `ℝ`) came out of the same argument with no fold, and closed the separate "Monotonicity of `R`" gap the file header carried | `Phase8_SelfConsistency` §7 | Done |
 | ~~**O9**~~ | **DONE 2026-08-30 — see "The Self's metric" at the end of this file.** ~~**B1 — the Self's metric is 0/1, and `contracting_implies_const` proves that forces the fixed point to be constant.**~~ The metric is now the uniform distance between the densities of the measures the sections glue to, `massEquiv` proves global sections *are* those measures, and `relax_dist` gives a non-constant map contracting by exactly `1/2` with a unique fixed point. Two premises of the recorded plan were wrong and are corrected there: `isIso_toSheafify` is for the *Grothendieck* sheafification, not `TopCat.Presheaf.sheafify`, which has no adjunction in Mathlib; and `μ ↦ ½μ + ½μ₀` is **not** a Lévy–Prokhorov contraction on a discrete substrate | 
-| **O10** | **B3 — the σ/gradient-flow link holds for finite substrates only** (`hvol : volume = Measure.count`) | Differentiation under the integral sign with respect to the kernel. Mathlib has `hasDerivAt_integral_of_dominated_loc_of_deriv_le`; the work is in the domination hypotheses |
-| **O11** | **B2 — `h_mean` restricts the comparison class** to fields sharing the phase-locked state's mean drift, so minimality is Jensen alone | Model how `Omega_avg` varies with the competitor field. Stated as the honest scope on the theorem; removing it changes what is claimed |
+| ~~**O10**~~ | **NARROWED 2026-08-30 — see "The estimate was the obstacle" at the end of this file.** The recorded route was a misdiagnosis: σ is a quadratic functional of an *affine* image of the kernel, so `hasFDerivAt_quadratic_of_affine` differentiates it by the chain rule with no limiting argument, and `hasFDerivAt_sigmaOfKernel_of_operator` recovers §7's gradient from it. ~~**B3 — the σ/gradient-flow link holds for finite substrates only** (`hvol : volume = Measure.count`)~~ What remains is to construct the continuum drift map as a bounded operator `L²(μ⊗μ) → L²(μ)` — a Cauchy–Schwarz estimate plus `Lp` bookkeeping | ~~Differentiation under the integral sign with respect to the kernel. Mathlib has `hasDerivAt_integral_of_dominated_loc_of_deriv_le`; the work is in the domination hypotheses~~ Superseded: no differentiation under any integral is involved |
+| ~~**O11**~~ | **DONE 2026-08-30 — see "The estimate was the obstacle" at the end of this file.** ~~**B2 — `h_mean` restricts the comparison class** to fields sharing the phase-locked state's mean drift, so minimality is Jensen alone~~ For a *symmetric* kernel `h_mean` is a theorem, not a restriction: the coupling integrand is antisymmetric in its two sites, so total drift is conserved across phase fields, and `phase_locked_minimizes_entropy_of_symm` quantifies over every competitor. Symmetry is necessary — `Examples.lean` §16's one-way coupling strictly beats its own phase-locked state | ~~Model how `Omega_avg` varies with the competitor field. Stated as the honest scope on the theorem; removing it changes what is claimed~~ Done, and the recorded estimate was wrong: no modelling of `Omega_avg` was needed |
 | **O12** | **D2 — there is still no Noether theorem.** The class is now inhabited (`Examples.lean` §11, a `ℤ₂` action on a double well, with symmetry breaking exhibited), but no conserved quantity is constructed and no theorem consumes a symmetry group | **Estimate corrected 2026-08-29 — see "Noether: a feasibility probe" at the end of this file.** "A project in itself" is right for the *field-theoretic* theorem and wrong for point mechanics, which was prototyped end to end in one session (~200 lines, zero `sorry`). The structural obstacle is not difficulty: `SymmetryInvariantAction` has **no dynamics**, so no conserved quantity can be attached to it at all |
 | ~~**O19**~~ | **DONE 2026-08-30 — see "The gluing produces its object" at the end of this file.** ~~Derivation 5's gluing is a uniqueness theorem, not an emergence theorem~~ Both global-object fields are removed from `LocalSectionSynchronization`; `probability_glue_unique` isolates the sheaf condition, `ThermodynamicCover.invariantMeasure` constructs the section, and `sync_to_section_eq` is now a theorem. `Examples.lean` §14 is a cover whose glued section is neither of the profiles it was built from | ~~Restate `LocalSectionSynchronization` …~~ done as described; the estimate "touches a class every downstream file uses" was right about the blast radius and wrong about the cost — see the section for why |
 | ~~**O21**~~ | **DONE 2026-08-30 — see "The dictionary at an arbitrary open" at the end of this file.** `densityOn`, `massMeasureOn`, `sectionOfMassOn` and `massEquivOn` are stated at an arbitrary open; `density`, `massMeasure`, `sectionOfMass` and `massEquiv` are the case `U = ⊤`, kept under their own names. §14's local sections are `sectionOfMassOn (patch i) (patchW i)` and no measure on `Cortex` appears in the instance; `glued_section_eq_restrict` records that the object did not change when the construction did. ~~**§10's germ–measure dictionary is built at `⊤` only.**~~ | `Examples.lean` §10, §14 | Done. The estimate "bookkeeping" was right |
@@ -3159,3 +3159,143 @@ Group 1 is now empty. Everything remaining is Group 2 or Group 3.
    is unbounded and the honest route is to quotient by the phase-shift symmetry
    and work on a torus.
 5. **The mean-field limit** (propagation of chaos). A research programme.
+
+---
+
+## The estimate was the obstacle — 2026-08-30 — O11 DONE, O10 NARROWED
+
+Two Group-2 items, worked in one pass because they turned out to share a shape:
+in both, the recorded estimate of what the item would cost was the thing standing
+in the way, and in both the correct route was cheaper by an order of magnitude
+than the one this file had written down. Zero `sorry`, zero warnings, `lake build`
+clean (17,608 jobs); `#print axioms` on all eight new results reports only
+`propext`, `Classical.choice`, `Quot.sound`.
+
+### O11 — `h_mean` is free for a reciprocal kernel
+
+The ledger said removing `h_mean` "means modelling how `Omega_avg` varies with the
+competitor field, which changes what is claimed", and recommended deciding whether
+the claim should change. Neither was necessary. The hypothesis is a **theorem**
+whenever the coupling kernel is symmetric, which is the case the framework works
+in throughout.
+
+The argument is one line of antisymmetry. `K x y · sin(θ y − θ x)` changes sign
+under swapping its two sites when `K x y = K y x`, because `sin` is odd; Fubini
+then identifies the double integral with its own negative, so it vanishes. Hence:
+
+| Declaration | Content |
+|---|---|
+| `coupling_integral_eq_zero` | The total coupling contribution is `0` for a symmetric kernel |
+| `total_drift_eq_of_symm` | **`∫(ω + coupling) = ∫ω` for every phase field** — coupling moves drift between sites, it does not create or destroy it |
+| `mean_drift_of_symm` | `h_mean` follows, by evaluating that invariant at the locked configuration where the drift is constant |
+| `phase_locked_minimizes_entropy_of_symm` | The unrestricted minimality statement. Integrability of the drift is discharged too; only integrability of its *square* survives as a hypothesis on the competitor |
+
+Symmetry is a **hypothesis**, not a new field of `ContinuousNeuralField`, per rule
+§3: the results quantify over instances. It is the same condition
+`ThermodynamicCover.A_symm` already carries in Derivation 5, and it is the
+physical one — reciprocal ephaptic coupling.
+
+### Why the symmetry hypothesis is not decoration, and this is the part that matters
+
+Per rule §2, the check is a theorem rather than a remark, and here it is a
+**counterexample**: `Examples.lean` §16's `asymSys` is a *one-way* coupling on the
+two-site `Duo` substrate — `a` feels `b`, `b` does not feel `a` — whose
+phase-locked field is **strictly beaten**. Displacing the second phase to `−π/2`
+cancels the first site's natural drift while adding none at the second, taking
+`σ` from `1` to `1/2` (`asymSys_locked_not_minimal`).
+
+So "phase-locking minimizes entropy production" is **false** for general kernels
+and true for reciprocal ones. `hK` cannot be removed by working harder, and
+`asymSys_mean_drift_fails` isolates the mechanism: without symmetry the total
+drift is not conserved, so `h_mean` fails and the variance bound has nothing to
+stand on. The positive half is witnessed on the same substrate — `symmSys_minimizes`
+fires the unrestricted theorem, `symmSys_gap` checks the minimum is attained
+strictly (`0` against `1`) rather than every field being equally good, and
+`Integrable.of_finite` discharges every integrability hypothesis, including the
+product-measure one Fubini needs.
+
+### O10 — the recorded blocker does not exist
+
+The ledger and both documents said the continuum case needs "differentiation under
+the integral sign with respect to the kernel", to be attacked with
+`hasDerivAt_integral_of_dominated_loc_of_deriv_le` and domination hypotheses. That
+is a misdiagnosis, and correcting it shrinks the item.
+
+σ is not a general functional that happens to be given by an integral. The drift
+is **affine** in the kernel — a fixed `ω` plus a linear operator applied to `K` —
+and σ is a constant times the squared norm of the drift. Squared norm is Fréchet
+differentiable on any real inner-product space (`HasFDerivAt.norm_sq`), an affine
+map is its own derivative, and the chain rule finishes it. No limiting argument
+appears anywhere.
+
+| Declaration | Content |
+|---|---|
+| `hasFDerivAt_quadratic_of_affine` | `c‖A K + w‖²` has derivative `c · 2⟪A K + w, A ·⟫`, for any continuous linear `A` between real inner-product spaces. Three lines, no measure theory |
+| `driftLin`, `driftCLM`, `omegaVec` | §7's coupling sum as a continuous linear map, and the affine offset |
+| `sigmaOfKernel_eq_norm_sq` | σ **is** `c‖A K + ω‖²` |
+| `hasFDerivAt_sigmaOfKernel_of_operator` | §7's gradient, re-derived from the abstract lemma — so the closed form is a convenience, not the content |
+
+**What O10 now is.** Exhibit the continuum drift map
+`K ↦ (x ↦ ∫ K(x,y) sin(θ_y − θ_x) dy)` as a bounded operator `L²(μ⊗μ) → L²(μ)`.
+The estimate is Cauchy–Schwarz — the integral kernel is bounded by `1`, so on a
+finite measure space the operator norm is at most `μ(M)^{1/2}` — and the work is
+`Lp` bookkeeping: constructing a continuous linear map between two `Lp` spaces.
+That is a different size of task from differentiating under an integral sign, and
+it is not an analytic obstruction. Not done here.
+
+### Manuscript
+
+`main.tex`: Table 1 gains a row for `phase_locked_minimizes_entropy_of_symm`
+(status **Theorem**, witnessed in §16, with the counterexample recorded in the
+row); Derivation 7 gains the antisymmetry argument, the counterexample, and the
+corrected O10 scope, replacing the sentence that named differentiation under the
+integral sign as the blocker. `supplementary.tex`: the Derivation 3 note carries
+both corrections.
+
+Two prose passes landed in the same change, and they are not Lean-driven. The
+Conclusion claimed classical fields "are sufficient to generate a unified,
+structurally resonant conscious state" and that mind is "physically barred from
+discrete von Neumann architectures"; neither is what the development proves, and
+the Corollary's own middle paragraph already said so ("the step from either to
+'von Neumann architectures cannot experience unified consciousness' remains an
+informal argument"). Both now state the two open links by name — the minimum is
+not reached, and the global-section/unity identification is a stipulation — and
+the Corollary's "physical and topological proof" became "a candidate physical
+mechanism", its cerebellar "confirms" became "is consistent with". `K_c = 2D` is
+now attributed to the mean-field Kuramoto model the framework adopts, conditional
+on the von Mises density, rather than offered as a prediction of the framework.
+
+Compile gate: overfull hboxes `main` 0 → 0, `supplementary` 13 → 13 (both checked
+against `HEAD` rather than assumed); zero undefined references or citations;
+`grep -i "too large"` clean; Table 1's caption still ends with "so no row is
+vacuous"; `main` 51 → 54 pages, `supplementary` 9.
+
+### Repository
+
+`main.pdf` and `supplementary.pdf` were matched by the `*.pdf` line in
+`.gitignore` and so were never tracked, while `README.md` and `index.html` — the
+GitHub Pages site — link to both. Every reader following "Read the Paper" or the
+site's two buttons got a 404. Negated in `.gitignore` and committed. Stale
+`temp_main.*` build artifacts from 2026-08-28 removed from the repository root.
+
+### Ranking after this pass
+
+Group 1 is empty and Group 2 has lost two of its four entries.
+
+1. **O10 (remainder)** — the continuum drift map as a bounded operator between
+   `Lp` spaces. Now a bookkeeping task with a known estimate rather than an
+   analytic obstruction; still the cheapest Group-2 item.
+2. **O12** — Noether. The structural obstacle is recorded and is not difficulty:
+   `SymmetryInvariantAction` has no dynamics, so no conserved quantity can attach
+   to it. Point mechanics was prototyped end to end; the field-theoretic theorem
+   is a project.
+3. **O20(d)** — convergence to an equilibrium. Blocked: the state space `V → ℝ`
+   is unbounded and the honest route is to quotient by the phase-shift symmetry
+   and work on a torus.
+4. **The mean-field limit** (propagation of chaos). A research programme.
+
+**A note for the next pass.** Two of the last three items to be closed — O8, and
+now both halves of this one — were closed by a route the ledger had not
+considered, and in each case the recorded estimate was not merely pessimistic but
+pointed at the wrong obstacle. It is worth treating the "what it takes" column as
+a hypothesis to be checked before it is a plan to be executed.
