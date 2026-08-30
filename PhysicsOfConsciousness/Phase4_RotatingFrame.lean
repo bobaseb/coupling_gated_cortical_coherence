@@ -281,4 +281,226 @@ theorem rotating_frame_chain [Nonempty V] (sys : KuramotoSystem V) (Ω : ℝ)
       potential_min_implies_phase_locked sys h_pos (rotate Ω theta t) h_min
     exact (is_phase_locked_rotate Ω theta t).mp h_locked
 
+/-! ## 5. Dissipation: the potential converges, and only finitely much is dissipated
+
+`dynamic_potential_deriv_nonpos` says the potential does not increase at any one
+instant. That is a statement about each `t` separately, and on its own it does
+not say the trajectory settles: a function can decrease forever without
+converging. The results here close that gap for the two claims that do not need
+a LaSalle principle.
+
+Both are stated for a system whose natural frequencies vanish, which by §1 is
+exactly the case in which `kuramoto_potential` and `kuramoto_potential_dynamic`
+agree — and, by `kuramoto_potential_unbounded_below`, the only case in which
+either is bounded below. `rotating_frame_dissipation` transports them to a
+uniform-frequency system through the reduction of §3.
+-/
+
+open Filter Topology MeasureTheory
+
+section Dissipation
+
+variable (sys : KuramotoSystem V) (hw : ∀ i, sys.omega i = 0)
+    (theta : ℝ → V → ℝ) (h_traj : is_kuramoto_trajectory sys theta)
+
+omit [DecidableEq V] in
+include hw in
+/-- With zero natural frequencies the two potentials are the same function. -/
+lemma kuramoto_potential_eq_dynamic_of_zero_freq (phi : V → ℝ) :
+    kuramoto_potential sys phi = kuramoto_potential_dynamic sys phi := by
+  rw [kuramoto_potential_eq_dynamic_sub]
+  simp [hw]
+
+omit [DecidableEq V] in
+include h_traj in
+lemma dynamic_potential_differentiableAt (t : ℝ) :
+    DifferentiableAt ℝ (fun t => kuramoto_potential_dynamic sys (theta t)) t := by
+  have h_diff : ∀ i, DifferentiableAt ℝ (fun t => theta t i) t :=
+    fun i => (h_traj i t).differentiableAt
+  have hsum : DifferentiableAt ℝ
+      (fun t => ∑ i, ∑ j, sys.A i j * Real.cos (theta t j - theta t i)) t := by
+    have H : (fun (t : ℝ) => ∑ i, ∑ j, sys.A i j * Real.cos (theta t j - theta t i))
+        = ∑ i, (fun (t : ℝ) => ∑ j, sys.A i j * Real.cos (theta t j - theta t i)) := by
+      ext; simp
+    rw [H]
+    refine DifferentiableAt.sum fun i _ => ?_
+    have H2 : (fun (t : ℝ) => ∑ j, sys.A i j * Real.cos (theta t j - theta t i))
+        = ∑ j, (fun (t : ℝ) => sys.A i j * Real.cos (theta t j - theta t i)) := by
+      ext; simp
+    rw [H2]
+    exact DifferentiableAt.sum fun j _ => ((h_diff j).sub (h_diff i)).cos.const_mul _
+  unfold kuramoto_potential_dynamic
+  exact hsum.const_mul _
+
+omit [DecidableEq V] in
+include hw h_traj in
+/-- **The Lyapunov identity, in `HasDerivAt` form.** `dV_dt_le_zero` computes
+`deriv`, which carries no differentiability information and so cannot be fed to
+the fundamental theorem of calculus; this restates it as a `HasDerivAt`, which
+can. The differentiability it needs is `dynamic_potential_differentiableAt`, and
+the value of the derivative is `dV_dt_le_zero` transported across
+`kuramoto_potential_eq_dynamic_of_zero_freq`. -/
+theorem dynamic_potential_hasDerivAt (t : ℝ) :
+    HasDerivAt (fun t => kuramoto_potential_dynamic sys (theta t))
+      (- ∑ i, (kuramoto_velocity sys (theta t) i) ^ 2) t := by
+  have hdiff := dynamic_potential_differentiableAt sys theta h_traj t
+  have hkey : deriv (fun t => kuramoto_potential_dynamic sys (theta t)) t
+      = - ∑ i, (kuramoto_velocity sys (theta t) i) ^ 2 := by
+    have hfun : (fun t => kuramoto_potential_dynamic sys (theta t))
+        = fun t => kuramoto_potential sys (theta t) := by
+      funext s; rw [kuramoto_potential_eq_dynamic_of_zero_freq sys hw]
+    rw [hfun]
+    exact dV_dt_le_zero sys theta t (fun i => (h_traj i t).differentiableAt)
+      (fun i => (h_traj i t).deriv)
+  exact hkey ▸ hdiff.hasDerivAt
+
+omit [DecidableEq V] in
+/-- **The dynamic potential is bounded below**, by `-½ ∑ᵢⱼ |Aᵢⱼ|`, uniformly
+over configurations. This is the half of the Lyapunov argument that the full
+`kuramoto_potential` does not have: by `kuramoto_potential_unbounded_below` no
+such bound exists once a natural frequency is non-zero, which is why the
+convergence result below is stated for the reduced system. -/
+lemma dynamic_potential_bounded_below (phi : V → ℝ) :
+    -(1/2) * ∑ i, ∑ j, |sys.A i j| ≤ kuramoto_potential_dynamic sys phi := by
+  unfold kuramoto_potential_dynamic
+  have hle : ∑ i, ∑ j, sys.A i j * Real.cos (phi j - phi i) ≤ ∑ i, ∑ j, |sys.A i j| := by
+    refine Finset.sum_le_sum fun i _ => Finset.sum_le_sum fun j _ => ?_
+    calc sys.A i j * Real.cos (phi j - phi i)
+        ≤ |sys.A i j * Real.cos (phi j - phi i)| := le_abs_self _
+      _ = |sys.A i j| * |Real.cos (phi j - phi i)| := abs_mul _ _
+      _ ≤ |sys.A i j| * 1 :=
+          mul_le_mul_of_nonneg_left (Real.abs_cos_le_one _) (abs_nonneg _)
+      _ = |sys.A i j| := mul_one _
+  linarith
+
+omit [DecidableEq V] in
+include hw h_traj in
+/-- **The dynamic potential is non-increasing along a trajectory**, as a function
+of time rather than instant by instant. This is the global statement
+`dynamic_potential_deriv_nonpos` does not make. -/
+theorem dynamic_potential_antitone :
+    Antitone (fun t => kuramoto_potential_dynamic sys (theta t)) := by
+  apply antitone_of_deriv_nonpos
+  · exact fun t => (dynamic_potential_hasDerivAt sys hw theta h_traj t).differentiableAt
+  · intro t
+    rw [(dynamic_potential_hasDerivAt sys hw theta h_traj t).deriv]
+    simp only [neg_nonpos]
+    exact Finset.sum_nonneg fun i _ => sq_nonneg _
+
+omit [DecidableEq V] in
+include hw h_traj in
+/-- **O20(b): the potential converges along *every* trajectory**, and its limit
+is a lower bound for it. Monotone convergence: antitone by
+`dynamic_potential_antitone`, bounded below by `dynamic_potential_bounded_below`.
+
+`Examples.lean` §15 computes this limit for one trajectory by evaluating it; this
+theorem needs no formula for the limit and holds for every system and every
+initial condition.
+
+**What it does not establish.** That the limit is the *global minimum* of the
+potential, which is what `thermodynamic_equilibrium` assumes and what
+`potential_min_iff_phase_locked` would then convert into phase-locking. A
+trajectory sitting at a splay or twisted equilibrium converges too, to a value
+that is not the minimum. -/
+theorem dynamic_potential_tendsto :
+    ∃ L : ℝ, Tendsto (fun t => kuramoto_potential_dynamic sys (theta t)) atTop (𝓝 L)
+      ∧ ∀ t, L ≤ kuramoto_potential_dynamic sys (theta t) := by
+  have hanti := dynamic_potential_antitone sys hw theta h_traj
+  have hbdd : BddBelow (Set.range fun t => kuramoto_potential_dynamic sys (theta t)) :=
+    ⟨-(1/2) * ∑ i, ∑ j, |sys.A i j|, by
+      rintro x ⟨t, rfl⟩; exact dynamic_potential_bounded_below sys (theta t)⟩
+  exact ⟨_, tendsto_atTop_ciInf hanti hbdd, fun t => ciInf_le hbdd t⟩
+
+omit [DecidableEq V] in
+include h_traj in
+/-- The instantaneous dissipation rate `∑ᵢ θ̇ᵢ²` is continuous in time — needed
+to integrate it. -/
+lemma velocity_sq_continuous :
+    Continuous (fun t => ∑ i, (kuramoto_velocity sys (theta t) i) ^ 2) := by
+  have hth : ∀ i, Continuous (fun t => theta t i) := fun i =>
+    Differentiable.continuous (fun t => (h_traj i t).differentiableAt)
+  have hsin : ∀ i j, Continuous (fun t => Real.sin (theta t j - theta t i)) := fun i j =>
+    Real.continuous_sin.comp ((hth j).sub (hth i))
+  refine continuous_finsetSum _ fun i _ => Continuous.pow ?_ 2
+  simp only [kuramoto_velocity]
+  exact continuous_const.add
+    (continuous_finsetSum _ fun j _ => continuous_const.mul (hsin i j))
+
+omit [DecidableEq V] in
+include hw h_traj in
+/-- **Energy dissipated equals potential dropped.** The integrated form of the
+Lyapunov identity, by the fundamental theorem of calculus. -/
+theorem dissipation_integral_eq (T : ℝ) :
+    ∫ t in (0:ℝ)..T, ∑ i, (kuramoto_velocity sys (theta t) i) ^ 2
+      = kuramoto_potential_dynamic sys (theta 0)
+        - kuramoto_potential_dynamic sys (theta T) := by
+  have hcont := velocity_sq_continuous sys theta h_traj
+  have h := intervalIntegral.integral_eq_sub_of_hasDerivAt
+    (f := fun t => kuramoto_potential_dynamic sys (theta t))
+    (f' := fun t => - ∑ i, (kuramoto_velocity sys (theta t) i) ^ 2)
+    (fun x _ => dynamic_potential_hasDerivAt sys hw theta h_traj x)
+    (hcont.neg.intervalIntegrable 0 T)
+  rw [intervalIntegral.integral_neg] at h
+  linarith
+
+omit [DecidableEq V] in
+include hw h_traj in
+/-- **O20(c): a trajectory dissipates only finitely much.** The improper integral
+`∫₀^∞ ∑ᵢ θ̇ᵢ² dt` converges, to the total drop `V(0) - L` of the potential, and
+every partial integral is bounded by that same number.
+
+This is the quantitative form of "the motion stops": the total squared speed
+accumulated over all of time is finite, so the trajectory cannot keep moving at
+a rate bounded away from zero.
+
+**What it does not establish, and what would.** Finiteness of the integral does
+*not* by itself give `∑ᵢ θ̇ᵢ² → 0` — an integrable function can spike forever, on
+ever narrower intervals. The classical bridge is Barbalat's lemma: an integrable
+uniformly continuous function tends to zero. The dissipation rate here *is*
+uniformly continuous (it is bounded, and so is its derivative, since
+`kuramotoField_norm_le` bounds the velocities and the coupling bounds the
+accelerations), so Barbalat would give `θ̇ → 0` — but Mathlib does not have
+Barbalat's lemma, and this development does not prove it. Note that this is a
+strictly weaker requirement than the LaSalle principle that O20(d) needs:
+velocity tending to zero does not locate the limit, and locating it needs a
+compact invariant set the state space `V → ℝ` does not supply. -/
+theorem dissipation_integral_tendsto :
+    ∃ L : ℝ, Tendsto (fun t => kuramoto_potential_dynamic sys (theta t)) atTop (𝓝 L)
+      ∧ Tendsto (fun T => ∫ t in (0:ℝ)..T, ∑ i, (kuramoto_velocity sys (theta t) i) ^ 2)
+          atTop (𝓝 (kuramoto_potential_dynamic sys (theta 0) - L))
+      ∧ ∀ T, ∫ t in (0:ℝ)..T, ∑ i, (kuramoto_velocity sys (theta t) i) ^ 2
+              ≤ kuramoto_potential_dynamic sys (theta 0) - L := by
+  obtain ⟨L, hL, hLle⟩ := dynamic_potential_tendsto sys hw theta h_traj
+  refine ⟨L, hL, ?_, fun T => ?_⟩
+  · have hsub : Tendsto (fun T => kuramoto_potential_dynamic sys (theta 0)
+        - kuramoto_potential_dynamic sys (theta T)) atTop
+        (𝓝 (kuramoto_potential_dynamic sys (theta 0) - L)) := tendsto_const_nhds.sub hL
+    exact hsub.congr fun T => (dissipation_integral_eq sys hw theta h_traj T).symm
+  · rw [dissipation_integral_eq sys hw theta h_traj T]
+    linarith [hLle T]
+
+end Dissipation
+
+omit [DecidableEq V] in
+/-- **The dissipation results in the rotating frame.** For a system of identical
+natural frequencies, read in the frame rotating with them, the dynamic potential
+converges and the total dissipation is finite.
+
+The hypothesis `∀ i, sys.omega i = Ω` is the same one §3 needs, and for the same
+reason: with a genuine spread of frequencies no change of frame makes the
+potential bounded below, so nothing here applies. -/
+theorem rotating_frame_dissipation (sys : KuramotoSystem V) (Ω : ℝ)
+    (h_omega : ∀ i, sys.omega i = Ω)
+    (theta : ℝ → V → ℝ) (h_traj : is_kuramoto_trajectory sys theta) :
+    ∃ L : ℝ,
+      Tendsto (fun t => kuramoto_potential_dynamic sys (rotate Ω theta t)) atTop (𝓝 L)
+      ∧ Tendsto (fun T => ∫ t in (0:ℝ)..T,
+            ∑ i, (kuramoto_velocity sys.reduced (rotate Ω theta t) i) ^ 2)
+          atTop (𝓝 (kuramoto_potential_dynamic sys (rotate Ω theta 0) - L))
+      ∧ ∀ T, ∫ t in (0:ℝ)..T,
+            ∑ i, (kuramoto_velocity sys.reduced (rotate Ω theta t) i) ^ 2
+              ≤ kuramoto_potential_dynamic sys (rotate Ω theta 0) - L :=
+  dissipation_integral_tendsto sys.reduced (fun _ => rfl) (rotate Ω theta)
+    (is_kuramoto_trajectory_rotate sys Ω h_omega theta h_traj)
+
 end PhysicsOfConsciousness

@@ -2442,3 +2442,112 @@ document at `HEAD`.)
 4. **O21** — build §10's germ–measure dictionary at an arbitrary open.
 5. **O20(d)** — convergence to an equilibrium. Still blocked on LaSalle, which
    Mathlib does not have, and on the state space being unbounded.
+
+---
+
+## The potential converges, and the dissipation is finite — 2026-08-30 — O20(b)+(c) DONE
+
+Ranked first after O20(a), and the "near-free given `dV_dt_le_zero`" estimate was
+close but not right: there was one real obstacle, and it is worth recording
+because it will recur. Zero `sorry`, zero warnings, `lake build` clean (17,608
+jobs). `#print axioms` on all six new results reports only `propext`,
+`Classical.choice`, `Quot.sound`.
+
+### What landed — all in `Phase4_RotatingFrame.lean` §5
+
+| Declaration | Content |
+|---|---|
+| `kuramoto_potential_eq_dynamic_of_zero_freq` | With `ω ≡ 0` the two potentials are one function |
+| `dynamic_potential_differentiableAt` | The potential along a trajectory is differentiable |
+| `dynamic_potential_hasDerivAt` | **The Lyapunov identity as a `HasDerivAt`**, not as a fact about `deriv` |
+| `dynamic_potential_bounded_below` | `V ≥ -½ ∑ᵢⱼ \|Aᵢⱼ\|`, uniformly over configurations |
+| `dynamic_potential_antitone` | **`V(θ(t))` is antitone in `t`** — the global statement `dynamic_potential_deriv_nonpos` does not make |
+| `dynamic_potential_tendsto` | **O20(b): `V(θ(t))` converges along every trajectory**, and the limit bounds it below |
+| `velocity_sq_continuous` | `t ↦ ∑ᵢ θ̇ᵢ²` is continuous |
+| `dissipation_integral_eq` | **Energy dissipated = potential dropped**: `∫₀^T ∑ᵢ θ̇ᵢ² = V(θ 0) - V(θ T)` |
+| `dissipation_integral_tendsto` | **O20(c): `∫₀^∞ ∑ᵢ θ̇ᵢ²` converges**, to the total drop, with every partial integral bounded by it |
+| `rotating_frame_dissipation` | Both transported to a uniform-frequency system through §3 |
+
+### The obstacle the plan missed: `deriv` cannot feed the FTC
+
+`dV_dt_le_zero` concludes `deriv (fun t => V (θ t)) t = -∑ᵢ vᵢ²`. That is not
+enough for either half. `deriv` is junk-valued — it is `0` where the function is
+not differentiable — so an equation about it carries no differentiability
+information, and both `antitone_of_deriv_nonpos` and
+`intervalIntegral.integral_eq_sub_of_hasDerivAt` need differentiability as a
+separate hypothesis. The fix is `dynamic_potential_hasDerivAt`: prove
+`DifferentiableAt` directly (the potential is a finite sum of `const * cos` of
+differences of the components), then `hasDerivAt_deriv_iff` plus `dV_dt_le_zero`
+supplies the value. About 25 lines, and it is the whole of the difference
+between the estimate and the work.
+
+### Why zero natural frequencies, and why that is not a weakening
+
+Both results need the potential *bounded below*, and by
+`kuramoto_potential_unbounded_below` — already in the development —
+no such bound exists as soon as one `ωᵢ ≠ 0`. So the restriction is not
+conservatism, it is the only case where the statement is true, and it is exactly
+the case §3's rotating-frame reduction produces from a uniform-frequency system.
+`rotating_frame_dissipation` does that transport, in one line, since
+`sys.reduced.omega i = 0` is `rfl`.
+
+### What is still open, stated precisely
+
+* **O20(d)** — convergence to an equilibrium. Unchanged: needs LaSalle, and a
+  compact invariant set that `V → ℝ` does not supply.
+* **The limit need not be the minimum.** `dynamic_potential_tendsto` gives *a*
+  limit. Splay and twisted configurations are equilibria, so a trajectory
+  resting at one converges to a value that is not the global minimum, and
+  `potential_min_iff_phase_locked` therefore does not fire. This is the whole of
+  what still separates the dynamics from `thermodynamic_equilibrium`.
+
+### O22 — velocity tends to zero, via Barbalat (new, added 2026-08-30)
+
+Writing the doc-string for `dissipation_integral_tendsto` surfaced an item the
+ranking did not have, and it is **cheaper than anything else left**.
+
+Finiteness of `∫₀^∞ g` with `g := ∑ᵢ θ̇ᵢ²` does *not* give `g → 0` — an
+integrable function can spike forever on ever narrower intervals. The classical
+bridge is **Barbalat's lemma**: an integrable, uniformly continuous function
+tends to zero. Mathlib does not have it (checked). But:
+
+* **The hypothesis holds here.** `g` is bounded, because `kuramotoField_norm_le`
+  bounds the velocities; and `g' = 2∑ᵢ vᵢ v̇ᵢ` is bounded, because `v̇ᵢ =
+  ∑ⱼ Aᵢⱼ cos(θⱼ-θᵢ)(θ̇ⱼ - θ̇ᵢ)` is a finite sum of bounded terms. Bounded
+  derivative gives Lipschitz gives uniformly continuous.
+* **The proof is elementary.** If `g ↛ 0` there are `ε > 0` and `tₙ → ∞` with
+  `g(tₙ) ≥ ε`; uniform continuity gives a `δ` independent of `n` with `g ≥ ε/2`
+  on `[tₙ, tₙ + δ]`; passing to a subsequence with disjoint windows, the partial
+  integrals exceed `n·εδ/2 → ∞`, contradicting the uniform bound
+  `dissipation_integral_tendsto` already supplies.
+
+**This is strictly weaker than O20(d) and should not be confused with it.**
+`θ̇ → 0` says the motion stops; it does not say *where*, and locating the limit
+is what needs the compact invariant set. But "every trajectory's velocity tends
+to zero" is a general statement about the dynamics of the kind the manuscript has
+none of, and it is reachable with no missing library.
+
+### Manuscript
+
+`main.tex`: Table 1's dynamics row now records the convergence and the finite
+dissipation, and says plainly that the limit is not shown to be the global
+minimum. Derivation 5's closing paragraph gains the same, with the splay/twisted
+counterexample named so the remaining gap is not mistaken for laziness.
+`supplementary.tex`: the "Trajectories that run" note gains a paragraph covering
+all six results, the `deriv`-vs-`HasDerivAt` point, and the Barbalat gap.
+
+Compile gate: overfull hboxes `main` 24 → 24, `supplementary` 13 → 13; zero
+undefined references or citations; `grep -i "too large"` clean; Table 1's caption
+still ends with "so no row is vacuous" in the compiled PDF.
+
+### Ranking after this pass
+
+1. **O22** — Barbalat, hence `∑ᵢ θ̇ᵢ² → 0` along every trajectory. Scoped above.
+   Self-contained, no missing library, and it is the last general statement about
+   the dynamics reachable without a compactness argument.
+2. **O8 uniqueness** — injectivity of `E(a) = 𝔼_a[sin²θ]` on `(0, ∞)`. Obstacle 3
+   (the covariance is not sign-definite pointwise) makes it the hardest.
+3. **O2** — `auto_resonance` is unconstrained by the field (Derivation 6). Cheap.
+4. **O21** — build §10's germ–measure dictionary at an arbitrary open.
+5. **O20(d)** — convergence to an equilibrium. Blocked on LaSalle and on the
+   state space being unbounded.
