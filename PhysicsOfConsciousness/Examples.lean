@@ -2767,21 +2767,23 @@ end GluedCover
   `is_kuramoto_trajectory_unique` this is the *only* trajectory through its
   initial state, so it is not one solution among many.
 
-  It does not settle O20 by itself, and the general theorems that have since
-  landed say less than this witness does. `is_kuramoto_trajectory_exists`
-  (O20(a)) gives every system a solution on all of `ℝ`;
-  `dynamic_potential_tendsto` (O20(b)) makes every trajectory's potential
-  converge; `velocity_sq_tendsto_zero` (O22) makes every trajectory's velocity
-  tend to zero, and `pairRelax_velocity_sq_tendsto_zero` below is that theorem
-  fired on this trajectory. What none of them gives is *where* the motion stops
-  — that is O20(d), and it needs a LaSalle principle Mathlib does not have.
+  It does not settle O20 by itself. `is_kuramoto_trajectory_exists` (O20(a))
+  gives every system a solution on all of `ℝ`; `dynamic_potential_tendsto`
+  (O20(b)) makes every trajectory's potential converge; `velocity_sq_tendsto_zero`
+  (O22) makes every trajectory's velocity tend to zero, and
+  `pairRelax_velocity_sq_tendsto_zero` below is that theorem fired on this
+  trajectory. What none of them gives is *where* the motion stops.
 
-  The general statement of O20(e) is in fact **false**: splay and twisted
-  configurations are equilibria too, so no theorem of the form "every trajectory
-  reaches the phase-locked state" can be proved. The arc condition that makes it
-  true — all phases starting within a half-circle — is satisfied here for every
-  `c`, since `2 arctan` lands in `(-π, π)`, and that is exactly why this witness
-  converges to the minimum and a general trajectory need not.
+  That is O20(d), and it is now proved — `kuramoto_tendsto_global_minimum` in
+  `Phase4_RotatingFrame.lean` §7 — but conditionally, and by a Łojasiewicz
+  estimate rather than the LaSalle principle this note used to name as the
+  blocker. The general statement of O20(e) is genuinely **false**: splay and
+  twisted configurations are equilibria too, so no theorem of the form "every
+  trajectory reaches the phase-locked state" can be proved. The arc condition
+  that makes it true is satisfied here for every `c`, since `2 arctan` lands in
+  `(-π, π)`, which is why this witness converges and a general trajectory need
+  not. §17 runs the general theorem on three sites, where no closed form of the
+  kind this section relies on exists.
 -/
 
 section RunningDynamics
@@ -3161,6 +3163,129 @@ theorem asymSys_mean_drift_fails :
   rw [hlhs, hrhs]; norm_num
 
 end SymmetricKernel
+
+/-! ## 17. A trajectory with no closed form that still reaches the minimum
+
+  §15's `pairRelax` settles vacuity for O20 by exhibiting a trajectory that runs
+  from an unsynchronised state into the potential's global minimum. It does so by
+  *solving* the equation: on two oscillators the phase difference obeys a scalar
+  ODE that integrates to `2 arctan(c e^{-2t})`, and every statement about it is a
+  statement about that formula.
+
+  That method does not scale, and it is the reason a general theorem was needed.
+  On three sites the Kuramoto system has no closed-form solution, so nothing in
+  §15's style can be repeated. This section runs the general theorem instead:
+  `is_kuramoto_trajectory_exists` supplies a trajectory through an explicit
+  initial configuration, and
+  `kuramoto_tendsto_global_minimum` (`Phase4_RotatingFrame.lean` §7) proves it
+  converges to a phase-locked configuration which is a global minimiser of the
+  potential — with the trajectory itself never written down, and no formula for
+  its limit.
+
+  The initial data is `(0, 0, ½)`: two oscillators together and one displaced.
+  It is genuinely unsynchronised (`trioStart_not_locked`), it satisfies the arc
+  condition `|θᵢ - θⱼ| ≤ π/2`, and its excess `2(1 - cos ½)` is below the
+  threshold `a/2 = ½` — the numerical content is `cos ½ > ¾`, which
+  `Real.cos_bound` supplies.
+
+  This is what discharges `ThermodynamicCover.thermodynamic_equilibrium` on an
+  instance rather than assuming it: the configuration the cover is required to
+  sit at is *reached*, from data that does not start there.
+-/
+
+section TrioDynamics
+
+open Filter Topology
+
+/-- Three sites, unit coupling, no natural frequencies. -/
+noncomputable def trioSys : KuramotoSystem (Fin 3) where
+  omega := fun _ => 0
+  A := fun _ _ => 1
+  symm := fun _ _ => rfl
+
+/-- Two oscillators together and one displaced by a half radian. -/
+noncomputable def trioStart : Fin 3 → ℝ := ![0, 0, 1/2]
+
+lemma trioSys_omega : ∀ i, trioSys.omega i = 0 := fun _ => rfl
+
+lemma trioSys_coupling : ∀ i j, (1:ℝ) ≤ trioSys.A i j := fun _ _ => le_rfl
+
+/-- `cos ½ > ¾`, from the quartic Taylor bound. This is the whole numerical
+content of the witness. -/
+lemma cos_half_gt : (3:ℝ)/4 < Real.cos (1/2) := by
+  have h := Real.cos_bound (x := 1/2) (by rw [abs_of_nonneg] <;> norm_num)
+  rw [abs_of_nonneg (by norm_num : (0:ℝ) ≤ 1/2)] at h
+  have h2 := abs_le.mp h
+  norm_num at h2 ⊢
+  linarith [h2.1]
+
+lemma cos_half_lt_one : Real.cos (1/2) < 1 := by
+  have h := Real.cos_bound (x := 1/2) (by rw [abs_of_nonneg] <;> norm_num)
+  rw [abs_of_nonneg (by norm_num : (0:ℝ) ≤ 1/2)] at h
+  have h2 := abs_le.mp h
+  norm_num at h2 ⊢
+  linarith [h2.2]
+
+/-- The excess of the initial configuration above the minimum: four of the nine
+ordered pairs see the displacement. -/
+lemma trioStart_excess :
+    potentialExcess trioSys trioStart = 2 * (1 - Real.cos (1/2)) := by
+  rw [potentialExcess_eq]
+  simp only [trioSys, trioStart, Fin.sum_univ_three, Matrix.cons_val_zero,
+    Matrix.cons_val_one, Matrix.head_cons, Matrix.cons_val_two, Matrix.tail_cons]
+  rw [show (0:ℝ) - 0 = 0 by ring, show (1:ℝ)/2 - 0 = 1/2 by ring,
+    show (0:ℝ) - 1/2 = -(1/2) by ring, show (1:ℝ)/2 - 1/2 = 0 by ring]
+  rw [Real.cos_neg, Real.cos_zero]
+  ring
+
+/-- The initial configuration is **not** phase-locked: it is not placed at the
+limit it will reach. -/
+theorem trioStart_not_locked : ¬ is_phase_locked trioStart := by
+  intro h
+  have := h 2 0
+  simp only [trioStart, Matrix.cons_val_zero, Matrix.cons_val_two, Matrix.tail_cons,
+    Matrix.head_cons] at this
+  rw [show (1:ℝ)/2 - 0 = 1/2 by ring] at this
+  linarith [cos_half_lt_one, this]
+
+lemma trioStart_small : 2 * potentialExcess trioSys trioStart < 1 := by
+  rw [trioStart_excess]
+  linarith [cos_half_gt]
+
+lemma trioStart_init : ∀ i j, |trioStart i - trioStart j| ≤ Real.pi/2 := by
+  have hpi : (3:ℝ) < Real.pi := Real.pi_gt_three
+  intro i j
+  fin_cases i <;> fin_cases j <;> simp only [trioStart] <;>
+    rw [abs_le] <;> constructor <;> norm_num <;> linarith
+
+/-- **The general theorem, fired on a trajectory nobody can write down.**
+
+There is a Kuramoto trajectory on three sites through the unsynchronised
+configuration `(0, 0, ½)`, and it converges to a phase-locked configuration that
+minimises the dynamic potential and carries order parameter `r² = 1`.
+
+Neither the trajectory nor its limit is exhibited by a formula — the trajectory
+comes from `is_kuramoto_trajectory_exists` and the limit from
+`kuramoto_tendsto_global_minimum`, which builds it as `θ(0) + ∫₀^∞ θ̇`. This is
+the sense in which §7 says more than §15: three-oscillator Kuramoto has no closed
+form, so §15's method cannot produce this statement at any effort. -/
+theorem trio_reaches_minimum :
+    ∃ theta : ℝ → Fin 3 → ℝ,
+      is_kuramoto_trajectory trioSys theta
+      ∧ theta 0 = trioStart
+      ∧ ¬ is_phase_locked (theta 0)
+      ∧ ∃ thetaInf : Fin 3 → ℝ,
+          (∀ i, Tendsto (fun t => theta t i) atTop (𝓝 (thetaInf i)))
+          ∧ is_phase_locked thetaInf
+          ∧ (∀ phi, kuramoto_potential_dynamic trioSys thetaInf
+                ≤ kuramoto_potential_dynamic trioSys phi)
+          ∧ order_parameter_r_sq thetaInf = 1 := by
+  obtain ⟨theta, h_traj, h0⟩ := is_kuramoto_trajectory_exists trioSys 0 trioStart
+  refine ⟨theta, h_traj, h0, by rw [h0]; exact trioStart_not_locked, ?_⟩
+  exact kuramoto_tendsto_global_minimum trioSys trioSys_omega one_pos trioSys_coupling
+    theta h_traj (by rw [h0]; exact trioStart_small) (by rw [h0]; exact trioStart_init)
+
+end TrioDynamics
 
 end Examples
 end PhysicsOfConsciousness

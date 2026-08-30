@@ -31,6 +31,12 @@ The chain established here is:
     → and phase-locking, the order parameter, and the potential are
       all frame-independent                                      [`is_phase_locked_rotate`, …]
 
+§5 and §6 then run a dynamics into that potential — it converges, the dissipation
+is finite, and the motion stops — and §7 locates the limit: for initial data
+within a quarter turn and below an energy threshold, the trajectory converges to
+a global minimiser, so `ThermodynamicCover`'s standing hypothesis is discharged
+rather than assumed.
+
 ## Scope
 
 The reduction is exact only for identical natural frequencies. For a spread of
@@ -401,7 +407,8 @@ initial condition.
 potential, which is what `thermodynamic_equilibrium` assumes and what
 `potential_min_iff_phase_locked` would then convert into phase-locking. A
 trajectory sitting at a splay or twisted equilibrium converges too, to a value
-that is not the minimum. -/
+that is not the minimum — so no hypothesis-free strengthening of this theorem is
+possible. §7 supplies the hypotheses under which the limit *is* the minimum. -/
 theorem dynamic_potential_tendsto :
     ∃ L : ℝ, Tendsto (fun t => kuramoto_potential_dynamic sys (theta t)) atTop (𝓝 L)
       ∧ ∀ t, L ≤ kuramoto_potential_dynamic sys (theta t) := by
@@ -458,10 +465,9 @@ by itself give `∑ᵢ θ̇ᵢ² → 0` — an integrable function can spike for
 narrower intervals. The classical bridge is Barbalat's lemma, which Mathlib does
 not have; §6 proves it (`tendsto_zero_of_lipschitz_of_integral_le`), checks its
 Lipschitz hypothesis for the dissipation rate, and concludes `θ̇ → 0`
-(`velocity_sq_tendsto_zero`). That is still strictly weaker than the LaSalle
-principle O20(d) needs: velocity tending to zero does not locate the limit, and
-locating it needs a compact invariant set the state space `V → ℝ` does not
-supply. -/
+(`velocity_sq_tendsto_zero`). Velocity tending to zero still does not locate the
+limit; §7 does that, for initial data near consensus, by a Łojasiewicz estimate
+rather than by the LaSalle principle Mathlib lacks. -/
 theorem dissipation_integral_tendsto :
     ∃ L : ℝ, Tendsto (fun t => kuramoto_potential_dynamic sys (theta t)) atTop (𝓝 L)
       ∧ Tendsto (fun T => ∫ t in (0:ℝ)..T, ∑ i, (kuramoto_velocity sys (theta t) i) ^ 2)
@@ -519,12 +525,12 @@ is Lipschitz in the configuration (`kuramotoField_lipschitz`), and the trajector
 is Lipschitz in time because its derivative *is* the bounded field — and concludes
 `∑ᵢ θ̇ᵢ² → 0`.
 
-**What this is not.** It is strictly weaker than O20(d), convergence to an
-equilibrium. `θ̇ → 0` says the motion stops; it does not say *where*, and locating
-the limit needs a compact invariant set that the state space `V → ℝ` does not
-supply. What it does give is the first statement in this development about the
-asymptotics of an *arbitrary* trajectory of an *arbitrary* system, rather than
-about the one witness of `Examples.lean` §15.
+**What this is not.** `θ̇ → 0` says the motion stops; it does not say *where*.
+§7 locates the limit, but only for initial data near consensus, so the two
+results are incomparable rather than ordered: this section holds for an
+*arbitrary* trajectory of an *arbitrary* system — the first such statement in the
+development, and the first that is not about the one witness of `Examples.lean`
+§15 — while §7 is conditional on the initial configuration.
 -/
 
 section Barbalat
@@ -794,5 +800,607 @@ theorem rotating_frame_velocity_tendsto_zero (sys : KuramotoSystem V) (Ω : ℝ)
     (is_kuramoto_trajectory_rotate sys Ω h_omega theta h_traj)
 
 end MotionStops
+
+/-! ## 7. O20(d) and (e): the trajectory reaches the minimum
+
+§5 and §6 leave the item this development most needs and had recorded as blocked:
+`ThermodynamicCover.thermodynamic_equilibrium` *assumes* the cover sits at the
+minimum of the potential, and nothing showed a trajectory ever gets there.
+`velocity_sq_tendsto_zero` says the motion stops but not where.
+
+The blocker recorded for that step was the LaSalle invariance principle, which
+Mathlib does not have, together with the observation that the state space
+`V → ℝ` carries no compact invariant set. **That is the wrong tool.** LaSalle is
+what one reaches for when a system has a decreasing functional and nothing else.
+This system has more, and §5 already proved most of it:
+
+* the flow is a **gradient flow** — `∇ᵢ kuramoto_potential_dynamic` is exactly
+  `-kuramoto_velocity` at zero natural frequencies, which is why
+  `dynamic_potential_hasDerivAt` gives `V̇ = -∑ᵢ θ̇ᵢ²` as an *identity*;
+* the potential's minimisers are known exactly
+  (`potential_min_iff_phase_locked`);
+* and, proved here, a **Polyak–Łojasiewicz estimate** `‖∇W‖² ≥ cW` holds on the
+  region where the phases stay within a quarter turn (`lojasiewicz_estimate`).
+
+Those three give convergence *with a rate*, which is strictly more than LaSalle
+would supply. The compactness objection dissolves as well: the invariant region
+is produced by the Lyapunov function itself rather than assumed
+(`spread_le_of_small`), so no quotient by the phase-shift symmetry and no torus
+is needed.
+
+The chain is
+
+  `W` decreasing (§5) + `‖∇W‖² ≥ cW`   →  `W(t) ≤ W(0)e^{-ct}`  [`excess_decay`]
+    →  `|θ̇ᵢ(t)| ≤ Be^{-ct/2}`                      [`velocity_abs_le_exp`]
+    →  `θ̇ᵢ` integrable on `[0, ∞)`, so `θ` converges [`phase_tendsto`]
+    →  the limit has `W = 0`, hence is phase-locked and a global minimiser
+                                        [`kuramoto_tendsto_global_minimum`]
+
+## Scope
+
+The two hypotheses are on the initial data and both are necessary. `h_init` puts
+the initial phases within a quarter turn of each other; `h_small` puts the
+initial excess below `a/2`, where `a` is a positive lower bound for the coupling.
+Neither can be dropped: splay and twisted configurations are equilibria of the
+same flow, so "every trajectory converges to the phase-locked state" is **false**,
+and the hypotheses here are the standard arc condition under which the true
+statement holds. This is the version the manuscript's causal chain needs, and it
+is conditional on initial data — which the prose now says.
+-/
+
+section Lojasiewicz
+
+/-- The total coupling weight `∑ᵢⱼ Aᵢⱼ`. -/
+noncomputable def couplingTotal (sys : KuramotoSystem V) : ℝ := ∑ i, ∑ j, sys.A i j
+
+/-- How far a configuration sits above the phase-locked minimum. -/
+noncomputable def potentialExcess (sys : KuramotoSystem V) (phi : V → ℝ) : ℝ :=
+  kuramoto_potential_dynamic sys phi - kuramoto_potential_dynamic sys (fun _ => 0)
+
+omit [DecidableEq V] in
+lemma potentialExcess_eq (sys : KuramotoSystem V) (phi : V → ℝ) :
+    potentialExcess sys phi
+      = (1/2) * ∑ i, ∑ j, sys.A i j * (1 - Real.cos (phi j - phi i)) := by
+  unfold potentialExcess kuramoto_potential_dynamic
+  have h0 : ∑ i, ∑ j, sys.A i j * Real.cos ((0:ℝ) - 0) = ∑ i, ∑ j, sys.A i j := by simp
+  have key : ∑ i, ∑ j, sys.A i j * (1 - Real.cos (phi j - phi i))
+      = (∑ i, ∑ j, sys.A i j) - ∑ i, ∑ j, sys.A i j * Real.cos (phi j - phi i) := by
+    simp only [mul_sub, mul_one, Finset.sum_sub_distrib]
+  simp only [h0, key]
+  ring
+
+omit [DecidableEq V] in
+lemma one_sub_cos_nonneg (x : ℝ) : (0:ℝ) ≤ 1 - Real.cos x := by
+  linarith [Real.cos_le_one x]
+
+omit [Fintype V] [DecidableEq V] in
+lemma potentialExcess_term_nonneg (sys : KuramotoSystem V) (hA : ∀ i j, (0:ℝ) ≤ sys.A i j)
+    (phi : V → ℝ) (i j : V) : (0:ℝ) ≤ sys.A i j * (1 - Real.cos (phi j - phi i)) :=
+  mul_nonneg (hA i j) (one_sub_cos_nonneg _)
+
+omit [DecidableEq V] in
+lemma potentialExcess_nonneg (sys : KuramotoSystem V) (hA : ∀ i j, (0:ℝ) ≤ sys.A i j)
+    (phi : V → ℝ) : 0 ≤ potentialExcess sys phi := by
+  rw [potentialExcess_eq]
+  have : (0:ℝ) ≤ ∑ i, ∑ j, sys.A i j * (1 - Real.cos (phi j - phi i)) :=
+    Finset.sum_nonneg fun i _ => Finset.sum_nonneg fun j _ =>
+      potentialExcess_term_nonneg sys hA phi i j
+  linarith
+
+omit [DecidableEq V] in
+/-- **A single pair is controlled by the excess.** Every term of the double sum is
+non-negative, so the `(i, j)` term alone is a lower bound. -/
+lemma pair_le_potentialExcess (sys : KuramotoSystem V) {a : ℝ} (ha : 0 ≤ a)
+    (hA : ∀ i j, a ≤ sys.A i j) (phi : V → ℝ) (i j : V) :
+    (1/2) * (a * (1 - Real.cos (phi j - phi i))) ≤ potentialExcess sys phi := by
+  have hA0 : ∀ i j, (0:ℝ) ≤ sys.A i j := fun i j => le_trans ha (hA i j)
+  rw [potentialExcess_eq]
+  refine mul_le_mul_of_nonneg_left ?_ (by norm_num)
+  calc a * (1 - Real.cos (phi j - phi i))
+      ≤ sys.A i j * (1 - Real.cos (phi j - phi i)) :=
+        mul_le_mul_of_nonneg_right (hA i j) (one_sub_cos_nonneg _)
+    _ ≤ ∑ j', sys.A i j' * (1 - Real.cos (phi j' - phi i)) :=
+        Finset.single_le_sum (f := fun j' => sys.A i j' * (1 - Real.cos (phi j' - phi i)))
+          (fun j' _ => potentialExcess_term_nonneg sys hA0 phi i j') (mem_univ j)
+    _ ≤ ∑ i', ∑ j', sys.A i' j' * (1 - Real.cos (phi j' - phi i')) :=
+        Finset.single_le_sum
+          (f := fun i' => ∑ j', sys.A i' j' * (1 - Real.cos (phi j' - phi i')))
+          (fun i' _ => Finset.sum_nonneg fun j' _ => potentialExcess_term_nonneg sys hA0 phi i' j')
+          (mem_univ i)
+
+omit [DecidableEq V] in
+/-- **A uniform bound on the pairwise cosines bounds the excess.** -/
+lemma potentialExcess_le (sys : KuramotoSystem V) (hA : ∀ i j, (0:ℝ) ≤ sys.A i j)
+    (phi : V → ℝ) {e : ℝ} (he : ∀ i j, 1 - Real.cos (phi j - phi i) ≤ e) :
+    potentialExcess sys phi ≤ (1/2) * (couplingTotal sys * e) := by
+  rw [potentialExcess_eq]
+  refine mul_le_mul_of_nonneg_left ?_ (by norm_num)
+  unfold couplingTotal
+  rw [Finset.sum_mul]
+  refine Finset.sum_le_sum fun i _ => ?_
+  rw [Finset.sum_mul]
+  exact Finset.sum_le_sum fun j _ => mul_le_mul_of_nonneg_left (he i j) (hA i j)
+
+
+omit [DecidableEq V] in
+/-- `sin` is non-positive on `[-π/2, 0]`. -/
+lemma sin_nonpos_of_le_zero {x : ℝ} (h1 : -(Real.pi/2) ≤ x) (h2 : x ≤ 0) :
+    Real.sin x ≤ 0 := by
+  have h : 0 ≤ Real.sin (-x) :=
+    Real.sin_nonneg_of_nonneg_of_le_pi (by linarith) (by linarith [Real.pi_pos])
+  rw [Real.sin_neg] at h
+  linarith
+
+omit [DecidableEq V] in
+/-- **The extremal site has a definite velocity.** At a site `m` carrying the
+largest phase, every coupling term pulls backwards, and the term coming from a
+site `n` carrying the smallest phase pulls back by at least `a·sin D`, where `D`
+is the spread. This is the whole content of the Łojasiewicz estimate below: no
+spectral gap, no convexity, one extremal index. -/
+lemma velocity_max_le (sys : KuramotoSystem V) (hw : ∀ i, sys.omega i = 0)
+    {a : ℝ} (ha : 0 ≤ a) (hA : ∀ i j, a ≤ sys.A i j) (phi : V → ℝ) {m n : V}
+    (hm : ∀ j, phi j ≤ phi m) (hn : ∀ j, phi n ≤ phi j)
+    (hD : phi m - phi n ≤ Real.pi/2) :
+    kuramoto_velocity sys phi m ≤ - (a * Real.sin (phi m - phi n)) := by
+  classical
+  have hDnn : 0 ≤ phi m - phi n := by linarith [hm n]
+  have hsinD : 0 ≤ Real.sin (phi m - phi n) :=
+    Real.sin_nonneg_of_nonneg_of_le_pi hDnn (by linarith [Real.pi_pos])
+  have hneg : ∀ j, Real.sin (phi j - phi m) ≤ 0 := fun j =>
+    sin_nonpos_of_le_zero (by linarith [hn j, hm n]) (by linarith [hm j])
+  have hsplit : ∑ j, sys.A m j * Real.sin (phi j - phi m)
+      = (∑ j ∈ Finset.univ.erase n, sys.A m j * Real.sin (phi j - phi m))
+        + sys.A m n * Real.sin (phi n - phi m) :=
+    (Finset.sum_erase_add Finset.univ _ (Finset.mem_univ n)).symm
+  have hrest : (∑ j ∈ Finset.univ.erase n, sys.A m j * Real.sin (phi j - phi m)) ≤ 0 :=
+    Finset.sum_nonpos fun j _ =>
+      mul_nonpos_of_nonneg_of_nonpos (le_trans ha (hA m j)) (hneg j)
+  have hlast : sys.A m n * Real.sin (phi n - phi m) ≤ - (a * Real.sin (phi m - phi n)) := by
+    have hflip : phi n - phi m = -(phi m - phi n) := by ring
+    rw [hflip, Real.sin_neg]
+    have : a * Real.sin (phi m - phi n) ≤ sys.A m n * Real.sin (phi m - phi n) :=
+      mul_le_mul_of_nonneg_right (hA m n) hsinD
+    linarith
+  simp only [kuramoto_velocity, hw m, zero_add]
+  rw [hsplit]
+  linarith
+
+
+omit [DecidableEq V] in
+/-- **The Łojasiewicz estimate.** On the region where every pair of phases is
+within a quarter turn, the squared velocity dominates the potential excess:
+
+  `2a²·W(φ) ≤ (∑ᵢⱼ Aᵢⱼ)·∑ᵢ (θ̇ᵢ)²`.
+
+This is a Polyak–Łojasiewicz inequality for the Kuramoto potential, and it is
+what replaces the LaSalle principle Mathlib does not have. Its proof is two
+extremal indices and the identity `sin²D = (1 - cos D)(1 + cos D)`: the site with
+the largest phase moves backwards at rate at least `a·sin D`
+(`velocity_max_le`), while the excess is at most `½·(∑ᵢⱼ Aᵢⱼ)·(1 - cos D)`.
+The quarter-turn hypothesis enters exactly once, to give `cos D ≥ 0`, hence
+`1 + cos D ≥ 1`. -/
+theorem lojasiewicz_estimate [Nonempty V] (sys : KuramotoSystem V)
+    (hw : ∀ i, sys.omega i = 0) {a : ℝ} (ha : 0 ≤ a) (hA : ∀ i j, a ≤ sys.A i j)
+    (phi : V → ℝ) (hspread : ∀ i j, |phi i - phi j| ≤ Real.pi/2) :
+    2 * a^2 * potentialExcess sys phi
+      ≤ couplingTotal sys * ∑ i, (kuramoto_velocity sys phi i)^2 := by
+  classical
+  obtain ⟨m, -, hm⟩ := Finset.exists_max_image (Finset.univ : Finset V) phi Finset.univ_nonempty
+  obtain ⟨n, -, hn⟩ := Finset.exists_min_image (Finset.univ : Finset V) phi Finset.univ_nonempty
+  have hm' : ∀ j, phi j ≤ phi m := fun j => hm j (Finset.mem_univ j)
+  have hn' : ∀ j, phi n ≤ phi j := fun j => hn j (Finset.mem_univ j)
+  have hA0 : ∀ i j, (0:ℝ) ≤ sys.A i j := fun i j => le_trans ha (hA i j)
+  set D : ℝ := phi m - phi n with hDdef
+  have hDnn : 0 ≤ D := by simp only [hDdef]; linarith [hm' n]
+  have hDle : D ≤ Real.pi/2 := le_trans (le_abs_self _) (hspread m n)
+  have hcnn : 0 ≤ Real.cos D :=
+    Real.cos_nonneg_of_mem_Icc ⟨by linarith [Real.pi_pos], hDle⟩
+  have hone : (0:ℝ) ≤ 1 - Real.cos D := one_sub_cos_nonneg D
+  -- the excess is controlled by the spread
+  have hexc : potentialExcess sys phi ≤ (1/2) * (couplingTotal sys * (1 - Real.cos D)) := by
+    refine potentialExcess_le sys hA0 phi ?_
+    intro i j
+    have habs : |phi j - phi i| ≤ D := by
+      rw [hDdef]
+      exact abs_le.mpr ⟨by linarith [hn' j, hm' i], by linarith [hm' j, hn' i]⟩
+    have : Real.cos D ≤ Real.cos |phi j - phi i| :=
+      Real.cos_le_cos_of_nonneg_of_le_pi (abs_nonneg _) (by linarith [Real.pi_pos]) habs
+    rw [Real.cos_abs] at this
+    linarith
+  -- the extremal velocity is large
+  have hvm : kuramoto_velocity sys phi m ≤ - (a * Real.sin D) :=
+    velocity_max_le sys hw ha hA phi hm' hn' hDle
+  have hsinD : 0 ≤ Real.sin D :=
+    Real.sin_nonneg_of_nonneg_of_le_pi hDnn (by linarith [Real.pi_pos])
+  have hpyth : Real.sin D ^ 2 + Real.cos D ^ 2 = 1 := Real.sin_sq_add_cos_sq D
+  have e1 : (a * Real.sin D)^2 ≤ (kuramoto_velocity sys phi m)^2 := by
+    nlinarith [mul_nonneg ha hsinD, hvm]
+  have e2 : a^2 * (1 - Real.cos D) ≤ (a * Real.sin D)^2 := by
+    nlinarith [sq_nonneg a, hone, hcnn, hpyth]
+  have e3 : (kuramoto_velocity sys phi m)^2 ≤ ∑ i, (kuramoto_velocity sys phi i)^2 :=
+    Finset.single_le_sum (f := fun i => (kuramoto_velocity sys phi i)^2)
+      (fun i _ => sq_nonneg _) (Finset.mem_univ m)
+  have hS : 0 ≤ couplingTotal sys :=
+    Finset.sum_nonneg fun i _ => Finset.sum_nonneg fun j _ => hA0 i j
+  have hkey : a^2 * (1 - Real.cos D) ≤ ∑ i, (kuramoto_velocity sys phi i)^2 := by linarith
+  calc 2 * a^2 * potentialExcess sys phi
+      = a^2 * (2 * potentialExcess sys phi) := by ring
+    _ ≤ a^2 * (couplingTotal sys * (1 - Real.cos D)) := by nlinarith [sq_nonneg a]
+    _ = couplingTotal sys * (a^2 * (1 - Real.cos D)) := by ring
+    _ ≤ couplingTotal sys * ∑ i, (kuramoto_velocity sys phi i)^2 :=
+        mul_le_mul_of_nonneg_left hkey hS
+
+
+section Confinement
+
+variable (sys : KuramotoSystem V) (hw : ∀ i, sys.omega i = 0)
+    {a : ℝ} (ha : 0 < a) (hA : ∀ i j, a ≤ sys.A i j)
+    (theta : ℝ → V → ℝ) (h_traj : is_kuramoto_trajectory sys theta)
+
+omit [DecidableEq V] in
+include h_traj in
+lemma theta_continuous (i : V) : Continuous (fun t => theta t i) :=
+  Differentiable.continuous (fun t => (h_traj i t).differentiableAt)
+
+omit [DecidableEq V] in
+include hw h_traj in
+/-- The excess above the minimum is non-increasing along a trajectory: the
+Lyapunov statement, shifted by a constant. -/
+lemma potentialExcess_antitone : Antitone (fun t => potentialExcess sys (theta t)) := by
+  intro s t hst
+  have := dynamic_potential_antitone sys hw theta h_traj hst
+  simp only [potentialExcess]
+  linarith
+
+omit [DecidableEq V] in
+include hw h_traj ha hA in
+/-- **Every pairwise phase difference keeps a positive cosine.** The Lyapunov
+function confines the trajectory on its own: a single pair contributes
+`½a(1 - cos)` to the excess, so an excess below `a/2` forces every cosine
+positive, and the excess never grows. No compactness of the state space and no
+invariant region put in by hand. -/
+lemma cos_pos_of_small (h_small : 2 * potentialExcess sys (theta 0) < a)
+    {t : ℝ} (ht : 0 ≤ t) (i j : V) : 0 < Real.cos (theta t j - theta t i) := by
+  have h1 : (1/2) * (a * (1 - Real.cos (theta t j - theta t i))) ≤ potentialExcess sys (theta t) :=
+    pair_le_potentialExcess sys ha.le hA (theta t) i j
+  have h2 : potentialExcess sys (theta t) ≤ potentialExcess sys (theta 0) :=
+    potentialExcess_antitone sys hw theta h_traj ht
+  nlinarith [h1, h2, h_small, ha]
+
+omit [DecidableEq V] in
+include hw h_traj ha hA in
+/-- **The quarter-turn region is forward invariant.** This is the branch-pinning
+step. `cos_pos_of_small` says the difference of any two phases stays away from
+`±π/2` modulo `2π` for all time; continuity of the trajectory on the connected
+half-line then says it cannot change branch, so a difference that starts inside
+`[-π/2, π/2]` stays inside it. The intermediate value theorem does the work: an
+escape would have to cross `π/2` in absolute value, and there the cosine
+vanishes. -/
+theorem spread_le_of_small (h_small : 2 * potentialExcess sys (theta 0) < a)
+    (h_init : ∀ i j, |theta 0 i - theta 0 j| ≤ Real.pi/2)
+    {t : ℝ} (ht : 0 ≤ t) (i j : V) : |theta t i - theta t j| ≤ Real.pi/2 := by
+  -- a difference whose absolute value is `π/2` has vanishing cosine, which
+  -- `cos_pos_of_small` forbids at every non-negative time
+  have hcross : ∀ u : ℝ, 0 ≤ u → |theta u i - theta u j| ≠ Real.pi/2 := by
+    intro u hu heq
+    have hc := cos_pos_of_small sys hw ha hA theta h_traj h_small hu j i
+    have : Real.cos (theta u i - theta u j) = 0 := by
+      rw [← Real.cos_abs, heq, Real.cos_pi_div_two]
+    linarith
+  by_cases hcon : Real.pi/2 < |theta t i - theta t j|
+  swap
+  · exact not_lt.mp hcon
+  exfalso
+  have hfc : Continuous (fun u => |theta u i - theta u j|) :=
+    (((theta_continuous sys theta h_traj i).sub (theta_continuous sys theta h_traj j)).abs)
+  have h0 : |theta 0 i - theta 0 j| < Real.pi/2 :=
+    lt_of_le_of_ne (h_init i j) (hcross 0 le_rfl)
+  obtain ⟨s, hs, hfs⟩ := intermediate_value_Icc ht hfc.continuousOn
+    (Set.mem_Icc.mpr ⟨h0.le, hcon.le⟩)
+  exact hcross s hs.1 hfs
+
+omit [DecidableEq V] in
+lemma couplingTotal_pos [Nonempty V] (ha : 0 < a) (hA : ∀ i j, a ≤ sys.A i j) :
+    0 < couplingTotal sys := by
+  obtain ⟨i0⟩ := ‹Nonempty V›
+  have hA0 : ∀ i j, (0:ℝ) ≤ sys.A i j := fun i j => le_trans ha.le (hA i j)
+  have h1 : sys.A i0 i0 ≤ ∑ j, sys.A i0 j :=
+    Finset.single_le_sum (f := fun j => sys.A i0 j) (fun j _ => hA0 i0 j) (Finset.mem_univ i0)
+  have h2 : (∑ j, sys.A i0 j) ≤ couplingTotal sys :=
+    Finset.single_le_sum (f := fun i => ∑ j, sys.A i j)
+      (fun i _ => Finset.sum_nonneg fun j _ => hA0 i j) (Finset.mem_univ i0)
+  linarith [hA i0 i0]
+
+omit [DecidableEq V] in
+include hw h_traj ha hA in
+/-- **The excess decays exponentially.** `lojasiewicz_estimate` turns the exact
+Lyapunov identity `Ẇ = -∑ᵢ θ̇ᵢ²` into the differential inequality `Ẇ ≤ -cW` with
+`c = 2a²/∑ᵢⱼ Aᵢⱼ`, and Grönwall — here in the elementary form "`W(t)e^{ct}` has
+non-positive derivative" — integrates it.
+
+This is the step LaSalle would otherwise be needed for, and it gives more than
+LaSalle would: a rate, rather than convergence to an unlocated limit set. -/
+theorem excess_decay [Nonempty V] (h_small : 2 * potentialExcess sys (theta 0) < a)
+    (h_init : ∀ i j, |theta 0 i - theta 0 j| ≤ Real.pi/2) {t : ℝ} (ht : 0 ≤ t) :
+    potentialExcess sys (theta t)
+      ≤ potentialExcess sys (theta 0) * Real.exp (-(2*a^2/couplingTotal sys) * t) := by
+  have hS : 0 < couplingTotal sys := couplingTotal_pos sys ha hA
+  set c : ℝ := 2*a^2/couplingTotal sys with hc
+  set g : ℝ → ℝ := fun u => potentialExcess sys (theta u) with hg
+  have hgd : ∀ u, HasDerivAt g (- ∑ i, (kuramoto_velocity sys (theta u) i)^2) u := by
+    intro u
+    simpa only [hg, potentialExcess] using
+      (dynamic_potential_hasDerivAt sys hw theta h_traj u).sub_const _
+  set F : ℝ → ℝ := fun u => g u * Real.exp (c * u) with hF
+  have hFd : ∀ u, HasDerivAt F
+      ((- ∑ i, (kuramoto_velocity sys (theta u) i)^2) * Real.exp (c * u)
+        + g u * (Real.exp (c * u) * c)) u := by
+    intro u
+    have hexpd : HasDerivAt (fun v : ℝ => Real.exp (c * v)) (Real.exp (c * u) * c) u := by
+      simpa using ((hasDerivAt_id u).const_mul c).exp
+    exact (hgd u).mul hexpd
+  have hFdiff : Differentiable ℝ F := fun u => (hFd u).differentiableAt
+  have hnonpos : ∀ u ∈ interior (Set.Ici (0:ℝ)), deriv F u ≤ 0 := by
+    intro u hu
+    rw [interior_Ici] at hu
+    have hu0 : (0:ℝ) ≤ u := le_of_lt hu
+    have hspread : ∀ i j, |theta u i - theta u j| ≤ Real.pi/2 :=
+      fun i j => spread_le_of_small sys hw ha hA theta h_traj h_small h_init hu0 i j
+    have hloj := lojasiewicz_estimate sys hw ha.le hA (theta u) hspread
+    have hcg : c * g u ≤ ∑ i, (kuramoto_velocity sys (theta u) i)^2 := by
+      rw [hc, div_mul_eq_mul_div, div_le_iff₀ hS]
+      nlinarith [hloj]
+    rw [(hFd u).deriv]
+    have hexp : 0 < Real.exp (c * u) := Real.exp_pos _
+    nlinarith [hcg, hexp]
+  have hanti : AntitoneOn F (Set.Ici (0:ℝ)) :=
+    antitoneOn_of_deriv_nonpos (convex_Ici 0) hFdiff.continuous.continuousOn
+      hFdiff.differentiableOn hnonpos
+  have hle : F t ≤ F 0 := hanti (Set.mem_Ici.mpr le_rfl) (Set.mem_Ici.mpr ht) ht
+  simp only [hF, mul_zero, Real.exp_zero, mul_one] at hle
+  have hexp : 0 < Real.exp (c * t) := Real.exp_pos _
+  rw [neg_mul, Real.exp_neg, ← div_eq_mul_inv, le_div_iff₀ hexp]
+  exact hle
+
+omit [Fintype V] [DecidableEq V] in
+/-- `|sin d| ≤ √(2e)` whenever `1 - cos d ≤ e`. The identity is
+`sin²d = (1 - cos d)(1 + cos d)` and the second factor is at most `2`. -/
+lemma abs_sin_le_sqrt {d e : ℝ} (hd : 1 - Real.cos d ≤ e) (he : 0 ≤ e) :
+    |Real.sin d| ≤ Real.sqrt (2 * e) := by
+  have hpyth : Real.sin d ^ 2 + Real.cos d ^ 2 = 1 := Real.sin_sq_add_cos_sq d
+  have hc1 : Real.cos d ≤ 1 := Real.cos_le_one d
+  have hc2 : -1 ≤ Real.cos d := Real.neg_one_le_cos d
+  have hsq : Real.sin d ^ 2 ≤ 2 * e := by nlinarith
+  calc |Real.sin d| = Real.sqrt (Real.sin d ^ 2) := (Real.sqrt_sq_eq_abs _).symm
+    _ ≤ Real.sqrt (2 * e) := Real.sqrt_le_sqrt hsq
+
+omit [DecidableEq V] in
+/-- **A uniform bound on the pairwise cosines bounds the velocity.** -/
+lemma velocity_abs_le_sqrt (sys : KuramotoSystem V) (hw : ∀ i, sys.omega i = 0)
+    (hA0 : ∀ i j, (0:ℝ) ≤ sys.A i j) (phi : V → ℝ) (i : V) {e : ℝ} (he : 0 ≤ e)
+    (hcos : ∀ j, 1 - Real.cos (phi j - phi i) ≤ e) :
+    |kuramoto_velocity sys phi i| ≤ couplingTotal sys * Real.sqrt (2 * e) := by
+  have hrow : (∑ j, sys.A i j) ≤ couplingTotal sys :=
+    Finset.single_le_sum (f := fun i' => ∑ j, sys.A i' j)
+      (fun i' _ => Finset.sum_nonneg fun j _ => hA0 i' j) (Finset.mem_univ i)
+  have hsr : 0 ≤ Real.sqrt (2 * e) := Real.sqrt_nonneg _
+  calc |kuramoto_velocity sys phi i|
+      = |∑ j, sys.A i j * Real.sin (phi j - phi i)| := by
+        simp only [kuramoto_velocity, hw i, zero_add]
+    _ ≤ ∑ j, |sys.A i j * Real.sin (phi j - phi i)| := Finset.abs_sum_le_sum_abs _ _
+    _ ≤ ∑ j, sys.A i j * Real.sqrt (2 * e) := by
+        refine Finset.sum_le_sum fun j _ => ?_
+        rw [abs_mul, abs_of_nonneg (hA0 i j)]
+        exact mul_le_mul_of_nonneg_left (abs_sin_le_sqrt (hcos j) he) (hA0 i j)
+    _ = (∑ j, sys.A i j) * Real.sqrt (2 * e) := by rw [Finset.sum_mul]
+    _ ≤ couplingTotal sys * Real.sqrt (2 * e) := mul_le_mul_of_nonneg_right hrow hsr
+
+omit [DecidableEq V] in
+include hw h_traj ha hA in
+/-- **The velocity decays exponentially.** Combining `excess_decay` with the
+elementary bound `|sin d| ≤ √(2(1 - cos d))`, every component of the velocity is
+dominated by `B·e^{-(a²/∑Aᵢⱼ)t}`. This is what makes the trajectory itself — not
+just its potential — converge: an exponentially small velocity is integrable, and
+a trajectory with integrable velocity has a limit. -/
+theorem velocity_abs_le_exp [Nonempty V] (h_small : 2 * potentialExcess sys (theta 0) < a)
+    (h_init : ∀ i j, |theta 0 i - theta 0 j| ≤ Real.pi/2) {t : ℝ} (ht : 0 ≤ t) (i : V) :
+    |kuramoto_velocity sys (theta t) i|
+      ≤ (couplingTotal sys * Real.sqrt (4 * potentialExcess sys (theta 0) / a))
+          * Real.exp (-(a^2/couplingTotal sys) * t) := by
+  have hS : 0 < couplingTotal sys := couplingTotal_pos sys ha hA
+  have hA0 : ∀ i j, (0:ℝ) ≤ sys.A i j := fun i j => le_trans ha.le (hA i j)
+  set c : ℝ := 2*a^2/couplingTotal sys with hc
+  set W0 : ℝ := potentialExcess sys (theta 0) with hW0
+  have hW0nn : 0 ≤ W0 := potentialExcess_nonneg sys hA0 _
+  have hWt : 0 ≤ potentialExcess sys (theta t) := potentialExcess_nonneg sys hA0 _
+  -- pairwise cosines are controlled by the excess
+  have hcos : ∀ j, 1 - Real.cos (theta t j - theta t i) ≤ 2 * potentialExcess sys (theta t) / a := by
+    intro j
+    have := pair_le_potentialExcess sys ha.le hA (theta t) i j
+    rw [le_div_iff₀ ha]
+    linarith
+  have he : (0:ℝ) ≤ 2 * potentialExcess sys (theta t) / a := by positivity
+  have hstep := velocity_abs_le_sqrt sys hw hA0 (theta t) i he hcos
+  -- and the excess decays
+  have hdec : potentialExcess sys (theta t) ≤ W0 * Real.exp (-c * t) := by
+    have := excess_decay sys hw ha hA theta h_traj h_small h_init ht
+    simpa only [hc, neg_mul] using this
+  have hmono : 2 * (2 * potentialExcess sys (theta t) / a) ≤ (4 * W0 / a) * Real.exp (-c * t) := by
+    rw [div_mul_eq_mul_div, le_div_iff₀ ha]
+    have h4 : 2 * (2 * potentialExcess sys (theta t) / a) * a
+        = 4 * potentialExcess sys (theta t) := by field_simp; ring
+    rw [h4]
+    linarith [hdec]
+  have hsqrt : Real.sqrt (2 * (2 * potentialExcess sys (theta t) / a))
+      ≤ Real.sqrt (4 * W0 / a) * Real.exp (-(a^2/couplingTotal sys) * t) := by
+    have hexpsq : Real.exp (-(a^2/couplingTotal sys) * t) ^ 2 = Real.exp (-c * t) := by
+      rw [sq, ← Real.exp_add, hc]
+      ring_nf
+    calc Real.sqrt (2 * (2 * potentialExcess sys (theta t) / a))
+        ≤ Real.sqrt ((4 * W0 / a) * Real.exp (-c * t)) := Real.sqrt_le_sqrt hmono
+      _ = Real.sqrt (4 * W0 / a) * Real.sqrt (Real.exp (-c * t)) :=
+          Real.sqrt_mul (by positivity) _
+      _ = Real.sqrt (4 * W0 / a) * Real.exp (-(a^2/couplingTotal sys) * t) := by
+          rw [← hexpsq, Real.sqrt_sq (Real.exp_nonneg _)]
+  calc |kuramoto_velocity sys (theta t) i|
+      ≤ couplingTotal sys * Real.sqrt (2 * (2 * potentialExcess sys (theta t) / a)) := hstep
+    _ ≤ couplingTotal sys * (Real.sqrt (4 * W0 / a)
+          * Real.exp (-(a^2/couplingTotal sys) * t)) :=
+        mul_le_mul_of_nonneg_left hsqrt hS.le
+    _ = (couplingTotal sys * Real.sqrt (4 * W0 / a))
+          * Real.exp (-(a^2/couplingTotal sys) * t) := by ring
+
+omit [DecidableEq V] in
+include h_traj in
+lemma velocity_continuous (i : V) :
+    Continuous (fun t => kuramoto_velocity sys (theta t) i) := by
+  have hth : ∀ j, Continuous (fun t => theta t j) := theta_continuous sys theta h_traj
+  simp only [kuramoto_velocity]
+  exact continuous_const.add (continuous_finsetSum _ fun j _ =>
+    continuous_const.mul (Real.continuous_sin.comp ((hth j).sub (hth i))))
+
+omit [DecidableEq V] in
+include hw h_traj ha hA in
+/-- **The trajectory converges.** An exponentially decaying velocity is
+integrable on `[0, ∞)`, and a trajectory with integrable velocity is the integral
+of that velocity, hence has a limit. Concretely the limit is
+`θᵢ(0) + ∫₀^∞ θ̇ᵢ`. -/
+theorem phase_tendsto [Nonempty V] (h_small : 2 * potentialExcess sys (theta 0) < a)
+    (h_init : ∀ i j, |theta 0 i - theta 0 j| ≤ Real.pi/2) (i : V) :
+    Filter.Tendsto (fun t => theta t i) Filter.atTop
+      (nhds (theta 0 i + ∫ u in Set.Ioi (0:ℝ), kuramoto_velocity sys (theta u) i)) := by
+  have hS : 0 < couplingTotal sys := couplingTotal_pos sys ha hA
+  have hlam0 : 0 < a^2/couplingTotal sys := div_pos (pow_pos ha 2) hS
+  have hcont := velocity_continuous sys theta h_traj i
+  have hdom : MeasureTheory.IntegrableOn
+      (fun u : ℝ => (couplingTotal sys * Real.sqrt (4 * potentialExcess sys (theta 0) / a))
+        * Real.exp (-(a^2/couplingTotal sys) * u)) (Set.Ioi 0) :=
+    (exp_neg_integrableOn_Ioi 0 hlam0).const_mul _
+  have hint : MeasureTheory.IntegrableOn
+      (fun u => kuramoto_velocity sys (theta u) i) (Set.Ioi 0) := by
+    refine MeasureTheory.Integrable.mono' hdom hcont.aestronglyMeasurable.restrict ?_
+    rw [MeasureTheory.ae_restrict_iff' measurableSet_Ioi]
+    filter_upwards with u hu
+    simpa only [Real.norm_eq_abs] using
+      velocity_abs_le_exp sys hw ha hA theta h_traj h_small h_init (le_of_lt hu) i
+  have hFTC : ∀ T : ℝ, ∫ u in (0:ℝ)..T, kuramoto_velocity sys (theta u) i
+      = theta T i - theta 0 i := fun T =>
+    intervalIntegral.integral_eq_sub_of_hasDerivAt (fun x _ => h_traj i x)
+      (hcont.intervalIntegrable 0 T)
+  have hlim := MeasureTheory.intervalIntegral_tendsto_integral_Ioi (0:ℝ) hint
+    (Filter.tendsto_id (x := (Filter.atTop : Filter ℝ)))
+  have hlim2 : Filter.Tendsto (fun T => theta T i - theta 0 i) Filter.atTop
+      (nhds (∫ u in Set.Ioi (0:ℝ), kuramoto_velocity sys (theta u) i)) :=
+    hlim.congr hFTC
+  have := hlim2.const_add (theta 0 i)
+  exact this.congr (fun T => by ring)
+
+omit [DecidableEq V] in
+include hw h_traj ha hA in
+/-- **The excess vanishes in the limit**: the trajectory reaches the *global*
+minimum of the potential, not merely some critical value. -/
+theorem excess_tendsto_zero [Nonempty V] (h_small : 2 * potentialExcess sys (theta 0) < a)
+    (h_init : ∀ i j, |theta 0 i - theta 0 j| ≤ Real.pi/2) :
+    Filter.Tendsto (fun t => potentialExcess sys (theta t)) Filter.atTop (nhds 0) := by
+  have hS : 0 < couplingTotal sys := couplingTotal_pos sys ha hA
+  have hA0 : ∀ i j, (0:ℝ) ≤ sys.A i j := fun i j => le_trans ha.le (hA i j)
+  have hc0 : 0 < 2*a^2/couplingTotal sys := div_pos (by positivity) hS
+  have h1 : Filter.Tendsto (fun t : ℝ => -(2*a^2/couplingTotal sys) * t)
+      Filter.atTop Filter.atBot :=
+    Filter.tendsto_id.const_mul_atTop_of_neg (neg_neg_iff_pos.2 hc0)
+  have hexp0 : Filter.Tendsto (fun t : ℝ => Real.exp (-(2*a^2/couplingTotal sys) * t))
+      Filter.atTop (nhds 0) := Real.tendsto_exp_atBot.comp h1
+  have hlim : Filter.Tendsto
+      (fun t => potentialExcess sys (theta 0) * Real.exp (-(2*a^2/couplingTotal sys) * t))
+      Filter.atTop (nhds 0) := by
+    simpa using hexp0.const_mul (potentialExcess sys (theta 0))
+  refine tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds hlim
+    (Filter.Eventually.of_forall fun t => potentialExcess_nonneg sys hA0 _) ?_
+  filter_upwards [Filter.eventually_ge_atTop (0:ℝ)] with t ht
+  exact excess_decay sys hw ha hA theta h_traj h_small h_init ht
+
+omit [DecidableEq V] in
+include hw h_traj ha hA in
+/-- **O20(d) and O20(e): the trajectory converges to a global minimiser of the
+potential.**
+
+Initial data within a quarter turn and below the energy threshold `a/2` — the two
+hypotheses `h_init` and `h_small` — is carried by the flow to a phase-locked
+configuration, which by `potential_min_iff_phase_locked` is a global minimum of
+`kuramoto_potential_dynamic`, the configuration `ThermodynamicCover`'s
+`thermodynamic_equilibrium` field assumes.
+
+No LaSalle principle and no compact invariant set appear: the Lyapunov function
+confines the trajectory itself (`spread_le_of_small`), the Łojasiewicz estimate
+turns descent into an exponential rate (`excess_decay`), and the rate makes the
+velocity integrable, which is what produces the limit.
+
+**What it does not establish.** Anything for initial data outside the threshold.
+Splay and twisted configurations are equilibria of the same flow, so no theorem
+of the form "every trajectory reaches the phase-locked state" is true; the
+hypotheses here are exactly the arc condition under which the statement holds. -/
+theorem kuramoto_tendsto_global_minimum [Nonempty V]
+    (h_small : 2 * potentialExcess sys (theta 0) < a)
+    (h_init : ∀ i j, |theta 0 i - theta 0 j| ≤ Real.pi/2) :
+    ∃ thetaInf : V → ℝ,
+      (∀ i, Filter.Tendsto (fun t => theta t i) Filter.atTop (nhds (thetaInf i)))
+      ∧ is_phase_locked thetaInf
+      ∧ (∀ phi, kuramoto_potential_dynamic sys thetaInf
+            ≤ kuramoto_potential_dynamic sys phi)
+      ∧ order_parameter_r_sq thetaInf = 1 := by
+  have hpos : ∀ i j, sys.A i j > 0 := fun i j => lt_of_lt_of_le ha (hA i j)
+  set thetaInf : V → ℝ :=
+    fun i => theta 0 i + ∫ u in Set.Ioi (0:ℝ), kuramoto_velocity sys (theta u) i with hInf
+  have hconv : ∀ i, Filter.Tendsto (fun t => theta t i) Filter.atTop (nhds (thetaInf i)) :=
+    fun i => phase_tendsto sys hw ha hA theta h_traj h_small h_init i
+  have hzero := excess_tendsto_zero sys hw ha hA theta h_traj h_small h_init
+  have hlock : is_phase_locked thetaInf := by
+    intro i j
+    have hcoslim := (Real.continuous_cos.tendsto _).comp ((hconv i).sub (hconv j))
+    have hcos1 : Filter.Tendsto (fun t => Real.cos (theta t i - theta t j))
+        Filter.atTop (nhds 1) := by
+      have hlowlim : Filter.Tendsto
+          (fun t => 1 - 2 * potentialExcess sys (theta t) / a) Filter.atTop (nhds 1) := by
+        simpa using tendsto_const_nhds.sub ((hzero.const_mul 2).div_const a)
+      refine tendsto_of_tendsto_of_tendsto_of_le_of_le' hlowlim tendsto_const_nhds ?_
+        (Filter.Eventually.of_forall fun t => Real.cos_le_one _)
+      refine Filter.Eventually.of_forall fun t => ?_
+      have hW := pair_le_potentialExcess sys ha.le hA (theta t) j i
+      have h2 : 1 - Real.cos (theta t i - theta t j)
+          ≤ 2 * potentialExcess sys (theta t) / a := by
+        rw [le_div_iff₀ ha]; nlinarith [hW]
+      linarith
+    exact tendsto_nhds_unique hcoslim hcos1
+  exact ⟨thetaInf, hconv, hlock,
+    fun phi => phase_locked_minimizes_potential' sys hpos thetaInf hlock phi,
+    phase_locked_implies_r_sq_eq_one thetaInf hlock⟩
+
+end Confinement
+
+end Lojasiewicz
+
+omit [DecidableEq V] in
+/-- **The rotating-frame form.** For a system of identical natural frequencies,
+read in the frame rotating with them, a trajectory starting near consensus
+converges to a phase-locked configuration, which is a global minimiser of the
+reduced potential.
+
+In the original frame the phases keep turning at rate `Ω` forever; what converges
+is the *relative* configuration, which is what `is_phase_locked` and the order
+parameter see. -/
+theorem rotating_frame_tendsto_global_minimum [Nonempty V] (sys : KuramotoSystem V) (Ω : ℝ)
+    (h_omega : ∀ i, sys.omega i = Ω) {a : ℝ} (ha : 0 < a) (hA : ∀ i j, a ≤ sys.A i j)
+    (theta : ℝ → V → ℝ) (h_traj : is_kuramoto_trajectory sys theta)
+    (h_small : 2 * potentialExcess sys.reduced (rotate Ω theta 0) < a)
+    (h_init : ∀ i j, |rotate Ω theta 0 i - rotate Ω theta 0 j| ≤ Real.pi/2) :
+    ∃ thetaInf : V → ℝ,
+      (∀ i, Tendsto (fun t => rotate Ω theta t i) atTop (𝓝 (thetaInf i)))
+      ∧ is_phase_locked thetaInf
+      ∧ (∀ phi, kuramoto_potential_dynamic sys thetaInf
+            ≤ kuramoto_potential_dynamic sys phi)
+      ∧ order_parameter_r_sq thetaInf = 1 :=
+  kuramoto_tendsto_global_minimum sys.reduced (fun _ => rfl) ha hA (rotate Ω theta)
+    (is_kuramoto_trajectory_rotate sys Ω h_omega theta h_traj) h_small h_init
+
 
 end PhysicsOfConsciousness

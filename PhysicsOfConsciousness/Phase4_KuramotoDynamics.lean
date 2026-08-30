@@ -345,9 +345,11 @@ omit [DecidableEq V] in
 phase-locked states.** Both directions, in one statement.
 
 What it does not say: nothing here is about the *dynamics*. This characterises
-the minimisers of a functional; that a trajectory of `is_kuramoto_trajectory`
-reaches one of them is the content of `dV_dt_le_zero` together with a
-convergence argument that this development does not carry. -/
+the minimisers of a functional. That a trajectory of `is_kuramoto_trajectory`
+reaches one of them is `kuramoto_tendsto_global_minimum` in
+`Phase4_RotatingFrame.lean` §7, and it holds under hypotheses on the initial
+data — unconditionally it is false, since splay and twisted configurations are
+equilibria too. -/
 theorem potential_min_iff_phase_locked
     (sys : KuramotoSystem V) (h_pos : ∀ i j, sys.A i j > 0) (theta : V → ℝ) :
     (∀ phi, kuramoto_potential_dynamic sys theta ≤ kuramoto_potential_dynamic sys phi)

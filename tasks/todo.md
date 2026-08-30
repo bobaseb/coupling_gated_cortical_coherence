@@ -1370,19 +1370,19 @@ list is to keep it that way.
 | ~~**O9**~~ | **DONE 2026-08-30 — see "The Self's metric" at the end of this file.** ~~**B1 — the Self's metric is 0/1, and `contracting_implies_const` proves that forces the fixed point to be constant.**~~ The metric is now the uniform distance between the densities of the measures the sections glue to, `massEquiv` proves global sections *are* those measures, and `relax_dist` gives a non-constant map contracting by exactly `1/2` with a unique fixed point. Two premises of the recorded plan were wrong and are corrected there: `isIso_toSheafify` is for the *Grothendieck* sheafification, not `TopCat.Presheaf.sheafify`, which has no adjunction in Mathlib; and `μ ↦ ½μ + ½μ₀` is **not** a Lévy–Prokhorov contraction on a discrete substrate | 
 | ~~**O10**~~ | **NARROWED 2026-08-30 — see "The estimate was the obstacle" at the end of this file.** The recorded route was a misdiagnosis: σ is a quadratic functional of an *affine* image of the kernel, so `hasFDerivAt_quadratic_of_affine` differentiates it by the chain rule with no limiting argument, and `hasFDerivAt_sigmaOfKernel_of_operator` recovers §7's gradient from it. ~~**B3 — the σ/gradient-flow link holds for finite substrates only** (`hvol : volume = Measure.count`)~~ What remains is to construct the continuum drift map as a bounded operator `L²(μ⊗μ) → L²(μ)` — a Cauchy–Schwarz estimate plus `Lp` bookkeeping | ~~Differentiation under the integral sign with respect to the kernel. Mathlib has `hasDerivAt_integral_of_dominated_loc_of_deriv_le`; the work is in the domination hypotheses~~ Superseded: no differentiation under any integral is involved |
 | ~~**O11**~~ | **DONE 2026-08-30 — see "The estimate was the obstacle" at the end of this file.** ~~**B2 — `h_mean` restricts the comparison class** to fields sharing the phase-locked state's mean drift, so minimality is Jensen alone~~ For a *symmetric* kernel `h_mean` is a theorem, not a restriction: the coupling integrand is antisymmetric in its two sites, so total drift is conserved across phase fields, and `phase_locked_minimizes_entropy_of_symm` quantifies over every competitor. Symmetry is necessary — `Examples.lean` §16's one-way coupling strictly beats its own phase-locked state | ~~Model how `Omega_avg` varies with the competitor field. Stated as the honest scope on the theorem; removing it changes what is claimed~~ Done, and the recorded estimate was wrong: no modelling of `Omega_avg` was needed |
-| **O12** | **D2 — there is still no Noether theorem.** The class is now inhabited (`Examples.lean` §11, a `ℤ₂` action on a double well, with symmetry breaking exhibited), but no conserved quantity is constructed and no theorem consumes a symmetry group | **Estimate corrected 2026-08-29 — see "Noether: a feasibility probe" at the end of this file.** "A project in itself" is right for the *field-theoretic* theorem and wrong for point mechanics, which was prototyped end to end in one session (~200 lines, zero `sorry`). The structural obstacle is not difficulty: `SymmetryInvariantAction` has **no dynamics**, so no conserved quantity can be attached to it at all |
+| **O12** | **CLOSED as decided-not-doing, reaffirmed 2026-08-30.** **D2 — there is still no Noether theorem.** The class is now inhabited (`Examples.lean` §11, a `ℤ₂` action on a double well, with symmetry breaking exhibited), but no conserved quantity is constructed and no theorem consumes a symmetry group | **Estimate corrected 2026-08-29 — see "Noether: a feasibility probe" at the end of this file.** "A project in itself" is right for the *field-theoretic* theorem and wrong for point mechanics, which was prototyped end to end in one session (~200 lines, zero `sorry`). The structural obstacle is not difficulty: `SymmetryInvariantAction` has **no dynamics**, so no conserved quantity can be attached to it at all |
 | ~~**O19**~~ | **DONE 2026-08-30 — see "The gluing produces its object" at the end of this file.** ~~Derivation 5's gluing is a uniqueness theorem, not an emergence theorem~~ Both global-object fields are removed from `LocalSectionSynchronization`; `probability_glue_unique` isolates the sheaf condition, `ThermodynamicCover.invariantMeasure` constructs the section, and `sync_to_section_eq` is now a theorem. `Examples.lean` §14 is a cover whose glued section is neither of the profiles it was built from | ~~Restate `LocalSectionSynchronization` …~~ done as described; the estimate "touches a class every downstream file uses" was right about the blast radius and wrong about the cost — see the section for why |
 | ~~**O21**~~ | **DONE 2026-08-30 — see "The dictionary at an arbitrary open" at the end of this file.** `densityOn`, `massMeasureOn`, `sectionOfMassOn` and `massEquivOn` are stated at an arbitrary open; `density`, `massMeasure`, `sectionOfMass` and `massEquiv` are the case `U = ⊤`, kept under their own names. §14's local sections are `sectionOfMassOn (patch i) (patchW i)` and no measure on `Cortex` appears in the instance; `glued_section_eq_restrict` records that the object did not change when the construction did. ~~**§10's germ–measure dictionary is built at `⊤` only.**~~ | `Examples.lean` §10, §14 | Done. The estimate "bookkeeping" was right |
-| **O20** | **PARTLY DONE 2026-08-30 — see "A dynamics that runs" at the end of this file.** Uniqueness of trajectories is proved on all of `ℝ` (`is_kuramoto_trajectory_unique`, from `kuramotoField_lipschitz`), and `Examples.lean` §15 exhibits a trajectory that starts unsynchronised and converges to the potential's global minimum with `r² → 1`. Parts (a-existence), (b), (c), (d) and (e) remain open in general. ~~Nothing in the development runs a dynamics into the minimum.~~ `ThermodynamicCover.thermodynamic_equilibrium` *assumes* the cover sits at the potential minimum; `Phase4_RotatingFrame` says what that minimum is and `potential_min_iff_phase_locked` (2026-08-30) says exactly which configurations attain it, but no trajectory is shown to reach one. The only trajectory in the whole development is `pairTrajectory Ω t = Ω·t` (`Examples.lean` §7) — a rigid rotation that *starts* synchronised, so it never converges to anything. Neither is any solution shown to **exist**: `is_kuramoto_trajectory` is a predicate, and outside §7 nothing inhabits it | See the decomposition below — parts (a)–(c) are reachable now, (d) is blocked on Mathlib, and (e) is **false as usually stated** |
+| ~~**O20**~~ | **DONE 2026-08-30 — see "The motion stops somewhere" at the end of this file.** Parts (a), (b), (c) landed earlier; (d) and (e) landed together, conditionally on initial data, by the Polyak–Łojasiewicz route scoped in "Reassessment of everything still open". The LaSalle blocker recorded below was a misidentification, and so was the claim that a compact invariant set or a torus quotient was needed.** See "A dynamics that runs" at the end of this file. Uniqueness of trajectories is proved on all of `ℝ` (`is_kuramoto_trajectory_unique`, from `kuramotoField_lipschitz`), and `Examples.lean` §15 exhibits a trajectory that starts unsynchronised and converges to the potential's global minimum with `r² → 1`. Parts (a-existence), (b), (c), (d) and (e) remain open in general. ~~Nothing in the development runs a dynamics into the minimum.~~ `ThermodynamicCover.thermodynamic_equilibrium` *assumes* the cover sits at the potential minimum; `Phase4_RotatingFrame` says what that minimum is and `potential_min_iff_phase_locked` (2026-08-30) says exactly which configurations attain it, but no trajectory is shown to reach one. The only trajectory in the whole development is `pairTrajectory Ω t = Ω·t` (`Examples.lean` §7) — a rigid rotation that *starts* synchronised, so it never converges to anything. Neither is any solution shown to **exist**: `is_kuramoto_trajectory` is a predicate, and outside §7 nothing inhabits it | See the decomposition below — parts (a)–(c) are reachable now, (d) is blocked on Mathlib, and (e) is **false as usually stated** |
 
 ### Group 3 — out of reach with current Mathlib
 
 | # | Item | Blocker |
 |---|---|---|
-| **O13** | **The von Mises ansatz** — deriving the stationary density from the SDE. This is part (b) of the critical-coupling item | Fokker–Planck operator, existence and uniqueness of stationary solutions, bifurcation theory. None in Mathlib |
-| **O14** | **The link from `selfConsistency` to the dynamics.** O1 is done, so the fixed point is now the order parameter of a *density*; it is still not the order parameter of a *trajectory*. `circularOrderParameter` is an integral against a density, `order_parameter_complex` is an average over finitely many oscillators, and no theorem relates them | The mean-field limit — propagation of chaos for the finite Kuramoto system. This is a research programme, not a task. **With O1 done this is the only thing standing between `exhibits_phase_transition` and a statement about a trajectory**, and the doc-strings and manuscript now state the gap in exactly those terms |
-| **O15** | **`lim_{t→∞} D_KL(P‖Q) = 0`** (supplementary Theorem 3, audit item #6). Monotone descent of σ plus `D_KL ≤ Δt·σ` does not give it: monotone-and-bounded yields *some* infimum, possibly positive, and the KL bound would additionally have to be tight | A Łojasiewicz or coercivity estimate on σ, plus a statement relating the σ-minimizer to `KL = 0`. Neither exists in the development. The prose must keep saying it is unformalized until it does |
-| **O16** | **Mesh refinement rate.** Lean proves convergence; the `O(1/N²)` rate is numerical only | A Riemann-sum error expansion. The convergence proof does not carry the rate |
+| **O13** | **CLOSED as a research programme, reaffirmed 2026-08-30.** **The von Mises ansatz** — deriving the stationary density from the SDE. This is part (b) of the critical-coupling item | Fokker–Planck operator, existence and uniqueness of stationary solutions, bifurcation theory. None in Mathlib |
+| **O14** | **CLOSED as a research programme, reaffirmed 2026-08-30.** **The link from `selfConsistency` to the dynamics.** O1 is done, so the fixed point is now the order parameter of a *density*; it is still not the order parameter of a *trajectory*. `circularOrderParameter` is an integral against a density, `order_parameter_complex` is an average over finitely many oscillators, and no theorem relates them | The mean-field limit — propagation of chaos for the finite Kuramoto system. This is a research programme, not a task. **With O1 done this is the only thing standing between `exhibits_phase_transition` and a statement about a trajectory**, and the doc-strings and manuscript now state the gap in exactly those terms |
+| **O15** | **`lim_{t→∞} D_KL(P‖Q) = 0`** (supplementary Theorem 3, audit item #6). Monotone descent of σ plus `D_KL ≤ Δt·σ` does not give it: monotone-and-bounded yields *some* infimum, possibly positive, and the KL bound would additionally have to be tight | A Łojasiewicz or coercivity estimate on σ, plus a statement relating the σ-minimizer to `KL = 0`. Neither exists in the development. **Refiled 2026-08-30 as a prose fix, not a formalization task** — the bound is not tight, so no one is going to supply the missing step; the `supplementary.tex` sentence should be weakened instead |
+| **O16** | **Mesh refinement rate.** Lean proves convergence; the `O(1/N²)` rate is numerical only | **Reclassified 2026-08-30 — see "Reassessment of everything still open" at the end of this file: this is not a Mathlib gap.** `discreteEnergy` is already recorded as the midpoint rule and the midpoint error bound is `taylor_mean_remainder_lagrange` on each cell. What blocks it is the development's own generality — the abstract `Mesh` lives over a metric space with no second derivative — so the rate is provable for the concrete `[0,1)` witness only. ~~A Riemann-sum error expansion. The convergence proof does not carry the rate~~ |
 | **O17** | **Hardware.** The step from the wiring-support result and the measure-theoretic continuity result to "von Neumann architectures cannot experience unified consciousness" is informal | Not a formalization gap so much as a philosophical one; `main.tex` says so |
 | **O18** | **Sheaf global section ↔ unity of experience is a stipulation, not a derivation** | The framework's core philosophical commitment, fenced by the Russellian-monism framing. Not a fixable defect; recorded so it is not mistaken for one |
 
@@ -3299,3 +3299,247 @@ now both halves of this one — were closed by a route the ledger had not
 considered, and in each case the recorded estimate was not merely pessimistic but
 pointed at the wrong obstacle. It is worth treating the "what it takes" column as
 a hypothesis to be checked before it is a plan to be executed.
+
+---
+
+## Reassessment of everything still open — 2026-08-30
+
+Written on the instruction of the previous section's closing note: treat the
+"what it takes" column as a hypothesis and check it before executing it. Every
+blocker named anywhere in this file was grepped against the pinned Mathlib
+(`5ce203ecd53f8c3e47ee5530d7c86b94a55f0183`, 2026-08-26) rather than taken on
+trust. No Lean was written for this section; it is a scoping pass, and the plan
+it ends with is what the next section executes.
+
+### What the greps actually say
+
+**Absent, confirmed** — zero hits over all of Mathlib: `Lyapunov`, `LaSalle`,
+`Łojasiewicz`/`Lojasiewicz`, `Barbalat` (as expected — this development proves
+it), Euler–Lagrange, Fokker–Planck, propagation of chaos, `riemannSum`,
+Euler–Maclaurin, Hilbert–Schmidt operators. So the Group 3 blockers naming
+LaSalle, the Fokker–Planck operator and the mean-field limit are real.
+
+**Present, and relevant** — `Mathlib/Analysis/ODE/Gronwall.lean`,
+`Mathlib/Analysis/Calculus/Taylor.lean` (`taylor_mean_remainder_lagrange`),
+`Mathlib/Analysis/Calculus/MeanValue.lean`
+(`norm_image_sub_le_of_norm_deriv_le_segment`),
+`Mathlib/MeasureTheory/Function/Holder.lean` (`holderL`, a bilinear CLM between
+`Lp` spaces), `MeasureTheory.StronglyMeasurable.integral_prod_right`, and
+`condExpL2` as precedent for the cost of building a CLM on `L²`.
+
+### The verdicts
+
+| Item | Recorded | Verdict |
+|---|---|---|
+| **O20(d)+(e)** | "Blocked. This is LaSalle, and LaSalle is not in Mathlib… fixing that means working on the torus" | **The blocker is misidentified. Reachable now, and it is the most valuable item left.** See below |
+| **O10** (remainder) | "cheapest Group-2 item" | Correctly scoped, and reachable. But **low value**: it generalises a theorem that is already proved *and* witnessed *and* fenced by a counterexample, and no sentence of either document changes when it lands |
+| **O16** (mesh rate) | Group 3, "needs a Riemann-sum error expansion" | **Not a Mathlib gap.** `Phase2_MeshConvergence` already records that `discreteEnergy` is the *midpoint* rule, and the midpoint error bound is `taylor_mean_remainder_lagrange` on each cell. What blocks it is the development's own generality — the abstract `Mesh` lives over a metric space with no second derivative — so the rate is provable only for the concrete `[0,1)` witness of `Examples.lean` §6. Reachable, low value, and the scope point is worth recording whether or not it is proved |
+| **O12** (Noether) | "do not land it yet" | **Affirmed, unchanged.** `SymmetryInvariantAction` still has no dynamics, nothing downstream invokes conservation, and a Table 1 row backed by one degree of freedom would spend the paper's one rhetorical asset. Keep it in the scratchpad |
+| **O13**, **O14** | Research programmes | **Confirmed.** Nothing in Mathlib to build on. Not tasks |
+| **O15** | Group 3 | Genuinely blocked, but it is filed in the wrong ledger. `lim D_KL = 0` does not follow from monotone descent plus `D_KL ≤ Δt·σ`, and the missing step is not a formalization anyone is going to supply — the bound is not tight. This is a **sentence to weaken in `supplementary.tex`**, not a theorem to chase |
+| **O17**, **O18** | Not defects | Correct. Leave recorded |
+
+### O20(d) — LaSalle is the wrong tool, and the development already has the right one
+
+LaSalle is what one reaches for when a system has a decreasing functional and
+*nothing else*: no gradient structure, no quantitative rate, so the only
+available conclusion is set-level and it needs a compact invariant set to be
+worth anything. This system is not in that position, and three of the four
+ingredients are already theorems here.
+
+At zero natural frequencies the flow is a **gradient flow**: `∇ᵢ` of
+`kuramoto_potential_dynamic` is exactly `-kuramoto_velocity sys θ i` (the two
+halves of the double sum combine by `sys.symm`), which is why
+`dissipation_integral_eq` can state `V̇ = -‖θ̇‖²` as an identity rather than an
+inequality. Write `W := kuramoto_potential_dynamic sys θ - V_min ≥ 0`, with
+`V_min` the value at the locked state supplied by `phase_locked_minimizes_potential`.
+
+**The estimate.** On the region where the spread `D := max θ - min θ` is at most
+`π/2`, a Polyak–Łojasiewicz inequality `‖∇W‖² ≥ c·W` holds, and its proof is one
+extremal index — no spectral gap, no Dini derivative, no convexity:
+
+* Take `i` attaining the max. Every term of `∇ᵢW = -∑ⱼ Aᵢⱼ sin(θⱼ - θᵢ)` is
+  non-negative, because `θⱼ - θᵢ ∈ [-D, 0]` and `D < π`.
+* The single term at `j` attaining the min is `Aᵢⱼ sin D ≥ a sin D`, where
+  `a := min Aᵢⱼ > 0` — which is the standing hypothesis `h_pos` of
+  `phase_locked_minimizes_potential`, not a new assumption.
+* So `‖∇W‖² ≥ a² sin²D ≥ (4a²/π²)·D²`, while `W ≤ (1/4)(∑ᵢⱼ Aᵢⱼ)·D²` from
+  `1 - cos x ≤ x²/2`. Divide.
+
+**The confinement, which is where the "needs compactness" reading goes wrong.**
+The invariant region is produced by the Lyapunov function itself, not by the
+state space. `dynamic_potential_antitone` is already proved, and `W` controls
+every pair on its own: `1 - cos(θⱼ - θᵢ) ≤ 2W/a`, since all the other terms of
+the double sum are non-negative. So `W(θ(0)) < a/2` forces every pairwise
+difference to sit within `π/2` of `2πℤ` **for all time**, and continuity of
+`t ↦ θⱼ(t) - θᵢ(t)` on the connected `[0, ∞)` pins which branch. No compact
+invariant set is needed, and no quotient by the phase-shift symmetry: the torus
+change the ledger called "a modelling change, not just a proof" is not required.
+
+**What it delivers.** `Ẇ ≤ -cW` gives `W(t) ≤ W(0)e^{-ct}`; then
+`‖θ̇‖ ≲ √W ≲ e^{-ct/2}` is integrable, so `θ(t)` is Cauchy at infinity and
+**converges**, and its limit has `W = 0`, so `potential_min_iff_phase_locked`
+fires and the limit is the *global* minimum. That is (d) and (e) at once, with an
+exponential rate — and (e) is not the false global statement the ledger correctly
+rejected but exactly the arc condition it named as "the version the manuscript's
+causal chain actually needs".
+
+**Two corrections to the record.** (d) does not have to precede (e); they fall out
+of the same estimate. And `Examples.lean` §15's `pairRelax` is a hand-built
+closed-form solution on two sites, so what is missing is not a witness but the
+general theorem — the increment is real.
+
+**Cost and risk.** Comparable to O8. The two places it can go long are the
+branch-pinning argument (continuity plus connectedness, stated on pairwise
+differences) and recovering convergence of `θ` from integrability of `θ̇`, which
+runs into the `deriv`-versus-`HasDerivAt` FTC snag already recorded under
+O20(b)+(c). Neither is a missing library.
+
+### Plan for the next pass
+
+Execute O20(d)+(e) as scoped above, in `Phase4_RotatingFrame.lean` §7, with a
+witness in `Examples.lean` that is *not* `pairRelax` — a system where the general
+theorem does work the closed form cannot. Everything else on this list is either
+closed as decided-not-doing (O12, O13, O14, O17, O18), a prose fix rather than a
+formalization (O15), or completeness work with no claim attached (O10, O16).
+
+### Ranking after this pass
+
+1. **O20(d)+(e)** — convergence to the global minimum, near consensus, by the PL
+   route above. The only item left on which a headline claim rests:
+   `thermodynamic_equilibrium` is assumed by every Derivation 5 result.
+2. **O10 (remainder)** — the continuum drift map as a bounded operator. Bookkeeping.
+3. **O16** — the midpoint rate on the concrete witness. Bookkeeping, and the
+   generality scope point should be recorded either way.
+4. **O15** — weaken the `supplementary.tex` sentence. Not a Lean task.
+
+O12, O13, O14, O17 and O18 are closed as decided-not-doing and should not be
+re-ranked by a future pass without a reason recorded here.
+
+---
+
+## The motion stops somewhere — 2026-08-30 — O20(d)+(e) DONE
+
+The item the previous section ranked first, executed as scoped. Zero `sorry`,
+zero warnings, `lake build` clean (17,608 jobs); `#print axioms` on all twelve
+new results reports only `propext`, `Classical.choice`, `Quot.sound`.
+
+This closes the last item on which a headline claim rested. Every Derivation 5
+result was conditional on `ThermodynamicCover.thermodynamic_equilibrium` — the
+cover is *assumed* to sit at the potential minimum — and nothing showed a
+trajectory reaches one. Now something does.
+
+### The recorded blocker was two claims, and both were false
+
+The ledger said (d) is "Blocked. This is LaSalle, and LaSalle is not in Mathlib.
+It would also need compactness, which the development does not have… Fixing that
+means working on the torus or exhibiting an a-priori bounded invariant region
+first — a modelling change, not just a proof."
+
+**On LaSalle.** It is genuinely absent from Mathlib (re-checked: zero hits for
+`Lyapunov`, `LaSalle`, `Łojasiewicz`). But it is the tool for a system with a
+decreasing functional and *nothing else*, whose only available conclusion is
+set-level. This system had three things the ledger never used together: the flow
+is a **gradient flow** — `∇ᵢ kuramoto_potential_dynamic = -kuramoto_velocity` at
+zero frequencies, which is exactly why `dissipation_integral_eq` could state
+`V̇ = -∑ᵢθ̇ᵢ²` as an identity; the minimisers are characterised
+(`potential_min_iff_phase_locked`); and a **Polyak–Łojasiewicz inequality** holds
+with an elementary proof.
+
+**On compactness.** The invariant region does not have to be supplied — the
+Lyapunov function produces it. All terms of the excess are non-negative, so a
+single pair obeys `½a(1 - cos(θⱼ-θᵢ)) ≤ W`; an initial excess below `a/2`
+therefore keeps every pairwise cosine positive for all time, since
+`dynamic_potential_antitone` was already proved. A pair escaping `[-π/2, π/2]`
+would have to cross `π/2` in absolute value, where the cosine vanishes. That is
+the intermediate value theorem on a connected half-line, and it is the whole of
+the branch-pinning step. No torus, no quotient, no modelling change.
+
+### The estimate, which is the content
+
+| Declaration | Content |
+|---|---|
+| `velocity_max_le` | At the site `m` with the largest phase, every coupling term is non-positive (all `θⱼ - θₘ ∈ [-D, 0]`, `D ≤ π/2`), and the term from the site with the smallest phase is at most `-a·sin D`. Two extremal indices, no spectral gap |
+| `lojasiewicz_estimate` | **`2a²·W(φ) ≤ (∑ᵢⱼAᵢⱼ)·∑ᵢθ̇ᵢ²`** on the quarter-turn region. Against `W ≤ ½(∑ᵢⱼAᵢⱼ)(1 - cos D)` the estimate is `sin²D = (1-cos D)(1+cos D)` plus `cos D ≥ 0` — which is the *only* use of the quarter-turn hypothesis |
+| `cos_pos_of_small`, `spread_le_of_small` | Forward invariance of the quarter-turn region, by the argument above |
+| `excess_decay` | `W(t) ≤ W(0)e^{-ct}`, `c = 2a²/∑ᵢⱼAᵢⱼ`. Grönwall in the elementary form: `W(t)e^{ct}` has non-positive derivative, so `antitoneOn_of_deriv_nonpos` finishes it |
+| `velocity_abs_le_exp` | `|θ̇ᵢ(t)| ≤ Be^{-ct/2}`, via `|sin d| ≤ √(2(1-cos d))` |
+| `phase_tendsto` | The trajectory converges. `θᵢ(t) = θᵢ(0) + ∫₀ᵗθ̇ᵢ`, the integrand is dominated by an exponential (`exp_neg_integrableOn_Ioi`), and `intervalIntegral_tendsto_integral_Ioi` produces the limit as `θᵢ(0) + ∫₀^∞θ̇ᵢ` |
+| `excess_tendsto_zero` | `W(θ(t)) → 0` — the limit is the *global* minimum, not merely a critical value |
+| `kuramoto_tendsto_global_minimum` | **(d) and (e) together.** The limit exists, is phase-locked, minimises `kuramoto_potential_dynamic` over every configuration, and has `r² = 1` |
+| `rotating_frame_tendsto_global_minimum` | The same for identical natural frequencies, in the rotating frame; what converges is the relative configuration |
+
+Note that (d) and (e) did **not** need to be done in that order — the ledger had
+(e) "Group 2 but only after (d)". They fall out of the same estimate, and the
+rate comes free.
+
+### Scope, stated as sharply as the file can
+
+Two hypotheses on the initial data, and neither is removable. `h_init` puts the
+phases within a quarter turn; `h_small` puts the initial excess below `a/2`,
+where `a > 0` bounds the coupling below. The ledger's judgement that the
+unconditional statement is **false** stands and is the reason: splay and twisted
+configurations are equilibria of the same flow, so no theorem of the form "every
+trajectory reaches the phase-locked state" is provable. What is proved is the arc
+condition version, which is what the manuscript's causal chain needs.
+
+`velocity_sq_tendsto_zero` (O22) and this theorem are now **incomparable**, not
+ordered: O22 holds for an arbitrary trajectory of an arbitrary system and does
+not locate the limit; this locates the limit and is conditional on initial data.
+The §6 doc-string that called O22 "strictly weaker" has been corrected.
+
+### Non-vacuity — `Examples.lean` §17, and why §15 could not have been extended
+
+Rule §2 wants a witness, and the obvious one would have been `pairRelax` — but
+§15 proves its statements by *solving* the equation, and that method does not
+generalise. §17 is three sites, where Kuramoto has no closed form: `trioSys` with
+unit coupling, initial data `(0, 0, ½)`, which is genuinely not phase-locked
+(`trioStart_not_locked`). The trajectory comes from `is_kuramoto_trajectory_exists`
+and its limit from the convergence theorem, so **neither is written down
+anywhere**. `trio_reaches_minimum` is the general theorem doing work no closed
+form is available for.
+
+Checking the hypotheses reduces to one numerical fact, `cos ½ > ¾`, supplied by
+`Real.cos_bound`; the excess is `2(1 - cos ½)`, and the arc condition is
+`½ ≤ π/2`, from `Real.pi_gt_three`.
+
+### Manuscript
+
+`main.tex`: Table 1's dynamics row moves from **Theorem (partial)** to **Theorem
+(conditional)** and states the initial-data condition, the Polyak–Łojasiewicz
+route, why the condition cannot be removed, and the §17 witness. Derivation 5's
+closing paragraphs replace "no theorem of the form 'every trajectory reaches the
+unified state' is available, or true" with the theorem that is available, the
+correction to the recorded blocker, and a paragraph fixing the scope: what is
+claimed is that unity is reached *from configurations already sufficiently
+coherent*, not from an arbitrary initial state. `supplementary.tex`: the
+"Trajectories that run" note gains the full argument — the two extremal indices,
+the branch-pinning by continuity, the Grönwall step, and the §17 witness — in
+place of the sentence naming LaSalle as the blocker.
+
+Compile gate: overfull hboxes `main` 0 → 0, `supplementary` 13 → 13 (both checked
+against `HEAD` rather than assumed); zero undefined references or citations;
+`grep -i "too large"` clean; Table 1's caption still ends with "so no row is
+vacuous" in the compiled PDF; `main` 54 → 55 pages, `supplementary` 9 → 10.
+
+### Ranking after this pass
+
+Group 1 and Group 2 are both empty of items with a claim attached.
+
+1. **O10 (remainder)** — the continuum drift map as a bounded operator between
+   `Lp` spaces. Bookkeeping; nothing in either document changes when it lands.
+2. **O16** — the midpoint rate on the concrete `[0,1)` witness. Bookkeeping. The
+   scope point (the abstract `Mesh` has no second derivative, so the rate is only
+   provable for the concrete witness) is worth recording either way.
+3. **O15** — weaken the `supplementary.tex` sentence. Not a Lean task.
+
+O12, O13, O14, O17 and O18 are closed as decided-not-doing; see the previous
+section for the reasons, which have not changed.
+
+**A note for the next pass**, and it is the same note as last time, now with a
+third instance. The recorded estimate for this item did not merely overstate the
+cost — it named two obstacles (LaSalle, compactness) neither of which was real,
+and pointed at a modelling change (the torus) that was not needed. That is three
+consecutive items — O8, O11/O10, and now O20(d)+(e) — closed by a route the
+ledger had ruled out. The "what it takes" column is a hypothesis. Check it before
+executing it.
