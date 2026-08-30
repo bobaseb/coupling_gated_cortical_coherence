@@ -111,6 +111,44 @@ lemma kuramotoField_lipschitz (sys : KuramotoSystem V) :
     _ = 2 * C * dist x y := by ring
 
 omit [DecidableEq V] in
+/-- **The Kuramoto field is globally bounded**, by `∑ᵢ |ωᵢ| + ∑ᵢⱼ |Aᵢⱼ|`.
+
+Boundedness is independent of the Lipschitz estimate and is needed for a
+different purpose: `IsPicardLindelof` asks for a sup bound `L` on the field
+inside a ball of radius `a`, together with `L · T ≤ a`, and it is this
+inequality that fixes how long a local solution is guaranteed to live. Since
+the bound here holds on the *whole* state space, `a := L·T` satisfies it for
+every `T`, so a solution exists on every bounded window — which is what
+`kuramoto_exists_on_window` in `Phase4_KuramotoDynamics.lean` uses, and what
+makes the gluing to a solution on all of `ℝ` possible.
+
+The constant is crude on purpose: `|sin| ≤ 1` kills the phase dependence
+entirely, and each row sum is bounded by the full matrix sum so that no `max`
+over `V` is needed. -/
+lemma kuramotoField_norm_le (sys : KuramotoSystem V) (theta : V → ℝ) :
+    ‖kuramotoField sys theta‖ ≤ (∑ i, |sys.omega i|) + ∑ i, ∑ j, |sys.A i j| := by
+  have h1 : (0:ℝ) ≤ ∑ i, |sys.omega i| := Finset.sum_nonneg fun i _ => abs_nonneg _
+  have h2 : (0:ℝ) ≤ ∑ i, ∑ j, |sys.A i j| :=
+    Finset.sum_nonneg fun i _ => Finset.sum_nonneg fun j _ => abs_nonneg _
+  rw [pi_norm_le_iff_of_nonneg (by linarith)]
+  intro i
+  have homega : |sys.omega i| ≤ ∑ i, |sys.omega i| :=
+    Finset.single_le_sum (f := fun i => |sys.omega i|) (fun k _ => abs_nonneg _)
+      (Finset.mem_univ i)
+  have hA : ∑ j, |sys.A i j| ≤ ∑ i, ∑ j, |sys.A i j| :=
+    Finset.single_le_sum (f := fun i => ∑ j, |sys.A i j|)
+      (fun k _ => Finset.sum_nonneg fun j _ => abs_nonneg _) (Finset.mem_univ i)
+  have hrow : |∑ j, sys.A i j * Real.sin (theta j - theta i)| ≤ ∑ j, |sys.A i j| := by
+    refine (Finset.abs_sum_le_sum_abs _ _).trans (Finset.sum_le_sum fun j _ => ?_)
+    rw [abs_mul]
+    exact mul_le_of_le_one_right (abs_nonneg _) (Real.abs_sin_le_one _)
+  calc ‖kuramotoField sys theta i‖
+      = |sys.omega i + ∑ j, sys.A i j * Real.sin (theta j - theta i)| := by
+        simp [kuramotoField, kuramoto_velocity, Real.norm_eq_abs]
+    _ ≤ |sys.omega i| + |∑ j, sys.A i j * Real.sin (theta j - theta i)| := abs_add_le _ _
+    _ ≤ (∑ i, |sys.omega i|) + ∑ i, ∑ j, |sys.A i j| := add_le_add homega (hrow.trans hA)
+
+omit [DecidableEq V] in
 lemma dV_dt_le_zero (sys : KuramotoSystem V) (theta : ℝ → V → ℝ) (t : ℝ) 
   (h_diff : ∀ i, DifferentiableAt ℝ (fun t => theta t i) t)
   (h_dyn : ∀ i, deriv (fun t => theta t i) t = kuramoto_velocity sys (theta t) i) :

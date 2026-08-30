@@ -2331,3 +2331,114 @@ Overfull hboxes: `main` 0, `supplementary` 13 — both unchanged.
    (the covariance is not sign-definite pointwise) makes it the hardest.
 4. **O2** — `auto_resonance` is unconstrained by the field (Derivation 6). Cheap.
 5. **O21** — build §10's germ–measure dictionary at an arbitrary open.
+
+---
+
+## Global existence — 2026-08-30 — O20(a) DONE
+
+Ranked first after the previous pass, and the estimate held: it is the gluing
+argument the file already described, written out. Kuramoto trajectories now
+**exist** through every initial state, on all of `ℝ`, and the initial value
+problem is well-posed. Zero `sorry`, zero warnings, `lake build` clean
+(17,608 jobs). `#print axioms` on each new result reports only `propext`,
+`Classical.choice`, `Quot.sound`.
+
+### What landed
+
+| Declaration | Where | Content |
+|---|---|---|
+| `kuramotoField_norm_le` | `Phase3_CombinatorialThermodynamics` | **The field is globally bounded**, by `∑ᵢ\|ωᵢ\| + ∑ᵢⱼ\|Aᵢⱼ\|`. Crude on purpose: `\|sin\| ≤ 1` removes the phase dependence, and each row sum is bounded by the full matrix sum so no `max` over `V` is needed |
+| `kuramoto_exists_on_window` | `Phase4_KuramotoDynamics` (private) | **A solution on every symmetric window** `(t₀ - T, t₀ + T)`, `T > 0`. Picard–Lindelöf, with `IsPicardLindelof` discharged by `of_time_independent` |
+| `is_kuramoto_trajectory_exists` | `Phase4_KuramotoDynamics` | **A solution on all of `ℝ`** through any `(t₀, x₀)` |
+| `kuramoto_cauchy_problem` | `Phase4_KuramotoDynamics` | `∃!` — existence and uniqueness in one statement |
+
+### Why the cap in `IsPicardLindelof` was not binding
+
+The previous pass recorded the obstacle correctly and drew the wrong conclusion
+from it. `mul_max_le : L * max (tmax - t₀) (t₀ - tmin) ≤ a - r` does bound a
+local solution's lifetime by the ball radius `a` over the field's sup norm `L`
+on that ball — but `a` is a *parameter of the hypothesis*, not a feature of the
+field, and it may be chosen after `T`. For a field bounded on the whole state
+space, `r := 0` and `a := L·T` satisfy the field for every `T` at once, so the
+"local" existence theorem is already existence on an arbitrary bounded window.
+That is `kuramoto_exists_on_window`, and it is where `kuramotoField_norm_le`
+earns its place: the Lipschitz bound alone does not give it, because
+`IsPicardLindelof` asks for a sup bound as a separate field.
+
+The remaining step is the one the ledger described. Solutions `αₙ` on
+`(t₀ - n - 1, t₀ + n + 1)`; coherence from `ODE_solution_unique_of_mem_Ioo` on
+the shorter window (`s := fun _ => Set.univ`, so the "stay in the set"
+hypotheses are `trivial`); and
+
+    θ(t) := α_{⌈|t - t₀|⌉₊} (t)
+
+glued. The one point worth recording is how the derivative is read off. Fix `t`
+and `n := ⌈|t - t₀|⌉₊`. On `αₙ`'s *whole* window the index `⌈|s - t₀|⌉₊` ranges
+over `0 … n+1`, not just `n`, so the eventual equality `θ =ᶠ[𝓝 t] αₙ` is not by
+the index being locally constant — it is coherence applied in whichever
+direction the comparison `⌈|s - t₀|⌉₊ ≤ n` falls, and both directions are
+available because `|s - t₀| ≤ ⌈|s - t₀|⌉₊` covers one and membership in the
+window covers the other. `HasDerivAt.congr_of_eventuallyEq` then transports
+`αₙ`'s derivative to `θ`.
+
+Total: ~110 lines including doc-strings, and each of the three pieces compiled
+on its first attempt.
+
+### What this does and does not buy
+
+It removes the last sense in which `is_kuramoto_trajectory` could be called
+under-inhabited. Before this pass the predicate had exactly two inhabitants in
+the development — §7's rigid rotation and §15's relaxing pair — and every
+theorem quantifying over trajectories was, for all the development established,
+a theorem about those two. It is now inhabited exactly once per initial state,
+which is the right size.
+
+It says nothing about behaviour. Existence is not convergence: O20(b)–(d) are
+untouched, and O20(e) is still false as usually stated. The one trajectory
+proved to reach the minimum is still §15's.
+
+### Manuscript
+
+`main.tex`: Table 1's "Kuramoto dynamics run" row rewritten — the entry now
+leads with well-posedness on `ℝ` and names `kuramoto_cauchy_problem`, and only
+convergence for an arbitrary system is listed open. Derivation 5's closing
+paragraph updated: §15's trajectory is no longer the development's only
+evidence that the predicate is inhabited.
+
+**A stale disclaimer found while checking, and fixed.** `main.tex:171` still
+said that of the coherent branch "we prove existence only … not that it varies
+continuously with `K`, so a discontinuous jump at threshold is not excluded …
+Neither theorem covers `K = K_c` exactly." Both halves had been false since the
+`coherent_branch_continuous_at_threshold` and `fixed_point_eq_zero_of_le_critical`
+pass: line 165 of the same file, and the supplementary, describe both results at
+length. The paragraph was corrected. This is the second time a "what remains not
+established" paragraph has outlived the result that closed it — see the lesson
+added for the check that catches it.
+
+`supplementary.tex`: the "Trajectories that run" note rewritten — it previously
+explained at length why global existence was *not* proved.
+
+Compile gate, measured against a fresh build of `HEAD`'s sources in a scratch
+directory rather than against the recorded numbers: overfull hboxes `main` 24 →
+24, `supplementary` 13 → 13; zero undefined references or citations in either;
+`grep -i "too large"` clean on both logs, and `pdftotext main.pdf | grep "so no
+row is vacuous"` confirms Table 1's caption still survives to the last sentence.
+Underfull hboxes in `main` went 32 → 37, which is the justification loosening on
+five lines of new prose and nothing else. (The previously recorded "`main` 0"
+was the arxiv-merged build, not this one; the honest baseline is the same
+document at `HEAD`.)
+
+### Ranking after this pass
+
+1. **O20(b)–(c)** — convergence of `V(θ(t))` along an *arbitrary* trajectory,
+   and `∫ ∑ θ̇ᵢ² < ∞`. Near-free given `dV_dt_le_zero`: `V` is non-increasing
+   and bounded below on the reduced system, so it converges, and the integral
+   bound is the same estimate. §15 computes the limit on a witness, which is not
+   the same theorem. Now the cheapest item, and it is the first half of the only
+   remaining reason Derivation 5's `thermodynamic_equilibrium` is an assumption.
+2. **O8 uniqueness** — injectivity of `E(a) = 𝔼_a[sin²θ]` on `(0, ∞)`. Obstacle 3
+   (the covariance is not sign-definite pointwise) makes it the hardest.
+3. **O2** — `auto_resonance` is unconstrained by the field (Derivation 6). Cheap.
+4. **O21** — build §10's germ–measure dictionary at an arbitrary open.
+5. **O20(d)** — convergence to an equilibrium. Still blocked on LaSalle, which
+   Mathlib does not have, and on the state space being unbounded.
