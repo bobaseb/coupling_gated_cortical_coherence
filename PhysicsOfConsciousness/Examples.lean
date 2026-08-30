@@ -17,7 +17,11 @@
     ✓ `ActionPrinciples`     — a scalar field on a one-point spacetime.
     ✓ `LocalSectionSynchronization` / `ThermodynamicCover` — two overlapping
       patches on a three-site substrate, with sections of the sheafified
-      probability presheaf built from a phase-dependent invariant measure (§4).
+      probability presheaf built from a phase-dependent invariant measure (§4);
+      a second cover in §13 whose phase field is not constant and whose patches
+      carry genuinely different local densities; and a third in §14 whose two
+      patches are built from independently chosen mass profiles, so that the
+      glued section is none of the data the instance carries.
 
   §5 additionally exercises the Phase 8 gradient-flow link on a two-site
   substrate: counting measure, a non-zero gradient, and an explicit non-constant
@@ -51,6 +55,21 @@
   why it was empty. What is still not established is that any field dynamics produces
   this particular map or this particular contraction constant.
 
+  §13 answers open item O5 with both halves of an answer: a `ThermodynamicCover`
+  whose phase field is *not* the constant function and whose two patches carry
+  different mass profiles, read off the sections themselves through `densityOn`;
+  and the record of why it cannot be improved on — `ThermodynamicCover.phase_locked`
+  forces every instance to a phase-locked configuration. Built through
+  `LocalSectionSynchronization.ofInvariantMeasure`, it also inherits that
+  constructor's limitation: the glued section is the measure it was built from.
+
+  §14 answers open item O19, which is the other limitation. The class no longer
+  carries a global section, so this cover's two patches are built from two
+  *different* mass profiles that agree only on the site they share. The gluing
+  returns a third profile, and neither input restricts correctly to both patches
+  (`leftW_glues_nothing`, `rightW_glues_nothing`): the global state is produced
+  by the sheaf condition rather than supplied to it.
+
   Every declaration in this file depends only on `propext`, `Classical.choice`
   and `Quot.sound`.
 -/
@@ -66,7 +85,7 @@ import PhysicsOfConsciousness.Phase4_RotatingFrame
 import PhysicsOfConsciousness.Phase7_Rigidity
 
 open MeasureTheory CategoryTheory TopologicalSpace Opposite Filter Topology
-open scoped ENNReal
+open scoped ENNReal NNReal
 
 namespace PhysicsOfConsciousness
 namespace Examples
@@ -322,7 +341,8 @@ noncomputable def midDirac : FiniteMeasure ↥(⊤ : Opens ↥Cortex) :=
 
     The point of the `cos` is that the family genuinely *depends* on the phase
     (see `phaseMeasure_not_const`). A constant family would satisfy
-    `phase_invariant_periodic` for trivial reasons and would witness nothing. -/
+    the periodicity hypothesis of `ofInvariantMeasure` for trivial reasons and
+    would witness nothing. -/
 noncomputable def phaseMeasure (t : ℝ) : FiniteMeasure ↥(⊤ : Opens ↥Cortex) :=
   (Real.toNNReal (1 + Real.cos t)) • midDirac
 
@@ -341,7 +361,7 @@ theorem phaseMeasure_not_const : phaseMeasure 0 ≠ phaseMeasure Real.pi := by
   rw [phaseMeasure_mass, phaseMeasure_mass, Real.cos_zero, Real.cos_pi] at h2
   norm_num at h2
 
-/-- 2π-periodicity, which is what `phase_invariant_periodic` demands. -/
+/-- 2π-periodicity, which is what `ofInvariantMeasure` demands. -/
 theorem phaseMeasure_periodic {x y : ℝ} (h : Real.cos (x - y) = 1) :
     phaseMeasure x = phaseMeasure y := by
   obtain ⟨n, hn⟩ := (Real.cos_eq_one_iff _).mp h
@@ -354,21 +374,18 @@ noncomputable def globalSect (t : ℝ) : (probabilityPresheaf Cortex).obj (op �
   (TopCat.Presheaf.toSheafify (probabilityPresheaf_pre Cortex)).app (op ⊤) (phaseMeasure t)
 
 /-- All patches locked at phase 0, each carrying the restriction of the global
-    invariant measure. `sync_to_section_eq` then holds by `rfl` — the local
-    sections *are* restrictions, which is the modelling assumption the field
-    records. -/
-noncomputable instance cortexSync : LocalSectionSynchronization Cortex where
-  I := Bool
-  cover := patch
-  is_cover := patch_cover
-  phase := fun _ => 0
-  sync_to_section := fun i =>
-    (probabilityPresheaf Cortex).map (homOfLE (le_top : patch i ≤ ⊤)).op (globalSect 0)
-  phase_invariant_measure := globalSect
-  phase_invariant_periodic := fun _ _ h => by
-    unfold globalSect
-    rw [phaseMeasure_periodic h]
-  sync_to_section_eq := fun _ => rfl
+    invariant measure.
+
+    Built through `LocalSectionSynchronization.ofInvariantMeasure`, the
+    constructor that packages the class's *old* shape — a `2π`-periodic family
+    of global measures, with the local sections defined to be its restrictions.
+    That is what makes the overlap agreement hold by functoriality here rather
+    than by a computation, and it is also why this witness cannot exhibit the
+    emergence reading of Derivation 5: the global object is an input. §14 is the
+    witness that does not have that defect. -/
+noncomputable instance cortexSync : LocalSectionSynchronization Cortex :=
+  LocalSectionSynchronization.ofInvariantMeasure Bool patch patch_cover (fun _ => 0) globalSect
+    (fun _ _ h => by unfold globalSect; rw [phaseMeasure_periodic h])
 
 /-- Uniform unit coupling between the two patches. The configuration `phase = 0`
     is a global minimum of the Kuramoto potential by
@@ -1896,6 +1913,536 @@ noncomputable instance realMetric :
   symm := realForm_symm
   nondeg := realForm_nondeg
 
+
+/-! ## 13. A cover with a non-constant phase, and why it cannot be more than that
+
+  Open item O5 asked for a `ThermodynamicCover` "at a non-constant minimum of
+  the Kuramoto potential", because §4's witness locks every patch at phase `0`,
+  which is what makes `thermodynamic_equilibrium` discharge and leaves the
+  gluing with nothing to do.
+
+  The answer has two halves, and the negative one is the more informative.
+
+  * **The class shape forbids a genuinely non-constant phase.**
+    `thermodynamic_equilibrium` demands a global minimum of the reduced
+    Kuramoto potential, and `potential_min_iff_phase_locked` says the minimisers
+    of that functional are *exactly* the phase-locked configurations. So
+    `ThermodynamicCover.phase_locked` holds of every instance: the phases may
+    differ, but only by multiples of `2π`, which the periodicity hypothesis of
+    `LocalSectionSynchronization.ofInvariantMeasure` then erases at the level of
+    measures. `cortexCoverTwisted_glued` draws the conclusion — the section
+    Derivation 5 glues here is the one this witness was built from. This is the
+    same kind of result as `contracting_implies_const` in §10: a recorded proof
+    that the witness below is as strong as the current class permits, not a
+    witness that could be improved by trying harder.
+
+    That last step is a property of *this* witness, not of the theorem. It is
+    built through `ofInvariantMeasure`, the constructor packaging the class's
+    old shape, in which a global measure was an input. §14 drops the constructor
+    and the conclusion with it.
+  * **Within that limit, this is the strongest witness available**, and it is
+    strictly stronger than §4's on three counts. The phase field is *not* the
+    constant function (`twistPhase_not_const`: the second patch is one full turn
+    ahead). The invariant measure spreads mass over all three sites with three
+    *different* densities (`richDensity_zero_not_uniform`), instead of §4's
+    single point mass at the shared site, so the two patches carry genuinely
+    different local data — mass `2` at `left` for one, mass `3` at `right` for
+    the other — and the overlap agreement on `{mid}` is an equation between two
+    separately computed numbers rather than a syntactic identity. And the
+    densities are read off the sections themselves, through `densityOn`, rather
+    than assumed.
+
+  What is still assumed, exactly as in §4: that the configuration is at the
+  potential minimum. Nothing here runs a dynamics.
+
+  What *was* also assumed here, and is not any more, is the existence of the
+  global measure — see §14 and open item O19.
+-/
+
+/-- The invariant density carried by phase `t`: mass on every site, and a
+different amount on each. The `cos` makes the family genuinely depend on `t`
+(`richDensity_not_const`) while staying `2π`-periodic, which is what
+`ofInvariantMeasure` demands. -/
+noncomputable def richDensity (t : ℝ) : Site → ℝ≥0
+  | Site.left  => Real.toNNReal (1 + Real.cos t)
+  | Site.mid   => 1
+  | Site.right => Real.toNNReal (2 + Real.cos t)
+
+/-- The global section carrying that density. Specified by its densities through
+§10's `sectionOfMass`, not manipulated through the sheafification — which is
+what made §4's witness a single scaled Dirac. -/
+noncomputable def richSection (t : ℝ) : GlobalSection (X := Cortex) :=
+  sectionOfMass (richDensity t)
+
+@[simp] theorem density_richSection (t : ℝ) : density (richSection t) = richDensity t :=
+  Phi_sectionOfMass _
+
+/-- 2π-periodicity, which is what `ofInvariantMeasure` demands. -/
+theorem richDensity_periodic {x y : ℝ} (h : Real.cos (x - y) = 1) :
+    richDensity x = richDensity y := by
+  obtain ⟨n, hn⟩ := (Real.cos_eq_one_iff _).mp h
+  have hx : x = y + (n : ℝ) * (2 * Real.pi) := by linarith [hn]
+  have hcos : Real.cos x = Real.cos y := by rw [hx, Real.cos_add_int_mul_two_pi]
+  funext s
+  cases s <;> simp [richDensity, hcos]
+
+/-- Non-degeneracy: the invariant measure really varies with the phase. -/
+theorem richDensity_not_const : richDensity 0 ≠ richDensity Real.pi := by
+  intro h
+  have hl := congrFun h Site.left
+  simp [richDensity] at hl
+
+theorem richDensity_zero_left : richDensity 0 Site.left = 2 := by
+  simp [richDensity]
+  norm_num
+
+theorem richDensity_zero_mid : richDensity 0 Site.mid = 1 := rfl
+
+theorem richDensity_zero_right : richDensity 0 Site.right = 3 := by
+  simp [richDensity]
+  norm_num
+
+/-- Non-degeneracy across the substrate: the glued state is not a multiple of
+counting measure, so the two patches see different amounts of mass. -/
+theorem richDensity_zero_not_uniform :
+    richDensity 0 Site.left ≠ richDensity 0 Site.mid ∧
+    richDensity 0 Site.mid ≠ richDensity 0 Site.right := by
+  rw [richDensity_zero_left, richDensity_zero_mid, richDensity_zero_right]
+  constructor <;> norm_num
+
+/-! ### The phase field -/
+
+/-- A phase field that is *not* the constant function: the second patch sits one
+full turn ahead of the first. By `ThermodynamicCover.phase_locked` this is as far
+from constant as any instance can get. -/
+noncomputable def twistPhase : Bool → ℝ
+  | false => 0
+  | true  => 2 * Real.pi
+
+theorem twistPhase_not_const : twistPhase false ≠ twistPhase true := by
+  show (0 : ℝ) ≠ 2 * Real.pi
+  have := Real.pi_pos
+  intro h
+  linarith
+
+theorem twistPhase_locked : is_phase_locked twistPhase := by
+  intro i j
+  cases i <;> cases j <;> simp [twistPhase, Real.cos_two_pi]
+
+/-! ### The witness
+
+Declared as `def`s rather than `instance`s: §4's `cortexSync` and `cortexCover`
+are the instances for `Cortex`, and a second pair would make instance search
+silently pick between two different covers of the same substrate. They are
+`@[instance_reducible]` so that `ThermodynamicCover.mk` can see through
+`cortexSyncTwisted` to `I = Bool`, and are applied explicitly below. -/
+
+@[instance_reducible]
+noncomputable def cortexSyncTwisted : LocalSectionSynchronization Cortex :=
+  LocalSectionSynchronization.ofInvariantMeasure Bool patch patch_cover twistPhase richSection
+    (fun _ _ h => by unfold richSection; rw [richDensity_periodic h])
+
+/-- The same uniform unit coupling as §4. `thermodynamic_equilibrium` is
+discharged by `phase_locked_minimizes_potential'` — the generalisation of §4's
+appeal to `phase_locked_minimizes_potential`, which only covered `theta ≡ 0`. -/
+@[instance_reducible]
+noncomputable def cortexCoverTwisted : ThermodynamicCover Cortex where
+  toLocalSectionSynchronization := cortexSyncTwisted
+  I_fintype := inferInstanceAs (Fintype Bool)
+  I_decidable := inferInstanceAs (DecidableEq Bool)
+  A := fun _ _ => 1
+  A_symm := fun _ _ => rfl
+  A_pos := fun _ _ => one_pos
+  thermodynamic_equilibrium := fun theta =>
+    phase_locked_minimizes_potential' (V := Bool)
+      ⟨fun _ => 0, fun _ _ => 1, fun _ _ => rfl⟩ (fun _ _ => one_pos)
+      twistPhase twistPhase_locked theta
+
+/-! ### Reading the local data
+
+§4 could say nothing about what its patch-local sections contained; §10's
+`stalkMass` makes that readable at any open, not just at `⊤`. -/
+
+/-- The density of a section over an arbitrary open, read at a site it contains.
+§10's `density` is the case `U = ⊤`. -/
+noncomputable def densityOn {U : Opens ↥Cortex} (s : (probabilityPresheaf Cortex).obj (op U))
+    (x : Site) (hx : x ∈ U) : ℝ≥0 := stalkMass x (s.1 ⟨x, hx⟩)
+
+/-- Restriction moves no mass: the density of a restricted global section at a
+site of the smaller open is the global density there. True by `rfl` —
+restriction in the sheafification is restriction of the germ family. -/
+theorem densityOn_restrict {U : Opens ↥Cortex} (hU : U ≤ ⊤)
+    (s : GlobalSection (X := Cortex)) (x : Site) (hx : x ∈ U) :
+    densityOn ((probabilityPresheaf Cortex).map (homOfLE hU).op s) x hx = density s x := rfl
+
+theorem left_mem_patch_false : Site.left ∈ patch false := by
+  show Site.left ≠ Site.right
+  decide
+
+theorem mid_mem_patch_false : Site.mid ∈ patch false := by
+  show Site.mid ≠ Site.right
+  decide
+
+theorem mid_mem_patch_true : Site.mid ∈ patch true := by
+  show Site.mid ≠ Site.left
+  decide
+
+theorem right_mem_patch_true : Site.right ∈ patch true := by
+  show Site.right ≠ Site.left
+  decide
+
+/-- The first patch carries mass `2` at `left`, a site the second patch does not
+contain. -/
+theorem twisted_density_left :
+    densityOn (cortexCoverTwisted.sync_to_section false) Site.left left_mem_patch_false = 2 := by
+  have h : densityOn (cortexCoverTwisted.sync_to_section false) Site.left left_mem_patch_false
+      = density (richSection 0) Site.left := rfl
+  rw [h, density_richSection]
+  exact richDensity_zero_left
+
+/-- The second patch carries mass `3` at `right`, a site the first patch does not
+contain — and it does so at phase `2π`, where `richDensity_periodic` is what
+identifies the density with the phase-`0` one. -/
+theorem twisted_density_right :
+    densityOn (cortexCoverTwisted.sync_to_section true) Site.right right_mem_patch_true = 3 := by
+  have h : densityOn (cortexCoverTwisted.sync_to_section true) Site.right right_mem_patch_true
+      = density (richSection (2 * Real.pi)) Site.right := rfl
+  rw [h, density_richSection,
+    richDensity_periodic (x := 2 * Real.pi) (y := 0) (by simp)]
+  exact richDensity_zero_right
+
+theorem twisted_overlap_mass_false :
+    densityOn (cortexCoverTwisted.sync_to_section false) Site.mid mid_mem_patch_false = 1 := by
+  have h : densityOn (cortexCoverTwisted.sync_to_section false) Site.mid mid_mem_patch_false
+      = density (richSection 0) Site.mid := rfl
+  rw [h, density_richSection]
+  exact richDensity_zero_mid
+
+theorem twisted_overlap_mass_true :
+    densityOn (cortexCoverTwisted.sync_to_section true) Site.mid mid_mem_patch_true = 1 := by
+  have h : densityOn (cortexCoverTwisted.sync_to_section true) Site.mid mid_mem_patch_true
+      = density (richSection (2 * Real.pi)) Site.mid := rfl
+  rw [h, density_richSection,
+    richDensity_periodic (x := 2 * Real.pi) (y := 0) (by simp)]
+  exact richDensity_zero_mid
+
+/-- The overlap agreement `overlap_agreement` proves abstractly, computed: both
+patches put mass `1` on the shared site `mid`, from separately computed
+densities. -/
+theorem twisted_overlap_agrees :
+    densityOn (cortexCoverTwisted.sync_to_section false) Site.mid mid_mem_patch_false
+      = densityOn (cortexCoverTwisted.sync_to_section true) Site.mid mid_mem_patch_true :=
+  twisted_overlap_mass_false.trans twisted_overlap_mass_true.symm
+
+/-! ### The Phase 5 conclusions on this witness -/
+
+/-- The non-constant phase field is still phase-locked, and this is *forced* by
+`thermodynamic_equilibrium`, not chosen: `ThermodynamicCover.phase_locked`
+applies to every instance. Together with `twistPhase_not_const` this is exactly
+the scope of the answer to O5 — non-constant as a function, locked as a physical
+state. -/
+theorem cortexCoverTwisted_phase_locked : is_phase_locked cortexCoverTwisted.phase :=
+  cortexCoverTwisted.phase_locked
+
+/-- Derivation 5 on the twisted cover: the two patch-local sections, which now
+carry different mass profiles, glue to a unique global section. -/
+example : ∃! s : GlobalSection (X := Cortex),
+    ∀ i : Bool, (probabilityPresheaf Cortex).map
+      (homOfLE (le_top : cortexCoverTwisted.cover i ≤ ⊤)).op s
+      = cortexCoverTwisted.sync_to_section i :=
+  @global_section_from_thermodynamics Cortex _ _ _ cortexCoverTwisted
+
+/-- …and that unique section is `richSection 0` — the measure the instance was
+*built from*, since `cortexSyncTwisted` goes through
+`LocalSectionSynchronization.ofInvariantMeasure`. The gluing determined it; it
+did not produce it.
+
+That is a property of this witness, not of Derivation 5: the theorem is now
+stated with no global object among its hypotheses (open item O19), and §14
+exhibits a cover for which the glued section is none of the data the instance
+carries. -/
+theorem cortexCoverTwisted_glued (s : GlobalSection (X := Cortex))
+    (hs : ∀ i : Bool, (probabilityPresheaf Cortex).map
+      (homOfLE (le_top : patch i ≤ ⊤)).op s = cortexCoverTwisted.sync_to_section i) :
+    s = richSection 0 := by
+  have hR : ∀ i : Bool, (probabilityPresheaf Cortex).map
+      (homOfLE (le_top : cortexCoverTwisted.cover i ≤ ⊤)).op (richSection 0)
+      = cortexCoverTwisted.sync_to_section i := by
+    intro i
+    show (probabilityPresheaf Cortex).map (homOfLE (le_top : patch i ≤ ⊤)).op (richSection 0)
+      = (probabilityPresheaf Cortex).map (homOfLE (le_top : patch i ≤ ⊤)).op
+          (richSection (twistPhase i))
+    unfold richSection
+    rw [richDensity_periodic (x := (0 : ℝ)) (y := twistPhase i)
+      (by cases i <;> simp [twistPhase, Real.cos_two_pi])]
+  rw [cortexCoverTwisted.invariantMeasure_unique s hs,
+    cortexCoverTwisted.invariantMeasure_unique _ hR]
+
+/-! ## 14. Emergence: a cover whose global state is not among its data
+
+  §4 and §13 both build their local sections by restricting one global measure
+  the instance carries, because that is what the old shape of
+  `LocalSectionSynchronization` required. Open item **O19** was the observation
+  that this made `global_section_from_thermodynamics` a uniqueness theorem: the
+  global object existed before the sheaf condition was consulted, and
+  `cortexCoverTwisted_glued` computes that the gluing returns it unchanged.
+
+  The class no longer has that shape. Its only condition on the local data is
+  `section_agrees_of_phase_eq` — synchronised patches agree where they overlap —
+  and the common measure is produced by `probability_glue_unique`. This section
+  is the witness that the difference is real.
+
+  **The construction.** Two patches, two *different* mass profiles: `leftW`
+  reports `(2, 1, 7)` across the three sites, `rightW` reports `(5, 1, 3)`. Each
+  patch's local section is built from its own profile, and the two profiles are
+  not equal (`patchW_ne`). They agree only where it is required of them — the
+  shared site `mid`, where both carry mass `1` (`glued_overlap_mass_false`,
+  `glued_overlap_mass_true`), which is what discharges the class field, by
+  computation rather than by functoriality.
+
+  **What the gluing produces.** The unique global section is `sectionOfMass
+  gluedW` with profile `(2, 1, 3)`: the first patch's reading of `left`, the
+  second's of `right`. It is **neither** of the profiles the instance was built
+  from (`gluedW_ne_leftW`, `gluedW_ne_rightW`), and neither of them restricts
+  correctly to both patches (`leftW_glues_nothing`, `rightW_glues_nothing`). So
+  no measure appearing in the construction is the answer, and the section the
+  theorem returns carries information no single patch had. That is the emergence
+  reading of Derivation 5, on a witness.
+
+  **What is still assumed**, unchanged from §4 and §13: that the configuration is
+  at the potential minimum (**O20**), and that the patches agree on their
+  overlap. The second is now the *only* thing the class asks of the local data,
+  and here it is discharged by computing two numbers rather than by declaring the
+  sections to be restrictions of something.
+
+  **One honest caveat.** The local sections are still *defined* by restricting a
+  measure on all of `Cortex`, because §10's germ–measure dictionary is built at
+  `⊤`. That is a limitation of the dictionary, not of the class: the instance
+  stores only the restrictions, no global object is shared between the two
+  patches, and the profiles differ off their own patches (`leftW` puts mass `7`
+  at `right`, which the first patch cannot see) precisely so that neither can be
+  mistaken for the global state.
+-/
+
+section GluedCover
+
+open CategoryTheory.Limits
+
+/-- Two global sections restrict to the same section over `U` as soon as their
+densities agree on `U`. The germ family of a restriction is the germ family of
+the section reindexed, and `stalkMass_injective` recovers each germ from its
+mass. -/
+theorem restrict_eq_of_density_eqOn {U : Opens ↥Cortex} {s t : GlobalSection (X := Cortex)}
+    (h : ∀ x ∈ U, density s x = density t x) :
+    (probabilityPresheaf Cortex).map (homOfLE (le_top : U ≤ ⊤)).op s
+      = (probabilityPresheaf Cortex).map (homOfLE (le_top : U ≤ ⊤)).op t := by
+  apply Subtype.ext
+  funext x
+  exact stalkMass_injective x.1 (h x.1 x.2)
+
+/-- Restricting to `U` and then to `V ≤ U` is restricting to `V`, on the nose. -/
+theorem restrict_restrict {U V : Opens ↥Cortex} (hUV : V ≤ U) (g : GlobalSection (X := Cortex)) :
+    (probabilityPresheaf Cortex).map (homOfLE hUV).op
+        ((probabilityPresheaf Cortex).map (homOfLE (le_top : U ≤ ⊤)).op g)
+      = (probabilityPresheaf Cortex).map (homOfLE (le_top : V ≤ ⊤)).op g := rfl
+
+/-! ### Two patches with independent local data -/
+
+/-- The mass profile the first patch reports. Its value at `right` is invisible
+to that patch, and is chosen different from `rightW`'s so that the profile
+cannot be mistaken for the glued state. -/
+noncomputable def leftW : Site → ℝ≥0
+  | Site.left  => 2
+  | Site.mid   => 1
+  | Site.right => 7
+
+/-- The mass profile the second patch reports. It agrees with `leftW` at the
+shared site `mid` and nowhere else. -/
+noncomputable def rightW : Site → ℝ≥0
+  | Site.left  => 5
+  | Site.mid   => 1
+  | Site.right => 3
+
+noncomputable def patchW : Bool → Site → ℝ≥0
+  | false => leftW
+  | true  => rightW
+
+/-- Non-degeneracy: the two patches carry genuinely different data. -/
+theorem patchW_ne : patchW false ≠ patchW true := by
+  intro h
+  have := congrFun h Site.left
+  norm_num [patchW, leftW, rightW] at this
+
+/-- The agreement the class field asks for, as a computation: the profiles
+coincide on every overlap, which for the two distinct patches is the single
+site `mid`. -/
+theorem patchW_agree (i j : Bool) (x : Site) (hx : x ∈ (patch i ⊓ patch j : Opens ↥Cortex)) :
+    patchW i x = patchW j x := by
+  obtain ⟨h1, h2⟩ := hx
+  cases i <;> cases j <;> cases x <;> simp_all [patch, patchW, leftW, rightW]
+
+/-- The cover. Nothing global is stored: each patch's section is built from that
+patch's own profile, and `section_agrees_of_phase_eq` is discharged by
+`patchW_agree`. -/
+@[instance_reducible]
+noncomputable def cortexSyncGlued : LocalSectionSynchronization Cortex where
+  I := Bool
+  cover := patch
+  is_cover := patch_cover
+  phase := fun _ => 0
+  sync_to_section := fun i =>
+    (probabilityPresheaf Cortex).map (homOfLE (le_top : patch i ≤ ⊤)).op
+      (sectionOfMass (patchW i))
+  section_agrees_of_phase_eq := by
+    intro i j _
+    rw [restrict_restrict, restrict_restrict]
+    refine restrict_eq_of_density_eqOn (fun x hx => ?_)
+    rw [Phi_sectionOfMass, Phi_sectionOfMass]
+    exact patchW_agree i j x hx
+
+/-- The same uniform unit coupling as §4, at the same phase-`0` configuration. -/
+@[instance_reducible]
+noncomputable def cortexCoverGlued : ThermodynamicCover Cortex where
+  toLocalSectionSynchronization := cortexSyncGlued
+  I_fintype := inferInstanceAs (Fintype Bool)
+  I_decidable := inferInstanceAs (DecidableEq Bool)
+  A := fun _ _ => 1
+  A_symm := fun _ _ => rfl
+  A_pos := fun _ _ => one_pos
+  thermodynamic_equilibrium := fun theta =>
+    phase_locked_minimizes_potential (V := Bool)
+      ⟨fun _ => 0, fun _ _ => 1, fun _ _ => rfl⟩ (fun _ _ => one_pos) theta
+
+/-! ### Reading the local data -/
+
+theorem glued_density_left :
+    densityOn (cortexCoverGlued.sync_to_section false) Site.left left_mem_patch_false = 2 := by
+  show densityOn ((probabilityPresheaf Cortex).map (homOfLE (le_top : patch false ≤ ⊤)).op
+    (sectionOfMass (patchW false))) Site.left left_mem_patch_false = 2
+  rw [densityOn_restrict, Phi_sectionOfMass]
+  rfl
+
+theorem glued_density_right :
+    densityOn (cortexCoverGlued.sync_to_section true) Site.right right_mem_patch_true = 3 := by
+  show densityOn ((probabilityPresheaf Cortex).map (homOfLE (le_top : patch true ≤ ⊤)).op
+    (sectionOfMass (patchW true))) Site.right right_mem_patch_true = 3
+  rw [densityOn_restrict, Phi_sectionOfMass]
+  rfl
+
+theorem glued_overlap_mass_false :
+    densityOn (cortexCoverGlued.sync_to_section false) Site.mid mid_mem_patch_false = 1 := by
+  show densityOn ((probabilityPresheaf Cortex).map (homOfLE (le_top : patch false ≤ ⊤)).op
+    (sectionOfMass (patchW false))) Site.mid mid_mem_patch_false = 1
+  rw [densityOn_restrict, Phi_sectionOfMass]
+  rfl
+
+theorem glued_overlap_mass_true :
+    densityOn (cortexCoverGlued.sync_to_section true) Site.mid mid_mem_patch_true = 1 := by
+  show densityOn ((probabilityPresheaf Cortex).map (homOfLE (le_top : patch true ≤ ⊤)).op
+    (sectionOfMass (patchW true))) Site.mid mid_mem_patch_true = 1
+  rw [densityOn_restrict, Phi_sectionOfMass]
+  rfl
+
+/-- The overlap agreement, computed: both patches put mass `1` on the shared
+site, from two separately defined profiles. This is what discharges
+`section_agrees_of_phase_eq` for this instance — §4 and §13 got it from
+functoriality instead, because their sections were restrictions of one measure
+by construction. -/
+theorem glued_overlap_agrees :
+    densityOn (cortexCoverGlued.sync_to_section false) Site.mid mid_mem_patch_false
+      = densityOn (cortexCoverGlued.sync_to_section true) Site.mid mid_mem_patch_true :=
+  glued_overlap_mass_false.trans glued_overlap_mass_true.symm
+
+/-! ### What the gluing produces -/
+
+/-- The density the two patches force on any section that restricts to both:
+each patch dictates the sites it contains. -/
+noncomputable def gluedW : Site → ℝ≥0
+  | Site.left  => 2
+  | Site.mid   => 1
+  | Site.right => 3
+
+/-- A section restricting to the cover's local data has each patch's density on
+that patch. -/
+theorem glued_density_of (s : GlobalSection (X := Cortex))
+    (hs : ∀ i : Bool, (probabilityPresheaf Cortex).map
+      (homOfLE (le_top : cortexCoverGlued.cover i ≤ ⊤)).op s = cortexCoverGlued.sync_to_section i)
+    (i : Bool) (x : Site) (hx : x ∈ patch i) : density s x = patchW i x := by
+  have hL : densityOn ((probabilityPresheaf Cortex).map
+      (homOfLE (le_top : cortexCoverGlued.cover i ≤ ⊤)).op s) x hx = density s x := rfl
+  rw [← hL, hs i]
+  show densityOn ((probabilityPresheaf Cortex).map (homOfLE (le_top : patch i ≤ ⊤)).op
+    (sectionOfMass (patchW i))) x hx = _
+  rw [densityOn_restrict, Phi_sectionOfMass]
+
+/-- **The glued section, computed.** Any section restricting to both patches has
+profile `(2, 1, 3)`. -/
+theorem glued_eq_sectionOfMass (s : GlobalSection (X := Cortex))
+    (hs : ∀ i : Bool, (probabilityPresheaf Cortex).map
+      (homOfLE (le_top : cortexCoverGlued.cover i ≤ ⊤)).op s = cortexCoverGlued.sync_to_section i) :
+    s = sectionOfMass gluedW := by
+  apply Phi_injective
+  rw [Phi_sectionOfMass]
+  funext x
+  cases x
+  · exact glued_density_of s hs false Site.left left_mem_patch_false
+  · exact glued_density_of s hs false Site.mid mid_mem_patch_false
+  · exact glued_density_of s hs true Site.right right_mem_patch_true
+
+/-- Derivation 5 on this cover: the two patch-local sections glue to a unique
+global section. -/
+example : ∃! s : GlobalSection (X := Cortex),
+    ∀ i : Bool, (probabilityPresheaf Cortex).map
+      (homOfLE (le_top : cortexCoverGlued.cover i ≤ ⊤)).op s
+      = cortexCoverGlued.sync_to_section i :=
+  @global_section_from_thermodynamics Cortex _ _ _ cortexCoverGlued
+
+/-- The invariant measure the sheaf condition produces for this cover. -/
+theorem cortexCoverGlued_invariantMeasure :
+    cortexCoverGlued.invariantMeasure = sectionOfMass gluedW :=
+  glued_eq_sectionOfMass _ (fun i => (cortexCoverGlued.sync_to_section_eq i).symm)
+
+/-! ### …and it is not any of the data -/
+
+/-- The glued state is not the first patch's profile. -/
+theorem gluedW_ne_leftW : sectionOfMass gluedW ≠ sectionOfMass leftW := by
+  intro h
+  have := congrArg (fun u => density u Site.right) h
+  rw [Phi_sectionOfMass, Phi_sectionOfMass] at this
+  norm_num [gluedW, leftW] at this
+
+/-- Nor the second's. -/
+theorem gluedW_ne_rightW : sectionOfMass gluedW ≠ sectionOfMass rightW := by
+  intro h
+  have := congrArg (fun u => density u Site.left) h
+  rw [Phi_sectionOfMass, Phi_sectionOfMass] at this
+  norm_num [gluedW, rightW] at this
+
+/-- Stronger than the inequality: the first patch's profile does not restrict to
+the cover's local data at all — it fails on the *other* patch. So it is not a
+competing solution that uniqueness has to rule out; it is not a solution. -/
+theorem leftW_glues_nothing :
+    ¬ (∀ i : Bool, (probabilityPresheaf Cortex).map
+        (homOfLE (le_top : cortexCoverGlued.cover i ≤ ⊤)).op (sectionOfMass leftW)
+      = cortexCoverGlued.sync_to_section i) := by
+  intro h
+  have := glued_density_of _ h true Site.right right_mem_patch_true
+  rw [Phi_sectionOfMass] at this
+  norm_num [leftW, patchW, rightW] at this
+
+/-- The same for the second patch's profile. Between them, this and
+`leftW_glues_nothing` say that the global state Derivation 5 returns was not
+supplied to it. -/
+theorem rightW_glues_nothing :
+    ¬ (∀ i : Bool, (probabilityPresheaf Cortex).map
+        (homOfLE (le_top : cortexCoverGlued.cover i ≤ ⊤)).op (sectionOfMass rightW)
+      = cortexCoverGlued.sync_to_section i) := by
+  intro h
+  have := glued_density_of _ h false Site.left left_mem_patch_false
+  rw [Phi_sectionOfMass] at this
+  norm_num [leftW, patchW, rightW] at this
+
+end GluedCover
 
 end Examples
 end PhysicsOfConsciousness

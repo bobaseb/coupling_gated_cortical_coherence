@@ -1357,8 +1357,8 @@ list is to keep it that way.
 | ~~**O1**~~ | **DONE 2026-08-29** — see the final section of this file. ~~**`selfConsistency` names a fixed-point equation but nothing in Lean says it is about an order parameter.**~~ The reading "`r` is the mean of `cos θ` under the density it induces" lives entirely in the doc-string; `selfConsistency K D r` is literally `besselRatio (K * r / D)` and could be any function of `r` for all the Lean knows | `Phase8_SelfConsistency` §4 | Define the von Mises *density* `e^{a cos θ}/Z(a)`, prove it is a probability density on `[-π, π]`, define the continuum order parameter `∫ e^{iθ} ρ(θ) dθ` mirroring `order_parameter_complex`, and prove it equals `besselRatio a` — real part `R(a)`, imaginary part `0` by oddness. Then a fixed point of `selfConsistency` is exactly a density reproducing its own order parameter. This is the cheapest item on the list and it is the one that makes the file's central definition non-tautological |
 | **O2** | **C2 — `ReflexiveBoundary.auto_resonance` is an arbitrary function of the global section.** Nothing constrains the avatar's state to track the field's, and no theorem in the development mentions the field | `Phase6_ReflexiveTopology:54` | `Examples.lean` §10 already shows the presheaf restriction is a legal choice, so the constraint is known satisfiable. Either add a predicate `IsRestrictionResonance` and a theorem that uses it, or state as a theorem what goes wrong without it. Do **not** strengthen the class to a field without checking rule §3 of `PhysicsOfConsciousness/AGENTS.md` |
 | ~~**O3**~~ | **DONE 2026-08-29.** ~~**B5 — existence of a global energy minimizer is a hypothesis, never a witness.**~~ `spontaneous_symmetry_breaking` takes `h_min : ∀ phi', TotalEnergy phi ≤ TotalEnergy phi'` as given; no compactness or direct-method argument exists anywhere in the development | `Phase1_Primitives` | Exhibit one system where `h_min` is discharged rather than assumed — the `unitAction` witness of `Examples.lean` §3 is on a one-point spacetime, where the minimizer is whatever minimizes `V` pointwise, so this may be a short addition. That would make the theorem non-vacuous in the same sense the other witnesses do. A general direct-method argument is Group 2 |
-| **O4** | **A3 — the `LocalSectionSynchronization` witness is weak.** `cortexSync` sets `phase ≡ 0` and discharges `sync_to_section_eq` by `rfl`; the local sections *are* restrictions by construction | `Phase4_MacroscopicScaling:56,61`, `Examples` §4 | A witness with a non-constant phase field, or a proof that no such witness exists under the current class shape (which would be the more useful outcome, as `contracting_implies_const` was for D1) |
-| **O5** | **NEXT UP** *(ranked first now that O9 is done — see the ranking update in the last section of this file)* **A4 — the `ThermodynamicCover` witness has constant phase**, which is what makes `thermodynamic_equilibrium` dischargeable at all. This is where Derivation 5's physics lives | `Phase5_GlobalSection:43`, `Examples` §4 | Same shape as O4: a cover at a non-trivial minimum of the Kuramoto potential. `Phase4_RotatingFrame` now characterizes those minima in both directions, so the ingredients exist. **Cheaper than it was:** §10's dictionary lets a global section on `Cortex` be specified by its densities (`sectionOfMass`) instead of being manipulated through the sheafification, which is what forced §4's witness to be constant |
+| ~~**O4**~~ | **SUBSUMED 2026-08-30 by O5** — `ThermodynamicCover.phase_locked` answers the same question one class up, and what remains of it is recorded as **O19** in the final section. ~~**A3 — the `LocalSectionSynchronization` witness is weak.**~~ `cortexSync` sets `phase ≡ 0` and discharges `sync_to_section_eq` by `rfl`; the local sections *are* restrictions by construction | `Phase4_MacroscopicScaling:56,61`, `Examples` §4 | ~~A witness with a non-constant phase field, or a proof that no such witness exists under the current class shape (which would be the more useful outcome, as `contracting_implies_const` was for D1)~~ — the second outcome is what happened |
+| ~~**O5**~~ | **DONE 2026-08-30 — see "A cover with a non-constant phase" at the end of this file.** The answer has a negative half: `ThermodynamicCover.phase_locked` proves the class shape *forbids* a phase field that is non-constant modulo `2π`, and `ThermodynamicCover.glued_section_eq` proves the glued section is the invariant measure the cover already carried. ~~**A4 — the `ThermodynamicCover` witness has constant phase**, which is what makes `thermodynamic_equilibrium` dischargeable at all. This is where Derivation 5's physics lives~~ | `Phase5_GlobalSection:43`, `Examples` §4, §13 | ~~Same shape as O4: a cover at a non-trivial minimum of the Kuramoto potential.~~ Done both ways: the witness in §13 and the impossibility proof in `Phase5_GlobalSection` |
 | ~~**O6**~~ | **DONE 2026-08-29.** ~~**D4 — four classes still have no instance:**~~ `PlasticNeuralField`, `StochasticMatrix`, `PseudoRiemannianManifold`, `ContinuousSymmetryGroup`. Nothing headline rests on them, but rule §2 of the Lean `AGENTS.md` applies to them as much as to the others | `Phase8_ContinuousField:155`, `Phase3_CombinatorialThermodynamics:192`, `Phase1_Primitives:47,123` | Each is a short witness. `StochasticMatrix` on `Bool` and `PlasticNeuralField` on the `Duo` substrate of `Examples` §5 are both nearly free. Alternatively delete what is unused, as `VacuumManifold` was |
 | **O7** | **C3 — `DiscreteThermodynamics.scalar_magnitude` is arbitrary subject only to non-negativity.** The map from a stress-energy tensor to a scalar is modelling, not derivation | `Phase2_SimplicialBridge:42` | Probably *leave*, but say so in the source: if it is a modelling choice, mark it `[MODELLING]` the way `Phase4_MacroscopicScaling`'s fields are, so it is not mistaken for an oversight. Listed here so the decision gets recorded either way |
 
@@ -1366,11 +1366,14 @@ list is to keep it that way.
 
 | # | Item | What it takes |
 |---|---|---|
-| **O8** | *(ranked second now that O9 is done — see the last section of this file)* **The coherent branch, beyond existence.** `supercritical_fixed_point_exists` gives *some* `r ∈ (0,1]`; uniqueness, dynamical selection and continuity in `K` are all unproved, so a discontinuous jump at threshold is not excluded and the bifurcation is not shown supercritical in the technical sense. `K = 2D` exactly is covered by neither theorem | Monotonicity of `R`, or an implicit-function-theorem argument. `R` is nowhere shown increasing. Uniqueness plausibly follows from strict concavity of `R` in `a`, which would be a third bound on the von Mises moments in the style of §5 |
+| **O8** | **PARTLY DONE 2026-08-30 — see "The coherent branch" at the end of this file.** Two of the three gaps are closed: `K = 2D` is now covered (`fixed_point_eq_zero_of_le_critical`, and it falls on the incoherent side), and a discontinuous jump at threshold is excluded (`coherent_branch_continuous_at_threshold`) *without* needing uniqueness. ~~**The coherent branch, beyond existence.** `supercritical_fixed_point_exists` gives *some* `r ∈ (0,1]`; uniqueness, dynamical selection and continuity in `K` are all unproved~~ **Uniqueness remains open**, and `coherent_iff_sRatio_eq` now says exactly what it is: the injectivity of `E(a) = 𝔼_a[sin²θ]` on `(0,∞)` | ~~Monotonicity of `R`, or an implicit-function-theorem argument. Uniqueness plausibly follows from strict concavity of `R` in `a`~~ — the concavity guess was one step too indirect. `E' (a) = -Cov_a(cos²θ, cos θ)`, so the target is `Cov_a(cos²θ, cos θ) > 0` for `a > 0`. Needs differentiation under the integral sign (same obstacle as O10), and the covariance is **not** sign-definite pointwise: the symmetrised form `½𝔼[(X-X')²(X+X')]` with `X = cos θ` has an integrand that changes sign, so the tilt `e^{a(X+X')}` has to do the work. `E'(0) = 0`, so nothing first-order at the origin reaches it |
 | ~~**O9**~~ | **DONE 2026-08-30 — see "The Self's metric" at the end of this file.** ~~**B1 — the Self's metric is 0/1, and `contracting_implies_const` proves that forces the fixed point to be constant.**~~ The metric is now the uniform distance between the densities of the measures the sections glue to, `massEquiv` proves global sections *are* those measures, and `relax_dist` gives a non-constant map contracting by exactly `1/2` with a unique fixed point. Two premises of the recorded plan were wrong and are corrected there: `isIso_toSheafify` is for the *Grothendieck* sheafification, not `TopCat.Presheaf.sheafify`, which has no adjunction in Mathlib; and `μ ↦ ½μ + ½μ₀` is **not** a Lévy–Prokhorov contraction on a discrete substrate | 
 | **O10** | **B3 — the σ/gradient-flow link holds for finite substrates only** (`hvol : volume = Measure.count`) | Differentiation under the integral sign with respect to the kernel. Mathlib has `hasDerivAt_integral_of_dominated_loc_of_deriv_le`; the work is in the domination hypotheses |
 | **O11** | **B2 — `h_mean` restricts the comparison class** to fields sharing the phase-locked state's mean drift, so minimality is Jensen alone | Model how `Omega_avg` varies with the competitor field. Stated as the honest scope on the theorem; removing it changes what is claimed |
 | **O12** | **D2 — there is still no Noether theorem.** The class is now inhabited (`Examples.lean` §11, a `ℤ₂` action on a double well, with symmetry breaking exhibited), but no conserved quantity is constructed and no theorem consumes a symmetry group | **Estimate corrected 2026-08-29 — see "Noether: a feasibility probe" at the end of this file.** "A project in itself" is right for the *field-theoretic* theorem and wrong for point mechanics, which was prototyped end to end in one session (~200 lines, zero `sorry`). The structural obstacle is not difficulty: `SymmetryInvariantAction` has **no dynamics**, so no conserved quantity can be attached to it at all |
+| ~~**O19**~~ | **DONE 2026-08-30 — see "The gluing produces its object" at the end of this file.** ~~Derivation 5's gluing is a uniqueness theorem, not an emergence theorem~~ Both global-object fields are removed from `LocalSectionSynchronization`; `probability_glue_unique` isolates the sheaf condition, `ThermodynamicCover.invariantMeasure` constructs the section, and `sync_to_section_eq` is now a theorem. `Examples.lean` §14 is a cover whose glued section is neither of the profiles it was built from | ~~Restate `LocalSectionSynchronization` …~~ done as described; the estimate "touches a class every downstream file uses" was right about the blast radius and wrong about the cost — see the section for why |
+| **O21** | **§10's germ–measure dictionary is built at `⊤` only.** `density`, `massEquiv` and `sectionOfMass` all speak about sections over `⊤`, so `Examples.lean` §14's patch-local sections have to be written as restrictions of global measures even though nothing in the class requires it. Opened 2026-08-30 by O19 | Generalise `massMeasure`/`sectionOfMass` to an arbitrary open `U` — `stalkMass` and `massAt` are already stated at arbitrary opens, so this is bookkeeping — and rebuild §14's local sections directly. Small; Group 1 really, listed here only because it was opened alongside O19 |
+| **O20** | **Nothing in the development runs a dynamics into the minimum.** `ThermodynamicCover.thermodynamic_equilibrium` *assumes* the cover sits at the potential minimum; `Phase4_RotatingFrame` says what that minimum is and `potential_min_iff_phase_locked` (2026-08-30) says exactly which configurations attain it, but no trajectory is shown to reach one. The only trajectory in the whole development is `pairTrajectory Ω t = Ω·t` (`Examples.lean` §7) — a rigid rotation that *starts* synchronised, so it never converges to anything. Neither is any solution shown to **exist**: `is_kuramoto_trajectory` is a predicate, and outside §7 nothing inhabits it | See the decomposition below — parts (a)–(c) are reachable now, (d) is blocked on Mathlib, and (e) is **false as usually stated** |
 
 ### Group 3 — out of reach with current Mathlib
 
@@ -1812,7 +1815,393 @@ O9 was ranked 1. The remaining ranking from the previous section stands, shifted
 up: **O5** (a `ThermodynamicCover` at a non-constant minimum — "unity of
 experience = global section" is the thesis, and its witness still has constant
 phase) is now first, **O8** (uniqueness of the coherent branch, which would move
-Table 1's only "partial" row to full) second. Note that O5 is now cheaper than
+Table 1's only "partial" row to full) second. *(O5 was closed on 2026-08-30; see
+the final section. **O8 is now first.**)* Note that O5 is now cheaper than
 it was: §10's dictionary means a global section on `Cortex` can be *specified by
 its densities* (`sectionOfMass`) instead of being manipulated through the
 sheafification, which is what made §4's witness constant in the first place.
+
+---
+
+## A cover with a non-constant phase — 2026-08-30 — O5 DONE
+
+Ranked first after O9 because "unity of experience = global section" is the
+thesis and its only witness locked every patch at phase `0`, which is exactly
+what made `thermodynamic_equilibrium` discharge. The item asked for "a cover at
+a non-trivial minimum of the Kuramoto potential", with O4's proviso that a proof
+that no such witness exists "would be the more useful outcome". That is what
+happened. Both halves were built.
+
+### The negative half, which is the result
+
+`thermodynamic_equilibrium` demands a *global* minimum of the reduced Kuramoto
+potential. `potential_min_implies_phase_locked` already proved every minimiser
+is phase-locked; the converse was missing, so this pass added
+`phase_locked_minimizes_potential'` (any locked configuration attains the same
+value `-½ ∑ᵢⱼ Aᵢⱼ` that `phase_locked_minimizes_potential` computes at `θ ≡ 0`)
+and with it `potential_min_iff_phase_locked` — the minimisers are *exactly* the
+locked states, both directions in one statement.
+
+Three consequences, in `Phase5_GlobalSection.lean`:
+
+| Theorem | Content |
+|---|---|
+| `ThermodynamicCover.phase_locked` | **Every** instance is at a phase-locked configuration. Not assumed — forced by the equilibrium field. So a phase field can differ across patches only by multiples of `2π` |
+| `ThermodynamicCover.invariant_measure_const` | `phase_invariant_periodic` then erases those differences: the family takes a single value on the range of `phase` |
+| `ThermodynamicCover.glued_section_eq` | Any global section restricting to the cover's local sections **is** `phase_invariant_measure (phase i₀)` |
+
+The last one is the point, and it is a statement about Derivation 5 rather than
+about the witness. The existence half of `global_section_from_thermodynamics` is
+not where the content is: `sync_to_section_eq` declares each local section to be
+a restriction of a global measure the class already carries, so a global object
+exists before any gluing happens. What the sheaf condition contributes is
+**uniqueness** — no *other* global section restricts to the same local data.
+Read as "a synchronised cover determines its global state uniquely" the theorem
+is exact; read as "unity emerges from locally synchronised patches" it claims
+more than the Lean supports. Both documents now say so.
+
+**What would change that.** Not a better witness — a different structure, in
+which `sync_to_section` is independent data and being a restriction of a common
+measure is *proved* rather than declared. That is a genuine redesign of
+`LocalSectionSynchronization` (rule §1 of the Lean `AGENTS.md` applies: the
+current field is a modelling assumption, marked as such, not a defect), and it is
+the natural next item on Derivation 5. It is listed as **O19** below.
+
+### The positive half: `Examples.lean` §13
+
+The strongest witness the present shape permits, strictly stronger than §4's on
+three counts. Zero `sorry`, zero warnings, `#print axioms` on every new result
+reports only `propext`, `Classical.choice`, `Quot.sound`.
+
+| Piece | Content |
+|---|---|
+| `twistPhase` | `false ↦ 0`, `true ↦ 2π`. **Not the constant function** (`twistPhase_not_const`), still locked (`twistPhase_locked`), and `thermodynamic_equilibrium` is discharged through the new `phase_locked_minimizes_potential'` rather than through the `θ ≡ 0` special case |
+| `richDensity` | Mass on *all three* sites, three different amounts (`richDensity_zero_not_uniform`: `2`, `1`, `3`), instead of §4's single scaled Dirac at the shared site. Still `2π`-periodic (`richDensity_periodic`) and still genuinely phase-dependent (`richDensity_not_const`). Built through §10's `sectionOfMass`, i.e. specified by its densities — which is exactly the cheapening the O9 write-up predicted |
+| `densityOn` | §10's `stalkMass` read at an arbitrary open, not just `⊤`, so the *patch-local* sections are now inspectable. `densityOn_restrict` (by `rfl`) says restriction moves no mass |
+| Non-degeneracy | `twisted_density_left = 2` at a site the other patch does not contain, `twisted_density_right = 3` likewise, and `twisted_overlap_agrees` computes the agreement on the shared site from two separately evaluated densities rather than getting it by construction |
+| The conclusions | `cortexCoverTwisted_phase_locked` (forced), the `∃!` of `global_section_from_thermodynamics`, and `cortexCoverTwisted_glued`: the unique glued section is `richSection 0` |
+
+Declared as `@[instance_reducible] def`s, not `instance`s: §4's pair are the
+instances for `Cortex`, and a second pair would leave instance search silently
+choosing between two different covers of one substrate. The
+`instance_reducible` attribute is not cosmetic — without it `ThermodynamicCover.mk`
+fails in the *kernel* with `Finset Bool` vs `Finset (LocalSectionSynchronization.I Cortex)`.
+
+### Manuscript
+
+Table 1's Derivation 5 row now names §13 and states that `glued_section_eq`
+makes the content uniqueness rather than emergence. A new paragraph in
+Derivation 5 of `main.tex` states the scope in full, and the Derivation 5 note in
+`supplementary.tex` matches. Both documents compile with overfull-hbox counts
+*identical to `HEAD`*, box for box (main 22, supplementary 14) — the long
+`\texttt` identifiers in the new prose carry `\allowbreak` after each underscore,
+which is what kept the count from rising by two in each document. Table 1 still
+fits its page.
+
+### What is still not established
+
+The same thing §4 could not establish: nothing runs a dynamics. The cover is
+*assumed* to be at the potential minimum; `Phase4_RotatingFrame` says what that
+minimum is and `potential_min_iff_phase_locked` now says exactly which
+configurations attain it, but no trajectory is shown to reach one — and outside
+`Examples.lean` §7's rigid rotation, no trajectory is shown to *exist*. That gap
+was not in the ledger before this pass. It is now **O20**, decomposed below.
+
+### Ledger additions
+
+Both are also entered in the Group 2 table of the consolidated ledger above.
+
+| # | Item | Where | What it takes |
+|---|---|---|---|
+| **O19** | **Derivation 5's gluing is a uniqueness theorem, not an emergence theorem.** `sync_to_section_eq` declares each local section to be a restriction of a global measure, so the global object exists before the sheaf condition is used; `ThermodynamicCover.glued_section_eq` proves the glued section is that measure | `Phase4_MacroscopicScaling:56`, `Phase5_GlobalSection` | Replace `sync_to_section_eq` with independent local data plus a compatibility condition, and *prove* that a compatible family is the restriction family of a global measure. Group 2 in difficulty: the sheaf condition already gives the glued section; the work is in restating `LocalSectionSynchronization` so the physics (locally synchronised patches) is the hypothesis and the common measure is the conclusion. This is now the live gap on the framework's central thesis |
+| **O20** | **Nothing runs a dynamics into the minimum.** Every Derivation 5 result is conditional on `thermodynamic_equilibrium`, and no trajectory is shown to reach the minimum — nor, outside `Examples.lean` §7's rigid rotation, to exist at all | `Phase4_KuramotoDynamics`, `Phase5_GlobalSection:43` | Split into five parts in the next section: (a) existence and uniqueness via Picard–Lindelöf, (b) convergence of `V(θ(t))`, (c) `∫ ∑ θ̇ᵢ² < ∞` — all reachable now — (d) convergence to an equilibrium, blocked on a LaSalle principle Mathlib does not have, and (e) reaching the *global* minimum, which is **false** without an arc condition on the initial data |
+
+### O20 — running a dynamics, decomposed (added 2026-08-30)
+
+Raised while writing up O5: every Derivation 5 result is conditional on the
+cover *already* being at the potential minimum, and that hypothesis has now been
+sharpened twice without ever being discharged. It was not in the ledger; it is
+now **O20**. It is not one task, and the parts have very different feasibility,
+so they are split here rather than left as one line a future pass has to
+re-scope.
+
+**Verified in Mathlib** (checked, not assumed):
+
+* Picard–Lindelöf is present — `Mathlib/Analysis/ODE/ExistUnique.lean`,
+  `exists_forall_mem_closedBall_eq_hasDerivWithinAt_lipschitzOnWith` for
+  existence and `ODE_solution_unique` / `ODE_solution_unique_univ` for
+  uniqueness.
+* ω-limit sets are present — `Mathlib/Dynamics/OmegaLimit.lean`, including
+  `isInvariant_omegaLimit`, `nonempty_omegaLimit` and the compactness lemmas.
+* **There is no Lyapunov theory and no LaSalle invariance principle.** A grep
+  for `Lyapunov` over all of Mathlib returns nothing. `OmegaLimit.lean` gives the
+  set-level API but nothing that concludes convergence from a decreasing
+  functional.
+
+| Part | Statement | Feasibility |
+|---|---|---|
+| **(a)** | **A Kuramoto trajectory exists and is unique.** The vector field `θ ↦ ω + ∑ⱼ Aᵢⱼ sin(θⱼ - θᵢ)` on `V → ℝ` is globally Lipschitz for finite `V` (each `sin` is 1-Lipschitz and the sum is finite), so Picard–Lindelöf applies with no local-in-time caveat | **Reachable now.** The bounded part is packaging `LipschitzWith` for the field and matching Mathlib's `HasDerivWithinAt`-on-`Icc` shape to `is_kuramoto_trajectory`'s `HasDerivAt`-on-`ℝ`. This is the cheapest part and it closes a real hole: `is_kuramoto_trajectory` is currently a predicate with exactly one inhabitant, and that one starts at its own limit |
+| **(b)** | **`V(θ(t))` converges** along any trajectory of the reduced system. `dV_dt_le_zero` already gives the *exact* identity `V̇ = -∑ᵢ θ̇ᵢ²`, and `phase_locked_minimizes_potential` already proves `kuramoto_potential_dynamic` bounded below (by its value at `θ ≡ 0`, for `A > 0`) | **Reachable now**, and cheaper than it looks — both halves of "monotone and bounded below" are already theorems in the development. Needs `tendsto_atTop_ciInf` or the antitone-convergence lemma, plus antitonicity from the sign of the derivative |
+| **(c)** | **`∫₀^∞ ∑ᵢ θ̇ᵢ² dt < ∞`**, hence `θ̇ → 0` along a subsequence | **Reachable**, directly from (b) and the exact identity: the integral telescopes to `V(0) - lim V`. Gives the honest weak form of "the dynamics runs into the critical set" without needing any dynamical-systems theory |
+| **(d)** | **`θ(t)` converges to an equilibrium** | **Blocked.** This is LaSalle, and LaSalle is not in Mathlib. It would also need compactness, which the development does not have: `is_kuramoto_trajectory` is stated on `V → ℝ`, phases as unbounded reals, so there is no compact invariant set to appeal to. Fixing that means working on the torus or exhibiting an a-priori bounded invariant region first — a modelling change, not just a proof |
+| **(e)** | **The limit is the *global* minimum** | **False as stated, and this is the part to get right in the prose.** Splay and twisted configurations are equilibria of the Kuramoto flow too, so no theorem of the form "every trajectory reaches the phase-locked state" is provable — it is not true. The provable statement is the standard arc condition: if all phases start within a half-circle, that arc is forward-invariant and the flow converges to consensus. That is the version the manuscript's causal chain actually needs, and it is the right target |
+
+**What this means for the manuscript.** Nothing currently claimed is wrong —
+`thermodynamic_equilibrium` is marked as a hypothesis in the class doc-string,
+in Table 1's "instance postulate" status, and in both documents' Derivation 5
+prose. But the phrase "a thermodynamic phase transition into unity" is doing
+causal work that no Lean result supports at any strength, and part (e) is a
+reminder that the strongest true version is conditional on initial data. If any
+part of O20 lands, the prose gains a real claim; until then it should keep
+saying that the minimum is assumed, not reached.
+
+**Where it sits.** Parts (a)–(c) are Group 2 and, taken together, are probably
+comparable in size to O5 was. Part (d) is Group 3 until Mathlib grows a LaSalle
+principle. Part (e) is Group 2 but only after (d), and it needs the torus change.
+
+### Ranking after this pass
+
+1. **O8** — uniqueness of the coherent branch (Derivation 4). Would move Table 1's
+   only "partial" row to full; bounded and self-contained; wants strict concavity
+   of `R`, a third bound on the von Mises moments in the style of
+   `Phase8_SelfConsistency` §5.
+2. **O19** — the emergence/uniqueness gap just opened above. Larger, and it
+   touches a class every downstream file uses, but it is the one remaining item
+   that a hostile reviewer of the *thesis* (rather than of a lemma) would find.
+3. **O20(a)–(c)** — run a dynamics, as decomposed above. Existence of a solution
+   at all is the cheapest unclaimed result in the development, and (b) and (c)
+   are near-free given `dV_dt_le_zero` and `phase_locked_minimizes_potential`.
+   Ranked below O19 only because O19 is on the central thesis; ranked above O2
+   because "the minimum is assumed, never reached" is the hypothesis every
+   Derivation 5 result rests on.
+4. **O2** — `auto_resonance` is unconstrained by the field (Derivation 6). Cheap,
+   and `Examples.lean` §10 already shows the presheaf restriction is a legal
+   choice.
+
+O4 (the `LocalSectionSynchronization` witness is weak) is **subsumed**: it asked
+the same question O5 did one class lower, and `ThermodynamicCover.phase_locked`
+answers it for every cover at equilibrium. What remains of O4 is O19.
+
+---
+
+## The coherent branch — 2026-08-30 — O8 PARTLY DONE
+
+Ranked first after O5. The item bundled three gaps in the doc-string of
+`supercritical_fixed_point_exists` — uniqueness, continuity in `K`, and the
+untouched case `K = 2D`. **Two are now closed and the third is sharpened into a
+single precise statement.** Zero `sorry`, zero warnings, `#print axioms` on every
+new result reports only `propext`, `Classical.choice`, `Quot.sound`. Both
+documents compile with overfull-hbox counts identical to `HEAD`, box for box
+(main 22, supplementary 14); Table 1 re-checked and still fits its page.
+
+### The one new analytic input
+
+Everything rests on upgrading §5's fold argument from `≥` to `>`.
+`vonMisesC2_nonneg` proved `I₂(a) ≥ 0` by folding `[-π, π]` onto `[0, π/4]`,
+where `foldB` is a product of two non-negative factors. Both factors are in fact
+*strictly* positive on the open interval: `cos 2x > 0` for `x ∈ (0, π/4)`, and
+`sin x < cos x` strictly there, so `cosh(a sin x) < cosh(a cos x)` for `a > 0`.
+`intervalIntegral.intervalIntegral_pos_of_pos_on` then gives `vonMisesC2_pos`,
+hence `E(a) < 1/2` and **`R(a) < a/2` for every `a > 0`**. Three lines of Mathlib
+lookup (`Real.cosh_lt_cosh`, `Real.sin_lt_sin_of_lt_of_le_pi_div_two`,
+`intervalIntegral_pos_of_pos_on`) and no new analysis.
+
+### What that buys
+
+| Theorem | Content |
+|---|---|
+| `fixed_point_eq_zero_of_le_critical` | **`K = 2D` settled.** For every `K ≤ 2D` — threshold included — `r = 0` is the only non-negative solution. This is the case where the naive picture would put a second fixed point, since after rescaling the map is tangent to the diagonal at the origin. The tangency is one-sided: strictness means the map falls below the diagonal for every `r > 0` and nothing crosses. **The bifurcation happens strictly after `K = 2D`, not at it** |
+| `coherent_iff_sRatio_eq` | **The coherent branch is a level set.** For `r ≠ 0`, `r = R(K, r)` ⟺ `E(K r / D) = D/K`, where `E(a) = 𝔼_a[sin²θ]`. Pure algebra out of `besselRatio_eq_mul`; no analysis. This is the reformulation that makes the remaining question precise |
+| `exists_sRatio_gap` | For any `a₀ > 0` there is `c > 0` with `E(a) ≤ 1/2 - c` for all `a ≥ a₀`. Two regimes, neither needing monotonicity: extreme value theorem on a compact interval, and the crude tail bound `E(a) = R(a)/a ≤ 1/a` beyond it |
+| `coherent_branch_continuous_at_threshold` | **No jump.** For every `ε > 0` there is `δ > 0` such that on `(2D, 2D + δ)` *every* coherent solution has `r < ε`. The branch emerges from zero — which is what "supercritical bifurcation" means technically — and the statement is quantified over **all** solutions, so it does not presuppose the uniqueness it does not have |
+| `critical_coupling_is_threshold` | Repackaged with three components instead of two, the first weakened from `K < 2D` to `K ≤ 2D`. The two regimes now exhaust `K ≥ 0` with no gap |
+
+Four non-vacuity examples were added to §8, including the threshold case at
+`D = 1, K = 2` — the configuration no previous theorem could speak about.
+
+### What is still open, and why it is the hard part
+
+**Uniqueness.** By `coherent_iff_sRatio_eq` it is exactly the injectivity of `E`
+on `(0, ∞)`; strict monotonicity would give it, and `E` *is* strictly decreasing
+(`E(0) = 0.5`, `E(1) ≈ 0.446`, `E(2) ≈ 0.349`, `E(4) ≈ 0.216`). Three obstacles,
+recorded so a later pass does not rediscover them:
+
+1. **The ledger's guess was one step too indirect.** It proposed strict concavity
+   of `R` "in the style of §5". Concavity does imply `R(a)/a` decreasing, but it
+   is a second-derivative statement about `R` when the thing actually wanted is a
+   first-derivative statement about `E`. Differentiating the exponential family
+   in its natural parameter gives `E'(a) = -Cov_a(cos²θ, cos θ)` directly, so the
+   target is `Cov_a(cos²θ, cos θ) > 0` for `a > 0`.
+2. **It needs differentiation under the integral sign** — the same obstacle
+   recorded for O10. Mathlib has
+   `hasDerivAt_integral_of_dominated_loc_of_deriv_le`; the work is the domination
+   hypotheses, though here the domain is compact and the integrand entire, so it
+   should be materially easier than O10's case.
+3. **The covariance is not sign-definite pointwise, and this is the real
+   obstacle.** Symmetrising with iid copies, `Cov(X², X) = ½𝔼[(X - X')²(X + X')]`
+   with `X = cos θ`. The factor `(X + X')` changes sign on `[-1,1]²`, so no
+   rearrangement or Chebyshev-association argument closes it — the tilt
+   `e^{a(X + X')}` has to beat the region where `X + X' < 0`. Note also
+   `E'(0) = 0` (at `a = 0` the measure is symmetric and `𝔼[X³] = 𝔼[X²]𝔼[X] = 0`),
+   so no first-order argument at the origin will reach it either; the true
+   behaviour is `E(a) = 1/2 - a²/16 + O(a⁴)`.
+
+**Dynamical selection** is not an O8 item at all on reflection — it is O20. There
+is no dynamics to select with.
+
+### Ranking after this pass
+
+1. **O19** — Derivation 5's gluing is uniqueness, not emergence. The one
+   remaining item a hostile reviewer of the *thesis* would find.
+2. **O20(a)–(c)** — run a dynamics. (a) alone (existence of a solution via
+   Picard–Lindelöf) is the cheapest unclaimed result in the development.
+3. **O8 uniqueness** — as decomposed above. Now well-scoped rather than vague,
+   but obstacle 3 makes it the hardest of the three.
+4. **O2** — `auto_resonance` is unconstrained by the field.
+
+---
+
+## The gluing produces its object — 2026-08-30 — O19 DONE
+
+Ranked first after O8. The item asked whether Derivation 5's central theorem was
+an emergence claim or merely a uniqueness claim, and the answer was the second:
+`LocalSectionSynchronization` carried a *global* section as a class field, so
+`global_section_from_thermodynamics` could only rule out competitors to an object
+every instance had already supplied. **The two offending fields are gone, the
+global section is now constructed, and one of the deleted fields comes back as a
+theorem about the construction.** Zero `sorry`, zero warnings, `lake build` clean
+(17,608 jobs). `#print axioms` on every new result — `probability_glue_unique`,
+`global_section_from_thermodynamics`, `ThermodynamicCover.invariantMeasure`,
+`ThermodynamicCover.sync_to_section_eq`, `ThermodynamicCover.invariantMeasure_unique`,
+`LocalSectionSynchronization.ofInvariantMeasure`, and every §14 result — reports
+only `propext`, `Classical.choice`, `Quot.sound`.
+
+### The diagnostic was syntactic, and cheaper than the plan assumed
+
+The ledger estimated this as Group 2 because it "touches a class every downstream
+file uses". The blast radius was real — `Phase4_MacroscopicScaling`,
+`Phase5_GlobalSection`, `Axioms.lean`, three sections of `Examples.lean`, both
+documents — but the design question took one pass over the class, not an
+investigation. **List the opens each field mentions.** A cover's fields should
+mention `cover i` and `cover i ⊓ cover j`; a field mentioning `⊤` is supplying
+the conclusion. Two did:
+
+* `phase_invariant_measure : ℝ → (probabilityPresheaf X).obj (op ⊤)`, and
+* `sync_to_section_eq`, declaring every local section to be its restriction.
+
+Nothing about them was *unsound* — they were instance obligations, and every
+witness discharged them, which is exactly why the defect survived the 2026-08-29
+soundness audit that converted them from standalone axioms into fields. They cost
+the theorem its reading, not its correctness.
+
+### What replaced them
+
+One field, strictly weaker, mentioning only a patch and an overlap:
+
+```lean
+section_agrees_of_phase_eq : ∀ i j, Real.cos (phase i - phase j) = 1 →
+  map (homOfLE inf_le_left).op  (sync_to_section i) =
+  map (homOfLE inf_le_right).op (sync_to_section j)
+```
+
+That is the physics of Derivation 5 stated locally: patches at a common phase
+agree where they overlap. It remains a modelling assumption — nothing derives it
+from the dynamics — but it presupposes no global object.
+
+### What landed
+
+| Declaration | Where | Content |
+|---|---|---|
+| `probability_glue_unique` | `Phase5_GlobalSection` | **The sheaf condition with the physics removed.** A compatible family over any cover of `X` glues to a unique section over `⊤`. No hypothesis mentions phases, coupling or equilibrium. The guts of the old `global_section_from_thermodynamics` proof, transported from `iSup cover` to `⊤`, now stated on its own so the division of labour is visible in the source |
+| `global_section_from_thermodynamics` | `Phase5_GlobalSection` | **Unchanged statement, changed content.** Now a four-line application: equilibrium forces locking (`phase_locked`), locking gives compatibility (`overlap_agreement`), compatibility glues (`probability_glue_unique`) |
+| `ThermodynamicCover.invariantMeasure` | `Phase5_GlobalSection` | The section the sheaf condition produces, as a `def`. This is the declaration that used to be a class field |
+| `ThermodynamicCover.sync_to_section_eq` | `Phase5_GlobalSection` | **The old class field, verbatim in content, now a theorem.** Every local section *is* the restriction of one common measure — because the sheaf condition says so, not because an instance was required to name one |
+| `ThermodynamicCover.invariantMeasure_unique` | `Phase5_GlobalSection` | The uniqueness half, stated on the constructed object |
+| `LocalSectionSynchronization.ofInvariantMeasure` | `Phase4_MacroscopicScaling` | **The old class shape, as a constructor.** Takes the two deleted fields as arguments and builds an instance. Proof that the new class is genuinely weaker; §4 and §13 migrate to a one-line application each |
+| `Examples.lean` §14 | new, ~180 lines | The witness that the change is not notational — below |
+
+`ThermodynamicCover.invariant_measure_const` and
+`ThermodynamicCover.glued_section_eq` are deleted: both were statements about
+`phase_invariant_measure`. What `glued_section_eq` said survives where it is
+true, as `cortexCoverTwisted_glued` in `Examples.lean` §13 — a fact about
+witnesses built through `ofInvariantMeasure`, not about the theorem.
+
+### §14, and why §4 and §13 could not have been strengthened into it
+
+The two existing witnesses build their local sections by restricting one global
+measure, because that is what the old class demanded; §13's
+`cortexCoverTwisted_glued` computes that the gluing hands it straight back. §14
+drops the constructor:
+
+* two patches, two **independently chosen** mass profiles — `(2, 1, 7)` and
+  `(5, 1, 3)` across the three sites (`patchW_ne`);
+* they agree only where they are required to, at the shared site `mid`, where
+  both put mass `1` (`glued_overlap_mass_false`, `glued_overlap_mass_true`) —
+  which is what discharges `section_agrees_of_phase_eq`, by computing two
+  numbers rather than by functoriality;
+* the glued section has profile `(2, 1, 3)`
+  (`glued_eq_sectionOfMass`, `cortexCoverGlued_invariantMeasure`);
+* it is **neither** input (`gluedW_ne_leftW`, `gluedW_ne_rightW`), and — the
+  stronger form — neither input restricts correctly to *both* patches
+  (`leftW_glues_nothing`, `rightW_glues_nothing`), so neither is even a competing
+  solution that uniqueness has to exclude.
+
+Two small lemmas carry the section and are reusable: `restrict_eq_of_density_eqOn`
+(two global sections restrict equally to `U` as soon as their densities agree on
+`U`) and `restrict_restrict` (restriction is transitive **by `rfl`**, because in
+a stalk-wise sheafification restriction is reindexing of a germ family). Both
+follow from §10's dictionary; neither needed new Mathlib.
+
+### What this does *not* establish
+
+Unchanged, and both still instance obligations flagged as such:
+
+* **The overlap agreement is assumed.** `section_agrees_of_phase_eq` is a
+  modelling field. It is local, and it is weaker than what it replaced, but no
+  dynamics derives it. Deriving it is what O13/O14 would need.
+* **The minimum is assumed** — `thermodynamic_equilibrium`, i.e. **O20**, which
+  is untouched by this pass. "A thermodynamic phase transition into unity" is
+  still prose: no trajectory is shown to reach the minimum, and outside
+  `Examples.lean` §7's rigid rotation none is shown to exist.
+* **§14's local sections are still *defined* by restricting a measure on all of
+  `Cortex`**, because §10's germ–measure dictionary is built at `⊤`. That is a
+  limitation of the dictionary, not of the class: no measure is shared between
+  the two patches, the instance stores only the restrictions, and the profiles
+  differ off their own patches precisely so that neither can be mistaken for the
+  global state. Building the dictionary at an arbitrary open would remove even
+  this, and is a small self-contained task if a later pass wants it — call it
+  **O21**, Group 1.
+
+### Manuscript
+
+`main.tex`: Table 1's "Phase synchronization to Unity" row rewritten; the table
+caption corrected (two of the five former axioms are no longer class fields
+either); the soundness-audit paragraph gains the note that both were later
+removed; the §4 witness description now names the constructor's periodicity
+hypothesis rather than the deleted field; and Derivation 5's scope discussion is
+rewritten as four paragraphs — what the theorem now proves, what the old
+structure proved and why that was less, §14 as the witness, and the two
+hypotheses that still carry physical content. `supplementary.tex`: Derivation 5's
+implementation note restructured from two sharpening results to three, with the
+third describing the restatement and §14.
+
+Both compile. Overfull hboxes: `main` 0 → 0, `supplementary` 14 → 13 (one fewer;
+the three that appeared in the new paragraph were removed with `\allowbreak` and
+`\-` break points, and shortening the paragraph above it removed one more).
+Table 1 re-checked by rendering page 4: still fits, with room.
+
+### Ranking after this pass
+
+1. **O20(a)–(c)** — run a dynamics. Now the only remaining item on the framework's
+   central claim: every Derivation 5 result is conditional on
+   `thermodynamic_equilibrium`, and (a), existence of a Kuramoto trajectory via
+   Picard–Lindelöf, is the cheapest unclaimed result in the development. (b) and
+   (c) are near-free given `dV_dt_le_zero` and `phase_locked_minimizes_potential`.
+   See the O20 decomposition above; (d) stays blocked on LaSalle and (e) is false
+   as usually stated.
+2. **O8 uniqueness** — injectivity of `E(a) = 𝔼_a[sin²θ]` on `(0, ∞)`. Well-scoped
+   but obstacle 3 (the covariance is not sign-definite pointwise) is real.
+3. **O2** — `auto_resonance` is unconstrained by the field (Derivation 6). Cheap.
+4. **O21** — build §10's germ–measure dictionary at an arbitrary open rather than
+   at `⊤`, which would let §14's local sections be written down directly instead
+   of as restrictions. Small, and it removes the last caveat on the O19 witness.

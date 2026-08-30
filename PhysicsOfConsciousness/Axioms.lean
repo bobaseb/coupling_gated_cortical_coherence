@@ -81,10 +81,22 @@ axiom phase_space_is_compact {X : Type*} [TopologicalSpace X]
 -- in Phase3_CombinatorialThermodynamics.lean as a standalone axiom.
 -- Status: [IRREDUCIBLE] — physical postulate linking info theory to thermodynamics.
 --
--- Cross-reference: `phase_invariant_periodic` (invariant measure is 2π-periodic)
--- and `sync_to_section_eq` (local section = restricted invariant measure) are
--- declared in Phase4_MacroscopicScaling.lean as standalone axioms.
+-- Historical: `phase_invariant_periodic` (invariant measure is 2π-periodic) and
+-- `sync_to_section_eq` (local section = restricted invariant measure) were once
+-- standalone axioms in Phase4_MacroscopicScaling.lean, then class fields of
+-- `LocalSectionSynchronization`. Both are **gone** as of 2026-08-30 (open item
+-- O19): they named a *global* section, so the class supplied the object the
+-- gluing theorem was supposed to produce. `sync_to_section_eq` is now a theorem
+-- (`ThermodynamicCover.sync_to_section_eq`) about the section
+-- `probability_glue_unique` constructs; the periodicity condition survives only
+-- as a hypothesis of the constructor `LocalSectionSynchronization.ofInvariantMeasure`,
+-- which packages the old shape for the witnesses built that way.
+--
+-- What replaced them: `LocalSectionSynchronization.section_agrees_of_phase_eq`,
+-- the condition that patches at a common phase agree on their overlaps.
 -- Status: [MODELLING] — could be derived from dynamics with more infrastructure.
+-- Unlike its predecessors it quantifies only over single patches and single
+-- overlaps, so it presupposes no global object.
 
 -- ============================================================
 -- §3  Phase-Locking Bridge

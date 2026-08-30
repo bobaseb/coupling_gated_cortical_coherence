@@ -86,6 +86,32 @@ theorem phase_locked_minimizes_potential
   · norm_num
 
 omit [DecidableEq V] in
+/-- **Every phase-locked configuration is a global minimum**, not just the
+constant one. `phase_locked_minimizes_potential` proves it for `theta ≡ 0`;
+since the potential only sees the phase *differences*, and `is_phase_locked`
+says every difference has cosine `1`, the value at any locked configuration is
+the same number `-½ ∑ᵢⱼ Aᵢⱼ`.
+
+This is the converse of `potential_min_implies_phase_locked`, and the two
+together (`potential_min_iff_phase_locked`) say the minimisers of the reduced
+potential are *exactly* the locked states. Its use is in Phase 5: a
+`ThermodynamicCover` may carry a phase field that is not the constant function,
+provided the values differ by multiples of `2π`. -/
+theorem phase_locked_minimizes_potential'
+    (sys : KuramotoSystem V) (h_pos : ∀ i j, sys.A i j > 0) (theta : V → ℝ)
+    (h_lock : is_phase_locked theta) (phi : V → ℝ) :
+    kuramoto_potential_dynamic sys theta ≤ kuramoto_potential_dynamic sys phi := by
+  have h_const : kuramoto_potential_dynamic sys theta
+      = kuramoto_potential_dynamic sys (fun _ => 0) := by
+    unfold kuramoto_potential_dynamic
+    congr 1
+    refine Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => ?_
+    rw [h_lock j i]
+    simp
+  rw [h_const]
+  exact phase_locked_minimizes_potential sys h_pos phi
+
+omit [DecidableEq V] in
 lemma potential_min_implies_phase_locked
   (sys : KuramotoSystem V) (h_pos : ∀ i j, sys.A i j > 0)
   (theta : V → ℝ)
@@ -140,5 +166,20 @@ lemma potential_min_implies_phase_locked
     rw [this]
     exact hcos1
   exact hcos2
+
+omit [DecidableEq V] in
+/-- **The minimisers of the reduced Kuramoto potential are exactly the
+phase-locked states.** Both directions, in one statement.
+
+What it does not say: nothing here is about the *dynamics*. This characterises
+the minimisers of a functional; that a trajectory of `is_kuramoto_trajectory`
+reaches one of them is the content of `dV_dt_le_zero` together with a
+convergence argument that this development does not carry. -/
+theorem potential_min_iff_phase_locked
+    (sys : KuramotoSystem V) (h_pos : ∀ i j, sys.A i j > 0) (theta : V → ℝ) :
+    (∀ phi, kuramoto_potential_dynamic sys theta ≤ kuramoto_potential_dynamic sys phi)
+      ↔ is_phase_locked theta :=
+  ⟨potential_min_implies_phase_locked sys h_pos theta,
+   fun h_lock => phase_locked_minimizes_potential' sys h_pos theta h_lock⟩
 
 end PhysicsOfConsciousness

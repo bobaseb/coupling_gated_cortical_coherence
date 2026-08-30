@@ -45,8 +45,21 @@ which is all the argument needs.
   there is an `r` with `0 < r ≤ 1` solving `r = R(K, r)`.** The converse half,
   proved in §6 from continuity of the mean `E_a[sin²θ]` at `a = 0` together with
   the intermediate value theorem; no series expansion is involved.
-* `critical_coupling_is_threshold` — the two halves packaged: below `2D` the
-  incoherent state is the only solution, above it a coherent one exists.
+* `fixed_point_eq_zero_of_le_critical` — **for `K ≤ 2D`, threshold included, the
+  only non-negative solution is `r = 0`.** The strict form
+  `besselRatio_lt_half_self` (`R(a) < a/2` for `a > 0`, from `I₂(a) > 0`) is what
+  settles the threshold case that the non-strict bound could not.
+* `coherent_iff_sRatio_eq` — for `r ≠ 0`, solving `r = R(K, r)` is the same as
+  `E(K r / D) = D/K`. The coherent branch is a level set of the single function
+  `E(a) = E_a[sin²θ]`, which is what makes the remaining questions precise.
+* `coherent_branch_continuous_at_threshold` — **no jump.** For every `ε > 0`
+  there is a `δ > 0` such that on `(2D, 2D + δ)` *every* coherent solution has
+  `r < ε`. The branch emerges from zero, which is what "supercritical
+  bifurcation" means technically. Quantified over all solutions, so it does not
+  presuppose uniqueness.
+* `critical_coupling_is_threshold` — the three parts packaged: at or below `2D`
+  the incoherent state is the only solution, above it a coherent one exists, and
+  the branch emerges continuously.
 * `exhibits_phase_transition_coherent` — a substrate satisfying
   `exhibits_phase_transition` of `Phase8_ContinuousField.lean` admits a positive
   stationary order parameter. This is what stops `critical_coupling` from being
@@ -67,17 +80,25 @@ sharpening of `sin² ≤ 1` to its *mean* value under the von Mises weight.
 
 ## What is NOT proved here
 
-**Anything about the coherent branch beyond its existence.**
-`supercritical_fixed_point_exists` produces *some* `r ∈ (0, 1]`; it does not
-prove that it is unique, that it is the dynamically selected one, or that it
-depends continuously on `K` — so nothing here rules out a discontinuous jump at
-threshold rather than the continuous (supercritical) bifurcation the physics
-literature describes. At `K = 2D` exactly, neither theorem applies.
+**Uniqueness of the coherent branch.** `supercritical_fixed_point_exists`
+produces *some* `r ∈ (0, 1]` and nothing says it is the only one, or that it is
+the dynamically selected one. By `coherent_iff_sRatio_eq` uniqueness is exactly
+the injectivity of `E(a) = E_a[sin²θ]` on `(0, ∞)`; strict monotonicity would
+give it. See the doc-string of `coherent_branch_continuous_at_threshold` for why
+that is harder than the rest of this file: it needs differentiation under the
+integral sign, the resulting covariance is not sign-definite pointwise, and
+`E'(0) = 0` rules out any first-order argument at the origin.
+
+*Two gaps this section used to record are now closed.* `K = 2D` is covered
+(`fixed_point_eq_zero_of_le_critical`, and it falls on the incoherent side), and
+a discontinuous jump at threshold is excluded
+(`coherent_branch_continuous_at_threshold`) without needing uniqueness.
 
 **Monotonicity of `R`.** The argument uses `R(a) ≤ a/2` globally but only
 `R(a) ≥ a·(1/2 - o(1))` near `a = 0`; `R` is never shown increasing, which is
 why the coherent solution is found by the intermediate value theorem rather than
-by iterating the map.
+by iterating the map. The `no-jump` result likewise avoids monotonicity, by
+compactness plus the crude tail bound `E(a) ≤ 1/a`.
 
 **The ansatz.** Nothing here derives the von Mises stationary density from the
 SDE `dθ = (ω + K·mean-field) dt + √(2D) dW`. That needs the Fokker–Planck
@@ -398,6 +419,15 @@ lemma sin_le_cos_of_mem {x : ℝ} (hx : x ∈ Icc (0:ℝ) (π/4)) : Real.sin x �
     refine Real.sin_le_sin_of_le_of_le_pi_div_two (by linarith) (by linarith) (by linarith)
   rwa [Real.sin_pi_div_two_sub] at h
 
+/-- The strict form, on the half-open interval. `sin` and `cos` meet only at
+`π/4`, which is why the strictness below survives integration. -/
+lemma sin_lt_cos_of_mem {x : ℝ} (hx : x ∈ Ico (0:ℝ) (π/4)) : Real.sin x < Real.cos x := by
+  obtain ⟨hx0, hx4⟩ := hx
+  have hpi := Real.pi_pos
+  have h : Real.sin x < Real.sin (π/2 - x) :=
+    Real.sin_lt_sin_of_lt_of_le_pi_div_two (by linarith) (by linarith) (by linarith)
+  rwa [Real.sin_pi_div_two_sub] at h
+
 lemma foldB_nonneg {a x : ℝ} (ha : 0 ≤ a) (hx : x ∈ Icc (0:ℝ) (π/4)) : 0 ≤ foldB a x := by
   obtain ⟨hx0, hx4⟩ := hx
   have hpi := Real.pi_pos
@@ -420,6 +450,30 @@ lemma foldB_nonneg {a x : ℝ} (ha : 0 ≤ a) (hx : x ∈ Icc (0:ℝ) (π/4)) : 
     linarith [hcosh, h1, h2]
   exact mul_nonneg hcos2 hbracket
 
+/-- **The strict form.** On the open interval both factors are strictly
+positive: `cos 2x > 0` for `x ∈ (0, π/4)`, and `cosh` is *strictly* increasing in
+`|·|`, so `a sin x < a cos x` separates the two hyperbolic cosines. -/
+lemma foldB_pos {a x : ℝ} (ha : 0 < a) (hx : x ∈ Ioo (0:ℝ) (π/4)) : 0 < foldB a x := by
+  obtain ⟨hx0, hx4⟩ := hx
+  have hpi := Real.pi_pos
+  have hcos2 : 0 < Real.cos (2 * x) :=
+    Real.cos_pos_of_mem_Ioo ⟨by linarith, by linarith⟩
+  have hsin0 : 0 ≤ Real.sin x :=
+    Real.sin_nonneg_of_nonneg_of_le_pi (le_of_lt hx0) (by linarith)
+  have hsc : Real.sin x < Real.cos x := sin_lt_cos_of_mem ⟨le_of_lt hx0, hx4⟩
+  have habs : |a * Real.sin x| < |a * Real.cos x| := by
+    rw [abs_of_nonneg (mul_nonneg ha.le hsin0),
+      abs_of_nonneg (mul_nonneg ha.le (by linarith))]
+    exact mul_lt_mul_of_pos_left hsc ha
+  have hcosh : Real.cosh (a * Real.sin x) < Real.cosh (a * Real.cos x) :=
+    Real.cosh_lt_cosh.mpr habs
+  have hbracket : 0 < (Real.exp (a * Real.cos x) + Real.exp (-(a * Real.cos x)))
+      - (Real.exp (a * Real.sin x) + Real.exp (-(a * Real.sin x))) := by
+    have h1 := Real.cosh_eq (a * Real.cos x)
+    have h2 := Real.cosh_eq (a * Real.sin x)
+    linarith [hcosh, h1, h2]
+  exact mul_pos hcos2 hbracket
+
 /-- **`I₂(a) ≥ 0`.** The second moment of the von Mises weight is non-negative
 for every non-negative concentration. -/
 theorem vonMisesC2_nonneg {a : ℝ} (ha : 0 ≤ a) : 0 ≤ vonMisesC2 a := by
@@ -427,6 +481,19 @@ theorem vonMisesC2_nonneg {a : ℝ} (ha : 0 ≤ a) : 0 ≤ vonMisesC2 a := by
   rw [vonMisesC2_eq_two_mul, integral_c2_eq_foldA, integral_foldA_eq_foldB]
   have : 0 ≤ ∫ x in (0:ℝ)..(π/4), foldB a x :=
     intervalIntegral.integral_nonneg (by linarith) (fun x hx => foldB_nonneg ha hx)
+  linarith
+
+/-- **`I₂(a) > 0` for `a > 0`.** The strict form of `vonMisesC2_nonneg`, and the
+only new analytic input this pass needs: `foldB` is continuous, non-negative on
+`[0, π/4]` and strictly positive on its interior, so
+`intervalIntegral_pos_of_pos_on` upgrades the integral. Everything below is
+algebra on top of it. -/
+theorem vonMisesC2_pos {a : ℝ} (ha : 0 < a) : 0 < vonMisesC2 a := by
+  have hpi := Real.pi_pos
+  rw [vonMisesC2_eq_two_mul, integral_c2_eq_foldA, integral_foldA_eq_foldB]
+  have h : 0 < ∫ x in (0:ℝ)..(π/4), foldB a x :=
+    intervalIntegral.intervalIntegral_pos_of_pos_on (intervalIntegrable_foldB a _ _)
+      (fun x hx => foldB_pos ha hx) (by linarith)
   linarith
 
 /-- **The sharp bound.** Under the von Mises weight the mean of `sin²` is at
@@ -437,12 +504,30 @@ theorem vonMisesS_le_half_vonMisesZ {a : ℝ} (ha : 0 ≤ a) :
   rw [vonMisesS_eq]
   linarith [vonMisesC2_nonneg ha]
 
+/-- **The strict sharp bound.** For a *positive* concentration the mean of `sin²`
+is strictly below `1/2`. Equality holds only at `a = 0`, where the weight is
+constant — which is exactly why `K = 2D` turns out to sit on the incoherent side
+of the threshold rather than on the boundary between the two. -/
+theorem vonMisesS_lt_half_vonMisesZ {a : ℝ} (ha : 0 < a) :
+    vonMisesS a < vonMisesZ a / 2 := by
+  rw [vonMisesS_eq]
+  linarith [vonMisesC2_pos ha]
+
 /-- `R(a) ≤ a/2` — the slope of the Bessel ratio at the origin, as an upper
 bound for all `a ≥ 0`. This is what puts the threshold at `2D` rather than
 `D`. -/
 theorem besselRatio_le_half_self {a : ℝ} (ha : 0 ≤ a) : besselRatio a ≤ a / 2 := by
   rw [besselRatio, vonMisesM_eq_mul_vonMisesS, div_le_iff₀ (vonMisesZ_pos a)]
   nlinarith [mul_le_mul_of_nonneg_left (vonMisesS_le_half_vonMisesZ ha) ha,
+    vonMisesS_nonneg a, vonMisesZ_pos a]
+
+/-- **`R(a) < a/2` for `a > 0`.** The self-consistency map is *strictly* below
+the line of slope `1/2` everywhere except at the origin. This is what closes the
+threshold case: at `K = 2D` the line `r ↦ K r /(2D) = r` is exactly the diagonal,
+and a strict inequality leaves no room for a second crossing. -/
+theorem besselRatio_lt_half_self {a : ℝ} (ha : 0 < a) : besselRatio a < a / 2 := by
+  rw [besselRatio, vonMisesM_eq_mul_vonMisesS, div_lt_iff₀ (vonMisesZ_pos a)]
+  nlinarith [mul_lt_mul_of_pos_left (vonMisesS_lt_half_vonMisesZ ha) ha,
     vonMisesS_nonneg a, vonMisesZ_pos a]
 
 /-- **Subcritical uniqueness at the physical threshold.** For `K < 2D` the
@@ -468,6 +553,39 @@ theorem subcritical_fixed_point_eq_zero' {K D r : ℝ} (hD : 0 < D) (hK : 0 ≤ 
     nlinarith
   linarith [hfix ▸ h1]
 
+
+/-- **The threshold case, and the sharp subcritical statement in one.** For
+every `K ≤ 2D` — the strict inequality of `subcritical_fixed_point_eq_zero'`
+*and* the threshold itself — the incoherent state `r = 0` is the only
+non-negative solution.
+
+`K = 2D` was previously covered by neither half of `critical_coupling_is_threshold`,
+and it is the case where the naive picture would put a second fixed point: the
+self-consistency map has slope exactly `1/2` at the origin there, so it is
+tangent to the diagonal after the rescaling. `besselRatio_lt_half_self` settles
+it — the tangency is one-sided, the map falls strictly below the diagonal for
+every `r > 0`, and nothing crosses. So the bifurcation happens strictly *after*
+`K = 2D`, not at it.
+
+**What this does not establish.** Nothing about uniqueness *above* threshold;
+see `coherent_branch_continuous_at_threshold` for what is known there, and the
+`vonMisesSRatio` note on it for what uniqueness would take. The von Mises
+density remains an input throughout. -/
+theorem fixed_point_eq_zero_of_le_critical {K D r : ℝ} (hD : 0 < D) (hK : 0 ≤ K)
+    (hKD : K ≤ critical_coupling D) (hr : 0 ≤ r)
+    (hfix : r = selfConsistency K D r) : r = 0 := by
+  rw [critical_coupling] at hKD
+  rcases eq_or_lt_of_le hr with h | hpos
+  · exact h.symm
+  rcases eq_or_lt_of_le hK with hk0 | hkpos
+  · rw [selfConsistency, ← hk0] at hfix
+    simpa using hfix
+  have hapos : 0 < K * r / D := by positivity
+  have h1 : selfConsistency K D r < K * r / D / 2 := besselRatio_lt_half_self hapos
+  have h2 : K * r / D / 2 ≤ r := by
+    rw [div_le_iff₀ (by norm_num : (0:ℝ) < 2), div_le_iff₀ hD]
+    nlinarith
+  linarith [hfix ▸ h1]
 
 /-! ## 6. The supercritical direction
 
@@ -544,6 +662,12 @@ factored out. Both bounds on `R` in this file go through this form. -/
 theorem besselRatio_eq_mul (a : ℝ) : besselRatio a = a * vonMisesSRatio a := by
   rw [besselRatio, vonMisesM_eq_mul_vonMisesS, vonMisesSRatio, mul_div_assoc]
 
+/-- The strict form of §5's bound, in the `E`-notation this section uses:
+`E(a) < 1/2` for every `a > 0`, with equality only at the origin. -/
+theorem vonMisesSRatio_lt_half {a : ℝ} (ha : 0 < a) : vonMisesSRatio a < 1 / 2 := by
+  rw [vonMisesSRatio, div_lt_iff₀ (vonMisesZ_pos a)]
+  linarith [vonMisesS_lt_half_vonMisesZ ha]
+
 theorem continuous_besselRatio : Continuous besselRatio :=
   continuous_vonMisesM.div continuous_vonMisesZ (fun a => (vonMisesZ_pos a).ne')
 
@@ -573,10 +697,13 @@ Together with `subcritical_fixed_point_eq_zero'` this is the content of
 `critical_coupling_is_threshold`.
 
 **What it does not establish.** Existence, not uniqueness: nothing here says the
-positive solution is unique, that it is the dynamically selected branch, or that
-it varies continuously with `K`, so a discontinuous jump at threshold is not
-excluded. The case `K = 2D` is untouched by this theorem and by the subcritical
-one. And the von Mises density remains an input — see the file header. -/
+positive solution is unique, or that it is the dynamically selected branch. Two
+of the three gaps this doc-string used to record are now closed elsewhere in the
+file: `fixed_point_eq_zero_of_le_critical` covers `K = 2D`, and
+`coherent_branch_continuous_at_threshold` rules out a discontinuous jump at
+threshold. Uniqueness remains open; `coherent_iff_sRatio_eq` reduces it to the
+injectivity of `E` on `(0, ∞)`. And the von Mises density remains an input — see
+the file header. -/
 theorem supercritical_fixed_point_exists {K D : ℝ} (hD : 0 < D)
     (hKD : critical_coupling D < K) :
     ∃ r : ℝ, 0 < r ∧ r ≤ 1 ∧ r = selfConsistency K D r := by
@@ -631,20 +758,150 @@ theorem supercritical_fixed_point_exists {K D : ℝ} (hD : 0 < D)
   simp only [hfdef] at hr
   linarith
 
-/-- **`K_c = 2D` for the self-consistency equation**, both halves in one
-statement: strictly below the threshold the incoherent state is the only
-non-negative solution, strictly above it a coherent one exists.
+/-! ### The coherent branch as a level set
 
-The threshold itself, `K = critical_coupling D`, is not covered — neither half
-applies there. The von Mises ansatz is assumed throughout; see the file
-header. -/
+`supercritical_fixed_point_exists` produces *a* positive solution and says
+nothing about which. The reformulation below is what makes the remaining
+questions precise, and it is pure algebra: since `R(a) = a · E(a)`, a *non-zero*
+`r` solves `r = R(K r / D)` exactly when `E(K r / D) = D/K`. The coherent branch
+is therefore the level set of a single function `E` at height `D/K`, and the
+three things O8 asked for become three statements about `E`:
+
+* **uniqueness** ⟺ `E` is injective on `(0, ∞)`, for which strict monotonicity
+  would suffice. This is **still open**; see the note on
+  `coherent_branch_continuous_at_threshold`.
+* **no jump at threshold** — proved below, and it does *not* need uniqueness:
+  it follows from `E < 1/2` strictly plus a compactness argument.
+* **the threshold itself** — `fixed_point_eq_zero_of_le_critical`, above. -/
+
+/-- **The coherent branch is a level set of `E`.** For `r ≠ 0`, solving the
+self-consistency equation is the same as sitting at concentration `K r / D`
+where the mean of `sin²` equals `D/K`.
+
+This is the reformulation the rest of this section runs on. It is an equivalence,
+so nothing is lost: every statement about coherent solutions can be made about
+the level sets of `E`, and vice versa. -/
+theorem coherent_iff_sRatio_eq {K D r : ℝ} (hD : 0 < D) (hK : 0 < K) (hr : r ≠ 0) :
+    r = selfConsistency K D r ↔ vonMisesSRatio (K * r / D) = D / K := by
+  set E := vonMisesSRatio (K * r / D) with hEdef
+  rw [selfConsistency, besselRatio_eq_mul, ← hEdef, eq_div_iff hK.ne',
+    show K * r / D * E = r * (K * E / D) by ring]
+  constructor
+  · intro h
+    have h1 : r * 1 = r * (K * E / D) := by rw [mul_one]; exact h
+    have h2 : (1 : ℝ) = K * E / D := mul_left_cancel₀ hr h1
+    rw [eq_comm, div_eq_one_iff_eq hD.ne'] at h2
+    linarith [h2, mul_comm K E]
+  · intro h
+    have h3 : K * E / D = 1 := by
+      rw [div_eq_one_iff_eq hD.ne']
+      linarith [h, mul_comm K E]
+    rw [h3, mul_one]
+
+/-- **`E` is uniformly below `1/2` away from the origin.** For any `a₀ > 0`
+there is a gap `c > 0` with `E(a) ≤ 1/2 - c` for all `a ≥ a₀`.
+
+Two regimes, and neither needs monotonicity of `E`. On the compact `[a₀, A]` the
+extreme value theorem gives a maximum, which `vonMisesSRatio_lt_half` puts
+strictly below `1/2`. Beyond `A ≥ 4` the crude bound `E(a) = R(a)/a ≤ 1/a`
+suffices, since `R ≤ 1`. -/
+theorem exists_sRatio_gap {a₀ : ℝ} (ha₀ : 0 < a₀) :
+    ∃ c : ℝ, 0 < c ∧ c ≤ 1 / 4 ∧ ∀ a : ℝ, a₀ ≤ a → vonMisesSRatio a ≤ 1 / 2 - c := by
+  set A : ℝ := max a₀ 4 with hAdef
+  have hA4 : (4:ℝ) ≤ A := le_max_right _ _
+  have hne : (Icc a₀ A).Nonempty := ⟨a₀, ⟨le_refl _, le_max_left _ _⟩⟩
+  obtain ⟨x, hx, hmax⟩ :=
+    isCompact_Icc.exists_isMaxOn hne continuous_vonMisesSRatio.continuousOn
+  have hxpos : 0 < x := lt_of_lt_of_le ha₀ hx.1
+  have hm : vonMisesSRatio x < 1 / 2 := vonMisesSRatio_lt_half hxpos
+  refine ⟨min (1 / 2 - vonMisesSRatio x) (1 / 4), lt_min (by linarith) (by norm_num),
+    min_le_right _ _, ?_⟩
+  intro a ha
+  rcases le_or_gt a A with hle | hlt
+  · have hax : vonMisesSRatio a ≤ vonMisesSRatio x := hmax ⟨ha, hle⟩
+    have hc : min (1 / 2 - vonMisesSRatio x) (1 / 4) ≤ 1 / 2 - vonMisesSRatio x :=
+      min_le_left _ _
+    linarith
+  · have hapos : 0 < a := by linarith
+    have h1 : vonMisesSRatio a ≤ 1 / a := by
+      have hb := besselRatio_le_one a
+      rw [besselRatio_eq_mul] at hb
+      rw [le_div_iff₀ hapos]
+      linarith
+    have h2 : 1 / a ≤ 1 / 4 := one_div_le_one_div_of_le (by norm_num) (by linarith)
+    have hc : min (1 / 2 - vonMisesSRatio x) (1 / 4) ≤ 1 / 4 := min_le_right _ _
+    linarith
+
+/-- **The bifurcation is continuous at threshold: no jump.** For every `ε > 0`
+there is a `δ > 0` such that for couplings in `(2D, 2D + δ)` *every* coherent
+solution satisfies `r < ε`. The coherent branch emerges from `r = 0`; it does
+not appear at a finite distance from the incoherent state.
+
+This is the property that makes the transition supercritical in the technical
+sense, and it is the second of the three gaps the doc-string of
+`supercritical_fixed_point_exists` records. Note the quantifier: it is over
+*every* solution, so it does not presuppose that the solution is unique — which
+is why it can be proved without the monotonicity of `E` that uniqueness needs.
+
+**What is still open, precisely.** Uniqueness. By `coherent_iff_sRatio_eq` it is
+exactly the injectivity of `E` on `(0, ∞)`, for which strict monotonicity would
+suffice. `E' (a) = -Cov_a(cos²θ, cos θ)` — differentiating an exponential family
+in its natural parameter — so the statement to prove is `Cov_a(cos²θ, cos θ) > 0`
+for `a > 0`. It is true (`E(0) = 0.5`, `E(1) ≈ 0.446`, `E(2) ≈ 0.349`), but note
+that `E'(0) = 0`, so no first-order argument at the origin will give it, and the
+covariance is not sign-definite pointwise — the symmetrised form
+`½ E[(X - X')²(X + X')]` with `X = cos θ` has an integrand that changes sign, so
+the tilting `e^{a(X + X')}` has to do the work. It also needs differentiation
+under the integral sign, which is the same obstacle recorded for O10. -/
+theorem coherent_branch_continuous_at_threshold {D : ℝ} (hD : 0 < D) {ε : ℝ} (hε : 0 < ε) :
+    ∃ δ : ℝ, 0 < δ ∧ ∀ K r : ℝ, critical_coupling D < K → K < critical_coupling D + δ →
+      0 < r → r = selfConsistency K D r → r < ε := by
+  obtain ⟨c, hc0, hc4, hgap⟩ := exists_sRatio_gap (a₀ := 2 * ε) (by linarith)
+  have hhalf : 0 < 1 / 2 - c := by linarith
+  refine ⟨D / (1 / 2 - c) - 2 * D, ?_, ?_⟩
+  · have h : 2 * D < D / (1 / 2 - c) := by
+      rw [lt_div_iff₀ hhalf]; nlinarith
+    linarith
+  · intro K r hKlow hKhigh hrpos hfix
+    rw [critical_coupling] at hKlow hKhigh
+    have hK : 0 < K := by linarith
+    by_contra hcon
+    have hre : ε ≤ r := not_lt.mp hcon
+    have ha : 2 * ε ≤ K * r / D := by
+      rw [le_div_iff₀ hD]; nlinarith
+    have hE : vonMisesSRatio (K * r / D) = D / K :=
+      (coherent_iff_sRatio_eq hD hK (ne_of_gt hrpos)).mp hfix
+    have h1 : D / K ≤ 1 / 2 - c := hE ▸ hgap _ ha
+    have h2 : D / (1 / 2 - c) ≤ K := by
+      rw [div_le_iff₀ hhalf]
+      rw [div_le_iff₀ hK] at h1
+      linarith
+    linarith
+
+/-- **`K_c = 2D` for the self-consistency equation**, now all three parts in one
+statement: at or below the threshold the incoherent state is the only
+non-negative solution, strictly above it a coherent one exists, and the coherent
+branch emerges continuously from zero rather than jumping.
+
+The threshold `K = critical_coupling D` itself used to be covered by neither
+half; `fixed_point_eq_zero_of_le_critical` now puts it on the incoherent side,
+so the two regimes together exhaust `K ≥ 0` with no gap. The von Mises ansatz is
+assumed throughout; see the file header.
+
+**What is still missing.** Uniqueness of the coherent solution — see
+`coherent_branch_continuous_at_threshold` for the exact reduction and why it is
+harder than the rest. -/
 theorem critical_coupling_is_threshold {K D : ℝ} (hD : 0 < D) (hK : 0 ≤ K) :
-    (K < critical_coupling D →
+    (K ≤ critical_coupling D →
       ∀ r : ℝ, 0 ≤ r → r = selfConsistency K D r → r = 0)
     ∧ (critical_coupling D < K →
-      ∃ r : ℝ, 0 < r ∧ r ≤ 1 ∧ r = selfConsistency K D r) :=
-  ⟨fun h r hr hfix => subcritical_fixed_point_eq_zero' (r := r) hD hK h hr hfix,
-    fun h => supercritical_fixed_point_exists hD h⟩
+      ∃ r : ℝ, 0 < r ∧ r ≤ 1 ∧ r = selfConsistency K D r)
+    ∧ (∀ ε : ℝ, 0 < ε → ∃ δ : ℝ, 0 < δ ∧ ∀ K' r : ℝ,
+        critical_coupling D < K' → K' < critical_coupling D + δ →
+        0 < r → r = selfConsistency K' D r → r < ε) :=
+  ⟨fun h r hr hfix => fixed_point_eq_zero_of_le_critical (r := r) hD hK h hr hfix,
+    fun h => supercritical_fixed_point_exists hD h,
+    fun _ hε => coherent_branch_continuous_at_threshold hD hε⟩
 
 section PhaseTransition
 
@@ -850,6 +1107,30 @@ different regimes rather than always falling on one side. -/
 example (r : ℝ) (hr : 0 ≤ r) (hfix : r = selfConsistency 3 2 r) : r = 0 :=
   subcritical_fixed_point_eq_zero' (by norm_num) (by norm_num)
     (by rw [critical_coupling]; norm_num) hr hfix
+
+/-- **The threshold case fires, and is not vacuous.** At `D = 1`, `K = 2` sits
+exactly on `critical_coupling 1 = 2` — the case neither older theorem covered —
+and the only non-negative solution is the incoherent one. -/
+example (r : ℝ) (hr : 0 ≤ r) (hfix : r = selfConsistency 2 1 r) : r = 0 :=
+  fixed_point_eq_zero_of_le_critical (by norm_num) (by norm_num)
+    (by rw [critical_coupling]; norm_num) hr hfix
+
+/-- The strict bound it rests on is not vacuous either: `R(1) < 1/2`. -/
+example : besselRatio 1 < 1 / 2 := by
+  simpa using besselRatio_lt_half_self (a := 1) one_pos
+
+/-- The no-jump statement, instantiated: at `D = 1` there is a band above the
+threshold on which every coherent solution is smaller than `1/10`. -/
+example : ∃ δ : ℝ, 0 < δ ∧ ∀ K r : ℝ, critical_coupling 1 < K →
+    K < critical_coupling 1 + δ → 0 < r → r = selfConsistency K 1 r → r < 1 / 10 :=
+  coherent_branch_continuous_at_threshold one_pos (by norm_num)
+
+/-- The level-set reading, on the supercritical solution of the example above:
+its concentration is where the mean of `sin²` equals `D/K`. -/
+example : ∃ r : ℝ, 0 < r ∧ vonMisesSRatio (3 * r / 1) = 1 / 3 := by
+  obtain ⟨r, hrpos, _, hfix⟩ :=
+    supercritical_fixed_point_exists (D := 1) (K := 3) one_pos (by rw [critical_coupling]; norm_num)
+  exact ⟨r, hrpos, (coherent_iff_sRatio_eq one_pos (by norm_num) (ne_of_gt hrpos)).mp hfix⟩
 
 /-- The same statement read through §7: at `D = 1`, `K = 3` there is a von Mises
 density whose own order parameter is positive. -/

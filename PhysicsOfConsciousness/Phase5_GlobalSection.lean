@@ -20,6 +20,81 @@ theorem probability_is_sheaf : TopCat.Presheaf.IsSheaf (probabilityPresheaf X) :
 
 noncomputable def GlobalSection := (probabilityPresheaf X).obj (op ⊤)
 
+/-! ## The gluing lemma, with no physics in it
+
+`probability_glue_unique` is the sheaf condition and nothing else: a family of
+local probability sections that agrees on overlaps comes from exactly one
+section over `⊤`. It is stated separately from `ThermodynamicCover` so that the
+division of labour in Derivation 5 is visible in the source — this lemma
+supplies the *mathematics*, and the class supplies the *hypothesis* that a
+synchronised cover has an agreeing family (`section_agrees_of_phase_eq`).
+
+Both halves matter, and it is worth being precise about which is which.
+Existence of the common measure is a theorem about the presheaf: it is where
+"the patches are locally consistent" turns into "there is one global object".
+Uniqueness is what makes that object *the* state rather than a choice. Before
+2026-08-30 only the second half was doing any work, because the class carried
+the global object as a field.
+-/
+
+omit [TriangulatedManifold ↥X] in
+/-- **A compatible family of local probability sections glues to a unique global
+one.** No hypothesis here mentions phases, coupling or equilibrium: this is the
+sheaf property of `probabilityPresheaf`, transported from `iSup cover` to `⊤`
+along `h_cover`.
+
+What it does *not* establish: that any particular physical system produces a
+compatible family. That is `LocalSectionSynchronization.section_agrees_of_phase_eq`,
+which is an instance obligation. -/
+theorem probability_glue_unique {I : Type u} (cover : I → Opens X)
+    (h_cover : iSup cover = ⊤)
+    (s : (i : I) → (probabilityPresheaf X).obj (op (cover i)))
+    (h_compat : ∀ i j,
+      (probabilityPresheaf X).map (homOfLE (inf_le_left : cover i ⊓ cover j ≤ cover i)).op (s i) =
+      (probabilityPresheaf X).map (homOfLE (inf_le_right : cover i ⊓ cover j ≤ cover j)).op (s j)) :
+    ∃! g : GlobalSection (X := X),
+      ∀ i : I, (probabilityPresheaf X).map (homOfLE (le_top : cover i ≤ ⊤)).op g = s i := by
+  have h_sheaf_gluing :=
+    (TopCat.Presheaf.isSheaf_iff_isSheafUniqueGluing_types (probabilityPresheaf X)).mp
+      probability_is_sheaf
+  have ⟨g, hg, h_uniq⟩ := h_sheaf_gluing cover s h_compat
+  let e' : op (iSup cover) ⟶ op ⊤ := (eqToHom (by rw [h_cover])).op
+  let g_top : GlobalSection (X := X) := (probabilityPresheaf X).map e' g
+  use g_top
+  constructor
+  · intro i
+    have H_map : (probabilityPresheaf X).map (homOfLE (le_top : cover i ≤ ⊤)).op g_top =
+                 ((probabilityPresheaf X).map e' ≫
+                   (probabilityPresheaf X).map (homOfLE (le_top : cover i ≤ ⊤)).op) g := rfl
+    rw [H_map, ← (probabilityPresheaf X).map_comp]
+    have H_eq : e' ≫ (homOfLE (le_top : cover i ≤ ⊤)).op = (Opens.leSupr cover i).op := by
+      apply Subsingleton.elim
+    rw [H_eq]
+    exact hg i
+  · intro g' hg'
+    let e_inv : op ⊤ ⟶ op (iSup cover) := (eqToHom (by rw [h_cover.symm])).op
+    have H_g'_eq : g' = ((probabilityPresheaf X).map e_inv ≫ (probabilityPresheaf X).map e') g' := by
+      rw [← (probabilityPresheaf X).map_comp]
+      have h_id : e_inv ≫ e' = 𝟙 _ := by apply Subsingleton.elim
+      rw [h_id, (probabilityPresheaf X).map_id]
+      rfl
+    rw [H_g'_eq]
+    have H_apply : (probabilityPresheaf X).map e_inv g' = g := by
+      apply h_uniq
+      intro i
+      have H_map2 : (probabilityPresheaf X).map (Opens.leSupr cover i).op
+            ((probabilityPresheaf X).map e_inv g') =
+          ((probabilityPresheaf X).map e_inv ≫
+            (probabilityPresheaf X).map (Opens.leSupr cover i).op) g' := rfl
+      rw [H_map2, ← (probabilityPresheaf X).map_comp]
+      have H_eq2 : e_inv ≫ (Opens.leSupr cover i).op = (homOfLE (le_top : cover i ≤ ⊤)).op := by
+        apply Subsingleton.elim
+      rw [H_eq2]
+      exact hg' i
+    change (probabilityPresheaf X).map e' ((probabilityPresheaf X).map e_inv g') =
+      (probabilityPresheaf X).map e' g
+    rw [H_apply]
+
 /--
 Structure bundling a cover with a coupling matrix that has already reached
 thermodynamic equilibrium.
@@ -30,8 +105,8 @@ structure, not a result derived from dynamics. `global_section_from_thermodynami
 therefore proves "given a cover already at the potential minimum, the local
 sections glue uniquely" — the physical work of getting to that minimum is done
 by the informal argument in the manuscript (and, numerically, by
-`simulations/kuramoto.py`), not by Lean. Instances of this class are what carry
-the physical content.
+`simulations/kuramoto.py`), not by Lean. This is open item **O20**; instances of
+this class are what carry the physical content.
 -/
 class ThermodynamicCover (X : TopCat.{u}) [MeasurableSpace X] [BorelSpace X] [TriangulatedManifold ↥X] 
   extends LocalSectionSynchronization X where
@@ -47,49 +122,97 @@ class ThermodynamicCover (X : TopCat.{u}) [MeasurableSpace X] [BorelSpace X] [Tr
       kuramoto_potential_dynamic (V := I) ⟨fun _ => 0, A, A_symm⟩ phase ≤ 
       kuramoto_potential_dynamic (V := I) ⟨fun _ => 0, A, A_symm⟩ theta
 
-theorem global_section_from_thermodynamics [T : ThermodynamicCover X] :
-  ∃! s : GlobalSection (X := X), 
-    ∀ i : T.I, (probabilityPresheaf X).map (homOfLE (le_top : T.cover i ≤ ⊤)).op s = T.sync_to_section i := by
+/-- **Every `ThermodynamicCover` sits at a phase-locked configuration.** This is
+forced, not assumed: `thermodynamic_equilibrium` says the phase field minimises
+the reduced Kuramoto potential, and the minimisers of that functional are
+exactly the locked states.
+
+It does *not* say the phase field is constant. `theta i` and `theta j` may
+differ by any multiple of `2π`, and `Examples.lean` §13 exhibits an instance
+where they do. What it says is that no instance can be at a configuration where
+the phases differ in any way a measure is allowed to see. -/
+theorem ThermodynamicCover.phase_locked (T : ThermodynamicCover X) :
+    is_phase_locked T.phase := by
   let := T.I_fintype
   let := T.I_decidable
-  have h_locked : is_phase_locked T.phase := 
-    potential_min_implies_phase_locked ⟨fun _ => 0, T.A, T.A_symm⟩ T.A_pos T.phase T.thermodynamic_equilibrium
-  have h_eq : phase_locked_equilibrium (S := T.toLocalSectionSynchronization) := by
-    intro i j; exact h_locked i j
-  have h_compat : TopCat.Presheaf.IsCompatible (probabilityPresheaf X) T.cover T.sync_to_section := by
-    intro i j
-    exact overlap_agreement h_eq i j
-  have h_sheaf_gluing := (TopCat.Presheaf.isSheaf_iff_isSheafUniqueGluing_types (probabilityPresheaf X)).mp probability_is_sheaf
-  have ⟨s, hs, h_uniq⟩ := h_sheaf_gluing T.cover T.sync_to_section h_compat
-  let e' : op (iSup T.cover) ⟶ op ⊤ := (eqToHom (by rw [T.is_cover])).op
-  let s_top : GlobalSection (X := X) := (probabilityPresheaf X).map e' s
-  use s_top
-  constructor
-  · intro i
-    have H_map : (probabilityPresheaf X).map (homOfLE (le_top : T.cover i ≤ ⊤)).op s_top = 
-                 ((probabilityPresheaf X).map e' ≫ (probabilityPresheaf X).map (homOfLE (le_top : T.cover i ≤ ⊤)).op) s := rfl
-    rw [H_map, ← (probabilityPresheaf X).map_comp]
-    have H_eq : e' ≫ (homOfLE (le_top : T.cover i ≤ ⊤)).op = (Opens.leSupr T.cover i).op := by apply Subsingleton.elim
-    rw [H_eq]
-    exact hs i
-  · intro s' hs'
-    let e_inv : op ⊤ ⟶ op (iSup T.cover) := (eqToHom (by rw [T.is_cover.symm])).op
-    have H_s'_eq : s' = ((probabilityPresheaf X).map e_inv ≫ (probabilityPresheaf X).map e') s' := by
-      rw [← (probabilityPresheaf X).map_comp]
-      have h_id : e_inv ≫ e' = 𝟙 _ := by apply Subsingleton.elim
-      rw [h_id, (probabilityPresheaf X).map_id]
-      rfl
-    rw [H_s'_eq]
-    have H_apply : (probabilityPresheaf X).map e_inv s' = s := by
-      apply h_uniq
-      intro i
-      have H_map2 : (probabilityPresheaf X).map (Opens.leSupr T.cover i).op ((probabilityPresheaf X).map e_inv s') = 
-                    ((probabilityPresheaf X).map e_inv ≫ (probabilityPresheaf X).map (Opens.leSupr T.cover i).op) s' := rfl
-      rw [H_map2, ← (probabilityPresheaf X).map_comp]
-      have H_eq2 : e_inv ≫ (Opens.leSupr T.cover i).op = (homOfLE (le_top : T.cover i ≤ ⊤)).op := by apply Subsingleton.elim
-      rw [H_eq2]
-      exact hs' i
-    change (probabilityPresheaf X).map e' ((probabilityPresheaf X).map e_inv s') = (probabilityPresheaf X).map e' s
-    rw [H_apply]
+  exact potential_min_implies_phase_locked ⟨fun _ => 0, T.A, T.A_symm⟩ T.A_pos T.phase
+    T.thermodynamic_equilibrium
+
+/-- **Derivation 5.** A cover at thermodynamic equilibrium determines exactly one
+global probability section, and that section restricts to the cover's local data.
+
+The chain is: `thermodynamic_equilibrium` forces the phase field to be locked
+(`ThermodynamicCover.phase_locked`); locking makes the family agree on overlaps
+(`overlap_agreement`, from the instance obligation
+`section_agrees_of_phase_eq`); an agreeing family glues uniquely
+(`probability_glue_unique`).
+
+**What carries physical content.** Two hypotheses, both instance obligations and
+both flagged as such: that the cover is at the potential minimum (**O20** — no
+dynamics is run), and that synchronised patches agree on overlaps. Given those,
+existence and uniqueness of the global section are mathematics.
+
+**What is no longer assumed.** Until 2026-08-30 the class carried the global
+section as a field and declared the local sections to be its restrictions, so
+this theorem could only rule out competitors to an object already supplied. It
+now produces the object. See `ThermodynamicCover.sync_to_section_eq` for the old
+field in its new status, and `Examples.lean` §14 for a cover where the glued
+section is not any of the data the instance was built from. -/
+theorem global_section_from_thermodynamics [T : ThermodynamicCover X] :
+  ∃! s : GlobalSection (X := X), 
+    ∀ i : T.I, (probabilityPresheaf X).map (homOfLE (le_top : T.cover i ≤ ⊤)).op s = T.sync_to_section i :=
+  probability_glue_unique T.cover T.is_cover T.sync_to_section
+    (overlap_agreement (S := T.toLocalSectionSynchronization) fun i j => T.phase_locked i j)
+
+/-! ## The invariant measure, as a conclusion
+
+The three declarations below are the answer to open item **O19**, which asked
+whether Derivation 5's gluing was an emergence theorem or merely a uniqueness
+theorem. Under the class shape in force until 2026-08-30 it was the latter: the
+field `phase_invariant_measure` handed every instance a global section, and
+`sync_to_section_eq` declared the local data to be its restrictions.
+
+Both fields are gone. `invariantMeasure` is *defined* as the section the sheaf
+condition produces, and `sync_to_section_eq` — the old field, verbatim in
+content — is now a theorem about it. Nothing in an instance mentions a global
+object; the global object is what the theorem is for.
+
+**What this does not fix.** The remaining hypotheses of Derivation 5 are
+unchanged, and they are the physical ones: that the cover sits at the potential
+minimum (**O20**), and that synchronised patches agree where they overlap. The
+change is to what follows from them, not to how much is assumed.
+-/
+
+open scoped Classical in
+/-- **The invariant measure of a cover at equilibrium**: the unique global
+probability section its patches glue to.
+
+Derived, not carried. This is the declaration that used to be a class field. -/
+noncomputable def ThermodynamicCover.invariantMeasure (T : ThermodynamicCover X) :
+    GlobalSection (X := X) :=
+  (@global_section_from_thermodynamics X _ _ _ T).choose
+
+/-- **The old class field, now a theorem.** Every local section of a cover at
+equilibrium *is* the restriction of one global measure — the cover's
+`invariantMeasure`.
+
+This is the exact statement `sync_to_section_eq` used to assume. Its content is
+unchanged and its status is not: it is a consequence of the local agreement
+condition and the sheaf property, and the measure it names is constructed rather
+than supplied. -/
+theorem ThermodynamicCover.sync_to_section_eq (T : ThermodynamicCover X) (i : T.I) :
+    T.sync_to_section i =
+      (probabilityPresheaf X).map (homOfLE (le_top : T.cover i ≤ ⊤)).op T.invariantMeasure :=
+  ((@global_section_from_thermodynamics X _ _ _ T).choose_spec.1 i).symm
+
+/-- The invariant measure is the *only* global section restricting to the cover's
+local data — the uniqueness half of Derivation 5, stated on the constructed
+object. -/
+theorem ThermodynamicCover.invariantMeasure_unique (T : ThermodynamicCover X)
+    (s : GlobalSection (X := X))
+    (hs : ∀ i : T.I, (probabilityPresheaf X).map (homOfLE (le_top : T.cover i ≤ ⊤)).op s
+      = T.sync_to_section i) :
+    s = T.invariantMeasure :=
+  (@global_section_from_thermodynamics X _ _ _ T).choose_spec.2 s hs
 
 end PhysicsOfConsciousness
