@@ -14,6 +14,45 @@ def is_kuramoto_trajectory (sys : KuramotoSystem V) (theta : ℝ → V → ℝ) 
     HasDerivAt (fun t => theta t i) 
       (sys.omega i + ∑ j, sys.A i j * Real.sin (theta t j - theta t i)) t
 
+omit [DecidableEq V] in
+/-- `is_kuramoto_trajectory` is exactly "integral curve of `kuramotoField`". The
+definition above is stated componentwise, which is what the descent results
+want; the ODE library wants the bundled form. On a finite index type
+`hasDerivAt_pi` says the two are the same thing. -/
+lemma is_kuramoto_trajectory_iff (sys : KuramotoSystem V) (theta : ℝ → V → ℝ) :
+    is_kuramoto_trajectory sys theta ↔ ∀ t, HasDerivAt theta (kuramotoField sys (theta t)) t :=
+  ⟨fun h t => hasDerivAt_pi.2 fun i => h i t, fun h i t => hasDerivAt_pi.1 (h t) i⟩
+
+omit [DecidableEq V] in
+/-- **Kuramoto trajectories are determined by their value at any one time.**
+Two solutions of the same system agreeing at a single instant agree for all
+time, forwards *and* backwards, on all of `ℝ`.
+
+This is Picard–Lindelöf uniqueness, and it is global rather than local because
+`kuramotoField_lipschitz` is global: the field is Lipschitz on the whole state
+space, not merely on a ball, so no continuation argument is needed.
+
+**What it does not establish: existence.** Nothing here says a trajectory
+through a given initial state exists, and that is open item **O20(a)**. The
+obstacle is not the field — it is bounded and globally Lipschitz, so
+`IsPicardLindelof` holds on every bounded time interval — but Mathlib's ODE
+library, which proves existence only on an `Icc` whose length is constrained by
+the ball radius and carries no global-in-time existence theorem. Getting from
+"a solution on each `[-n, n]`" to "a solution on `ℝ`" is a gluing argument this
+development does not yet have. What *is* exhibited, in `Examples.lean` §15, is a
+concrete non-constant trajectory on all of `ℝ` — so
+`is_kuramoto_trajectory` is inhabited by something that moves, and by uniqueness
+that trajectory is the only one through its initial state. -/
+theorem is_kuramoto_trajectory_unique (sys : KuramotoSystem V)
+    (theta psi : ℝ → V → ℝ)
+    (hth : is_kuramoto_trajectory sys theta) (hps : is_kuramoto_trajectory sys psi)
+    (t₀ : ℝ) (h0 : theta t₀ = psi t₀) : theta = psi :=
+  ODE_solution_unique_univ (K := Real.toNNReal (2 * ∑ i, ∑ j, |sys.A i j|))
+    (v := fun _ => kuramotoField sys) (s := fun _ => Set.univ) (t₀ := t₀)
+    (fun _ => (kuramotoField_lipschitz sys).lipschitzOnWith)
+    (fun t => ⟨(is_kuramoto_trajectory_iff sys theta).1 hth t, trivial⟩)
+    (fun t => ⟨(is_kuramoto_trajectory_iff sys psi).1 hps t, trivial⟩) h0
+
 -- 2. Macroscopic Order Parameter
 noncomputable def order_parameter_complex (theta : V → ℝ) : ℂ :=
   (1 / (Fintype.card V : ℂ)) * ∑ j, Complex.exp (I * (theta j : ℂ))

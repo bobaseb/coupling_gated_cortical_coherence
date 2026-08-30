@@ -45,6 +45,71 @@ noncomputable def kuramoto_potential (sys : KuramotoSystem V) (theta : V → ℝ
 noncomputable def kuramoto_velocity (sys : KuramotoSystem V) (theta : V → ℝ) (i : V) : ℝ :=
   sys.omega i + ∑ j, sys.A i j * Real.sin (theta j - theta i)
 
+/-- The Kuramoto vector field as a self-map of the state space `V → ℝ`, which is
+what the ODE theorems in `Mathlib.Analysis.ODE` want. Pointwise it is
+`kuramoto_velocity`; the only difference is that the index is bundled. -/
+noncomputable def kuramotoField (sys : KuramotoSystem V) (theta : V → ℝ) : V → ℝ :=
+  fun i => kuramoto_velocity sys theta i
+
+omit [DecidableEq V] in
+/-- **The Kuramoto field is globally Lipschitz**, with constant `2 ∑ᵢⱼ |Aᵢⱼ|`.
+
+Two facts make this hold with no smallness or locality caveat: `sin` is
+`1`-Lipschitz, and `V` is finite so the sum over `j` is finite. The natural
+frequencies drop out — they are an additive constant in `θ` — so the bound sees
+only the coupling matrix. The state space carries the sup metric, which is why
+the row sum rather than the whole matrix would suffice; `∑ᵢⱼ |Aᵢⱼ|` is used
+because it dominates every row and needs no `max`.
+
+This is what makes the Kuramoto ODE well-posed in the strong sense: uniqueness
+of solutions holds on all of `ℝ`, not just locally. See
+`is_kuramoto_trajectory_unique` in `Phase4_KuramotoDynamics.lean`, and the scope
+note there for what is *not* proved (global existence). -/
+lemma kuramotoField_lipschitz (sys : KuramotoSystem V) :
+    LipschitzWith (Real.toNNReal (2 * ∑ i, ∑ j, |sys.A i j|)) (kuramotoField sys) := by
+  set C : ℝ := ∑ i, ∑ j, |sys.A i j| with hC
+  have hC0 : 0 ≤ C := by
+    apply Finset.sum_nonneg; intro i _; apply Finset.sum_nonneg; intro j _; positivity
+  have hrow : ∀ i, ∑ j, |sys.A i j| ≤ C := by
+    intro i
+    exact Finset.single_le_sum (f := fun i => ∑ j, |sys.A i j|)
+      (fun k _ => Finset.sum_nonneg fun j _ => abs_nonneg _) (Finset.mem_univ i)
+  refine LipschitzWith.of_dist_le_mul fun x y => ?_
+  have hK : ((Real.toNNReal (2 * C) : NNReal) : ℝ) = 2 * C := Real.coe_toNNReal _ (by positivity)
+  rw [hK, dist_pi_le_iff (by positivity)]
+  intro i
+  have hsin : ∀ a b : ℝ, |Real.sin a - Real.sin b| ≤ |a - b| := by
+    intro a b
+    have := Real.lipschitzWith_sin.dist_le_mul a b
+    simpa [Real.dist_eq] using this
+  have hstep : |kuramotoField sys x i - kuramotoField sys y i|
+      ≤ ∑ j, |sys.A i j| * (2 * dist x y) := by
+    have hexp : kuramotoField sys x i - kuramotoField sys y i
+        = ∑ j, sys.A i j * (Real.sin (x j - x i) - Real.sin (y j - y i)) := by
+      simp [kuramotoField, kuramoto_velocity, Finset.sum_sub_distrib, mul_sub]
+    rw [hexp]
+    refine (Finset.abs_sum_le_sum_abs _ _).trans (Finset.sum_le_sum fun j _ => ?_)
+    rw [abs_mul]
+    refine mul_le_mul_of_nonneg_left ?_ (abs_nonneg _)
+    refine (hsin _ _).trans ?_
+    have h1 : |x j - y j| ≤ dist x y := by
+      simpa [Real.dist_eq] using dist_le_pi_dist x y j
+    have h2 : |x i - y i| ≤ dist x y := by
+      simpa [Real.dist_eq] using dist_le_pi_dist x y i
+    have h3 : |(x j - x i) - (y j - y i)| ≤ |x j - y j| + |x i - y i| := by
+      have he : (x j - x i) - (y j - y i) = (x j - y j) - (x i - y i) := by ring
+      rw [he]
+      exact abs_sub _ _
+    linarith
+  calc dist (kuramotoField sys x i) (kuramotoField sys y i)
+      = |kuramotoField sys x i - kuramotoField sys y i| := Real.dist_eq _ _
+    _ ≤ ∑ j, |sys.A i j| * (2 * dist x y) := hstep
+    _ = (∑ j, |sys.A i j|) * (2 * dist x y) := by rw [← Finset.sum_mul]
+    _ ≤ C * (2 * dist x y) := by
+        apply mul_le_mul_of_nonneg_right (hrow i)
+        positivity
+    _ = 2 * C * dist x y := by ring
+
 omit [DecidableEq V] in
 lemma dV_dt_le_zero (sys : KuramotoSystem V) (theta : ℝ → V → ℝ) (t : ℝ) 
   (h_diff : ∀ i, DifferentiableAt ℝ (fun t => theta t i) t)

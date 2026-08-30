@@ -1373,7 +1373,7 @@ list is to keep it that way.
 | **O12** | **D2 — there is still no Noether theorem.** The class is now inhabited (`Examples.lean` §11, a `ℤ₂` action on a double well, with symmetry breaking exhibited), but no conserved quantity is constructed and no theorem consumes a symmetry group | **Estimate corrected 2026-08-29 — see "Noether: a feasibility probe" at the end of this file.** "A project in itself" is right for the *field-theoretic* theorem and wrong for point mechanics, which was prototyped end to end in one session (~200 lines, zero `sorry`). The structural obstacle is not difficulty: `SymmetryInvariantAction` has **no dynamics**, so no conserved quantity can be attached to it at all |
 | ~~**O19**~~ | **DONE 2026-08-30 — see "The gluing produces its object" at the end of this file.** ~~Derivation 5's gluing is a uniqueness theorem, not an emergence theorem~~ Both global-object fields are removed from `LocalSectionSynchronization`; `probability_glue_unique` isolates the sheaf condition, `ThermodynamicCover.invariantMeasure` constructs the section, and `sync_to_section_eq` is now a theorem. `Examples.lean` §14 is a cover whose glued section is neither of the profiles it was built from | ~~Restate `LocalSectionSynchronization` …~~ done as described; the estimate "touches a class every downstream file uses" was right about the blast radius and wrong about the cost — see the section for why |
 | **O21** | **§10's germ–measure dictionary is built at `⊤` only.** `density`, `massEquiv` and `sectionOfMass` all speak about sections over `⊤`, so `Examples.lean` §14's patch-local sections have to be written as restrictions of global measures even though nothing in the class requires it. Opened 2026-08-30 by O19 | Generalise `massMeasure`/`sectionOfMass` to an arbitrary open `U` — `stalkMass` and `massAt` are already stated at arbitrary opens, so this is bookkeeping — and rebuild §14's local sections directly. Small; Group 1 really, listed here only because it was opened alongside O19 |
-| **O20** | **Nothing in the development runs a dynamics into the minimum.** `ThermodynamicCover.thermodynamic_equilibrium` *assumes* the cover sits at the potential minimum; `Phase4_RotatingFrame` says what that minimum is and `potential_min_iff_phase_locked` (2026-08-30) says exactly which configurations attain it, but no trajectory is shown to reach one. The only trajectory in the whole development is `pairTrajectory Ω t = Ω·t` (`Examples.lean` §7) — a rigid rotation that *starts* synchronised, so it never converges to anything. Neither is any solution shown to **exist**: `is_kuramoto_trajectory` is a predicate, and outside §7 nothing inhabits it | See the decomposition below — parts (a)–(c) are reachable now, (d) is blocked on Mathlib, and (e) is **false as usually stated** |
+| **O20** | **PARTLY DONE 2026-08-30 — see "A dynamics that runs" at the end of this file.** Uniqueness of trajectories is proved on all of `ℝ` (`is_kuramoto_trajectory_unique`, from `kuramotoField_lipschitz`), and `Examples.lean` §15 exhibits a trajectory that starts unsynchronised and converges to the potential's global minimum with `r² → 1`. Parts (a-existence), (b), (c), (d) and (e) remain open in general. ~~Nothing in the development runs a dynamics into the minimum.~~ `ThermodynamicCover.thermodynamic_equilibrium` *assumes* the cover sits at the potential minimum; `Phase4_RotatingFrame` says what that minimum is and `potential_min_iff_phase_locked` (2026-08-30) says exactly which configurations attain it, but no trajectory is shown to reach one. The only trajectory in the whole development is `pairTrajectory Ω t = Ω·t` (`Examples.lean` §7) — a rigid rotation that *starts* synchronised, so it never converges to anything. Neither is any solution shown to **exist**: `is_kuramoto_trajectory` is a predicate, and outside §7 nothing inhabits it | See the decomposition below — parts (a)–(c) are reachable now, (d) is blocked on Mathlib, and (e) is **false as usually stated** |
 
 ### Group 3 — out of reach with current Mathlib
 
@@ -2205,3 +2205,129 @@ Table 1 re-checked by rendering page 4: still fits, with room.
 4. **O21** — build §10's germ–measure dictionary at an arbitrary open rather than
    at `⊤`, which would let §14's local sections be written down directly instead
    of as restrictions. Small, and it removes the last caveat on the O19 witness.
+
+---
+
+## A dynamics that runs — 2026-08-30 — O20 PARTLY DONE
+
+Ranked first after O19. The item is that every Derivation 5 result is
+conditional on `thermodynamic_equilibrium` — the cover is *assumed* to sit at the
+potential minimum — and that nothing in the development runs a trajectory into
+one. Sharper still: `is_kuramoto_trajectory` was a predicate whose only
+inhabitant, `Examples.lean` §7's rigid rotation, starts synchronised and
+therefore never converges to anything.
+
+**Two of the five parts move.** Uniqueness is proved in full generality;
+convergence into the minimum is proved on a witness. Existence in general,
+convergence in general, and the LaSalle part do not move, and the reasons are
+recorded below so a later pass does not re-scope them. Zero `sorry`, zero
+warnings, `lake build` clean. `#print axioms` on every new result reports only
+`propext`, `Classical.choice`, `Quot.sound`.
+
+### The general half — uniqueness, and why it is global
+
+| Declaration | Where | Content |
+|---|---|---|
+| `kuramotoField` | `Phase3_CombinatorialThermodynamics` | `kuramoto_velocity` with the index bundled, so the state space is `V → ℝ` and Mathlib's ODE API applies |
+| `kuramotoField_lipschitz` | `Phase3_CombinatorialThermodynamics` | **The field is globally Lipschitz**, constant `2 ∑ᵢⱼ \|Aᵢⱼ\|`. `sin` is 1-Lipschitz and `V` is finite, so there is no smallness or locality caveat; the natural frequencies drop out, being additive constants in `θ` |
+| `is_kuramoto_trajectory_iff` | `Phase4_KuramotoDynamics` | The componentwise definition is the bundled integral-curve condition, by `hasDerivAt_pi` |
+| `is_kuramoto_trajectory_unique` | `Phase4_KuramotoDynamics` | **Two trajectories agreeing at one instant agree on all of `ℝ`**, forwards and backwards. `ODE_solution_unique_univ` applies directly — no continuation argument, because the Lipschitz bound is global rather than on a ball |
+
+### Why existence did *not* follow, which was the plan's one wrong premise
+
+The O20 decomposition called (a) "the cheapest unclaimed result in the
+development", on the strength of Picard–Lindelöf being present in Mathlib. It is
+present, and it is not enough. **Mathlib has no global-in-time existence
+theorem.** `IsPicardLindelof f t₀ x₀ a r L K` carries the field
+`mul_max_le : L * max (tmax - t₀) (t₀ - tmin) ≤ a - r`, so existence is proved
+only on an interval whose length is bounded by the ball radius divided by the
+field's sup norm. Checked, not assumed: a grep over `Mathlib/Analysis/ODE/`
+finds `ODE_solution_unique_univ` for uniqueness on all of `ℝ` and nothing
+corresponding for existence — the phrase "global solution" occurs once in the
+directory, in that uniqueness theorem's doc-string.
+
+For the Kuramoto field the hypothesis is satisfiable on *every* bounded
+interval, since the field is bounded (`‖F θ‖ ≤ maxᵢ (\|ωᵢ\| + ∑ⱼ \|Aᵢⱼ\|)`) as
+well as Lipschitz: take `r = 0` and `a = L·T`. So solutions on `[-n, n]` exist
+for every `n`, and what is missing is only the gluing — by uniqueness the family
+is coherent, and `β t := α_{⌈|t|⌉} t` is the solution. That is a real but
+mechanical argument, and it is the whole of what stands between here and O20(a).
+It is left undone rather than done badly; it is now the top of the ranking.
+
+### The witness — `Examples.lean` §15
+
+Rather than prove existence in general, exhibit a solution that does what the
+manuscript's prose says. On two oscillators with unit coupling and zero natural
+frequency the phase difference obeys the scalar equation `Δ̇ = -2 sin Δ`, which
+is integrable. The trajectory is
+
+```
+Δ(t) = 2 arctan(c e^{-2t}),   θ_true = Δ/2,   θ_false = -Δ/2
+```
+
+and it is an exact solution of the full Kuramoto system on all of `ℝ`. The one
+analytic input is `sin_two_arctan : sin (2 arctan u) = 2u/(1+u²)`, three lines
+from `Real.sin_arctan` and `Real.cos_arctan`.
+
+| Theorem | Content |
+|---|---|
+| `pairRelax_is_trajectory` | It solves the equations — `is_kuramoto_trajectory (pairSystem 0) (pairRelax c)` |
+| `pairRelax_not_locked_at_zero` | At `c = 1` it **starts a quarter turn out of phase**: `cos Δ(0) = 0 ≠ 1`. Unlike §7's rigid rotation it has somewhere to go |
+| `pairRelax_tendsto_locked` | `cos Δ(t) → 1` — the value `is_phase_locked` demands |
+| `pair_order_parameter` | On two oscillators `r² = (1 + cos Δ)/2`, computed from `order_parameter_complex` |
+| `pairRelax_order_parameter_tendsto` | **`r² → 1`**, the manuscript's own measure of unity |
+| `pairRelax_potential_tendsto_min` | **The dynamic potential tends to its global minimum**, the value `phase_locked_minimizes_potential` names (`-2` here) |
+| `pairRelax_unique` | By `is_kuramoto_trajectory_unique`, this is the *only* solution through its initial state — so the convergence is not a lucky choice among many |
+
+### What is still open, stated precisely
+
+* **O20(a), existence in general** — as above: the gluing of local solutions.
+  Mechanical, and now the cheapest item on the list for real.
+* **O20(b)/(c), convergence of `V(θ(t))` and `∫ ∑ θ̇ᵢ² < ∞` for an arbitrary
+  trajectory.** Untouched by this pass. Still cheap given `dV_dt_le_zero` and
+  `phase_locked_minimizes_potential`; §15 proves the conclusion on a witness by
+  computing the limit directly, which is not the same theorem.
+* **O20(d), convergence to an equilibrium** — still blocked on a LaSalle
+  principle Mathlib does not have, and on the absence of a compact invariant set
+  (`is_kuramoto_trajectory` lives on `V → ℝ`, phases as unbounded reals).
+* **O20(e)** — still **false** as usually stated: splay and twisted
+  configurations are equilibria, so "every trajectory reaches the phase-locked
+  state" is not a theorem. The provable version is the arc condition, all phases
+  starting within a half-circle. §15's witness satisfies it for every `c`, since
+  `2 arctan` lands in `(-π, π)` — which is exactly why it converges, and the
+  doc-string says so.
+
+### Manuscript, and a table defect found while checking it
+
+`main.tex`: a new Table 1 row, "Kuramoto dynamics run"; Derivation 5's closing
+paragraph rewritten, since it asserted that no trajectory in the development
+reaches the minimum or exists outside §7 — true when written this morning, false
+now. `supplementary.tex`: a new "Trajectories that run" note under Derivation 3's
+rotating-frame implementation section.
+
+**Table 1 was silently losing the tail of its caption, and had been for some
+time.** Adding a row surfaced it: `LaTeX Warning: Float too large for page by
+212.6pt`. Checking `HEAD` showed the same warning at 136.2pt, so the defect
+predates this pass — the final sentence of the caption ("…so no row is vacuous")
+was absent from the compiled PDF, which `grep` over `pdftotext` output confirms.
+A `table` float that overflows is not an overfull box and does not appear in the
+hbox count, which is why the recorded check "Table 1 re-checked and still fits
+its page" kept passing. Fixed by converting the table to `longtable`, which
+breaks across pages with a repeated header; Table 1 now runs pages 4–5 and the
+caption is complete. **Lesson for future passes: check `grep -i "too large"` on
+the log, not just the overfull-hbox count.**
+
+Overfull hboxes: `main` 0, `supplementary` 13 — both unchanged.
+
+### Ranking after this pass
+
+1. **O20(a)** — global existence by gluing the local Picard–Lindelöf solutions,
+   as scoped above. Mechanical, bounded, and it removes the last reason
+   `is_kuramoto_trajectory` could be called under-inhabited.
+2. **O20(b)–(c)** — convergence of the potential along an *arbitrary* trajectory,
+   and the integral bound. Near-free given `dV_dt_le_zero`; §15 does not
+   substitute for them.
+3. **O8 uniqueness** — injectivity of `E(a) = 𝔼_a[sin²θ]` on `(0, ∞)`. Obstacle 3
+   (the covariance is not sign-definite pointwise) makes it the hardest.
+4. **O2** — `auto_resonance` is unconstrained by the field (Derivation 6). Cheap.
+5. **O21** — build §10's germ–measure dictionary at an arbitrary open.

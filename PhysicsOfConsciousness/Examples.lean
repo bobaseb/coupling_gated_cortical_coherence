@@ -2444,5 +2444,246 @@ theorem rightW_glues_nothing :
 
 end GluedCover
 
+
+/-! ## 15. A trajectory that runs into the minimum
+
+  Open item **O20** records that nothing in this development runs a dynamics.
+  Every Derivation 5 result is conditional on `thermodynamic_equilibrium` — the
+  cover is *assumed* to sit at the potential minimum — and until now the only
+  trajectory anywhere in the development was §7's rigid rotation
+  `pairTrajectory Ω t = Ω·t`, which starts synchronised and therefore never
+  converges to anything. `is_kuramoto_trajectory` was a predicate whose one
+  inhabitant began at its own limit.
+
+  This section exhibits a trajectory that does not. On two oscillators with unit
+  coupling and zero natural frequency, the phase difference `Δ = θ₁ - θ₀` obeys
+  the scalar equation `Δ̇ = -2 sin Δ`, which is integrable: `Δ(t) = 2 arctan(c
+  e^{-2t})`. Splitting it symmetrically gives an exact solution of the full
+  Kuramoto system (`pairRelax_is_trajectory`), defined on all of `ℝ`, and
+  everything downstream is a statement about it:
+
+  * it is **not** phase-locked at time zero — at `c = 1` the phases start a
+    quarter turn apart (`pairRelax_not_locked_at_zero`);
+  * the cosine of the phase difference tends to `1`
+    (`pairRelax_tendsto_locked`), which is the value `is_phase_locked` demands;
+  * the order parameter tends to `1` (`pairRelax_order_parameter_tendsto`), via
+    the two-oscillator identity `r² = (1 + cos Δ)/2`;
+  * and the dynamic potential tends to its **global minimum**
+    (`pairRelax_potential_tendsto_min`) — the value
+    `phase_locked_minimizes_potential` names.
+
+  **What this settles and what it does not.** It settles the vacuity worry:
+  the phrase "a thermodynamic phase transition into unity" now has one instance
+  in Lean where a trajectory genuinely runs from a non-synchronised state into
+  the minimiser, rather than being placed there by hypothesis. Combined with
+  `is_kuramoto_trajectory_unique` this is the *only* trajectory through its
+  initial state, so it is not one solution among many.
+
+  It does not settle O20. Nothing here is general: there is still no theorem
+  that an arbitrary Kuramoto system has a solution (O20(a) — Mathlib's ODE
+  library gives existence only on bounded intervals), that an arbitrary
+  trajectory's potential converges (O20(b)), or that it converges to an
+  equilibrium (O20(d), which needs a LaSalle principle Mathlib does not have).
+  And the general statement of O20(e) is **false**: splay and twisted
+  configurations are equilibria too, so no theorem of the form "every trajectory
+  reaches the phase-locked state" can be proved. The arc condition that makes it
+  true — all phases starting within a half-circle — is satisfied here for every
+  `c`, since `2 arctan` lands in `(-π, π)`, and that is exactly why this witness
+  converges.
+-/
+
+section RunningDynamics
+
+/-- `sin(2 arctan u) = 2u/(1+u²)`. -/
+lemma sin_two_arctan (u : ℝ) : Real.sin (2 * Real.arctan u) = 2 * u / (1 + u ^ 2) := by
+  have h1 : (0:ℝ) < 1 + u ^ 2 := by positivity
+  rw [Real.sin_two_mul, Real.sin_arctan, Real.cos_arctan]
+  have hs : Real.sqrt (1 + u ^ 2) * Real.sqrt (1 + u ^ 2) = 1 + u ^ 2 :=
+    Real.mul_self_sqrt h1.le
+  have hne : Real.sqrt (1 + u ^ 2) ≠ 0 := by positivity
+  have hsq : Real.sqrt (1 + u ^ 2) ^ 2 = 1 + u ^ 2 := Real.sq_sqrt h1.le
+  field_simp
+  rw [hsq]
+
+/-- The relaxing gap: `c e^{-2t}`, the tangent of half the phase difference. -/
+noncomputable def relaxU (c : ℝ) (t : ℝ) : ℝ := c * Real.exp (-2 * t)
+
+/-- Half the phase difference along the relaxing trajectory. -/
+noncomputable def relaxAngle (c : ℝ) (t : ℝ) : ℝ := Real.arctan (relaxU c t)
+
+/-- The relaxing two-oscillator trajectory: the phases approach each other. -/
+noncomputable def pairRelax (c : ℝ) : ℝ → Bool → ℝ :=
+  fun t i => if i then relaxAngle c t else -relaxAngle c t
+
+lemma hasDerivAt_relaxU (c t : ℝ) : HasDerivAt (relaxU c) (-2 * relaxU c t) t := by
+  have hin : HasDerivAt (fun t : ℝ => -2 * t) (-2 : ℝ) t := by
+    simpa using (hasDerivAt_id t).const_mul (-2 : ℝ)
+  have h : HasDerivAt (fun t : ℝ => Real.exp (-2 * t)) (Real.exp (-2 * t) * (-2)) t :=
+    (Real.hasDerivAt_exp (-2 * t)).comp t hin
+  have h2 := h.const_mul c
+  refine h2.congr_deriv ?_
+  simp [relaxU]
+  ring
+
+lemma hasDerivAt_relaxAngle (c t : ℝ) :
+    HasDerivAt (relaxAngle c) (-2 * relaxU c t / (1 + relaxU c t ^ 2)) t := by
+  have := (hasDerivAt_relaxU c t).arctan
+  refine this.congr_deriv ?_
+  field_simp
+
+/-- **A trajectory that runs into synchrony.** The relaxing pair solves the
+zero-frequency Kuramoto equations exactly. -/
+theorem pairRelax_is_trajectory (c : ℝ) :
+    is_kuramoto_trajectory (pairSystem 0) (pairRelax c) := by
+  intro i t
+  have hsin := sin_two_arctan (relaxU c t)
+  cases i
+  · have hval : (pairSystem 0).omega false
+        + ∑ j, (pairSystem 0).A false j * Real.sin (pairRelax c t j - pairRelax c t false)
+        = -(-2 * relaxU c t / (1 + relaxU c t ^ 2)) := by
+      simp only [pairSystem, pairRelax, relaxAngle, Fintype.sum_bool]
+      norm_num
+      rw [show Real.arctan (relaxU c t) + Real.arctan (relaxU c t)
+          = 2 * Real.arctan (relaxU c t) by ring, hsin]
+      ring
+    rw [hval]
+    have hfun : (fun t : ℝ => pairRelax c t false) = fun t => -relaxAngle c t := by
+      funext s; simp [pairRelax]
+    rw [hfun]
+    exact (hasDerivAt_relaxAngle c t).neg
+  · have hval : (pairSystem 0).omega true
+        + ∑ j, (pairSystem 0).A true j * Real.sin (pairRelax c t j - pairRelax c t true)
+        = -2 * relaxU c t / (1 + relaxU c t ^ 2) := by
+      simp only [pairSystem, pairRelax, relaxAngle, Fintype.sum_bool]
+      norm_num
+      rw [show -Real.arctan (relaxU c t) - Real.arctan (relaxU c t)
+          = -(2 * Real.arctan (relaxU c t)) by ring, Real.sin_neg, hsin]
+      ring
+    rw [hval]
+    have hfun : (fun t : ℝ => pairRelax c t true) = fun t => relaxAngle c t := by
+      funext s; simp [pairRelax]
+    rw [hfun]
+    exact hasDerivAt_relaxAngle c t
+
+/-! ### It converges, and it does not start where it ends -/
+
+lemma relaxU_tendsto (c : ℝ) : Tendsto (relaxU c) atTop (𝓝 0) := by
+  have hb : Tendsto (fun t : ℝ => -2 * t) atTop atBot := by
+    have h2 : Tendsto (fun t : ℝ => (2 : ℝ) * t) atTop atTop :=
+      Filter.Tendsto.const_mul_atTop (by norm_num) tendsto_id
+    have : (fun t : ℝ => -2 * t) = fun t : ℝ => -((2 : ℝ) * t) := by funext t; ring
+    rw [this]
+    exact tendsto_neg_atBot_iff.2 h2
+  have he : Tendsto (fun t : ℝ => Real.exp (-2 * t)) atTop (𝓝 0) :=
+    Real.tendsto_exp_atBot.comp hb
+  have h3 := he.const_mul c
+  have heq : relaxU c = fun t : ℝ => c * Real.exp (-2 * t) := by funext t; rfl
+  rw [heq]
+  simpa using h3
+
+lemma relaxAngle_tendsto (c : ℝ) : Tendsto (relaxAngle c) atTop (𝓝 0) := by
+  have h := (Real.continuous_arctan.tendsto 0).comp (relaxU_tendsto c)
+  rw [Real.arctan_zero] at h
+  exact h
+
+/-- The phase difference along the relaxing trajectory. -/
+lemma pairRelax_gap (c t : ℝ) :
+    pairRelax c t true - pairRelax c t false = 2 * relaxAngle c t := by
+  simp [pairRelax]; ring
+
+/-- **The trajectory synchronises.** The cosine of the phase difference tends to
+`1` — the value `is_phase_locked` demands. -/
+theorem pairRelax_tendsto_locked (c : ℝ) :
+    Tendsto (fun t => Real.cos (pairRelax c t true - pairRelax c t false)) atTop (𝓝 1) := by
+  have h : Tendsto (fun t => 2 * relaxAngle c t) atTop (𝓝 0) := by
+    simpa using (relaxAngle_tendsto c).const_mul 2
+  have h2 := (Real.continuous_cos.tendsto 0).comp h
+  rw [Real.cos_zero] at h2
+  have : (fun t => Real.cos (pairRelax c t true - pairRelax c t false))
+      = Real.cos ∘ fun t => 2 * relaxAngle c t := by
+    funext t; simp [Function.comp, pairRelax_gap]
+  rw [this]
+  exact h2
+
+/-- With `c = 1` the trajectory starts at a phase difference of `π/2`: it is
+*not* phase-locked at time zero, so it has somewhere to go. -/
+theorem pairRelax_not_locked_at_zero : ¬ is_phase_locked (pairRelax 1 0) := by
+  intro h
+  have h1 := h true false
+  rw [pairRelax_gap] at h1
+  have hu : relaxU 1 0 = 1 := by simp [relaxU]
+  rw [relaxAngle, hu, Real.arctan_one] at h1
+  rw [show 2 * (Real.pi / 4) = Real.pi / 2 by ring, Real.cos_pi_div_two] at h1
+  norm_num at h1
+
+/-! ### The potential falls to its minimum -/
+
+/-- The dynamic potential along the relaxing trajectory, in closed form. -/
+lemma pairRelax_potential (c t : ℝ) :
+    kuramoto_potential_dynamic (pairSystem 0) (pairRelax c t)
+      = -(1 + Real.cos (2 * relaxAngle c t)) := by
+  simp only [kuramoto_potential_dynamic, pairSystem, Fintype.sum_bool, pairRelax]
+  norm_num
+  rw [show -relaxAngle c t - relaxAngle c t = -(2 * relaxAngle c t) by ring,
+    show relaxAngle c t + relaxAngle c t = 2 * relaxAngle c t by ring, Real.cos_neg]
+  ring
+
+/-- The minimum value of the dynamic potential on this system. -/
+lemma pairSystem_potential_min : kuramoto_potential_dynamic (pairSystem 0) (fun _ => 0) = -2 := by
+  simp [kuramoto_potential_dynamic, pairSystem]
+
+/-- **The potential falls to its global minimum along the trajectory.** -/
+theorem pairRelax_potential_tendsto_min (c : ℝ) :
+    Tendsto (fun t => kuramoto_potential_dynamic (pairSystem 0) (pairRelax c t)) atTop
+      (𝓝 (kuramoto_potential_dynamic (pairSystem 0) (fun _ => 0))) := by
+  rw [pairSystem_potential_min]
+  have h : Tendsto (fun t => 2 * relaxAngle c t) atTop (𝓝 0) := by
+    simpa using (relaxAngle_tendsto c).const_mul 2
+  have h2 := (Real.continuous_cos.tendsto 0).comp h
+  rw [Real.cos_zero] at h2
+  have h3 : Tendsto (fun t => -(1 + Real.cos (2 * relaxAngle c t))) atTop (𝓝 (-(1 + 1))) := by
+    exact (h2.const_add 1).neg
+  have heq : (fun t => kuramoto_potential_dynamic (pairSystem 0) (pairRelax c t))
+      = fun t => -(1 + Real.cos (2 * relaxAngle c t)) := by
+    funext t; exact pairRelax_potential c t
+  rw [heq]
+  have : (-(1 + 1) : ℝ) = -2 := by norm_num
+  rw [← this]
+  exact h3
+
+/-! ### The order parameter -/
+
+/-- On two oscillators the squared order parameter is `(1 + cos Δ)/2`. -/
+lemma pair_order_parameter (theta : Bool → ℝ) :
+    order_parameter_r_sq theta = (1 + Real.cos (theta true - theta false)) / 2 := by
+  simp only [order_parameter_r_sq, order_parameter_complex, Fintype.sum_bool]
+  rw [Complex.normSq_apply]
+  simp only [Complex.mul_re, Complex.mul_im, Complex.add_re, Complex.add_im]
+  rw [mul_comm Complex.I _, mul_comm Complex.I _, Complex.exp_mul_I, Complex.exp_mul_I]
+  simp [Complex.cos_ofReal_re, Complex.sin_ofReal_re, Real.cos_sub]
+  ring_nf
+  nlinarith [Real.sin_sq_add_cos_sq (theta true), Real.sin_sq_add_cos_sq (theta false)]
+
+/-- **The order parameter tends to 1 along the trajectory.** -/
+theorem pairRelax_order_parameter_tendsto (c : ℝ) :
+    Tendsto (fun t => order_parameter_r_sq (pairRelax c t)) atTop (𝓝 1) := by
+  have heq : (fun t => order_parameter_r_sq (pairRelax c t))
+      = fun t => (1 + Real.cos (pairRelax c t true - pairRelax c t false)) / 2 := by
+    funext t; exact pair_order_parameter _
+  rw [heq]
+  have h := ((pairRelax_tendsto_locked c).const_add 1).div_const 2
+  simpa using h
+
+/-- **Uniqueness applied to the witness.** The relaxing trajectory is the *only*
+solution through its initial state — so the convergence above is not a property
+of a lucky choice among many solutions. -/
+theorem pairRelax_unique (c : ℝ) (psi : ℝ → Bool → ℝ)
+    (hpsi : is_kuramoto_trajectory (pairSystem 0) psi)
+    (h0 : psi 0 = pairRelax c 0) : psi = pairRelax c :=
+  is_kuramoto_trajectory_unique (pairSystem 0) psi (pairRelax c) hpsi
+    (pairRelax_is_trajectory c) 0 h0
+
+end RunningDynamics
+
 end Examples
 end PhysicsOfConsciousness
