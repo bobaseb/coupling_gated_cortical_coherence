@@ -1360,7 +1360,7 @@ list is to keep it that way.
 | ~~**O4**~~ | **SUBSUMED 2026-08-30 by O5** — `ThermodynamicCover.phase_locked` answers the same question one class up, and what remains of it is recorded as **O19** in the final section. ~~**A3 — the `LocalSectionSynchronization` witness is weak.**~~ `cortexSync` sets `phase ≡ 0` and discharges `sync_to_section_eq` by `rfl`; the local sections *are* restrictions by construction | `Phase4_MacroscopicScaling:56,61`, `Examples` §4 | ~~A witness with a non-constant phase field, or a proof that no such witness exists under the current class shape (which would be the more useful outcome, as `contracting_implies_const` was for D1)~~ — the second outcome is what happened |
 | ~~**O5**~~ | **DONE 2026-08-30 — see "A cover with a non-constant phase" at the end of this file.** The answer has a negative half: `ThermodynamicCover.phase_locked` proves the class shape *forbids* a phase field that is non-constant modulo `2π`, and `ThermodynamicCover.glued_section_eq` proves the glued section is the invariant measure the cover already carried. ~~**A4 — the `ThermodynamicCover` witness has constant phase**, which is what makes `thermodynamic_equilibrium` dischargeable at all. This is where Derivation 5's physics lives~~ | `Phase5_GlobalSection:43`, `Examples` §4, §13 | ~~Same shape as O4: a cover at a non-trivial minimum of the Kuramoto potential.~~ Done both ways: the witness in §13 and the impossibility proof in `Phase5_GlobalSection` |
 | ~~**O6**~~ | **DONE 2026-08-29.** ~~**D4 — four classes still have no instance:**~~ `PlasticNeuralField`, `StochasticMatrix`, `PseudoRiemannianManifold`, `ContinuousSymmetryGroup`. Nothing headline rests on them, but rule §2 of the Lean `AGENTS.md` applies to them as much as to the others | `Phase8_ContinuousField:155`, `Phase3_CombinatorialThermodynamics:192`, `Phase1_Primitives:47,123` | Each is a short witness. `StochasticMatrix` on `Bool` and `PlasticNeuralField` on the `Duo` substrate of `Examples` §5 are both nearly free. Alternatively delete what is unused, as `VacuumManifold` was |
-| **O7** | **C3 — `DiscreteThermodynamics.scalar_magnitude` is arbitrary subject only to non-negativity.** The map from a stress-energy tensor to a scalar is modelling, not derivation | `Phase2_SimplicialBridge:42` | Probably *leave*, but say so in the source: if it is a modelling choice, mark it `[MODELLING]` the way `Phase4_MacroscopicScaling`'s fields are, so it is not mistaken for an oversight. Listed here so the decision gets recorded either way |
+| ~~**O7**~~ | **DECIDED 2026-08-30 — see "The scalar magnitude is a choice" at the end of this file.** Kept as a modelling choice and marked `[MODELLING]`, with three reasons on the structure: a `(0,2)` tensor has no canonical scalar and the structure carries neither metric nor frame, so imposing one would pin a choice rather than derive it; every theorem in the file holds for *every* non-negative choice, so constraining it buys nothing; and the choice is nonetheless load-bearing for the numbers, which is now a theorem (`gridThermo_magnitude_matters`) rather than a remark. ~~**C3 — `DiscreteThermodynamics.scalar_magnitude` is arbitrary subject only to non-negativity.**~~ | `Phase2_SimplicialBridge`, `Examples.lean` §6 | Done |
 
 ### Group 2 — reachable, but real work
 
@@ -3056,3 +3056,106 @@ still ends with "so no row is vacuous"; `main` 50 pages, `supplementary` 9.
    symmetry and work on a torus.
 4. **The mean-field limit** (propagation of chaos). A research programme, not a
    task.
+
+---
+
+## The scalar magnitude is a choice — 2026-08-30 — O7 DECIDED
+
+The last Group-1 item, and the only one whose deliverable was a *decision*. The
+ledger's guess — "probably leave, but say so in the source" — is what happened,
+and the reasons turned out to be worth writing down properly, because two of the
+three are arguments that the field *cannot* usefully be constrained rather than
+that constraining it is merely inconvenient. Zero `sorry`, zero warnings,
+`lake build` clean (17,608 jobs); axioms clean on the four new results.
+
+### The decision, and why
+
+`DiscreteThermodynamics.scalar_magnitude : CovariantTensor2 I M → M → ℝ` is free
+subject only to `magnitude_nonneg`. Kept free, marked `[MODELLING]` on the field
+in the style of `LocalSectionSynchronization.section_agrees_of_phase_eq`.
+
+1. **There is no canonical scalar to pick.** A `(0,2)` tensor becomes a number
+   only against extra structure. The three candidates physics actually uses — the
+   trace `gᵘᵛTᵤᵥ`, the energy density `T(u,u)` for an observer 4-velocity `u`, the
+   norm `√(TᵤᵥTᵘᵛ)` — are different functions of the same tensor, and the
+   structure carries neither a metric nor a frame, so none of them is definable
+   where the field sits. Adding a metric to define one would not derive the
+   choice; it would hide it in a definition, which is the failure mode rule §1 of
+   the Lean `AGENTS.md` exists to prevent.
+2. **Constraining it would buy no theorem.** `weight_symm`, `weight_nonneg`,
+   `weight_self`, `face_of_weight_ne_zero` and `total_weight_eq_setIntegral` all
+   hold for *every* non-negative `scalar_magnitude`. The derivation content of the
+   file is that the region's scalar energy is **partitioned** among the edges, and
+   the partition is invariant under which invariant is read. A constraint would
+   exclude legitimate instances and prove nothing new.
+3. **But it is not inert, and that is now a theorem.** Rule §2 of the Lean
+   `AGENTS.md` says to state non-degeneracy as theorems rather than comments, and
+   that applies to a marked modelling choice as much as to a witness:
+   `Examples.lean` §6's `gridThermo'` is the same grid, the same tensor, the same
+   regions and the same regularity proof as `gridThermo`, differing in that one
+   field (it reads twice the magnitude). `gridThermo'_total` shows the partition
+   identity survives — the energy it partitions moves from `1` to `2` —, and
+   `gridThermo_magnitude_matters` shows every edge weight differs. So the field is
+   a physical input with numerical consequences, which is precisely why it is
+   marked and not deleted.
+
+The one constraint that *is* imposed, `magnitude_nonneg`, is also marked: it is
+the discrete shadow of an energy condition, it is doing work (`weight_nonneg`,
+hence the positivity the Kuramoto couplings downstream want), and it is an
+assumption about the matter content rather than a definitional convenience.
+
+### What landed
+
+| Declaration | Content |
+|---|---|
+| `scalar_magnitude`, `magnitude_nonneg` doc-strings | `[MODELLING]` markings, with the reason on each |
+| `DiscreteThermodynamics` doc-string | The decision and its three reasons, recorded where a reader meets the field |
+| `gridThermo'`, `gridThermo'_magnitude`, `gridThermo'_volume`, `gridThermo'_region`, `gridThermo'_edge_weight` | A second instance on the same grid, differing in one field |
+| `gridThermo'_total` | **The structure theorem is stable under the choice** |
+| `gridThermo_magnitude_matters` | **The numbers are not** — the coupling matrices differ |
+
+### What this does *not* decide
+
+* **Nothing about the tensor.** The witness's stress-energy tensor is still
+  constant (`unitTensor`) and the substrate is still `ℝ` as a manifold over
+  itself, so the edge regions are intervals rather than the cells of the intended
+  application. That limitation was already recorded in §6 and is unchanged.
+* **Nothing about which invariant is physically right.** The framework's story is
+  ephaptic coupling, so the intended reading is an energy density in a local
+  frame; the development does not say so and cannot, for reason 1 above.
+* **This is a decision, not a proof.** It is the only entry in this file whose
+  outcome is a doc-string plus a non-degeneracy check, and it is marked
+  `DECIDED` rather than `DONE` for that reason.
+
+### Manuscript
+
+`main.tex`: Table 1's discretization row records the marked choice and its two
+theorems, and moves from **Theorem** to **Theorem + instance postulate** — the
+existing vocabulary, since `magnitude_nonneg` is an obligation on instances of
+exactly the kind that label already covers. `supplementary.tex`: the Derivation
+2/3 note gains the decision, its three reasons and the second instance.
+
+Compile gate: overfull hboxes `main` 24 → 24, `supplementary` 13 → 13; zero
+undefined references or citations; `grep -i "too large"` clean; Table 1's caption
+still ends with "so no row is vacuous"; `main` 50 → 51 pages, `supplementary` 9.
+
+### Ranking after this pass
+
+Group 1 is now empty. Everything remaining is Group 2 or Group 3.
+
+1. **O10** — the σ/gradient-flow link beyond finite substrates (`hvol : volume =
+   Measure.count`). Differentiation under the integral sign with respect to the
+   kernel; Mathlib has `hasDerivAt_integral_of_dominated_loc_of_deriv_le` and the
+   work is in the domination hypotheses. The cheapest Group-2 item.
+2. **O11** — `h_mean` restricts the comparison class in the macroscopic
+   minimality result, so minimality is Jensen alone. Removing it means modelling
+   how `Omega_avg` varies with the competitor field, which changes what is
+   claimed; the honest first step is to decide whether the claim should change.
+3. **O12** — Noether. The structural obstacle is recorded and is not difficulty:
+   `SymmetryInvariantAction` has no dynamics, so no conserved quantity can attach
+   to it. Point mechanics was prototyped end to end; the field-theoretic theorem
+   is a project.
+4. **O20(d)** — convergence to an equilibrium. Blocked: the state space `V → ℝ`
+   is unbounded and the honest route is to quotient by the phase-shift symmetry
+   and work on a torus.
+5. **The mean-field limit** (propagation of chaos). A research programme.

@@ -818,7 +818,11 @@ This section supplies one, on the same uniform grid, and checks it is not degene
   weights are positive and genuinely track the mesh;
 * the weights sum to the total energy of the covered region — `½ ∑ᵤ ∑ᵥ w(u,v) = 1` for every
   `N` (`gridThermo_total`), which is `total_weight_eq_setIntegral` on this instance and is
-  exactly what the everywhere-empty triangulation would violate.
+  exactly what the everywhere-empty triangulation would violate;
+* the scalar magnitude is a *choice*, and it matters: `gridThermo'` differs from
+  `gridThermo` in that field alone, the partition theorem holds for both, and the coupling
+  matrices differ on every edge (`gridThermo_magnitude_matters`). This is open item **O7**,
+  decided and recorded on the field itself.
 
 Two limitations, stated so they are not read as more than they are. The scalar magnitude is
 `|T(∂,∂)|` on the one-dimensional tangent space, so it *is* a function of the stress-energy
@@ -890,6 +894,90 @@ theorem gridThermo_total (N : ℕ) (hN : 0 < N) :
   simp only [gridThermo_magnitude, gridThermo_volume, gridThermo_region]
   rw [setIntegral_const, smul_eq_mul, mul_one, Real.volume_real_Ico_of_le (by norm_num)]
   norm_num
+
+/-! #### The scalar magnitude is a modelling choice, and it is load-bearing
+
+Open item **O7** asked whether `DiscreteThermodynamics.scalar_magnitude` — the scalar the
+discretization reads off a stress-energy tensor, constrained only to be non-negative —
+should be constrained further or marked as modelling. The decision, recorded on the field
+itself in `Phase2_SimplicialBridge.lean`, is to keep it a choice. These three declarations
+are the half of that decision that is a theorem rather than a comment.
+
+`gridThermo'` is the *same* grid, the same tensor, the same regions and the same regularity
+proof as `gridThermo`, differing in one field: it reads twice the magnitude. Both are legal
+instances, and `gridThermo'_total` shows the structure theorem survives the change —
+`total_weight_eq_setIntegral` holds for both, with the energy it partitions moving from `1`
+to `2`. `gridThermo_magnitude_matters` shows the coupling matrix does not: the two induced
+Kuramoto systems have different weights on every edge. So the choice is a physical input
+with numerical consequences, not a formality — which is why it is marked and not removed.
+-/
+
+/-- A second thermodynamics on the same grid, reading twice the magnitude. Nothing else
+differs, including the regularity proof. -/
+noncomputable def gridThermo' (N : ℕ) (hN : 0 < N) :
+    DiscreteThermodynamics (gridTriangulation N) (modelWithCornersSelf ℝ ℝ) where
+  volume_measure := volume
+  scalar_magnitude := fun T x => 2 * |T x (1:ℝ) (1:ℝ)|
+  magnitude_nonneg := fun _ _ => by positivity
+  region := Set.Ico 0 1
+  regular := gridRegular N hN
+
+@[simp] theorem gridThermo'_magnitude (N : ℕ) (hN : 0 < N) (x : ℝ) :
+    (gridThermo' N hN).scalar_magnitude unitTensor x = 2 := by
+  show 2 * |unitTensor x (1:ℝ) (1:ℝ)| = 2
+  rw [unitTensor_apply]
+  norm_num
+
+@[simp] theorem gridThermo'_volume (N : ℕ) (hN : 0 < N) :
+    (gridThermo' N hN).volume_measure = volume := rfl
+
+@[simp] theorem gridThermo'_region (N : ℕ) (hN : 0 < N) :
+    (gridThermo' N hN).region = Set.Ico 0 1 := rfl
+
+theorem gridThermo'_edge_weight (N : ℕ) (hN : 0 < N) (u v : Fin (N + 1))
+    (h : (u : ℕ) + 1 = (v : ℕ)) :
+    DiscreteThermodynamics.edge_weight (gridThermo' N hN) unitTensor u v = 2 / N := by
+  have hreg : (gridTriangulation N).edge_region u v = gridCell N u := by
+    rw [grid_edge_region]
+    simp [h]
+  rw [DiscreteThermodynamics.edge_weight]
+  simp only [gridThermo'_magnitude, gridThermo'_volume, hreg]
+  rw [setIntegral_const, smul_eq_mul, gridCell_measure N hN u]
+  ring
+
+/-- **The structure theorem is stable under the choice.** `total_weight_eq_setIntegral`
+holds for the doubled magnitude too; what moves is the energy it partitions, from `1` to
+`2`. Nothing about symmetry, the vanishing diagonal, or the coupling graph depends on which
+scalar invariant is read. -/
+theorem gridThermo'_total (N : ℕ) (hN : 0 < N) :
+    (1 / 2 : ℝ) * ∑ u, ∑ v,
+        DiscreteThermodynamics.edge_weight (gridThermo' N hN) unitTensor u v = 2 := by
+  have hfun : (gridThermo' N hN).scalar_magnitude unitTensor = fun _ : ℝ => (2:ℝ) := by
+    funext x
+    exact gridThermo'_magnitude N hN x
+  have hint : IntegrableOn ((gridThermo' N hN).scalar_magnitude unitTensor)
+      (gridThermo' N hN).region (gridThermo' N hN).volume_measure := by
+    rw [hfun, gridThermo'_volume, gridThermo'_region]
+    exact integrableOn_const (by simp)
+  rw [DiscreteThermodynamics.total_weight_eq_setIntegral (gridThermo' N hN) unitTensor hint]
+  simp only [gridThermo'_magnitude, gridThermo'_volume, gridThermo'_region]
+  rw [setIntegral_const, smul_eq_mul, Real.volume_real_Ico_of_le (by norm_num)]
+  norm_num
+
+/-- **…and the numbers are not.** Two legal instances over the same triangulation, the same
+tensor and the same regions give different coupling matrices. The scalar magnitude is
+therefore a physical input the framework does not fix, and the induced Kuramoto system
+depends on it — the exact content of the `[MODELLING]` marking on the field. -/
+theorem gridThermo_magnitude_matters (N : ℕ) (hN : 0 < N) :
+    DiscreteThermodynamics.edge_weight (gridThermo N hN) unitTensor
+        ⟨0, by omega⟩ ⟨1, by omega⟩
+      ≠ DiscreteThermodynamics.edge_weight (gridThermo' N hN) unitTensor
+        ⟨0, by omega⟩ ⟨1, by omega⟩ := by
+  have hNR : (0:ℝ) < N := by exact_mod_cast hN
+  rw [gridThermo_edge_weight N hN _ _ rfl, gridThermo'_edge_weight N hN _ _ rfl]
+  intro hc
+  rw [div_eq_div_iff (by linarith) (by linarith)] at hc
+  linarith
 
 /-- A nonzero weight forces an actual face of the complex: on the grid, `face_of_weight_ne_zero`
 says the coupling graph is the path graph the triangulation describes and nothing more. -/

@@ -185,13 +185,53 @@ arguments no projection out of a `DiscreteThermodynamics` could recover them, an
 structure would be unusable without a *global* `TriangulatedManifold M` instance — which is
 exactly what a space carrying a whole sequence of triangulations must not have.
 `Examples.lean` §6 witnesses this on the uniform grid.
+
+**What is not derived here, and the decision to leave it so (open item O7, 2026-08-30).**
+`scalar_magnitude` is arbitrary subject only to `magnitude_nonneg`. That was recorded as a
+possible defect and it is not one; it is a modelling choice, marked as such on the field
+below, and the reasons are worth stating once here.
+
+A `(0,2)` tensor carries no canonical scalar. The candidates physics offers — the trace
+`gᵘᵛTᵤᵥ`, the energy density `T(u,u)` measured by an observer with 4-velocity `u`, the norm
+`√(TᵤᵥTᵘᵛ)` — are genuinely different functions of the same tensor, and this structure
+carries neither a metric nor a frame, so none of them is even definable at this point.
+Adding one would *pin* a choice, not derive it, and would be the kind of modelling
+assumption smuggled into a definition that rule §1 of `PhysicsOfConsciousness/AGENTS.md`
+exists to prevent.
+
+Nor would it buy a theorem. Everything proved below — `weight_symm`, `weight_nonneg`,
+`weight_self`, `face_of_weight_ne_zero`, `total_weight_eq_setIntegral` — holds for *every*
+non-negative `scalar_magnitude`. The derivation content of this file is that the region's
+scalar energy is **partitioned** among the edges of the triangulation, and that statement is
+invariant under which invariant is read. Constraining the field would exclude legitimate
+instances and prove nothing new.
+
+What the choice does change is the numbers, and that is stated as a theorem rather than left
+to the reader: `Examples.lean` §6 exhibits two instances over the same triangulation, the
+same tensor and the same regions, differing only in `scalar_magnitude`, whose coupling
+matrices differ on every edge (`gridThermo_magnitude_matters`) while
+`total_weight_eq_setIntegral` holds for both (`gridThermo_total`, `gridThermo'_total`). The
+field is a physical input with consequences, not an oversight and not a formality.
 -/
 structure DiscreteThermodynamics {M : Type*} [TopologicalSpace M] [MeasurableSpace M]
     (TM : TriangulatedManifold M) [LinearOrder TM.V]
     {E H : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [TopologicalSpace H]
     (I : ModelWithCorners ℝ E H) [ChartedSpace H M] [IsManifold I ⊤ M] where
   volume_measure : MeasureTheory.Measure M
+  /-- [MODELLING] **The scalar the discretization reads off the stress-energy tensor.**
+      Free, subject only to `magnitude_nonneg`, and deliberately: choosing among the trace,
+      an observer's energy density and the tensor norm is physics, and this structure has
+      neither the metric nor the frame those would need. See the note on the structure for
+      why constraining it would pin a choice rather than derive one, and would prove
+      nothing new. -/
   scalar_magnitude : CovariantTensor2 I M → M → ℝ
+  /-- [MODELLING] **Non-negativity of that scalar** — the discrete shadow of an energy
+      condition, and the one constraint the structure imposes on `scalar_magnitude`.
+
+      It is doing work: `weight_nonneg` is proved from it, which is what makes the induced
+      coupling matrix a legal Kuramoto coupling downstream. It is an assumption about the
+      matter content and not a definitional convenience — a stress-energy tensor with
+      negative energy density in some frame violates it, and such tensors exist. -/
   magnitude_nonneg : ∀ T x, 0 ≤ scalar_magnitude T x
   /-- The part of `M` the triangulation discretizes. -/
   region : Set M
