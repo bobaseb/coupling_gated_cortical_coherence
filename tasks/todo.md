@@ -50,19 +50,22 @@ manuscript has **no figures**. Those are the items below.
 
 ## Where the development stands — 2026-08-30
 
-**Lean.** 10,176 lines across 17 modules. Zero `sorry`. Zero declared axioms.
-`Examples.lean` is 3,291 lines and carries 17 witness sections.
+**Lean.** 11,366 lines across 18 modules. Zero `sorry`. Zero declared axioms.
+`Examples.lean` is 3,542 lines and carries 17 witness sections plus §17.1.
 
-**Just landed (`861f252`).** O20(d)+(e): `lojasiewicz_estimate`, `excess_decay`,
-`velocity_abs_le_exp`, `phase_tendsto`, `excess_tendsto_zero`,
+**Landed 2026-08-30 (`861f252`).** O20(d)+(e): `lojasiewicz_estimate`,
+`excess_decay`, `velocity_abs_le_exp`, `phase_tendsto`, `excess_tendsto_zero`,
 `kuramoto_tendsto_global_minimum` in `Phase4_RotatingFrame` §7, witnessed on
 three sites in `Examples.lean` §17 by a trajectory with no closed form. The
-recorded LaSalle blocker was a misidentification. This was good work and it
-closed the item the ledger ranked first.
+recorded LaSalle blocker was a misidentification.
 
-**What that pass did *not* land** — and the manuscript is correctly honest about
-it, so this is a Lean gap and a docstring defect, not a prose overclaim in
-`main.tex`: see **W1**.
+**Landed 2026-08-31 — W1.** `Phase5_EquilibriumBridge.lean`:
+`kuramoto_limit_minimizes` and `ThermodynamicCover.ofConvergentTrajectory`,
+witnessed by `Examples.lean` §17.1. Derivation 5's
+`thermodynamic_equilibrium` is now derived from the dynamics on a class of
+initial data rather than assumed on every instance, and O20 is closed. The
+cover's *other* physical hypothesis, `section_agrees_of_phase_eq`, is untouched.
+Full pass record below.
 
 **Manuscript.** `main.tex` 55 pages, `supplementary.tex` 10. Zero figures. The
 four Python simulations in `simulations/` appear nowhere in either document.
@@ -85,7 +88,7 @@ different kinds, and only one of them is a missing theorem:
 | → dissipation | Sound | — |
 | → prediction | **Invalid inference.** σ ≥ D_KL/Δt does not give D_KL → 0 | **W4** |
 | → continuous field | Asserted as a derivation; it is an empirical identification | W3 |
-| → coherent state | Theorem on a basin; class field not yet discharged | W1 |
+| → coherent state | Theorem on a basin, class field discharged from it | ~~W1~~ done |
 | → reflexive fixed point | Banach with a label; `self_of_constResonance` proves the theorem is blind to reflexivity | W5 |
 | → experience | Stipulation. **Kept, named, owned.** Not a defect | — |
 
@@ -112,9 +115,14 @@ Each item is self-contained. Record the pass in this file under a dated heading
 in the style of the archive (what was built / non-vacuity / what it does *not*
 establish / manuscript updates), then move to the next.
 
+**W1 is done (2026-08-31).** The next item is **W8**, which the frame requires
+before W3 and W7; then W2.
+
 ### W1 — Discharge `thermodynamic_equilibrium` from the convergence theorem
 
-- [ ] **Objective.** Build the bridge from `kuramoto_tendsto_global_minimum` to
+**Done 2026-08-31.** Pass recorded below under *2026-08-31 — W1*.
+
+- [x] **Objective.** Build the bridge from `kuramoto_tendsto_global_minimum` to
       `ThermodynamicCover`, so that Derivation 5's standing hypothesis is
       *derived* on a class of initial data rather than assumed on every instance.
 - **Why.** Every Derivation 5 result is conditional on
@@ -352,6 +360,128 @@ establish / manuscript updates), then move to the next.
   phrased.
 
 ---
+
+---
+
+## 2026-08-31 — W1: the equilibrium hypothesis, discharged by a dynamics
+
+**What was built.**
+
+A new module, `PhysicsOfConsciousness/Phase5_EquilibriumBridge.lean` (170 lines),
+importing both `Phase5_GlobalSection` and `Phase4_RotatingFrame`. The import
+direction question the item raised resolved cleanly: `Phase4_RotatingFrame` and
+`Phase4_MacroscopicScaling` are siblings — neither imports the other — so a
+module above both introduces no cycle and nothing needed restructuring. Three
+declarations:
+
+* `kuramoto_limit_minimizes` — `kuramoto_tendsto_global_minimum` restated
+  against a *given* limit instead of the one it constructs internally. The
+  convergence theorem returns its limit existentially, which is unusable to a
+  caller who already has a phase field in hand; `ThermodynamicCover` puts one in
+  exactly that position, since the class fixes `phase` before anything is proved
+  about it. The proof is `tendsto_nhds_unique` and nothing else.
+* `ThermodynamicCover.ofConvergentTrajectory` — the constructor. Takes a
+  `LocalSectionSynchronization` whose `phase` is the limit of a Kuramoto
+  trajectory satisfying §7's hypotheses, and returns a `ThermodynamicCover`
+  whose `thermodynamic_equilibrium` field is discharged by that convergence.
+  The cover's `A`, `A_symm`, `A_pos` are read off the *dynamics'* system rather
+  than chosen separately, so the system whose equilibrium the class asserts and
+  the system whose trajectory is run are the same system.
+* `ThermodynamicCover.ofConvergentTrajectory_phase` — the `rfl` lemma that lets
+  a caller chain the constructor's hypothesis into `phase_locked` without
+  unfolding.
+
+`Examples.lean` §17.1 (about 190 lines) is the witness. `trioTraj` names the
+trajectory §17 had left existentially quantified; `trioLimit` names its limit.
+Three patches on the existing `Cortex` substrate, `trioPatch i` being everything
+except site `i`, so every pairwise overlap is a single nonempty site
+(`trioPatch_overlap_01`). The local data is built §14's way, not §4's: each
+patch carries its own mass profile via `sectionOfMassOn` on its own open, no
+measure on all of `Cortex` appears in the instance, and
+`section_agrees_of_phase_eq` is discharged by computing that the profiles agree
+off their blind sites (`trioW_agree`). `trioCover` is then
+`ofConvergentTrajectory` applied to that cover.
+
+**Non-vacuity.**
+
+* `trioCover_start_not_locked` — the trajectory starts at `(0, 0, ½)`, which is
+  provably not phase-locked. The configuration Derivation 5 demands is arrived
+  at, not posited.
+* `trioCover_phase_locked` — lockedness holds of the instance, but unlike §4 and
+  §13 it is a *consequence* of the dynamics rather than of how the phase field
+  was written.
+* `trioW_ne_glued`, `trioW_ne_01` — the three profiles are pairwise distinct and
+  none is the glued state.
+* `trioCover_glued_eq`, `trioCover_invariantMeasure` — the section the three
+  patches glue to has profile `(2, 1, 3)`, which is none of the three. So one
+  cover now carries both the emergence reading of Derivation 5 (§14's property)
+  and the derived-equilibrium reading (this pass's).
+
+**What this does *not* establish.**
+
+* Minimality still routes through `phase_locked_minimizes_potential'`. What the
+  dynamics supplies is that the limit is *phase-locked*; lockedness implies
+  minimality by the pointwise `cos ≤ 1` argument that was already in Phase 4.
+  The content is that lockedness is derived on a class of initial data rather
+  than assumed on every instance — not a new characterisation of the minimum.
+* The hypotheses are restrictive and cannot be dropped. Splay and twisted
+  configurations are equilibria of the same flow, so the arc condition and the
+  energy threshold are the scope of the statement, not slack in it.
+* **The cover's other physical hypothesis is untouched.**
+  `LocalSectionSynchronization.section_agrees_of_phase_eq` — synchronised patches
+  agree where they overlap — remains an instance obligation, and no dynamics in
+  this development bears on it. Derivation 5 rested on two physical assumptions;
+  it now rests on one, plus a basin condition on initial data.
+* `ThermodynamicCover` is still a class with a field, deliberately. The standing
+  rule forbids turning it into a standalone axiom, and the statement is false of
+  arbitrary configurations, so the field stays and the constructor is the way to
+  discharge it.
+
+**The live defect the item named is fixed.** The docstring at the old
+`Examples.lean:3191` claimed §17 "is what discharges
+`ThermodynamicCover.thermodynamic_equilibrium` on an instance rather than
+assuming it." It was false — §17 stopped at `trio_reaches_minimum` and built no
+cover. It now points at §17.1, where a cover exists, so the sentence is true as
+written rather than corrected away.
+
+**Docstrings corrected.** Three stale passages in `Phase5_GlobalSection.lean`
+said the physical work of reaching the minimum "is done by the informal argument
+in the manuscript (and, numerically, by `simulations/kuramoto.py`), not by Lean."
+That is no longer true and all three now point at the bridge. **O20 is closed**
+in the direction it asked about.
+
+**Manuscript updates.**
+
+* Table 1, "Phase synchronization to Unity" row: records that the equilibrium
+  hypothesis is no longer assumed on every instance, names
+  `ofConvergentTrajectory` and `Examples`~§17.1, and states that the
+  overlap-agreement hypothesis is untouched.
+* `main.tex` Derivation 5: the paragraph opening "Two hypotheses still carry
+  physical content and both are instance obligations" was false after this pass
+  and is rewritten; a new paragraph after the §17 discussion states what the
+  bridge does and what remains assumed.
+* `supplementary.tex` §5: the caveat "phase-locking is not derived from dynamics
+  here" is scoped to the file and pointed at the bridge.
+
+**Gates.**
+
+* `lake build` clean, 17,610 jobs, zero `sorry`, zero warnings.
+* `#print axioms` on all 17 new declarations: `propext`, `Classical.choice`,
+  `Quot.sound` only.
+* `main.tex` 55 → **57 pages**; overfull hbox magnitudes **identical to `HEAD`**
+  (23, checked by diffing the sorted list, not assumed); zero undefined
+  references or citations.
+* `supplementary.tex` **10 pages**, overfull 13 → **12** (two long identifiers in
+  pre-existing text gained `\allowbreak`s after the insertion shifted their
+  paragraphs); zero undefined references or citations.
+
+**Note for W7.** §17.1's three-patch geometry — three opens, three pairwise
+overlaps of one site each, profiles pinned to `(2,1,3)` — is the clearest
+picture of Derivation 5 in the development and is a candidate for the chain
+schematic figure.
+
+**Next item: W8** (write the honesty paragraph), since the ledger requires it
+before W3 and W7, then W2.
 
 ## Low value — listed so they are not rediscovered as new
 

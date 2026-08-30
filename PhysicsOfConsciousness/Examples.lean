@@ -79,6 +79,7 @@ import PhysicsOfConsciousness.Phase1_Primitives
 import PhysicsOfConsciousness.Phase3_CombinatorialThermodynamics
 import PhysicsOfConsciousness.Phase3_KLBound
 import PhysicsOfConsciousness.Phase5_GlobalSection
+import PhysicsOfConsciousness.Phase5_EquilibriumBridge
 import PhysicsOfConsciousness.Phase6_ReflexiveTopology
 import PhysicsOfConsciousness.Phase8_ContinuousField
 import PhysicsOfConsciousness.Phase2_MeshConvergence
@@ -2491,9 +2492,10 @@ theorem cortexCoverTwisted_glued (s : GlobalSection (X := Cortex))
   theorem returns carries information no single patch had. That is the emergence
   reading of Derivation 5, on a witness.
 
-  **What is still assumed**, unchanged from §4 and §13: that the configuration is
-  at the potential minimum (**O20**), and that the patches agree on their
-  overlap. The second is now the *only* thing the class asks of the local data,
+  **What is still assumed** on *this* cover, unchanged from §4 and §13: that the
+  configuration is at the potential minimum, and that the patches agree on their
+  overlap. The first is what §17.1 removes, by rebuilding this construction on
+  three patches over a phase field a trajectory reaches; the second it does not. The second is now the *only* thing the class asks of the local data,
   and here it is discharged by computing two numbers rather than by declaring the
   sections to be restrictions of something.
 
@@ -3188,9 +3190,10 @@ end SymmetricKernel
   threshold `a/2 = ½` — the numerical content is `cos ½ > ¾`, which
   `Real.cos_bound` supplies.
 
-  This is what discharges `ThermodynamicCover.thermodynamic_equilibrium` on an
-  instance rather than assuming it: the configuration the cover is required to
-  sit at is *reached*, from data that does not start there.
+  §17.1 then builds a `ThermodynamicCover` on that limit. This is what discharges
+  `ThermodynamicCover.thermodynamic_equilibrium` on an instance rather than
+  assuming it: the configuration the cover is required to sit at is *reached*,
+  from data that does not start there.
 -/
 
 section TrioDynamics
@@ -3284,6 +3287,254 @@ theorem trio_reaches_minimum :
   refine ⟨theta, h_traj, h0, by rw [h0]; exact trioStart_not_locked, ?_⟩
   exact kuramoto_tendsto_global_minimum trioSys trioSys_omega one_pos trioSys_coupling
     theta h_traj (by rw [h0]; exact trioStart_small) (by rw [h0]; exact trioStart_init)
+
+
+/-! ## 17.1 A cover whose equilibrium is reached rather than assumed
+
+  §17 produces a phase configuration; this section hands it to Derivation 5.
+
+  Every `ThermodynamicCover` before this one — §4, §13, §14 — discharged
+  `thermodynamic_equilibrium` the same way: its phase field was constant, or
+  constant up to `2π`, *by construction*, and `phase_locked_minimizes_potential`
+  then applied. The configuration Derivation 5 needs was therefore assumed on
+  every instance, which is what open item **O20** recorded. Nothing was wrong
+  with those witnesses; they simply could not answer the question of whether a
+  system *arrives* at the configuration the class demands.
+
+  `trioCover` answers it. Its phase field is `trioLimit`, which is not written
+  down anywhere: it is the limit of `trioTraj`, a trajectory obtained from
+  `is_kuramoto_trajectory_exists` and never solved, starting at the
+  unsynchronised configuration `(0, 0, ½)` (`trioCover_start_not_locked`). Its
+  `thermodynamic_equilibrium` field comes from
+  `ThermodynamicCover.ofConvergentTrajectory`
+  (`Phase5_EquilibriumBridge.lean`), which reads it off
+  `kuramoto_tendsto_global_minimum`. The coupling matrix of the cover is the
+  coupling matrix of `trioSys`, so the system whose equilibrium the class
+  asserts and the system whose trajectory is run are the same system.
+
+  **What is still assumed.** The cover's other physical hypothesis,
+  `section_agrees_of_phase_eq`. It is discharged here the way §14 discharges it —
+  by computing that the patch profiles agree on their overlaps — and no dynamics
+  in this development bears on it. Derivation 5 rests on two physical
+  hypotheses; on this witness one of them is now a theorem.
+
+  **The local data is built §14's way, not §4's.** The three patches carry three
+  different profiles, each constructed on its own open by `sectionOfMassOn`, so
+  no measure on all of `Cortex` appears in the instance. The section they glue to
+  has profile `(2, 1, 3)` and is none of them (`trioW_ne_glued`): the emergence
+  reading of Derivation 5 and the derived-equilibrium reading hold of the same
+  cover.
+
+  **Geometry.** Three patches, `trioPatch i` being everything except the site
+  `siteOf i`. Each pair overlaps in the remaining single site, so all three
+  pairwise overlaps are nonempty and distinct — the profiles are constrained on
+  every site by two patches at once, which is what pins the glued state to
+  `(2, 1, 3)`.
+-/
+
+section TrioCover
+
+/-- The trajectory of §17, named rather than existentially quantified, so that a
+cover can be built on its limit. -/
+noncomputable def trioTraj : ℝ → Fin 3 → ℝ :=
+  (is_kuramoto_trajectory_exists trioSys 0 trioStart).choose
+
+lemma trioTraj_traj : is_kuramoto_trajectory trioSys trioTraj :=
+  (is_kuramoto_trajectory_exists trioSys 0 trioStart).choose_spec.1
+
+lemma trioTraj_zero : trioTraj 0 = trioStart :=
+  (is_kuramoto_trajectory_exists trioSys 0 trioStart).choose_spec.2
+
+lemma trioTraj_small : 2 * potentialExcess trioSys (trioTraj 0) < 1 := by
+  rw [trioTraj_zero]; exact trioStart_small
+
+lemma trioTraj_init : ∀ i j, |trioTraj 0 i - trioTraj 0 j| ≤ Real.pi / 2 := by
+  rw [trioTraj_zero]; exact trioStart_init
+
+/-- **The configuration the trajectory reaches.** There is no formula for it:
+`kuramoto_tendsto_global_minimum` builds it as `θ(0) + ∫₀^∞ θ̇`, and
+three-oscillator Kuramoto has no closed-form solution. -/
+noncomputable def trioLimit : Fin 3 → ℝ :=
+  (kuramoto_tendsto_global_minimum trioSys trioSys_omega one_pos trioSys_coupling
+    trioTraj trioTraj_traj trioTraj_small trioTraj_init).choose
+
+lemma trioLimit_tendsto (i : Fin 3) :
+    Tendsto (fun t => trioTraj t i) atTop (𝓝 (trioLimit i)) :=
+  (kuramoto_tendsto_global_minimum trioSys trioSys_omega one_pos trioSys_coupling
+    trioTraj trioTraj_traj trioTraj_small trioTraj_init).choose_spec.1 i
+
+/-! ### The three patches -/
+
+/-- The three sites, indexed by `Fin 3`. -/
+def siteOf : Fin 3 → Site
+  | 0 => Site.left
+  | 1 => Site.mid
+  | 2 => Site.right
+
+/-- Patch `i` is everything except site `i`. Two distinct patches overlap in the
+one remaining site, so every pairwise overlap is nonempty. -/
+def trioPatch (i : Fin 3) : Opens ↥Cortex :=
+  ⟨{x : Site | x ≠ siteOf i}, isOpen_discrete _⟩
+
+theorem trioPatch_cover : iSup trioPatch = ⊤ := by
+  ext x
+  simp only [Opens.coe_iSup, Set.mem_iUnion, Opens.coe_top, Set.mem_univ, iff_true]
+  cases x
+  · exact ⟨1, show Site.left ≠ Site.mid by decide⟩
+  · exact ⟨0, show Site.mid ≠ Site.left by decide⟩
+  · exact ⟨0, show Site.right ≠ Site.left by decide⟩
+
+/-- The overlap of two distinct patches is the third site, and in particular is
+nonempty — the gluing performed below is a genuine three-patch gluing. -/
+theorem trioPatch_overlap_01 :
+    (trioPatch 0 ⊓ trioPatch 1 : Opens ↥Cortex) = ⟨{Site.right}, isOpen_discrete _⟩ := by
+  ext x; cases x <;> simp [trioPatch, siteOf]
+
+/-! ### Three profiles that agree only where they must -/
+
+/-- The profile every patch reports at every site it can see. -/
+noncomputable def trioGlued : Site → ℝ≥0
+  | Site.left => 2
+  | Site.mid => 1
+  | Site.right => 3
+
+/-- What patch `i` reports at the one site it cannot see. Chosen different from
+`trioGlued` there, so that no patch's profile is the global state. -/
+noncomputable def trioHidden : Fin 3 → ℝ≥0
+  | 0 => 7
+  | 1 => 9
+  | 2 => 5
+
+/-- Patch `i`'s mass profile: the common profile everywhere it can see, and a
+value of its own at the site it cannot. -/
+noncomputable def trioW (i : Fin 3) (x : Site) : ℝ≥0 :=
+  if x = siteOf i then trioHidden i else trioGlued x
+
+/-- The agreement the class field asks for: on an overlap, neither patch is at
+its blind site, so both report the common profile. -/
+theorem trioW_agree (i j : Fin 3) (x : Site)
+    (hx : x ∈ (trioPatch i ⊓ trioPatch j : Opens ↥Cortex)) : trioW i x = trioW j x := by
+  obtain ⟨h1, h2⟩ := hx
+  rw [trioW, trioW, ite_eq_right (h1 : x ≠ siteOf i), ite_eq_right (h2 : x ≠ siteOf j)]
+
+/-- Non-degeneracy: no patch's profile is the common one. -/
+theorem trioW_ne_glued (i : Fin 3) : trioW i ≠ trioGlued := by
+  intro h
+  have h1 := congrFun h (siteOf i)
+  rw [trioW, ite_eq_left (rfl : siteOf i = siteOf i)] at h1
+  fin_cases i <;> norm_num [trioHidden, trioGlued, siteOf] at h1
+
+/-- …and the three profiles are pairwise different, so the cover carries three
+genuinely independent readings. -/
+theorem trioW_ne_01 : trioW 0 ≠ trioW 1 := by
+  intro h
+  have h1 := congrFun h Site.left
+  rw [trioW, trioW, ite_eq_left (show Site.left = siteOf 0 from rfl),
+    ite_eq_right (show Site.left ≠ siteOf 1 by decide)] at h1
+  norm_num [trioHidden, trioGlued] at h1
+
+/-! ### The cover -/
+
+/-- Three patches, three profiles, phase field the limit of §17's trajectory.
+
+Nothing global is stored: `sync_to_section i` is built on `trioPatch i` from
+`trioW i` alone, and `section_agrees_of_phase_eq` is discharged by
+`trioW_agree`, by computation rather than by functoriality. -/
+@[instance_reducible]
+noncomputable def trioSync : LocalSectionSynchronization Cortex where
+  I := Fin 3
+  cover := trioPatch
+  is_cover := trioPatch_cover
+  phase := trioLimit
+  sync_to_section := fun i => sectionOfMassOn (trioPatch i) (trioW i)
+  section_agrees_of_phase_eq := by
+    intro i j _
+    refine densityOn_injective (fun x hx => ?_)
+    rw [densityOn_res, densityOn_res, densityOn_sectionOfMassOn, densityOn_sectionOfMassOn]
+    exact trioW_agree i j x hx
+
+/-- **The witness.** A `ThermodynamicCover` whose `thermodynamic_equilibrium`
+field is discharged by a convergence argument.
+
+The coupling is `trioSys`'s, the phase field is the limit of `trioTraj`, and the
+equilibrium hypothesis is read off `kuramoto_tendsto_global_minimum` through
+`ThermodynamicCover.ofConvergentTrajectory`. No phase field here is constant by
+construction, and no minimality is asserted of a configuration the instance was
+placed at. -/
+@[instance_reducible]
+noncomputable def trioCover : ThermodynamicCover Cortex :=
+  ThermodynamicCover.ofConvergentTrajectory trioSync
+    (inferInstanceAs (Fintype (Fin 3))) (inferInstanceAs (DecidableEq (Fin 3)))
+    (inferInstanceAs (Nonempty (Fin 3)))
+    trioSys trioSys_omega one_pos trioSys_coupling
+    trioTraj trioTraj_traj trioTraj_small trioTraj_init trioLimit_tendsto
+
+/-! ### What the witness establishes -/
+
+/-- The cover's phase field is the limit of a trajectory whose initial
+configuration is **not** phase-locked. This is the whole point: the class field
+is discharged about a state the system arrives at, not one it was placed at. -/
+theorem trioCover_start_not_locked : ¬ is_phase_locked (trioTraj 0) := by
+  rw [trioTraj_zero]; exact trioStart_not_locked
+
+theorem trioCover_reached (i : Fin 3) :
+    Tendsto (fun t => trioTraj t i) atTop (𝓝 (trioCover.phase i)) := trioLimit_tendsto i
+
+/-- `ThermodynamicCover.phase_locked` on this instance. Unlike §4 and §13, where
+lockedness held because the phase field was built locked, here it is a
+*consequence* of the dynamics: the trajectory's excess tends to zero. -/
+theorem trioCover_phase_locked : is_phase_locked trioCover.phase :=
+  trioCover.phase_locked
+
+/-- The equilibrium field itself, stated in the open. -/
+theorem trioCover_equilibrium (theta : Fin 3 → ℝ) :
+    kuramoto_potential_dynamic trioSys trioLimit
+      ≤ kuramoto_potential_dynamic trioSys theta :=
+  (kuramoto_limit_minimizes trioSys trioSys_omega one_pos trioSys_coupling
+    trioTraj trioTraj_traj trioTraj_small trioTraj_init trioLimit trioLimit_tendsto).2 theta
+
+/-- Derivation 5 on this cover: the three patch-local sections glue to a unique
+global section. -/
+example : ∃! s : GlobalSection (X := Cortex),
+    ∀ i : Fin 3, (probabilityPresheaf Cortex).map
+      (homOfLE (le_top : trioCover.cover i ≤ ⊤)).op s
+      = trioCover.sync_to_section i :=
+  @global_section_from_thermodynamics Cortex _ _ _ trioCover
+
+/-- Every patch reads the glued section as its own profile, on its own open. -/
+theorem trioCover_density_of (s : GlobalSection (X := Cortex))
+    (hs : ∀ i : Fin 3, (probabilityPresheaf Cortex).map
+      (homOfLE (le_top : trioCover.cover i ≤ ⊤)).op s = trioCover.sync_to_section i)
+    (i : Fin 3) (x : Site) (hx : x ∈ trioPatch i) : density s x = trioW i x := by
+  have hL : densityOn ((probabilityPresheaf Cortex).map
+      (homOfLE (le_top : trioCover.cover i ≤ ⊤)).op s) x hx = density s x := rfl
+  rw [← hL, hs i]
+  show densityOn (sectionOfMassOn (trioPatch i) (trioW i)) x hx = _
+  rw [densityOn_sectionOfMassOn]
+
+/-- **The glued state, computed**: profile `(2, 1, 3)`, which by `trioW_ne_glued`
+is none of the three profiles the instance carries. -/
+theorem trioCover_glued_eq (s : GlobalSection (X := Cortex))
+    (hs : ∀ i : Fin 3, (probabilityPresheaf Cortex).map
+      (homOfLE (le_top : trioCover.cover i ≤ ⊤)).op s = trioCover.sync_to_section i) :
+    s = sectionOfMass trioGlued := by
+  apply Phi_injective
+  rw [Phi_sectionOfMass]
+  funext x
+  have key : ∀ (i : Fin 3) (hx : x ∈ trioPatch i), density s x = trioGlued x := by
+    intro i hx
+    rw [trioCover_density_of s hs i x hx, trioW, ite_eq_right (hx : x ≠ siteOf i)]
+  cases x
+  · exact key 1 (show Site.left ≠ Site.mid by decide)
+  · exact key 0 (show Site.mid ≠ Site.left by decide)
+  · exact key 0 (show Site.right ≠ Site.left by decide)
+
+/-- The invariant measure Derivation 5 produces for this cover. -/
+theorem trioCover_invariantMeasure :
+    trioCover.invariantMeasure = sectionOfMass trioGlued :=
+  trioCover_glued_eq _ (fun i => (trioCover.sync_to_section_eq i).symm)
+
+end TrioCover
 
 end TrioDynamics
 

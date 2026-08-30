@@ -99,14 +99,25 @@ theorem probability_glue_unique {I : Type u} (cover : I → Opens X)
 Structure bundling a cover with a coupling matrix that has already reached
 thermodynamic equilibrium.
 
-**Caveat.** The field `thermodynamic_equilibrium` *assumes* that the cover's
-phase configuration minimizes the Kuramoto potential; it is a hypothesis of the
-structure, not a result derived from dynamics. `global_section_from_thermodynamics`
-therefore proves "given a cover already at the potential minimum, the local
-sections glue uniquely" — the physical work of getting to that minimum is done
-by the informal argument in the manuscript (and, numerically, by
-`simulations/kuramoto.py`), not by Lean. This is open item **O20**; instances of
-this class are what carry the physical content.
+**What the field asks, and how it can now be met.** `thermodynamic_equilibrium`
+says the cover's phase configuration minimises the reduced Kuramoto potential.
+It remains a *field* — an obligation each instance discharges — because that is
+the standing rule for a postulate mentioning a class field, and because the
+statement is false of arbitrary configurations. What has changed is that an
+instance no longer has to assume it of a phase field that was built locked.
+`ThermodynamicCover.ofConvergentTrajectory` (`Phase5_EquilibriumBridge.lean`)
+discharges the field from `kuramoto_tendsto_global_minimum`: hand it a Kuramoto
+trajectory whose initial data lies within a quarter turn and below the energy
+threshold, and it builds a cover whose phase field is that trajectory's limit.
+`Examples.lean` §17.1 is such a cover, on three sites, from initial data that is
+not phase-locked and a trajectory with no closed form.
+
+That was open item **O20**, and it is closed in the direction the item asked
+about. Two things it does not cover. The hypotheses of the bridge are genuinely
+restrictive — splay and twisted states are equilibria of the same flow, so no
+theorem says every trajectory arrives — and the cover's *other* physical
+hypothesis, `LocalSectionSynchronization.section_agrees_of_phase_eq`, is
+untouched by any dynamics in this development.
 -/
 class ThermodynamicCover (X : TopCat.{u}) [MeasurableSpace X] [BorelSpace X] [TriangulatedManifold ↥X] 
   extends LocalSectionSynchronization X where
@@ -148,9 +159,15 @@ The chain is: `thermodynamic_equilibrium` forces the phase field to be locked
 (`probability_glue_unique`).
 
 **What carries physical content.** Two hypotheses, both instance obligations and
-both flagged as such: that the cover is at the potential minimum (**O20** — no
-dynamics is run), and that synchronised patches agree on overlaps. Given those,
-existence and uniqueness of the global section are mathematics.
+both flagged as such: that the cover is at the potential minimum, and that
+synchronised patches agree on overlaps. Given those, existence and uniqueness of
+the global section are mathematics.
+
+The first of the two is no longer an assumption on every instance. A cover built
+by `ThermodynamicCover.ofConvergentTrajectory` (`Phase5_EquilibriumBridge.lean`)
+derives it from a dynamics that reaches the minimum, and `Examples.lean` §17.1
+is such a cover. The second remains an assumption on every instance, here and
+everywhere.
 
 **What is no longer assumed.** Until 2026-08-30 the class carried the global
 section as a field and declared the local sections to be its restrictions, so
@@ -179,8 +196,11 @@ object; the global object is what the theorem is for.
 
 **What this does not fix.** The remaining hypotheses of Derivation 5 are
 unchanged, and they are the physical ones: that the cover sits at the potential
-minimum (**O20**), and that synchronised patches agree where they overlap. The
-change is to what follows from them, not to how much is assumed.
+minimum, and that synchronised patches agree where they overlap. The change made
+here is to what follows from them, not to how much is assumed. (The first
+hypothesis is separately addressed by `Phase5_EquilibriumBridge.lean`, which
+derives it on a class of initial data; that is a different change, made later,
+and it leaves the second exactly where it is.)
 -/
 
 open scoped Classical in
