@@ -115,8 +115,9 @@ Each item is self-contained. Record the pass in this file under a dated heading
 in the style of the archive (what was built / non-vacuity / what it does *not*
 establish / manuscript updates), then move to the next.
 
-**W1 is done (2026-08-31).** The next item is **W8**, which the frame requires
-before W3 and W7; then W2.
+**W1 and W8 are done (2026-08-31).** The next item is **W2** (the domain-wall
+theorem), then W4, then W3 and W7 — the last two now have the honesty framing
+they were waiting on.
 
 ### W1 — Discharge `thermodynamic_equilibrium` from the convergence theorem
 
@@ -338,7 +339,9 @@ before W3 and W7; then W2.
 
 ### W8 — Write the honesty paragraph, and write it early
 
-- [ ] **Objective.** State plainly that no new physics is derived.
+**Done 2026-08-31.** Pass recorded below under *2026-08-31 — W8*.
+
+- [x] **Objective.** State plainly that no new physics is derived.
 - **Why.** Every physical result invoked is established: Picard–Lindelöf,
   Barbălat 1959, Sakaguchi 1988 (K_c = 2D), Kibble 1976, Landauer, Gibbs, Banach,
   Still et al. 2012. A physicist referee will establish this in three paragraphs
@@ -482,6 +485,100 @@ schematic figure.
 
 **Next item: W8** (write the honesty paragraph), since the ledger requires it
 before W3 and W7, then W2.
+
+---
+
+## 2026-08-31 — W8: the honesty paragraph, and the one prediction that is ours
+
+Prose only; no Lean touched.
+
+**What was written.**
+
+* **A new `\subsection*{What is new here, and what is not}` closing the
+  Introduction** — placed early, as the item required, because it changes how
+  every later section can be phrased. Three paragraphs: the concession that no
+  new physics is derived, with each invoked result named and cited; what *is*
+  new, which is that the results are stated in one language, mechanically
+  checked against each other, and the stipulations located; and a forward
+  pointer to the one prediction that is the framework's own.
+* **The abstract** now carries the concession in its own sentence rather than
+  the weaker "without introducing new fundamental physics", and its
+  two-assumptions clause is corrected for W1: the synchronization step is
+  "proved from a dynamics for initial data inside an explicit basin and assumed
+  outside it", which is the true status. It also names the sleep-inertia
+  prediction, so a reader who stops at the abstract knows where the paper is
+  falsifiable.
+* **A new section, `The Sleep-Inertia Timescale Mismatch`** (`\label{sec:prediction}`),
+  before the Corollary. The two sleep paragraphs were moved out of Derivation 7
+  and given four new `\paragraph` blocks: *why this implies a delayed sigmoid*,
+  *what the alternative predicts*, *what would falsify it*, and *what this
+  prediction assumes*. The mechanism paragraph is the substance — the fast
+  variable rides the equilibrium branch, so the slow variable (astrocytic
+  volume, `10²–10³` s) carries the entire time course, and composing a monotone
+  `K(t)` with the branch geometry gives latency → continuous rise → saturation.
+  The three facts about the branch that force that shape are named as theorems
+  (`fixed_point_eq_zero_of_le_critical`, `supercritical_fixed_point_existsUnique`,
+  `coherent_branch_continuous_at_threshold`, `coherent_branch_strictMono`), all
+  four verified to exist. A jump at threshold would predict a step; a
+  non-monotone branch would predict overshoot; neither is what is proved.
+
+**Eight references added, every one verified online** (`AGENTS.md` §4). The
+honesty paragraph names established results, and naming them without pointers
+would have been its own defect. Landauer in particular was invoked in the title,
+the abstract, Derivation 2 and the Corollary with **no citation anywhere** —
+that is now fixed at both prose sites.
+
+| key | verified as |
+|---|---|
+| `landauer1961` | IBM J. Res. Dev. 5(3), 183–191 |
+| `kibble1976` | J. Phys. A 9(8), 1387–1398 |
+| `sakaguchi1988` | Prog. Theor. Phys. 79(1), 39–46 |
+| `barbalat1959` | Rev. Roumaine Math. Pures Appl. 4, 267–270 |
+| `still2012` | Phys. Rev. Lett. 109(12), 120604 |
+| `banach1922` | Fund. Math. 3(1), 133–181 |
+| `coddington1955` | McGraw-Hill, New York (Picard–Lindelöf) |
+| `cover2006` | Wiley-Interscience, 2nd ed. (Gibbs' inequality) |
+
+**A stale claim in the Conclusion, corrected.** It read: "the motion is proved
+to stop along every trajectory, but *where* it stops is not proved: that a
+physical field reaches the phase-locked configuration remains an assumption,
+discharged numerically rather than formally." That was already false at
+`861f252` and doubly so after W1 — an *under*claim, but a wrong one. It now
+states the conditional result, names `ofConvergentTrajectory`, says plainly that
+the unconditional statement is **false** because splay and twisted states are
+equilibria, and identifies what is still assumed: that a physical cortex starts
+inside the basin.
+
+**What this does *not* do.**
+
+* It does not make the framework falsifiable in more than one place. The
+  sleep-inertia prediction is the only one that discriminates against a rival;
+  everything else the framework says about synchrony is shared.
+* It does not license the prediction's numbers. The section says so: `K_c = 2D`
+  is conditional on the von Mises density with no link to a trajectory, so the
+  argument leans on the *existence and continuity* of the branch at threshold —
+  which is proved — and not on the threshold's value. The identification of `K`
+  with a monotone function of extracellular geometry is a modelling assumption,
+  and the claim is about functional form, not a time constant.
+* It does not rewrite the Derivation sections in the new voice. W3 and W7 are
+  where that happens; this pass supplies the frame they were waiting on.
+
+**Gates.**
+
+* `main.tex` 57 → **63 pages**. Overfull hboxes 23 → **21**, and the 21 are a
+  strict subset of `HEAD`'s (diffed, not assumed): the two new boxes the first
+  draft introduced were removed by shortening the section title and rewording
+  one abstract clause. Zero LaTeX warnings, zero undefined references or
+  citations.
+* `supplementary.tex` untouched, 10 pages.
+* Lean untouched; no rebuild needed.
+
+**Note for W7.** The prediction section is the natural home for a figure — the
+`r(K)` bifurcation diagram beside the composed recovery curve `r(K(t))`, which
+would show the flat foot and the exponential alternative on one pair of axes.
+W7 lists the bifurcation diagram already; this is the second panel it wants.
+
+**Next item: W2** (the domain-wall theorem), then W4.
 
 ## Low value — listed so they are not rediscovered as new
 
