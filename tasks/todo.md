@@ -905,7 +905,11 @@ changing the node shape and the manuscript claim.
 
 ### A2 — Reclassify `chain` as conditional composition
 
-- [ ] **Objective.** Make the figure, theorem description and Table S1 say that
+- [x] **Done 2026-08-31.** Reader-facing descriptions now consistently call
+      `chain` a conditional composition schema with eight assumed arrows. Pass
+      record at the end of this file.
+
+- [x] **Objective.** Make the figure, theorem description and Table S1 say that
       `chain` is a composition schema with eight assumed arrows, not a derivation
       of the physical narrative from finite capacity.
 
@@ -1713,3 +1717,34 @@ carries the state identification, and Table S1 uses the same scope.
 pass. Both publications compile twice: main 93 pages, 16 overfull and zero
 undefined references; supplement 15 pages, 8 overfull and the same three
 standalone cross-document undefined-reference warnings.
+
+---
+
+### A2 — conditional composition, not physical derivation — 2026-08-31
+
+**Scope corrected.** The abstract, opening paragraph, formalization introduction,
+Figure~1 caption, conclusion and supplement now call the result a conditional
+composition schema rather than a deductive chain from basic principles. The
+figure states the decisive count directly: all eight vertical arrows are
+assumptions. The theorem paragraph and Table~S1 already named the eight
+hypotheses after A1; they were retained and checked for agreement.
+
+**What the formalization establishes.** `chain` provides machine-checked
+dependency accounting: given `E12` through `E89`, their conclusions compose to
+`UnifiedSelf`. It does not derive those cross-domain arrows from finite capacity.
+In particular, `E12` is equivalent to its own conclusion, four arrows supply
+whole structures, and `E45` relates quantities for which the development defines
+no shared dynamics.
+
+**What was not changed.** The Lean theorem is correctly typed for conditional
+composition and required no redesign. No status of an individual node changed,
+and no reference was added.
+
+**Gates.** The text-level red test failed on three unconditional formulations:
+“establishing a deductive chain,” “verification of our deductive chain,” and the
+caption “the deductive chain.” All three are absent after the rewrite, while
+both the main theorem paragraph and Table~S1 retain “conditional composition.”
+`check_prose.py` and `git diff --check` pass. Both publications compile twice:
+main is 94 pages with 16 overfull boxes and zero undefined references or
+citations; the standalone supplement is 16 pages with its unchanged 8 overfull
+boxes and three cross-document undefined-reference warnings.
