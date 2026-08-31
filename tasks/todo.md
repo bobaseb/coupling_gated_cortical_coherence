@@ -99,8 +99,8 @@ sequenced after P3 and is now unblocked.
 §17.1; `Chain.lean` is 757 lines and carries the composition. `lake build`
 clean, 17,616 jobs.
 
-**Manuscript.** `main.tex` 88 pages, overfull 16; `supplementary.tex` 15,
-overfull 0; merged arXiv build 48 pages, overfull 0. Six figures, a methods
+**Manuscript.** `main.tex` 91 pages, overfull 16; `supplementary.tex` 15,
+overfull 0; merged arXiv build 49 pages, overfull 0. Six figures, a methods
 section, and Table S1 carrying the claim-by-claim identifier map.
 
 *(Figures as of the start of 2026-08-31; the current figures are in the C and P
@@ -595,11 +595,15 @@ Take ONE at a time. **S1 and F1 first**: both are manuscript-only, both are
 already true, and both strengthen the paper's weakest public claims at zero
 formal cost. S2 is the one with real payoff and real cost.
 
+**S1 is closed (2026-08-31). F1 is next.**
+
 ---
 
 ### S1 — The sleep-inertia prediction, restated as a parameter-free collapse
 
-- [ ] **Objective.** Replace "recovery is a delayed sigmoid" with a claim that a
+- [x] **Done 2026-08-31.** Pass record at the end of this file.
+
+- [x] **Objective.** Replace "recovery is a delayed sigmoid" with a claim that a
       one-timescale account and a generic saturating gate cannot both make.
 
 **Why the current claim is weak.** Any two-timescale model with a slow gate
@@ -637,7 +641,8 @@ functional form.
 
 **Done when.** The prediction section states the collapse and the `a/r = 2`
 crossing, names the two theorems, and scopes what the test is a test *of*. No
-Lean.
+Lean. — **Done.** It also states the estimator independence the collapse needs,
+which the item did not anticipate; see the pass record.
 
 ---
 
@@ -1365,3 +1370,73 @@ this pass.
 which was blocking, and the presubmission inquiry, which the item explicitly
 sequenced after P3 — the changelog was the first thing an editor would have
 noticed, and it is gone.
+
+
+---
+
+### S1 — the parameter-free collapse — 2026-08-31
+
+**What was built.** Manuscript only; no Lean. Four new paragraphs in
+Section~\ref{sec:prediction}, placed after *What the alternative predicts* so
+that they answer the objection the shape comparison invites rather than
+pre-empting it, plus one extended sentence in *What would falsify it* and one
+clause each in the abstract and the introduction.
+
+**The claim now made.** The shape claim is stated and then conceded to be weak in
+the manuscript's own voice — any two-timescale account with a slow saturating
+gate produces a delayed sigmoid. What the framework contributes past that is a
+relation between two separately measurable quantities with no fitted parameter:
+at every instant of the recovery the concentration `a(t)` and the coherence
+`r(t)` of the phase distribution must satisfy `r = I₁(a)/I₀(a)`. Three tests of
+increasing sharpness are stated — shape (the instantaneous distribution is von
+Mises), collapse (the whole recovery falls on one fixed curve, the *same* curve
+for every subject, since the curve contains no subject-specific quantity), and
+threshold (`a = Kr/D` identically, so the measured ratio `a/r` **is** `K/D`, and
+it must exceed 2 wherever coherence is non-zero and approach 2 at onset).
+
+**Theorems named.** `circularOrderParameter_vonMises` for the order parameter of
+the von Mises density being exactly the Bessel ratio;
+`fixedPoint_iff_selfReproducing` for self-consistency being exactly the condition
+that the density reproduces its own order parameter; and
+`fixed_point_eq_zero_of_le_critical` for the threshold half, which the item did
+not name but which is what makes `a/r > 2` a consequence rather than a
+restatement.
+
+**One thing the item did not anticipate, and it is the load-bearing caveat.**
+The collapse is *empty* under the standard estimator. Maximum-likelihood and
+moment estimation of a von Mises concentration both choose `â` so that
+`I₁(â)/I₀(â)` is the observed resultant length, by construction — so fitted that
+way the data reproduce the predicted curve whatever they are. The manuscript now
+says this and says what to do instead: estimate `a` from a functional other than
+the resultant length (the log-density of a von Mises is affine in `cos θ`, so a
+regression of the log-histogram on `cos θ` returns `a` as a slope), and take `r`
+as the resultant length of the same sample. Those are genuinely different
+statistics of the same data, and the prediction is that they agree through `R`.
+Without this paragraph the item would have shipped an unfalsifiable test.
+
+**What it does not establish.** The test is a joint test of the von Mises
+stationary density (a declared modelling input, O13) and the mean-field closure
+that makes `a` proportional to `r`. It does *not* test `K_c = 2D` independently
+of that ansatz: the `a/r = 2` crossing follows from the same density the collapse
+assumes, so a failure of the collapse and a failure of the threshold are one
+failure and not two. The manuscript states this in its own paragraph rather than
+in a subordinate clause. Nothing here connects `circularOrderParameter` to
+`order_parameter_complex` — that remains the mean-field limit, open item (A) —
+so the quantity the experimenter measures over finitely many sites is related to
+the quantity the theorem is about by an assumption, not by a lemma.
+
+**Manuscript updates.** Abstract: the delayed-sigmoid clause now carries "and,
+more sharply, the concentration and the coherence of the phase distribution must
+collapse onto a single parameter-free curve". Introduction: the same, spelled
+out, with the reason the shape claim alone is not enough. Falsification list:
+three new entries, two of which are testable with no reference to the
+sleep-inertia setting at all.
+
+**Gates.** `check_prose.py` exits 0 on both files. `main.tex` **91 pages,
+overfull 16, zero undefined references or citations** — the overfull *set* is
+identical to `HEAD`'s, checked by rebuilding `HEAD`'s `main.tex` in a scratch
+tree and diffing the magnitudes rather than comparing counts (one new overfull
+box did appear, at the maximum-likelihood sentence, where an inline equation
+gave TeX no break point; it was reworded, not tolerated). `supplementary.tex`
+untouched. Merged arXiv build **49 pages, overfull 0, zero undefined
+references**. No Lean change, so the build gate is inherited unchanged.
