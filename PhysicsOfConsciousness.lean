@@ -20,3 +20,4 @@ import PhysicsOfConsciousness.Phase7_Rigidity
 import PhysicsOfConsciousness.Phase8_ContinuousField
 import PhysicsOfConsciousness.Phase8_SelfConsistency
 import PhysicsOfConsciousness.Examples
+import PhysicsOfConsciousness.Chain

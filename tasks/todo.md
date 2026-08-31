@@ -178,7 +178,9 @@ updates / gates).
 
 ### C1 — `Chain.lean`: make the chain compose, or make its gaps unremovable
 
-- [ ] **Objective.** One new module, `PhysicsOfConsciousness/Chain.lean`, in which
+- [x] **Done 2026-08-31.** Pass record at the end of this file.
+
+- [x] **Objective.** One new module, `PhysicsOfConsciousness/Chain.lean`, in which
       every arrow of Figure~1 is either a Lean theorem or a **named hypothesis**,
       and one theorem composes them end to end.
 
@@ -568,7 +570,16 @@ P1–P4.
 2. **`section_agrees_of_phase_eq`** — the `LocalSectionSynchronization` hypothesis
    that synchronised patches agree where they overlap. Unchanged in rank and in
    shape. See the W6 record for why it is *not* "the move W1 made".
-3. **The PRX Life presubmission inquiry** — on hold at the user's instruction as
+3. **A joint witness for `chain`.** Added by the C1 pass. Five of the nine named
+   hypotheses relate structures rather than numbers, and none of them is exhibited
+   satisfied. A single substrate carrying a `ThermodynamicCover`, a
+   `ReflexiveBoundary` and a `PredictiveDissipation` at once would discharge all
+   five and turn `chain` from a typechecked statement into a witnessed one.
+   Believed reachable: `Examples.lean` §17.1 is a cover, §10 is a reflexive
+   boundary, and `constResonance` makes `E89` free because a constant map is
+   Lipschitz at any rate. Rank it after C1–C5 and P1–P4; do not let the
+   manuscript claim more than the current partial witness supports.
+4. **The PRX Life presubmission inquiry** — on hold at the user's instruction as
    of 2026-08-31, not withdrawn. Do it after P3: the changelog is the first thing
    an editor would notice.
 
@@ -673,3 +684,107 @@ deliberate rather than forgotten.
    material from `main.tex`, and P2 moves it to `CHANGELOG.md` — which makes it
    *more* available to this paper, not less, since it is then in one place rather
    than scattered across 64 sites in a manuscript.
+
+---
+
+## Pass record
+
+### C1 — `Chain.lean` — 2026-08-31
+
+**What was built.** `PhysicsOfConsciousness/Chain.lean`, 546 lines, one new
+module sitting above every phase and imported only by the root aggregator. No
+existing module's imports were touched, so no phase file acquired a dependency
+and no cycle was possible.
+
+It contains, in order: nine node predicates (`Capacity`, `LeavesVacuum`,
+`Dissipates`, `PredictiveBound`, `CoarseGrains`, `FieldRealizes`, `Coherent`,
+`Unity`, `Self`); eight node theorems saying each node is reached once its own
+link's hypotheses are in hand; nine `Prop`-valued named hypotheses `E12 … E89`,
+one per unproved arrow; and `chain`, which takes the nine as explicit arguments
+and concludes `Self rb`.
+
+**The count, which is the deliverable.** `#check @chain` shows nine arguments of
+type `E..`, each an implication between two node predicates. Labelled by kind
+(C4's classification, done in the same pass because the docstrings had to say
+something):
+
+| edge | kind | why |
+|---|---|---|
+| `E12` n1→n2 | formalization gap | see the finding below — it is not an inference at all |
+| `E23` n2→n3 | formalization gap | the defect locus is not related to a state space anywhere |
+| `E34` n3→n4 | formalization gap | Landauer heat and Still's `W_diss` are never identified |
+| `E45` n4→n5 | modelling assumption | selection against nonpredictive memory constrains the coupling matrix; no formal relation exists between the two objects |
+| `E56` n5→n6 | physical commitment | the load-bearing joint; could simply be false |
+| `E67` n6→n7 | physical commitment | cortex operates above `K_c`; a measurement, not a proof |
+| `E78` n7→n8 | formalization gap | half reachable via `ofConvergentTrajectory`; the other half is `section_agrees_of_phase_eq` |
+| `E89` n8→n9 | modelling assumption | the nonlinear self-model contracts at the linearised rate |
+| `E79` n7→n9 | expected dischargeable | C2 |
+
+Four formalization gaps, two modelling assumptions, two physical commitments, one
+expected to become a theorem.
+
+**Three findings, none of them the one the item predicted.**
+
+1. **n1 → n2 is not an edge, and n0 is not the only non-node.** `Capacity sys` is
+   a theorem with *no hypotheses*, so `E12 : Capacity sys → LeavesVacuum vac phi`
+   is logically equivalent to its own conclusion. Assuming it is assuming n2
+   outright. The capacity bound mentions no vacuum manifold and the `π₀`
+   obstruction mentions no entropy: **n1 and n2 are two independent starting
+   points of the document, not two links of one chain.** The item expected n0→n1
+   to be the figure's only fake arrow; n1→n2 is a second one, and it is worse,
+   because n0 at least announces itself as vocabulary.
+2. **The edge n1 actually has is n1 → n3, and the figure does not draw it.**
+   Finiteness is what turns "some state is unreachable" into "the update is
+   many-to-one" (`is_erasure_of_not_surjective`), and Landauer does the rest.
+   `dissipation_of_unreachable` records it. It skips n2 entirely.
+3. **The empirical commitment enters the formal chain as an identification of two
+   real numbers.** `FieldRealizes L K D` is `0 < D ∧ 0 ≤ K ∧ L = K`: the
+   continuum limit of the discrete coupling energy *is* the mean-field coupling
+   constant. Nothing stronger is statable, because no formal object in this
+   development denotes cortex. Everything else the manuscript says about n6 —
+   electromagnetic, endogenous, the field EEG measures — is carried by prose and
+   by no theorem. That is not a defect to fix; it is the exact size of the joint,
+   and the manuscript should say it.
+
+**A design decision worth recording.** Four of the nine edges deliver a
+*structure* rather than a proposition (`E34` and `E78` conclude
+`Nonempty (PredictiveDissipation …)` and `Nonempty (ThermodynamicCover X)`).
+This is deliberate. `PredictiveDissipation.nonpredictive_le_dissipation` and
+`global_section_from_thermodynamics` are theorems *of* their classes, so an edge
+whose conclusion was the bare inequality or the bare gluing statement would be
+provable by ignoring its hypothesis — a manufactured edge of exactly the kind the
+item warned against. What n4 and n8 assert is that the substrate *carries* the
+structure, and that is what the hypotheses now say.
+
+**Non-vacuity.** Partial, and the shortfall is recorded rather than papered over.
+The four numerically-contentful edges (`E56`, `E67`, `E79`, and `CoarseGrains`
+itself) are exhibited satisfied at `D = 1`, `K = 3`, where `K_c = 2`. The other
+five relate structures rather than numbers, and a witness for them is a witness
+for the whole chain — a substrate carrying a `ThermodynamicCover`, a
+`ReflexiveBoundary` and a `PredictiveDissipation` at once. That is buildable
+(`Examples.lean` §10 and §17.1 have two of the three, and `constResonance` makes
+the Lipschitz hypothesis free) and it is **not built**. It is the next
+non-vacuity task; see *Open, ranked*.
+
+**What this does not establish.**
+
+* Not that nine is the right number. It is the number this factorisation
+  produces; a different set of node predicates gives a different one. What is not
+  negotiable is that the gaps are arguments rather than sentences.
+* Not that the chain is sound end to end for cortex. Every one of the nine is
+  undischarged.
+* Not n10. The stipulation is outside `chain` deliberately, and the module
+  docstring says why: encoding it would make it look like the same kind of object
+  as the rest.
+
+**Gates.** `lake build` clean, 17,616 jobs (was 17,614). Zero `sorry`, zero
+warnings, zero declared axioms. `#print axioms chain` reports exactly
+`[propext, Classical.choice, Quot.sound]`. Lean now 14,485 lines across 21
+modules. `Phase8_SelfConsistency` has a second importer for the first time
+(`Chain.lean`, consuming `supercritical_fixed_point_existsUnique`) — the first
+half of C2's *done when*, reached as a side effect; C2's substance is unaffected
+and the item stays open.
+
+**Manuscript.** Untouched in this pass. C5 is where the figure, the "what is new
+here" claim and Table~1 are brought into line, and it now has three findings to
+carry rather than one.
