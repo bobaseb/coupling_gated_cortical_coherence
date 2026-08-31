@@ -343,7 +343,9 @@ finding.
 
 ### C4 — Name the remaining edges precisely
 
-- [ ] **Objective.** For each edge C1 leaves as a named hypothesis, a docstring
+- [x] **Done 2026-08-31.** Pass record at the end of this file.
+
+- [x] **Objective.** For each edge C1 leaves as a named hypothesis, a docstring
       that says what the hypothesis asserts *physically*, what would discharge
       it, and whether the obstacle is Mathlib, the modelling, or the physics.
 
@@ -371,7 +373,9 @@ its kind, and the three counts are stated in the manuscript.
 
 ### C5 — The paper side of the chain: figure, claim, table
 
-- [ ] **Objective.** Make the manuscript say what C1–C4 established, and stop
+- [x] **Done 2026-08-31.** Pass record at the end of this file.
+
+- [x] **Objective.** Make the manuscript say what C1–C4 established, and stop
       saying what they refuted.
 
 **What it takes.**
@@ -906,3 +910,71 @@ first obstacle on this edge.
 **Gates.** `lake build` clean, 17,616 jobs, zero `sorry`, zero warnings.
 `#print axioms` on all three new results reports exactly the three.
 `Chain.lean` 757 lines. Manuscript untouched in this pass.
+
+### C4 and C5 — naming the edges, and the paper side — 2026-08-31
+
+C4's Lean half was done inside C1 (the docstrings had to say something, and
+"formalization gap / modelling assumption / physical commitment" is what they
+say). Its manuscript half is the same sentence C5 rewrites, so the two are
+recorded together.
+
+**Figure 1.** Arrows now carry a status, and the picture that resulted is the
+finding.
+
+* **Dashed** — a named hypothesis of `chain`. **Solid** — a Lean theorem.
+  **Dotted** — the stipulation, which is a hypothesis of nothing.
+* **n0 has no arrow.** A box whose own text says it is consumed by no theorem
+  cannot have an inference leaving it. It stays as a labelled setting box, set
+  apart by extra vertical space.
+* **Two theorem arrows were added, and neither is one the figure drew:**
+  n1 → n3 (finiteness straight to Landauer, skipping the boundary) and n7 → n9
+  (the coherent order parameter to the Self, skipping unity). They are drawn as
+  curves down the right-hand side.
+* So: **every arrow the original figure drew is dashed, and both solid arrows are
+  ones it did not draw.** That sentence is now the caption's centre, and it is a
+  more interesting claim than the one the figure used to make.
+* n5's box was corrected per C3: the limit is a scalar, and no theorem produces a
+  kernel. n6's "that kernel" became "that coupling", in the figure, in Table 1,
+  in Table S1 and in the abstract.
+
+**The "what is new here" claim.** The old sentence — "no link can quietly borrow
+from another, a hypothesis cannot be smuggled in as a definition" — asserted
+exactly what C1 showed the development did not establish. It is replaced by four
+things a reader can check in one command each: no declared axioms; every physical
+postulate a class field with an inhabited class; the chain composing to one
+theorem with eight named hypotheses, counted by kind; and those eight jointly
+satisfiable (`chain_nonvacuous`). A second paragraph states the two refuted
+arrows rather than repairing them silently.
+
+**Table 1** gained a seventh row: the n7 → n9 step is a theorem now and had been
+a clause inside the last row. The n5 row's wording was corrected and the n7/n8
+row split from it.
+
+**Table S1** was checked against `Chain.lean` rather than generated from it —
+generation would need a Lean-to-LaTeX pass, which is machinery this paper does
+not otherwise need and which would have to be maintained. Two rows were added:
+one for `chain` itself (the eight hypotheses, by name and by kind, plus the two
+theorem arrows and the `E12` finding) and one for C3's negative result. Every
+existing row's status was compared against the node predicates; none needed
+changing, because Table S1 is a per-node table and the per-node statuses were
+already right. **That is exactly why the n7 → n9 error survived**: a table with a
+row per node has nowhere to record a false claim about an edge.
+
+**One more sentence was corrected outside C5's list.** The supplement said
+`self_of_supercritical` derives the fixed point "from $K > K_c$ rather than from a
+numeral". `critical_coupling` unfolds to `2 * D`, so that was the wrong way
+round; the sentence now states the distinction and names the theorem that makes
+it true. The abstract's "Starting from the Poincaré group" was corrected for the
+same reason the figure's n0 arrow was removed.
+
+**Gates.** `main.tex` 88 pages (was 86 at the start of the session), overfull 18
+— unchanged against `HEAD` — zero undefined references or citations.
+`supplementary.tex` 15 pages, overfull 0, unchanged; its two undefined references
+are cross-references into the main text and resolve only in the merged build, as
+before. Merged arXiv build: **48 pages (was 46), overfull 0, zero undefined
+references.** `lake build` clean, 17,616 jobs.
+
+**What is left of the C-series.** Nothing. C1–C5 are closed. The manuscript now
+says what the development establishes about its own composition, and the two
+places where it said more have been corrected rather than softened. The P-series
+(P1–P4, the changelog gate and the rewrite) is untouched and is the next work.

@@ -41,7 +41,7 @@
 \maketitle
 
 \begin{abstract}
-We present a mathematical synthesis and formal Lean 4 verification demonstrating how cognitive architectures can emerge as attractor states from established physical primitives, without introducing new fundamental physics. Starting from the Poincaré group of spacetime symmetries and finite phase space, we construct a framework for predictive processing. Spontaneous symmetry breaking generates necessary topological boundaries, and finite phase space subjects these boundaries to Landauer's thermodynamic erasure. Agency arises when systems evolve along paths of least action, minimizing entropy production via internal structural resonance with external perturbations. Scaling this dynamic to macroscopic levels aligns with emerging paradigms in neuroscience—specifically classical electrodynamic fields (ephaptic coupling)—and Kuramoto phase synchronization, culminating in a topological fixed point: a unified ``Self.'' We state the claim narrowly, because the subject matter invites a wider reading than the work supports: no new physics is derived here. Every physical result the chain invokes is established---Picard--Lindelöf, Kibble's classification of topological defects, Landauer's erasure bound, Gibbs' inequality, Still's bound on dissipation by nonpredictive information, Barbalat's lemma, Sakaguchi's threshold, Banach's fixed point. What is new is that they are stated in one formal language, their consistency mechanically checked, and the points where the chain relies on stipulation rather than derivation located exactly. The development declares no axioms and every structure carrying physical content is inhabited by a witness; the synchronization step is proved from a dynamics for initial data inside an explicit basin and assumed outside it, and the identification of a global section of the probability sheaf with the unity of experience is a stipulation, marked as such throughout rather than absorbed into the derivation. The step from a coarse-grained coupling kernel to the brain's endogenous electromagnetic field is likewise an empirical commitment and not a deduction; we separate it from the coarse-graining theorem that precedes it, weaken it to a modulatory-but-integrative role, and give four conditions that would falsify it. The framework is nonetheless falsifiable in one place that is its own and no rival's: recovery from sudden awakening should follow a delayed sigmoid rather than an exponential, because the variable gating it is astrocytic volume on a timescale of seconds to minutes rather than cortical phase realignment on a timescale of milliseconds. As a corollary, we show why rigid von Neumann architectures (e.g., GPUs) are thermodynamically disadvantaged or structurally constrained from reaching these specific continuous thermodynamic attractors.
+We present a mathematical synthesis and formal Lean 4 verification demonstrating how cognitive architectures can emerge as attractor states from established physical primitives, without introducing new fundamental physics. Starting from the finiteness of a localized system's phase space, we construct a framework for predictive processing; the spacetime symmetries are the setting rather than a premise, and no theorem consumes them. Spontaneous symmetry breaking generates necessary topological boundaries, and finite phase space subjects these boundaries to Landauer's thermodynamic erasure. Agency arises when systems evolve along paths of least action, minimizing entropy production via internal structural resonance with external perturbations. Scaling this dynamic to macroscopic levels aligns with emerging paradigms in neuroscience—specifically classical electrodynamic fields (ephaptic coupling)—and Kuramoto phase synchronization, culminating in a topological fixed point: a unified ``Self.'' We state the claim narrowly, because the subject matter invites a wider reading than the work supports: no new physics is derived here. Every physical result the chain invokes is established---Picard--Lindelöf, Kibble's classification of topological defects, Landauer's erasure bound, Gibbs' inequality, Still's bound on dissipation by nonpredictive information, Barbalat's lemma, Sakaguchi's threshold, Banach's fixed point. What is new is that they are stated in one formal language, their consistency mechanically checked, and the points where the chain relies on stipulation rather than derivation located exactly. The chain itself composes to a single theorem, whose eight unproved steps are its arguments rather than sentences about it, and which are jointly satisfiable rather than jointly empty. The development declares no axioms and every structure carrying physical content is inhabited by a witness; the synchronization step is proved from a dynamics for initial data inside an explicit basin and assumed outside it, and the identification of a global section of the probability sheaf with the unity of experience is a stipulation, marked as such throughout rather than absorbed into the derivation. The step from a coarse-grained coupling to the brain's endogenous electromagnetic field is likewise an empirical commitment and not a deduction; we separate it from the coarse-graining theorem that precedes it, weaken it to a modulatory-but-integrative role, and give four conditions that would falsify it. The framework is nonetheless falsifiable in one place that is its own and no rival's: recovery from sudden awakening should follow a delayed sigmoid rather than an exponential, because the variable gating it is astrocytic volume on a timescale of seconds to minutes rather than cortical phase realignment on a timescale of milliseconds. As a corollary, we show why rigid von Neumann architectures (e.g., GPUs) are thermodynamically disadvantaged or structurally constrained from reaching these specific continuous thermodynamic attractors.
 \end{abstract}
 
 \section{Introduction}
@@ -52,48 +52,66 @@ We propose a framework where the structural properties of consciousness are deri
 \subsection*{What is new here, and what is not}
 A framework paper about consciousness invites a particular suspicion, and it is better answered at the start than at the end. \textbf{No new physics is derived here.} Every physical result the chain invokes is established, and most of it is old: Picard--Lindelöf for the well-posedness of the coupled dynamics \cite{coddington1955}; Kibble's classification of topological defects by the homotopy of the vacuum manifold \cite{kibble1976}; Landauer's bound on the heat cost of erasure \cite{landauer1961}; Gibbs' inequality for the relative entropy \cite{cover2006}; Barbalat's lemma for the asymptotics of a dissipating trajectory \cite{barbalat1959}; the threshold $K_c = 2D$ for the noisy mean-field Kuramoto model \cite{sakaguchi1988}; the bound of Still, Sivak, Bell and Crooks relating dissipation to nonpredictive information \cite{still2012}; the identity of Kawai, Parrondo and Van den Broeck equating dissipated work with the relative entropy between forward and time-reversed ensembles \cite{kawai2007}; and Banach's fixed-point theorem \cite{banach1922}. A physicist reading this paper will recognize all of it and would establish the point in three paragraphs if we did not. Conceding it costs nothing.
 
-What is new is of a different kind, and it is a smaller claim than a theory of consciousness usually makes. These results have been stated in one formal language, their mutual consistency has been mechanically checked, and the places where the chain relies on stipulation rather than derivation have been located exactly. The value of a machine-checked chain is not that any link is novel; it is that no link can quietly borrow from another, that a hypothesis cannot be smuggled in as a definition, and that the seams --- where physics stops and interpretation begins --- are fixed in the source rather than negotiable in the prose. Section~\ref{sec:soundness} reports what the check cost: three of five original axioms each proved \texttt{False}, from one shared root cause, and none of the three had been caught by reading.
+What is new is of a different kind, and it is a smaller claim than a theory of consciousness usually makes. These results have been stated in one formal language, their mutual consistency has been mechanically checked, and the places where the chain relies on stipulation rather than derivation have been located exactly. The value of a machine-checked chain is not that any link is novel; it is that the claim being made \emph{about} the chain is itself checkable, and we state it in the form a reader can check rather than in the form that asks to be believed. Four things. The development declares \textbf{no axioms}: \texttt{\#print axioms} on any result reports only \texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}. Every physical postulate is a field of a class that each model discharges for itself rather than a global assertion, and every such class is inhabited by an explicit witness, so no theorem is vacuous for want of a model. The chain composes to a \emph{single} theorem --- \texttt{chain}, in \texttt{Chain.lean} --- which derives the Self from the finiteness of the phase space and takes each unproved step as one of \textbf{eight named hypotheses}: four formalization gaps, two modelling assumptions and two physical commitments, each an implication between two links rather than an opaque symbol, so that deleting one fails the build instead of softening a sentence. And the eight hold \emph{simultaneously} on one substrate (\texttt{chain\_nonvacuous}), which rules out the failure in which a composition proves its conclusion only because its premises cannot all be met at once. The seams --- where physics stops and interpretation begins --- are thereby fixed in the source rather than negotiable in the prose, and their number is a number rather than an impression.
+
+Composing the chain also refuted two of its own arrows, and Figure~\ref{fig:chain} draws the corrected picture rather than repairing it quietly. The capacity bound of the first link has no hypotheses at all, so an implication from it to the existence of a boundary is equivalent to assuming the boundary outright: those two links are independent starting points and not consecutive steps. What finiteness does imply directly is the heat cost, skipping the boundary entirely. Neither of the two arrows that are theorems is one the chain's usual narration draws. Section~\ref{sec:soundness} reports what the check cost: three of five original axioms each proved \texttt{False}, from one shared root cause, and none of the three had been caught by reading.
 
 The framework is not thereby unfalsifiable, and one of its predictions is its own rather than a rival's. Section~\ref{sec:prediction} argues that recovery from sudden awakening should follow a \emph{delayed sigmoid} rather than an exponential, because the variable gating recovery is astrocytic volume and cerebrospinal-fluid clearance, on a timescale of seconds to minutes, while the cortical rhythms whose realignment is usually taken to constitute the recovery move in milliseconds. That is a claim about functional form; it is fittable against data of a kind already collected; and a purely electrical account of the same recovery predicts a different form.
 
 \section{Formalization in Lean 4}
-A core contribution of this work is the verification of our deductive chain using the Lean 4 interactive theorem prover. This approach builds on recent efforts to formalize consciousness and brain semantics, such as the 'OnlyOne' system \cite{scherf2026} and sheaf-theoretic models of neural manifolds \cite{inoue2026}. It is necessary to explicitly distinguish which claims have been mathematically derived as theorems within the proof assistant, and which remain irreducible physical postulates. Figure~\ref{fig:chain} shows the chain with the status of every link marked, and Table~\ref{tab:summary} states in six rows what each link assumes. The complete claim-by-claim map to Lean identifiers, which runs to several pages, is Table~S1 in the supplement; the main text does not depend on reading it.
+A core contribution of this work is the verification of our deductive chain using the Lean 4 interactive theorem prover. This approach builds on recent efforts to formalize consciousness and brain semantics, such as the 'OnlyOne' system \cite{scherf2026} and sheaf-theoretic models of neural manifolds \cite{inoue2026}. It is necessary to explicitly distinguish which claims have been mathematically derived as theorems within the proof assistant, and which remain irreducible physical postulates. Figure~\ref{fig:chain} shows the chain with the status of every node \emph{and of every arrow} marked, and Table~\ref{tab:summary} states in seven rows what each link assumes. The complete claim-by-claim map to Lean identifiers, which runs to several pages, is Table~S1 in the supplement; the main text does not depend on reading it.
 
 \begin{figure}[htbp]
 \centering
 \singlespacing
 \nolinenumbers
 \begin{tikzpicture}[
-  node distance=2.0mm,
+  node distance=3.2mm,
   every node/.style={font=\scriptsize},
   box/.style={draw=black!55, rounded corners=2pt, line width=0.4pt,
               text width=10.2cm, align=left, inner sep=2.9pt},
-  arr/.style={-{Latex[length=1.6mm]}, draw=black!65, line width=0.5pt},
+  arr/.style={-{Latex[length=1.6mm]}, draw=black!65, line width=0.6pt, dash pattern=on 1.1pt off 1.1pt},
+  thm/.style={-{Latex[length=1.6mm]}, draw=black!80, line width=0.9pt},
+  stip/.style={-{Latex[length=1.6mm]}, draw=black!45, line width=0.6pt, dash pattern=on 0.3pt off 1.4pt},
 ]
 \node[box, fill=cvoc]                     (n0) {\textbf{Spacetime symmetries and the metric.}\\ \emph{Setting.} Inhabited, and consumed by no theorem: the Poincar\'e group is an illustration, not a premise the chain uses.};
-\node[box, fill=cthm,  below=of n0]       (n1) {\textbf{A finite phase space has bounded information capacity.}\\ \emph{Theorem.} $H(p) \le \log|X|$, with equality only at the uniform law; a stream of $|P|^k > |X|$ histories cannot be recorded injectively, and a state the dynamics cannot reach costs heat.};
+\node[box, fill=cthm,  below=8mm of n0]   (n1) {\textbf{A finite phase space has bounded information capacity.}\\ \emph{Theorem.} $H(p) \le \log|X|$, with equality only at the uniform law; a stream of $|P|^k > |X|$ histories cannot be recorded injectively, and a state the dynamics cannot reach costs heat.};
 \node[box, fill=cthm,  below=of n1]       (n2) {\textbf{Broken symmetry forces a boundary.}\\ \emph{Theorem.} A connected substrate whose field reaches two components of the vacuum manifold must leave it somewhere: the $\pi_0$ case of Kibble's classification.};
 \node[box, fill=cobl,  below=of n2]       (n3) {\textbf{A boundary with finite phase space must erase, and erasure costs heat.}\\ \emph{Theorem from an instance obligation.} Contraction under globally injective dynamics is proved; the heat identity is a class field each model discharges.};
 \node[box, fill=cobl,  below=of n3]       (n4) {\textbf{Dissipation is bounded below by the \emph{nonpredictive} information retained.}\\ \emph{Theorem from an instance obligation.} Still et al.'s bound is a class field; the split of memory into predictive and nonpredictive parts is derived from it.};
-\node[box, fill=cthm,  below=of n4]       (n5) {\textbf{Discrete couplings coarse-grain to a continuous kernel.}\\ \emph{Theorem.} Convergence of the discrete coupling energy to its integral along refining triangulations. About the energy functional, not the dynamics.};
-\node[box, fill=cemp,  below=of n5]       (n6) {\textbf{The field realizing that kernel in cortex is the endogenous EM field.}\\ \emph{Empirical commitment. Not formalized and not derived.} Stated with its failure conditions, and the load-bearing joint of the framework.};
+\node[box, fill=cthm,  below=of n4]       (n5) {\textbf{The discrete coupling energy converges to its continuum integral.}\\ \emph{Theorem.} Along regular refining triangulations. The limit is a \emph{scalar}: no theorem here produces a kernel of two continuum points, and a kernel sited at the vertices contributes zero coupling energy (Section~\ref{sec:scaling}).};
+\node[box, fill=cemp,  below=of n5]       (n6) {\textbf{The field realizing that coupling in cortex is the endogenous EM field.}\\ \emph{Empirical commitment. Not formalized and not derived.} Stated with its failure conditions, and the load-bearing joint of the framework. In the formal chain it enters as one identification of two real numbers.};
 \node[box, fill=cthm,  below=of n6]       (n7) {\textbf{Above $K_c = 2D$ a coherent order parameter exists, is unique, emerges continuously and grows with $K$.}\\ \emph{Theorem about the self-consistency equation}, from an assumed stationary density rather than from the dynamics.};
 \node[box, fill=cthm,  below=of n7]       (n8) {\textbf{Synchronized local states glue to one global section: unity.}\\ \emph{Theorem} over a thermodynamic cover, whose equilibrium hypothesis is now discharged from a convergence theorem rather than assumed.};
 \node[box, fill=cthm,  below=of n8]       (n9) {\textbf{The self-prediction map has a unique fixed point: the Self.}\\ \emph{Theorem} (Banach), hypotheses discharged on a three-site witness. The map is the avatar's read-out of its own encoding, so blinding the avatar moves the fixed point; the contraction rate is $e^{-(K-K_c)\tau/2}$ (Section~\ref{sec:self}).};
 \node[box, fill=cstip, below=of n9]      (n10) {\textbf{That fixed point is experience.}\\ \emph{Stipulation.} Named and owned, not derived, and no argument below it depends on its being true.};
-\foreach \a/\b in {n0/n1, n1/n2, n2/n3, n3/n4, n4/n5, n5/n6, n6/n7, n7/n8, n8/n9, n9/n10}
+\foreach \a/\b in {n1/n2, n2/n3, n3/n4, n4/n5, n5/n6, n6/n7, n7/n8, n8/n9}
   \draw[arr] (\a) -- (\b);
+\draw[stip] (n9) -- (n10);
+\draw[thm] (n1.east) to[out=-18,in=18] (n3.east);
+\draw[thm] (n7.east) to[out=-18,in=18] (n9.east);
 \end{tikzpicture}
-\caption{The deductive chain, with the status of each link marked.
+\caption{The deductive chain, with the status of each node and of each arrow.
+\emph{Nodes.}
 \keysq{cthm}~theorem;
 \keysq{cobl}~theorem resting on a class field that each model must discharge;
 \keysq{cemp}~empirical commitment, neither formalized nor derived;
 \keysq{cstip}~stipulation;
-\keysq{cvoc}~vocabulary, consumed by no theorem.
-The two weak links are marked rather than argued around: the identification of the coarse-grained kernel with the
-cortical electromagnetic field is empirical, and the final step to experience is
-stipulated. Table~\ref{tab:summary} states what each link assumes; the full
-claim-by-claim map to Lean identifiers is Table~S1 in the supplement.}
+\keysq{cvoc}~setting, consumed by no theorem.
+\emph{Arrows.} A \textbf{solid} arrow is a Lean theorem. A \textbf{dashed} arrow is a
+named hypothesis of \texttt{chain} (\texttt{Chain.lean}): an implication between the two
+node statements which the development does not prove and which is therefore an argument
+the theorem takes. A \textbf{dotted} arrow is the stipulation, which is not a hypothesis of
+anything. The setting box has no arrow, because nothing consumes it.
+Reading the arrows rather than the boxes changes the picture: \emph{every arrow drawn
+vertically is a hypothesis, and the two arrows that are theorems are ones the chain's own
+narration does not draw} --- the passage from finiteness straight to Landauer, which does
+not go through the boundary, and the passage from the coherent order parameter to the
+Self, which does not go through unity. The two weak links are marked rather than argued
+around: the identification of the coarse-grained coupling with the cortical
+electromagnetic field is empirical, and the final step to experience is stipulated.
+Table~\ref{tab:summary} states what each link assumes; the full claim-by-claim map to Lean
+identifiers is Table~S1 in the supplement.}
 \label{fig:chain}
 \end{figure}
 
@@ -119,21 +137,29 @@ Global system--bath dynamics injective (Liouville). The heat identity
 Dissipation is bounded below by nonpredictive information & Theorem + class field &
 Still et al.'s bound is discharged per instance; the environment evolves by a
 Markov kernel the system does not act on. \\ \hline
-Discrete coupling coarse-grains to a continuous field; that field is the cortical EM field
+The discrete coupling energy converges to its continuum integral; the field carrying that coupling is the cortical EM field
 & Theorem; \textbf{then empirical} &
 Convergence holds along regular refining triangulations, for the energy functional
-and not the dynamics. The physical identification is a commitment with stated
-failure conditions (Section~\ref{sec:scaling}). \\ \hline
-Above $K_c = 2D$ a unique coherent state exists, glues into a global section, and
-carries a unique reflexive fixed point & Theorem &
+and not the dynamics. The limit is a scalar: no theorem produces a kernel of two
+continuum points, and a kernel sited at the triangulation's vertices contributes
+zero coupling energy on an atomless substrate. The physical identification is a
+commitment with stated failure conditions (Section~\ref{sec:scaling}). \\ \hline
+Above $K_c = 2D$ a unique coherent state exists, and synchronized patches glue
+into a unique global section & Theorem &
 Von Mises stationary density assumed rather than derived from the Fokker--Planck
-operator; couplings positive and symmetric, so unfrustrated. The self-prediction map
-is the avatar's read-out of its own encoding, and its Lipschitz rate
-$e^{-(K-K_c)\tau/2}$ is an instance obligation; the contraction --- hence the fixed
-point --- follows from $K > K_c$ and fails at or below it. The step from fixed point
-to experience is stipulated. \\ \hline
+operator; couplings positive and symmetric, so unfrustrated. Gluing needs a cover at
+the potential minimum whose synchronized patches agree on overlaps; the first is
+derived from a convergent trajectory, the second is an instance obligation
+throughout. \\ \hline
+The coherent order parameter carries a unique reflexive fixed point: the Self & Theorem &
+The self-prediction map is the avatar's read-out of its own encoding, and its
+Lipschitz rate $e^{-(K-K_c)\tau/2}$ is an instance obligation. The hypothesis is the
+\emph{existence of the coherent order parameter}, not a comparison against the number
+$2D$: \texttt{self\_\allowbreak of\_\allowbreak coherent\_\allowbreak order\_\allowbreak parameter}
+recovers $K > K_c$ from it, so this step consumes the previous one's theorem. The step
+from fixed point to experience is stipulated. \\ \hline
 \end{tabular}
-\caption{The chain in six claims. ``Class field'' means a physical postulate that
+\caption{The chain in seven claims. ``Class field'' means a physical postulate that
 each model discharges for itself rather than a global axiom; the development
 declares \textbf{no axioms}, and \texttt{\#print axioms} on any result reports only
 \texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}. Earlier drafts
