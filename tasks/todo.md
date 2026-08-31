@@ -33,10 +33,11 @@ finite phase space to the Self with eight named hypotheses, jointly witnessed;
 Figure 1 marks its arrows and no longer draws the two that are not inferences;
 and both publication files pass `check_prose.py`, which is now a pre-commit hook.
 
-**Nothing in this section is open.** What remains is *Open, ranked* below — none
-of it blocking — and the presubmission inquiry, which was deliberately sequenced
-after P3 and is now unblocked. A reader picking this file up should start there,
-or replan.
+**Nothing in that section is open.** The next pass is planned in *Work items —
+the next pass* below: S1–S3 sharpen the one prediction that is the framework's
+own, F1–F2 take on the deepest objection a referee will raise, and T1–T5 are what
+the C/P session itself generated. The presubmission inquiry was deliberately
+sequenced after P3 and is now unblocked.
 
 ---
 
@@ -178,7 +179,7 @@ Consciousness* → *Entropy*. On hold at the user's instruction, not withdrawn.
 
 ---
 
-## Work items — take ONE at a time, in this order
+## Work items — the C/P pass (all closed 2026-08-31)
 
 C1 first, because C2 and C3 are attempts to convert specific edges and C1 is what
 makes an edge a thing that exists. P1 before P3, because the gate is what stops
@@ -584,6 +585,270 @@ never seen a previous draft?"), the three repo destinations, and a pointer to
 
 ---
 
+## Work items — the next pass, ranked 2026-08-31 (after C1–C5, P1–P4)
+
+Written at the end of the C/P session. Two of these convert the objections the
+previous ledger recorded-but-did-not-schedule into work with an actual
+deliverable; the rest are what the session itself generated.
+
+Take ONE at a time. **S1 and F1 first**: both are manuscript-only, both are
+already true, and both strengthen the paper's weakest public claims at zero
+formal cost. S2 is the one with real payoff and real cost.
+
+---
+
+### S1 — The sleep-inertia prediction, restated as a parameter-free collapse
+
+- [ ] **Objective.** Replace "recovery is a delayed sigmoid" with a claim that a
+      one-timescale account and a generic saturating gate cannot both make.
+
+**Why the current claim is weak.** Any two-timescale model with a slow gate
+produces a delayed sigmoid, so the prediction discriminates against a purely
+electrical account and against nothing else. That is the objection, and it is
+correct.
+
+**What the mathematics already gives, unused.** The framework does not merely
+predict a *shape*; it predicts a *relation between two separately measurable
+quantities*, with no free parameters.
+
+* `circularOrderParameter_vonMises` (`Phase8_SelfConsistency`, §8): the order
+  parameter of the von Mises density at concentration `a` is exactly the Bessel
+  ratio `R(a) = I₁(a)/I₀(a)`.
+* `fixedPoint_iff_selfReproducing`: `r` solves the self-consistency equation iff
+  the density it induces has order parameter `r`.
+
+So at every instant of the recovery, the phase distribution's **concentration**
+`a(t)` and its **order parameter** `r(t)` are not independent: `r = R(a)`. Both
+are measured from the same data. Three consequences, in increasing sharpness:
+
+1. **Shape.** The instantaneous phase density is von Mises. Testable directly.
+2. **Collapse.** Plotting `r(t)` against `a(t)` for the whole recovery must fall
+   on the single curve `r = I₁(a)/I₀(a)` — the *same* curve across subjects and
+   sessions, whatever each one's `K(t)` does. No fitted parameters at all.
+3. **Threshold.** Since `a = Kr/D`, the measured ratio `a(t)/r(t)` **is** `K(t)/D`,
+   and the framework says coherence departs from zero exactly as it crosses
+   **2**. The threshold is read off the data rather than fitted.
+
+**Be exact about what this tests.** It tests the von Mises stationary density
+(a declared modelling input, O13) together with the mean-field closure. It does
+*not* test the value `2D` independently of that ansatz. Say so; it is still a
+falsifiable, parameter-free prediction, and it is a much better one than a
+functional form.
+
+**Done when.** The prediction section states the collapse and the `a/r = 2`
+crossing, names the two theorems, and scopes what the test is a test *of*. No
+Lean.
+
+---
+
+### F1 — Frustration: promote the division from a docstring to a claim
+
+- [ ] **Objective.** Narrow the unfrustrated objection from "the framework
+      describes the wrong system" to "the framework's *final step* describes the
+      wrong system", which is a much better position and is true.
+
+**Verified, not estimated** (2026-08-31, standing rule 4):
+
+* `dV_dt_le_zero` (`Phase3_CombinatorialThermodynamics:152`) carries **no**
+  positivity hypothesis. Neither do `is_kuramoto_trajectory_exists` /
+  `_unique`, `dynamic_potential_antitone`, `dynamic_potential_tendsto` or
+  `velocity_sq_tendsto_zero`.
+* `phase_locked_minimizes_potential`, `potential_min_implies_phase_locked`,
+  `potential_min_iff_phase_locked`, `ThermodynamicCover.A_pos` and
+  `kuramoto_tendsto_global_minimum` all do — the last needing the strictly
+  stronger uniform bound `0 < a ≤ A i j`, since `a` enters the Łojasiewicz
+  constant.
+
+So **the entire dissipative half of the chain is frustration-agnostic**, and
+exactly one step is not: the identification of the limit. `Phase4_KuramotoDynamics`
+already says this in a docstring at line 250. The manuscript does not.
+
+**What it takes.** A paragraph in Derivation 5 stating the division, with the two
+lists. Optionally a named Lean result restating `dV_dt_le_zero` for a signed `A`,
+so the frustration-agnostic half is citable rather than merely observable.
+
+**Done when.** The manuscript states which half of the chain survives frustration
+and which does not, by name. This is a *scoping* item; F2 is the one that tries
+to close the gap.
+
+---
+
+### F2 — Where content could live: gluing that is obstructed rather than unique
+
+- [ ] **Objective.** Test whether frustration can be admitted by weakening the
+      overlap condition, and find out what the obstruction is if it cannot.
+
+**The objection, in its sharpest form.** With `A > 0` the minimisers of the
+coupling potential are the phase-locked configurations — a single orbit under
+global phase rotation. One minimum, one global section, one Self. There is a
+unity, and there is nothing for it to be a unity *of*.
+
+**Why the obvious repair does not obviously work.** Frustration gives many local
+minima, but they are *not* phase-locked — twisted and splay states are the point.
+`LocalSectionSynchronization.section_agrees_of_phase_eq` fires on patches at
+*equal* phases, so under frustration it has nothing to fire on, and Derivation 5's
+gluing has no compatible family to glue.
+
+**The move worth testing.** Weaken agreement-on-overlaps to **agreement up to a
+phase**. A family that agrees up to a phase on each overlap is a cocycle, not a
+compatible family; it glues iff the cocycle is a coboundary, and the obstruction
+is a class in `H¹` of the cover. Content would then be carried by *which class*,
+not by which minimum — and a unity that can be about something is a unity with a
+non-trivial obstruction rather than a unique section.
+
+This would also be the first place in the development where the sheaf machinery
+does something a partition of unity could not, which is worth having on its own.
+
+**Timebox it, and the failure is the deliverable.** If no overlap condition of
+this shape can be satisfied by a frustrated cover, that is a theorem, and it says
+**unity and content are in genuine tension in this framework** — a far more
+interesting finding than the memory-capacity scoping W3 settled for. Record it
+either way; do not weaken `ThermodynamicCover` to make something go through
+(standing rule 3).
+
+**Done when.** Either a frustrated cover with an `H¹` obstruction exists and is
+witnessed, or the pass record states exactly which condition cannot be met and
+why, and the manuscript says which.
+
+---
+
+### S2 — The critical exponent: a square-root foot on the recovery curve
+
+- [ ] **Objective.** A signature of the sleep-inertia recovery that needs the
+      *bifurcation* and not merely a saturating nonlinearity.
+
+**The claim.** Near threshold the coherent branch behaves as
+`r ∝ (K − K_c)^{1/2}` — the mean-field pitchfork exponent `β = 1/2`. If `K(t)`
+crosses `K_c` approximately linearly in time, then just after onset
+`r(t) ∝ (t − t₀)^{1/2}`: the recovery curve has a **square-root cusp at its foot,
+with infinite initial slope**. An exponential has finite initial slope. A logistic
+has finite initial slope. *Any* delayed sigmoid from a generic saturating gate has
+finite initial slope. This is the discriminator the objection asks for.
+
+**What it takes, checked rather than estimated.** One missing ingredient, and the
+file already names it. `Phase8_SelfConsistency.lean:115` records
+`E(a) = 1/2 − a²/16 + O(a⁴)` as **not formalized**, and notes nothing in the file
+needs it. It is what this item needs. Given it, the derivation is three lines of
+algebra on results that exist: `coherent_iff_sRatio_eq` gives `D/K = E(a)` for a
+non-zero solution; substituting the expansion gives `a² = 8(K − K_c)/K`; and
+`r = aD/K` carries it to `r`.
+
+Formalizing the expansion is a Taylor computation on two interval integrals —
+expand `exp(a cos θ)` and integrate term by term over `[-π, π]`, where the moments
+of `cos` are standard. Uniform convergence on a compact interval is what justifies
+the interchange. **Grep the pinned Mathlib before believing any of this is hard**;
+the previous six recorded blockers were wrong about the obstacle, not merely
+pessimistic.
+
+**Flag the modelling assumption in the manuscript, not around it.** The
+square-root foot needs `K(t)` to cross the threshold with non-zero speed. That is
+an assumption about the slow variable, it is weaker than the assumptions the
+current prediction already makes, and it must be stated.
+
+**Done when.** `E`'s second-order expansion is a theorem, the exponent `1/2` is a
+theorem, and the prediction section states the square-root foot with its
+assumption.
+
+---
+
+### S3 — No hysteresis, which is already a theorem
+
+- [ ] **Objective.** Bank the discriminator the development has and does not use.
+
+`supercritical_solution_set` proves the non-negative solutions of the
+self-consistency equation are exactly `{0}` below threshold and `{0, r}` above it.
+There is never a range of `K` carrying two distinct *positive* solutions, so the
+branch has no fold and the transition is continuous rather than first-order. The
+prediction: **no hysteresis loop** between the descent into sleep and the recovery
+from it — the same `r(K)` curve is traversed in both directions.
+
+That rules out a real class of rivals, including ignition-style accounts with a
+first-order transition, and it costs no new Lean.
+
+**The caveat is load-bearing and goes in the same sentence.** Hysteresis is about
+coexisting *stable* branches, and the development proves nothing about stability
+— `0` remains a solution above threshold. This is a statement about the solution
+set, not about dynamical selection. State it that way or not at all.
+
+**Done when.** The prediction section carries it with its caveat.
+
+---
+
+### T1 — The chain is not a chain: decide the shape
+
+- [ ] **Objective.** `E12` is logically equivalent to its own conclusion. Figure 1
+      currently marks the arrow dashed and explains in the caption. That is
+      honest, and it defers the structural question.
+
+Either exhibit a genuine n1 → n2 edge — none is apparent, since the capacity bound
+mentions no vacuum manifold and the `π₀` obstruction mentions no entropy — or
+redraw the figure as the DAG it is: n1 → n3 directly, n2 → n3 separately, two
+roots rather than one line. The second is probably right and changes the paper's
+opening picture, which is why it is an item rather than an edit.
+
+---
+
+### T2 — Rank the eight hypotheses by cost, and take the two cheapest
+
+- [ ] **Objective.** Drop the count. It is the paper's checkable number, so
+      lowering it is a checkable improvement.
+
+Two candidates, both bounded:
+
+* **`E78`, first half.** `ThermodynamicCover.ofConvergentTrajectory` already
+  builds the equilibrium field from a convergent trajectory. What is missing is
+  the passage from a coherent order parameter to initial data in that basin.
+* **`E34`.** Landauer's heat and Still's dissipated work are two accounts of one
+  physical quantity that no theorem here identifies: `heat_dissipation` is
+  `T · Δ boltzmann_entropy` of the bath, `dissipatedWork` is `W − ΔF` over one
+  drive step. Building a bipartite environment whose Landauer heat *is* a
+  predictive structure's dissipated work is a formalization task, not a research
+  problem.
+
+---
+
+### T3 — Generate Table S1's status column from `Chain.lean`
+
+- [ ] **Objective.** C5 checked it by hand and recorded why. Record the cost of
+      generating it so the decision stays reviewable.
+
+**Why it matters more than it looks.** Table S1 is a table with a row per *node*.
+It has nowhere to record a claim about an *edge*, which is exactly how the false
+n7 → n9 claim survived a hand check for as long as it did.
+
+---
+
+### T4 — A leaf detector, so the C1 audit is a script and not a memory
+
+- [ ] **Objective.** C1's defect was found by reading the import graph. Nothing
+      stops it recurring.
+
+A module can be imported and have none of its *theorems* consumed —
+`Phase8_SelfConsistency` was in exactly that state, and after C2 exactly one of
+its theorems is consumed. A script that reports, per module, how many of its
+public results are named anywhere outside itself and its own witnesses would have
+found C1's defect mechanically. Same argument as P1: a constraint that lives in
+prose is negotiable.
+
+Cheap approximation: extract declaration names per module, grep the rest of the
+tree for each. Wire it in beside `check-prose`.
+
+---
+
+### T5 — A less degenerate `chain_nonvacuous`
+
+- [ ] **Objective.** The joint witness takes the vacuum manifold empty, the
+      register a bit, and the coarse-graining sequence constant. It proves the
+      eight hypotheses are not jointly contradictory, which is what it was for,
+      and it proves nothing more.
+
+A witness in which `E12`, `E23` and `E45` are satisfied non-trivially — a real
+double well, a real absorbing register, a real refining mesh — would say
+considerably more. Rank below everything above; the current witness is honest
+about being mathematical.
+
+---
+
 ## Open, ranked — carried forward, none blocking
 
 Carried from the O10/O16 record. Nothing here is scheduled ahead of C1–C5 and
@@ -606,8 +871,9 @@ P1–P4.
    of 2026-08-31, not withdrawn. Do it after P3: the changelog is the first thing
    an editor would notice.
 
-**The sleep-inertia prediction is weaker than the manuscript implies, and this is
-not yet an item.** Recorded here so it is not lost. Any two-timescale model with
+**The sleep-inertia prediction is weaker than the manuscript implies.** This is
+now items **S1, S2 and S3** above; the diagnosis below is kept because it is why
+they exist. Any two-timescale model with
 a slow gate produces a delayed sigmoid, and the paper concedes it uses only the
 *existence and continuity* of the coherent branch, not `K_c = 2D`. So the
 prediction discriminates against a one-timescale electrical account and against
@@ -616,7 +882,9 @@ bifurcation rather than merely a saturating nonlinearity — or scope the claim 
 the discussion to what it is. Do not schedule this ahead of C1–C5 and P1–P4; do
 not let the discussion keep overselling it either.
 
-**The unfrustrated-uniqueness objection, likewise recorded and not scheduled.**
+**The unfrustrated-uniqueness objection.** Now items **F1 and F2** above; the
+diagnosis below is why they exist, and F1's verified split is the part of it that
+turned out to be better news than this paragraph assumed.
 Every "where does it land" theorem carries `h_pos : ∀ i j, sys.A i j > 0`
 (`Phase4_KuramotoDynamics.lean:274`), an unfrustrated ferromagnet whose potential
 has one minimum up to global phase. In that regime the global section and the
