@@ -84,7 +84,7 @@ different kinds, and only one of them is a missing theorem:
 | Link | State | Item |
 |---|---|---|
 | Finite phase space | Vocabulary; no theorem consumes it | W6 |
-| SSB → boundary | The topological claim is **asserted**, not proved | W2 |
+| SSB → boundary | Proved at π₀; π₁ and up available, not taken | ~~W2~~ done |
 | → dissipation | Sound | — |
 | → prediction | **Invalid inference.** σ ≥ D_KL/Δt does not give D_KL → 0 | **W4** |
 | → continuous field | Asserted as a derivation; it is an empirical identification | W3 |
@@ -115,9 +115,9 @@ Each item is self-contained. Record the pass in this file under a dated heading
 in the style of the archive (what was built / non-vacuity / what it does *not*
 establish / manuscript updates), then move to the next.
 
-**W1 and W8 are done (2026-08-31).** The next item is **W2** (the domain-wall
-theorem), then W4, then W3 and W7 — the last two now have the honesty framing
-they were waiting on.
+**W1, W8 and W2 are done (2026-08-31).** The next item is **W4** — the one the
+frame calls the item that justifies the paper — then W3 and W7, which now have
+the honesty framing they were waiting on, then W5 and W6.
 
 ### W1 — Discharge `thermodynamic_equilibrium` from the convergence theorem
 
@@ -153,7 +153,9 @@ they were waiting on.
 
 ### W2 — Prove the domain-wall theorem (Derivation 1)
 
-- [ ] **Objective.** Turn "topology dictates the natural creation of defects"
+**Done 2026-08-31.** Pass recorded below under *2026-08-31 — W2*.
+
+- [x] **Objective.** Turn "topology dictates the natural creation of defects"
       from prose into a theorem.
 - **Why.** Derivation 1 is named "Symmetry Breaking and the Inevitability of
   Boundaries" and currently proves pointwise vacuum minimization a.e. plus a Z₂
@@ -579,6 +581,109 @@ would show the flat foot and the exponential alternative on one pair of axes.
 W7 lists the bifurcation diagram already; this is the second panel it wants.
 
 **Next item: W2** (the domain-wall theorem), then W4.
+
+---
+
+## 2026-08-31 — W2: the wall is forced, not asserted
+
+**What was built.**
+
+Two theorems in `Phase1_Primitives.lean` §3, the π₀ case of the Kibble mechanism:
+
+* `exists_notMem_of_no_common_preconnected` — the primary form. On a
+  `PreconnectedSpace` substrate, if **no** preconnected subset of `M` contains
+  both `phi x₁` and `phi x₂`, then `∃ x, phi x ∉ M`. Stated with the separation
+  hypothesis rather than with `connectedComponentIn` because that is the form a
+  witness can discharge directly — exhibit the reason no connected piece of the
+  vacuum manifold spans both values.
+* `exists_notMem_of_connectedComponentIn` — the standard phrasing, derived from
+  it in two lines, since `connectedComponentIn M (phi x₁)` is the largest
+  preconnected subset of `M` through that point.
+
+The estimate in the item was correct for once: `IsPreconnected.image`,
+`isPreconnected_univ` and `IsPreconnected.subset_connectedComponentIn` were all
+present and the proofs are four lines each. No hypothesis mentions energy, a
+potential, or a symmetry.
+
+**Non-vacuity — and it needed more than the item anticipated.**
+
+`Examples.lean` §11.1. The item predicted §11's Z₂ witness would "discharge the
+hypothesis immediately". It does not, quite: §11 proved only that `1` and `-1`
+are in `DynamicalVacuum wellV` and that `0` is not, which leaves open that the
+vacuum set is *larger* and possibly connected. So the pass first computes it —
+`wellVacuum_eq : DynamicalVacuum wellV = {-1, 1}`, from `(v²-1)² ≤ 0` — and only
+then proves the disconnection, `wellVacuum_separated`, in the form the theorem
+consumes: a preconnected subset of `ℝ` is order-convex, so one spanning `-1` and
+`1` contains `0`, which is the top of the barrier.
+
+`wellV_domain_wall` is the payoff and quantifies over **every** continuous field
+on **any** connected substrate reaching both minima — no formula appears in the
+statement. That is the sense in which the wall is inevitable rather than
+exhibited.
+
+Non-emptiness of that class is then checked separately, because a theorem
+quantified over all fields is worthless if none satisfies its hypotheses:
+`kink` (the clipped identity on `ℝ`) does, `kink_leaves_vacuum` fires the
+theorem, `kink_zero_notMem` locates the wall at the origin, and
+`kink_connects_distinct_vacua` confirms the two endpoint values are distinct
+minima rather than the hypotheses holding degenerately.
+
+**What this does *not* establish.**
+
+* Only π₀. `π₁ ≠ 0` forcing vortex lines and `π₂ ≠ 0` forcing monopoles are the
+  rest of Kibble's classification, and `Mathlib/Topology/Homotopy/HomotopyGroup.lean`
+  would support at least the next one. **Available and not taken**, per the
+  item's scope discipline — recorded in the docstring, in `main.tex` and in
+  `supplementary.tex`, so it is a decision rather than an omission.
+* It is a *different* obstruction from `has_topological_defect`, which is the
+  null-homotopy notion — maps into `M` that cannot be contracted *within* `M`.
+  Neither implies the other, and the docstring says so.
+* It does not connect the wall to energy. The theorem is pure topology; that an
+  energy-minimising field ends up in two different components is not derived
+  from anything, and the manuscript does not claim it is.
+* **`supplementary.tex`'s Theorem 1 is still stronger than what is formalized.**
+  It is stated in terms of `π₁` and a coset space `G/H`. That was already true
+  before this pass and remains true after it; the supplement now says so
+  explicitly rather than leaving the reader to notice.
+
+**Manuscript updates.**
+
+* **Table 1 gains a row** — "Inevitability of Boundaries (π₀)" — naming the
+  theorem, the witness, and the higher-homotopy cases as not taken.
+* **Derivation 1's central sentence now cites a theorem.** Two new paragraphs
+  say what was asserted before, what is proved now, why the proof is elementary,
+  and what the witness had to establish that §11 had not.
+* **`supplementary.tex` §1's standing scope note is corrected.** It read "Lean
+  establishes that a defect *obstructs extension*, not that a defect must
+  exist." The second half is no longer true and the paragraph now separates the
+  two directions, with the π₁-vs-π₀ gap named.
+
+**Gates.**
+
+* `lake build` clean, 17,610 jobs, zero `sorry`, zero warnings. (A first draft
+  used `push_neg`, which is deprecated in this toolchain; replaced with a
+  `not_not` term rather than silenced.)
+* `#print axioms` on all 9 new declarations: `propext`, `Classical.choice`,
+  `Quot.sound` only.
+* `main.tex` 63 → **64 pages**; overfull hboxes **21**, a strict subset of
+  `HEAD`'s 23 (diffed). Zero warnings, zero undefined references.
+* `supplementary.tex` **10 pages**; overfull 13 → **11**, again a strict subset
+  (diffed). Zero warnings.
+* Lean now 11,561 lines across 18 modules.
+
+**Two notes for later items.**
+
+* *For W6.* The π₀ theorem is the first result in the development that consumes
+  a *topological* hypothesis on the substrate (`PreconnectedSpace X`). Axiom 1's
+  section supplies a symmetry group and a metric and is consumed by nothing;
+  this is a nearby example of what "a theorem that consumes the setting" looks
+  like, though it is not itself a consumer of Axiom 1.
+* *For W7.* The chain schematic can now mark the SSB → boundary link as a
+  theorem rather than prose. Two of the three defects the frame table listed are
+  closed; **W4 is the remaining one**, and it is the one that moves the venue
+  ceiling.
+
+**Next item: W4** — replace Derivation 3's invalid inference with Still et al.
 
 ## Low value — listed so they are not rediscovered as new
 

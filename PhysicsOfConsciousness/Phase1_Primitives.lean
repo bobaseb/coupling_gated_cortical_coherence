@@ -9,6 +9,7 @@
 
 import Mathlib.Topology.Basic
 import Mathlib.Topology.Homotopy.Basic
+import Mathlib.Topology.Connected.Basic
 import Mathlib.Topology.ContinuousMap.Basic
 import Mathlib.Geometry.Manifold.IsManifold.Basic
 import Mathlib.Geometry.Manifold.VectorBundle.Tangent
@@ -318,6 +319,79 @@ theorem contractible_interior_forces_trivial_boundary
   let H3 : ContinuousMap.Homotopy (f.comp i) (ContinuousMap.const X (f d0)) :=
     ContinuousMap.Homotopy.comp (ContinuousMap.Homotopy.refl f) H2
   exact ⟨H3⟩
+
+/-! ### The `π₀` obstruction: a field joining two vacuum components must leave the vacuum
+
+Derivation 1 is titled "Symmetry Breaking and the Inevitability of Boundaries",
+and until now the file proved neither half of the inevitability. What it had was
+`pointwise_vacuum_of_global_min` — an energy minimiser sits in the vacuum almost
+everywhere — and `boundary_defect_forces_interior_vacuum_break`, which says a
+boundary defect *obstructs extension* over a contractible interior. Neither
+produces a defect. The sentence carrying the section's actual content, that
+topology dictates the creation of defects, was asserted.
+
+This is that sentence, at the level of `π₀`. It is the domain-wall case of the
+Kibble mechanism: if the vacuum manifold `M` is disconnected and a continuous
+field on a connected substrate takes values in two different components of `M`,
+then somewhere it is not in `M` at all. The excluded region is the wall.
+
+The proof is three lines and uses no physics: the continuous image of a
+connected space is connected, a connected subset of `M` lies inside one
+component of `M`, and the field's range is such a subset if it never leaves `M`.
+That the argument is elementary is the point — it is elementary in the physics
+literature too, and what was missing here was the statement, not the difficulty.
+
+**Scope, deliberately.** Only `π₀`. The higher cases — `π₁ ≠ 0` forcing vortex
+lines, `π₂ ≠ 0` forcing monopoles — are the rest of Kibble's classification, and
+`Mathlib/Topology/Homotopy/HomotopyGroup.lean` would support at least the next
+one. They are **available and not taken**, because the manuscript's argument uses
+domain walls and nothing else, and a theorem the paper does not use is a theorem
+whose hypotheses nobody checks.
+
+Note also what this is *not*. `has_topological_defect` above is the
+null-homotopy notion, which is about maps into `M` that cannot be contracted
+*within* `M`; the theorems here are about a field that cannot stay in `M` at
+all. The two are different obstructions and neither implies the other.
+-/
+
+/-- **Domain walls are forced.** If no preconnected subset of `M` contains both
+`phi x₁` and `phi x₂` — which is what it means for those two values to lie in
+different connected components of `M` — then the field leaves `M` somewhere.
+
+Stated with the separation hypothesis rather than with `connectedComponentIn`
+because this is the form a witness can discharge directly: exhibit the reason no
+connected piece of the vacuum manifold spans both values.
+`exists_notMem_of_connectedComponentIn` below is the same theorem in the
+standard phrasing.
+
+No hypothesis mentions energy, a potential, or a symmetry. The content is that
+connectedness of the substrate plus disconnectedness of the vacuum manifold
+forces the field out of the vacuum, whatever put it there. -/
+theorem exists_notMem_of_no_common_preconnected
+    {X V : Type*} [TopologicalSpace X] [PreconnectedSpace X] [TopologicalSpace V]
+    (M : Set V) (phi : X → V) (h_cont : Continuous phi) (x₁ x₂ : X)
+    (h_sep : ∀ S : Set V, IsPreconnected S → S ⊆ M → phi x₁ ∈ S → phi x₂ ∉ S) :
+    ∃ x, phi x ∉ M := by
+  by_contra hcon
+  have hall : ∀ x, phi x ∈ M := fun x => not_not.mp fun h => hcon ⟨x, h⟩
+  have h_img : IsPreconnected (Set.range phi) := by
+    have h := (isPreconnected_univ (α := X)).image phi h_cont.continuousOn
+    rwa [Set.image_univ] at h
+  exact h_sep (Set.range phi) h_img (Set.range_subset_iff.mpr hall) ⟨x₁, rfl⟩ ⟨x₂, rfl⟩
+
+/-- **The same theorem in the standard phrasing.** If `phi x₂` is not in the
+connected component of `M` containing `phi x₁`, the field leaves `M`.
+
+Derived from `exists_notMem_of_no_common_preconnected` because
+`connectedComponentIn M (phi x₁)` is itself a preconnected subset of `M`
+containing `phi x₁`, and it is the largest one. -/
+theorem exists_notMem_of_connectedComponentIn
+    {X V : Type*} [TopologicalSpace X] [PreconnectedSpace X] [TopologicalSpace V]
+    (M : Set V) (phi : X → V) (h_cont : Continuous phi) (x₁ x₂ : X)
+    (h_sep : phi x₂ ∉ connectedComponentIn M (phi x₁)) :
+    ∃ x, phi x ∉ M := by
+  refine exists_notMem_of_no_common_preconnected M phi h_cont x₁ x₂ fun S hS hSM hx₁ hx₂ => ?_
+  exact h_sep (hS.subset_connectedComponentIn hx₁ hSM hx₂)
 
 theorem boundary_defect_forces_interior_vacuum_break
   {X D V : Type*} [TopologicalSpace X] [TopologicalSpace D] [TopologicalSpace V]

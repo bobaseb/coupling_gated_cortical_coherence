@@ -2148,6 +2148,127 @@ theorem wellSpike_partner_ne :
   simp [wellSpike]
   norm_num
 
+/-! ### 11.1 The vacuum manifold is disconnected, and that forces a wall
+
+  Everything above concerns the *energy* side of Derivation 1: a degenerate
+  minimum, a symmetry that exchanges its two branches, and a minimiser that is
+  not invariant. None of it produces a defect. The section's title claims
+  inevitability of boundaries, and the theorem that delivers it is the `π₀`
+  obstruction in `Phase1_Primitives.lean` §3 — which needs the vacuum manifold
+  to be genuinely disconnected, and needs that to be proved rather than drawn.
+
+  `wellVacuum_eq` computes the vacuum manifold of the double well outright:
+  `DynamicalVacuum wellV = {-1, 1}`. Before this the file knew only that `1` and
+  `-1` are in it and `0` is not, which leaves open that the set is larger and
+  possibly connected. `wellVacuum_separated` then proves the disconnection in
+  the form the theorem consumes: **no** preconnected subset of the vacuum
+  manifold contains both minima, because a preconnected subset of `ℝ` is an
+  interval and an interval spanning `-1` and `1` contains `0`, which is at the
+  top of the barrier.
+
+  `wellV_domain_wall` is the payoff and it quantifies over *every* field: any
+  continuous field on any connected substrate that reaches `-1` somewhere and
+  `1` somewhere else leaves the vacuum manifold at some point. No formula for
+  the field appears, and none is needed — this is the sense in which the wall is
+  inevitable rather than exhibited.
+
+  **Non-vacuity is a separate question and is answered separately.** A theorem
+  quantified over all fields is worthless if no field satisfies its hypotheses,
+  so `kink` supplies one: the clipped identity on `ℝ`, at `-1` below `-1`, at
+  `1` above `1`. `kink_leaves_vacuum` fires the theorem on it, and
+  `kink_zero_notMem` locates the wall — at the origin, where the field sits at
+  the top of the barrier — so the existence statement is not merely formal.
+-/
+
+section DomainWall
+
+/-- **The vacuum manifold, computed.** `{-1, 1}` exactly: a minimiser has
+`(v² - 1)² ≤ 0`, so `v² = 1`. -/
+theorem wellVacuum_eq : DynamicalVacuum wellV = {-1, 1} := by
+  ext v
+  simp only [Set.mem_insert_iff, Set.mem_singleton_iff]
+  constructor
+  · intro h
+    have h1 : wellV v ≤ wellV 1 := h 1
+    have h0 : wellV 1 = 0 := by norm_num [wellV]
+    have hsq : (v ^ 2 - 1) ^ 2 ≤ 0 := by rw [h0] at h1; exact h1
+    have hfac : (v - 1) * (v + 1) = 0 := by nlinarith [sq_nonneg (v ^ 2 - 1)]
+    rcases mul_eq_zero.mp hfac with h | h
+    · exact Or.inr (by linarith)
+    · exact Or.inl (by linarith)
+  · rintro (rfl | rfl)
+    · exact neg_one_mem_vacuum
+    · exact one_mem_vacuum
+
+/-- **The disconnection, in the form the `π₀` theorem consumes.** No preconnected
+subset of the vacuum manifold contains both minima.
+
+In `ℝ` a preconnected set is order-convex, so one containing `-1` and `1`
+contains the whole interval between them, and in particular `0` — which is the
+top of the barrier, not a minimum. -/
+theorem wellVacuum_separated (S : Set ℝ) (hS : _root_.IsPreconnected S)
+    (hSM : S ⊆ DynamicalVacuum wellV) (h1 : (-1 : ℝ) ∈ S) : (1 : ℝ) ∉ S := by
+  intro h2
+  have h0 : (0 : ℝ) ∈ S :=
+    hS.Icc_subset h1 h2 (Set.mem_Icc.mpr ⟨by norm_num, by norm_num⟩)
+  exact zero_not_mem_vacuum (hSM h0)
+
+/-- **Derivation 1's central claim, as a theorem.** Every continuous field on a
+connected substrate that sits at one vacuum somewhere and at the other somewhere
+else leaves the vacuum manifold at some point.
+
+The substrate `X` is arbitrary — any connected topological space — and the field
+is arbitrary. Nothing is exhibited and nothing is solved: this is the
+inevitability the section's title claims, and it holds of fields for which no
+formula exists. -/
+theorem wellV_domain_wall {X : Type*} [TopologicalSpace X] [PreconnectedSpace X]
+    (phi : X → ℝ) (h_cont : Continuous phi) (a b : X)
+    (ha : phi a = -1) (hb : phi b = 1) :
+    ∃ x, phi x ∉ DynamicalVacuum wellV := by
+  refine exists_notMem_of_no_common_preconnected _ phi h_cont a b fun S hS hSM haS => ?_
+  rw [hb]
+  rw [ha] at haS
+  exact wellVacuum_separated S hS hSM haS
+
+/-! #### A field that satisfies the hypotheses -/
+
+/-- The clipped identity: `-1` below `-1`, `1` above `1`, and the straight climb
+between them. A field connecting the two vacua, so the theorem above is not
+quantifying over an empty class. -/
+noncomputable def kink : ℝ → ℝ := fun x => max (-1) (min 1 x)
+
+theorem kink_continuous : Continuous kink := by
+  unfold kink
+  exact continuous_const.max (continuous_const.min continuous_id)
+
+@[simp] theorem kink_neg_one : kink (-1) = -1 := by norm_num [kink]
+
+@[simp] theorem kink_one : kink 1 = 1 := by norm_num [kink]
+
+@[simp] theorem kink_zero : kink 0 = 0 := by norm_num [kink]
+
+/-- The theorem fires on a real substrate: `kink` cannot stay in the vacuum. -/
+theorem kink_leaves_vacuum : ∃ x : ℝ, kink x ∉ DynamicalVacuum wellV :=
+  wellV_domain_wall kink kink_continuous (-1) 1 kink_neg_one kink_one
+
+/-- **And the wall is where one expects it.** At the origin the field is at the
+top of the barrier. Recorded so that `kink_leaves_vacuum` is not merely a formal
+existence statement. -/
+theorem kink_zero_notMem : kink 0 ∉ DynamicalVacuum wellV := by
+  rw [kink_zero]; exact zero_not_mem_vacuum
+
+/-- The field really does connect the two components, rather than satisfying the
+hypotheses degenerately: its two endpoint values are distinct minima. -/
+theorem kink_connects_distinct_vacua :
+    kink (-1) ∈ DynamicalVacuum wellV ∧ kink 1 ∈ DynamicalVacuum wellV
+      ∧ kink (-1) ≠ kink 1 := by
+  refine ⟨?_, ?_, ?_⟩
+  · rw [kink_neg_one]; exact neg_one_mem_vacuum
+  · rw [kink_one]; exact one_mem_vacuum
+  · rw [kink_neg_one, kink_one]; norm_num
+
+end DomainWall
+
 /-! ## 12. The last three structures without instances
 
 Rule §2 of `PhysicsOfConsciousness/AGENTS.md` requires every structure carrying
