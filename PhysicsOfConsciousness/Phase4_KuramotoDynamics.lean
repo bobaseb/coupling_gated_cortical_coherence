@@ -243,6 +243,33 @@ noncomputable def kuramoto_potential_dynamic (sys : KuramotoSystem V) (theta : V
   - (1 / 2) * ∑ i, ∑ j, sys.A i j * Real.cos (theta j - theta i)
 
 omit [DecidableEq V] in
+/--
+**The constant configuration is a global minimum of the reduced potential, for a
+positively coupled system.**
+
+`h_pos` is not a technical convenience and it is the hypothesis that divides this
+development in two. `KuramotoSystem.A` is `V → V → ℝ`, symmetric and otherwise
+unconstrained, so *signed* — frustrated — couplings are representable in the
+setting. But every result here that says where the dynamics ends assumes
+positivity: this theorem, `potential_min_iff_phase_locked` below, the class field
+`Phase5_GlobalSection.ThermodynamicCover.A_pos` (hence every conclusion of
+Derivation 5), and `Phase4_RotatingFrame.kuramoto_tendsto_global_minimum`, which
+needs the strictly stronger uniform bound `0 < a ≤ A i j` because `a` enters the
+Łojasiewicz constant. A system satisfying `h_pos` is an unfrustrated ferromagnet
+whose potential has a single minimum up to a global phase shift.
+
+By contrast, nothing about the sign of `A` is used by `is_kuramoto_trajectory_exists`
+or `is_kuramoto_trajectory_unique`, by `Phase4_RotatingFrame.dynamic_potential_antitone`
+and `dynamic_potential_tendsto`, or by `velocity_sq_tendsto_zero`. **That** the
+motion stops is frustration-agnostic; **where** it stops is not.
+
+This matters outside Lean. The manuscript grounds the substrate's memory capacity
+in geometric frustration — a jagged landscape of near-degenerate states — which is
+exactly what `h_pos` excludes. The system that stores memory and the system these
+theorems describe are not the same system, and the manuscript now scopes the
+frustration claim out of the chain rather than asserting it beside theorems that
+rule it out.
+-/
 theorem phase_locked_minimizes_potential 
   (sys : KuramotoSystem V) (h_pos : ∀ i j, sys.A i j > 0) (theta : V → ℝ) :
   kuramoto_potential_dynamic sys (fun _ => 0) ≤ kuramoto_potential_dynamic sys theta := by

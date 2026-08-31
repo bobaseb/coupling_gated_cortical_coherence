@@ -50,7 +50,7 @@ manuscript has **no figures**. Those are the items below.
 
 ## Where the development stands — 2026-08-30
 
-**Lean.** 12,378 lines across 19 modules. Zero `sorry`. Zero declared axioms.
+**Lean.** 12,405 lines across 19 modules. Zero `sorry`. Zero declared axioms.
 `Examples.lean` is 3,981 lines and carries 18 witness sections plus §17.1.
 
 **Landed 2026-08-30 (`861f252`).** O20(d)+(e): `lojasiewicz_estimate`,
@@ -75,7 +75,13 @@ instances, a counterexample fencing the no-back-action hypothesis, and a proof
 that the `axiom` form of the bound is refutable. Derivation 3's invalid inference
 is withdrawn in both documents. Full pass record below.
 
-**Manuscript.** `main.tex` 70 pages, `supplementary.tex` 11. Zero figures. The
+**Landed 2026-08-31 — W3.** Derivation 4 is split into a coarse-graining
+theorem and a named empirical commitment, retitled so it is no longer a
+"Derivation", given its critics and four falsification conditions, and the
+frustration/positivity contradiction is confronted rather than caveated. Prose,
+plus one Lean docstring. Full pass record below.
+
+**Manuscript.** `main.tex` 77 pages, `supplementary.tex` 11. Zero figures. The
 four Python simulations in `simulations/` appear nowhere in either document.
 
 ---
@@ -95,7 +101,7 @@ different kinds, and only one of them is a missing theorem:
 | SSB → boundary | Proved at π₀; π₁ and up available, not taken | ~~W2~~ done |
 | → dissipation | Sound | — |
 | → prediction | Still's bound; nonpredictive information is what dissipation pays for | ~~W4~~ done |
-| → continuous field | Asserted as a derivation; it is an empirical identification | W3 |
+| → continuous field | Split: coarse-graining is a theorem, the EM identification is a named empirical commitment | ~~W3~~ done |
 | → coherent state | Theorem on a basin, class field discharged from it | ~~W1~~ done |
 | → reflexive fixed point | Banach with a label; `self_of_constResonance` proves the theorem is blind to reflexivity | W5 |
 | → experience | Stipulation. **Kept, named, owned.** Not a defect | — |
@@ -123,10 +129,10 @@ Each item is self-contained. Record the pass in this file under a dated heading
 in the style of the archive (what was built / non-vacuity / what it does *not*
 establish / manuscript updates), then move to the next.
 
-**W1, W8, W2 and W4 are done (2026-08-31).** All three defects the frame table
-listed as blocking the chain are closed. The next item is **W3** — demote
-Derivation 4 from a derivation to an empirical identification, and confront the
-frustration/positivity contradiction — then W7, then W5 and W6.
+**W1, W8, W2, W4 and W3 are done (2026-08-31).** Every defect the frame table
+listed in the chain is closed or named. What remains is presentation and two
+scoped weaknesses: the next item is **W7** — figures, and a readable main text —
+then W5 and W6.
 
 ### W1 — Discharge `thermodynamic_equilibrium` from the convergence theorem
 
@@ -194,7 +200,9 @@ frustration/positivity contradiction — then W7, then W5 and W6.
 
 ### W3 — Demote Derivation 4 from a derivation to an empirical identification
 
-- [ ] **Objective.** Prose only, no Lean. Split the current single step in two.
+**Done 2026-08-31.** Pass recorded below under *2026-08-31 — W3*.
+
+- [x] **Objective.** Prose only, no Lean. Split the current single step in two.
 - **Why.** "The continuous macroscopic EM field is the primary dissipative
   structure interacting with the universe" is smuggled into the chain as a proof
   step. It is not one, and it is the paper's weakest joint precisely because it
@@ -871,6 +879,189 @@ is. The module header carries the same note.
 
 **Next item: W3** — demote Derivation 4 from a derivation to an empirical
 identification, and confront the frustration/positivity contradiction.
+
+---
+
+## 2026-08-31 — W3: two claims that were being run together, separated
+
+Prose, plus one Lean docstring — a deliberate deviation from the item's "prose
+only, no Lean", recorded below.
+
+**What was written.**
+
+Derivation 4 is gone as a *derivation*. In its place, `\section{Macroscopic
+Scaling: A Theorem and a Commitment}` (`\label{sec:scaling}`), whose opening
+paragraph says it is the chain's fourth step and is deliberately not numbered as
+one, and why. The section has four parts.
+
+* **The formal half.** `mesh_refinement_convergence` is cited, not reproved, and
+  what it gives is stated exactly: the discrete coupling energy is the midpoint
+  rule over unordered edges (`sum_sum_mul_of_symm` — this is what makes it a
+  quadrature of the continuous energy rather than a different quantity that
+  happens to converge), and it converges to `∫_S f` along regular refining
+  triangulations, witnessed on `[0,1)`. Then what it does *not* give, which is
+  more than the old paragraph admitted: it is a statement about an **energy
+  functional, not a dynamics**; the appeal to the Renormalization Group was
+  decorative and is withdrawn, since no RG flow is constructed anywhere in the
+  development; the limit object is a scalar stress-energy density, not an
+  electromagnetic field; and `ContinuousNeuralField` is **posited as a structure,
+  not produced by any theorem** — the propagation-of-chaos gap (O14) is what
+  stands between the finite Kuramoto system and its continuum limit.
+* **The empirical half**, set off as a displayed commitment: *in the mammalian
+  cortex, the field realizing the coarse-grained coupling kernel is the
+  endogenous electromagnetic field.* Stated as a claim about biology, with the
+  supporting literature, then the withdrawal, then the critics, then the
+  failure conditions.
+* **The frustration paragraph**, which is the pass's other half.
+* **The supporting physiology** (astrocytic syncytia, mitochondria), kept
+  unchanged.
+
+**"Primary" is withdrawn, by name.** The old sentence — *the continuous
+macroscopic EM field is the primary dissipative structure interacting with the
+universe* — is quoted in the text and retracted, because none of the work cited
+for it supports the word. What the experiments show is modulation: Anastassiou
+and Koch report endogenous fields of 1–5 mV/mm shifting spike timing by 1–3 ms.
+The replacement claim is that the field is **modulatory in its effect on
+individual neurons and integrative in its spatial reach**, and the text says
+plainly that the framework needs the second property and that conflating the two
+was the error.
+
+**Critics, which the draft had none of.** Three references added, each verified
+online (`AGENTS.md` §4):
+
+| key | verified as |
+|---|---|
+| `pockett2002` | *Difficulties with the electromagnetic field theory of consciousness*, J. Consciousness Studies 9(4), 51–56 |
+| `anastassiou2015` | *Ephaptic coupling to endogenous electric field activity: why bother?*, Curr. Opin. Neurobiol. 31, 95–103 |
+| `voroslakos2018` | *Direct effects of transcranial electric stimulation on brain circuits in rats and humans*, Nat. Commun. 9, 483 |
+
+Pockett is the sharpest of them precisely because she has defended an
+electromagnetic theory herself (`pockett2012` was already cited, supportively);
+the text says so. Vöröslakos et al. bound *applied* rather than endogenous
+fields, and the text says that too rather than overclaiming it.
+
+**Four falsification conditions**, enumerated in the text: epiphenomenality under
+field cancellation (the decisive experiment, and in principle available); a
+magnitude gap, stated as the question of whether measured ephaptic coupling
+suffices to place the system above `K_c`; a timescale mismatch that would kill
+the sleep-inertia prediction of W8; and dissociation of field coherence from
+reported unity, which would leave the global section with no physical carrier.
+
+**The frustration/positivity contradiction, confronted.** The item called this a
+real defect not recorded anywhere. It is, and checking it made it sharper than
+recorded:
+
+* `KuramotoSystem.A : V → V → ℝ` is symmetric and otherwise unconstrained, so
+  **the setting admits frustration**. It is the theorems, not the formalism, that
+  exclude it.
+* Every result identifying *where* the dynamics ends assumes positivity:
+  `phase_locked_minimizes_potential` and `potential_min_iff_phase_locked`
+  (`A i j > 0`), the class field `ThermodynamicCover.A_pos` — hence every
+  conclusion of Derivation 5 — and `kuramoto_tendsto_global_minimum`, which needs
+  the **strictly stronger** uniform bound `0 < a ≤ A i j`, because `a` enters the
+  Łojasiewicz constant. The ledger recorded pointwise positivity; the convergence
+  theorem wants more than that.
+* What survives with **no sign hypothesis at all**: `is_kuramoto_trajectory_exists`
+  and `_unique`, rotating-frame covariance, `dynamic_potential_antitone`,
+  `dynamic_potential_tendsto`, the dissipation integral, and Barbălat giving
+  `velocity_sq_tendsto_zero`. So *that* the motion stops is frustration-agnostic;
+  *where* it stops is not, and every claim the framework makes about the
+  destination lives on the positive side of that line.
+* On the continuum side the accounting differs: `phase_locked_minimizes_entropy_of_symm`
+  assumes only symmetry and so tolerates signed kernels — but it takes the
+  existence of a dynamically phase-locked field as a hypothesis, which is exactly
+  what frustration threatens. Recorded, because it is a place the two sides of the
+  development disagree about what is assumed.
+
+The claim is **scoped out of the chain, not repeated**: the text says the memory
+capacity of a frustrated cortical network is supported by no theorem here, that
+the chain uses the unfrustrated regime, and that whether a frustrated network can
+hold many near-degenerate patterns *and* still synchronize enough of itself to
+admit a global section is an open question about mixed-sign oscillator networks —
+named as the most substantive gap we know of. Derivation 5's opening sentence,
+which read "generated by millions of *frustrated* micro-components" two lines
+above theorems requiring positive coupling, is corrected and now points at
+`sec:scaling`.
+
+**The Lean deviation.** The item said prose only. One docstring was added, to
+`phase_locked_minimizes_potential` in `Phase4_KuramotoDynamics.lean`, recording
+the positivity/frustration split at the site where the hypothesis is introduced.
+No proof, statement or declaration changed, and no new declarations exist, so no
+new axiom checks apply. The reason for deviating: the defect is Lean-visible —
+it is a hypothesis on a theorem — and this repository's standing practice is that
+scope notes live in docstrings, where the next reader of that theorem will meet
+them. Leaving it only in the manuscript would have hidden it from the place it
+is actually enforced.
+
+**Table 1.** Three rows, so that the split is visible in the table and not only in
+the prose:
+
+* *Coarse-graining of a symmetric coupling* — the theorem, marked "Theorem,
+  narrower than the prose it supports".
+* *The field is the endogenous EM field* — marked **Empirical commitment**, "not
+  formalized and not derived". The old table listed no row for this at all, which
+  read as an oversight; absence is now replaced by a decision.
+* *Frustration as memory capacity* — marked **Recorded gap**, naming the three
+  positivity sites and the results that carry no sign hypothesis.
+
+**Abstract.** Adds Still's bound to the enumeration of established results
+invoked (W4 had added the result but not updated the list), and one sentence
+naming the EM identification as an empirical commitment rather than a deduction,
+with the modulatory downgrade and the four falsification conditions.
+
+**`supplementary.tex` §4.** Two insertions. A *scope of that sentence* paragraph
+after the opening, separating the coarse-graining theorem from the EM
+identification and stating that nothing in the section depends on the latter
+mathematically — every result is about a coupled oscillator system, whatever the
+phases are taken to name. And a *positivity, and the regime these theorems cover*
+paragraph after the Phase 4 implementation note, carrying the same accounting as
+the main text in the supplement's register.
+
+**What this does *not* do.**
+
+* It does not make the EM identification more likely to be true. It makes it
+  visible, attackable, and separable from the mathematics — which is the whole of
+  the change.
+* It does not resolve the frustration question. It records that the framework's
+  memory story and its synchronization story describe different coupling
+  regimes, and stops.
+* It does not close O14. The continuum limit is still a posited structure, and
+  the section now says so in the main text rather than only in the supplement.
+* It does not touch Derivations 5–7, whose theorems are unchanged; only
+  Derivation 5's opening sentence is corrected, and only because it asserted
+  frustration.
+
+**Gates.**
+
+* `lake build` clean, 17,612 jobs, zero `sorry`, zero warnings. No declaration
+  changed; the docstring is the only Lean edit. (A first draft placed the
+  docstring before `omit [DecidableEq V] in`, which does not parse; the doc
+  comment belongs between the `omit … in` and the `theorem`.)
+* `main.tex` 70 → **77 pages**; overfull hboxes 21 → **20**, a strict subset of
+  `HEAD`'s (diffed as a multiset). Four new boxes appeared in the first draft and
+  all four were removed rather than tolerated — by shortening the section title,
+  by `\allowbreak`s in two long identifiers, and by writing `Examples`~§6 for
+  `Examples.lean`~§6 in line with the rest of the file. The box that disappeared
+  is the old section title *Derivation 4: Macroscopic Scaling and Elec-*. Zero
+  LaTeX warnings, zero undefined references or citations.
+* `supplementary.tex` **11 pages**, overfull **8**, a strict subset of `HEAD`'s
+  11. Zero warnings, zero undefined references.
+* Lean 12,405 lines across 19 modules.
+
+**Notes for W7.**
+
+* The chain schematic now has a third category of link to draw, not two: theorem,
+  instance obligation, and **empirical commitment** — `sec:scaling` is the only
+  link of the third kind, and marking it differently from the stipulation at the
+  end of the chain is the point of the figure.
+* The four falsification conditions are a natural boxed panel rather than an
+  enumerate, and the second of them ("does measured ephaptic coupling place the
+  system above `K_c`?") is the one that connects to the bifurcation diagram W7
+  already wants.
+
+**Next item: W7** — figures, Table 1 to the supplement, the proof narrative out
+of the main text, and `\date{\today}`.
+
 
 
 ## Low value — listed so they are not rediscovered as new
