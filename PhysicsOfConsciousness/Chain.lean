@@ -645,6 +645,113 @@ theorem chain_nonvacuous : Self (X := Cortex) cortexReflexive :=
     (fun _ => ⟨trioCover⟩)
     (fun _ => cortexPredict_lipschitz_rate)
 
+/-! ## 9. The n5 → n7 edge: why there is not one
+
+The figure routes n5 into n7 through n6, and the natural question is whether the
+coarse-graining theorem could produce the structure the field results are stated
+over — a `ContinuousNeuralField.ofMeshLimit`. The attempt was made and it fails,
+twice over, and neither failure is the recorded blocker (the dynamical mean-field
+limit, propagation of chaos).
+
+**First: the structure asks for nothing, so a constructor would prove nothing.**
+`ContinuousNeuralField M` is three fields — `omega : M → ℝ`, `K : M → M → ℝ`,
+`tau : ℝ` — and no conditions. `ofMeshLimit` would typecheck with *any* kernel
+whatever, including one unrelated to the mesh, so it would be an edge whose proof
+is a definitional unfolding: precisely the manufactured edge this module exists to
+avoid. `continuousNeuralField_free` below records this as a statement rather than
+as a remark.
+
+**Second, and this is the real finding: the coarse-graining theorem does not
+produce a kernel.** `mesh_refinement_convergence` converges the discrete coupling
+*energy* — one real number per triangulation — to `∫_S f dμ`, and
+`total_weight_eq_setIntegral` sums the edge weights to the same scalar. Both
+integrate the pair structure away. `ContinuousNeuralField.K` is a function of two
+continuum points, and nothing in the development produces one from discrete data:
+`TriangulatedManifold.edge_region` is a subset of `M`, not of `M × M`, so the
+discrete side has no product structure to pass to the limit.
+
+**And the obvious repair is blocked by a theorem.** The natural candidate kernel
+places each discrete weight at its pair of embedded vertices. `vertexKernel` is
+that kernel, and `vertexKernel_fieldCorrelation_eq_zero` shows it carries
+*exactly zero* continuum coupling energy on any substrate whose measure has no
+atoms — whatever weights the triangulation carries. A finite set is null, and the
+continuum functional cannot see it. This is the same fact as the hardware
+comparison's `fieldCorrelation_sited_eq_zero` (Derivation 8) arriving from the
+other direction: there it says discrete hardware registers nothing in the field;
+here it says a discretization's kernel registers nothing either.
+
+So the gap between n5 and n7 is one level earlier than recorded. It is not that
+the dynamics fail to pass to the limit; it is that **no kernel survives the
+passage at all**, because the theorem that does the coarse-graining is about a
+scalar. `E56` is where this lands in `chain`: the empirical commitment identifies
+the coarse-graining limit `L` with the mean-field coupling *constant* `K`, a real
+number, and the continuum kernel never enters the chain. That is the honest
+shape, and it is smaller than the manuscript's "discrete couplings coarse-grain to
+a continuous kernel" suggests.
+-/
+
+/-- **`ContinuousNeuralField` constrains nothing.** Any drift, any kernel and any
+timescale assemble into one. A constructor from a mesh limit would therefore
+carry no information about the mesh, which is why none is built. -/
+theorem continuousNeuralField_free {M : Type*} [MeasureSpace M] [TopologicalSpace M]
+    (omega : M → ℝ) (K : M → M → ℝ) (tau : ℝ) : Nonempty (ContinuousNeuralField M) :=
+  ⟨⟨omega, K, tau⟩⟩
+
+/-- The kernel a triangulation would induce on the continuum: weight `w u v`
+placed at the embedded pair `(embedding u, embedding v)`, and zero elsewhere. -/
+noncomputable def vertexKernel {M : Type*} [TopologicalSpace M] [DecidableEq M]
+    (TM : TriangulatedManifold M) [Fintype TM.V] (w : TM.V → TM.V → ℝ) : M → M → ℝ :=
+  fun x y => ∑ u, ∑ v, if x = TM.embedding u ∧ y = TM.embedding v then w u v else 0
+
+/-- The induced kernel is sited on the image of the vertex set — finitely many
+points of `M`. -/
+theorem vertexKernel_sitedOn {M : Type*} [TopologicalSpace M] [DecidableEq M]
+    (TM : TriangulatedManifold M) [Fintype TM.V] (w : TM.V → TM.V → ℝ) :
+    SitedOn (Finset.univ.image TM.embedding) (vertexKernel TM w) := by
+  intro x hx y
+  refine Finset.sum_eq_zero fun u _ => Finset.sum_eq_zero fun v _ => ?_
+  have hne : x ≠ TM.embedding u := by
+    rintro rfl
+    exact hx (Finset.mem_image.mpr ⟨u, Finset.mem_univ u, rfl⟩)
+  simp [hne]
+
+/-- **The induced kernel really does carry the weights.** At an embedded pair it
+takes the value the triangulation assigns, so the no-go below is not a statement
+about a kernel that was zero to begin with. -/
+theorem vertexKernel_apply_embedding {M : Type*} [TopologicalSpace M] [DecidableEq M]
+    (TM : TriangulatedManifold M) [Fintype TM.V] [DecidableEq TM.V]
+    (hinj : Function.Injective TM.embedding) (w : TM.V → TM.V → ℝ) (u v : TM.V) :
+    vertexKernel TM w (TM.embedding u) (TM.embedding v) = w u v := by
+  classical
+  unfold vertexKernel
+  rw [Finset.sum_eq_single u]
+  · rw [Finset.sum_eq_single v]
+    · simp
+    · intro b _ hb
+      have hne : TM.embedding v ≠ TM.embedding b := fun h => hb (hinj h).symm
+      simp [hne]
+    · intro h; exact absurd (Finset.mem_univ v) h
+  · intro b _ hb
+    refine Finset.sum_eq_zero fun c _ => ?_
+    have hne : TM.embedding u ≠ TM.embedding b := fun h => hb (hinj h).symm
+    simp [hne]
+  · intro h; exact absurd (Finset.mem_univ u) h
+
+/-- **The no-go for the n5 → n7 edge.** A triangulation's weights, placed at its
+vertices, contribute exactly zero to the continuum coupling energy on any
+substrate whose measure has no atoms — whatever the weights are and whatever the
+phase field does.
+
+The discrete data lives on a finite set, the finite set is null, and the
+functional the field theorems are stated in ignores null sets. Spreading the
+weights over cells instead would need a product-structured decomposition of
+`M × M`, and `TriangulatedManifold.edge_region` provides only subsets of `M`. -/
+theorem vertexKernel_fieldCorrelation_eq_zero {M : Type*} [TopologicalSpace M]
+    [MeasurableSpace M] [DecidableEq M] (TM : TriangulatedManifold M) [Fintype TM.V]
+    (w : TM.V → TM.V → ℝ) (μ : Measure M) [NullSingletonClass μ] (theta : M → ℝ) :
+    fieldCorrelation μ theta (vertexKernel TM w) = 0 :=
+  fieldCorrelation_sited_eq_zero μ _ _ (vertexKernel_sitedOn TM w) theta
+
 end Chain
 
 end PhysicsOfConsciousness

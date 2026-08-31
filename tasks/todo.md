@@ -303,7 +303,10 @@ the link.
 
 ### C3 — Attempt the n5 → n7 edge: mesh limit ⟹ `ContinuousNeuralField`
 
-- [ ] **Objective.** A constructor `ContinuousNeuralField.ofMeshLimit`, so the
+- [x] **Done 2026-08-31 — attempted and refused, with the refusal proved.** Pass
+      record at the end of this file.
+
+- [x] **Objective.** A constructor `ContinuousNeuralField.ofMeshLimit`, so the
       coarse-graining theorem *produces* the structure the field results are
       stated over.
 
@@ -634,8 +637,12 @@ Carried unchanged. Full reasoning in the archives.
   `McKean`, `empiricalMeasure`, mean-field or chaos; only the weak-convergence
   topology (`LevyProkhorovMetric`, `Portmanteau`, `Prokhorov`, `Tight`), so weak
   convergence can be *stated* and none of the estimates exist. **O14(A) is
-  separate and is ranked above.** C3 tests whether the *structure* needs (B) or
-  only the kernel; a negative answer there does not reopen (B).
+  separate and is ranked above.** C3 tested whether the *structure* needs (B) or
+  only the kernel and found the question is prior to both: the coarse-graining
+  theorem produces a **scalar**, not a kernel, and the natural vertex-sited
+  repair is provably invisible to the continuum functional
+  (`vertexKernel_fieldCorrelation_eq_zero`). (B) is untouched by that and stays
+  closed; what it is *not* is the first obstacle on this edge.
 - **O15 — `lim D_KL = 0`.** Superseded and closed by W4, which replaced the
   inference rather than weakening the sentence.
 - **O17 — the step from the hardware results to "von Neumann architectures cannot
@@ -840,3 +847,62 @@ declared axioms. `#print axioms` on `chain`, `chain_nonvacuous`,
 `[propext, Classical.choice, Quot.sound]`. `Chain.lean` 650 lines; it now imports
 `Examples` for the witnesses. `main.tex` 87 pages (was 86), overfull 18
 (unchanged against `HEAD`), zero undefined references or citations.
+
+### C3 — the n5 → n7 edge — 2026-08-31
+
+**Outcome: the constructor is not built, and the reason is a theorem rather than
+a timebox expiring.** The item asked whether `ContinuousNeuralField.ofMeshLimit`
+needs the dynamical limit or only the kernel. Neither. Two findings, in
+`Chain.lean` §9.
+
+**1. The structure asks for nothing.** `ContinuousNeuralField M` is
+`omega : M → ℝ`, `K : M → M → ℝ`, `tau : ℝ` and no conditions at all.
+`ofMeshLimit` would typecheck with any kernel whatever, mesh-related or not, so
+it would be an edge whose proof is a definitional unfolding — the manufactured
+edge C1 warns about. `continuousNeuralField_free` records this. **Standing rule 3
+applies in an unexpected direction here:** the risk was weakening the class to
+make the constructor go through, and the class turned out to be too weak already.
+
+**2. The coarse-graining theorem does not produce a kernel — this is the real
+finding, and it is one level earlier than the recorded blocker.**
+`mesh_refinement_convergence` converges the discrete coupling *energy*, one real
+number per triangulation, to `∫_S f dμ`; `total_weight_eq_setIntegral` sums the
+edge weights to the same scalar. Both integrate the pair structure away.
+`ContinuousNeuralField.K` is a function of two continuum points and nothing in
+the development produces one from discrete data. The reason is structural:
+`TriangulatedManifold.edge_region : V → V → Set M` is a subset of `M`, **not of
+`M × M`**, so the discrete side has no product structure to pass to a limit.
+
+**3. The obvious repair is blocked, and the block is proved.** The natural
+candidate places each weight at its pair of embedded vertices. `vertexKernel` is
+that kernel; `vertexKernel_apply_embedding` shows it genuinely carries the
+weights (at an embedded pair it takes the triangulation's value, given injective
+embedding); and `vertexKernel_fieldCorrelation_eq_zero` shows it contributes
+**exactly zero** continuum coupling energy on any substrate whose measure has no
+atoms. A finite set is null and the functional ignores null sets. Spreading the
+weights over cells instead needs a product decomposition of `M × M`, which the
+triangulation does not provide.
+
+This is `fieldCorrelation_sited_eq_zero` — Derivation 8's hardware result —
+arriving from the other side. There it says discrete hardware registers nothing
+in the field functional; here it says a *discretization's* kernel registers
+nothing either. The same fact cuts against the framework's own coarse-graining
+step, which is worth stating plainly and is the kind of thing a per-node audit
+never surfaces.
+
+**Consequence for the chain.** None structurally: `chain` never mentions a
+continuum kernel. `E56` identifies the coarse-graining limit `L` with the
+mean-field coupling *constant* `K`, a real number. That was written before this
+pass and it turns out to be the only shape available. What changes is the
+manuscript: "discrete couplings coarse-grain to a continuous kernel" (n5's box in
+Figure 1, and Table 1's row) claims more than the theorem gives. **C5 must fix
+that wording**; it is now the third finding C5 carries.
+
+**What this does not establish.** Not that a kernel limit is impossible — a
+different discrete object, carrying regions in `M × M`, might have one. It says
+the objects this development has cannot produce it, and that O14(B) is not the
+first obstacle on this edge.
+
+**Gates.** `lake build` clean, 17,616 jobs, zero `sorry`, zero warnings.
+`#print axioms` on all three new results reports exactly the three.
+`Chain.lean` 757 lines. Manuscript untouched in this pass.
