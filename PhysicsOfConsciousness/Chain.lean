@@ -16,6 +16,7 @@ import PhysicsOfConsciousness.Phase7_HardwareComparison
 import PhysicsOfConsciousness.Phase7_Rigidity
 import PhysicsOfConsciousness.Phase8_ContinuousField
 import PhysicsOfConsciousness.Phase8_SelfConsistency
+import PhysicsOfConsciousness.Examples
 
 /-!
 # The chain, as one theorem
@@ -74,8 +75,11 @@ The three are not equally serious and the manuscript used to blur the first two.
   like the same kind of object as the rest. It is not.
 * **No edge is manufactured.** An "edge" whose proof is a definitional unfolding
   is worse than a named hypothesis, because it looks like content. The n7 → n9
-  link was exactly that failure; `e79` below records it as a hypothesis rather
-  than pretending otherwise.
+  link used to be exactly that failure: `self_of_supercritical` consumes
+  `critical_coupling D < K`, and `critical_coupling` unfolds to `2 * D`, so the
+  Self was provable with the bifurcation deleted. `supercritical_of_coherent`
+  (§2) closes it in the other direction — a coherent order parameter *forces*
+  `K > K_c` — so the last step of `chain` now consumes Derivation 7's theorem.
 
 ## Composition order
 
@@ -233,6 +237,25 @@ theorem coherent_of_supercritical {K D : ℝ} (hD : 0 < D)
     (hKD : critical_coupling D < K) : Coherent K D :=
   supercritical_fixed_point_existsUnique hD hKD
 
+/-- **n7 → n9: the coherent order parameter forces supercriticality.**
+
+The converse of `coherent_of_supercritical`, and the theorem that makes the Self
+consume Derivation 7 rather than the numeral `2 * D`. Contrapositive of the first
+component of `critical_coupling_is_threshold_unique`: at or below threshold the
+only non-negative solution of `r = R(K, r)` is `r = 0`, so a strictly positive
+one puts `K` above threshold.
+
+Both sign conditions are supplied by n6 (`FieldRealizes`), which is where they
+belong: `0 < D` is what makes the von Mises density a density at all, and
+`0 ≤ K` is the unfrustrated-coupling assumption the development carries
+throughout. -/
+theorem supercritical_of_coherent {K D : ℝ} (hD : 0 < D) (hK : 0 ≤ K)
+    (h : Coherent K D) : critical_coupling D < K := by
+  obtain ⟨r, ⟨hr0, _, hfix⟩, _⟩ := h
+  by_contra hcon
+  exact hr0.ne'
+    (fixed_point_eq_zero_of_le_critical hD hK (not_lt.mp hcon) hr0.le hfix)
+
 /-- n8 from a cover at thermodynamic equilibrium: Derivation 5. -/
 theorem unity_of_cover (h : Nonempty (ThermodynamicCover X)) : Unity X :=
   h.elim fun T => ⟨T, @global_section_from_thermodynamics X _ _ _ T⟩
@@ -255,15 +278,35 @@ theorem self_of_contraction [Nonempty (GlobalSection (X := X))]
     (h_lip : LipschitzWith (resonanceRate K D τ) rb.predict) : Self rb :=
   self_of_supercritical hτ hKD rb h_lip
 
+omit [TriangulatedManifold ↥X] in
+/-- **C2's theorem: the Self, from the coherent order parameter.**
+
+Derivation 6 with its threshold hypothesis replaced by Derivation 7's
+conclusion. `self_of_supercritical` stays where it is — it is the correct
+statement of its own claim — and this is the *edge*: the hypothesis is that a
+coherent order parameter exists, and `supercritical_of_coherent` turns that into
+the contraction rate.
+
+The difference is not cosmetic. `self_of_supercritical` would prove exactly what
+it proves if `Phase8_SelfConsistency.lean` were deleted, because
+`critical_coupling D < K` unfolds to `2 * D < K`. This one would not. -/
+theorem self_of_coherent_order_parameter [Nonempty (GlobalSection (X := X))]
+    [MetricSpace (GlobalSection (X := X))] [CompleteSpace (GlobalSection (X := X))]
+    {K D τ : ℝ} (hD : 0 < D) (hK : 0 ≤ K) (hτ : 0 < τ) (hcoh : Coherent K D)
+    (rb : ReflexiveBoundary X)
+    (h_lip : LipschitzWith (resonanceRate K D τ) rb.predict) : Self rb :=
+  self_of_contraction hτ (supercritical_of_coherent hD hK hcoh) rb h_lip
+
 /-! ## 3. The edges that are not theorems
 
-Nine propositions, one per unproved arrow. Each is an implication between two of
+Eight propositions, one per unproved arrow. Each is an implication between two of
 the node predicates above, so that discharging one is a statement about the two
 links it joins rather than about an opaque symbol.
 
 The kinds, tallied: **four formalization gaps** (`E12`, `E23`, `E34`, `E78`),
-**two modelling assumptions** (`E45`, `E89`), **two physical commitments**
-(`E56`, `E67`), and **one edge expected to be dischargeable** (`E79`).
+**two modelling assumptions** (`E45`, `E89`) and **two physical commitments**
+(`E56`, `E67`). There were nine until `supercritical_of_coherent` discharged the
+n7 → n9 edge.
 -/
 
 /-- **n1 → n2. Formalization gap — and the sharpest one, because there is nothing
@@ -399,28 +442,6 @@ def E89 {X : TopCat.{u}} [MeasurableSpace X] [BorelSpace X] [TriangulatedManifol
     [MetricSpace (GlobalSection (X := X))] (K D τ : ℝ) (rb : ReflexiveBoundary X) : Prop :=
   Unity X → LipschitzWith (resonanceRate K D τ) rb.predict
 
-/-- **n7 → n9. Expected to be dischargeable, and recorded as a hypothesis until it
-is.**
-
-Asserts that the existence of a coherent order parameter forces the coupling
-above threshold — the converse of `coherent_of_supercritical`, and the step that
-makes the Self consume Derivation 7's *theorem* rather than the numeral `2 * D`.
-
-**Why it is here.** `self_of_supercritical` takes `critical_coupling D < K`, and
-`critical_coupling` is a `def` unfolding to `2 * D`. As the development stands,
-the Self would be provable with `Phase8_SelfConsistency.lean` deleted. Routing
-the last step through `E79` rather than through `E67` is what makes the
-bifurcation load-bearing.
-
-**What would discharge it.** The first component of
-`critical_coupling_is_threshold_unique`, contrapositively: a non-zero non-negative
-fixed point of the self-consistency equation forces `critical_coupling D < K`.
-That needs `0 < D` and `0 ≤ K`, which `FieldRealizes` carries. This is work item
-C2 in `tasks/todo.md`; when it is done this definition is replaced by a theorem
-and `chain` loses an argument. -/
-def E79 (K D : ℝ) : Prop :=
-  Coherent K D → critical_coupling D < K
-
 /-! ## 4. The edge that the figure does not draw
 
 n1 → n3 is a theorem, and it is the only edge out of n1 that is one. The figure
@@ -441,24 +462,29 @@ theorem dissipation_of_unreachable {sys : Type*} [Fintype sys] [DecidableEq sys]
 /--
 **The chain, end to end: n1 ⟹ n9.**
 
-Nine named hypotheses, `e12 … e89`, one per arrow of Figure 1 that is not a
+Eight named hypotheses, `e12 … e89`, one per arrow of Figure 1 that is not a
 theorem. Everything else in the passage from a finite phase space to the Self is
 carried by results proved elsewhere in the development, and this theorem is where
 they are put together.
 
-**How to read the count.** `#check @chain` lists the arguments. Nine of them are
+**How to read the count.** `#check @chain` lists the arguments. Eight of them are
 propositions named `E..`; each is an implication between two node predicates, so
 none of them can be discharged by a definitional unfolding. Four are
-formalization gaps, two are modelling assumptions, two are physical commitments,
-and one (`e79`) is expected to become a theorem.
+formalization gaps, two are modelling assumptions and two are physical
+commitments.
+
+**The last step runs through n7.** `self_of_coherent_order_parameter` takes the
+*existence of a coherent order parameter* as its hypothesis, not `K > 2D`, so
+deleting `Phase8_SelfConsistency.lean` breaks this theorem. Under the shape this
+module had before `supercritical_of_coherent`, it would not have.
 
 **What it does not establish.**
 
-* Not that the hypotheses are jointly satisfiable. §6 discharges the four
-  arrows whose content is numerical, at concrete parameters, so those are not
-  vacuous; a *simultaneous* witness for all nine — which would need a substrate
-  carrying a cover, a reflexive boundary and a predictive structure at once — is
-  not built here and is recorded as the next non-vacuity task.
+* Not that the hypotheses are jointly satisfiable. §6 discharges the arrows whose
+  content is numerical, at concrete parameters, so those are not vacuous; a
+  *simultaneous* witness for all eight — which would need a substrate carrying a
+  cover, a reflexive boundary and a predictive structure at once — is not built
+  here and is recorded as the next non-vacuity task.
 * Not n10. The step from the fixed point to experience is the framework's
   stipulation and is deliberately outside this statement.
 * Not that nine is the right number. It is the number *this* factorisation of
@@ -490,7 +516,6 @@ theorem chain
     (e56 : E56 Xs Sg Sg' E L K D)
     (e67 : E67 L K D)
     (e78 : E78 K D X)
-    (e79 : E79 K D)
     (e89 : E89 K D τ rb) :
     Self rb := by
   have n1 : Capacity sys := capacity sys
@@ -502,16 +527,19 @@ theorem chain
   have n7 : Coherent K D := coherent_of_supercritical n6.1 (e67 n6)
   have n8 : Unity X := unity_of_cover (e78 n7)
   have : Nonempty (GlobalSection (X := X)) := nonempty_globalSection_of_unity n8
-  exact self_of_contraction hτ (e79 n7) rb (e89 n8)
+  exact self_of_coherent_order_parameter n6.1 n6.2.1 hτ n7 rb (e89 n8)
 
 /-! ## 6. Non-vacuity
 
 `chain` would be worth nothing if its hypotheses could not hold: an unsatisfiable
-premise proves anything. The four arrows below are the ones whose content is
+premise proves anything. The arrows below are the ones whose content is
 numerical, and each is exhibited satisfied at `D = 1`, `K = 3`. The remaining five
 (`E12`, `E23`, `E34`, `E45`, `E78`) assert relations between structures rather
 than between numbers, and a witness for them is a witness for the chain as a
 whole; that is not built here.
+
+§7 witnesses the n7 → n9 edge on the three-site cortex, which is the part of the
+chain that C2 made a theorem.
 -/
 
 /-- A concrete coherent order parameter: at `D = 1`, `K = 3` the threshold is
@@ -524,11 +552,6 @@ theorem coherent_three_one : Coherent 3 1 := by
 /-- The `n6 → n7` commitment is satisfiable, at the same parameters. -/
 theorem e67_three_one : E67 3 3 1 := fun _ => by rw [critical_coupling]; norm_num
 
-/-- The `n7 → n9` edge is satisfiable at those parameters too — trivially, since
-its conclusion is a true numerical statement there. That is *not* a proof of
-`E79` in general, which is the point of C2. -/
-theorem e79_three_one : E79 3 1 := fun _ => by rw [critical_coupling]; norm_num
-
 /-- The `n5 → n6` identification is satisfiable: take the coarse-graining limit
 to be the coupling constant. -/
 theorem e56_of_eq (Xs Sg Sg' : Type*)
@@ -540,6 +563,87 @@ theorem e56_of_eq (Xs Sg Sg' : Type*)
 by a constant function. -/
 theorem coarseGrains_const (L : ℝ) : CoarseGrains (fun _ => L) L :=
   tendsto_const_nhds
+
+/-! ## 7. The n7 → n9 edge, witnessed
+
+`Examples.lean` §10 builds a three-site cortex, a reflexive boundary whose avatar
+reads the field, and a Self obtained from `self_of_supercritical` — that is, from
+`K > critical_coupling 1`. The two theorems below rebuild that Self through
+`self_of_coherent_order_parameter` instead, so the witness's Self comes out of the
+*existence of a coherent order parameter* rather than out of `3 > 2`.
+
+This is the check C2 asked for: the two routes must land on the same fixed point,
+and they do — `cortexState`, by uniqueness.
+-/
+
+open Examples in
+/-- The witness's parameters put it above threshold, so Derivation 7 supplies a
+coherent order parameter: `K = 3`, `D = 1`, `K_c = 2`. -/
+theorem cortexCoherent : Coherent 3 1 := coherent_three_one
+
+open Examples in
+/-- **The witness's Self, from the order parameter.** Same substrate, same map,
+same conclusion as `cortexHasSelf` — but the hypothesis is now n7 rather than a
+numerical comparison, so this theorem depends on the bifurcation development. -/
+theorem cortexHasSelf_of_coherent :
+    Self (X := Cortex) cortexReflexive :=
+  self_of_coherent_order_parameter one_pos (by norm_num) cortexTau_pos cortexCoherent
+    cortexReflexive cortexPredict_lipschitz_rate
+
+open Examples in
+/-- **The two routes agree.** The Self produced from the coherent order parameter
+is `cortexState`, which is the fixed point `Examples.lean` §10 already names. Had
+they disagreed the edge would have been the wrong one. -/
+theorem cortexHasSelf_of_coherent_eq :
+    ∀ s : GlobalSection (X := Cortex), cortexReflexive.predict s = s → s = cortexState :=
+  fun s hs => cortexPredict_fixed_unique s hs
+
+/-! ## 8. `chain` is not vacuous
+
+The eight named hypotheses hold **simultaneously**, on one substrate, and the
+conclusion they produce is a Self that is provably not a fiction: it is
+`cortexState`, and the map it is a fixed point of is provably non-constant
+(`cortexReflexive_avatar_separates`).
+
+This matters more than the individual satisfiability checks of §6. A theorem
+whose hypotheses are jointly unsatisfiable proves its conclusion for no reason at
+all, and eight implications between eight different structures is exactly the
+shape in which that can hide. The witness below rules it out.
+
+**What the witness is and is not.** Every piece of it already existed:
+`Examples.lean` §1 has a `StatisticalMechanics` instance on `Bool`, §18 has a
+`PredictiveDissipation` on the two-bit law, §17 has a `ThermodynamicCover` on the
+three-site cortex, and §10 has the reflexive boundary. What is new is that they
+are made to satisfy the *edges* at once. It is a mathematical witness: the
+register is a bit, the vacuum manifold is empty, and the coarse-graining sequence
+is constant. It shows the chain is inhabitable, not that cortex inhabits it.
+-/
+
+open Examples in
+/-- The register: a bit whose update cannot reach `false`. -/
+theorem witness_not_surjective : ¬ Function.Surjective (fun _ : Bool => true) := by
+  intro h
+  obtain ⟨x, hx⟩ := h false
+  exact Bool.noConfusion hx
+
+open Examples in
+/-- **All eight arrows, at once, on one substrate.**
+
+`#print axioms chain_nonvacuous` reports only the three, so the witness is as
+sound as the chain it witnesses. -/
+theorem chain_nonvacuous : Self (X := Cortex) cortexReflexive :=
+  chain (X := Cortex) (sys := Bool) (fun _ => true)
+    (vac := (∅ : Set Bool)) (phi := id) Bool Bool Bool
+    (E := fun _ => 3) (L := 3) (K := 3) (D := 1) (τ := cortexTau)
+    cortexTau_pos cortexReflexive
+    (fun _ => ⟨true, Set.notMem_empty _⟩)
+    (fun _ => witness_not_surjective)
+    (fun _ => ⟨frozenSystem⟩)
+    (fun _ => tendsto_const_nhds)
+    (fun _ => ⟨one_pos, by norm_num, rfl⟩)
+    (fun _ => by rw [critical_coupling]; norm_num)
+    (fun _ => ⟨trioCover⟩)
+    (fun _ => cortexPredict_lipschitz_rate)
 
 end Chain
 

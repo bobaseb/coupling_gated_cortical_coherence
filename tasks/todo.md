@@ -248,7 +248,9 @@ hypotheses are counted, and `#print axioms chain` reports only the three.
 
 ### C2 — Make the n7 → n9 edge consume a theorem instead of a numeral
 
-- [ ] **Objective.** Restate the Self theorem so its hypothesis is *the coherent
+- [x] **Done 2026-08-31.** Pass record at the end of this file.
+
+- [x] **Objective.** Restate the Self theorem so its hypothesis is *the coherent
       order parameter exists*, not *K exceeds the number 2D*.
 
 **Why.** Recorded in C1: this edge is the manuscript's one claimed cross-link
@@ -570,16 +572,7 @@ P1–P4.
 2. **`section_agrees_of_phase_eq`** — the `LocalSectionSynchronization` hypothesis
    that synchronised patches agree where they overlap. Unchanged in rank and in
    shape. See the W6 record for why it is *not* "the move W1 made".
-3. **A joint witness for `chain`.** Added by the C1 pass. Five of the nine named
-   hypotheses relate structures rather than numbers, and none of them is exhibited
-   satisfied. A single substrate carrying a `ThermodynamicCover`, a
-   `ReflexiveBoundary` and a `PredictiveDissipation` at once would discharge all
-   five and turn `chain` from a typechecked statement into a witnessed one.
-   Believed reachable: `Examples.lean` §17.1 is a cover, §10 is a reflexive
-   boundary, and `constResonance` makes `E89` free because a constant map is
-   Lipschitz at any rate. Rank it after C1–C5 and P1–P4; do not let the
-   manuscript claim more than the current partial witness supports.
-4. **The PRX Life presubmission inquiry** — on hold at the user's instruction as
+3. **The PRX Life presubmission inquiry** — on hold at the user's instruction as
    of 2026-08-31, not withdrawn. Do it after P3: the changelog is the first thing
    an editor would notice.
 
@@ -788,3 +781,62 @@ and the item stays open.
 **Manuscript.** Untouched in this pass. C5 is where the figure, the "what is new
 here" claim and Table~1 are brought into line, and it now has three findings to
 carry rather than one.
+
+### C2 — the n7 → n9 edge — 2026-08-31
+
+**What was built.** Three theorems in `Chain.lean` and one manuscript paragraph.
+
+* `supercritical_of_coherent` — a coherent order parameter forces
+  `critical_coupling D < K`. Contrapositive of
+  `fixed_point_eq_zero_of_le_critical`: at or below threshold the only
+  non-negative solution of `r = R(K, r)` is `r = 0`, so a strictly positive one
+  puts `K` above threshold. Four lines. The item's estimate was right and, for
+  once, right about the obstacle as well.
+* `self_of_coherent_order_parameter` — Derivation 6 with its threshold hypothesis
+  replaced by Derivation 7's conclusion. `self_of_supercritical` stays where it
+  is, unchanged.
+* `chain` now routes its last step through this theorem, so **`E79` is gone** and
+  the named-hypothesis count is **eight**, not nine. The sign conditions
+  `supercritical_of_coherent` needs (`0 < D`, `0 ≤ K`) are already carried by n6,
+  which is where they belong.
+
+**Non-vacuity — and it went further than the item asked.** The item asked for a
+supercritical `K, D` discharging the hypothesis and a check that the resulting
+Self is §10's. Both done (`cortexCoherent`, `cortexHasSelf_of_coherent`,
+`cortexHasSelf_of_coherent_eq`: the Self is `cortexState`, by
+`cortexPredict_fixed_unique`). While assembling them it became clear the *whole*
+chain was witnessable, so `chain_nonvacuous` was built too: **all eight named
+hypotheses hold simultaneously**, on `Cortex`, with `boolStatMech` as the
+register, `frozenSystem` as the predictive structure, `trioCover` as the cover and
+`cortexReflexive` as the reflexive boundary. Every piece already existed in
+`Examples.lean`; what is new is that they satisfy the *edges* at once. This
+closes the open item C1's record had just opened, in the same session, which is
+why that item does not appear under *Open, ranked*.
+
+That result is worth more than the edge itself. Eight implications between eight
+different structures is exactly the shape in which joint unsatisfiability hides,
+and an unsatisfiable premise proves its conclusion for no reason at all. It is a
+mathematical witness, not a cortical one — the register is a bit, the vacuum
+manifold is empty, the coarse-graining sequence is constant — and the record says
+so.
+
+**What this does not establish.** Not that the chain is sound for cortex: all
+eight hypotheses remain undischarged as claims about a brain. Not that n7 is
+*needed* by anything outside `Chain.lean` — `Phase8_SelfConsistency`'s other
+theorems are still consumed by nothing but this module and the witnesses.
+
+**Manuscript.** `main.tex` §"The contraction rate is $K$ and $D$, not a numeral"
+(Derivation 6). The closing clause claimed Derivation 6 was connected to
+Derivation 7; C1 showed that claim was false as it stood. It is replaced by the
+precise statement: `self_of_supercritical` takes `K > K_c`, `K_c` unfolds to
+`2D`, so that statement is insensitive to whether the bifurcation is proved,
+while `self_of_coherent_order_parameter` takes the existence of the coherent
+order parameter and recovers the inequality from it. One P3 marker (`previously`)
+disappeared as a side effect.
+
+**Gates.** `lake build` clean, 17,616 jobs, zero `sorry`, zero warnings, zero
+declared axioms. `#print axioms` on `chain`, `chain_nonvacuous`,
+`self_of_coherent_order_parameter` and `supercritical_of_coherent` reports exactly
+`[propext, Classical.choice, Quot.sound]`. `Chain.lean` 650 lines; it now imports
+`Examples` for the witnesses. `main.tex` 87 pages (was 86), overfull 18
+(unchanged against `HEAD`), zero undefined references or citations.
