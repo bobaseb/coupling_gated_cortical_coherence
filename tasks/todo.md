@@ -1551,21 +1551,38 @@ recorded blocker is a hypothesis.
 * Lean 12,822 → **13,262 lines** across 20 modules; `Examples.lean` 4,164 →
   **4,283**.
 
-**Next.** No work item in this file is open. The candidates, in the order they
-would be picked up, and none of them is scheduled:
+**Next.** No work item in this file is open. The candidates, and none of them is
+scheduled:
 
 1. **Send the PRX Life presubmission inquiry.** This is the actual next action
    and it is not a code change. The frame section decided the venue on
    2026-08-30 and every defect it listed is now closed or named.
-2. **The propagation-of-chaos gap** — `ContinuousNeuralField` is posited, not
-   produced from the finite Kuramoto system. It is the largest remaining hole in
-   the chain and it is recorded under *Beyond this paper*, not here, because it is
-   a paper of its own.
-3. **O10 (remainder)** and the second *Low value* item, unchanged in rank.
-4. **`section_agrees_of_phase_eq`** — the `ThermodynamicCover`'s other physical
-   hypothesis, untouched by W1. Deriving it from the dynamics is the same kind of
-   move W1 made for `thermodynamic_equilibrium`, and is the one remaining
-   instance obligation in the chain that looks reachable.
+2. **`section_agrees_of_phase_eq`** — the `ThermodynamicCover`'s other physical
+   hypothesis, untouched by W1 and the only open instance obligation in the chain
+   with a claim attached. **Do not file it as "derive it the way W1 derived
+   `thermodynamic_equilibrium`".** That was the first draft of this entry and it
+   is wrong, in the way standing rule 4 warns about: W1 worked because
+   `kuramoto_tendsto_global_minimum` *produces* the object the field demands,
+   and here there is no producer. `sync_to_section` is free data on
+   `LocalSectionSynchronization`, constrained by nothing except the field in
+   question, and no map from a phase to a local density exists anywhere in the
+   development. `ofInvariantMeasure` gets agreement only by defining the sections
+   as restrictions of one global measure, which forfeits the emergence reading
+   (its own docstring says so, and `Examples` §13's `cortexCoverTwisted_glued`
+   computes the forfeit). The available move is standing rule 3: name a predicate
+   under which agreement follows, prove theorems about it, witness it, and leave
+   the gap visible — as `IsRestrictionResonance` does for Derivation 6.
+3. **O10 (remainder)** and **O16**, unchanged in rank. The *Low value* header's
+   "do not pick these up ahead of W1–W8" has expired now that W1–W8 are done, but
+   the reason they are low value has not: neither changes a sentence of either
+   document.
+
+**Not on this list: propagation of chaos.** It is the largest hole in the chain
+and it is **O14, closed as decided-not-doing** — a research programme, not a
+task — and it is already named as a gap in the docstrings, the manuscript and
+Table S1. It was listed second in the first draft of this entry, which
+re-ranked a recorded closure without recording a reason. It is a paper of its
+own; see *Beyond this paper*.
 
 
 ## Low value — listed so they are not rediscovered as new
