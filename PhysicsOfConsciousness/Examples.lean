@@ -86,6 +86,7 @@
 -/
 
 import PhysicsOfConsciousness.Phase1_Primitives
+import PhysicsOfConsciousness.Phase1_PhaseSpaceCapacity
 import PhysicsOfConsciousness.Phase3_CombinatorialThermodynamics
 import PhysicsOfConsciousness.Phase3_KLBound
 import PhysicsOfConsciousness.Phase5_GlobalSection
@@ -4159,6 +4160,124 @@ theorem still_bound_is_not_an_axiom :
   exact not_le.2 memory_pos
 
 end PredictiveThermodynamicsWitness
+
+/-! ## 19. The capacity of a finite phase space, on two bits
+
+  `Phase1_PhaseSpaceCapacity.lean` is the answer to the standing complaint that
+  the first premise "contributes vocabulary rather than content". This section
+  runs its three theorems on the smallest system that can carry them, and — as
+  everywhere else in this file — fences the hypotheses that are doing the work.
+
+  What is witnessed:
+
+  * the capacity bound is *attained*, so `log |X|` is the exact figure and not a
+    slack over-estimate (`bool_uniform_entropy`);
+  * it is *strict* off the uniform law, on a concrete biased bit
+    (`biased_bit_below_capacity`);
+  * a two-letter stream of length two already outruns a one-bit phase space
+    (`bit_cannot_record_two_perturbations`), and its entropy strictly exceeds
+    anything that phase space can hold (`two_bit_source_exceeds_bit_capacity`);
+  * an unreachable state on a finite phase space costs heat, on §1's
+    `boolStatMech` (`unreachable_state_costs_heat`);
+  * and the finiteness hypothesis is not decoration: on `ℕ` the same step fails,
+    because `Nat.succ` is injective and misses `0`
+    (`succ_is_not_an_erasure`). That last one is the fence. Without it,
+    `is_erasure_of_not_surjective` would read like a triviality about maps
+    rather than a fact about *finite* phase spaces.
+-/
+
+section PhaseSpaceCapacityWitness
+
+/-- The uniform law on a bit is the fair coin. -/
+theorem bool_uniformDist_eq : uniformDist Bool = fun _ => (1 : ℝ) / 2 := by
+  funext b
+  simp [uniformDist]
+
+/-- **Capacity is attained.** One bit holds exactly `log 2` nats. -/
+theorem bool_uniform_entropy : shannon_entropy (uniformDist Bool) = Real.log 2 := by
+  rw [shannon_entropy_uniformDist]
+  norm_num
+
+/-- A bit that is not fair: `3/4` on `false`, `1/4` on `true`. -/
+noncomputable def biasedBit : Bool → ℝ := fun b => if b then 1 / 4 else 3 / 4
+
+theorem is_prob_dist_biasedBit : is_prob_dist biasedBit := by
+  refine ⟨fun b => by cases b <;> norm_num [biasedBit], ?_⟩
+  simp [biasedBit]
+  norm_num
+
+/-- **The bound is strict off the uniform law**, on this instance rather than in
+general: a biased bit holds strictly less than `log 2`. -/
+theorem biased_bit_below_capacity : shannon_entropy biasedBit < Real.log 2 := by
+  have h := shannon_entropy_lt_log_card_of_ne_uniform biasedBit is_prob_dist_biasedBit true
+    (by simp [biasedBit])
+  simpa using h
+
+/-- **A one-bit phase space cannot record two binary perturbations.** Four
+histories, two states. The update below is a genuine one — the perturbation is
+`xor`-ed into the state, which is *reversible at each step* — so the collision is
+not an artefact of a lossy update but of the phase space being smaller than the
+stream. -/
+theorem bit_cannot_record_two_perturbations :
+    ¬ Function.Injective (fun w : Fin 2 → Bool => absorb (fun s p => xor s p) false w) := by
+  apply absorb_not_injective
+  simp
+
+/-- The two histories that collide, exhibited. `absorb` on `xor` returns the
+parity of the word, so `(true, false)` and `(false, true)` are indistinguishable
+to the system while being different perturbation streams. -/
+example :
+    absorb (fun s p => xor s p) false (![true, false] : Fin 2 → Bool)
+      = absorb (fun s p => xor s p) false (![false, true] : Fin 2 → Bool) := by
+  decide
+
+/-- **The source outruns the capacity, entropically.** No law on one bit reaches
+the entropy of the uniform law on two-letter words of length two. -/
+theorem two_bit_source_exceeds_bit_capacity (p : Bool → ℝ) (hp : is_prob_dist p) :
+    shannon_entropy p < shannon_entropy (uniformDist (Fin 2 → Bool)) :=
+  source_entropy_exceeds_capacity 2 (by simp) p hp
+
+/-- **An unreachable state costs heat**, on §1's one-bit thermodynamic system.
+`fun _ => false` never reaches `true`; §1's `boolStatMech` supplies the bath, and
+`finite_phase_space_dissipates` supplies the rest. This is the same conclusion §1
+reaches by exhibiting non-injectivity directly — the point is that the hypothesis
+is now the physically checkable one. -/
+theorem unreachable_state_costs_heat :
+    heat_dissipation (fun _ => false : Bool → Bool) > 0 := by
+  apply finite_phase_space_dissipates
+  intro hsurj
+  obtain ⟨b, hb⟩ := hsurj true
+  exact Bool.noConfusion hb
+
+/-- **The finiteness hypothesis is load-bearing.** `Nat.succ` misses `0` and is
+injective, so on an infinite phase space "cannot reach every state" does not
+imply erasure and no Landauer charge follows. `is_erasure_of_not_surjective`
+therefore says something about finite phase spaces specifically, which is what
+makes it a consumer of the first premise rather than a general fact about
+maps. -/
+theorem succ_is_not_an_erasure :
+    ¬ Function.Surjective Nat.succ ∧ ¬ is_erasure Nat.succ := by
+  refine ⟨fun h => ?_, fun h => h Nat.succ_injective⟩
+  obtain ⟨n, hn⟩ := h 0
+  exact Nat.succ_ne_zero n hn
+
+/-- **Refreshing the incoming register is what dissipates**, exhibited on the
+joint two-bit space. The record-keeping alternative is injective and appears
+immediately below, so the two are visibly different maps rather than two
+descriptions of one. -/
+theorem absorbStep_bool_is_erasure :
+    is_erasure (absorbStep (fun s p => xor s p) false) :=
+  absorbStep_is_erasure _ (p₁ := true) (by simp)
+
+/-- The map that keeps the record instead of refreshing it **is** injective, so
+nothing forces it to dissipate. This is the Norton / Shenker point in one line:
+losing the history is not the same as erasing it, and only the second is
+charged. -/
+theorem keepRecord_injective :
+    Function.Injective (fun sp : Bool × Bool => (xor sp.1 sp.2, sp.2)) := by
+  decide
+
+end PhaseSpaceCapacityWitness
 
 end Examples
 end PhysicsOfConsciousness

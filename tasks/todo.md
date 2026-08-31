@@ -50,8 +50,11 @@ manuscript has **no figures**. Those are the items below.
 
 ## Where the development stands — 2026-08-30
 
-**Lean.** 12,822 lines across 19 modules. Zero `sorry`. Zero declared axioms.
-`Examples.lean` is 4,164 lines and carries 18 witness sections plus §17.1.
+**Lean.** 13,262 lines across 20 modules. Zero `sorry`. Zero declared axioms
+(re-checked 2026-08-31; see the W6 record — the contrary note in the W5 record is
+wrong, the three entries in `Axioms.lean` are inside comment blocks and
+`#check` reports them unknown). `Examples.lean` is 4,283 lines and carries 19
+witness sections plus §17.1.
 
 **Landed 2026-08-30 (`861f252`).** O20(d)+(e): `lojasiewicz_estimate`,
 `excess_decay`, `velocity_abs_le_exp`, `phase_tendsto`, `excess_tendsto_zero`,
@@ -89,8 +92,16 @@ the Self follows from `K > K_c`, which connects Derivation 6 to Derivation 7 for
 the first time. `Examples.lean` §10 rebuilt around a map that factors through the
 one-site avatar. Full pass record below.
 
-**Manuscript.** `main.tex` 84 pages, `supplementary.tex` 14, six figures, merged
-arXiv build 45 pages.
+**Landed 2026-08-31 — W6.** `Phase1_PhaseSpaceCapacity.lean` (new, 321 lines):
+`shannon_entropy_le_log_card`, `shannon_entropy_eq_log_card_iff`,
+`absorb_not_injective`, `source_entropy_exceeds_capacity`,
+`is_erasure_of_not_surjective`, `finite_phase_space_dissipates`. Witnessed and
+fenced by `Examples.lean` §19. Axiom 1's phase-space half is now consumed by
+theorems and feeds Derivation 2; its symmetry half is retitled as setting. Full
+pass record below.
+
+**Manuscript.** `main.tex` 86 pages, `supplementary.tex` 15, six figures, merged
+arXiv build 46 pages.
 
 ---
 
@@ -100,12 +111,14 @@ The decision taken 2026-08-30 is to write **the ambitious framework paper**,
 accepting that its readership is the EM-field / resonance community. Two things
 follow, and every item below serves one of them.
 
-**First: the chain has to actually run.** The current chain has three defects of
-different kinds, and only one of them is a missing theorem:
+**First: the chain has to actually run.** When this file was written the chain had
+three defects of different kinds, and only one of them was a missing theorem. As
+of 2026-08-31 every row below is closed or named; the table is kept as the record
+of what each link now rests on:
 
 | Link | State | Item |
 |---|---|---|
-| Finite phase space | Vocabulary; no theorem consumes it | W6 |
+| Finite phase space | Capacity bound `H ≤ log (card X)`, equality iff uniform; the stream that outruns it; and on a *finite* space an unreachable state is an erasure | ~~W6~~ done |
 | SSB → boundary | Proved at π₀; π₁ and up available, not taken | ~~W2~~ done |
 | → dissipation | Sound | — |
 | → prediction | Still's bound; nonpredictive information is what dissipation pays for | ~~W4~~ done |
@@ -140,10 +153,12 @@ Each item is self-contained. Record the pass in this file under a dated heading
 in the style of the archive (what was built / non-vacuity / what it does *not*
 establish / manuscript updates), then move to the next.
 
-**W1, W8, W2, W4, W3, W7 and W5 are done (2026-08-31).** Every defect the frame
-table listed in the chain is closed or named, the manuscript has figures, and the
-Self theorem now sees the avatar. What remains is **W6** — give Axiom 1 a theorem
-that consumes it, or stop calling it an axiom.
+**W1–W8 are all done (2026-08-31).** Every defect the frame table listed in the
+chain is closed or named, the manuscript has figures, the Self theorem sees the
+avatar, and Axiom 1's phase-space half is consumed by theorems that feed
+Derivation 2. **No work item in this file is open.** What to pick up next is
+recorded at the end of the W6 pass below; the two items under *Low value* remain
+low value and the *Closed as decided-not-doing* list is unchanged.
 
 ### W1 — Discharge `thermodynamic_equilibrium` from the convergence theorem
 
@@ -343,7 +358,9 @@ that consumes it, or stop calling it an axiom.
 
 ### W6 — Make Axiom 1 do work
 
-- [ ] **Objective.** Give the first premise a theorem that consumes it, or stop
+**Done 2026-08-31.** Pass recorded below under *2026-08-31 — W6*.
+
+- [x] **Objective.** Give the first premise a theorem that consumes it, or stop
       calling it an axiom.
 - **Why.** The section's own footnote concedes it "contributes vocabulary rather
   than content." No theorem in the development consumes a symmetry group or a
@@ -1389,6 +1406,166 @@ way.
 
 **Next item: W6** — give Axiom 1 a theorem that consumes it (`H(μ) ≤ log |X|`,
 equality iff uniform), or retitle the section from "Axiom 1" to a setting section.
+
+
+## 2026-08-31 — W6: the first premise, consumed rather than footnoted
+
+**What was built.**
+
+`Phase1_PhaseSpaceCapacity.lean`, new, **321 lines**, importing
+`Phase1_Primitives` and `Phase3_CombinatorialThermodynamics` — the two files it
+has to sit above to connect the premise to the Landauer step. Twelve results in
+three groups, none of which mentions a symmetry group, a metric or an action.
+
+*Capacity.*
+
+* `shannon_entropy_le_log_card` — `H(p) ≤ log |X|` for any `is_prob_dist p` on a
+  `Fintype`. Proof is Gibbs against the uniform law: `log x ≤ x − 1` at
+  `x = 1/(N·pᵢ)`, summed, with `∑ (1/N − pᵢ) = 0`.
+* `shannon_entropy_uniformDist` — the bound is attained.
+* `shannon_entropy_lt_log_card_of_ne_uniform` — strict as soon as one state
+  carries the wrong weight, via `Real.log_lt_sub_one_of_pos` and
+  `Finset.sum_lt_sum`.
+* `shannon_entropy_eq_log_card_iff` — **equality iff uniform**, which is the half
+  that matters: `log |X|` is the exact capacity, not a slack over-estimate.
+
+The `pᵢ = 0` case is where the equality condition comes from and it is worth
+recording: there the term contributes `0` while the bound allows `1/N`, so a
+distribution with a zero cannot attain capacity. Both pointwise lemmas split on
+it explicitly.
+
+*The stream outruns the capacity.*
+
+* `absorb u s₀ w = List.foldl u s₀ (List.ofFn w)` — the state after a word of
+  perturbations. `u` is arbitrary.
+* `absorb_not_injective` — if `|X| < |P|^k` the history-to-state map is not
+  injective. `Fintype.not_injective_of_card_lt` plus `Fintype.card_fun`; the
+  physical content is entirely in the cardinality hypothesis.
+* `exists_indistinguishable_histories` — the same with the two colliding words
+  produced.
+* `source_entropy_exceeds_capacity` — the entropic form, and the join between the
+  two groups: `H(p) ≤ log |X| < log |P|^k = H(uniform on words)`.
+
+*Erasure, and the heat.*
+
+* `is_erasure_of_not_surjective` — on a **finite** state space, not surjective ⟹
+  not injective. This is the one line where finiteness does something no other
+  hypothesis in the chain could do.
+* `finite_phase_space_dissipates` — hence `heat_dissipation t > 0` via
+  `landauers_principle`. Axiom 1 now feeds Derivation 2 in Lean, not only in
+  prose.
+* `absorbStep u p₀ (s, p) = (u s p, p₀)`, `absorbStep_not_surjective`,
+  `absorbStep_is_erasure` — the physical instance: absorbing a perturbation onto
+  a **refreshed** register is an erasure.
+
+**Non-vacuity, and the fence.** `Examples.lean` §19, 4,164 → **4,283 lines**,
+19 witness sections. Everything runs on one or two bits:
+
+| | |
+|---|---|
+| `bool_uniformDist_eq`, `bool_uniform_entropy` | the fair coin is `uniformDist Bool`, and holds exactly `log 2` |
+| `biasedBit`, `is_prob_dist_biasedBit`, `biased_bit_below_capacity` | a `3/4`–`1/4` bit is strictly under capacity |
+| `bit_cannot_record_two_perturbations` | two binary perturbations outrun a one-bit memory, with `u = xor` — **reversible at every step**, so the collision is counting and not a lossy update |
+| (example) | the two colliding words `[true,false]` and `[false,true]`, by `decide` |
+| `two_bit_source_exceeds_bit_capacity` | the entropic form on the same numbers |
+| `unreachable_state_costs_heat` | `fun _ => false` never reaches `true`; §1's `boolStatMech` supplies the bath and the heat is positive |
+| `succ_is_not_an_erasure` | **the fence.** `Nat.succ` misses `0` and is injective, so `is_erasure_of_not_surjective` is false on an infinite phase space |
+| `absorbStep_bool_is_erasure` vs `keepRecord_injective` | the refreshed register erases; the map that keeps the record is injective and free |
+
+`succ_is_not_an_erasure` and `keepRecord_injective` are the two that stop this
+being a triviality dressed as a premise. Without the first, "unreachable ⟹
+erasure" reads like a fact about maps rather than about *finite* phase spaces.
+Without the second, the Norton–Shenker distinction the manuscript spends a
+paragraph on would have been quietly collapsed by the new theorem.
+
+**What this does *not* establish.**
+
+* **Finiteness is not derived.** It is assumed, as `[Fintype]`, exactly as it was
+  before. What is gone is the gap between assuming it and using it.
+* **The symmetry half is untouched and still empty.** No theorem consumes
+  `ContinuousSymmetryGroup`, `SymmetryInvariantAction` or
+  `PseudoRiemannianManifold`. The section is retitled rather than repaired on
+  that side, and the Poincaré group is now openly an illustration in prose. O12
+  (Noether) stays closed for the reason already recorded.
+* **Losing the history is not itself dissipative.** The record-keeping map is
+  injective. Heat attaches to refreshing the register, not to the collision, and
+  the development now says so in three places rather than eliding it.
+* **`absorb` is not connected to any dynamics in the development.** It is a fold
+  over a word, not a Kuramoto trajectory or a sheaf section. The link between
+  "the boundary absorbs perturbations" and the objects Derivations 5–7 talk about
+  is still prose.
+
+**A recorded blocker that was wrong.** The W5 pass recorded, as a discrepancy to
+fix, that `Axioms.lean` "in fact declares three live ones —
+`landauer_principle`, `phase_space_is_compact`, `principle_of_least_action` —
+under a comment that says they are commented out. They are not commented out."
+**They are.** All three sit inside `/- … -/` blocks; `#check
+PhysicsOfConsciousness.landauer_principle` against the built library reports
+`Unknown identifier`. The claim "the development declares no axioms" was correct
+as written in both documents and needed no change. Recorded here so the next pass
+does not spend time on it, and as one more instance of the standing rule that a
+recorded blocker is a hypothesis.
+
+**Manuscript updates.**
+
+* **Figure 1** — the single vocabulary box is split in two. `n0` (grey,
+  vocabulary) is the symmetries and the metric, said plainly to be consumed by no
+  theorem; `n1` (green, theorem) is the capacity bound, the stream that outruns
+  it, and the heat. Eleven boxes still fit one page, checked by rendering it.
+* **Table 1** — a sixth row, first: capacity, Theorem, assuming finiteness of the
+  state space and nothing else, with the infinite-space failure named. Caption and
+  the two cross-references updated from "five rows" to "six".
+* **Section title** — "Axiom 1: Symmetries and Phase Space" → "Axiom 1:
+  Symmetries as Setting, and the Capacity of a Finite Phase Space". The label
+  "Axiom 1" is kept because Derivation 2 refers to it by that name.
+* **The section body** — the one sentence that used to carry the whole premise
+  ("Because phase space is finite, any localized physical system possesses a
+  mathematical limit…") is now that sentence plus four paragraphs: the capacity
+  bound and why the equality condition is the part worth stating, the stream, the
+  erasure step with its infinite-space fence, and a closing paragraph saying
+  finiteness is still assumed and the Poincaré group is still an illustration.
+  The footnote's closing clause, "so this section still contributes vocabulary
+  rather than content", is replaced rather than deleted.
+* **Derivation 2** — a passage on where the premise enters: an unreachable state
+  is what a modeller can check, on a finite space it is the erasure condition, and
+  the Norton–Shenker distinction survives the identification
+  (`keepRecord_injective` vs `absorbStep_is_erasure`).
+* **Supplement** — §Landauer's Principle gains the capacity theorems in its
+  opening paragraph and the erasure step plus its fence in the Lean paragraph;
+  Table S1 gains a first row; "five-row summary" → "six-row".
+
+**Gates.**
+
+* `lake build` clean, 17,614 jobs, zero `sorry`, zero warnings. `#print axioms`
+  on all 12 new results and all 10 new witnesses reports only `propext`,
+  `Classical.choice`, `Quot.sound` (two report fewer).
+* `main.tex` 84 → **86 pages**; overfull hboxes **18 → 18**, counted with `awk`
+  rather than `grep -c` per the W5 tooling note. Zero errors, zero undefined
+  references or citations.
+* `supplementary.tex` 14 → **15 pages**; overfull **8 → 8**. The four undefined
+  references in the standalone supplementary build (`sec:soundness`,
+  `sec:scaling`) are pre-existing cross-document labels that resolve in the
+  merged build; no new one was added.
+* Merged arXiv build 45 → **46 pages**, zero errors, zero overfull, zero
+  undefined.
+* Lean 12,822 → **13,262 lines** across 20 modules; `Examples.lean` 4,164 →
+  **4,283**.
+
+**Next.** No work item in this file is open. The candidates, in the order they
+would be picked up, and none of them is scheduled:
+
+1. **Send the PRX Life presubmission inquiry.** This is the actual next action
+   and it is not a code change. The frame section decided the venue on
+   2026-08-30 and every defect it listed is now closed or named.
+2. **The propagation-of-chaos gap** — `ContinuousNeuralField` is posited, not
+   produced from the finite Kuramoto system. It is the largest remaining hole in
+   the chain and it is recorded under *Beyond this paper*, not here, because it is
+   a paper of its own.
+3. **O10 (remainder)** and the second *Low value* item, unchanged in rank.
+4. **`section_agrees_of_phase_eq`** — the `ThermodynamicCover`'s other physical
+   hypothesis, untouched by W1. Deriving it from the dynamics is the same kind of
+   move W1 made for `thermodynamic_equilibrium`, and is the one remaining
+   instance obligation in the chain that looks reachable.
 
 
 ## Low value — listed so they are not rediscovered as new
