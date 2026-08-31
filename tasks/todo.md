@@ -410,7 +410,9 @@ its kind, and the three counts are stated in the manuscript.
 
 ### P1 — The gate: `scripts/check_prose.py` and a pre-commit hook
 
-- [ ] **Objective.** Make rule 8 mechanical, so it survives the next agent that
+- [x] **Done 2026-08-31.** Pass record at the end of this file.
+
+- [x] **Objective.** Make rule 8 mechanical, so it survives the next agent that
       is tempted to explain itself in the manuscript.
 
 **Why.** This is the same argument the development makes about axioms: a
@@ -457,7 +459,9 @@ after P3.
 
 ### P2 — `CHANGELOG.md`, so the narration has somewhere to go
 
-- [ ] **Objective.** Create the repo-side destination rule 8 presupposes. There
+- [x] **Done 2026-08-31.** Pass record at the end of this file.
+
+- [x] **Objective.** Create the repo-side destination rule 8 presupposes. There
       is currently **no `CHANGELOG.md`** in this repository.
 
 **Why.** P3 removes 64 statements, some of which are worth keeping — not for the
@@ -492,7 +496,9 @@ with the third case listed in the pass record so the judgement is reviewable.
 
 ### P3 — Rewrite the 64 marker sites
 
-- [ ] **Objective.** Both publication files state the current theory only.
+- [x] **Done 2026-08-31.** Pass record at the end of this file.
+
+- [x] **Objective.** Both publication files state the current theory only.
 
 **The inventory, counted 2026-08-31** (occurrences, not lines):
 
@@ -545,7 +551,9 @@ destination check.
 
 ### P4 — Write the rule down where agents will read it
 
-- [ ] **Objective.** `AGENTS.md` gains rule 8 as a numbered section.
+- [x] **Done 2026-08-31.** Pass record at the end of this file.
+
+- [x] **Objective.** `AGENTS.md` gains rule 8 as a numbered section.
 
 **Why.** `AGENTS.md` has four sections and is the file every agent reads first.
 Rule 8 is exactly as binding as §4's anti-hallucination gate for references and
@@ -978,3 +986,99 @@ references.** `lake build` clean, 17,616 jobs.
 says what the development establishes about its own composition, and the two
 places where it said more have been corrected rather than softened. The P-series
 (P1–P4, the changelog gate and the rewrite) is untouched and is the next work.
+
+### P1–P4 — the gate, the destination, the rule, and the rewrite — 2026-08-31
+
+**P1 — the gate.** `simulations/check_prose.py`, 13 patterns, each justified in a
+comment rather than dumped into one regex. No allowlist. It fails on `HEAD` with
+**63** markers (the ledger counted 64; C2 and C5 had already removed one) and
+passes after P3. Wired into `.pre-commit-config.yaml` as `check-prose`, selecting
+on `files: ^(main|supplementary)\.tex$` rather than `types: [python]`, with
+`pass_filenames: false`, following the existing `repo: local` block exactly.
+
+**One deviation from the item, recorded.** The item named
+`scripts/check_prose.py`. The script is at `simulations/check_prose.py` instead,
+because every existing quality hook is `cd simulations && uv run …` and the
+tooling gate of `AGENTS.md` §2 is defined by that path. A second directory would
+need either five duplicated hook entries or a second `uv` project; neither is
+worth it for one file. Verified under the full set: `ruff`, `ruff-format`,
+`mypy --strict`, `bandit`, `vulture`, `xenon --max-absolute B`, `tach` — all
+clean. (`bandit`, `vulture` and `xenon` are not spawnable as console scripts in
+this environment and were run as `python -m`; that is a pre-existing property of
+the venv, not of this change, and the hook itself invokes `uv run python`.)
+
+**False positives, as predicted, and resolved by rewording.** Three: "the older
+bound", "the old argument" and "no longer only empirical" — two of which were
+comparisons *within* the document and one of which was a scope statement. Each
+was reworded. None resisted; the escape hatch was not needed and is not there.
+
+**P2 — `CHANGELOG.md`**, 286 lines, reverse chronological. Nine entries, each in
+the form *Claimed / The problem / Claimed now / Record*. It covers the chain
+composition and the n7→n9 claim; the coarse-graining scalar finding; W5, W1, W3
+and W4; the five-axioms transition with all three refutations; and the four
+further defects that survived prose review. It states what it is not: not the
+complete record (the archives are), and not a list of everything that changed —
+only of **claims that were made and are no longer made**, which is the list worth
+being able to find.
+
+**P4 — `AGENTS.md` §5**, stating the rule, the test, the destinations, the gate,
+and why there is no allowlist.
+
+**P3 — the rewrite. 63 sites, all closed, `check_prose.py` exits 0.**
+
+Worked by section rather than by marker, as the item asked. The two kinds it
+predicted both occurred, and a third turned up:
+
+* **Delete.** Table 1's and Table S1's captions each carried "Earlier drafts
+  carried five axioms, three of them inconsistent". Both are gone; the
+  cross-reference to the soundness section survives and now points at the general
+  finding.
+* **Restate as scope.** Derivation 3's retraction paragraph became *What the
+  entropy-production bound does not give*: same mathematics, no autobiography,
+  and shorter. The supplement's "Theorem 3, in its earlier form, is withdrawn"
+  became *What the bound above does not support*.
+* **Restate as a counterfactual, which is the form that lost nothing.** Several
+  passages were about why a *shape* is wrong — a class carrying a global section,
+  a boundary carrying its predictive map as free data, a metric under which every
+  contraction is constant. Each becomes "were the class to carry X, the theorem
+  would say only Y; it carries neither." That is stronger than the confession it
+  replaces, because it is a statement about the mathematics rather than about us,
+  and it survives being read by someone who has never seen a draft.
+
+**§2.1 was rewritten, not exempted**, as the item required. What it keeps: the
+refutation, all three concrete cases with their arithmetic, the general rule, and
+the observation that the failure leaves the build green and is undiscussed in the
+applied-formalization literature. What it loses: that the axioms were ours. The
+finding does not depend on whose they were, and stated impersonally it reads as a
+methodological result rather than a confession — which is what it is.
+
+**The space recovered went where the item said it should.** *What is actually
+good about the framework*, point 1 — unity is what a field is, because the field
+is the only variable defined everywhere at once — was one clause inside the
+paragraph that withdrew the word "primary". It is now its own paragraph, *Why
+reach is the property that matters*, in the scaling section: the combination
+problem answered structurally, the contrast with IIT's number and GWT's metaphor,
+and the observation that this is what the empirical commitment is carrying — if
+the coupling is realized by something not defined everywhere at once, the
+framework loses the property that distinguishes it, not merely a mechanism.
+
+**Destination check.** Every deleted passage is recoverable from `CHANGELOG.md`
+except three, judged not worth keeping and listed here so the judgement is
+reviewable: (i) that Table~1's caption once named a count of axioms — the count
+is in `CHANGELOG.md`, the caption sentence carried nothing else; (ii) "we record
+the correction because it changed what the theorem says rather than how it is
+stated" — a sentence about the act of correcting; (iii) "Confronting the
+discrepancy is the honest course, so we do it here rather than in a footnote" —
+kept, in fact, since it is about this document rather than a previous one.
+
+**Gates.** `check_prose.py` exits 0 on both files. `main.tex` 88 pages, overfull
+**16** — two fewer than `HEAD`'s 18 — zero undefined references or citations.
+`supplementary.tex` 15 pages, overfull 0. Merged arXiv build **48 pages, overfull
+0, zero undefined references**. `lake build` clean, 17,616 jobs, untouched by
+this pass.
+
+**Where the ledger stands.** C1–C5 and P1–P4 are all closed. Nothing in the
+"Work items" section is open. What remains is the *Open, ranked* list, none of
+which was blocking, and the presubmission inquiry, which the item explicitly
+sequenced after P3 — the changelog was the first thing an editor would have
+noticed, and it is gone.
