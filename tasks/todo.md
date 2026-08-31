@@ -99,8 +99,8 @@ sequenced after P3 and is now unblocked.
 §17.1; `Chain.lean` is 757 lines and carries the composition. `lake build`
 clean, 17,616 jobs.
 
-**Manuscript.** `main.tex` 91 pages, overfull 16; `supplementary.tex` 15,
-overfull 0; merged arXiv build 49 pages, overfull 0. Six figures, a methods
+**Manuscript.** `main.tex` 93 pages, overfull 16; `supplementary.tex` 15,
+overfull 8; merged arXiv build 50 pages, overfull 0. Six figures, a methods
 section, and Table S1 carrying the claim-by-claim identifier map.
 
 *(Figures as of the start of 2026-08-31; the current figures are in the C and P
@@ -595,7 +595,9 @@ Take ONE at a time. **S1 and F1 first**: both are manuscript-only, both are
 already true, and both strengthen the paper's weakest public claims at zero
 formal cost. S2 is the one with real payoff and real cost.
 
-**S1 is closed (2026-08-31). F1 is next.**
+**S1 and F1 are closed (2026-08-31). F2 is next** — it is the item that tries to
+close the gap F1 has now located exactly, and F1's pass record narrowed what F2
+has to attack.
 
 ---
 
@@ -648,7 +650,9 @@ which the item did not anticipate; see the pass record.
 
 ### F1 — Frustration: promote the division from a docstring to a claim
 
-- [ ] **Objective.** Narrow the unfrustrated objection from "the framework
+- [x] **Done 2026-08-31.** Pass record at the end of this file.
+
+- [x] **Objective.** Narrow the unfrustrated objection from "the framework
       describes the wrong system" to "the framework's *final step* describes the
       wrong system", which is a much better position and is true.
 
@@ -674,7 +678,9 @@ so the frustration-agnostic half is citable rather than merely observable.
 
 **Done when.** The manuscript states which half of the chain survives frustration
 and which does not, by name. This is a *scoping* item; F2 is the one that tries
-to close the gap.
+to close the gap. — **Done**, but the item's premise was half stale: the
+manuscript already carried a subsection stating the division. What it did not
+carry was the *locus*. See the pass record.
 
 ---
 
@@ -1440,3 +1446,81 @@ box did appear, at the maximum-likelihood sentence, where an inline equation
 gave TeX no break point; it was reworded, not tolerated). `supplementary.tex`
 untouched. Merged arXiv build **49 pages, overfull 0, zero undefined
 references**. No Lean change, so the build gate is inherited unchanged.
+
+---
+
+### F1 — where the positivity actually enters — 2026-08-31
+
+**The item's premise was half wrong, and the correction is the finding.** F1 said
+`Phase4_KuramotoDynamics`'s docstring states the division and "the manuscript
+does not". The manuscript did: `main.tex` already carried a subsection
+*Geometric frustration, and the regime our theorems actually cover* with both
+lists, and the supplement carried the same paragraph and a Table S1 row. What
+neither carried was the **locus**, and the locus is the whole of what narrows the
+objection.
+
+**The locus, verified rather than estimated** (standing rule 4). Positivity is
+not a hypothesis distributed through the development. It is a **field of one
+class**: `ThermodynamicCover.A_pos` (`Phase5_GlobalSection:128`). Grepping every
+site where the sign of `A` is constrained returns that field, the three
+minimization results of `Phase4_KuramotoDynamics` that feed it
+(`phase_locked_minimizes_potential`, `potential_min_implies_phase_locked`,
+`potential_min_iff_phase_locked`), and the uniform bound `0 < a ≤ A i j` in
+`Phase5_EquilibriumBridge` and `kuramoto_tendsto_global_minimum`. Nothing else.
+All of them sit at node n8 or in what builds it. So the constraint enters the
+chain at **one node and the edge into it**, and at no point upstream.
+
+Re-verified this pass and all confirmed: `dV_dt_le_zero`
+(`Phase3_CombinatorialThermodynamics:152`) — the Lyapunov identity the entire
+descent argument rests on — carries **no** sign hypothesis, and neither do
+`is_kuramoto_trajectory_exists`/`_unique`, `dynamic_potential_antitone`,
+`dynamic_potential_tendsto` or `velocity_sq_tendsto_zero`.
+
+**What the manuscript now says.** Three changes, all prose.
+
+1. The frustration subsection states the locus: positivity is a class field, so
+   it is demanded at the gluing node and nowhere before it. The old closing
+   sentence — "the system in which memory is grounded and the system our theorems
+   describe are not the same system" — was the *broad* concession, and it is
+   replaced by the narrow one: the mean-field reduction of Derivation 7 has no
+   sign structure to be frustrated at all, its coupling being a scalar; **one
+   step**, the gluing of Derivation 5, describes an unfrustrated system, and
+   every step before it does not care.
+2. The surviving list gained `dV_dt_le_zero` and `dynamic_potential_tendsto`,
+   the first of which is the load-bearing omission — a reader could otherwise
+   believe descent itself needed positivity.
+3. A new paragraph *The step that carries the positivity* in Derivation 5, so
+   the constraint is named where it enters rather than only in the limitations
+   section 12 pages earlier.
+
+The closing open-question paragraph now says where an answer would have to act:
+not on the dynamics, which is already sign-indifferent, but on the overlap
+condition — under frustration the minima are twisted and splay states, so
+`section_agrees_of_phase_eq` has nothing to fire on. That is F2's target stated
+in the manuscript's own voice.
+
+**The optional Lean was not written, and that is the right call.** The item
+offered "a named Lean result restating `dV_dt_le_zero` for a signed `A`, so the
+frustration-agnostic half is citable rather than merely observable". It is
+already citable: `dV_dt_le_zero` quantifies over `sys : KuramotoSystem V` with
+`A` unconstrained, so a signed system is an instance and no restatement adds
+anything a reader could not check from the signature. Writing one would have
+been a second name for one theorem.
+
+**What this does not establish.** The memory-capacity claim is still unsupported
+and is still scoped out of the chain — locating the constraint is not lifting it.
+No frustrated `ThermodynamicCover` exists, and none can, since `A_pos` is a
+field. Whether a weaker overlap condition admits one is F2 and is open.
+
+**Gates.** `check_prose.py` exits 0 on both files. `main.tex` **93 pages,
+overfull 16, zero undefined** — overfull *set* identical to `HEAD`'s by scratch
+rebuild and magnitude diff. Three new overfull boxes did appear, all of them runs
+of long `\texttt` identifiers with no break point; two were fixed by replacing a
+list of five names with a description plus two names, one by dropping a name the
+sentence did not need. `supplementary.tex` 15 pages, overfull **8**, 4 undefined
+references — both figures **identical to `HEAD`**, verified by the same scratch
+rebuild; the undefined references are `sec:soundness` and `sec:scaling`, which
+live in `main.tex` and resolve only in the merged build. (The ledger's standing
+line had recorded "overfull 0" for the standalone supplement; that figure was
+wrong and is corrected above.) Merged arXiv build **50 pages, overfull 0, zero
+undefined**. No Lean change.
