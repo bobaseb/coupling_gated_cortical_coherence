@@ -686,7 +686,10 @@ carry was the *locus*. See the pass record.
 
 ### F2 — Where content could live: gluing that is obstructed rather than unique
 
-- [ ] **Objective.** Test whether frustration can be admitted by weakening the
+- [x] **Done 2026-08-31.** The natural repair was formalized and gives a negative
+      answer for oscillator phases. Pass record at the end of this file.
+
+- [x] **Objective.** Test whether frustration can be admitted by weakening the
       overlap condition, and find out what the obstruction is if it cannot.
 
 **The objection, in its sharpest form.** With `A > 0` the minimisers of the
@@ -720,6 +723,24 @@ either way; do not weaken `ThermodynamicCover` to make something go through
 **Done when.** Either a frustrated cover with an `H¹` obstruction exists and is
 witnessed, or the pass record states exactly which condition cannot be met and
 why, and the manuscript says which.
+
+---
+
+### F3 — Give the obstruction physical data, or stop at the no-go
+
+- [ ] **Objective.** Decide whether the theory has a biologically meaningful
+      source of overlap transition functions that are not differences of the
+      Kuramoto patch phases.
+
+F2 proves that ordinary locked, twisted and splay phase fields all give
+`offset i j = φ i - φ j`, hence a coboundary and no content label. A non-trivial
+Čech class would require a circle-valued torsor/bundle or comparable
+gauge/transition model on the cover, a proper nerve-indexed complex, and suitable
+nerve topology. Do not build
+that structure merely because Lean can: first name the measured or dynamical
+quantity its transition functions represent and explain how cortex generates
+them. If no such quantity is part of the framework, the F2 no-go is the final
+result and the memory/content claim stays outside the chain.
 
 ---
 
@@ -857,6 +878,78 @@ A witness in which `E12`, `E23` and `E45` are satisfied non-trivially — a real
 double well, a real absorbing register, a real refining mesh — would say
 considerably more. Rank below everything above; the current witness is honest
 about being mathematical.
+
+---
+
+## Audit findings — added 2026-08-31, ranked by effect on the paper
+
+These items come from a read-only audit of the Lean-to-manuscript claim surface.
+They outrank S2–S3 and T2–T5 because they concern what the headline composition
+actually proves. Take them one at a time in this order.
+
+### A1 — Preserve the glued state across Unity → Self
+
+- [x] **Done 2026-08-31.** `chain` now concludes `UnifiedSelf`; pass record at
+      the end of this file.
+
+- [x] **Objective.** Replace the current n8 → n9 passage, which uses `Unity X`
+      only to synthesize `Nonempty (GlobalSection X)`, with a statement about the
+      particular section produced by the cover.
+
+`chain` currently forgets the unique section compatible with the local family
+and lets Banach produce an unrelated fixed point. The target edge must name the
+glued section and require or derive `rb.predict s = s`; otherwise Lean proves
+coexistence of a unity and a Self, not that the unified state becomes reflexive.
+Do not close this by merely adding equality as an opaque hypothesis without
+changing the node shape and the manuscript claim.
+
+### A2 — Reclassify `chain` as conditional composition
+
+- [ ] **Objective.** Make the figure, theorem description and Table S1 say that
+      `chain` is a composition schema with eight assumed arrows, not a derivation
+      of the physical narrative from finite capacity.
+
+Four arrows supply whole structures, `E12` is equivalent to its conclusion, and
+`E45` relates objects for which the development defines no common dynamics. The
+machine-checked gain is exact dependency accounting. Preserve that gain without
+using “the chain composes” as shorthand for physical derivation.
+
+### A3 — Separate satisfiability from mechanistic non-vacuity
+
+- [ ] **Objective.** Rename or rescope `chain_nonvacuous` and its manuscript use.
+
+The empty vacuum, constant coarse-graining sequence and directly supplied
+predictive/cover structures prove joint satisfiability only. T5 may later build a
+mechanistic toy witness, but until then the present theorem must not be evidence
+that the cross-domain implications are realized by one mechanism.
+
+### A4 — Remove “guaranteed by phase-locking” from Theorem 5
+
+- [ ] **Objective.** Restate the displayed theorem so overlap compatibility is an
+      independent physical hypothesis.
+
+`LocalSectionSynchronization.section_agrees_of_phase_eq` is a class field and no
+dynamics derives it. The implementation notes disclose this, but the headline
+supplementary theorem currently says phase-locking guarantees agreement.
+
+### A5 — Align scale-bridging language with the scalar no-go
+
+- [ ] **Objective.** Remove every remaining claim that
+      `mesh_refinement_convergence` produces a continuum coupling kernel.
+
+It converges one scalar energy. `edge_region` has no `M × M` product structure,
+and the vertex-supported candidate is invisible to the continuum functional on
+an atomless substrate. Treat a genuine kernel limit as new architecture, not as
+the remaining propagation-of-chaos lemma.
+
+### A6 — Mark the Self contraction as an independent modelling postulate
+
+- [ ] **Objective.** Change the Reflexive Topology status from “Theorem
+      (witnessed)” to a conditional status that names the Lipschitz assumption.
+
+Coherence recovers only `K > 2D`; `E89` separately assumes that `rb.predict` has
+the Kuramoto linear relaxation rate. The witness was designed to realize that
+constant and does not derive self-model dynamics from oscillator dynamics.
 
 ---
 
@@ -1524,3 +1617,99 @@ live in `main.tex` and resolve only in the merged build. (The ledger's standing
 line had recorded "overfull 0" for the standalone supplement; that figure was
 wrong and is corrected above.) Merged arXiv build **50 pages, overfull 0, zero
 undefined**. No Lean change.
+
+---
+
+### F2 — twisted gluing and the obstruction — 2026-08-31
+
+**What was built.** `Phase5_GlobalSection.sheaf_glue_unique` generalizes the
+probability-specific gluing lemma to an arbitrary sheaf of types, with the old
+lemma retained as its specialization. `Phase5_TwistedGluing.lean` defines a
+restriction-compatible action of `Phase = ℝ/2πℤ`, twisted local families,
+phase cochains, cocycles, coboundaries and the deliberately more modest
+`PhaseObstruction` quotient. A family with
+coboundary offsets glues after one rotation per patch
+(`gluesUpToPhase_of_isCoboundary`); conversely gluing forces a coboundary when
+the action is free on pairwise overlaps (`isCoboundary_of_gluesUpToPhase`). The
+holonomy lemmas locate where a non-zero class could survive: the cover nerve
+must have missing triple intersections, or the action must fail to be free.
+
+**The result of the test.** The natural frustrated-Kuramoto candidate does not
+produce such a class. Any configuration supplies absolute patch phases `φ i`,
+so its offsets are `φ i - φ j` and are a coboundary
+(`isCoboundary_of_phaseField`). The headline wrapper
+`gluesUpToPhase_of_phaseField` concludes that locked, twisted and splay phase
+fields all glue after patchwise rotation. Frustration alone therefore supplies
+no non-trivial phase obstruction and no content label.
+
+**Why there is no non-trivial witness.** One can insert an arbitrary cocycle as
+the `offset` field, but that would make the desired content free data. A physical
+non-zero Čech class needs transition or gauge data not determined by oscillator
+phases, a state presheaf on which those transitions act non-trivially, a proper
+nerve-indexed complex, and a cover with suitable topology. The framework names no biological
+quantity that supplies those transitions. F3 records that modelling decision;
+until it is answered, the negative theorem is the honest endpoint.
+
+**Manuscript.** The geometric-frustration discussion and Table S1 now report the
+no-go and distinguish the formal location of an obstruction from a derivation of
+one. The supplement records both directions of the gluing/coboundary result and
+states that a gauge model would be a new physical input.
+
+**Audit follow-up.** A1–A6 were added above, ranked by effect on the paper. A1 —
+the fact that `chain` discards the particular section produced by Unity before
+constructing an unrelated Banach fixed point — is the next highest-priority Lean
+task.
+
+**Lean gates.** `lake build` completed successfully, 17,618 jobs, with no
+warnings. `#print axioms` on `gluesUpToPhase_of_phaseField`,
+`gluesUpToPhase_of_isCoboundary` and `isCoboundary_of_gluesUpToPhase` reports
+only `propext`, `Classical.choice` and `Quot.sound`. `check_prose.py` exits 0.
+Both publication files compile twice: `main.tex` is 93 pages with 16 overfull
+boxes and zero undefined references; `supplementary.tex` is 15 pages with 8
+overfull boxes and the same three standalone cross-document undefined-reference
+warnings (`sec:soundness` twice and `sec:scaling`) recorded before this pass.
+
+---
+
+### A1 — the glued state is the Self — 2026-08-31
+
+**Defect closed.** The old `chain` used `Unity X` only through
+`nonempty_globalSection_of_unity`, discarded the section produced by the cover,
+and let Banach choose an unrelated fixed point. It therefore proved coexistence
+of Unity and a Self rather than reflexivity of the unified state.
+
+**What was built.** `IsUnifiedBy T s` states that `s` restricts to every local
+state of the thermodynamic cover `T`. `UnifiedSelf rb` carries a cover and a
+section that is both unified in that sense and the unique fixed point of
+`rb.predict`; `unifiedSelf_self` forgets the cover and recovers the old endpoint.
+`chain` now concludes `UnifiedSelf`. Its `E89` argument supplies a particular
+`T` and `s`, the unification equation, the Lipschitz law, and `predict s = s`.
+Banach supplies uniqueness. The physical identification is therefore explicit
+and counted as part of the modelling assumption rather than silently lost.
+
+**Witness.** The trajectory-derived `trioCover` cannot witness this statement:
+its glued profile is `(2,1,3)`, while the reflexive map's fixed point is
+`cortexState`, with mass concentrated at `mid`. The joint witness now uses the
+earlier two-patch `cortexCover`, whose local states are restrictions of
+`cortexState`; the equality is definitional, and `cortexPredict_fixed` plus
+`cortexPredict_fixed_unique` provide the reflexive half. Thus n8 and n9 are the
+same state on the witness rather than merely states on the same type.
+
+**What remains assumed.** No field dynamics proves that a cover's glued section
+is fixed by the avatar read-out. `E89` now says that equality out loud alongside
+the independent Lipschitz-rate postulate. A1 closes a formal-composition defect,
+not the physical bridge. A6 remains open for the corresponding status wording.
+
+**Manuscript.** The central methodology paragraph now calls `chain` a
+conditional composition theorem, states its `UnifiedSelf` endpoint, and limits
+`chain_nonvacuous` to joint satisfiability. Derivation 6 explains that `E89`
+carries the state identification, and Table S1 uses the same scope.
+
+**Gates.** The red interface test initially failed because `IsUnifiedBy`,
+`UnifiedSelf` and `unifiedSelf_self` did not exist; it passes after the change.
+`lake build` completes 17,618 jobs with zero warnings. `#print axioms` on
+`unifiedSelf_self`, `chain` and `chain_nonvacuous` reports only `propext`,
+`Classical.choice` and `Quot.sound`. `check_prose.py` and `git diff --check`
+pass. Both publications compile twice: main 93 pages, 16 overfull and zero
+undefined references; supplement 15 pages, 8 overfull and the same three
+standalone cross-document undefined-reference warnings.

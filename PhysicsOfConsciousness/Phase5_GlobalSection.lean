@@ -37,11 +37,69 @@ Uniqueness is what makes that object *the* state rather than a choice. Before
 the global object as a field.
 -/
 
+omit [MeasurableSpace X] [BorelSpace X] [TriangulatedManifold ↥X] in
+/-- **A compatible family of local sections of a sheaf glues to a unique global
+one.** No hypothesis here mentions phases, coupling, equilibrium — or measures:
+this is the sheaf property, transported from `iSup cover` to `⊤` along
+`h_cover`.
+
+It is stated for an arbitrary sheaf of types rather than for
+`probabilityPresheaf` because Derivation 5 is not the only gluing this
+development performs: `Phase5_TwistedGluing.lean` glues families that agree on
+overlaps only up to a phase, over a presheaf of local states that carries the
+phase. `probability_glue_unique` below is the instance Derivation 5 uses. -/
+theorem sheaf_glue_unique {F : (Opens X)ᵒᵖ ⥤ Type u} (hF : TopCat.Presheaf.IsSheaf F)
+    {I : Type u} (cover : I → Opens X)
+    (h_cover : iSup cover = ⊤)
+    (s : (i : I) → F.obj (op (cover i)))
+    (h_compat : ∀ i j,
+      F.map (homOfLE (inf_le_left : cover i ⊓ cover j ≤ cover i)).op (s i) =
+      F.map (homOfLE (inf_le_right : cover i ⊓ cover j ≤ cover j)).op (s j)) :
+    ∃! g : F.obj (op ⊤),
+      ∀ i : I, F.map (homOfLE (le_top : cover i ≤ ⊤)).op g = s i := by
+  have h_sheaf_gluing :=
+    (TopCat.Presheaf.isSheaf_iff_isSheafUniqueGluing_types F).mp hF
+  have ⟨g, hg, h_uniq⟩ := h_sheaf_gluing cover s h_compat
+  let e' : op (iSup cover) ⟶ op ⊤ := (eqToHom (by rw [h_cover])).op
+  let g_top : F.obj (op ⊤) := F.map e' g
+  use g_top
+  constructor
+  · intro i
+    have H_map : F.map (homOfLE (le_top : cover i ≤ ⊤)).op g_top =
+                 (F.map e' ≫
+                   F.map (homOfLE (le_top : cover i ≤ ⊤)).op) g := rfl
+    rw [H_map, ← F.map_comp]
+    have H_eq : e' ≫ (homOfLE (le_top : cover i ≤ ⊤)).op = (Opens.leSupr cover i).op := by
+      apply Subsingleton.elim
+    rw [H_eq]
+    exact hg i
+  · intro g' hg'
+    let e_inv : op ⊤ ⟶ op (iSup cover) := (eqToHom (by rw [h_cover.symm])).op
+    have H_g'_eq : g' = (F.map e_inv ≫ F.map e') g' := by
+      rw [← F.map_comp]
+      have h_id : e_inv ≫ e' = 𝟙 _ := by apply Subsingleton.elim
+      rw [h_id, F.map_id]
+      rfl
+    rw [H_g'_eq]
+    have H_apply : F.map e_inv g' = g := by
+      apply h_uniq
+      intro i
+      have H_map2 : F.map (Opens.leSupr cover i).op
+            (F.map e_inv g') =
+          (F.map e_inv ≫
+            F.map (Opens.leSupr cover i).op) g' := rfl
+      rw [H_map2, ← F.map_comp]
+      have H_eq2 : e_inv ≫ (Opens.leSupr cover i).op = (homOfLE (le_top : cover i ≤ ⊤)).op := by
+        apply Subsingleton.elim
+      rw [H_eq2]
+      exact hg' i
+    change F.map e' (F.map e_inv g') =
+      F.map e' g
+    rw [H_apply]
+
 omit [TriangulatedManifold ↥X] in
-/-- **A compatible family of local probability sections glues to a unique global
-one.** No hypothesis here mentions phases, coupling or equilibrium: this is the
-sheaf property of `probabilityPresheaf`, transported from `iSup cover` to `⊤`
-along `h_cover`.
+/-- **Derivation 5's gluing lemma**: a compatible family of local probability
+sections comes from exactly one section over `⊤`.
 
 What it does *not* establish: that any particular physical system produces a
 compatible family. That is `LocalSectionSynchronization.section_agrees_of_phase_eq`,
@@ -53,47 +111,8 @@ theorem probability_glue_unique {I : Type u} (cover : I → Opens X)
       (probabilityPresheaf X).map (homOfLE (inf_le_left : cover i ⊓ cover j ≤ cover i)).op (s i) =
       (probabilityPresheaf X).map (homOfLE (inf_le_right : cover i ⊓ cover j ≤ cover j)).op (s j)) :
     ∃! g : GlobalSection (X := X),
-      ∀ i : I, (probabilityPresheaf X).map (homOfLE (le_top : cover i ≤ ⊤)).op g = s i := by
-  have h_sheaf_gluing :=
-    (TopCat.Presheaf.isSheaf_iff_isSheafUniqueGluing_types (probabilityPresheaf X)).mp
-      probability_is_sheaf
-  have ⟨g, hg, h_uniq⟩ := h_sheaf_gluing cover s h_compat
-  let e' : op (iSup cover) ⟶ op ⊤ := (eqToHom (by rw [h_cover])).op
-  let g_top : GlobalSection (X := X) := (probabilityPresheaf X).map e' g
-  use g_top
-  constructor
-  · intro i
-    have H_map : (probabilityPresheaf X).map (homOfLE (le_top : cover i ≤ ⊤)).op g_top =
-                 ((probabilityPresheaf X).map e' ≫
-                   (probabilityPresheaf X).map (homOfLE (le_top : cover i ≤ ⊤)).op) g := rfl
-    rw [H_map, ← (probabilityPresheaf X).map_comp]
-    have H_eq : e' ≫ (homOfLE (le_top : cover i ≤ ⊤)).op = (Opens.leSupr cover i).op := by
-      apply Subsingleton.elim
-    rw [H_eq]
-    exact hg i
-  · intro g' hg'
-    let e_inv : op ⊤ ⟶ op (iSup cover) := (eqToHom (by rw [h_cover.symm])).op
-    have H_g'_eq : g' = ((probabilityPresheaf X).map e_inv ≫ (probabilityPresheaf X).map e') g' := by
-      rw [← (probabilityPresheaf X).map_comp]
-      have h_id : e_inv ≫ e' = 𝟙 _ := by apply Subsingleton.elim
-      rw [h_id, (probabilityPresheaf X).map_id]
-      rfl
-    rw [H_g'_eq]
-    have H_apply : (probabilityPresheaf X).map e_inv g' = g := by
-      apply h_uniq
-      intro i
-      have H_map2 : (probabilityPresheaf X).map (Opens.leSupr cover i).op
-            ((probabilityPresheaf X).map e_inv g') =
-          ((probabilityPresheaf X).map e_inv ≫
-            (probabilityPresheaf X).map (Opens.leSupr cover i).op) g' := rfl
-      rw [H_map2, ← (probabilityPresheaf X).map_comp]
-      have H_eq2 : e_inv ≫ (Opens.leSupr cover i).op = (homOfLE (le_top : cover i ≤ ⊤)).op := by
-        apply Subsingleton.elim
-      rw [H_eq2]
-      exact hg' i
-    change (probabilityPresheaf X).map e' ((probabilityPresheaf X).map e_inv g') =
-      (probabilityPresheaf X).map e' g
-    rw [H_apply]
+      ∀ i : I, (probabilityPresheaf X).map (homOfLE (le_top : cover i ≤ ⊤)).op g = s i :=
+  sheaf_glue_unique probability_is_sheaf cover h_cover s h_compat
 
 /--
 Structure bundling a cover with a coupling matrix that has already reached

@@ -184,9 +184,31 @@ def Unity (X : TopCat.{u}) [MeasurableSpace X] [BorelSpace X]
     ∀ i : T.I, (probabilityPresheaf X).map (homOfLE (le_top : T.cover i ≤ ⊤)).op s
       = T.sync_to_section i
 
+/-- A particular global section is the unity produced by `T`: it restricts to
+every local state of that thermodynamic cover. -/
+def IsUnifiedBy (T : ThermodynamicCover X) (s : GlobalSection (X := X)) : Prop :=
+  ∀ i : T.I, (probabilityPresheaf X).map (homOfLE (le_top : T.cover i ≤ ⊤)).op s
+    = T.sync_to_section i
+
 /-- **n9 — the self-prediction map has a unique fixed point: the Self.** -/
 def Self (rb : ReflexiveBoundary X) : Prop :=
   ∃! s : GlobalSection (X := X), rb.predict s = s
+
+/-- **n9, with the n8 state preserved.** A cover's glued global section is the
+unique fixed point of the boundary's self-prediction map.
+
+This is stronger than `Self rb`: it rules out the former shape in which one
+global section witnessed Unity while an unrelated section witnessed the Self. -/
+def UnifiedSelf (rb : ReflexiveBoundary X) : Prop :=
+  ∃ (T : ThermodynamicCover X) (s : GlobalSection (X := X)),
+    IsUnifiedBy T s ∧ rb.predict s = s ∧
+      ∀ t : GlobalSection (X := X), rb.predict t = t → t = s
+
+/-- Forgetting which cover produced the fixed point recovers the old `Self`
+statement. -/
+theorem unifiedSelf_self {rb : ReflexiveBoundary X} (h : UnifiedSelf rb) : Self rb := by
+  obtain ⟨_, s, _, hs, huniq⟩ := h
+  exact ⟨s, hs, huniq⟩
 
 /-! ## 2. The node theorems
 
@@ -260,12 +282,9 @@ theorem supercritical_of_coherent {K D : ℝ} (hD : 0 < D) (hK : 0 ≤ K)
 theorem unity_of_cover (h : Nonempty (ThermodynamicCover X)) : Unity X :=
   h.elim fun T => ⟨T, @global_section_from_thermodynamics X _ _ _ T⟩
 
-/-- **The one thing n8 gives n9 outright.** Unity produces a global section, so
-the space of global sections is inhabited — which is one of the three instance
-hypotheses Banach needs and the only one the chain supplies rather than assumes.
-
-This is a genuine but thin contribution and is recorded as such: the substantive
-half of the n8 → n9 edge is the contraction, and that is `e89`. -/
+/-- Unity produces an inhabitant of the global-section space. Kept for callers
+of the standalone Banach theorem; `chain` no longer uses this lossy projection,
+because doing so forgets which section the cover glued. -/
 theorem nonempty_globalSection_of_unity (h : Unity X) :
     Nonempty (GlobalSection (X := X)) :=
   h.elim fun _ hT => ⟨hT.choose⟩
@@ -427,10 +446,12 @@ def E78 (K D : ℝ) (X : TopCat.{u}) [MeasurableSpace X] [BorelSpace X]
     [TriangulatedManifold ↥X] : Prop :=
   Coherent K D → Nonempty (ThermodynamicCover X)
 
-/-- **n8 → n9. Modelling assumption.**
+/-- **n8 → n9. Modelling assumption, with the state identity explicit.**
 
-Asserts that the self-prediction map of the reflexive boundary is Lipschitz at
-the order parameter's linear relaxation rate `exp(-(K - K_c)τ/2)`.
+Asserts both that the self-prediction map is Lipschitz at the order parameter's
+linear relaxation rate and that the particular section glued by the cover is a
+fixed point of that map. Banach supplies uniqueness; it cannot supply this
+identification, which is the physical content the former edge omitted.
 
 An idealisation rather than a gap: the rate is the linearisation of the
 mean-field dynamics about the coherent branch, and taking the *nonlinear*
@@ -440,7 +461,8 @@ substrate rather than stipulated — which is why replacing it by a bare
 `ContractingWith c` would be weaker, not simpler. -/
 def E89 {X : TopCat.{u}} [MeasurableSpace X] [BorelSpace X] [TriangulatedManifold ↥X]
     [MetricSpace (GlobalSection (X := X))] (K D τ : ℝ) (rb : ReflexiveBoundary X) : Prop :=
-  Unity X → LipschitzWith (resonanceRate K D τ) rb.predict
+  Unity X → ∃ (T : ThermodynamicCover X) (s : GlobalSection (X := X)),
+    IsUnifiedBy T s ∧ LipschitzWith (resonanceRate K D τ) rb.predict ∧ rb.predict s = s
 
 /-! ## 4. The edge that the figure does not draw
 
@@ -460,12 +482,12 @@ theorem dissipation_of_unreachable {sys : Type*} [Fintype sys] [DecidableEq sys]
 /-! ## 5. The chain -/
 
 /--
-**The chain, end to end: n1 ⟹ n9.**
+**The conditional composition, end to end: n1 ⟹ n9.**
 
 Eight named hypotheses, `e12 … e89`, one per arrow of Figure 1 that is not a
-theorem. Everything else in the passage from a finite phase space to the Self is
-carried by results proved elsewhere in the development, and this theorem is where
-they are put together.
+theorem. Everything else in the passage from a finite phase space to the
+state-preserving `UnifiedSelf` is carried by results proved elsewhere in the
+development, and this theorem is where they are put together.
 
 **How to read the count.** `#check @chain` lists the arguments. Eight of them are
 propositions named `E..`; each is an implication between two node predicates, so
@@ -487,6 +509,9 @@ module had before `supercritical_of_coherent`, it would not have.
   here and is recorded as the next non-vacuity task.
 * Not n10. The step from the fixed point to experience is the framework's
   stipulation and is deliberately outside this statement.
+* Not the identification of Unity with the fixed point. That identification is
+  explicit in `e89`; the theorem preserves it and Banach proves uniqueness, but
+  no field dynamics derives it.
 * Not that nine is the right number. It is the number *this* factorisation of
   the chain produces; a different set of node predicates would produce a
   different one. What is not negotiable is that the gaps are arguments rather
@@ -508,7 +533,7 @@ theorem chain
     {K D τ : ℝ} (hτ : 0 < τ)
     -- the reflexive boundary
     (rb : ReflexiveBoundary X)
-    -- the nine unproved arrows
+    -- the eight unproved arrows
     (e12 : E12 sys vac phi)
     (e23 : E23 vac phi upd)
     (e34 : E34 upd Xs Sg Sg')
@@ -517,7 +542,7 @@ theorem chain
     (e67 : E67 L K D)
     (e78 : E78 K D X)
     (e89 : E89 K D τ rb) :
-    Self rb := by
+    UnifiedSelf rb := by
   have n1 : Capacity sys := capacity sys
   have n2 : LeavesVacuum vac phi := e12 n1
   have n3 : Dissipates upd := dissipates_of_not_surjective upd (e23 n2)
@@ -526,8 +551,12 @@ theorem chain
   have n6 : FieldRealizes L K D := e56 n5
   have n7 : Coherent K D := coherent_of_supercritical n6.1 (e67 n6)
   have n8 : Unity X := unity_of_cover (e78 n7)
-  have : Nonempty (GlobalSection (X := X)) := nonempty_globalSection_of_unity n8
-  exact self_of_coherent_order_parameter n6.1 n6.2.1 hτ n7 rb (e89 n8)
+  obtain ⟨T, s, hs_unified, h_lip, hs_fixed⟩ := e89 n8
+  let _ : Nonempty (GlobalSection (X := X)) := ⟨s⟩
+  obtain ⟨p, hp, huniq⟩ :=
+    self_of_coherent_order_parameter n6.1 n6.2.1 hτ n7 rb h_lip
+  have hsp : s = p := huniq s hs_fixed
+  exact ⟨T, s, hs_unified, hs_fixed, fun t ht => (huniq t ht).trans hsp.symm⟩
 
 /-! ## 6. Non-vacuity
 
@@ -538,8 +567,8 @@ numerical, and each is exhibited satisfied at `D = 1`, `K = 3`. The remaining fi
 than between numbers, and a witness for them is a witness for the chain as a
 whole; that is not built here.
 
-§7 witnesses the n7 → n9 edge on the three-site cortex, which is the part of the
-chain that C2 made a theorem.
+§7 witnesses the n7 → n9 theorem on the three-site cortex. §8 additionally uses
+the two-patch cover whose glued section is that same fixed point.
 -/
 
 /-- A concrete coherent order parameter: at `D = 1`, `K = 3` the threshold is
@@ -598,12 +627,11 @@ theorem cortexHasSelf_of_coherent_eq :
     ∀ s : GlobalSection (X := Cortex), cortexReflexive.predict s = s → s = cortexState :=
   fun s hs => cortexPredict_fixed_unique s hs
 
-/-! ## 8. `chain` is not vacuous
+/-! ## 8. Joint satisfiability of the conditional composition
 
-The eight named hypotheses hold **simultaneously**, on one substrate, and the
-conclusion they produce is a Self that is provably not a fiction: it is
-`cortexState`, and the map it is a fixed point of is provably non-constant
-(`cortexReflexive_avatar_separates`).
+The eight named hypotheses hold **simultaneously**, on one substrate. The n8
+section and n9 fixed point are both `cortexState`, and the map it is a fixed
+point of is provably non-constant (`cortexReflexive_avatar_separates`).
 
 This matters more than the individual satisfiability checks of §6. A theorem
 whose hypotheses are jointly unsatisfiable proves its conclusion for no reason at
@@ -616,7 +644,7 @@ shape in which that can hide. The witness below rules it out.
 three-site cortex, and §10 has the reflexive boundary. What is new is that they
 are made to satisfy the *edges* at once. It is a mathematical witness: the
 register is a bit, the vacuum manifold is empty, and the coarse-graining sequence
-is constant. It shows the chain is inhabitable, not that cortex inhabits it.
+is constant. It shows joint satisfiability, not a mechanistic cortical chain.
 -/
 
 open Examples in
@@ -631,7 +659,7 @@ open Examples in
 
 `#print axioms chain_nonvacuous` reports only the three, so the witness is as
 sound as the chain it witnesses. -/
-theorem chain_nonvacuous : Self (X := Cortex) cortexReflexive :=
+theorem chain_nonvacuous : UnifiedSelf (X := Cortex) cortexReflexive :=
   chain (X := Cortex) (sys := Bool) (fun _ => true)
     (vac := (∅ : Set Bool)) (phi := id) Bool Bool Bool
     (E := fun _ => 3) (L := 3) (K := 3) (D := 1) (τ := cortexTau)
@@ -642,8 +670,9 @@ theorem chain_nonvacuous : Self (X := Cortex) cortexReflexive :=
     (fun _ => tendsto_const_nhds)
     (fun _ => ⟨one_pos, by norm_num, rfl⟩)
     (fun _ => by rw [critical_coupling]; norm_num)
-    (fun _ => ⟨trioCover⟩)
-    (fun _ => cortexPredict_lipschitz_rate)
+    (fun _ => ⟨cortexCover⟩)
+    (fun _ => ⟨cortexCover, cortexState, (fun _ => rfl),
+      cortexPredict_lipschitz_rate, cortexPredict_fixed⟩)
 
 /-! ## 9. The n5 → n7 edge: why there is not one
 
