@@ -35,11 +35,18 @@ arbitrary choice of sample point: by `sum_sum_mul_of_symm` (also in
 `∑_{u<v} μ(R u v)·(f(embedding u) + f(embedding v))/2` over unordered edges. That
 identification is what lets the symmetric double sum be read as a Riemann sum at all.
 
-**Numerical counterpart.** `simulations/mesh_refinement.py` measures the same convergence
-on a 1D ring and reports the empirical rate O(1/N²). This file proves convergence, not a
-rate: the bound here is `ε·μ(support)` with `ε` the modulus of continuity, which for a
-Lipschitz integrand gives O(mesh size). Recovering O(1/N²) needs a midpoint-rule error
-term with a second derivative, which is not developed here.
+**Numerical counterpart, and the rate.** `simulations/mesh_refinement.py` measures the
+same convergence on a 1D ring and reports the empirical rate O(1/N²). *This file* proves
+convergence, not a rate: the bound here is `ε·μ(support)` with `ε` the modulus of
+continuity, which for a Lipschitz integrand gives O(mesh size). The rate is proved
+elsewhere and cannot be proved here. `Examples.lean` §6.1 shows that on the concrete
+`[0,1)` grid the discrete energy *is* Mathlib's composite trapezoidal rule
+(`grid_discreteEnergy_eq_trapezoidal`), so `trapezoidal_error_le_of_c2` gives
+`ζ/(12N²)` for a `C²` integrand (`grid_energy_error_le`), with the bound attained at
+`N = 1`. It cannot be stated at this level of generality: a `Mesh` lives over a
+`PseudoMetricSpace`, on which there is no second derivative for `ζ` to bound. Second-order
+accuracy is a property of a quadrature rule on an interval, not of a partition of a metric
+space.
 
 **Witness.** `Examples.lean` §6 builds a genuine refining sequence — the uniform partition
 of `[0,1)` into `n` cells — and instantiates these theorems on it, so the hypotheses below

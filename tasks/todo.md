@@ -50,11 +50,11 @@ manuscript has **no figures**. Those are the items below.
 
 ## Where the development stands — 2026-08-30
 
-**Lean.** 13,262 lines across 20 modules. Zero `sorry`. Zero declared axioms
+**Lean.** 13,939 lines across 20 modules. Zero `sorry`. Zero declared axioms
 (re-checked 2026-08-31; see the W6 record — the contrary note in the W5 record is
 wrong, the three entries in `Axioms.lean` are inside comment blocks and
-`#check` reports them unknown). `Examples.lean` is 4,283 lines and carries 19
-witness sections plus §17.1.
+`#check` reports them unknown). `Examples.lean` is 4,580 lines and carries 20
+witness sections plus §6.1 and §17.1.
 
 **Landed 2026-08-30 (`861f252`).** O20(d)+(e): `lojasiewicz_estimate`,
 `excess_decay`, `velocity_abs_le_exp`, `phase_tendsto`, `excess_tendsto_zero`,
@@ -91,6 +91,14 @@ typechecks. The contraction rate is `resonanceRate K D τ = exp(-(K - 2D)τ/2)` 
 the Self follows from `K > K_c`, which connects Derivation 6 to Derivation 7 for
 the first time. `Examples.lean` §10 rebuilt around a map that factors through the
 one-site avatar. Full pass record below.
+
+**Landed 2026-08-31 — O10 + O16.** `Phase8_ContinuousField.lean` §9 builds the
+continuum drift map as a bounded operator `L²(μ⊗μ) → L²(μ)` and derives the
+continuum gradient and descent from it; `Examples.lean` §6.1 proves the O(1/N²)
+rate on the `[0,1)` grid by identifying `discreteEnergy` with Mathlib's composite
+trapezoidal rule; `Examples.lean` §20 witnesses the operator on a non-atomic
+substrate. Both *Low value* items are closed. Full pass record below, including
+the reassessment of O14 the pass forced.
 
 **Landed 2026-08-31 — W6.** `Phase1_PhaseSpaceCapacity.lean` (new, 321 lines):
 `shannon_entropy_le_log_card`, `shannon_entropy_eq_log_card_iff`,
@@ -1551,58 +1559,180 @@ recorded blocker is a hypothesis.
 * Lean 12,822 → **13,262 lines** across 20 modules; `Examples.lean` 4,164 →
   **4,283**.
 
-**Next.** No work item in this file is open. The candidates, and none of them is
-scheduled:
-
-1. **Send the PRX Life presubmission inquiry.** This is the actual next action
-   and it is not a code change. The frame section decided the venue on
-   2026-08-30 and every defect it listed is now closed or named.
-2. **`section_agrees_of_phase_eq`** — the `ThermodynamicCover`'s other physical
-   hypothesis, untouched by W1 and the only open instance obligation in the chain
-   with a claim attached. **Do not file it as "derive it the way W1 derived
-   `thermodynamic_equilibrium`".** That was the first draft of this entry and it
-   is wrong, in the way standing rule 4 warns about: W1 worked because
-   `kuramoto_tendsto_global_minimum` *produces* the object the field demands,
-   and here there is no producer. `sync_to_section` is free data on
-   `LocalSectionSynchronization`, constrained by nothing except the field in
-   question, and no map from a phase to a local density exists anywhere in the
-   development. `ofInvariantMeasure` gets agreement only by defining the sections
-   as restrictions of one global measure, which forfeits the emergence reading
-   (its own docstring says so, and `Examples` §13's `cortexCoverTwisted_glued`
-   computes the forfeit). The available move is standing rule 3: name a predicate
-   under which agreement follows, prove theorems about it, witness it, and leave
-   the gap visible — as `IsRestrictionResonance` does for Derivation 6.
-3. **O10 (remainder)** and **O16**, unchanged in rank. The *Low value* header's
-   "do not pick these up ahead of W1–W8" has expired now that W1–W8 are done, but
-   the reason they are low value has not: neither changes a sentence of either
-   document.
-
-**Not on this list: propagation of chaos.** It is the largest hole in the chain
-and it is **O14, closed as decided-not-doing** — a research programme, not a
-task — and it is already named as a gap in the docstrings, the manuscript and
-Table S1. It was listed second in the first draft of this entry, which
-re-ranked a recorded closure without recording a reason. It is a paper of its
-own; see *Beyond this paper*.
+**Next.** No work item in this file is open. See the O10/O16 record below for the
+current ranking; the presubmission inquiry is on hold at the user's instruction as
+of 2026-08-31.
 
 
-## Low value — listed so they are not rediscovered as new
+## 2026-08-31 — O10 and O16: the two low-value items, and the reassessment they forced
 
-Do not pick these up ahead of W1–W8. Both are completeness work with no claim
-attached; neither changes a sentence of either document.
+Both *Low value* items are closed. Neither changes a claim; both change the
+**scope** of a claim already made, and each turned out to be misfiled in the same
+way — the recorded obstacle was not the real one.
 
-- **O10 (remainder).** Construct the continuum drift map
-  `K ↦ (x ↦ ∫ K(x,y) sin(θ_y − θ_x) dy)` as a bounded operator
-  `L²(μ⊗μ) → L²(μ)`. The estimate is Cauchy–Schwarz (kernel bounded by 1, so on a
-  finite measure space the operator norm is at most `μ(M)^{1/2}`); the work is
-  `Lp` bookkeeping. `Mathlib/MeasureTheory/Function/Holder.lean` (`holderL`) and
-  `condExpL2` are the precedents for the cost. It generalizes a theorem that is
-  already proved, witnessed, and fenced by a counterexample.
-- **O16.** The midpoint rate on the concrete `[0,1)` witness. Not a Mathlib gap —
-  `discreteEnergy` is already recorded as the midpoint rule and the error bound
-  is `taylor_mean_remainder_lagrange` per cell. What blocks the general statement
-  is the development's own generality: the abstract `Mesh` lives over a metric
-  space with no second derivative. Record the scope point whether or not it is
-  proved.
+### O10 — the continuum drift operator
+
+**What was built.** `Phase8_ContinuousField.lean` 747 → **1,120 lines**, all of it
+a new §9, in three sections.
+
+*The operator.*
+
+* `kernelApply μ s K x = ∫ y, K (x,y) · s (x,y) ∂μ` — one row of an integral
+  operator against a factor `s` bounded by `1`. Nothing Kuramoto-specific.
+* `sq_integral_abs_le` — `(∫|f|)² ≤ μ(α)·∫f²`, proved from `0 ≤ ∫(μ(α)|f| − ∫|f|)²`
+  rather than by hunting for Hölder, so the only inputs are integrability of `f`
+  and `f²`.
+* `memLp_kernelApply`, `integral_sq_kernelApply_le` — the contracted kernel is in
+  `L²(μ)` and `‖TK‖² ≤ μ(α)‖K‖²`, by Cauchy–Schwarz in the second variable and
+  Tonelli in the first.
+* `kernelLin`, **`kernelCLM`** — the operator, via `LinearMap.mkContinuous` at
+  constant `μ(α)^{1/2}`; `opNorm_kernelCLM_le`, `kernelCLM_apply`.
+* `continuumDriftCLM` — the instance with `s(x,y) = sin(θ_y − θ_x)`.
+
+*The gradient — the part the item did not see.* §8 said "given the operator, the
+derivative follows from `hasFDerivAt_quadratic_of_affine`". True, and **not
+enough**: that lemma produces the derivative as a bounded *functional*, while
+`is_coupling_gradient_flow` is stated as `HasFDerivAt S (innerSL ℝ (gradS K)) K`
+and wants a *vector*. Producing one needs the adjoint, which exists because `L²`
+is complete.
+
+* `innerSL_comp_eq_adjoint` — `(innerSL ℝ v).comp A = innerSL ℝ (A* v)`.
+* `hasFDerivAt_quadratic_grad` — `c‖AK + w‖²` has gradient `2c·A*(AK + w)`, for an
+  arbitrary bounded operator between real Hilbert spaces. This makes the finite
+  and continuum cases literally the same theorem.
+
+*σ, and descent.*
+
+* `sigmaContinuum`, `gradSigmaContinuum`, `hasFDerivAt_sigmaContinuum` — the
+  continuum analogue of `hasFDerivAt_sigmaOfKernel`, with no closed form needed.
+* `sigmaContinuum_eq_integral` — the functional differentiated *is* the integral
+  `entropy_production_rate` computes, with `sys.omega := ⇑ω`,
+  `sys.K := Function.curry ⇑K`. Stated as an integral identity rather than by
+  building a `StochasticNeuralField`, which carries a topology and an `Omega_avg`
+  that play no part.
+* `gradient_flow_decreases_sigmaContinuum`,
+  **`structural_resonance_decreases_sigmaContinuum`** — §7's descent results with
+  no finiteness hypothesis in them.
+
+**Non-vacuity.** `Examples.lean` §20 runs it on `volume.restrict (Ioo 0 1)`. The
+substrate is chosen so the finite machinery cannot be doing the work in disguise:
+`unit_substrate_infinite` (`¬ Finite ℝ`, so `sigmaOfKernel` and `driftCLM` do not
+typecheck there at all) and a `NullSingletonClass` instance (no atoms, so it is
+not a finite set carrying point masses). `unit_opNorm_le_one` gives `‖A‖ ≤ 1`
+since `μ(α) = 1`; `unit_resonance_antitone` is the descent theorem, on a
+continuum.
+
+**What this does *not* establish.** The phase field is still held fixed —
+plasticity of the coupling at frozen phases, not joint `(θ, K)` dynamics, exactly
+as in §7. No dynamics in the development produces a coupling trajectory
+satisfying the flow, in the continuum any more than on a finite substrate: the
+flow is a hypothesis. And nothing here connects the continuum field to a finite
+Kuramoto system.
+
+### O16 — the O(1/N²) rate on the `[0,1)` grid
+
+**The recorded obstacle was obsolete.** O16 said the missing piece was a
+"midpoint error term with a second derivative", to be built from
+`taylor_mean_remainder_lagrange` per cell. Mathlib carries the **composite**
+bound already — `trapezoidal_error_le_of_c2` in
+`Mathlib/MeasureTheory/Integral/IntervalIntegral/TrapezoidalRule.lean`,
+`|error| ≤ |b−a|³ζ/(12N²)`. What was actually missing was an *identification*,
+and that is where all the work went.
+
+**What was built.** `Examples.lean` §6.1 (`Examples.lean` 4,283 → **4,580**).
+
+* `edge_measure_split`, `sum_edge_measure` — the measure of the grid's edge
+  region as a pair of indicator terms, and its sum over the second index. Two
+  branches, since `u+1 = v` and `v+1 = u` are exclusive.
+* `grid_discreteEnergy_eq_range` — the double sum over `Fin (N+1) × Fin (N+1)`
+  collapsed to a sum over `Finset.range (N+1)`. This is the bulk of it.
+* **`grid_discreteEnergy_eq_trapezoidal`** — `discreteEnergy (gridTriangulation N)
+  volume f = trapezoidal_integral f N 0 1`. The identification.
+* **`grid_energy_error_le`** — `|discreteEnergy − ∫_{[0,1)} f| ≤ ζ/(12N²)` for a
+  `C²` integrand with `|f''| ≤ ζ`. The rate the simulation measures.
+
+**Non-vacuity, and sharpness.**
+
+| | |
+|---|---|
+| (example) | `trapezoidal_integral (fun x => \|x−½\|) 2 0 1 = 1/4`, obtained from the identity and the hand-computed `tent_energy_two`. A cross-check of the identity against a number nobody derived from it |
+| `sq_iteratedDerivWithin_bound` | `ζ = 2` for `y ↦ y²`, discharged at **every** real `x` |
+| `grid_energy_error_sq` | the rate at `ζ = 2`: error `≤ 1/(6N²)` |
+| `integral_sq_Ico`, `grid_energy_error_sq_one` | **the bound is attained at `N = 1`**: `\|1/2 − 1/3\| = 1/6` exactly. The constant is sharp, not a convenient over-estimate |
+| `grid_energy_const` | `ζ = 0`, so the rule is exact on constants — which also checks the normalisation of the identity |
+
+**A defect in the Mathlib statement, found in passing.**
+`trapezoidal_error_le_of_c2` asks for the second-derivative bound at *every* real
+`x`, not merely on `[[a,b]]`. Outside the interval `derivWithin` is `0` for lack
+of unique differentiability, so the hypothesis is still dischargeable — that is
+the second half of `sq_iteratedDerivWithin_bound` — but the case split is an
+artefact of the statement. Weakening it to `∀ x ∈ [[a,b]]` would be a small
+upstream contribution.
+
+**The scope point O16 asked to be recorded either way.** This is a theorem about
+*this grid*. It cannot be stated at the level of `Phase2_MeshConvergence`: a
+`Mesh` lives over a `PseudoMetricSpace`, on which there is no second derivative
+for `ζ` to bound. Second-order accuracy is a property of a quadrature rule on an
+interval, not of a partition of a metric space, and it is the development's own
+generality that puts it out of reach in general — not any missing Mathlib result.
+Recorded in `Phase2_MeshConvergence`'s header and in §6.1's.
+
+### The reassessment: is propagation of chaos really out of scope?
+
+Asked directly, and checked rather than repeated. **Mostly yes, and the recorded
+reason was overbroad.** O14's entry above now carries the full version; in short,
+it runs together (B) the dynamical mean-field limit — a research programme, and
+Mathlib has *nothing* for it: zero files mentioning `Wasserstein`, `McKean`,
+`empiricalMeasure`, mean-field or chaos, only the weak-convergence topology
+(`LevyProkhorovMetric`, `Portmanteau`, `Prokhorov`, `Tight`) — with (A) the
+static link between `order_parameter_complex` and `circularOrderParameter`, which
+is a quadrature statement of the kind §6.1 just proved and is a task. (A) is now
+ranked; (B) stays closed.
+
+### Gates
+
+* `lake build` clean, 17,614 jobs, zero `sorry`, zero warnings. `#print axioms` on
+  all **29** new results reports only `propext`, `Classical.choice`, `Quot.sound`.
+* `main.tex` **86 pages**, overfull **18**; `supplementary.tex` **15**, overfull
+  **8**; merged arXiv **46**, overfull **0**. All three identical to before this
+  pass. Zero errors; the four undefined references in the standalone supplementary
+  build are the pre-existing cross-document labels.
+* Lean 13,262 → **13,939 lines**; `Phase8_ContinuousField` 747 → **1,120**;
+  `Examples.lean` 4,283 → **4,580**.
+
+### Next
+
+Nothing in this file is open. In order:
+
+1. **(A), the static order-parameter link** — connect `order_parameter_complex` to
+   `circularOrderParameter`. New, and the first item since W6 with a claim
+   attached: it would show that the only thing left between Derivation 7's
+   threshold theorems and the finite system is the dynamical limit. Start with the
+   incoherent state, where both are `0` and the discrete one exactly so.
+2. **`section_agrees_of_phase_eq`** — unchanged in rank and in shape; see the W6
+   record for why it is *not* "the move W1 made".
+3. **The PRX Life presubmission inquiry** — on hold at the user's instruction as of
+   2026-08-31, not withdrawn.
+
+Not on this list: propagation of chaos (B), for the reason above.
+
+
+## Low value — both now done
+
+Ranked low value and correctly so: neither changed a claim of the paper, only the
+scope of two it already made. Closed 2026-08-31; the pass record is below.
+
+- **O10 (remainder). Done.** `Phase8_ContinuousField.lean` §9. Both halves of the
+  estimate recorded here were right, and the *item* was still wrong about what it
+  reached: given the operator, `hasFDerivAt_quadratic_of_affine` gives the
+  derivative as a functional, but `is_coupling_gradient_flow` wants a gradient
+  *vector*, so the adjoint was needed too. `hasFDerivAt_quadratic_grad`.
+- **O16. Done.** `Examples.lean` §6.1. The recorded obstacle —
+  "`taylor_mean_remainder_lagrange` per cell" — was obsolete: Mathlib carries the
+  *composite* trapezoidal bound (`trapezoidal_error_le_of_c2`). What was actually
+  missing was the identification of `discreteEnergy` with
+  `trapezoidal_integral`. The scope point O16 asked to be recorded either way is
+  recorded, in `Phase2_MeshConvergence`'s header and in §6.1's.
 
 ## Closed as decided-not-doing — do not re-rank without recording a reason
 
@@ -1616,10 +1746,35 @@ Carried from the consolidated ledger. Full reasoning in the archive.
   spectral stability. Confirmed absent from Mathlib by grep. Keep the density as
   a **declared modelling input** and cite the mean-field literature for it; that
   is a standard ansatz, not a hidden gap.
-- **O14 — the mean-field limit.** Propagation of chaos for the finite Kuramoto
-  system. A research programme, not a task. This is the single gap between
-  `exhibits_phase_transition` and a statement about a trajectory, and the
-  docstrings and manuscript already state it in exactly those terms.
+- **O14 — the mean-field limit. Reassessed 2026-08-31; the closure stands for
+  most of it but the label was hiding a task.** As recorded, "propagation of chaos
+  for the finite Kuramoto system, a research programme not a task". Checking it
+  rather than repeating it shows the entry runs two different statements together.
+
+  **(B) The dynamical limit** — the empirical measure of the `N`-particle system
+  converges to the solution of the McKean–Vlasov equation, uniformly in `t`, and
+  the `N`-particle stationary measure converges to the stationary solution. This
+  *is* a research programme and the closure is correct. Verified against the
+  pinned Mathlib by grep: **zero** files mention `Wasserstein`, `McKean`,
+  `empiricalMeasure`, mean-field or propagation of chaos. What is there is the
+  *topology* only — `LevyProkhorovMetric`, `Portmanteau`, `Prokhorov`, `Tight` —
+  so weak convergence can be *stated*, and none of the estimates that would prove
+  this instance of it exist.
+
+  **(A) The static link**, which the entry does not distinguish and which is not a
+  research programme. `Phase8_SelfConsistency`'s own note names the gap precisely:
+  `circularOrderParameter` (an integral against a density) is not linked to
+  `Phase4`'s `order_parameter_complex` (the empirical average `(1/N) ∑ e^{iθⱼ}`).
+  Connecting those two *for a fixed configuration* is a quadrature statement of
+  exactly the kind §6.1 just proved for `discreteEnergy`, not a limit theorem
+  about a dynamics. The cheapest true instance is the incoherent state: for the
+  uniform density both order parameters are `0`, the discrete one exactly, by the
+  vanishing of a sum of `N`-th roots of unity. That is a task, and it is now
+  ranked as one below rather than buried in this closure.
+
+  Net: the *chain's* gap is (B) and remains out of scope; the *recorded reason*
+  was overbroad, because (A) is reachable and would establish that (B) is all
+  that is left.
 - **O15 — `lim D_KL = 0`.** **Superseded and closed by W4 (2026-08-31)**, which
   replaced the inference rather than weakening the sentence. The recorded filing —
   "a sentence to weaken in `supplementary.tex`" — was wrong about the *kind* of

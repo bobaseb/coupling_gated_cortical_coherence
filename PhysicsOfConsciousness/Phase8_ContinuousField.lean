@@ -659,12 +659,14 @@ is a *convenience*, not the content.
 continuum drift map `K ↦ (x ↦ ∫ K(x,y) sin(θ_y − θ_x) dy)` as a bounded operator
 `L²(μ⊗μ) → L²(μ)`. That is a Cauchy–Schwarz estimate — the kernel of the
 integral is bounded by `1`, so on a finite measure space the operator norm is at
-most `μ(M)^{1/2}` — and not a theorem about differentiating anything. We have not
-built it, because it needs the `Lp` API and the construction of a continuous
-linear map between two `Lp` spaces, which is bookkeeping we have not done. But
-the item is "construct one bounded operator", not "differentiate under the
-integral sign", and the difference is worth recording: the second is an analytic
-obstruction and the first is not.
+most `μ(M)^{1/2}` — and not a theorem about differentiating anything.
+
+**§9 builds it** (`kernelCLM`, `continuumDriftCLM`). One step this diagnosis did
+*not* see is also needed and is in §9: the descent theorems want the derivative as
+a gradient *vector*, not as an arbitrary bounded functional, which needs the
+adjoint. So the corrected scope recorded here was right that the obstruction was
+not analytic, and incomplete about what "given the operator, the derivative
+follows" actually reaches.
 -/
 
 /-- **A quadratic functional of an affine image is Fréchet differentiable.**
@@ -743,5 +745,376 @@ theorem hasFDerivAt_sigmaOfKernel_of_operator (sys : StochasticNeuralField M)
   exact hasFDerivAt_quadratic_of_affine _ _ _ _
 
 end OperatorForm
+
+/-!
+## 9. The continuum operator, and what it closes
+
+§8 narrowed the continuum case to one missing object: the drift map
+`K ↦ (x ↦ ∫ K(x,y) sin(θ_y − θ_x) dy)` as a bounded operator
+`L²(μ⊗μ) → L²(μ)`. Open item **O10** recorded that as `Lp` bookkeeping rather
+than analysis. This section builds it and takes the consequences.
+
+The estimate is the one §8 predicted and nothing more. For a kernel factor `s`
+bounded by `1` on a finite measure space,
+
+  `|∫ K(x,y) s(x,y) dy| ≤ ∫ |K(x,y)| dy ≤ μ(α)^{1/2} (∫ |K(x,y)|² dy)^{1/2}`
+
+by Cauchy–Schwarz in the second variable, and squaring and integrating in `x`
+gives `‖T K‖_{L²(μ)} ≤ μ(α)^{1/2} ‖K‖_{L²(μ⊗μ)}` by Tonelli. `kernelCLM` is the
+resulting operator; `continuumDriftCLM` is the instance with
+`s(x,y) = sin(θ_y − θ_x)`.
+
+**What the operator buys, and why it is more than §8 claimed.** §8 said that
+given the operator, differentiability of σ follows from
+`hasFDerivAt_quadratic_of_affine`. That is true but not sufficient to reach the
+descent theorems, because `is_coupling_gradient_flow` wants the derivative in
+the form `innerSL ℝ (grad K)` — a gradient *vector*, not an arbitrary functional.
+Producing one needs the adjoint, which exists because `L²` is complete.
+`hasFDerivAt_quadratic_grad` is that step, stated for an arbitrary bounded
+operator between real Hilbert spaces, and it makes the finite and continuum
+cases the same theorem. The continuum gradient is
+
+  `grad σ (K) = (2/D) · A* (A K + ω)`,
+
+and `structural_resonance_decreases_sigmaContinuum` is §7's descent result with
+no finiteness hypothesis anywhere in it.
+
+**What this does not establish.** The functional differentiated here is σ as a
+function of the *coupling kernel at a fixed phase field*, exactly as in §7; this
+is plasticity at frozen phases, not joint `(θ, K)` dynamics, and the continuum
+version inherits that restriction unchanged. Nothing here connects the
+continuum field to the finite Kuramoto system — that is the propagation-of-chaos
+gap, which is untouched. And `σ` is identified with the integral
+`entropy_production_rate` computes (`sigmaContinuum_eq_integral`), not with a
+measured quantity.
+-/
+
+section ContinuumOperator
+
+variable {α : Type*} [MeasurableSpace α] {μ : Measure α} [IsFiniteMeasure μ]
+
+/-- **Cauchy–Schwarz against the constant function.** `(∫|f|)² ≤ μ(α) ∫f²`,
+proved from `0 ≤ ∫ (μ(α)|f| − ∫|f|)²` rather than by invoking Hölder, so the
+only inputs are integrability of `f` and of `f²`. -/
+private lemma sq_integral_abs_le {f : α → ℝ} (h1 : Integrable f μ)
+    (h2 : Integrable (fun x => f x ^ 2) μ) :
+    (∫ x, |f x| ∂μ) ^ 2 ≤ (μ Set.univ).toReal * ∫ x, f x ^ 2 ∂μ := by
+  by_cases hμ : μ = 0
+  · subst hμ; simp
+  have hVpos : 0 < (μ Set.univ).toReal :=
+    ENNReal.toReal_pos (fun h => hμ (Measure.measure_univ_eq_zero.mp h)) (measure_ne_top μ _)
+  set V : ℝ := (μ Set.univ).toReal with hVdef
+  set A : ℝ := ∫ x, |f x| ∂μ with hAdef
+  set B : ℝ := ∫ x, f x ^ 2 ∂μ with hBdef
+  have habs : Integrable (fun x => |f x|) μ := h1.abs
+  have hint1 : Integrable (fun x => V ^ 2 * f x ^ 2) μ := h2.const_mul _
+  have hint2 : Integrable (fun x => (2 * V * A) * |f x|) μ := habs.const_mul _
+  have hfun : (fun x => (V * |f x| - A) ^ 2)
+      = fun x => (V ^ 2 * f x ^ 2 - (2 * V * A) * |f x|) + A ^ 2 := by
+    funext x
+    rw [show (V * |f x| - A) ^ 2 = V ^ 2 * |f x| ^ 2 - (2 * V * A) * |f x| + A ^ 2 by ring,
+      sq_abs]
+  have e1 : ∫ x, ((V ^ 2 * f x ^ 2 - (2 * V * A) * |f x|) + A ^ 2) ∂μ
+      = (∫ x, (V ^ 2 * f x ^ 2 - (2 * V * A) * |f x|) ∂μ) + ∫ _x : α, A ^ 2 ∂μ :=
+    integral_add (hint1.sub hint2) (integrable_const _)
+  have e2 : ∫ x, (V ^ 2 * f x ^ 2 - (2 * V * A) * |f x|) ∂μ
+      = (∫ x, V ^ 2 * f x ^ 2 ∂μ) - ∫ x, (2 * V * A) * |f x| ∂μ :=
+    integral_sub hint1 hint2
+  have hnn : (0:ℝ) ≤ ∫ x, (V * |f x| - A) ^ 2 ∂μ :=
+    integral_nonneg fun x => sq_nonneg _
+  rw [hfun, e1, e2, integral_const_mul, integral_const_mul, integral_const, smul_eq_mul,
+    measureReal_def, ← hVdef] at hnn
+  nlinarith [hnn, hVpos]
+
+/-- One row of an integral operator: the kernel `K` contracted against a bounded
+factor `s` in the second variable. -/
+noncomputable def kernelApply (μ : Measure α) (s K : α × α → ℝ) (x : α) : ℝ :=
+  ∫ y, K (x, y) * s (x, y) ∂μ
+
+variable {s : α × α → ℝ}
+
+omit [IsFiniteMeasure μ] in
+private lemma slice_mul_integrable (hs : StronglyMeasurable s) (hs1 : ∀ p, |s p| ≤ 1)
+    {g : α × α → ℝ} {x : α} (hx : Integrable (fun y => g (x, y)) μ) :
+    Integrable (fun y => g (x, y) * s (x, y)) μ := by
+  have hsx : StronglyMeasurable (fun y => s (x, y)) :=
+    hs.comp_measurable measurable_prodMk_left
+  refine Integrable.mono' hx.abs (hx.aestronglyMeasurable.mul hsx.aestronglyMeasurable) ?_
+  filter_upwards with y
+  rw [Real.norm_eq_abs, abs_mul]
+  nlinarith [abs_nonneg (g (x, y)), hs1 (x, y), abs_nonneg (s (x, y))]
+
+private lemma kernelApply_sq_le_ae (hs : StronglyMeasurable s) (hs1 : ∀ p, |s p| ≤ 1)
+    {K : α × α → ℝ} (hK : MemLp K 2 (μ.prod μ)) :
+    ∀ᵐ x ∂μ, kernelApply μ s K x ^ 2 ≤ (μ Set.univ).toReal * ∫ y, K (x, y) ^ 2 ∂μ := by
+  have hKint : Integrable K (μ.prod μ) := hK.integrable one_le_two
+  have hKsq : Integrable (fun p => K p ^ 2) (μ.prod μ) := hK.integrable_sq
+  filter_upwards [hKint.prod_right_ae, hKsq.prod_right_ae] with x hx1 hx2
+  have hmul : Integrable (fun y => K (x, y) * s (x, y)) μ :=
+    slice_mul_integrable hs hs1 hx1
+  have habs : |kernelApply μ s K x| ≤ ∫ y, |K (x, y)| ∂μ := by
+    calc |∫ y, K (x, y) * s (x, y) ∂μ| ≤ ∫ y, |K (x, y) * s (x, y)| ∂μ := by
+          simpa [Real.norm_eq_abs] using norm_integral_le_integral_norm
+            (μ := μ) (f := fun y => K (x, y) * s (x, y))
+      _ ≤ ∫ y, |K (x, y)| ∂μ := by
+          refine integral_mono hmul.abs hx1.abs fun y => ?_
+          rw [abs_mul]
+          nlinarith [abs_nonneg (K (x, y)), hs1 (x, y), abs_nonneg (s (x, y))]
+  calc kernelApply μ s K x ^ 2 = |kernelApply μ s K x| ^ 2 := (sq_abs _).symm
+    _ ≤ (∫ y, |K (x, y)| ∂μ) ^ 2 := pow_le_pow_left₀ (abs_nonneg _) habs 2
+    _ ≤ (μ Set.univ).toReal * ∫ y, K (x, y) ^ 2 ∂μ := sq_integral_abs_le hx1 hx2
+
+/-- The contracted kernel is in `L²(μ)` whenever the kernel is in `L²(μ⊗μ)`. -/
+theorem memLp_kernelApply (hs : StronglyMeasurable s) (hs1 : ∀ p, |s p| ≤ 1)
+    {K : α × α → ℝ} (hK : MemLp K 2 (μ.prod μ)) :
+    MemLp (kernelApply μ s K) 2 μ := by
+  have hmeas : AEStronglyMeasurable (kernelApply μ s K) μ :=
+    (hK.1.mul hs.aestronglyMeasurable).integral_prod_right'
+  refine (memLp_two_iff_integrable_sq hmeas).mpr ?_
+  refine Integrable.mono' ((hK.integrable_sq.integral_prod_left).const_mul
+    (μ Set.univ).toReal) (hmeas.pow 2) ?_
+  filter_upwards [kernelApply_sq_le_ae hs hs1 hK] with x hx
+  rw [Real.norm_eq_abs, abs_of_nonneg (sq_nonneg _)]
+  exact hx
+
+/-- **The Cauchy–Schwarz estimate of §8, proved.**
+`‖T K‖²_{L²(μ)} ≤ μ(α) · ‖K‖²_{L²(μ⊗μ)}`. -/
+theorem integral_sq_kernelApply_le (hs : StronglyMeasurable s) (hs1 : ∀ p, |s p| ≤ 1)
+    {K : α × α → ℝ} (hK : MemLp K 2 (μ.prod μ)) :
+    ∫ x, kernelApply μ s K x ^ 2 ∂μ
+      ≤ (μ Set.univ).toReal * ∫ p, K p ^ 2 ∂(μ.prod μ) := by
+  have hKsq : Integrable (fun p => K p ^ 2) (μ.prod μ) := hK.integrable_sq
+  calc ∫ x, kernelApply μ s K x ^ 2 ∂μ
+      ≤ ∫ x, (μ Set.univ).toReal * ∫ y, K (x, y) ^ 2 ∂μ ∂μ :=
+        integral_mono_ae (memLp_kernelApply hs hs1 hK).integrable_sq
+          ((hKsq.integral_prod_left).const_mul _) (kernelApply_sq_le_ae hs hs1 hK)
+    _ = (μ Set.univ).toReal * ∫ p, K p ^ 2 ∂(μ.prod μ) := by
+        rw [integral_const_mul, integral_integral hKsq]
+
+omit [IsFiniteMeasure μ] in
+/-- `‖g‖² = ∫ g²` in a real `L²`. -/
+lemma Lp2_norm_sq (g : Lp ℝ 2 μ) : ‖g‖ ^ 2 = ∫ a, (g a) ^ 2 ∂μ := by
+  rw [← real_inner_self_eq_norm_sq, L2.inner_def]
+  simp [sq]
+
+/-- The integral operator, as a linear map on `L²`. -/
+noncomputable def kernelLin (μ : Measure α) [IsFiniteMeasure μ] {s : α × α → ℝ}
+    (hs : StronglyMeasurable s) (hs1 : ∀ p, |s p| ≤ 1) :
+    Lp ℝ 2 (μ.prod μ) →ₗ[ℝ] Lp ℝ 2 μ where
+  toFun K := (memLp_kernelApply hs hs1 (Lp.memLp K)).toLp _
+  map_add' K L := by
+    refine Eq.trans (MemLp.toLp_congr _ ((memLp_kernelApply hs hs1 (Lp.memLp K)).add
+      (memLp_kernelApply hs hs1 (Lp.memLp L))) ?_) (MemLp.toLp_add _ _)
+    have hslice := Measure.ae_ae_of_ae_prod (Lp.coeFn_add K L)
+    have hKi := ((Lp.memLp K).integrable one_le_two).prod_right_ae
+    have hLi := ((Lp.memLp L).integrable one_le_two).prod_right_ae
+    filter_upwards [hslice, hKi, hLi] with x hx hKx hLx
+    show ∫ y, (K + L : Lp ℝ 2 (μ.prod μ)) (x, y) * s (x, y) ∂μ
+        = kernelApply μ s (⇑K) x + kernelApply μ s (⇑L) x
+    rw [show (∫ y, (K + L : Lp ℝ 2 (μ.prod μ)) (x, y) * s (x, y) ∂μ)
+        = ∫ y, (K (x, y) * s (x, y) + L (x, y) * s (x, y)) ∂μ from
+      integral_congr_ae (by
+        filter_upwards [hx] with y hy
+        rw [hy]
+        show (⇑K (x, y) + ⇑L (x, y)) * s (x, y) = _
+        ring),
+      integral_add (slice_mul_integrable hs hs1 hKx) (slice_mul_integrable hs hs1 hLx)]
+    rfl
+  map_smul' c K := by
+    refine Eq.trans (MemLp.toLp_congr _ ((memLp_kernelApply hs hs1 (Lp.memLp K)).const_smul c) ?_)
+      (MemLp.toLp_const_smul c _)
+    have hslice := Measure.ae_ae_of_ae_prod (Lp.coeFn_smul c K)
+    have hKi := ((Lp.memLp K).integrable one_le_two).prod_right_ae
+    filter_upwards [hslice, hKi] with x hx hKx
+    show ∫ y, (c • K : Lp ℝ 2 (μ.prod μ)) (x, y) * s (x, y) ∂μ
+        = (c • kernelApply μ s (⇑K)) x
+    rw [show (∫ y, (c • K : Lp ℝ 2 (μ.prod μ)) (x, y) * s (x, y) ∂μ)
+        = ∫ y, c * (K (x, y) * s (x, y)) ∂μ from
+      integral_congr_ae (by
+        filter_upwards [hx] with y hy
+        rw [hy]
+        show (c • ⇑K) (x, y) * s (x, y) = _
+        show c * ⇑K (x, y) * s (x, y) = _
+        ring),
+      integral_const_mul]
+    rfl
+
+/-- **The bounded operator open item O10 asked for**, with operator norm at most
+`μ(α)^{1/2}`. Nothing about it is specific to the Kuramoto coupling: the only
+hypothesis on the contracted factor is that it is bounded by `1`. -/
+noncomputable def kernelCLM (μ : Measure α) [IsFiniteMeasure μ] {s : α × α → ℝ}
+    (hs : StronglyMeasurable s) (hs1 : ∀ p, |s p| ≤ 1) :
+    Lp ℝ 2 (μ.prod μ) →L[ℝ] Lp ℝ 2 μ :=
+  LinearMap.mkContinuous (kernelLin μ hs hs1) (Real.sqrt (μ Set.univ).toReal) (by
+    intro K
+    have hV : (0:ℝ) ≤ (μ Set.univ).toReal := ENNReal.toReal_nonneg
+    have hcoe : ∫ x, ((kernelLin μ hs hs1 K) x) ^ 2 ∂μ
+        = ∫ x, kernelApply μ s (⇑K) x ^ 2 ∂μ := by
+      refine integral_congr_ae ?_
+      have hae : ⇑(kernelLin μ hs hs1 K) =ᵐ[μ] kernelApply μ s (⇑K) :=
+        MemLp.coeFn_toLp (memLp_kernelApply hs hs1 (Lp.memLp K))
+      filter_upwards [hae] with x hx
+      rw [hx]
+    have hsq : ‖kernelLin μ hs hs1 K‖ ^ 2 ≤ (Real.sqrt (μ Set.univ).toReal * ‖K‖) ^ 2 := by
+      rw [Lp2_norm_sq, hcoe, mul_pow, Real.sq_sqrt hV, Lp2_norm_sq]
+      exact integral_sq_kernelApply_le hs hs1 (Lp.memLp K)
+    have h1 := Real.sqrt_le_sqrt hsq
+    rwa [Real.sqrt_sq (norm_nonneg _), Real.sqrt_sq (by positivity)] at h1)
+
+/-- The operator computes the integral it is supposed to, almost everywhere. -/
+lemma kernelCLM_apply (hs : StronglyMeasurable s) (hs1 : ∀ p, |s p| ≤ 1)
+    (K : Lp ℝ 2 (μ.prod μ)) :
+    ⇑(kernelCLM μ hs hs1 K) =ᵐ[μ] fun x => ∫ y, K (x, y) * s (x, y) ∂μ :=
+  MemLp.coeFn_toLp (memLp_kernelApply hs hs1 (Lp.memLp K))
+
+/-- The operator-norm bound, stated on the operator rather than pointwise. -/
+lemma opNorm_kernelCLM_le (hs : StronglyMeasurable s) (hs1 : ∀ p, |s p| ≤ 1) :
+    ‖kernelCLM μ hs hs1‖ ≤ Real.sqrt (μ Set.univ).toReal :=
+  LinearMap.mkContinuous_norm_le _ (Real.sqrt_nonneg _) _
+
+end ContinuumOperator
+
+section ContinuumDrift
+
+variable {α : Type*} [MeasurableSpace α] {μ : Measure α} [IsFiniteMeasure μ] {theta : α → ℝ}
+
+/-- The Kuramoto coupling factor, as a function on the product. -/
+noncomputable def sinKernel (theta : α → ℝ) : α × α → ℝ :=
+  fun p => Real.sin (theta p.2 - theta p.1)
+
+lemma stronglyMeasurable_sinKernel (h : Measurable theta) :
+    StronglyMeasurable (sinKernel theta) :=
+  (Real.continuous_sin.measurable.comp
+    ((h.comp measurable_snd).sub (h.comp measurable_fst))).stronglyMeasurable
+
+omit [MeasurableSpace α] in
+lemma abs_sinKernel_le_one (theta : α → ℝ) (p : α × α) : |sinKernel theta p| ≤ 1 :=
+  abs_le.mpr ⟨Real.neg_one_le_sin _, Real.sin_le_one _⟩
+
+/-- **The continuum drift map.** `K ↦ (x ↦ ∫ K(x,y) sin(θ_y − θ_x) dy)`, bounded
+from `L²(μ⊗μ)` to `L²(μ)`. This is the object §8 said the continuum case was
+blocked on. -/
+noncomputable def continuumDriftCLM (μ : Measure α) [IsFiniteMeasure μ]
+    {theta : α → ℝ} (h : Measurable theta) :
+    Lp ℝ 2 (μ.prod μ) →L[ℝ] Lp ℝ 2 μ :=
+  kernelCLM μ (stronglyMeasurable_sinKernel h) (abs_sinKernel_le_one theta)
+
+lemma continuumDriftCLM_apply (h : Measurable theta) (K : Lp ℝ 2 (μ.prod μ)) :
+    ⇑(continuumDriftCLM μ h K)
+      =ᵐ[μ] fun x => ∫ y, K (x, y) * Real.sin (theta y - theta x) ∂μ :=
+  kernelCLM_apply _ _ K
+
+end ContinuumDrift
+
+section QuadraticGradient
+
+variable {H F : Type*}
+  [NormedAddCommGroup H] [InnerProductSpace ℝ H] [CompleteSpace H]
+  [NormedAddCommGroup F] [InnerProductSpace ℝ F] [CompleteSpace F]
+
+/-- Precomposition with `A` is the same as taking the inner product against
+`A* v`. This is the only place the adjoint is used, and it is what turns §8's
+derivative into a gradient vector. -/
+lemma innerSL_comp_eq_adjoint (A : H →L[ℝ] F) (v : F) :
+    (innerSL ℝ v).comp A = innerSL ℝ ((ContinuousLinearMap.adjoint A) v) := by
+  ext h
+  simp [ContinuousLinearMap.adjoint_inner_left]
+
+/-- **§8's lemma, with the derivative as a gradient.** `c‖A K + w‖²` has
+gradient `2c · A*(A K + w)`.
+
+`hasFDerivAt_quadratic_of_affine` gives the derivative as a functional; the
+descent theorems of §2 want a vector, because `is_coupling_gradient_flow` is
+stated as `HasFDerivAt S (innerSL ℝ (gradS K)) K`. Completeness is what supplies
+one, and `L²` is complete, so the finite and continuum cases are now literally
+the same theorem. -/
+theorem hasFDerivAt_quadratic_grad (A : H →L[ℝ] F) (w : F) (c : ℝ) (K : H) :
+    HasFDerivAt (fun K' : H => c * ‖A K' + w‖ ^ 2)
+      (innerSL ℝ ((2 * c) • (ContinuousLinearMap.adjoint A) (A K + w))) K := by
+  have h := hasFDerivAt_quadratic_of_affine A w c K
+  convert h using 1
+  ext u
+  simp [innerSL_comp_eq_adjoint]
+  ring
+
+end QuadraticGradient
+
+section ContinuumSigma
+
+variable {α : Type*} [MeasurableSpace α] {μ : Measure α} [IsFiniteMeasure μ] {theta : α → ℝ}
+
+/-- **Entropy production in the continuum, as a functional of the coupling
+kernel at a fixed phase field.** The continuum analogue of `sigmaOfKernel`;
+`sigmaContinuum_eq_integral` identifies it with the integral
+`entropy_production_rate` computes. -/
+noncomputable def sigmaContinuum (μ : Measure α) [IsFiniteMeasure μ]
+    {theta : α → ℝ} (h : Measurable theta) (D : ℝ) (omega : Lp ℝ 2 μ)
+    (K : Lp ℝ 2 (μ.prod μ)) : ℝ :=
+  (1 / D) * ‖continuumDriftCLM μ h K + omega‖ ^ 2
+
+/-- The gradient of `sigmaContinuum`, through the adjoint of the drift map. -/
+noncomputable def gradSigmaContinuum (μ : Measure α) [IsFiniteMeasure μ]
+    {theta : α → ℝ} (h : Measurable theta) (D : ℝ) (omega : Lp ℝ 2 μ)
+    (K : Lp ℝ 2 (μ.prod μ)) : Lp ℝ 2 (μ.prod μ) :=
+  (2 * (1 / D)) •
+    (ContinuousLinearMap.adjoint (continuumDriftCLM μ h)) (continuumDriftCLM μ h K + omega)
+
+/-- **σ is Fréchet differentiable in the coupling kernel on a continuum**, with
+gradient `gradSigmaContinuum`. The continuum analogue of
+`hasFDerivAt_sigmaOfKernel`, and it needs no closed form: the operator plus
+`hasFDerivAt_quadratic_grad` is the whole proof. -/
+theorem hasFDerivAt_sigmaContinuum (h : Measurable theta) (D : ℝ) (omega : Lp ℝ 2 μ)
+    (K : Lp ℝ 2 (μ.prod μ)) :
+    HasFDerivAt (sigmaContinuum μ h D omega)
+      (innerSL ℝ (gradSigmaContinuum μ h D omega K)) K :=
+  hasFDerivAt_quadratic_grad (continuumDriftCLM μ h) omega (1 / D) K
+
+/-- **σ is what `entropy_production_rate` integrates.** With `sys.omega := ⇑ω`,
+`sys.K := Function.curry ⇑K` and `sys.D := D`, the right-hand side is literally
+the body of `entropy_production_rate`. Stated as an integral rather than by
+building a `StochasticNeuralField`, because that structure carries a topology
+and an `Omega_avg` that play no part here. -/
+theorem sigmaContinuum_eq_integral (h : Measurable theta) (D : ℝ) (omega : Lp ℝ 2 μ)
+    (K : Lp ℝ 2 (μ.prod μ)) :
+    sigmaContinuum μ h D omega K
+      = ∫ x, (1 / D) * (omega x + ∫ y, K (x, y) * Real.sin (theta y - theta x) ∂μ) ^ 2 ∂μ := by
+  rw [sigmaContinuum, Lp2_norm_sq, ← integral_const_mul]
+  refine integral_congr_ae ?_
+  filter_upwards [Lp.coeFn_add (continuumDriftCLM μ h K) omega,
+    continuumDriftCLM_apply h K] with x hx hdrift
+  rw [hx]
+  show (1 / D) * (⇑(continuumDriftCLM μ h K) x + omega x) ^ 2 = _
+  rw [hdrift, add_comm]
+
+/-- Non-negativity, for a positive diffusion constant. -/
+theorem sigmaContinuum_nonneg (h : Measurable theta) {D : ℝ} (hD : 0 < D)
+    (omega : Lp ℝ 2 μ) (K : Lp ℝ 2 (μ.prod μ)) :
+    0 ≤ sigmaContinuum μ h D omega K :=
+  mul_nonneg (by positivity) (sq_nonneg _)
+
+/-- **The continuum gradient flow decreases σ.** §7's
+`gradient_flow_decreases_entropy_production` with the finiteness hypothesis
+removed. -/
+theorem gradient_flow_decreases_sigmaContinuum (h : Measurable theta) (D : ℝ)
+    (omega : Lp ℝ 2 μ) (K_t : ℝ → Lp ℝ 2 (μ.prod μ))
+    (hflow : ∀ t, HasDerivAt K_t (- gradSigmaContinuum μ h D omega (K_t t)) t) :
+    Antitone (fun t => sigmaContinuum μ h D omega (K_t t)) :=
+  gradient_flow_implies_entropy_decrease K_t (sigmaContinuum μ h D omega)
+    (gradSigmaContinuum μ h D omega)
+    ⟨hasFDerivAt_sigmaContinuum h D omega, hflow⟩
+
+/-- **The continuum structural-resonance result.** The statement
+`structural_resonance_decreases_entropy_production` makes on a finite substrate,
+now with no finiteness anywhere in it — only that the substrate carries a finite
+measure and the phase field is measurable. -/
+theorem structural_resonance_decreases_sigmaContinuum (h : Measurable theta) (D : ℝ)
+    (omega : Lp ℝ 2 μ) (K_t : ℝ → Lp ℝ 2 (μ.prod μ)) {c : ℝ} (hc : 0 < c)
+    (hflow : ∀ t, HasDerivAt K_t (- c • gradSigmaContinuum μ h D omega (K_t t)) t) :
+    Antitone (fun t => sigmaContinuum μ h D omega (K_t t)) :=
+  structural_resonance_implies_gradient_descent K_t (sigmaContinuum μ h D omega)
+    (gradSigmaContinuum μ h D omega) c
+    ⟨hasFDerivAt_sigmaContinuum h D omega, hflow, hc⟩
+
+end ContinuumSigma
 
 end PhysicsOfConsciousness

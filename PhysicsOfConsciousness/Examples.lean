@@ -1000,6 +1000,239 @@ example (N : ℕ) (hN : 0 < N) (u v : Fin (N + 1))
   DiscreteThermodynamics.face_of_weight_ne_zero (gridThermo N hN) unitTensor h
 
 
+/-! ### 6.1 The rate, and what the abstract mesh cannot state
+
+`Phase2_MeshConvergence` proves that the discrete energy *converges* to the
+continuous energy; it proves no rate, and its header says why. The bound there is
+`ε·μ(support)` with `ε` the modulus of continuity, which for a Lipschitz
+integrand gives `O(1/N)` — while `simulations/mesh_refinement.py` measures
+`O(1/N²)` on the same problem. Open item **O16** recorded the gap between the two.
+
+The recorded obstacle was the wrong one. O16 said the missing piece was a
+midpoint error term "`taylor_mean_remainder_lagrange` per cell". It is not:
+Mathlib carries the **composite** trapezoidal bound already
+(`trapezoidal_error_le_of_c2`, `Mathlib/MeasureTheory/Integral/IntervalIntegral/
+TrapezoidalRule.lean`), so what was actually missing was the identification of
+this development's `discreteEnergy` with Mathlib's `trapezoidal_integral`. That
+identification is `grid_discreteEnergy_eq_trapezoidal`, and it is where all the
+work below is: the double sum over `Fin (N+1) × Fin (N+1)` of edge-region
+measures has to be collapsed to a sum over `Finset.range`.
+
+With it, `grid_energy_error_le` gives `ζ/(12N²)` for a `C²` integrand, which is
+the rate the simulation reports.
+
+**The scope point, which O16 asked to be recorded either way.** This is a theorem
+about *this grid*, not about `Mesh`. It cannot be stated at the level of
+`Phase2_MeshConvergence`, because an abstract `Mesh` lives over a
+`PseudoMetricSpace` on which no second derivative exists — there is nothing for
+`ζ` to bound. Second-order accuracy is a property of a quadrature rule on an
+interval, not of a partition of a metric space, and the development's generality
+is what puts it out of reach in general rather than any missing Mathlib result.
+
+One thing found in passing and worth recording: Mathlib's
+`trapezoidal_error_le_of_c2` asks for the second-derivative bound at **every**
+real `x`, not merely on `[[a,b]]`. Outside the interval the `derivWithin` is `0`
+for lack of unique differentiability, so the hypothesis is still discharged
+(`sq_iteratedDerivWithin_bound` does it), but the case split is an artefact of
+the statement rather than of the mathematics.
+-/
+
+section MeshRate
+open scoped Interval
+
+theorem edge_measure_split (N : ℕ) (hN : 0 < N) (a b : ℕ) :
+    volume.real (if a + 1 = b then gridCell N a else if b + 1 = a then gridCell N b else ∅)
+      = (if a + 1 = b then 1 / (N:ℝ) else 0) + (if b + 1 = a then 1 / (N:ℝ) else 0) := by
+  split_ifs with h1 h2
+  · omega
+  · rw [gridCell_measure N hN]; ring
+  · rw [gridCell_measure N hN]; ring
+  · simp
+
+theorem sum_edge_measure (N : ℕ) {a : ℕ} (ha : a < N + 1) :
+    ∑ b ∈ Finset.range (N + 1),
+        ((if a + 1 = b then 1 / (N:ℝ) else 0) + (if b + 1 = a then 1 / (N:ℝ) else 0))
+      = (if a < N then 1 / (N:ℝ) else 0) + (if 0 < a then 1 / (N:ℝ) else 0) := by
+  rw [Finset.sum_add_distrib]
+  have e1 : (∑ b ∈ Finset.range (N + 1), if a + 1 = b then 1 / (N:ℝ) else 0)
+      = if a < N then 1 / (N:ℝ) else 0 := by
+    have h : (∑ b ∈ Finset.range (N + 1), if a + 1 = b then 1 / (N:ℝ) else 0)
+        = ∑ b ∈ Finset.range (N + 1), if b = a + 1 then 1 / (N:ℝ) else 0 :=
+      Finset.sum_congr rfl fun b _ => if_congr eq_comm rfl rfl
+    rw [h, Finset.sum_ite_eq' (Finset.range (N + 1)) (a + 1) (fun _ => 1 / (N:ℝ))]
+    exact if_congr (by simp only [Finset.mem_range]; omega) rfl rfl
+  have e2 : (∑ b ∈ Finset.range (N + 1), if b + 1 = a then 1 / (N:ℝ) else 0)
+      = if 0 < a then 1 / (N:ℝ) else 0 := by
+    rcases Nat.eq_zero_or_pos a with rfl | hpos
+    · simp
+    · have h : (∑ b ∈ Finset.range (N + 1), if b + 1 = a then 1 / (N:ℝ) else 0)
+          = ∑ b ∈ Finset.range (N + 1), if b = a - 1 then 1 / (N:ℝ) else 0 :=
+        Finset.sum_congr rfl fun b _ => if_congr (by omega) rfl rfl
+      rw [h, Finset.sum_ite_eq' (Finset.range (N + 1)) (a - 1) (fun _ => 1 / (N:ℝ))]
+      exact if_congr (by simp only [Finset.mem_range]; omega) rfl rfl
+  rw [e1, e2]
+
+/-- The discrete energy of the grid, as a sum over `range`. -/
+theorem grid_discreteEnergy_eq_range (N : ℕ) (hN : 0 < N) (f : ℝ → ℝ) :
+    discreteEnergy (gridTriangulation N) volume f
+      = (1 / 2 : ℝ) * ∑ a ∈ Finset.range (N + 1),
+          f ((a : ℝ) / N) * ((if a < N then 1 / (N:ℝ) else 0) + (if 0 < a then 1 / (N:ℝ) else 0)) := by
+  have hE : discreteEnergy (gridTriangulation N) volume f
+      = (1 / 2 : ℝ) * ∑ u : Fin (N + 1), ∑ v : Fin (N + 1),
+          volume.real ((gridTriangulation N).edge_region u v) * f (((u : ℕ) : ℝ) / N) := rfl
+  rw [hE]
+  congr 1
+  rw [← Fin.sum_univ_eq_sum_range (fun a => f ((a : ℝ) / N) *
+    ((if a < N then 1 / (N:ℝ) else 0) + (if 0 < a then 1 / (N:ℝ) else 0))) (N + 1)]
+  refine Finset.sum_congr rfl fun u _ => ?_
+  have hinner : ∀ v : Fin (N + 1),
+      volume.real ((gridTriangulation N).edge_region u v) * f (((u : ℕ) : ℝ) / N)
+        = ((if (u:ℕ) + 1 = (v:ℕ) then 1 / (N:ℝ) else 0)
+            + (if (v:ℕ) + 1 = (u:ℕ) then 1 / (N:ℝ) else 0)) * f (((u:ℕ) : ℝ) / N) := by
+    intro v
+    rw [grid_edge_region, edge_measure_split N hN]
+  rw [Finset.sum_congr rfl (fun v _ => hinner v), ← Finset.sum_mul]
+  rw [Fin.sum_univ_eq_sum_range (fun b =>
+    (if (u:ℕ) + 1 = b then 1 / (N:ℝ) else 0) + (if b + 1 = (u:ℕ) then 1 / (N:ℝ) else 0)) (N + 1)]
+  rw [sum_edge_measure N u.isLt]
+  ring
+
+
+/-- **The grid's discrete energy is Mathlib's composite trapezoidal rule** on `[0,1]`
+with `N` cells. -/
+theorem grid_discreteEnergy_eq_trapezoidal (m : ℕ) (f : ℝ → ℝ) :
+    discreteEnergy (gridTriangulation (m + 1)) volume f
+      = trapezoidal_integral f (m + 1) 0 1 := by
+  have hNR : ((m : ℝ) + 1) ≠ 0 := by positivity
+  rw [grid_discreteEnergy_eq_range (m + 1) (Nat.succ_pos m) f, trapezoidal_integral]
+  have hsplit : ∀ a ∈ Finset.range (m + 2),
+      f ((a : ℝ) / ((m : ℕ) + 1 : ℕ))
+          * ((if a < m + 1 then 1 / (((m : ℕ) + 1 : ℕ) : ℝ) else 0)
+             + (if 0 < a then 1 / (((m : ℕ) + 1 : ℕ) : ℝ) else 0))
+        = (f ((a : ℝ) / ((m : ℝ) + 1)) * (if a < m + 1 then 1 / ((m : ℝ) + 1) else 0))
+          + (f ((a : ℝ) / ((m : ℝ) + 1)) * (if 0 < a then 1 / ((m : ℝ) + 1) else 0)) := by
+    intro a _
+    push_cast
+    ring
+  rw [Finset.sum_congr rfl hsplit, Finset.sum_add_distrib]
+  have hT : (∑ a ∈ Finset.range (m + 2),
+        f ((a : ℝ) / ((m : ℝ) + 1)) * (if a < m + 1 then 1 / ((m : ℝ) + 1) else 0))
+      = ∑ a ∈ Finset.range (m + 1), f ((a : ℝ) / ((m : ℝ) + 1)) / ((m : ℝ) + 1) := by
+    rw [Finset.sum_range_succ]
+    rw [ite_eq_right (lt_irrefl _), mul_zero, add_zero]
+    exact Finset.sum_congr rfl fun a ha => by
+      rw [ite_eq_left (Finset.mem_range.mp ha)]; ring
+  have hU : (∑ a ∈ Finset.range (m + 2),
+        f ((a : ℝ) / ((m : ℝ) + 1)) * (if 0 < a then 1 / ((m : ℝ) + 1) else 0))
+      = ∑ i ∈ Finset.range (m + 1), f (((i : ℝ) + 1) / ((m : ℝ) + 1)) / ((m : ℝ) + 1) := by
+    rw [Finset.sum_range_succ']
+    rw [ite_eq_right (lt_irrefl 0), mul_zero, add_zero]
+    exact Finset.sum_congr rfl fun i _ => by
+      rw [ite_eq_left (Nat.succ_pos i)]; push_cast; ring
+  rw [hT, hU, Finset.sum_range_succ' (fun a => f ((a : ℝ) / ((m : ℝ) + 1)) / ((m : ℝ) + 1)) m,
+    Finset.sum_range_succ (fun i => f (((i : ℝ) + 1) / ((m : ℝ) + 1)) / ((m : ℝ) + 1)) m]
+  have hz : ((0 : ℕ) : ℝ) / ((m : ℝ) + 1) = 0 := by norm_num
+  have ho : (((m : ℝ) + 1)) / ((m : ℝ) + 1) = 1 := div_self hNR
+  have hshift : ∀ i ∈ Finset.range m,
+      f ((((i : ℕ) + 1 : ℕ) : ℝ) / ((m : ℝ) + 1)) / ((m : ℝ) + 1)
+        = f (((i : ℝ) + 1) / ((m : ℝ) + 1)) / ((m : ℝ) + 1) := by
+    intro i _; push_cast; ring
+  rw [Finset.sum_congr rfl hshift, hz, ho]
+  have hsum : ∀ k ∈ Finset.range m,
+      f (0 + ((k : ℝ) + 1) * (1 - 0) / (((m + 1 : ℕ)) : ℝ))
+        = f (((k : ℝ) + 1) / ((m : ℝ) + 1)) := by
+    intro k _
+    congr 1
+    push_cast
+    ring
+  simp only [Nat.add_sub_cancel]
+  rw [Finset.sum_congr rfl hsum, ← Finset.sum_div]
+  push_cast
+  field_simp
+  ring
+
+
+/-- **The O(1/N²) rate, on the concrete witness.** For a `C²` integrand with second
+derivative bounded by `ζ`, the grid's discrete energy differs from the continuous
+energy by at most `ζ/(12N²)`. -/
+theorem grid_energy_error_le {f : ℝ → ℝ} (hf : ContDiffOn ℝ 2 f [[(0:ℝ), 1]])
+    {ζ : ℝ} (hζ : ∀ x, |iteratedDerivWithin 2 f [[(0:ℝ), 1]] x| ≤ ζ)
+    {N : ℕ} (hN : 0 < N) :
+    |discreteEnergy (gridTriangulation N) volume f - ∫ x in Set.Ico (0:ℝ) 1, f x|
+      ≤ ζ / (12 * (N:ℝ) ^ 2) := by
+  obtain ⟨m, rfl⟩ : ∃ m, N = m + 1 := ⟨N - 1, by omega⟩
+  have h := trapezoidal_error_le_of_c2 (a := 0) (b := 1) hf hζ (Nat.succ_pos m)
+  rw [trapezoidal_error] at h
+  have hint : (∫ x in (0:ℝ)..1, f x) = ∫ x in Set.Ico (0:ℝ) 1, f x := by
+    rw [intervalIntegral.integral_of_le zero_le_one, integral_Ico_eq_integral_Ioc]
+  rw [grid_discreteEnergy_eq_trapezoidal m f, ← hint]
+  refine h.trans (le_of_eq ?_)
+  norm_num
+
+
+/-- The identity, cross-checked against a value computed by hand: `tent_energy_two`
+says the discrete energy of the tent function on two cells is `1/4`, and the
+trapezoidal rule must therefore give `1/4` too. -/
+example : trapezoidal_integral (fun x => |x - 1/2|) 2 0 1 = 1/4 :=
+  (grid_discreteEnergy_eq_trapezoidal 1 _).symm.trans tent_energy_two
+
+/-- The second derivative of `y ↦ y²`, bounded on all of `ℝ`, which is what
+Mathlib's trapezoidal bound asks for. Outside `[0,1]` the set has no unique
+differentiability, so the iterated `derivWithin` is `0` there. -/
+theorem sq_iteratedDerivWithin_bound (x : ℝ) :
+    |iteratedDerivWithin 2 (fun y : ℝ => y ^ 2) [[(0:ℝ), 1]] x| ≤ 2 := by
+  by_cases hx : x ∈ [[(0:ℝ), 1]]
+  · rw [iteratedDerivWithin_eq_iteratedDeriv (uniqueDiffOn_uIcc (by norm_num))
+      (by fun_prop) hx]
+    have h2 : iteratedDeriv 2 (fun y : ℝ => y ^ 2) x = 2 := by simp
+    rw [h2]; norm_num
+  · have hnu : ¬ UniqueDiffWithinAt ℝ [[(0:ℝ), 1]] x := by
+      intro h
+      exact hx (by simpa [isCompact_uIcc.isClosed.closure_eq] using h.mem_closure)
+    rw [iteratedDerivWithin_succ, derivWithin_zero_of_not_uniqueDiffWithinAt hnu]
+    norm_num
+
+/-- **A non-degenerate instance of the rate.** For `y ↦ y²` the bound is
+`1/(6N²)`, and the integrand is not one the trapezoidal rule integrates exactly,
+so the error is genuinely `Θ(1/N²)` rather than `0`. -/
+theorem grid_energy_error_sq {N : ℕ} (hN : 0 < N) :
+    |discreteEnergy (gridTriangulation N) volume (fun y => y ^ 2)
+        - ∫ x in Set.Ico (0:ℝ) 1, x ^ 2| ≤ 1 / (6 * (N:ℝ) ^ 2) := by
+  have h := grid_energy_error_le (f := fun y : ℝ => y ^ 2)
+    (by fun_prop) sq_iteratedDerivWithin_bound hN
+  refine h.trans (le_of_eq ?_)
+  ring
+
+/-- The constant case, where the trapezoidal rule is exact: the bound is `0`, so
+the grid's discrete energy of a constant is *exactly* its integral. This also
+checks the normalisation of the identity. -/
+theorem grid_energy_const (c : ℝ) {N : ℕ} (hN : 0 < N) :
+    discreteEnergy (gridTriangulation N) volume (fun _ => c)
+      = ∫ _x in Set.Ico (0:ℝ) 1, c := by
+  have hζ : ∀ x, |iteratedDerivWithin 2 (fun _ : ℝ => c) [[(0:ℝ), 1]] x| ≤ 0 := by
+    intro x; rw [iteratedDerivWithin_const]; norm_num
+  have h := grid_energy_error_le (f := fun _ : ℝ => c) contDiffOn_const hζ hN
+  rw [zero_div] at h
+  exact sub_eq_zero.mp (abs_eq_zero.mp (le_antisymm h (abs_nonneg _)))
+
+
+/-- The integral the grid is approximating, for `y ↦ y²`. -/
+theorem integral_sq_Ico : (∫ x in Set.Ico (0:ℝ) 1, x ^ 2) = 1 / 3 := by
+  rw [integral_Ico_eq_integral_Ioc, ← intervalIntegral.integral_of_le zero_le_one,
+    integral_pow]
+  norm_num
+
+/-- **The bound is attained**, at `N = 1`: one cell, `|1/2 − 1/3| = 1/6`, which is
+exactly `ζ/(12N²)` for `ζ = 2`. So `grid_energy_error_sq` is not a vacuous
+over-estimate, and the constant cannot be improved. -/
+theorem grid_energy_error_sq_one :
+    |discreteEnergy (gridTriangulation 1) volume (fun y => y ^ 2)
+        - ∫ x in Set.Ico (0:ℝ) 1, x ^ 2| = 1 / 6 := by
+  rw [grid_discreteEnergy_eq_trapezoidal 0 _, integral_sq_Ico, trapezoidal_integral]
+  norm_num
+
+end MeshRate
+
 /-! ## 7. The rotating-frame reduction on a two-oscillator system
 
 `Phase4_RotatingFrame` chains the two Kuramoto potentials, but only for systems
@@ -4278,6 +4511,70 @@ theorem keepRecord_injective :
   decide
 
 end PhaseSpaceCapacityWitness
+
+/-! ## 20. The continuum operator, on a substrate with no atoms
+
+`Phase8_ContinuousField` §9 builds the drift map `K ↦ (x ↦ ∫ K(x,y) sin(θ_y − θ_x) dy)`
+as a bounded operator `L²(μ⊗μ) → L²(μ)`, which is what open item **O10** asked for,
+and derives the continuum gradient and descent results from it.
+
+This section runs those on Lebesgue measure restricted to `(0,1)`. The substrate
+is chosen so that the finite-substrate machinery of §7 cannot be doing the work
+in disguise: `ℝ` is not finite (`unit_substrate_infinite`), so `sigmaOfKernel`,
+`driftCLM` and `hasFDerivAt_sigmaOfKernel` do not typecheck here at all; and the
+measure has no atoms (`NullSingletonClass`), so the substrate is not a finite set
+carrying point masses either.
+
+What is checked: the operator exists, its norm is at most `μ(α)^{1/2} = 1`
+(`unit_opNorm_le_one`), and the structural-resonance descent theorem applies to
+it unchanged (`unit_resonance_antitone`).
+
+What is **not** checked here: that any particular coupling trajectory satisfies
+the flow equation. `unit_resonance_antitone` takes the flow as a hypothesis, as
+its finite-substrate counterpart does; no dynamics in this development produces
+one. And nothing here connects this continuum field to a finite Kuramoto system
+— that is the propagation-of-chaos gap, which is untouched and is recorded as
+such in `tasks/todo.md`.
+-/
+
+section ContinuumOperatorWitness
+
+/-- Lebesgue measure on the open unit interval: a finite measure with no atoms. -/
+noncomputable def unitMeasure : Measure ℝ := volume.restrict (Set.Ioo 0 1)
+
+@[simp] theorem unitMeasure_univ : unitMeasure Set.univ = 1 := by
+  rw [unitMeasure, Measure.restrict_apply_univ, Real.volume_Ioo]
+  norm_num
+
+instance : IsFiniteMeasure unitMeasure := ⟨by rw [unitMeasure_univ]; exact ENNReal.one_lt_top⟩
+
+instance : NullSingletonClass unitMeasure := by
+  rw [unitMeasure]; infer_instance
+
+theorem unitMeasure_toReal : (unitMeasure Set.univ).toReal = 1 := by
+  rw [unitMeasure_univ]; norm_num
+
+/-- **The operator norm bound on a genuine continuum.** -/
+theorem unit_opNorm_le_one {theta : ℝ → ℝ} (h : Measurable theta) :
+    ‖continuumDriftCLM unitMeasure h‖ ≤ 1 := by
+  have := opNorm_kernelCLM_le (μ := unitMeasure)
+    (stronglyMeasurable_sinKernel h) (abs_sinKernel_le_one theta)
+  rwa [unitMeasure_toReal, Real.sqrt_one] at this
+
+/-- The substrate is not finite, so nothing in §7 applies to it. -/
+theorem unit_substrate_infinite : ¬ Finite ℝ := by
+  intro h
+  exact absurd (Set.toFinite (Set.univ : Set ℝ)) (Set.infinite_univ (α := ℝ))
+
+/-- The descent theorem, on this substrate. -/
+theorem unit_resonance_antitone {theta : ℝ → ℝ} (h : Measurable theta) (D : ℝ)
+    (omega : Lp ℝ 2 unitMeasure) (K_t : ℝ → Lp ℝ 2 (unitMeasure.prod unitMeasure))
+    {c : ℝ} (hc : 0 < c)
+    (hflow : ∀ t, HasDerivAt K_t (- c • gradSigmaContinuum unitMeasure h D omega (K_t t)) t) :
+    Antitone (fun t => sigmaContinuum unitMeasure h D omega (K_t t)) :=
+  structural_resonance_decreases_sigmaContinuum h D omega K_t hc hflow
+
+end ContinuumOperatorWitness
 
 end Examples
 end PhysicsOfConsciousness
