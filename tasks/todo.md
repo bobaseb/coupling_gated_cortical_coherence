@@ -25,7 +25,18 @@ are visible only when you look at the document as a whole:
    `main.tex` and `supplementary.tex` narrate the project's own corrections in a
    document whose reader has never seen a previous draft.
 
-Those are C1–C5 and P1–P4 below. They are the whole of the open work.
+Those were C1–C5 and P1–P4 below.
+
+**All nine are closed as of 2026-08-31**, in one session, with pass records at
+the end of this file. `Chain.lean` exists and `chain` composes the chain from a
+finite phase space to the Self with eight named hypotheses, jointly witnessed;
+Figure 1 marks its arrows and no longer draws the two that are not inferences;
+and both publication files pass `check_prose.py`, which is now a pre-commit hook.
+
+**Nothing in this section is open.** What remains is *Open, ranked* below — none
+of it blocking — and the presubmission inquiry, which was deliberately sequenced
+after P3 and is now unblocked. A reader picking this file up should start there,
+or replan.
 
 ---
 
@@ -82,13 +93,17 @@ Those are C1–C5 and P1–P4 below. They are the whole of the open work.
 
 ## Where the development stands — 2026-08-31
 
-**Lean.** 13,939 lines across 20 modules. Zero `sorry`. Zero declared axioms.
+**Lean.** 14,696 lines across 21 modules. Zero `sorry`. Zero declared axioms.
 `Examples.lean` is 4,580 lines and carries 20 witness sections plus §6.1 and
-§17.1. `lake build` clean, 17,614 jobs.
+§17.1; `Chain.lean` is 757 lines and carries the composition. `lake build`
+clean, 17,616 jobs.
 
-**Manuscript.** `main.tex` 86 pages, overfull 18; `supplementary.tex` 15,
-overfull 8; merged arXiv build 46 pages, overfull 0. Six figures, a methods
+**Manuscript.** `main.tex` 88 pages, overfull 16; `supplementary.tex` 15,
+overfull 0; merged arXiv build 48 pages, overfull 0. Six figures, a methods
 section, and Table S1 carrying the claim-by-claim identifier map.
+
+*(Figures as of the start of 2026-08-31; the current figures are in the C and P
+pass records at the end of this file.)*
 
 **Nothing is public.** No version of this work is on arXiv or under review as of
 2026-08-31. This matters to P3: because no withdrawn claim has ever been
