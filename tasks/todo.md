@@ -50,8 +50,8 @@ manuscript has **no figures**. Those are the items below.
 
 ## Where the development stands — 2026-08-30
 
-**Lean.** 12,405 lines across 19 modules. Zero `sorry`. Zero declared axioms.
-`Examples.lean` is 3,981 lines and carries 18 witness sections plus §17.1.
+**Lean.** 12,822 lines across 19 modules. Zero `sorry`. Zero declared axioms.
+`Examples.lean` is 4,164 lines and carries 18 witness sections plus §17.1.
 
 **Landed 2026-08-30 (`861f252`).** O20(d)+(e): `lojasiewicz_estimate`,
 `excess_decay`, `velocity_abs_le_exp`, `phase_tendsto`, `excess_tendsto_zero`,
@@ -81,8 +81,16 @@ theorem and a named empirical commitment, retitled so it is no longer a
 frustration/positivity contradiction is confronted rather than caveated. Prose,
 plus one Lean docstring. Full pass record below.
 
-**Manuscript.** `main.tex` 77 pages, `supplementary.tex` 11. Zero figures. The
-four Python simulations in `simulations/` appear nowhere in either document.
+**Landed 2026-08-31 — W5.** `Phase6_ReflexiveTopology.lean` restructured:
+`ReflexiveBoundary` carries the avatar's write and its read-out, `predict` is
+their composite rather than a field, and `self_of_constResonance` no longer
+typechecks. The contraction rate is `resonanceRate K D τ = exp(-(K - 2D)τ/2)` and
+the Self follows from `K > K_c`, which connects Derivation 6 to Derivation 7 for
+the first time. `Examples.lean` §10 rebuilt around a map that factors through the
+one-site avatar. Full pass record below.
+
+**Manuscript.** `main.tex` 84 pages, `supplementary.tex` 14, six figures, merged
+arXiv build 45 pages.
 
 ---
 
@@ -103,7 +111,7 @@ different kinds, and only one of them is a missing theorem:
 | → prediction | Still's bound; nonpredictive information is what dissipation pays for | ~~W4~~ done |
 | → continuous field | Split: coarse-graining is a theorem, the EM identification is a named empirical commitment | ~~W3~~ done |
 | → coherent state | Theorem on a basin, class field discharged from it | ~~W1~~ done |
-| → reflexive fixed point | Banach with a label; `self_of_constResonance` proves the theorem is blind to reflexivity | W5 |
+| → reflexive fixed point | The map is the avatar's read-out of its own encoding; blinding moves the Self, and the rate is `exp(-(K-K_c)τ/2)` | ~~W5~~ done |
 | → experience | Stipulation. **Kept, named, owned.** Not a defect | — |
 
 The manuscript now has six figures and a methods section (~~W7~~ done); the
@@ -132,10 +140,10 @@ Each item is self-contained. Record the pass in this file under a dated heading
 in the style of the archive (what was built / non-vacuity / what it does *not*
 establish / manuscript updates), then move to the next.
 
-**W1, W8, W2, W4, W3 and W7 are done (2026-08-31).** Every defect the frame
-table listed in the chain is closed or named, and the manuscript now has figures.
-What remains is the two scoped weaknesses: the next item is **W5** — make
-`self_of_constResonance` false — then W6.
+**W1, W8, W2, W4, W3, W7 and W5 are done (2026-08-31).** Every defect the frame
+table listed in the chain is closed or named, the manuscript has figures, and the
+Self theorem now sees the avatar. What remains is **W6** — give Axiom 1 a theorem
+that consumes it, or stop calling it an axiom.
 
 ### W1 — Discharge `thermodynamic_equilibrium` from the convergence theorem
 
@@ -297,7 +305,9 @@ What remains is the two scoped weaknesses: the next item is **W5** — make
 
 ### W5 — Redesign Derivation 6 so the Self theorem can see reflexivity
 
-- [ ] **Objective.** Make `self_of_constResonance` **false**.
+**Done 2026-08-31.** Pass recorded below under *2026-08-31 — W5*.
+
+- [x] **Objective.** Make `self_of_constResonance` **false**.
 - **Why.** That theorem — replacing any avatar by a constant leaves a legal
   `ReflexiveBoundary` with the same region, the same predictive model and the
   same Self — is currently reported as a strength (it shows
@@ -319,6 +329,17 @@ What remains is the two scoped weaknesses: the next item is **W5** — make
   on a discrete substrate.
 - **Done when.** `self_of_constResonance` no longer typechecks, and the file
   records why its falsity is the point.
+- **How it came out.** Both halves landed. (1) was done by making `predict` a
+  *definition* — `readout ∘ auto_resonance` — rather than a field, which is
+  stronger than the item asked: `IsRestrictionResonance` is not derived from being
+  a fixed point (see the recorded negative result on faithful extensions in the
+  pass note — faithfulness and contraction are incompatible on a separating
+  avatar), but the fixed point now *does* say something about reflexivity, namely
+  `self_mem_range_readout` and `self_eq_readout_restrict`, and blinding the avatar
+  moves the Self. (2) was done as `resonanceRate K D τ = exp(-(K - 2D)τ/2)`, with
+  the contraction derived from `K > K_c` and its unavailability below threshold
+  recorded as a theorem. The `massEquivOn` dictionary, the uniform metric and the
+  Lévy–Prokhorov negative result all survive unchanged, as the item required.
 
 ### W6 — Make Axiom 1 do work
 
@@ -1182,6 +1203,192 @@ its methods.
 * The bifurcation script's structure — define the Lean objects by quadrature,
   then assert the proved qualitative facts as printed checks — is worth reusing
   if W5 or W6 wants a figure.
+
+
+---
+
+## 2026-08-31 — W5: the fixed-point theorem can see the avatar, and the rate is K and D
+
+**What was built.**
+
+`Phase6_ReflexiveTopology.lean` 319 → **553 lines**, restructured rather than
+extended. The change is to the *structure*, and everything else follows from it.
+
+`ReflexiveBoundary` no longer carries a `PredictiveModel` field. It carries the
+avatar's **write** (`auto_resonance`, the encoding of the global state into the
+avatar region) and its **read-out** (`readout`, the global state that encoding
+predicts), and
+
+```
+ReflexiveBoundary.predict rb s = rb.readout (rb.auto_resonance s)
+```
+
+is a definition, not a field. `predictive_model` survives as a derived def
+because the manuscript names it. That single move is what W5 asked for: the
+self-model runs through the avatar region or it does not exist, so every
+statement about `predict` is now a statement about the avatar.
+
+**The old theorem is gone and its replacement says the opposite.**
+`self_of_constResonance` — blinding the avatar leaves the same predictive model
+and the same Self — does not typecheck any more, and the failure was checked
+rather than assumed: elaborating the old proof term verbatim gives
+
+```
+Application type mismatch: h_contracting has type ContractingWith c rb.predict
+but is expected to have type ContractingWith ?m (rb.constResonance a₀).predict
+```
+
+`constResonance` still builds a legal boundary — the class still has nothing to
+object with, which is why the predicate is still needed — but its dynamics is a
+different one. Three theorems replace the old one:
+
+* `constResonance_predict_const` — the blinded self-model is a **constant map**.
+  It has stopped being a function of the field.
+* `constResonance_existsUnique_self` — it does have a unique fixed point, namely
+  `readout a₀`, and naming it is the point: no metric, no completeness and no
+  contraction are used, because Banach is not being applied to anything.
+* `not_self_of_constResonance` — **blinding moves the Self.** A fixed point of
+  the field's own model is not a fixed point of the blinded one as soon as
+  `readout a₀ ≠ s`. Witnessed, not assumed: `cortexBlind_self_ne`.
+
+**What being a fixed point now buys.** Two theorems that are false statements
+about the old structure, because there `predict` had nothing to do with `readout`:
+
+* `self_mem_range_readout` — the Self lies in the range of the read-out, so it is
+  reconstructed from a single section over the avatar region. The
+  "low-dimensional avatar" the module header has always claimed, as a theorem.
+* `self_eq_readout_restrict` — under `IsRestrictionResonance`, the Self satisfies
+  `s = readout (restrictToAvatar s)`: the field is what its own localized
+  self-encoding reconstructs.
+
+`predict_eq_readout_restrict` and `isRestrictionResonance_iff_of_injective` make
+the predicate a statement *about the dynamics* rather than one bolted on beside
+it — the second is an iff and needs `Function.Injective readout`, which is stated
+as a hypothesis and used nowhere else.
+
+**The rate.** `resonanceRate K D τ = exp(-(K - critical_coupling D) τ / 2)`, the
+linear relaxation factor of the mean-field order parameter with `K_c = 2D`.
+`Phase6` now imports `Phase8_ContinuousField` for `critical_coupling`; that file
+has no in-project imports, so no cycle. Three theorems:
+
+* `resonanceRate_lt_one` (`τ > 0`, `K > K_c`) and `one_le_resonanceRate`
+  (`τ ≥ 0`, `K ≤ K_c`) split the parameter plane at Sakaguchi's threshold.
+* `not_contractingWith_resonanceRate` — at or below threshold `ContractingWith`
+  at that rate is false **for every self-map of every metric space**, because its
+  first conjunct is `rate < 1`. The argument is unavailable below `K_c`, not
+  merely unproved.
+* `self_of_supercritical` — the unique fixed point, from `K > K_c` rather than
+  from a numeral. `reflexive_topology_implies_self`, `self_unique` and
+  `self_eq_of_avatar_eq` are generalized from `ContractingWith (1/2)` to a
+  `{c : NNReal}`.
+
+**Non-vacuity.** `Examples.lean` §10 was rebuilt, not patched. The old witness
+`relax s = ½ s + ½ baseline` **had to be removed**: it reads `density s x` at
+every site, so it does not factor through a one-site avatar — which is exactly
+the defect W5 names, and is why the redesign is not cosmetic. What replaces it:
+
+| | |
+|---|---|
+| `avatarRead` | the single mass a section over the one-site avatar region carries |
+| `avatarReadout` | that mass, averaged with the baseline, put back as a global state |
+| `cortexReflexive` | the boundary; `predict` is the composite by definition |
+| `Phi_cortexPredict` | the prediction in closed form — everything it knows about `s` is `density s Site.mid` |
+| `cortexPredict_dist` | the exact factor: **one half of what the avatar sees**, both inequalities |
+| `cortexPredict_not_const`, `cortexPredict_fixed`, `cortexPredict_fixed_unique` | non-constant; the fixed point named; uniqueness re-derived by hand |
+| `cortexTau`, `cortexSupercritical`, `cortexResonanceRate` | `K = 3`, `D = 1`, `τ = 2 log 2`, where `resonanceRate 3 1 τ = 1/2` exactly |
+| `cortexHasSelf` | now `∃!`, and obtained from `self_of_supercritical` — from `K > K_c`, not from a numeral |
+| `cortexSubcritical_not_contracting` | the *same* map at `K = 1`: no Banach argument at all |
+| `cortexState_eq_readout_restrict`, `cortexState_mem_range_readout` | the two new positive theorems, on the witness |
+| `cortexBlind_self_ne`, `cortexBlind_existsUnique_self` | the reversal, on the witness |
+
+`cortexPredict_dist` is worth flagging as an honest loss. The old `relax_dist`
+gave `dist (relax s) (relax t) = dist s t / 2` — half the distance between the
+*states*. The new map cannot: it is blind off the avatar region, so two states
+differing only away from `mid` have identical predictions. That is the fold, and
+the theorem states it rather than hiding it.
+
+**What this does *not* establish.**
+
+* **Resonance is still not derived.** `IsRestrictionResonance` remains an
+  instance obligation. A route was tried and rejected: assume the read-out is a
+  right inverse of the restriction (`restrictToAvatar ∘ readout = id`, "what the
+  avatar writes is what it reads back"), and resonance at the fixed point falls
+  out in one line. It is unusable — that hypothesis forces `predict` to preserve
+  the restriction exactly, so for two states differing on the avatar region
+  `dist (predict s) (predict t) ≥ dist s t` and the map is not a contraction
+  unless the avatar region separates nothing. **Faithful extension and
+  contraction are incompatible on a separating avatar.** Recorded so it is not
+  re-attempted.
+* **Resonance at the Self is not the discriminator.** With a faithful read-out
+  the blinded boundary's own fixed point also satisfies resonance *at that point*
+  — a blind avatar is right about exactly the one state it forces. What blinding
+  destroys is that the Self depends on the field, which is why the negative
+  theorem is `not_self_of_constResonance` and not a resonance failure.
+* **`avatarReadout` is still a modelling choice.** No field dynamics in the
+  development produces it. W5 removed the stipulation of the *rate*, not of the
+  map.
+* **`K = 3` is a choice of units for the witness**, not a measurement. Nothing
+  here derives a coupling constant from cortex. The Lipschitz bound at the
+  mean-field rate is an instance obligation; what changed is that it is now
+  stated in the substrate's parameters and its *consequence* is conditional on
+  the same threshold Derivation 7 proves the phase transition at. Derivation 6
+  and Derivation 7 were previously unconnected.
+* **The linearization is near-threshold.** `ṙ = ((K - K_c)/2) r + O(r³)` is the
+  standard mean-field result; the exponential rate is exact only near `K_c`. The
+  module header says so.
+
+**Manuscript updates.**
+
+* **Figure 1, box 9** — the clause written to be deleted when W5 landed
+  ("The map does not yet detect whether the avatar reads the field") is out,
+  replaced by what is now true: the map is the avatar's read-out of its own
+  encoding, blinding moves the fixed point, and the rate is `e^{-(K-K_c)τ/2}`.
+* **Table 1, row 5** — "contraction on a complete metric space" replaced by the
+  read-out factorization, the rate as an instance obligation, and the threshold
+  deciding the contraction.
+* **Derivation 6** — the single 1,100-word paragraph is now six paragraphs with
+  run-in headings: *What carries the weight*, *The map is the avatar, or there is
+  no map*, *Auto-resonance as a constraint*, *The contraction rate is K and D,
+  not a numeral*, *What is still not established*. The old negative result is
+  stated as the defect it was, then reversed.
+* **Supplement §Reflexive Topology** — stages (iii)–(v) rewritten; Table S1's
+  Derivation 6 row rewritten.
+
+**Gates.**
+
+* `lake build` clean, 17,612 jobs, zero `sorry`, zero warnings. `#print axioms`
+  on all 25 new or changed results reports only `propext`, `Classical.choice`,
+  `Quot.sound`.
+* **A discrepancy found in passing, not fixed here.** This ledger and the
+  manuscript both say the development "declares no axioms". `Axioms.lean` in fact
+  declares three live ones — `landauer_principle`, `phase_space_is_compact`,
+  `principle_of_least_action` — under a comment that says they "are commented out
+  because they are not actively invoked". They are not commented out. Nothing in
+  the chain depends on them (every `#print axioms` above confirms it), so the
+  *substance* of the claim holds, but the wording does not. Either comment them
+  out as the note says, or reword the claim to "no axiom is reachable from any
+  result". Left for the next pass rather than folded into W5; recorded so it is
+  not rediscovered.
+* `main.tex` 82 → **84 pages**; overfull hboxes 20 → **18**, a strict subset of
+  `HEAD`'s (diffed as a multiset; the two that vanished were in the old
+  Derivation 6 paragraph). Zero errors, zero undefined references or citations.
+* `supplementary.tex` **14 pages**, overfull **8**, magnitudes *identical* to
+  `HEAD`'s. Zero errors.
+* Merged arXiv build 43 → **45 pages**, zero errors, zero overfull, zero
+  undefined.
+* Lean 12,405 → **12,822 lines** across 19 modules; `Examples.lean` 3,981 →
+  4,164.
+
+**A tooling note that cost half an hour.** `grep -c` in this environment is a
+shell function wrapping `ugrep --ignore-files`, which silently skips
+`.gitignore`d paths — so `grep -c Overfull main.log` reported *nothing* for a
+build in a scratch directory and appeared to prove `HEAD` had zero overfull
+boxes. Use `awk '/Overfull/{n++} END{print n+0}'` or `sed -n 's/…/p'` when
+counting in build artefacts. The compile-gate numbers above were re-measured that
+way.
+
+**Next item: W6** — give Axiom 1 a theorem that consumes it (`H(μ) ≤ log |X|`,
+equality iff uniform), or retitle the section from "Axiom 1" to a setting section.
 
 
 ## Low value — listed so they are not rediscovered as new

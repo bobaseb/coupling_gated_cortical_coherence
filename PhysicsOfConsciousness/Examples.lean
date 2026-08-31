@@ -53,12 +53,18 @@
   *any* open of the three-site cortex the sections of the probability sheaf are exactly
   the mass profiles on that open, read as densities against counting measure;
   `massEquiv` is the case `U = ⊤`. The metric is then the
-  uniform distance between their densities, complete, and the self-prediction map
-  contracts by exactly one half (`relax_dist`) without being constant
-  (`relax_not_const`), with a unique fixed point (`relax_fixed_unique`). The earlier
-  0/1 metric is kept as `gsDiscreteMetric`, and `contracting_implies_const` records
-  why it was empty. What is still not established is that any field dynamics produces
-  this particular map or this particular contraction constant.
+  uniform distance between their densities, complete, and the self-prediction map is
+  built through the one-site avatar — `avatarRead` then `avatarReadout`, composed by
+  `ReflexiveBoundary.predict` — so it contracts by exactly one half of what the avatar
+  sees (`cortexPredict_dist`) without being constant (`cortexPredict_not_const`), with a
+  unique fixed point (`cortexPredict_fixed_unique`). The contraction constant is read off
+  `K` and `D` rather than stipulated: `cortexResonanceRate` places the witness at `K = 3`,
+  `D = 1`, `τ = 2 log 2`, and `cortexHasSelf` comes out of `K > critical_coupling 1`,
+  while `cortexSubcritical_not_contracting` records that at `K = 1` the same map has no
+  Banach argument at all. The earlier 0/1 metric is kept as `gsDiscreteMetric`, and
+  `contracting_implies_const` records why it was empty. What is still not established is
+  that any field dynamics produces this particular read-out, or that this substrate's
+  coupling is `3`: the parameters are a choice of units for the witness.
 
   §13 answers open item O5 with both halves of an answer: a `ThermodynamicCover`
   whose phase field is *not* the constant function and whose two patches carry
@@ -1271,15 +1277,15 @@ theorem duoWeak_inflated :
 
 `reflexive_topology_implies_self` (Derivation 6, the Self) is the Banach fixed-point
 theorem with every physical commitment pushed into a hypothesis: `GlobalSection X` is
-*assumed* to be a nonempty complete metric space, and `predict` is *assumed* to be a
-`1/2`-contraction. `GlobalSection` is defined as the sections over `⊤` of a
+*assumed* to be a nonempty complete metric space, and `predict` is *assumed* to contract.
+`GlobalSection` is defined as the sections over `⊤` of a
 sheafification — a subtype of families of germs — so nothing about it is a measure until
 that layer is pierced, and an earlier pass discharged the metric hypothesis with the 0/1
 metric. That witness was honest but empty: `contracting_implies_const` (kept below) proves
 that under the 0/1 metric *every* `ContractingWith K` map with `K < 1` is constant, so on
 that model the Self was the constant section.
 
-This section replaces it. The work is in three stages.
+This section replaces it. The work is in four stages.
 
 * **The germ–measure dictionary.** On this discrete substrate every point has a smallest
   open neighbourhood, so "mass carried at `x`" is a well-defined map out of the stalk at
@@ -1305,23 +1311,42 @@ This section replaces it. The work is in three stages.
   (`gsComplete`, via surjectivity of `density`, not via "Cauchy sequences are eventually
   constant"), and `exists_dist_lt_one` exhibits distinct sections at distance `1/2`, which
   is exactly the hypothesis `contracting_implies_const` needs and no longer has.
-* **The Self.** `relax` is the self-prediction map "average the current field with the
-  baseline": a genuine dissipative relaxation, not a constant. `relax_dist` proves it
-  contracts distances by *exactly* one half, `relax_not_const` proves it is not constant,
-  `relax_fixed` names its fixed point and `relax_fixed_unique` proves that fixed point is
-  the only one — Banach uniqueness re-derived by hand on the witness.
+* **The Self, through the avatar** (rebuilt 2026-08-31 for work item W5). The
+  self-prediction map is no longer written down beside the boundary: `avatarRead` is the
+  single number a section over the avatar region carries, `avatarReadout` turns it into a
+  global state, and `cortexReflexive.predict` is their composite by definition. So the
+  dynamics reads the avatar or it does not exist. `cortexPredict_dist` gives the exact
+  contraction factor — one half *of what the avatar sees*, the loss off the avatar region
+  being the fold, stated rather than hidden; `cortexPredict_not_const` that it is not
+  constant; `cortexPredict_fixed` and `cortexPredict_fixed_unique` name the fixed point and
+  prove it the only one, Banach uniqueness re-derived by hand. The previous witness
+  `relax s = ½ s + ½ baseline` (removed 2026-08-31; the W5 pass note in `tasks/todo.md`
+  records it) cannot be used here: it reads every site, so it does not factor through a
+  one-site avatar, which is exactly the defect W5 names.
+* **The rate, from `K` and `D`.** `cortexTau`, `cortexSupercritical` and
+  `cortexResonanceRate` place the witness at `K = 3`, `D = 1`, `τ = 2 log 2`, where
+  `resonanceRate 3 1 τ` is exactly the `1/2` the read-out achieves, and `cortexHasSelf`
+  is obtained from `self_of_supercritical` — from `K > critical_coupling 1 = 2` rather
+  than from a numeral in the hypothesis. `cortexSubcritical_not_contracting` is the other
+  half: the *same* map at `K = 1` has no Banach argument at all.
 * **The avatar** (added 2026-08-30 for open item O2). `cortexReflexive_resonant`
   discharges `ReflexiveBoundary.IsRestrictionResonance`, and `cortexReflexive_restrict_ne`
   checks it is not empty here — the avatar region separates two of the substrate's states.
-  `siteReflexive` is one avatar per site; their regions cover, so `cortex_eq_of_avatar_eq`
-  reconstructs the global state from the local readings alone. `cortexBlind` is the same
-  boundary with a constant avatar: still a legal `ReflexiveBoundary`, still has the same
-  Self (`cortexBlind_hasSelf`), and `cortexBlind_not_determined` exhibits two distinct
-  states it cannot tell apart.
+  `cortexState_eq_readout_restrict` is what the fixed-point equation now says: the Self is
+  its own avatar reading, extended. `siteReflexive` is one avatar per site; their regions
+  cover, so `cortex_eq_of_avatar_eq` reconstructs the global state from the local readings
+  alone. `cortexBlind` is the same boundary with a constant avatar: still a legal
+  `ReflexiveBoundary`, but no longer with the same Self — `cortexBlind_self_ne` proves
+  `cortexState` is *not* a fixed point of the blinded map, and
+  `cortexBlind_existsUnique_self` names the one it does have, a state stipulated in advance
+  of the field. `cortexBlind_not_determined` exhibits two distinct states it cannot tell
+  apart.
 
-**What this still does not establish.** `relax` is a modelling choice: nothing in the
-development derives it from field dynamics, and the contraction constant `1/2` is built
-into its definition rather than read off an entropy production rate. The Lévy–Prokhorov
+**What this still does not establish.** `avatarReadout` is a modelling choice: nothing in
+the development derives it from field dynamics, and the identification of this substrate's
+coupling with `K = 3` is a choice of units for the witness rather than a measurement — what
+W5 removed is the *stipulation of the rate*, not the stipulation of the map. The
+Lévy–Prokhorov
 metric named in the header of `Phase6_ReflexiveTopology.lean` is *not* what is constructed
 here, and the substitution is not cosmetic: on this substrate `μ ↦ ½μ + ½μ₀` is **not** a
 Lévy–Prokhorov contraction (two measures of mass 5 sitting at different sites stay at
@@ -1768,19 +1793,85 @@ theorem dist_cortexSilent_cortexState : dist cortexSilent cortexState = 2 := by
     rw [Phi_cortexSilent, Phi_cortexState] at h
     simpa [NNReal.dist_eq] using h
 
-/-- **The self-prediction map.** The field's model of its next state is the average of its
-current state and the baseline: a dissipative relaxation. It is a function of the section
-it is applied to — unlike the constant map the 0/1 metric forced. -/
-noncomputable def relax (s : GlobalSection (X := Cortex)) : GlobalSection (X := Cortex) :=
-  sectionOfMass (fun x => (density s x + density cortexState x) / 2)
+/-! #### The avatar, and the map it induces
 
-@[simp] lemma Phi_relax (s : GlobalSection (X := Cortex)) :
-    density (relax s) = fun x => (density s x + density cortexState x) / 2 :=
-  Phi_sectionOfMass _
+The self-prediction map is no longer written down and then attached to a boundary. Since
+the W5 redesign (2026-08-31) a `ReflexiveBoundary` carries the avatar's *write* and its
+*read-out*, and `predict` is their composite, so the map has to be built **through the
+avatar region** or it cannot be built at all. That is what forces the shape of what
+follows: `avatarRead` is the one number a section over the avatar region carries,
+`avatarReadout` turns that number into a global state, and everything proved about the
+dynamics below is proved about `cortexReflexive.predict`, which is their composite by
+definition.
 
-lemma Phi_relax_apply (s : GlobalSection (X := Cortex)) (x : Site) :
-    density (relax s) x = (density s x + density cortexState x) / 2 := by
-  rw [Phi_relax]
+The previous witness — `relax s = ½ s + ½ baseline`, removed 2026-08-31 and recorded in
+the W5 pass note of `tasks/todo.md` — cannot be used here any more, and the reason is
+exactly the defect W5 names: it reads `density s x` at
+*every* site, so it does not factor through a one-site avatar, and a map that does not
+read the avatar has a fixed point that cannot depend on it. -/
+
+/-- The avatar region: the shared site `mid`, the one point both patches of §4 see. -/
+def avatarPatch : Opens ↥Cortex := ⟨{Site.mid}, isOpen_discrete _⟩
+
+theorem memAvatarPatch : Site.mid ∈ avatarPatch := rfl
+
+/-- **The avatar's reading, as a number.** By `massEquivOn` a section over `avatarPatch`
+*is* the mass it carries at the shared site; this is that mass. The avatar is
+one-dimensional, and this is the precise sense in which. -/
+noncomputable def avatarRead (a : (probabilityPresheaf Cortex).obj (op avatarPatch)) : ℝ≥0 :=
+  densityOn a Site.mid memAvatarPatch
+
+/-- **The read-out.** From the single number the avatar carries, a global state: all the
+mass at the shared site, at the amplitude halfway between what the avatar reports and the
+baseline `2`. Dissipative — half the discrepancy is discarded at each step — and a
+genuine function of the avatar's reading, which is what makes the fixed point below
+depend on it. -/
+noncomputable def avatarReadout (a : (probabilityPresheaf Cortex).obj (op avatarPatch)) :
+    GlobalSection (X := Cortex) :=
+  sectionOfMass (fun x => if x = Site.mid then (avatarRead a + 2) / 2 else 0)
+
+/-- A reflexive boundary on the three-site cortex. `auto_resonance` is the presheaf
+restriction to the avatar region, so the avatar's state does track the global field —
+which the class itself never requires — and `readout` is the relaxation above, so the
+self-model runs on the avatar and on nothing else. -/
+noncomputable def cortexReflexive : ReflexiveBoundary Cortex where
+  avatar_region := avatarPatch
+  auto_resonance := fun s =>
+    (probabilityPresheaf Cortex).map (homOfLE (le_top : avatarPatch ≤ ⊤)).op s
+  readout := avatarReadout
+
+/-- The induced predictive model. Derived from the boundary rather than chosen beside it;
+kept under its own name because Derivation 6 in the manuscript refers to it. -/
+noncomputable def cortexPredict : PredictiveModel Cortex := cortexReflexive.predictive_model
+
+/-- What the avatar reports about a global state is that state's mass at the shared site.
+`densityOn_restrict`, and nothing else. -/
+lemma avatarRead_restrict (s : GlobalSection (X := Cortex)) :
+    avatarRead (cortexReflexive.auto_resonance s) = density s Site.mid :=
+  densityOn_restrict (le_top : avatarPatch ≤ ⊤) s Site.mid memAvatarPatch
+
+lemma cortexPredict_eq (s : GlobalSection (X := Cortex)) :
+    cortexReflexive.predict s =
+      sectionOfMass (fun y => if y = Site.mid then (density s Site.mid + 2) / 2 else 0) := by
+  show avatarReadout (cortexReflexive.auto_resonance s) = _
+  simp only [avatarReadout, avatarRead_restrict]
+
+/-- The prediction in closed form: everything it knows about `s` is `density s Site.mid`.
+The fold is visible here — two states agreeing at the shared site have the same
+prediction, whatever they do elsewhere. -/
+@[simp] lemma Phi_cortexPredict (s : GlobalSection (X := Cortex)) (x : Site) :
+    density (cortexReflexive.predict s) x =
+      if x = Site.mid then (density s Site.mid + 2) / 2 else 0 := by
+  rw [cortexPredict_eq, Phi_sectionOfMass]
+
+/-- The prediction at the avatar site: the only value the read-out is not forced to send
+to zero, and the one the contraction below is about. -/
+lemma Phi_cortexPredict_mid (s : GlobalSection (X := Cortex)) :
+    density (cortexReflexive.predict s) Site.mid = (density s Site.mid + 2) / 2 := by
+  rw [Phi_cortexPredict]; simp
+
+lemma Phi_cortexState_mid : density cortexState Site.mid = 2 := by
+  rw [Phi_cortexState]; simp
 
 lemma nnreal_dist_avg (a b c : ℝ≥0) : dist ((a + c)/2) ((b + c)/2) = dist a b / 2 := by
   rw [NNReal.dist_eq, NNReal.dist_eq]
@@ -1788,123 +1879,174 @@ lemma nnreal_dist_avg (a b c : ℝ≥0) : dist ((a + c)/2) ((b + c)/2) = dist a 
   rw [show ((a:ℝ) + c)/2 - ((b:ℝ) + c)/2 = ((a:ℝ) - b)/2 by ring, abs_div]
   norm_num
 
-lemma relax_lipschitz : LipschitzWith (1/2) relax := by
+lemma cortexPredict_lipschitz : LipschitzWith (1/2) cortexReflexive.predict := by
   refine LipschitzWith.of_dist_le_mul fun s t => ?_
-  rw [gs_dist_eq, Phi_relax, Phi_relax]
+  rw [gs_dist_eq]
   push_cast
   have hb : (0:ℝ) ≤ 1/2 * dist s t := by positivity
   rw [dist_pi_le_iff hb]
   intro x
-  rw [nnreal_dist_avg]
-  have h1 : dist (density s x) (density t x) ≤ dist s t := by
-    rw [gs_dist_eq]; exact dist_le_pi_dist _ _ x
-  linarith
+  rw [Phi_cortexPredict, Phi_cortexPredict]
+  have h1 : dist (density s Site.mid) (density t Site.mid) ≤ dist s t := by
+    rw [gs_dist_eq]; exact dist_le_pi_dist _ _ Site.mid
+  split_ifs with hx
+  · rw [nnreal_dist_avg]
+    linarith
+  · rw [dist_self]
+    exact hb
 
-theorem relax_contracting : ContractingWith (1/2) relax :=
-  ⟨by norm_num, relax_lipschitz⟩
-
-/-- The contraction factor is exactly one half, not merely at most one half: the map
-genuinely moves sections and genuinely damps the distance between them. -/
-theorem relax_dist (s t : GlobalSection (X := Cortex)) :
-    dist (relax s) (relax t) = dist s t / 2 := by
+/-- **The contraction factor is exactly one half of what the avatar sees** — both
+inequalities, not merely an upper bound. It is *not* half the distance between the states:
+the read-out is blind off the avatar region, so two states differing only away from `mid`
+have the same prediction. That loss is the fold, stated rather than hidden; the removed
+`relax` had no such loss precisely because it did not factor through an avatar. -/
+theorem cortexPredict_dist (s t : GlobalSection (X := Cortex)) :
+    dist (cortexReflexive.predict s) (cortexReflexive.predict t) =
+      dist (density s Site.mid) (density t Site.mid) / 2 := by
+  have hnn : (0:ℝ) ≤ dist (density s Site.mid) (density t Site.mid) / 2 := by positivity
   refine le_antisymm ?_ ?_
-  · have := relax_lipschitz.dist_le_mul s t
-    push_cast at this
-    linarith
-  · have key : dist s t ≤ 2 * dist (relax s) (relax t) := by
-      have hnn : (0:ℝ) ≤ 2 * dist (relax s) (relax t) := by
-        have := dist_nonneg (x := relax s) (y := relax t)
-        linarith
-      rw [gs_dist_eq, dist_pi_le_iff hnn]
-      intro x
-      have h2 : dist (density s x) (density t x) = 2 * dist (density (relax s) x) (density (relax t) x) := by
-        rw [Phi_relax_apply, Phi_relax_apply, nnreal_dist_avg]
-        ring
-      rw [h2]
-      have := dist_le_pi_dist (density (relax s)) (density (relax t)) x
-      rw [← gs_dist_eq] at this
-      linarith
-    linarith
+  · rw [gs_dist_eq, dist_pi_le_iff hnn]
+    intro x
+    rw [Phi_cortexPredict, Phi_cortexPredict]
+    split_ifs with hx
+    · rw [nnreal_dist_avg]
+    · rw [dist_self]; exact hnn
+  · have h := dist_le_pi_dist (density (cortexReflexive.predict s))
+      (density (cortexReflexive.predict t)) Site.mid
+    rw [← gs_dist_eq, Phi_cortexPredict_mid, Phi_cortexPredict_mid, nnreal_dist_avg] at h
+    exact h
 
 /-- **The map is not constant** — the exact failure of `contracting_implies_const` on this
-metric. The silent field and the baseline have different predictions. -/
-theorem relax_not_const : relax cortexSilent ≠ relax cortexState := by
+metric, and the check that the avatar is doing something: the silent field and the
+baseline report different numbers, so they get different predictions. -/
+theorem cortexPredict_not_const :
+    cortexReflexive.predict cortexSilent ≠ cortexReflexive.predict cortexState := by
   intro h
-  have h' : density (relax cortexSilent) Site.mid = density (relax cortexState) Site.mid := by rw [h]
-  rw [Phi_relax_apply, Phi_relax_apply, Phi_cortexSilent, Phi_cortexState] at h'
-  norm_num at h'
+  have h' : density (cortexReflexive.predict cortexSilent) Site.mid
+      = density (cortexReflexive.predict cortexState) Site.mid := by rw [h]
+  rw [Phi_cortexPredict_mid, Phi_cortexPredict_mid, Phi_cortexSilent, Phi_cortexState_mid] at h'
+  have := congrArg NNReal.toReal h'
+  push_cast at this
+  norm_num at this
 
-theorem relax_fixed : relax cortexState = cortexState := by
+theorem cortexPredict_fixed : cortexReflexive.predict cortexState = cortexState := by
   apply Phi_injective
-  rw [Phi_relax]
   funext x
-  apply NNReal.coe_injective
-  push_cast
-  ring
+  rw [Phi_cortexPredict, Phi_cortexState_mid, Phi_cortexState]
+  split_ifs with hx
+  · apply NNReal.coe_injective; push_cast; norm_num
+  · rfl
 
 /-- The fixed point is unique, proved directly rather than quoted from Banach: a section
-that predicts itself has the baseline's density. -/
-theorem relax_fixed_unique (s : GlobalSection (X := Cortex)) (h : relax s = s) :
-    s = cortexState := by
+that predicts itself carries mass `2` at the shared site and nothing anywhere else. -/
+theorem cortexPredict_fixed_unique (s : GlobalSection (X := Cortex))
+    (h : cortexReflexive.predict s = s) : s = cortexState := by
+  have hd : ∀ x, density s x = if x = Site.mid then (density s Site.mid + 2) / 2 else 0 := by
+    intro x
+    rw [← Phi_cortexPredict s x, h]
+  have hmid : density s Site.mid = 2 := by
+    have hm : density s Site.mid = (density s Site.mid + 2) / 2 := by
+      rw [← Phi_cortexPredict_mid s, h]
+    apply NNReal.coe_injective
+    push_cast
+    have h2 := congrArg NNReal.toReal hm
+    push_cast at h2
+    linarith
   apply Phi_injective
   funext x
-  have hx : (density s x + density cortexState x) / 2 = density s x := by
-    have h' : density (relax s) x = density s x := by rw [h]
-    rw [Phi_relax_apply] at h'
-    exact h'
+  rw [hd x, hmid, Phi_cortexState]
+  split_ifs with hx
+  · apply NNReal.coe_injective; push_cast; norm_num
+  · rfl
+
+/-! #### The contraction rate, from the coupling and the noise
+
+`cortexPredict_lipschitz` gives the constant `1/2`, and the second half of W5 is that
+`1/2` must not be the physical hypothesis: a map defined to average with a baseline
+contracts by a half because it was defined to, which is a fact about the definition.
+`resonanceRate K D τ = exp(-(K - 2D)τ/2)` of `Phase6_ReflexiveTopology` is the mean-field
+relaxation factor instead, and the substrate is placed at `K = 3`, `D = 1` — so
+`K_c = critical_coupling 1 = 2` and the cortex is supercritical — with one relaxation step
+of duration `τ = 2 log 2`, at which the rate is exactly the `1/2` the read-out achieves.
+
+**What is being witnessed, and what is not.** The identification of this three-site
+substrate's coupling with `K = 3` is a choice of units for the witness, not a measurement;
+nothing here derives a coupling constant from the cortex. What is witnessed is that the
+hypotheses of `self_of_supercritical` are jointly satisfiable on a substrate whose map is
+provably non-constant, so the theorem is not vacuous — and `cortexHasSelf` below now comes
+out of `K > K_c`, with the numeral appearing only in the Lipschitz obligation the
+substrate discharges. `cortexSubcritical_not_contracting` is the other half: on the *same*
+map, at `K = 1`, the rate is not a contraction rate and Derivation 6's argument is gone. -/
+
+/-- The witness's relaxation step, chosen so that the mean-field rate at `K = 3`, `D = 1`
+is exactly the half the read-out achieves. -/
+noncomputable def cortexTau : ℝ := 2 * Real.log 2
+
+theorem cortexTau_pos : 0 < cortexTau := by
+  have h : (0:ℝ) < Real.log 2 := Real.log_pos (by norm_num)
+  rw [cortexTau]; linarith
+
+/-- The witness sits above Sakaguchi's threshold: `K = 3 > 2 = critical_coupling 1`. -/
+theorem cortexSupercritical : critical_coupling 1 < 3 := by
+  rw [critical_coupling]; norm_num
+
+theorem cortexResonanceRate : resonanceRate 3 1 cortexTau = 1/2 := by
   apply NNReal.coe_injective
-  have := congrArg NNReal.toReal hx
-  push_cast at this
-  linarith
+  rw [coe_resonanceRate]
+  push_cast
+  rw [critical_coupling, cortexTau,
+    show -((3:ℝ) - 2 * 1) * (2 * Real.log 2) / 2 = -Real.log 2 by ring,
+    Real.exp_neg, Real.exp_log (by norm_num : (0:ℝ) < 2)]
+  norm_num
 
-/-- The avatar region: the shared site `mid`, the one point both patches of §4 see. -/
-def avatarPatch : Opens ↥Cortex := ⟨{Site.mid}, isOpen_discrete _⟩
+theorem cortexPredict_lipschitz_rate :
+    LipschitzWith (resonanceRate 3 1 cortexTau) cortexReflexive.predict := by
+  rw [cortexResonanceRate]; exact cortexPredict_lipschitz
 
-noncomputable def cortexPredict : PredictiveModel Cortex := ⟨relax⟩
-
-/-- A reflexive boundary on the three-site cortex. `auto_resonance` is the presheaf
-restriction to the avatar region, so the avatar's state does track the global field —
-which the class itself never requires. -/
-noncomputable def cortexReflexive : ReflexiveBoundary Cortex where
-  avatar_region := avatarPatch
-  auto_resonance := fun s =>
-    (probabilityPresheaf Cortex).map (homOfLE (le_top : avatarPatch ≤ ⊤)).op s
-  predictive_model := cortexPredict
-
+/-- The contraction, with the rate read off `K` and `D` rather than stipulated. -/
 theorem cortexPredict_contracting :
-    ContractingWith (1/2) cortexReflexive.predictive_model.predict :=
-  relax_contracting
+    ContractingWith (resonanceRate 3 1 cortexTau) cortexReflexive.predict :=
+  ⟨resonanceRate_lt_one cortexTau_pos cortexSupercritical, cortexPredict_lipschitz_rate⟩
 
-/-- Derivation 6, applied to the witness: the hypotheses of
-`reflexive_topology_implies_self` hold on a substrate where the metric is the
-uniform distance between the glued measures' densities and the contraction is not
-constant. -/
-theorem cortexHasSelf : ∃ s : GlobalSection (X := Cortex),
-    cortexReflexive.predictive_model.predict s = s :=
-  reflexive_topology_implies_self cortexReflexive cortexPredict_contracting
+/-- Derivation 6, applied to the witness: the Self exists and is unique on a substrate
+where the metric is the uniform distance between the glued measures' densities, the map
+factors through a one-site avatar, and the contraction follows from the coupling exceeding
+`K_c = 2D`. -/
+theorem cortexHasSelf : ∃! s : GlobalSection (X := Cortex),
+    cortexReflexive.predict s = s :=
+  self_of_supercritical cortexTau_pos cortexSupercritical cortexReflexive
+    cortexPredict_lipschitz_rate
 
-/-- The fixed point named — and, by `relax_fixed_unique`, the only one. The Self this
-witness produces is the attractor of a non-constant dissipative map, not the value of a
-constant one. -/
-theorem cortexFixedPoint : cortexReflexive.predictive_model.predict cortexState = cortexState :=
-  relax_fixed
+/-- The fixed point named — and, by `cortexPredict_fixed_unique`, the only one. -/
+theorem cortexFixedPoint : cortexReflexive.predict cortexState = cortexState :=
+  cortexPredict_fixed
+
+/-- **Below the threshold the argument is unavailable on this very substrate.** The map is
+unchanged; only the parameters the rate is read from have moved, to `K = 1 ≤ 2 = K_c`. At
+that rate `ContractingWith` is false, so Banach supplies nothing. This does not say the
+cortex has no fixed point below threshold — `cortexPredict_fixed` is still there — it says
+this route to it is closed, which is the honest content of a threshold claim. -/
+theorem cortexSubcritical_not_contracting :
+    ¬ ContractingWith (resonanceRate 1 1 cortexTau) cortexReflexive.predict :=
+  not_contractingWith_resonanceRate cortexTau_pos.le
+    (by rw [critical_coupling]; norm_num) _
 
 /-! ### The avatar reads the field — and what it costs when it does not
 
-`cortexReflexive` was already built with the presheaf restriction as its `auto_resonance`,
-which is what made open item **O2** a bookkeeping item rather than a research one: the
-constraint was known satisfiable before it was stated. What was missing is that nothing
-*required* it, and no theorem mentioned the field. `ReflexiveBoundary.IsRestrictionResonance`
-and `ReflexiveBoundary.eq_of_avatar_eq` supply the requirement and the theorem; this block
-discharges both on the cortex, and exhibits the blind boundary they exclude.
+`cortexReflexive` is built with the presheaf restriction as its `auto_resonance`, which is
+what made open item **O2** a bookkeeping item rather than a research one: the constraint
+was known satisfiable before it was stated. What was missing then is that nothing
+*required* it, and no theorem mentioned the field.
+`ReflexiveBoundary.IsRestrictionResonance` and `ReflexiveBoundary.eq_of_avatar_eq` supply
+the requirement and the theorem; W5 then made the predictive map itself run through the
+avatar, so the blinded boundary no longer even has the same dynamics. This block
+discharges both halves on the cortex and exhibits what the blinding costs.
 
 The non-degeneracy check is the one that matters. A resonance condition is empty on a
 substrate whose avatar region cannot tell two field states apart, so
 `cortexReflexive_restrict_ne` is proved before anything is claimed for it: the silent field
 and the baseline differ *at the avatar site*, not merely somewhere.
 -/
-
-theorem memAvatarPatch : Site.mid ∈ avatarPatch := rfl
 
 /-- **The avatar region is not blind.** The silent field and the baseline differ at the
 shared site, which is the whole of the avatar region — so the resonance condition below is
@@ -1929,15 +2071,31 @@ theorem cortexReflexive_avatar_separates :
   rw [cortexReflexive_resonant cortexSilent, cortexReflexive_resonant cortexState]
   exact cortexReflexive_restrict_ne
 
+/-- **The Self is its own avatar reading, extended.** `self_eq_readout_restrict` on the
+witness: the baseline section is recovered from the single number the shared site carries.
+This is the statement Derivation 6 could not make before W5 — under the old structure
+`predict` was unrelated to `restrictToAvatar`, so no fixed point said anything about the
+field's restriction. -/
+theorem cortexState_eq_readout_restrict :
+    cortexState = cortexReflexive.readout (cortexReflexive.restrictToAvatar cortexState) :=
+  ReflexiveBoundary.self_eq_readout_restrict _ cortexReflexive_resonant cortexPredict_fixed
+
+/-- The Self is in the range of the read-out: a global state reconstructed from a section
+over one site. The low-dimensional fold of the module header, on the witness. -/
+theorem cortexState_mem_range_readout : cortexState ∈ Set.range cortexReflexive.readout :=
+  ReflexiveBoundary.self_mem_range_readout _ cortexPredict_fixed
+
 /-! #### A covering family of avatars, and the field they reconstruct -/
 
-/-- One avatar per site, each reading the field on its own smallest neighbourhood. Their
-regions cover the substrate, which is what `eq_of_avatar_eq` needs; a single avatar on one
-site could never determine the field elsewhere. -/
+/-- One avatar per site, each reading the field on its own smallest neighbourhood and
+putting back what it read. Their regions cover the substrate, which is what
+`eq_of_avatar_eq` needs; a single avatar on one site could never determine the field
+elsewhere. The read-outs play no part in that theorem — it consumes only the readings —
+and are supplied because a boundary is not a boundary without one. -/
 noncomputable def siteReflexive (x : Site) : ReflexiveBoundary Cortex where
   avatar_region := sing x
   auto_resonance := fun s => (probabilityPresheaf Cortex).map (homOfLE (le_top : sing x ≤ ⊤)).op s
-  predictive_model := cortexPredict
+  readout := fun a => sectionOfMass (fun y => if y = x then densityOn a x (memSing x) else 0)
 
 theorem siteReflexive_resonant (x : Site) : (siteReflexive x).IsRestrictionResonance :=
   fun _ => rfl
@@ -1957,36 +2115,61 @@ theorem cortex_eq_of_avatar_eq {s t : GlobalSection (X := Cortex)}
 /-- Derivation 6 on the witness, with the avatar doing work: the Self exists, and it is the
 only global state producing its avatar readings. -/
 theorem cortexSelfEncoded : ∃ s : GlobalSection (X := Cortex),
-    cortexReflexive.predictive_model.predict s = s ∧
+    cortexReflexive.predict s = s ∧
       ∀ t : GlobalSection (X := Cortex),
         (∀ x, (siteReflexive x).auto_resonance t = (siteReflexive x).auto_resonance s) → t = s :=
   ReflexiveBoundary.self_eq_of_avatar_eq siteReflexive siteReflexive_resonant sing_cover
     cortexReflexive cortexPredict_contracting
 
 /-- Naming the Self of the previous theorem: it is `cortexState`, and the avatars pin it
-down. Combines `relax_fixed_unique` (the fixed point is the baseline) with the
+down. Combines `cortexPredict_fixed_unique` (the fixed point is the baseline) with the
 reconstruction. -/
 theorem cortexState_determined_by_avatars (t : GlobalSection (X := Cortex))
     (h : ∀ x, (siteReflexive x).auto_resonance t = (siteReflexive x).auto_resonance cortexState) :
     t = cortexState :=
   cortex_eq_of_avatar_eq h
 
-/-! #### The blind boundary, which the class cannot exclude -/
+/-! #### The blind boundary, and the Self it loses
 
-/-- The same avatar region and the same predictive model as `cortexReflexive`, with an
-avatar that ignores the field. A legal `ReflexiveBoundary`: this is what O2 recorded. -/
+Before W5 this block ended with `cortexBlind_hasSelf`: the blinded boundary had *the same*
+Self, by the *same* proof, from the *same* contraction hypothesis, and that was the
+recorded defect of Derivation 6. It cannot be stated now. `cortexBlind` has a different
+predictive map — a constant one — and `cortexBlind_self_ne` proves that the cortex's Self
+is not a fixed point of it. -/
+
+/-- The same avatar region and the same read-out as `cortexReflexive`, with an avatar that
+ignores the field and reports the silent state's reading whatever the field is doing. A
+legal `ReflexiveBoundary`: the structure still has nothing to object with, which is why
+the predicate is needed. -/
 noncomputable def cortexBlind : ReflexiveBoundary Cortex :=
-  cortexReflexive.constResonance (cortexReflexive.auto_resonance cortexState)
+  cortexReflexive.constResonance (cortexReflexive.auto_resonance cortexSilent)
 
 theorem cortexBlind_not_resonant : ¬ cortexBlind.IsRestrictionResonance :=
   ReflexiveBoundary.constResonance_not_isRestrictionResonance _ _ cortexReflexive_restrict_ne
 
-/-- **The Self survives the blinding**, so `reflexive_topology_implies_self` alone says
-nothing about the avatar: same conclusion, same fixed point, and an avatar that has stopped
-reading anything. -/
-theorem cortexBlind_hasSelf : ∃ s : GlobalSection (X := Cortex),
-    cortexBlind.predictive_model.predict s = s :=
-  ReflexiveBoundary.self_of_constResonance _ _ cortexPredict_contracting
+/-- **The Self does not survive the blinding.** `cortexState` predicts itself under the
+cortex's own self-model (`cortexPredict_fixed`) and does not under the blinded one, whose
+only fixed point is the state the stipulated avatar reading extends to. This is the
+theorem that replaces `cortexBlind_hasSelf`, and it says the opposite. -/
+theorem cortexBlind_self_ne : ¬ cortexBlind.predict cortexState = cortexState := by
+  refine ReflexiveBoundary.not_self_of_constResonance _ _ ?_
+  show cortexReflexive.predict cortexSilent ≠ cortexState
+  intro h
+  have h2 : density (cortexReflexive.predict cortexSilent) Site.mid
+      = density cortexState Site.mid := by rw [h]
+  rw [Phi_cortexPredict_mid, Phi_cortexSilent, Phi_cortexState_mid] at h2
+  have := congrArg NNReal.toReal h2
+  push_cast at this
+  norm_num at this
+
+/-- The blinded boundary does have a unique fixed point, and naming it is the point: it is
+`cortexReflexive.predict cortexSilent`, the state the avatar's stipulated contents extend
+to, fixed in advance of anything the field does. No metric, no completeness and no
+contraction are used — Banach is not being applied, because there is no dynamics left to
+apply it to. -/
+theorem cortexBlind_existsUnique_self :
+    ∃! s : GlobalSection (X := Cortex), cortexBlind.predict s = s :=
+  ReflexiveBoundary.constResonance_existsUnique_self _ _
 
 /-- …and the reconstruction genuinely fails there: two *distinct* global states with
 identical avatar readings. This is the exact statement `cortex_eq_of_avatar_eq` buys, and
