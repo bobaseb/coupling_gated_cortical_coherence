@@ -106,6 +106,9 @@ different kinds, and only one of them is a missing theorem:
 | → reflexive fixed point | Banach with a label; `self_of_constResonance` proves the theorem is blind to reflexivity | W5 |
 | → experience | Stipulation. **Kept, named, owned.** Not a defect | — |
 
+The manuscript now has six figures and a methods section (~~W7~~ done); the
+claim-by-claim identifier table is Table S1 in the supplement.
+
 **Second: no new physics is derived here, and the paper should say so.** Every
 physical result invoked is established — Picard–Lindelöf, Barbălat 1959,
 Sakaguchi 1988, Kibble 1976, Still et al. 2012, Landauer, Gibbs, Banach. What is
@@ -129,10 +132,10 @@ Each item is self-contained. Record the pass in this file under a dated heading
 in the style of the archive (what was built / non-vacuity / what it does *not*
 establish / manuscript updates), then move to the next.
 
-**W1, W8, W2, W4 and W3 are done (2026-08-31).** Every defect the frame table
-listed in the chain is closed or named. What remains is presentation and two
-scoped weaknesses: the next item is **W7** — figures, and a readable main text —
-then W5 and W6.
+**W1, W8, W2, W4, W3 and W7 are done (2026-08-31).** Every defect the frame
+table listed in the chain is closed or named, and the manuscript now has figures.
+What remains is the two scoped weaknesses: the next item is **W5** — make
+`self_of_constResonance` false — then W6.
 
 ### W1 — Discharge `thermodynamic_equilibrium` from the convergence theorem
 
@@ -337,7 +340,9 @@ then W5 and W6.
 
 ### W7 — Manuscript presentation
 
-- [ ] **Objective.** Make the paper readable by the people it is aimed at.
+**Done 2026-08-31.** Pass recorded below under *2026-08-31 — W7*.
+
+- [x] **Objective.** Make the paper readable by the people it is aimed at.
 - **What it takes.**
   - **Figures. There are currently zero in 55 pages.** Required: (i) a schematic
     of the chain marking which links are theorems, which are instance
@@ -1062,6 +1067,121 @@ the main text in the supplement's register.
 **Next item: W7** — figures, Table 1 to the supplement, the proof narrative out
 of the main text, and `\date{\today}`.
 
+
+
+---
+
+## 2026-08-31 — W7: six figures, and the reference table out of the argument
+
+**What was built.**
+
+*Figure 1, the chain schematic (TikZ, in `main.tex`).* Ten boxes, one per link,
+each carrying the claim and its status in words, colour-coded five ways:
+theorem, theorem resting on a class field, empirical commitment, stipulation,
+vocabulary. This is the frame table of this file turned into the reader's first
+picture of the argument. The colour is redundant — every box states its status
+in italics and the caption spells out each key — so the figure survives
+greyscale printing and colour-blind readers.
+
+*Figure 4, the bifurcation diagram (`simulations/bifurcation.py`, new).* The
+curve `r(K)` at `D = 1`, computed from the *same* integrals `Phase8_SelfConsistency`
+defines: `Z`, `M`, `S` by trapezoid on 4001 points over `[-π, π]`, `E = S/Z`,
+`R = M/Z`. The coherent branch is found by bisecting `E(a) = D/K` and reading
+`r = aD/K` — which is `coherent_iff_sRatio_eq`, and bisection is *licensed* by
+`vonMisesSRatio_strictAntiOn` rather than merely convenient. Every feature drawn
+is a proved statement and the caption names the theorem for each:
+`fixed_point_eq_zero_of_le_critical` (only `r = 0` at or below threshold),
+`supercritical_fixed_point_existsUnique` (exactly one `r > 0` above),
+`coherent_branch_continuous_at_threshold` (the branch leaves the axis
+continuously), `coherent_branch_strictMono` (it grows). The script prints its own
+checks: the branch is strictly increasing at all 500 sampled couplings, and the
+residual `|r − R(Kr/D)|` at `K = 4D` is 2.2e-16. Passes `ruff`, `mypy --strict`,
+`bandit`, `vulture`, `xenon`, `tach`.
+
+*Figures 2, 3, 5, 6 — the four existing simulations, in the main text with
+methods.* Mesh refinement into §Macroscopic Scaling; structural resonance and
+the finite-`N` Kuramoto transition into Derivation 7; hardware comparison into
+the Corollary. A new §*Numerical illustrations: methods* before the Conclusion
+gives every parameter, seed and integrator for all five computed figures.
+
+**What the figures are careful not to claim.** Each caption says what its figure
+does *not* show, because a picture is the easiest place in a paper to overclaim.
+The bifurcation diagram shows no stability — nothing in the development says the
+coherent branch is the dynamically selected one. The finite-`N` simulation is
+the *deterministic Lorentzian-disorder* model, not the noisy identical-frequency
+model the Lean formalizes; both have threshold `2D`, by Kuramoto's argument and
+by Sakaguchi's respectively, and the agreement is a known feature of the
+mean-field model rather than a result of ours. This was worth catching: the two
+`K_c`s had been run together in the prose, and the soundness section's sentence
+"`K_c` is nowhere in our Lean development" now says *which* `K_c` it means.
+The mesh figure's `O(N^{-2})` is the midpoint rule's rate, not a prediction of
+the framework, and its last point is within a factor of ten of the reference
+computation. The resonance figure's `σ` settles at a *positive* plateau — which
+is the visual form of exactly the reason W4 withdrew the old `σ → min ⟹ D_KL → 0`
+inference — and its right panel falls 5% in 2000 steps, so it shows a direction
+of drift, not convergence. The hardware figure shows a *randomly* wired
+architecture being beaten, while the theorem is about fixed wiring support, where
+an architecture already wired to the best pair is not beaten.
+
+**Table 1 to the supplement.** The 20-row longtable is now Table S1 in
+`supplementary.tex` under a new §*Claims and their Lean identifiers*, renumbered
+`S\arabic{table}` so it prints as S1 in both the standalone and the merged arXiv
+build. The main text gets a five-row table: claim / status / what is assumed.
+Five prose references to "Table 1" were retargeted to S1; the one that stayed
+was rewritten, since it was the sentence about the frequency-spread `K_c`.
+
+**The proof narrative out of the main text.** The fold-and-cross argument for
+`vonMisesSRatio_strictAntiOn` — the two reflections onto `[0, π/2]`, the
+`2 cosh X cosh Y = cosh(X+Y) + cosh(X−Y)` identity, the crossing point from the
+IVT that avoids Fubini — was a page of Derivation 7 and is now
+Supplement §5.1. What stays in the main text is the conclusion, the reason the
+obvious differentiation route fails, and one sentence on the shape of the
+argument.
+
+**`\date{\today}` fixed** to `31 August 2026`, and `prepare_arxiv.sh` updated in
+the same pass: it now copies the five PNGs into `arxiv_submit/`, includes them in
+the tarball, and its `\date` deletion matches the new line. `main.tex` sets
+`\graphicspath{{simulations/}{./}}` so bare filenames resolve both from the repo
+root and from the flattened tarball, and `\providecommand{\nolinenumbers}{}`
+keeps the figures compiling after the script strips `lineno`. Float parameters
+were loosened (`topfraction` 0.9, `textfraction` 0.07) because six floats in the
+compact arXiv build otherwise pile up at the end — Figure 1 was landing on page
+27 and is referenced on page 3; it now sits on page 3.
+
+**Also in this pass, at the author's request:** the AI-assistance paragraph moved
+from *Acknowledgments* to a *Contributions* section, stating which tool did which
+work and adding Claude Opus 5 in Claude Code for the later formalization passes,
+the figures and this restructuring, with responsibility for every claim resting
+with the author.
+
+**What this does not establish.** Nothing mathematical. No theorem was proved, no
+Lean file was touched, and the Lean development is byte-identical to `b274e0b`.
+The figures illustrate proved statements; they are not evidence for them, and
+each caption says so. Whether the paper is now readable by a cognitive scientist
+is a claim only a reader can settle — what is checkable is that the main text no
+longer contains the identifier table or the fold proof, and that every figure has
+its methods.
+
+**State.**
+
+* `main.tex` 77 → **82 pages** (six figures and a methods section added, a page
+  of proof narrative removed); overfull hboxes **20**, an exact match for
+  `HEAD`'s multiset — the four introduced by the methods paragraphs were removed
+  rather than tolerated, by moving the script names out of the run-in headings.
+  Zero LaTeX errors, zero undefined references or citations.
+* `supplementary.tex` 11 → **14 pages**, overfull **8**. Zero errors.
+* Merged arXiv build **43 pages**, zero errors, figures adjacent to their text.
+* Lean 12,405 lines across 19 modules, unchanged.
+
+**Notes for W5.**
+
+* Figure 1's ninth box is the honest statement of the W5 defect and is written to
+  be *deleted* when W5 lands: "The map does not yet detect whether the avatar
+  reads the field." When `self_of_constResonance` stops typechecking, that clause
+  comes out of the figure and out of Table 1's fifth row.
+* The bifurcation script's structure — define the Lean objects by quadrature,
+  then assert the proved qualitative facts as printed checks — is worth reusing
+  if W5 or W6 wants a figure.
 
 
 ## Low value — listed so they are not rediscovered as new

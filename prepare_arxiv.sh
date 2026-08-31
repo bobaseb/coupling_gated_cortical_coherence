@@ -4,6 +4,12 @@ mkdir arxiv_submit
 cp main.tex arxiv_submit/
 cp supplementary.tex arxiv_submit/
 cp arxiv_assets/neurips_2026.sty arxiv_submit/
+# Figures, flattened: main.tex sets \graphicspath so bare filenames resolve either way.
+cp simulations/bifurcation_diagram.png \
+   simulations/kuramoto_transition.png \
+   simulations/mesh_refinement_convergence.png \
+   simulations/structural_resonance.png \
+   simulations/hardware_comparison.png arxiv_submit/
 
 cd arxiv_submit
 
@@ -11,7 +17,7 @@ cd arxiv_submit
 sed -i 's/\\documentclass\[12pt\]{article}/\\documentclass{article}\n\\usepackage[preprint]{neurips_2026}/' main.tex
 sed -i '/\\usepackage\[round\]{natbib}/d' main.tex
 sed -i '/\\doublespacing/d' main.tex
-sed -i '/\\date{\\today}/d' main.tex
+sed -i '/^\\date{/d' main.tex
 sed -i '/\\usepackage{lineno}/d' main.tex
 sed -i '/\\linenumbers/d' main.tex
 
@@ -43,6 +49,6 @@ mv final_main.tex main.tex
 rm supp_body.tex merged.tex supplementary.tex
 
 # 5. Create tarball
-tar -cvvf ax.tar main.tex neurips_2026.sty
+tar -cvvf ax.tar main.tex neurips_2026.sty *.png
 
 echo "Done! arxiv_submit/ax.tar is ready."
