@@ -37,3 +37,14 @@ repos:
         language: system
         types: [python]
         pass_filenames: false
+      # The publication is not a changelog: AGENTS.md section 5. Unlike the
+      # hooks above this one is not about Python -- it reads the two .tex files
+      # that make up the publication, so it selects on `files` rather than on
+      # `types: [python]`. The supplement is part of the publication and is
+      # covered identically.
+      - id: check-prose
+        name: the publication is not a changelog
+        entry: bash -c 'cd simulations && uv run python check_prose.py'
+        language: system
+        files: ^(main|supplementary)\.tex$
+        pass_filenames: false
