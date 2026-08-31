@@ -50,8 +50,8 @@ manuscript has **no figures**. Those are the items below.
 
 ## Where the development stands — 2026-08-30
 
-**Lean.** 11,366 lines across 18 modules. Zero `sorry`. Zero declared axioms.
-`Examples.lean` is 3,542 lines and carries 17 witness sections plus §17.1.
+**Lean.** 12,378 lines across 19 modules. Zero `sorry`. Zero declared axioms.
+`Examples.lean` is 3,981 lines and carries 18 witness sections plus §17.1.
 
 **Landed 2026-08-30 (`861f252`).** O20(d)+(e): `lojasiewicz_estimate`,
 `excess_decay`, `velocity_abs_le_exp`, `phase_tendsto`, `excess_tendsto_zero`,
@@ -67,7 +67,15 @@ initial data rather than assumed on every instance, and O20 is closed. The
 cover's *other* physical hypothesis, `section_agrees_of_phase_eq`, is untouched.
 Full pass record below.
 
-**Manuscript.** `main.tex` 55 pages, `supplementary.tex` 10. Zero figures. The
+**Landed 2026-08-31 — W4.** `Phase3_PredictiveThermodynamics.lean`: mutual
+information defined from Mathlib's `klDiv`, the data processing inequality for
+`X_t → S_t → S_{t+1}` proved, Still's bound carried as a class field, and every
+consequence downstream of it derived. Witnessed by `Examples.lean` §18 with two
+instances, a counterexample fencing the no-back-action hypothesis, and a proof
+that the `axiom` form of the bound is refutable. Derivation 3's invalid inference
+is withdrawn in both documents. Full pass record below.
+
+**Manuscript.** `main.tex` 70 pages, `supplementary.tex` 11. Zero figures. The
 four Python simulations in `simulations/` appear nowhere in either document.
 
 ---
@@ -86,7 +94,7 @@ different kinds, and only one of them is a missing theorem:
 | Finite phase space | Vocabulary; no theorem consumes it | W6 |
 | SSB → boundary | Proved at π₀; π₁ and up available, not taken | ~~W2~~ done |
 | → dissipation | Sound | — |
-| → prediction | **Invalid inference.** σ ≥ D_KL/Δt does not give D_KL → 0 | **W4** |
+| → prediction | Still's bound; nonpredictive information is what dissipation pays for | ~~W4~~ done |
 | → continuous field | Asserted as a derivation; it is an empirical identification | W3 |
 | → coherent state | Theorem on a basin, class field discharged from it | ~~W1~~ done |
 | → reflexive fixed point | Banach with a label; `self_of_constResonance` proves the theorem is blind to reflexivity | W5 |
@@ -115,9 +123,10 @@ Each item is self-contained. Record the pass in this file under a dated heading
 in the style of the archive (what was built / non-vacuity / what it does *not*
 establish / manuscript updates), then move to the next.
 
-**W1, W8 and W2 are done (2026-08-31).** The next item is **W4** — the one the
-frame calls the item that justifies the paper — then W3 and W7, which now have
-the honesty framing they were waiting on, then W5 and W6.
+**W1, W8, W2 and W4 are done (2026-08-31).** All three defects the frame table
+listed as blocking the chain are closed. The next item is **W3** — demote
+Derivation 4 from a derivation to an empirical identification, and confront the
+frustration/positivity contradiction — then W7, then W5 and W6.
 
 ### W1 — Discharge `thermodynamic_equilibrium` from the convergence theorem
 
@@ -217,9 +226,9 @@ the honesty framing they were waiting on, then W5 and W6.
 
 ### W4 — Replace Derivation 3 with the thermodynamics of prediction
 
-**This is the item that justifies the paper. Everything else is maintenance.**
+**Done 2026-08-31.** Pass recorded below under *2026-08-31 — W4*.
 
-- [ ] **Objective.** Replace an invalid inference with a published theorem, and
+- [x] **Objective.** Replace an invalid inference with a published theorem, and
       formalize it.
 - **Why.** The current step is: σ ≥ D_KL(P‖Q)/Δt, therefore gradient descent on σ
   drives D_KL → 0. **This does not follow.** Descending on the left of an
@@ -685,6 +694,185 @@ minima rather than the hypotheses holding degenerately.
 
 **Next item: W4** — replace Derivation 3's invalid inference with Still et al.
 
+---
+
+## 2026-08-31 — W4: the inference, replaced rather than weakened
+
+**What was built.**
+
+A new module, `PhysicsOfConsciousness/Phase3_PredictiveThermodynamics.lean`
+(481 lines), and `Examples.lean` §18 (about 320 lines).
+
+*Definitions.* Mathlib has `klDiv` but no mutual information, no conditional
+entropy and no measure entropy — confirmed absent from the pinned revision by
+grep, as the item predicted. `mutualInfo μ := klDiv μ (μ.fst.prod μ.snd)` is the
+standard definition and the one that makes every lemma in
+`Mathlib/InformationTheory/KullbackLeibler/` apply unchanged. Valued in `ℝ≥0∞`,
+so Gibbs' inequality is discharged by Mathlib's construction rather than
+re-proved.
+
+*The Markov chain is built into the shape of the evolution, not asserted beside
+it.* `evolvedJoint μ κ := (Kernel.id ∥ₖ κ) ∘ₘ μ`. The parallel kernel acts as the
+identity on the system coordinate and through `κ` on the signal coordinate, so
+there is no channel from `X_t` to `S_{t+1}`. That *is* the hypothesis
+`X_t → S_t → S_{t+1}`, and it is unstatable-as-false rather than assumed.
+
+*The theorem.* `predictiveInfo_le_mutualInfo` — `I(X_t;S_{t+1}) ≤ I(X_t;S_t)`.
+The proof is three rewrites: `evolvedJoint_fst` and `evolvedJoint_snd` compute
+the evolved marginals (`μ.fst` and `κ ∘ₘ μ.snd`), `Measure.prod_comp_right`
+identifies the product of *those* with the parallel kernel applied to the product
+of the originals, and `klDiv_comp_right_le` finishes. The two marginal lemmas are
+the only real plumbing and each is six lines.
+
+*Two regimes, proved rather than described.* `predictiveInfo_id` — a frozen
+signal is perfectly predicted, so nonpredictive information is zero.
+`evolvedJoint_const` / `predictiveInfo_const` / `nonpredictiveInfo_const` — a
+signal that forgets its own past can be predicted not at all, so the *entire*
+memory is nonpredictive. The second needed the evolved joint computed outright:
+pushing `μ` through `id ∥ₖ const ν` gives `μ.fst ⊗ ν`.
+
+*The postulate.* `class PredictiveDissipation` carries the joint law, the signal
+dynamics, `k_B T`, the dissipated work, a finite-memory field, and Still's bound
+as `still_bound`. Standing rule 1, and the `axiom` form is refutable for exactly
+the reason `kl_bound_axiom` was — `Examples.lean` §18.4 proves it
+(`still_bound_is_not_an_axiom`) rather than describing it.
+
+*What is derived from it.* `dissipatedWork_nonneg` — the second law, the exact
+analogue of `discrete_entropy_rate_nonneg` but with the data processing
+inequality in place of Gibbs'. `nonpredictive_le_dissipation` — the inference in
+the valid direction. `predictive_eq_of_no_dissipation` — a quasi-static drive
+leaves every retained bit predictive. `predictive_ne_top` — predictive
+information is finite as a *consequence* of the finite-memory field, so that is
+the only finiteness hypothesis the class needs.
+
+*KPV.* `IsKPVDissipation` is a predicate on an instance, not a further class
+field — the `IsRestrictionResonance` pattern, per standing rule 3.
+`nonpredictive_le_arrow` derives that the arrow of time bounds the wasted memory.
+It has no independent mathematical content and the docstring says so.
+
+**Non-vacuity — §18, and it is the larger half of the pass.**
+
+The witness is a correlated two-bit law: `corrJoint` puts mass `1/2` on each
+agreeing configuration. Establishing that its mutual information is *neither zero
+nor infinite* is where the work is.
+
+* `memory_ne_zero` routes through `klDiv_eq_zero_iff`, so it reduces to
+  `corrJoint ≠ indepJoint`, checked on one singleton (`1/2` against `1/4`) rather
+  than by evaluating an integral.
+* `memory_ne_top` needs absolute continuity, obtained from the fact that the
+  reference law charges *every* singleton with `1/4`, so a set it annihilates is
+  empty; integrability is `Integrable.of_finite`.
+* `frozenSystem` — a static environment. `dissipatedWork := 0` is *permitted*,
+  not assumed: `still_bound` is checked and discharged by `predictiveInfo_id`.
+  `frozenSystem_all_memory_predictive` fires the zero-dissipation theorem and
+  pairs it with `memory_pos`, so the conclusion is about a system that does
+  remember something.
+* `scrambledSystem` — an environment redrawn at each step.
+  `scrambledSystem_dissipates` proves the instance is *forced* to dissipate, and
+  the floor is its whole mutual information. `scrambledSystem_dpi_strict` shows
+  the data processing inequality is strict here where it was an equality in
+  §18.1, so it is not secretly one or the other.
+* `scrambledSystem_kpv` discharges the KPV predicate on this instance, with the
+  forward ensemble the correlated law and the reversed one the product of its
+  marginals. The docstring says plainly that this is the saturating case and that
+  a physical instance would have slack.
+
+**The theorem is fenced.** §18.3 builds `writeKernel`, a Markov kernel on the
+*pair* that copies the system's state into the signal, and proves
+`writeKernel_increases_mutualInfo`: it carries an independent two-bit law to a
+perfectly correlated one, raising mutual information from `0`. So
+`predictiveInfo_le_mutualInfo` is not a fact about Markov kernels in general, and
+the `id ∥ₖ κ` form carries the physics rather than decorating it. This is the
+service `§16`'s one-way kernel performs for the symmetric-kernel theorems.
+
+**What this does *not* establish.**
+
+* **It is not the Free Energy Principle.** Still's bound says prediction is
+  thermodynamically favoured. It says nothing about hierarchical generative
+  models, variational free energy or Bayesian inference. The manuscript now cites
+  FEP as *consonant* and says explicitly that this is weaker than derivation.
+* **Symbol grounding does not follow, and the manuscript no longer claims it.**
+  Maximal predictive information is compatible with the system storing a lossy or
+  unrecognisable function of the signal; a state that predicts is not thereby a
+  state that means. What survives is narrower and is stated as such.
+* **Still's bound itself is a postulate here.** Deriving it needs a stochastic
+  thermodynamics — path measures, a time-reversal involution, Crooks' fluctuation
+  theorem — none of which is in Mathlib. Everything downstream is derived; the
+  bound is not.
+* **Nothing connects `S` to the rest of the development.** The signal is
+  abstract. There is no link to the Kuramoto dynamics of Phase 4 or the
+  continuous field of Phase 8, and none is claimed.
+* **The old bound is retained, not deleted.** `StructuralResonance` is a
+  consistent postulate and `structural_resonance_bound` a correct rearrangement
+  of it; what was wrong was the use made of it. Both files now say so at the
+  point of use.
+
+**The live defect the item named is fixed.** `Phase3_KLBound`'s docstring said
+this bound "is what the informal argument of Derivation 3 appeals to when it
+claims structural resonance forces KL(P ‖ Q) → 0", and filed the limit as merely
+"not formalized". That understated it: the limit does not follow. The docstring
+now says the inference is invalid, why (`σ` relaxes to a positive NESS value, so
+the bound delivers `D_KL ≤ Δt·σ_NESS` and never zero), and where the replacement
+is. The module header carries the same note.
+
+**Manuscript updates.**
+
+* **Derivation 3 is rewritten and retitled** — "Prediction as the Thermodynamic
+  Cost of Memory". It states the old argument, withdraws its final step and says
+  exactly why; states Still's bound; gives the three consequences as theorems;
+  explains where the no-back-action hypothesis lives and exhibits what breaks
+  without it; describes both witness regimes; adds the KPV equality; and closes
+  with a *what this does not establish* paragraph that retracts the FEP and
+  symbol-grounding claims by name.
+* **Table 1 gains a "Nonpredictive information bounds dissipation" row**, and the
+  old "Structural Resonance KL Bound" row is **rescoped rather than deleted** —
+  it now records that the postulate is retained, yields `σ ≥ 0`, and that no
+  limit may be read off it. Deleting it would have hidden a class that is still
+  in the Lean and still inhabited; the item said "replaced", and what is replaced
+  is the chain-level claim, which now sits in the new row.
+* **`supplementary.tex` §3.** The old Theorem 3 is printed, withdrawn, and
+  replaced by a new Theorem 3 stating the data processing inequality and Still's
+  bound together. O15's sentence — "what remains unformalized is the limit
+  itself… which would need a coercivity or Łojasiewicz-type estimate we do not
+  have" — is **replaced, not weakened**: the new text says the gap was in the
+  inference and not in the analysis, and that the earlier filing misdescribed it.
+* **One reference added, verified online** (`AGENTS.md` §4): `kawai2007` —
+  Kawai, Parrondo & Van den Broeck, *Dissipation: The phase-space perspective*,
+  Phys. Rev. Lett. **98**(8), 080602 (2007). `still2012` was already present and
+  correct from W8, and is now actually used rather than only named.
+
+**Gates.**
+
+* `lake build` clean, 17,612 jobs, zero `sorry`, zero warnings.
+* `#print axioms` on all 19 new module declarations and all 27 new `Examples`
+  declarations: `propext`, `Classical.choice`, `Quot.sound` only.
+* `main.tex` 64 → **70 pages**; overfull hboxes **21**, *identical* to `HEAD`'s
+  set (diffed as a multiset, not assumed — no new boxes and none removed). One
+  new box did appear on the first draft, from `predictive_eq_of_dissipatedWork_eq_zero`
+  at the end of a paragraph; the Lean theorem was **renamed** to
+  `predictive_eq_of_no_dissipation` and the sentence rewrapped, rather than the
+  box being tolerated. Zero LaTeX warnings, zero undefined references.
+* `supplementary.tex` 10 → **11 pages**; overfull 11 → **8**, a strict subset of
+  `HEAD`'s (two long identifiers in pre-existing text gained breaks after the
+  insertion shifted their paragraph). Zero warnings, zero undefined references.
+* Lean now 12,378 lines across 19 modules.
+
+**Notes for later items.**
+
+* *For W7.* §18's two regimes are the clearest picture in the development of what
+  Derivation 3 now claims, and the natural figure is the memory/prediction split:
+  one bar per instance, divided into predictive and nonpredictive parts, with the
+  dissipation floor drawn against the second. It needs no simulation.
+* *For W3.* Derivation 3 now names its own retraction in the text. Derivation 4
+  has two things to retract in the same voice — the "primary dissipative
+  structure" claim and the frustration/positivity contradiction — and the
+  paragraph shape used here (*state the old claim, withdraw it, say why, state
+  what survives*) is the template.
+
+**Next item: W3** — demote Derivation 4 from a derivation to an empirical
+identification, and confront the frustration/positivity contradiction.
+
+
 ## Low value — listed so they are not rediscovered as new
 
 Do not pick these up ahead of W1–W8. Both are completeness work with no claim
@@ -720,8 +908,10 @@ Carried from the consolidated ledger. Full reasoning in the archive.
   system. A research programme, not a task. This is the single gap between
   `exhibits_phase_transition` and a statement about a trajectory, and the
   docstrings and manuscript already state it in exactly those terms.
-- **O15 — `lim D_KL = 0`.** **Superseded by W4**, which replaces the inference
-  rather than weakening the sentence.
+- **O15 — `lim D_KL = 0`.** **Superseded and closed by W4 (2026-08-31)**, which
+  replaced the inference rather than weakening the sentence. The recorded filing —
+  "a sentence to weaken in `supplementary.tex`" — was wrong about the *kind* of
+  defect, not merely its size: the gap was in the inference, not the analysis.
 - **O17 — the step from the hardware results to "von Neumann architectures cannot
   be conscious."** Informal, and `main.tex` says so. Note for W3/W7: the
   measure-theoretic half (`fieldCorrelation_sited_eq_zero`) says a finitely-sited

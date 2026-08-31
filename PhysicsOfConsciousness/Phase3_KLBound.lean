@@ -22,6 +22,12 @@ from Derivation 3.
     bridging to the gradient descent formalism of Phase 8.
   • `discrete_entropy_rate_nonneg` — 0 ≤ σ, the one result that genuinely
     combines Gibbs' inequality with the postulate.
+
+**Superseded, in part.** Everything here is true and stays. What does *not*
+follow from it is the step Derivation 3 used to take — that descending on `σ`
+drives KL(P ‖ Q) to zero. That inference is invalid and is discussed at
+`structural_resonance_bound`; the replacement is
+`Phase3_PredictiveThermodynamics.lean`.
 -/
 
 variable {V : Type*} [Fintype V]
@@ -136,13 +142,25 @@ This is `StructuralResonance.kl_bound` rearranged (multiplying through by
 mathematical content. Gibbs' inequality is *not* used here — for the two-sided
 sandwich 0 ≤ KL(P ‖ Q) ≤ Δt · σ see `discrete_entropy_rate_nonneg` below.
 
-This bound, together with gradient descent on entropy production (proved for
-continuous neural fields in `Phase8_ContinuousField.lean` as
-`gradient_flow_implies_entropy_decrease`), is what the informal argument of
-Derivation 3 appeals to when it claims structural resonance forces
-KL(P ‖ Q) → 0. Note that the limit itself is *not* formalized: Phase 8's
-gradient-flow theorems are stated over an abstract inner-product space and are
-not linked to `discrete_entropy_rate`.
+**Do not read a limit off this bound.** The informal argument of Derivation 3
+used to run: gradient descent on entropy production (proved for continuous
+neural fields in `Phase8_ContinuousField.lean` as
+`gradient_flow_implies_entropy_decrease`) drives `σ` down, and this bound then
+forces KL(P ‖ Q) → 0. **That inference is invalid.** Lowering `σ` lowers the
+*bound* on the divergence, but a driven system relaxes to a non-equilibrium
+steady state at strictly positive `σ`, so all the bound ever delivers is
+KL(P ‖ Q) ≤ Δt · σ_NESS — a positive number, never zero. Nothing in this file or
+in Phase 8 establishes the limit, and Phase 8's gradient-flow theorems are in any
+case stated over an abstract inner-product space and are not linked to
+`discrete_entropy_rate`.
+
+Derivation 3 no longer rests on that step. See
+`Phase3_PredictiveThermodynamics.lean`, which replaces it with Still, Sivak, Bell
+and Crooks' bound on dissipation by *nonpredictive* information — where the
+quantity of interest sits on the small side of the inequality, so that a bound on
+dissipation is a bound on it and no limit is needed. `StructuralResonance` is
+kept: it is a consistent postulate and this theorem is a correct rearrangement of
+it. What was wrong was the use made of it.
 -/
 theorem structural_resonance_bound {V : Type*} [Fintype V] [DecidableEq V]
   [Thermodynamics V] [R : StructuralResonance V] :
