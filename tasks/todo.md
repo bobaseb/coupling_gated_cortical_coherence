@@ -2119,3 +2119,387 @@ zero overfull boxes and zero undefined references.
 
 **Left open.** S3, the no-hysteresis discriminator, is the natural next item and
 costs no Lean; it is untouched here to keep this pass one change.
+
+---
+
+## Post-review — from Claude Opus 4 (Fable) on OpenRouter, 2026-09-01
+
+A 1000-word high-level review plus ten critical bullet points was commissioned
+via `hermes chat -q` with the assumption that S3, T1–T5 are all completed. The
+full text is at `~/claude_opus_review.txt` on this machine. The
+review closed four points already addressed by prior C/P/A passes (n0→n1 arrow
+removed in C5; n5→n7 gap documented in C3; sharpened labels in C5; O14(B)
+already in the closed-items section). Seven items are genuinely new or press on
+settled questions and are recorded below.
+
+Take ONE at a time. R1 and R2 first — both make the existing Lean say what it
+already says more clearly, cost no new formalization, and address the questions
+a PRX Life referee will raise first.
+
+---
+
+### R1 — Formalise the EM identification as a predicate, not only as prose
+
+- [ ] **Objective.** Introduce `IsEMFieldCoupling` (or a similarly named `Prop`)
+      whose fields are the necessary conditions the framework places on the
+      posited continuum kernel, so that the step from `ContinuousNeuralField` to
+      `exhibits_phase_transition` is mediated by a checkable hypothesis rather
+      than by a paragraph in the manuscript.
+
+**Why.** The identification of the continuum kernel with the cortical EM field
+is the framework's central empirical commitment and the place it is most easily
+wrong. Currently it lives entirely in prose — the scaling section's boxed
+statement, the four falsification conditions, and the empirical-commitment cell
+of Table S1. A Lean predicate whose fields are *what the kernel must be*
+(continuous, defined on a domain of positive measure, modulatory in effect on
+individual sites, of sufficient coupling strength) would make the physical
+requirement a formal hypothesis of `chain`'s `E56` rather than an annotation
+beside it. The predicate can remain uninhabited by a cortical witness — that is
+the empirical question — but its failure conditions would be the points at which
+a future model must supply data rather than argument. Do not weaken
+`ContinuousNeuralField` to make the predicate trivial; standing rule 3.
+
+**What it takes.** One module (`Phase9_EMIdentification.lean` or similar)
+sitting above `Phase8_ContinuousField`, defining the predicate and proving
+that the toy witness's kernel satisfies the non-cortical conditions (positivity,
+continuity, domain with measure). The manuscript then cites the predicate
+rather than only the prose paragraph.
+
+**Risk.** This makes the gap *more* visible rather than less — the predicate
+will have a field for the coupling strength and `E56` will say the witness's
+value is `K = 3`, which is not cortex. That is the point: the framework should
+count its empirical commitments, not blur them.
+
+**Done when.** The predicate exists, `chain`'s `E56` references it, the
+witness kernel discharges the non-cortical fields, and the manuscript's weakest
+paragraph (the EM identification) states what the predicate demands rather than
+what the prose paragraph says.
+
+---
+
+### R2 — State propagation of chaos (O14(B)) in the manuscript as an open problem
+
+- [ ] **Objective.** Add one sentence to Derivation 4's closing scope paragraph
+      naming the dynamical mean-field limit as the gap between the stationary
+      threshold theorems and a trajectory statement, with a pointer to the
+      literature that would close it.
+
+**Why.** O14(B) is recorded in the closed-items section of this ledger but is
+invisible in the manuscript. A referee who reads `K_c = 2D` as a claim about
+*trajectories* rather than about a stationary density will — correctly —
+object that no lemma relates the two. The manuscript currently says the station-
+ary density is an input and no Fokker–Planck operator exists. That is honest.
+What it does not say is *what would be needed* to close the gap: McKean–Vlasov
+propagation of chaos for the finite Kuramoto system, which is a research
+programme, not a lemma. Naming it exactly, with a reference, turns a silent
+debt into a known one.
+
+**What it takes.** One sentence at the end of Derivation 4 and one sentence in
+the supplement at the close of §7, each naming propagation of chaos as the
+missing link. No Lean.
+
+**Done when.** A reader who goes from Derivation 4's scope paragraph to a
+Lacker or a Sznitman reference knows exactly what is not proved.
+
+---
+
+### R3 — Clarify what the Self is, beyond a Banach fixed point
+
+- [ ] **Objective.** One paragraph in Derivation 6 or the Discussion that states
+      what ``the Self'' means in the formalization: the unique global section
+      fixed by the avatar-mediated read-out. Distinguish this from (i) the first-
+      person experience it is stipulated to be (n10, outside the chain),
+      (ii) the mere existence of a fixed point of some map on some metric space,
+      and (iii) any claim about a conscious self in the psychological sense.
+
+**Why.** The review's sharpest observation: a Banach fixed point is a purely
+mathematical object, and the manuscript's language around ''the Self'' can be
+read as smuggling phenomenology into the formal result. The current text
+(§Reflexive topology) states the Banach theorem, names the object, and says
+n10 is stipulation. What it does not say is what *within the formalisation*
+the Self denotes — the particular section that is both glued from the cover
+and fixed by the avatar. A1 guarantees this identity; the manuscript should
+name it as the content of the conditional composition's endpoint.
+
+**What it takes.** A short paragraph in Derivation 6, after the contraction
+law is introduced, stating that `UnifiedSelf` is the composition's endpoint
+and that within Lean it means the unique section satisfying two properties
+(the unification equation and the fixed-point equation). Then a sentence that
+this is not a consciousness claim — n10 is. No Lean.
+
+**Done when.** A reader who checks `Chain.lean`'s `UnifiedSelf` finds the
+manuscript's description thereof and sees a statement about which formal
+object is meant, not a claim about what it feels like to be it.
+
+---
+
+### R4 — Specify the measurement protocol behind the sleep-inertia prediction
+
+- [ ] **Objective.** State in the prediction section which neural observables
+      carry the quantities the prediction constrains, and how the parameter-
+      free collapse would be measured in practice.
+
+**Why.** The prediction is the paper's own falsifiable claim, and it is
+presented in functional form — `r(t)`, `a(t)`, `K(t)` — without identifying
+what in cortex supplies each. The review pressed this correctly: a referee
+wants to know what signal to record. The candidate is LFP phase for `r` and
+`a` (the circular resultant length and the von Mises concentration of the
+instantaneous phase distribution across sites) and extracellular volume
+fraction or astrocytic calcium imaging as a proxy for `K(t)`. The collapse
+prediction `r = I₁(a)/I₀(a)` ties the two LFP-derived quantities together
+and the `a/r` threshold ties both to the volume proxy. Saying this would
+move the prediction from a mathematical statement to an experiment design.
+
+**What it takes.** One paragraph in the prediction subsection (after the
+collapse is stated) specifying the recording modality (multisite LFP, source-
+reconstructed MEG/EEG with sufficient cortical coverage), the estimator for
+`a` (the regression-based log-density slope, not the ML estimate — S1's pass
+record explains why), and the candidate slow variable (extracellular volume
+fraction via diffusion MRI or astrocytic calcium via fibre photometry). No Lean.
+
+**Done when.** A referee can write the preregistration from the manuscript
+alone, without emailing the author.
+
+**Risk.** Specifying the protocol constrains the prediction to a recording
+modality the author may not have access to. That is a cost, and it is the
+right cost: a prediction without a protocol is a formalism.
+
+---
+
+### R5 — Qualify the hardware suboptimality claim to its proven scope
+
+- [ ] **Objective.** Adjust the Rigid hardware section, the hardware figure
+      caption and the Corollary so that every statement about suboptimality is
+      explicitly scoped to (a) the functional that registers zero for finitely-
+      sited architectures, and (b) architectures not wired to the best-
+      correlated pair.
+
+**Why.** `rigid_is_strictly_suboptimal` derives suboptimality for any
+realizable coupling whose wiring misses the best-correlated pair; it does
+not derive it for every rigid architecture. The simulation shows a ~5 % drift
+over 2000 steps at frozen phases — a direction, not convergence. The manu-
+script currently wraps these as a Corollary whose title ``Continuous topology
+beats rigid'' reads as unconditional. The review flagged this, and the gap
+between the ``demonstrably suboptimal under matched resource and specified
+drift conditions'' and the current wording is the right size for this item.
+
+**What it takes.** Rewrite the Corollary's first sentence to name the
+functional and the wiring condition. Add one sentence to the caption of
+Fig. 4 stating the 5 % figure and that it reports drift direction, not
+convergence. No Lean; the theorems are correctly stated and need no change.
+
+**Done when.** A reader who reads the Corollary first and then the theorems
+finds no mismatch in their scope.
+
+---
+
+### R6 — Revisit the ``no allowlist'' rule in `check_prose.py`
+
+- [ ] **Objective.** Reopen P1's design decision: whether a zero-allowlist gate
+      loses critical narrative context that is not recoverable from Lean
+      docstrings or CHANGELOG.md.
+
+**Why.** The review pointed out that some scientific narratives legitimately
+require a chronological frame: explaining *why a claim had to be* weakened is
+not autobiography if the reason is general enough to interest a reader who
+has never seen a draft. The current rule treats every retrospective sentence
+as contamination. The P1 pass record anticipated this objection in the
+negative — ``The finding does not depend on whose axioms they were'' — and
+that reasoning holds for the three concrete refutations in §2.1. The question
+is whether it holds for every future edit. A single escape hatch with a
+justifying Lean docstring (not a `% CHANGELOG-OK` comment) would be a
+checkable middle ground.
+
+**What it takes.** Add a `--allow-hash` mechanism (or equivalent) to
+`check_prose.py` that permits a matching `@changelog:` annotation in a Lean
+docstring. Gate the annotation behind a review step: the curator or the
+author must approve it. Record the first instance if one arises; if none
+arises after six months of edits, remove the mechanism as unused. No Lean
+change to the publication files; only the script and its documentation.
+
+**Risk.** An allowlist with one entry becomes an allowlist with twenty — this
+is the argument P1 made and it is still true. The item is worth doing only
+if there is a concrete case the current rule makes worse. The review provided
+none; this item is an invitation to watch for one rather than to build the
+mechanism pre-emptively.
+
+**Done when.** The script has the mechanism OR a pass record in this ledger
+saying the question was revisited and the zero-allowlist decision reaffirmed
+with a reason tied to a concrete case. Either outcome is a close.
+
+---
+
+ ### R7 — Expand the theory landscape to acknowledge alternative formalisations of unity
+
+- [ ] **Objective.** One paragraph in the Introduction or the Discussion that
+      names the Dynamic Core hypothesis (Edelman & Tononi) and predictive-
+      processing accounts of perceptual binding as alternative approaches to
+      formalising unity, states briefly why each is distinct from the sheaf-
+      theoretic gluing proposed here, and clarifies that the contribution is
+      the formal-language framing, not a claim that other accounts of binding
+      are wrong.
+
+**Why.** The manuscript contrasts its global section with IIT's Φ and GWT's
+broadcast, which are the two rivals the consciousness literature expects to
+hear about. It does not mention the Dynamic Core (which shares the phase-
+synchrony premise) or predictive-processing accounts of binding (which share
+the information-theoretic framing). The review noted this narrows the
+paper's position unnecessarily: acknowledging nearest neighbours costs one
+paragraph and makes the sheaf-theoretic contribution sharper by contrast.
+
+**What it takes.** One paragraph, placed after the IIT–GWT comparison, naming
+each alternative and the single dimension on which the present framework
+differs (formalisation as warrant for the chain's consistency; availability of
+a parameter-free empirical prediction). No Lean.
+
+**Done when.** A reader familiar with the Dynamic Core or predictive binding
+recognises their own view in the paragraph and sees why the present framework
+is not the same claim in different language.
+
+---
+
+### R8 — Close the optimal-wiring loophole with a dynamic misalignment argument
+
+- [ ] **Objective.** Add an argument to the hardware section stating that even
+      an architecture wired to the best-correlated pair at one instant will
+      drift out of alignment under a non-stationary phase field, so the
+      condition ``the wiring misses the optimal pair'' will hold at most
+      transiently.
+
+**Why.** `rigid_is_strictly_suboptimal` derives suboptimality only when the
+fixed wiring misses the current best-correlated pair. A static phase field
+could evade this by being wired to precisely that pair. But cortex is not
+static: the phase field evolves on sub-second timescales (Section 4), and
+a rigid routing matrix cannot track it. The review pressed this correctly:
+a loophole that closes under dynamics is not a loophole at all, and stating
+the argument makes the theorem stronger than it looks in the static case.
+
+**What it takes.** One paragraph in the Corollary section, after the static
+theorem is stated, observing that `rigid_gap > 0` at one instant implies
+nothing about the next; that over any interval of non-zero length the field
+explores more than one correlation structure; and that the wiring therefore
+misses some optimal pair at almost every instant. This is a qualitative
+argument — it does not need a formal ergodic theorem — and no Lean change.
+The manuscript already cites the Kuramoto timescales; the paragraph connects
+them to the rigidity analysis.
+
+**Risk.** An informal argument next to a formal one can be read as a
+confession that the formal one is incomplete. The paragraph must say plainly
+that it is an informal extension, not a theorem.
+
+**Done when.** A reader who notices the static loophole finds the dynamic
+closing paragraph on the same page.
+
+---
+
+### R9 — Argue that a modulatory field can cross the threshold
+
+- [ ] **Objective.** One paragraph in the EM identification section that
+      explains how a strictly modulatory field — one that biases spike timing
+      by 1–3 ms without driving any cell to fire — can nonetheless supply the
+      coupling strength `K` needed to cross `K_c = 2D`, answering the
+      ``fields are too weak'' objection (Pockett, Vöröslakos) on arithmetic
+      rather than on principle.
+
+**Why.** The review's core observation: the manuscript concedes the field's
+modulatory role and its ~1–5 mV/mm magnitude, but never shows that this
+suffices for `K > 2D`. A referee who accepts the field's existence and its
+weak effect per synapse can still reject the framework because the threshold
+is never demonstrated to be reachable. The answer need not be a formal
+calculation — the framework's coupling constant `K` is a mean-field parameter
+aggregated over `~10⁴–10⁵` synapses per cortical minicolumn, so a modulatory
+bias of 1–3 ms on each of thousands of synapses yields a collective
+coupling that the per-synapse magnitude understates. A one-paragraph scaling
+argument (per-synapse biasing × columnar divergence → effective `K`) would
+turn a concession into a positive case.
+
+**What it takes.** One paragraph in the scaling section, after the four
+falsification conditions, that states the arithmetic: estimate the number of
+synapses per effective degree of freedom, multiply by the per-synapse
+entrainment window, and compare the product to `D`. Cite the relevant
+cortical-column literature (Mountcastle, Hawkins) and state the range of
+`K` values this would imply. This is a back-of-the-envelope calculation,
+not a theorem, and must be marked as such.
+
+**Done when.** A referee who objects ``1 mV/mm cannot carry the coupling
+the theory needs'' finds a paragraph that says ``here is the arithmetic by
+which it might; the measurement that would check it is X.''
+
+**Risk.** The back-of-the-envelope number could be wrong by an order of
+magnitude, which is worse than having no number. The paragraph must
+explicitly invite the measurement rather than defend the estimate.
+
+---
+
+### R10 — State the thermodynamic barrier to simulating continuity in silicon
+
+- [ ] **Objective.** Define the minimum Landauer heat cost a silicon
+      architecture would incur to approximate a continuous coupling with
+      sufficient resolution to satisfy `exhibits_phase_transition`, and
+      state this as a falsifiable prediction about neuromorphic efficiency.
+
+**Why.** The review's sharpest challenge: the current jump from ``finitely-
+sited architectures register zero coupling energy in the continuum
+functional'' to ``von Neumann architectures cannot be conscious'' is marked
+as an informal argument. What is missing is the *positive* statement of
+what such an architecture would have to pay to simulate continuity. If the
+cost is bounded (a handful of Watts) the functionalist objection survives;
+if it scales with required resolution to unphysical power densities, the
+argument is strengthened. The framework's own results
+(`fieldCorrelation_sited_eq_zero`, `rigid_gap`) supply the ingredients:
+a finitely-sited kernel is invisible, and to be visible it must be spread
+over cells of positive measure, each of which is a physical degree of
+freedom that dissipates `k_B T` per Landauer erasure. The product —
+number of cells × refresh rate × `k_B T` — is a lower bound on the
+thermodynamic cost of simulating a continuum coupling. The number matters
+less than the method: the framework supplies a way to compute it, and a
+rival that cannot match it has no physical warrant for consciousness.
+
+**What it takes.** A paragraph in the hardware corollary that derives the
+bound: a discretisation with `N` cells of diameter `d` must refresh each
+cell at the Nyquist rate of the field dynamics, and each refresh of a cell
+that forgets (Landauer) costs at least `k_B T \ln 2`. The product grows
+with the spatial and temporal resolution the continuum theorems require.
+State the bound parametrically — `N`, `d`, refresh rate — and note that
+for cortical parameters the bound is far below cortical metabolic costs,
+while for a GPU-scale discretisation it may exceed the device's cooling
+capacity. This is an estimate, not a theorem, and must be marked as such.
+
+**Risk.** A rough calculation can be attacked on every parameter value. The
+point is the existence of a *principled* bound, not any specific number.
+
+**Done when.** A functionalist who claims ``silicon can be conscious because
+it can simulate any continuum'' must first answer whether it can pay the
+thermodynamic cost the bound states.
+
+---
+
+### R11 — Chart the Fokker–Planck path to the von Mises density
+
+- [ ] **Objective.** Add a paragraph (in Derivation 7 or the supplement)
+      stating the precise mathematical route from the stochastic Kuramoto
+      SDE to the von Mises stationary density, so a reader sees exactly
+      what gap the ``input'' label covers and what would close it.
+
+**Why.** The review's observation: the von Mises stationary density is
+taken as an input, its Fokker–Planck derivation is absent from Mathlib,
+and the manuscript says only that Mathlib lacks the operator. A referee
+who works in stochastic thermodynamics will want to know whether this is a
+routine computation that nobody has done in Lean, or a genuinely open
+problem (spectral stability of the Fokker–Planck operator, which is harder).
+Naming the route — write the SDE, write the FP equation for the N-particle
+density, factorise by exchangeability in the mean-field limit, apply the
+known stationary solution of the resulting McKean–Vlasov equation, cite
+Sakaguchi 1988 or Strogatz–Mirollo 1991 — would tell the reader that the
+gap is formalization work, not mathematical discovery. The same paragraph
+should state that nothing in this file depends on closing it: the threshold
+`K_c = 2D` is proved conditional on the density, and conditional statements
+are honest.
+
+**What it takes.** Three to four sentences in Derivation 7's opening or
+closing paragraph. No Lean.
+
+**Done when.** A stochastic-processes referee who objects ``you assume the
+stationary density'' finds a paragraph that says ``here is the route that
+would derive it; it is standard in the literature and nobody has written it
+in Lean; the theorem below is conditional on it and is stated as such.''
