@@ -174,4 +174,80 @@ Coarse-graining produces no kernel & \textbf{Negative result} (\texttt{Chain.lea
 \end{longtable}
 \endgroup
 
+\section{Formal soundness: why a global axiom is the wrong shape for a physical postulate}
+
+Formalization is only as trustworthy as the axioms it rests on, and an axiom that is inconsistent silently makes every theorem downstream of it vacuous while leaving the build green. We report a case of exactly this, found by auditing our own development, because the failure mode is easy to reproduce and we have not seen it discussed in the applied-formalization literature.
+
+The failure has one shape, and naming it is more useful than cataloguing its instances: \emph{an axiom that constrains a symbol it does not itself bind}. Such a declaration is not a postulate about one system. It is a constraint on every model of the class the symbol belongs to, including models built to violate it, and a class that has such a model is thereby inconsistent. Three concrete cases, each of which proves \texttt{False} on its own:
+
+\begin{enumerate}
+\item \texttt{spontaneous\_symmetry\_breaking\_pointwise\_min} took the potential-energy functional as an \emph{implicit} argument occurring only in its hypothesis \texttt{PotentialEnergy phi = V v0}. Instantiating that functional with the constant map $\lambda\,\_.\,V(v_0)$ discharges the hypothesis by \texttt{rfl} and yields the conclusion for an arbitrary field. With $V(v) = v^2$, $v_0 = 0$ and $\phi \equiv 1$ this proves $1 = 0$.
+\item \texttt{landauer\_heat\_eq} equated the free class field \texttt{heat\_dissipation} with a bath-entropy difference \emph{for every instance} of the class. An instance with zero heat dissipation and a bath that gains one bit gives $0 = \log 2$.
+\item \texttt{kl\_bound\_axiom} asserted $\sigma \ge D_{KL}(P\|Q)/\Delta t$ for \emph{all} $P$ and $Q$, while $\sigma$ is a single real fixed by a class field. Since $D_{KL}$ is unbounded above, a point mass against a uniform distribution refutes it.
+\end{enumerate}
+
+Two further declarations of the same shape are worth recording because their refutation is different in kind. \texttt{phase\_invariant\_periodic} and \texttt{sync\_to\_section\_eq}, as global assertions pinning free fields of \texttt{LocalSectionSynchronization}, are refutable as soon as the probability presheaf admits two distinct global sections; the refutation needs no arithmetic at all, only that the sheaf is not trivial. Neither is a postulate in the current development: the periodicity condition is an obligation of the constructor that builds a cover from an invariant measure, and \texttt{sync\_to\_section\_eq} is a theorem about the global section the sheaf condition produces.
+
+The rule that prevents it is uniform: \emph{a physical postulate that mentions a class field must be a field of that class, never a standalone axiom quantified over all instances.} A postulate is then an obligation each model discharges, not a global claim about every model. Under that rule the development declares no axioms at all.
+
+\subsection{What the witnesses establish, and what they do not}
+
+An uninhabitable class makes its theorems vacuous just as surely as an inconsistent axiom did. \texttt{Examples.lean} therefore constructs witnesses for every class that carries a physical postulate: a one-bit erasure system with a genuine bath that discharges \texttt{heat\_eq} and reproduces $\Delta Q = k_B T \ln 2$; a perfectly resonant system discharging \texttt{kl\_bound}; and a scalar field on a one-point spacetime discharging the action principles. The gluing structures are the most demanding case and are witnessed by a \texttt{ThermodynamicCover} over a three-site substrate carrying the discrete topology and its Borel $\sigma$-algebra, covered by two overlapping open patches whose intersection is a single shared site.
+
+What the witnesses establish is that the classes are inhabitable, so the theorems about them are not vacuous. What they do not establish is that a cortex is such an instance. In the cover above the phase field is already constant --- every patch locked at $\theta = 0$ --- which is precisely what makes the equilibrium obligation dischargeable; getting a physical system into that configuration is the content of the informal dynamical argument.
+
+\section{Empirical commitment: the endogenous electromagnetic field}
+
+The framework identifies its posited continuum coupling kernel with the endogenous electromagnetic field of mammalian cortex. This is a claim about biology, not a consequence of any theorem above it.
+
+\subsection{Supporting evidence}
+
+Neurons do not only signal through synapses: transmembrane currents generate extracellular fields that shift membrane potentials of neighbouring cells, a mechanism known as ephaptic coupling. Endogenous fields of $1$--$5$ mV/mm entrain spike timing \cite{frohlich2010, anastassiou2015}, and stable electric fields carry information that survives representational drift in the underlying spiking population \cite{pinotsis2022, pinotsis2023ephaptic, pinotsis2023cytoelectric}. The field is spatially continuous and superposes contributions from large populations --- a medium in which spatially separated activity is combined without further mechanism. This is the integrative role the CEMI field theory assigns it \cite{mcfadden2002, mcfadden2020, pockett2012}, physically supported by astrocytic syncytia joined by gap junctions \cite{verkhratsky2018}.
+
+The endogenous field's effect on any individual neuron is modulatory: it biases when a cell fires; it does not decide whether it fires \cite{anastassiou2015}. The claim is therefore that the field is modulatory in effect and integrative in spatial reach --- weak per synapse, and the only variable in the system that is defined everywhere at once. What the framework needs is the reach, not the strength.
+
+\subsection{Critics}
+
+The longest-standing objection is that the fields are too weak to matter, pressed from within the field-theoretic camp by Pockett herself \cite{pockett2012, pockett2002}. V\"or\"oslakos and colleagues found that applied current is shunted through scalp, delivering fields at or below $1$ V/m in cortex \cite{voroslakos2018}. That is a bound on \emph{applied} rather than endogenous fields, but it constrains how much causal work a field of that magnitude can do, and is the reason we do not claim the field drives spiking.
+
+\subsection{Falsification conditions}
+
+We state the failure conditions rather than leaving them to a referee.
+
+\textbf{Epiphenomenality:} if the endogenous field can be cancelled or shunted --- by a conductive medium that nulls the extracellular potential without altering transmembrane currents --- and neither behaviour nor report changes, the identification fails. This is the decisive experiment and it is, in principle, available.
+
+\textbf{Magnitude gap:} if the spatial integration the framework requires demands field effects an order of magnitude above the $1$--$5$ mV/mm measured in cortex, the commitment fails on arithmetic. The relevant number is not whether ephaptic coupling exists but whether its coupling strength suffices to place the system above the critical coupling $K_c$.
+
+\textbf{Timescale mismatch:} the prediction of the main text turns on the field's dynamics being fast relative to the astrocytic and clearance variables. If recovery from sleep inertia tracks an exponential set by the electrical timescale rather than the delayed sigmoid the slow variable predicts, the framework loses the one prediction that is its own.
+
+\textbf{Dissociation:} if large-scale field coherence is preserved across states in which experiential unity is lost --- or absent in states where it is retained --- the identification of the global section with unified experience has no physical carrier.
+
+\section{Relationship to rival theories}
+
+\paragraph{Integrated Information Theory.} IIT derives a scalar $\Phi$ measuring irreducibility of a system's cause-effect structure, with the exclusion postulate selecting a single maximum-$\Phi$ complex as the locus of experience \cite{tononi2016}. Our global section plays a structurally analogous role, but is arrived at from the opposite end: forced by a thermodynamic phase transition rather than postulated from phenomenal axioms. The unity condition is checkable from field dynamics rather than requiring the intractable computation of $\Phi$, and exclusion falls out --- gluing either succeeds or it does not. Both are vulnerable to the objection that the criterion could be satisfied by a system with no claim to experience \cite{aaronson2014}; our reply is that gluing is necessary but not sufficient, and that the topological boundary and reflexive structure are additional required conditions. IIT, by contrast, treats $\Phi$ as both necessary and sufficient.
+
+\paragraph{Global Workspace Theory.} GWT specifies a functional architecture without specifying what physical property of broadcasting makes the broadcast content conscious, leaving it open to the charge that it explains access consciousness while leaving phenomenal consciousness untouched \cite{block1995, baars1997, dehaene2014}. Our framework supplies the missing substrate: the continuous macroscopic field is the medium in which integration is realized, and the $K_c = 2D$ threshold gives a physical condition for ignition rather than a functional stipulation. Where GWT is agnostic about implementation, we make a falsifiable commitment --- unity requires a continuous physical medium --- which predicts that a functionally equivalent discrete broadcast architecture would not be conscious. We regard this as a genuine cost of the position, not a free advantage.
+
+\paragraph{Panpsychism.} Consciousness is not assumed as a fundamental property of matter. It requires both a topological defect establishing a bounded ``inside'' and a phase transition into unity when integrated spatial coupling exceeds the noise threshold.
+
+\section{The sleep-inertia prediction: assumptions, alternatives, and falsifiability}
+
+\subsection{Assumptions}
+
+Four things are assumed, and they are not small. The identification of the effective coupling $K$ with a monotone function of extracellular geometry is a modelling assumption, not a measurement. The threshold $K_c = 2D$ uses an assumed von Mises stationary density, so the argument relies on the proved existence and continuity of the coherent branch, not the numerical threshold. The square-root cusp needs the slow variable to cross threshold at non-zero speed ($\dot K(t_0) \ne 0$), weaker than the adiabatic separation the whole argument assumes. And the exponent theorem proves no stability or dynamical selection --- $r = 0$ remains a solution above threshold --- so the time course $r(t)$ is carried by the adiabatic assumption, not a trajectory theorem. The prediction is about functional form, not a time constant: a flat foot of definite shape whose width is set by the slow variable.
+
+\subsection{What the alternative predicts}
+
+An account on which grogginess is the electrical realignment itself has no slow variable and no threshold. Its recovery is exponential near the fixed point: monotone from $t = 0$, fastest at the start, with no flat foot. The discriminator is the presence or absence of an initial interval of no recovery, in data already collected.
+
+\subsection{Falsification}
+
+The parameter-free form tests the von Mises stationary density and the mean-field closure jointly; it does not test $K_c = 2D$ independently of that ansatz. The prediction is falsified by: an exponential fit beating a delayed-sigmoid on early recovery; an onset preferring exponent $1$ over $1/2$; a latency that does not scale with extracellular volume; a phase distribution that is not von Mises; or an $(a,r)$ trace departing from $I_1(a)/I_0(a)$. The first two falsify with no reference to the sleep-inertia setting at all.
+
+\section{Broader philosophical context}
+
+Philosophically, the framework bridges the historical gap between type identity theory \cite{smart1959} and computational functionalism \cite{putnam1967}. The subjective mental state is identified with the physical thermodynamic field, yet its qualitative nature is defined by structural resonance rather than specific biochemistry. This constrains multiple realizability: consciousness is not exclusively biological, but neither is it substrate-neutral, because the substrate is what fixes which couplings are physically available. What is proved is that fixed wiring is strictly suboptimal at matched resource, and that a finitely-sited architecture registers exactly zero coupling energy in the continuum functional; the step from either to a claim about von Neumann architectures is an informal argument.
+
+By framing these derivations in the tradition of Russellian monism, the framework acknowledges the constitutive limits of third-person scientific explanation. The Lean 4 theorems verify the objective physical attractors, while the intrinsic ``what it is like'' to be that resonant field remains the domain of the first-person perspective. By locating the phase transition at a threshold with closed-form value $K_c = 2D$, it aligns with Seth's ``real problem'' of consciousness \cite{seth2021}: rather than bridging an unbridgeable metaphysical gap, it offers a topological architecture that can explain, predict, and physically perturb the structural properties of experience.
+
 \end{document}
