@@ -826,6 +826,17 @@ current prediction already makes, and it must be stated.
 theorem, and the prediction section states the square-root foot with its
 assumption.
 
+**Scope change (2026-09-01).** The formalization-gap scoping plan
+(`tasks/2026-09-01_formalization-gaps-scoping.md`) recommended adding a SymPy
+expansion check to S2's scope as a cross-check of the algebra.  Decided against:
+the Lean proof (`field_simp`/`ring`/`nlinarith`/`positivity`) already certifies
+the algebra below the error threshold a SymPy check would catch; an independent
+cross-check on a *less* rigorous system would add confidence for readers who
+distrust Lean, but the cost of maintaining a second verification path for a
+result the formalization already owns outweighs it.  The 1-hour budget goes to
+the Fokker-Planck SymPy notebook instead, which checks algebra the
+formalization never touches (the stationary density derivation).
+
 ---
 
 ### S3 — No hysteresis, which is already a theorem
