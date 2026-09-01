@@ -12,7 +12,10 @@ sentence still make sense to a reader who has never seen a previous draft?* A
 refutation of an axiom shape is a permanent mathematical fact and stays; "earlier
 drafts of this work declared five axioms" is autobiography and goes.
 
-There is deliberately **no allowlist**. An escape hatch with one entry becomes an
+There is deliberately **no allowlist** (reaffirmed 2026-09-01 per R6:
+no concrete case has arisen requiring one; an escape hatch with one entry
+becomes an escape hatch with twenty, and the gate erodes to nothing).
+An escape hatch with one entry becomes an
 escape hatch with twenty, and the gate erodes to nothing. Where a pattern below
 has a legitimate non-autobiographical use -- a sequence that is no longer
 monotone, a quantity previously defined in the same document -- the fix is to

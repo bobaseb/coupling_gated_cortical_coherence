@@ -2502,4 +2502,52 @@ closing paragraph. No Lean.
 **Done when.** A stochastic-processes referee who objects ``you assume the
 stationary density'' finds a paragraph that says ``here is the route that
 would derive it; it is standard in the literature and nobody has written it
-in Lean; the theorem below is conditional on it and is stated as such.''
+in Lean; the theorem below is conditional on it and is stated as such.
+
+---
+
+## Pass record — 2026-09-01: manuscript-only clearout (S3, T1, T3, R2–R11)
+
+All 13 open manuscript-only items from the post-review and pre-review queues
+were closed in one session. No Lean code was touched.
+
+### Closed
+
+* **S3** — No hysteresis paragraph added to `main.tex` prediction section.
+* **T1** — Figure~1 redrawn as a DAG (two independent roots n1, n2 → n3; n1→n2
+  arrow removed). Caption states the two-root structure.
+* **T3** — `simulations/check_tableS1.py` validates the status column against
+  `Chain.lean`; wired into `.pre-commit-config.yaml` as `check-table`.
+* **R2** — Propagation of chaos named as the gap between stationary threshold
+  theorems and trajectory statements: one sentence in Derivation 4 closing
+  paragraph (`main.tex`), one in supplement §7 close.
+* **R3** — `UnifiedSelf` clarified with four numbered distinctions (what it
+  means within Lean / not n10 / not any Banach fixed point / not psychological
+  Self) in the existing ``The fixed point is the glued state'' paragraph.
+* **R4** — Measurement protocol paragraph (``How to measure it'') specifying
+  LFP/MEG estimates for $a$ and $r$ and the volume-proxy for $K(t)$.
+* **R5** — Corollary scoping: explicit qualification of both `rigid_is_strictly_suboptimal`
+  and `fieldCorrelation_sited_eq_zero` at the hardware section opening; ~5\%
+  drift sentence in Fig~4 caption.
+* **R6** — Zero-allowlist reaffirmed in `check_prose.py` docstring (no concrete
+  case having arisen).
+* **R7** — Dynamic Core and predictive-binding paragraph added after the
+  IIT/GWT comparison.
+* **R8** — Dynamic misalignment paragraph added after the rigid-suboptimality
+  derivation, noting the static loophole closed by non-stationarity.
+* **R9** — Modulatory-field paragraph added after the falsification conditions,
+  giving the columnar-aggregation arithmetic for $K > K_c$.
+* **R10** — Thermodynamic-barrier paragraph (Landauer bound for discretised
+  continuum simulation) added before the sleep-inertia section.
+* **R11** — Fokker--Planck derivation route (SDE → FP → McKean--Vlasov) added
+  to the ``What remains not established'' paragraph, citing Sakaguchi and
+  Strogatz--Mirollo.
+
+### Gates (all clean)
+
+* `main.tex` compiles: **62 pages, overfull 12, zero undefined.**
+* `supplementary.tex` compiles: **19 pages** (was 15–16 with the new propagation-of-chaos paragraph).
+* `check_prose.py` exits 0 on both files.
+* `check_tableS1.py` exits 0.
+* Prose check on supplementary.tex: passes.
+* No Lean code touched; the applicable Lean gate (17,622 jobs, build clean) is inherited unchanged.

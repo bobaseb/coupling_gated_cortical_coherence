@@ -37,6 +37,7 @@ repos:
         language: system
         types: [python]
         pass_filenames: false
+
       # The publication is not a changelog: AGENTS.md section 5. Unlike the
       # hooks above this one is not about Python -- it reads the two .tex files
       # that make up the publication, so it selects on `files` rather than on
@@ -47,4 +48,12 @@ repos:
         entry: bash -c 'cd simulations && uv run python check_prose.py'
         language: system
         files: ^(main|supplementary)\.tex$
+        pass_filenames: false
+
+      # Table S1 status column cross-reference against Chain.lean
+      - id: check-table
+        name: table S1 status column matches chain.lean
+        entry: bash -c 'cd simulations && uv run python check_tableS1.py'
+        language: system
+        files: ^(supplementary\.tex|.*Chain\.lean)$
         pass_filenames: false
