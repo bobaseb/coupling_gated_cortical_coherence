@@ -728,7 +728,11 @@ why, and the manuscript says which.
 
 ### F3 — Give the obstruction physical data, or stop at the no-go
 
-- [ ] **Objective.** Decide whether the theory has a biologically meaningful
+- [x] **Done 2026-09-01.** Cortical phase singularities provide measured winding
+      data, but require an integer local-lift obstruction rather than F2's
+      circle-valued patch offsets. Pass record at the end of this file.
+
+- [x] **Objective.** Decide whether the theory has a biologically meaningful
       source of overlap transition functions that are not differences of the
       Kuramoto patch phases.
 
@@ -741,6 +745,36 @@ that structure merely because Lean can: first name the measured or dynamical
 quantity its transition functions represent and explain how cortex generates
 them. If no such quantity is part of the framework, the F2 no-go is the final
 result and the memory/content claim stays outside the chain.
+
+---
+
+### F4 — Formalize the measured phase-lift loop obstruction
+
+- [x] **Done 2026-09-01.** The discrete measured-loop obstruction and a winding-one
+      witness are formalized; content remains an empirical question outside the
+      chain. Pass record at the end of this file.
+
+- [x] **Objective.** Replace the candidate topology with the discrete object the
+      measurements directly support: integer transitions between local
+      real-valued lifts on an electrode loop, and winding around an amplitude-zero
+      singularity.
+
+F3 found a physical referent but not a content theorem. The formal target is the
+implication from non-zero winding to failure of a global real lift, not a
+non-zero class manufactured as free data. Do not add F4 to `chain`.
+
+### F5 — Put the loop on a cortical cover and test content
+
+- [ ] **Objective.** Fix the cover domain (the cortex with the singularity set
+      removed) and its measurement map before building a full nerve-indexed
+      integer complex; then test whether winding number, singularity location or
+      rotation direction predicts discriminable content after controlling for
+      task and arousal.
+
+F4 proves the finite-loop obstruction and deliberately does not manufacture the
+ambient cover. Until both the cover and the content-sensitive test are specified,
+do not identify a topological sector with phenomenal content and do not add this
+branch to `chain`.
 
 ---
 
@@ -1880,3 +1914,88 @@ references or citations; the standalone supplement is 15 pages with its
 baseline 8 overfull boxes and three cross-document undefined-reference warnings.
 No Lean source changed in A5 or A6; the clean 17,618-job build from A3 remains
 the applicable Lean gate.
+
+---
+
+### F3 — cortical phase singularities as physical transition data — 2026-09-01
+
+**Decision.** The F2 no-go remains correct for circle-valued offsets computed as
+differences of absolute Kuramoto patch phases, but it is not the end of the
+physical-data question. Cortical phase singularities supply a measured
+topological observable: the integer winding of phase around a loop enclosing an
+amplitude-zero point. The corresponding overlap data are integer multiples of
+`2π` between local real-valued lifts of a circle-valued phase, not the
+circle-valued pair offsets represented by `PhaseObstruction`.
+
+**Evidence and reference gate.** Townsend, Solomon, Chen, Pietersen, Martin,
+Solomon and Gong, “Emergence of Complex Wave Patterns in Primate Cerebral
+Cortex,” *Journal of Neuroscience* 35(11), 4657–4662 (2015), explicitly compute
+the winding number around phase singularities in multielectrode primate LFP maps
+and relate complex waves to spiking (DOI `10.1523/JNEUROSCI.4509-14.2015`). Xu,
+Long, Feng and Gong, “Interacting Spiral Wave Patterns Underlie Complex Brain
+Dynamics and Are Related to Cognitive Processing,” *Nature Human Behaviour*
+7(7), 1196–1215 (2023), report task-dependent spiral locations and rotation
+directions that classify cognitive tasks (DOI `10.1038/s41562-023-01626-5`).
+Authors, titles, years and venues were independently checked against the primary
+journal record and PubMed before both references were added.
+
+**Manuscript scope.** The main text and supplement now distinguish the measured
+lift obstruction from F2's deliberately simpler quotient. The evidence supplies
+a physical candidate and a cognitive correlate; it does not show that winding
+sectors encode phenomenal content. Table S1 therefore says “empirical candidate,”
+keeps the memory/content claim outside the chain, and adds no theorem status.
+
+**What remains.** F4 records the SRR follow-up: formalize failure of a global
+real lift on the cortex minus its singularity set, using a proper nerve-indexed
+integer complex, then specify a content-sensitive empirical test. No Lean code
+was changed in F3 because formalizing the old circle-valued obstruction more
+deeply would formalize the wrong physical object.
+
+**Gates.** `check_prose.py` and `git diff --check` pass. Both publications compile
+twice. Main is 94 pages with 15 overfull boxes and zero undefined references or
+citations; the standalone supplement is 15 pages with its baseline 8 overfull
+boxes and three cross-document undefined-reference warnings (`sec:soundness`
+twice and `sec:scaling`). No Lean source changed; the clean 17,618-job build from
+A3 remains the applicable Lean gate.
+
+---
+
+### F4 — the measured phase-lift loop obstruction — 2026-09-01
+
+**What was built.** `Phase5_PhaseLifts.lean` represents an electrode loop by one
+integer transition per adjacent overlap. `loopWinding` is their finite sum and
+`HasGlobalLift` says that they are consecutive differences of one real-phase
+unwrapping, including the closing edge. The headline theorem
+`loopWinding_eq_zero_of_hasGlobalLift` proves those differences telescope to
+zero; `not_hasGlobalLift_of_loopWinding_ne_zero` is the experimentally usable
+contrapositive.
+
+**Non-vacuity.** `threeElectrodeWinding` records two zero transitions and one
+branch-cut crossing. Its winding is proved equal to one, and
+`threeElectrodeWinding_not_hasGlobalLift` proves that no global unwrapping
+produces it. The witness is non-trivial precisely because its obstruction is
+non-zero.
+
+**What it does not establish.** The theorem is the finite nerve-loop calculation,
+not a construction of Čech cohomology on cortex. It does not derive singularities
+from Kuramoto dynamics, prove their stability, or associate winding with
+phenomenal content. F5 owns the ambient-cover construction and content-sensitive
+empirical test. Nothing from this branch is added to `chain`.
+
+**Manuscript.** The geometric-frustration section, supplementary implementation
+account and Table S1 now distinguish three results: F2's no-go for circle-valued
+differences of absolute patch phases; F4's positive integer lift obstruction;
+and the still-open empirical identification of a winding sector with content.
+
+**Gates.** The red scratch test first failed because
+`Phase5_PhaseLifts.lean` did not exist; after implementation the same three API
+tests pass. `lake build` completes 17,620 jobs with zero warnings and the Lean
+sources contain no `sorry`. `#print axioms` on
+`loopWinding_eq_zero_of_hasGlobalLift`,
+`not_hasGlobalLift_of_loopWinding_ne_zero` and
+`threeElectrodeWinding_not_hasGlobalLift` reports only `propext`,
+`Classical.choice` and `Quot.sound`. `check_prose.py` and `git diff --check`
+pass. Both publications compile twice: main is 94 pages with 15 overfull boxes
+and zero undefined references or citations; the standalone supplement is 15
+pages with its baseline 8 overfull boxes and three cross-document
+undefined-reference warnings.
