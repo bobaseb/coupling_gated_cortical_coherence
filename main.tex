@@ -35,6 +35,10 @@
 % The arXiv build strips lineno; the figures call \nolinenumbers, so keep it defined.
 \providecommand{\nolinenumbers}{}
 
+\usepackage{xfp}  % \fpeval for inline Fermi-parameter arithmetic
+
+\input{simulations/fermi_params}
+
 \begin{document}
 \linenumbers
 
@@ -259,7 +263,7 @@ This is a claim about biology, not a consequence of anything above it. It is wha
 
 \paragraph{What would falsify it.} We state the failure conditions rather than leaving them to a referee. \textbf{Epiphenomenality:} if the endogenous field can be cancelled or shunted without altering transmembrane currents and neither behaviour nor report changes, the identification fails. \textbf{Magnitude gap:} if the spatial integration required demands field effects an order of magnitude above the $1$--$5$ mV/mm measured in cortex, the commitment fails on arithmetic. \textbf{Timescale mismatch:} if recovery from sleep inertia tracks an exponential rather than the delayed sigmoid the slow variable predicts, the framework loses its own prediction. \textbf{Dissociation:} if large-scale field coherence is preserved where unity is lost --- or absent where it is retained --- the identification has no physical carrier.
 
-\paragraph{Can a modulatory field cross the threshold?} The objection that $1$--$5$ mV/mm is too weak to meet $K > K_c$ assumes that the per-synapse effect is what enters the mean-field coupling constant. It is not. $K$ is a mean-field parameter aggregated over the $\sim 10^4$--$10^5$ synapses per cortical minicolumn. Each such synapse experiences a modulatory bias of $1$--$3$ ms in spike timing from the endogenous field \cite{anastassiou2015}; the product per column is the product of that bias with the number of synapses per effective degree of freedom. The arithmetic is rough and we give the method rather than a defended number: estimate the number $N$ of synapses whose timing the field biases in one effective integration time; multiply by the mean entrainment window $\Delta t$ (seconds per synapse per field strength); then $K \sim N\,\Delta t \, f(\text{correlation})$, where $f$ captures the fraction of synchrony in the phase distribution. Against $D$, the noise amplitude from the same data, the ratio $K/D$ determines whether $K_c$ is reached. The point is not that the answer is known but that it is knowable: the framework supplies a measurement question rather than a rhetorical answer, and the parameter that decides whether the theory is viable for cortex is one an experiment can estimate. A referee who objects ``the field is too weak'' is owed an arithmetic path from the per-synapse measurement to the collective parameter, and we state it here at the cost of admitting the number is not yet measured.
+\paragraph{Can a modulatory field cross the threshold?} The objection that $\fermiFieldMin$--$\fermiFieldMax$ mV/mm is too weak to meet $K > K_c$ assumes that the per-neuron effect of the field is what enters the mean-field coupling constant. It enters through population arithmetic. A field of $\fermiEtheta$ mV/mm shifts spike timing by $\sim\fpeval{\fermiEtheta*\fermiShift}$ ms \cite{anastassiou2011, anastassiou2015}; at $\fermiFgamma$ Hz, that is a per-neuron phase advance of $\Delta t\cdot f \approx \fermiPhAdv$ per cycle. The LFP decay length $\lambda \sim \fermiLam$ mm \cite{linden2011} encloses $N \approx \fermiN$ neurons at a cortical density of $\fermiRho$ mm$^{-3}$ \cite{herculanohouzel2009}. Integrating: $K \sim N\,\Delta t\,f \approx \fermiK{\fermiEtheta}{\fermiFgamma}$. Against a Lorentzian frequency-spread floor $D \sim \fermiD$ rad/s \cite{strogatz1991, buzaki2004}, the ratio $K/D \sim \fermiKD{\fermiEtheta}{\fermiFgamma}$ clears the threshold $K_c/D = \fermiThreshold$ by a wide margin. The estimate is parametric in $\lambda$, which is empirically known and spans $\fermiLamMin$--$\fermiLamMax$ mm \cite{linden2011}; across the full range and with field amplitudes at the measured bounds, the ratio stays above $\fermiKDlam{\fermiEgamma}{\fermiFgamma}{\fermiLamMax}$. Sweeping across canonical EEG bands with band-typical amplitudes (gamma: $\fermiEgamma$ mV/mm; beta: $\fermiEbeta$; alpha: $\fermiEalpha$; theta: $\fermiEtheta$; delta: $\fermiEdelta$), the same arithmetic yields $K/D$ ranging from $\fermiKD{\fermiEgamma}{\fermiFgamma}$ down to $\fermiKD{\fermiEdelta}{\fermiFdelta}$ --- delta is the one band that sits below $K_c$, consistent with the loss of consciousness during slow-wave sleep. This is not a measurement, and it is the one commitment of the chain that is simplest to falsify on arithmetic alone: if the coupling parameters sit at the conservative end of each published range, $K/D$ drops to $\fermiKDcons$ --- still above threshold, but requiring the combination to survive independent measurement rather than being ruled out by the same arithmetic.
 
 \paragraph{The regime the theorems cover.} The dissipative account --- well-posedness, the Lyapunov identity, monotone descent, and that the motion stops along every trajectory --- holds with no assumption on the sign of the coupling. \emph{Where} it stops does not, and the claims about the destination all live on the positive side. The memory capacity of a frustrated cortical network is therefore not supported by any theorem here, and we do not assert it as part of the chain. The natural repair --- letting local states agree on overlaps up to a phase and asking whether the offset cocycle is a coboundary --- fails because locked, twisted and splay configurations all assign a phase to every patch, so their offsets are automatically a coboundary.
 
@@ -467,6 +471,9 @@ The conceptualization, manuscript drafting, and Lean 4 formalizations were heavi
  \bibitem[Tononi \& Koch(2016)]{tononi2016}
  Tononi, G., Boly, M., Massimini, M., \& Koch, C. (2016). Integrated information theory: from consciousness to its physical substrate. \textit{Nature Reviews Neuroscience}, 17(7), 450-461.
  
+ \bibitem[Anastassiou et al.(2011)]{anastassiou2011}
+ Anastassiou, C. A., Perin, R., Markram, H., \& Koch, C. (2011). Ephaptic coupling of cortical neurons. \textit{Nature Neuroscience}, 14(2), 217-223.
+
  \bibitem[Baars(1997)]{baars1997}
  Baars, B. J. (1997). In the Theater of Consciousness: The Workspace of the Mind. \textit{Oxford University Press}.
  
@@ -538,10 +545,10 @@ The conceptualization, manuscript drafting, and Lean 4 formalizations were heavi
 
  \bibitem[Fr\"{o}hlich \& McCormick(2010)]{frohlich2010}
  Fr\"{o}hlich, F., \& McCormick, D. A. (2010). Endogenous electric fields may guide neocortical network activity. \textit{Neuron}, 67(1), 129-143.
- 
+
  \bibitem[Anastassiou \& Koch(2015)]{anastassiou2015}
  Anastassiou, C. A., \& Koch, C. (2015). Ephaptic coupling to endogenous electric field activity: why bother?. \textit{Current Opinion in Neurobiology}, 31, 95-103.
- 
+
  \bibitem[Pockett(2002)]{pockett2002}
  Pockett, S. (2002). Difficulties with the electromagnetic field theory of consciousness. \textit{Journal of Consciousness Studies}, 9(4), 51-56.
  
@@ -665,6 +672,12 @@ The conceptualization, manuscript drafting, and Lean 4 formalizations were heavi
  \bibitem[Strogatz \& Mirollo(1991)]{strogatz1991}
   Strogatz, S. H., \& Mirollo, R. E. (1991). Stability of incoherence in a population of coupled oscillators. \textit{Journal of Statistical Physics}, 63(3-4), 613--635.
 
- \end{thebibliography}
+ \bibitem[Buzsáki \& Draguhn(2004)]{buzaki2004}
+Buzsáki, G., \& Draguhn, A. (2004). Neuronal oscillations in cortical networks. \textit{Science}, 304(5679), 1926-1929.
+
+\bibitem[Lindén et al.(2011)]{linden2011}
+Lind\'{e}n, H., Pettersen, K. H., \& Einevoll, G. T. (2011). Modeling the spatial reach of the local field potential. \textit{Neuron}, 72(5), 859-872.
+
+\end{thebibliography}
 
 \end{document}
