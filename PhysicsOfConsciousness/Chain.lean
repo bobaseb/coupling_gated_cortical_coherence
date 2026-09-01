@@ -657,9 +657,11 @@ theorem witness_not_surjective : ¬ Function.Surjective (fun _ : Bool => true) :
 open Examples in
 /-- **All eight arrows, at once, on one substrate.**
 
-`#print axioms chain_nonvacuous` reports only the three, so the witness is as
-sound as the chain it witnesses. -/
-theorem chain_nonvacuous : UnifiedSelf (X := Cortex) cortexReflexive :=
+`#print axioms chain_hypotheses_jointly_satisfiable` reports only the three, so
+the witness is as sound as the conditional theorem whose hypotheses it
+discharges. The name is deliberately limited to satisfiability: the empty
+vacuum and constant coarse-graining sequence do not constitute a mechanism. -/
+theorem chain_hypotheses_jointly_satisfiable : UnifiedSelf (X := Cortex) cortexReflexive :=
   chain (X := Cortex) (sys := Bool) (fun _ => true)
     (vac := (∅ : Set Bool)) (phi := id) Bool Bool Bool
     (E := fun _ => 3) (L := 3) (K := 3) (D := 1) (τ := cortexTau)

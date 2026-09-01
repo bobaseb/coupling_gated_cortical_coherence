@@ -867,7 +867,7 @@ tree for each. Wire it in beside `check-prose`.
 
 ---
 
-### T5 — A less degenerate `chain_nonvacuous`
+### T5 — A mechanistic witness beyond `chain_hypotheses_jointly_satisfiable`
 
 - [ ] **Objective.** The joint witness takes the vacuum manifold empty, the
       register a bit, and the coarse-graining sequence constant. It proves the
@@ -920,7 +920,11 @@ using “the chain composes” as shorthand for physical derivation.
 
 ### A3 — Separate satisfiability from mechanistic non-vacuity
 
-- [ ] **Objective.** Rename or rescope `chain_nonvacuous` and its manuscript use.
+- [x] **Done 2026-08-31.** The witness is now named
+      `chain_hypotheses_jointly_satisfiable`; publication claims use only its
+      satisfiability scope. Pass record at the end of this file.
+
+- [x] **Objective.** Rename or rescope `chain_nonvacuous` and its manuscript use.
 
 The empty vacuum, constant coarse-graining sequence and directly supplied
 predictive/cover structures prove joint satisfiability only. T5 may later build a
@@ -929,7 +933,11 @@ that the cross-domain implications are realized by one mechanism.
 
 ### A4 — Remove “guaranteed by phase-locking” from Theorem 5
 
-- [ ] **Objective.** Restate the displayed theorem so overlap compatibility is an
+- [x] **Done 2026-09-01.** Theorem 5, Figure 1 and the main derivation now state
+      overlap compatibility as an independent physical hypothesis. Pass record
+      at the end of this file.
+
+- [x] **Objective.** Restate the displayed theorem so overlap compatibility is an
       independent physical hypothesis.
 
 `LocalSectionSynchronization.section_agrees_of_phase_eq` is a class field and no
@@ -938,7 +946,11 @@ supplementary theorem currently says phase-locking guarantees agreement.
 
 ### A5 — Align scale-bridging language with the scalar no-go
 
-- [ ] **Objective.** Remove every remaining claim that
+- [x] **Done 2026-09-01.** The manuscripts now separate scalar energy
+      convergence, the posited continuum kernel and its empirical EM
+      identification. Pass record at the end of this file.
+
+- [x] **Objective.** Remove every remaining claim that
       `mesh_refinement_convergence` produces a continuum coupling kernel.
 
 It converges one scalar energy. `edge_region` has no `M × M` product structure,
@@ -948,7 +960,11 @@ the remaining propagation-of-chaos lemma.
 
 ### A6 — Mark the Self contraction as an independent modelling postulate
 
-- [ ] **Objective.** Change the Reflexive Topology status from “Theorem
+- [x] **Done 2026-09-01.** Figure 1, Table 1, Theorem 6 and Table S1 now name the
+      Lipschitz law as an independent modelling postulate. Pass record at the
+      end of this file.
+
+- [x] **Objective.** Change the Reflexive Topology status from “Theorem
       (witnessed)” to a conditional status that names the Lipschitz assumption.
 
 Coherence recovers only `K > 2D`; `E89` separately assumes that `rb.predict` has
@@ -1748,3 +1764,119 @@ both the main theorem paragraph and Table~S1 retain “conditional composition.�
 main is 94 pages with 16 overfull boxes and zero undefined references or
 citations; the standalone supplement is 16 pages with its unchanged 8 overfull
 boxes and three cross-document undefined-reference warnings.
+
+---
+
+### A3 — joint satisfiability is not mechanistic non-vacuity — 2026-08-31
+
+**What changed.** The headline theorem `chain_nonvacuous` is renamed
+`chain_hypotheses_jointly_satisfiable`. Its type and proof are unchanged: it
+still concludes the same `UnifiedSelf` by discharging `E12` through `E89` on one
+toy substrate. The docstring now makes the limit part of the public interface:
+the empty vacuum and constant coarse-graining sequence prove consistency, not a
+mechanism.
+
+**Publication scope.** The main text and Table~S1 use the new name and say only
+that the eight hypotheses are simultaneously consistent. Neither treats the
+witness as evidence for cortical realization. Historical pass records retain
+the old identifier where they document the declaration that existed at the time.
+T5 is retitled around the missing mechanistic witness rather than around making
+a theorem called “nonvacuous” less degenerate.
+
+**What this does not establish.** No new witness was built. A single dynamics
+still does not generate the vacuum exit, predictive system, continuum coupling,
+cover and reflexive map. Constructing such a toy model, if useful, remains T5.
+
+**Gates.** The red interface test failed because
+`chain_hypotheses_jointly_satisfiable` did not exist. After the rename it passes,
+and `#print axioms` reports only `propext`, `Classical.choice` and `Quot.sound`.
+`lake build` completes 17,618 jobs with zero warnings; the Lean sources contain
+no `sorry`; `check_prose.py` and `git diff --check` pass. Both publications
+compile twice: main is 94 pages with 16 overfull boxes and zero undefined
+references or citations; the standalone supplement is 16 pages with its
+unchanged 8 overfull boxes and three cross-document undefined-reference warnings.
+
+---
+
+### A4 — overlap compatibility is independent — 2026-09-01
+
+**Claim corrected.** Displayed Theorem~5 now states the sheaf result at its exact
+scope: an overlap-compatible family of local states glues uniquely. It explicitly
+identifies compatibility as an independent physical hypothesis and says that
+phase-locking does not imply it. Figure~1, Table~1 and the opening of Derivation~5
+use the same separation: the dynamics supplies synchronized phases; the class
+field `section_agrees_of_phase_eq` supplies compatible sections.
+
+**Implementation account.** The supplementary implementation paragraph now
+distinguishes `thermodynamic_equilibrium` from
+`LocalSectionSynchronization.section_agrees_of_phase_eq`. The convergence bridge
+can discharge the former on its explicit basin; no theorem in the development
+discharges the latter. Table~S1 already said the overlap obligation was untouched
+and required no status change.
+
+**What this does not establish.** No biological mechanism for overlap agreement
+is proposed, and no Lean declaration changes. The sheaf theorem proves existence
+and uniqueness from compatibility; it does not explain why cortical local states
+are compatible.
+
+**Gates.** The red text test failed at the displayed theorem, Figure~1 and the
+opening of Derivation~5, each of which presented phase-locking as sufficient for
+gluing. Those formulations are absent after the rewrite. `check_prose.py` and
+`git diff --check` pass. Both publications compile twice: main is 94 pages with
+15 overfull boxes and zero undefined references or citations; the standalone
+supplement is 15 pages with its baseline 8 overfull boxes and three
+cross-document undefined-reference warnings. No Lean source changed in A4; the
+clean 17,618-job build from A3 remains the applicable Lean gate.
+
+---
+
+### A5 — scalar convergence does not produce a kernel — 2026-09-01
+
+**Claim corrected.** The scale bridge now has three explicitly different layers:
+`mesh_refinement_convergence` proves convergence of one scalar energy; a
+continuum coupling kernel is introduced as a modelling input; and identifying
+that kernel with endogenous cortical EM coupling is an empirical commitment.
+Figure~1, the scaling section, its boxed commitment, Table~S1 and the supplement
+all use this separation.
+
+**The obstruction retained.** A kernel limit is not relabelled as the remaining
+propagation-of-chaos problem. `TriangulatedManifold.edge_region` supplies subsets
+of `M`, not product-structured cells in `M × M`; the vertex-supported candidate
+is invisible to the continuum functional on an atomless substrate. New discrete
+architecture is required before a kernel limit can be stated, and only then does
+the separate dynamical mean-field question arise.
+
+**What this does not establish.** No kernel construction or field dynamics was
+added. The EM identification remains the framework's empirical commitment, now
+without borrowing support from the scalar convergence theorem.
+
+---
+
+### A6 — the Self contraction law is a modelling postulate — 2026-09-01
+
+**Status corrected.** Figure~1 and Table~1 classify the Self step as a
+conditional theorem plus modelling postulate. Displayed Theorem~6 and Table~S1
+state the division precisely: coherence recovers `K > K_c`, which makes
+`resonanceRate K D τ < 1`; it does not prove that the avatar-mediated map is
+Lipschitz at that rate. `E89` supplies the Lipschitz law independently, alongside
+the identification of the glued state with the fixed point.
+
+**Witness scope.** The three-site read-out realizes the stipulated rate at the
+chosen parameters. This proves that the assumptions are satisfiable; designing
+the witness to have that contraction factor does not derive self-model dynamics
+from oscillator dynamics.
+
+**What remains theorem.** Given the Lipschitz hypothesis, Banach supplies the
+unique fixed point. Above threshold the stipulated rate is usable; at or below
+threshold `not_contractingWith_resonanceRate` shows this Banach route is
+unavailable. Neither result says that a Self cannot exist below threshold.
+
+**Gates for A5 and A6.** The red text test found the kernel claim in the scaling
+scope and empirical commitment, and the unconditional Self status in the main
+section and Table~S1. Those formulations are absent after the rewrite.
+`check_prose.py` and `git diff --check` pass. Both publications compile twice:
+main is 93 pages with its A4 baseline of 15 overfull boxes and zero undefined
+references or citations; the standalone supplement is 15 pages with its
+baseline 8 overfull boxes and three cross-document undefined-reference warnings.
+No Lean source changed in A5 or A6; the clean 17,618-job build from A3 remains
+the applicable Lean gate.
