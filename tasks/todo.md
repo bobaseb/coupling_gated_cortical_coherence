@@ -765,7 +765,11 @@ non-zero class manufactured as free data. Do not add F4 to `chain`.
 
 ### F5 — Put the loop on a cortical cover and test content
 
-- [ ] **Objective.** Fix the cover domain (the cortex with the singularity set
+- [x] **Done 2026-09-01.** The punctured cortical domain, analytic-phase
+      measurement map and controlled content-decoding protocol are specified.
+      Pass record at the end of this file.
+
+- [x] **Objective.** Fix the cover domain (the cortex with the singularity set
       removed) and its measurement map before building a full nerve-indexed
       integer complex; then test whether winding number, singularity location or
       rotation direction predicts discriminable content after controlling for
@@ -1999,3 +2003,41 @@ pass. Both publications compile twice: main is 94 pages with 15 overfull boxes
 and zero undefined references or citations; the standalone supplement is 15
 pages with its baseline 8 overfull boxes and three cross-document
 undefined-reference warnings.
+
+---
+
+### F5 — the cortical cover and content test — 2026-09-01
+
+**Domain and measurement.** The cortical surface is $M$; at each time the
+band-limited analytic signal is $z=Ae^{i\phi}$, the preregistered singularity set
+is $Z_t$, and the phase is measured on the punctured domain
+$M^\ast_t=M\setminus Z_t$ by $q_t=z/|z|:M^\ast_t\to S^1$. A trial-independent
+electrode or source-space cover supplies local real lifts. Their differences on
+connected overlaps, divided by $2\pi$, are the integer transitions consumed by
+`loopWinding`. Finite-resolution amplitude thresholds, loop geometry and
+cross-scale persistence criteria are fixed from baseline or training data rather
+than content labels.
+
+**Content-sensitive test.** A preregistered nested comparison asks whether signed
+winding, source-localized singularity position, rotation direction and lifetime
+improve held-out prediction of trial-level content labels beyond stimulus, task,
+behavioural response, eye movement and arousal. Generalization is tested across
+participants and sessions; permutations stay within task, stimulus and arousal
+strata; and replication changes or removes the motor report. A null increment
+rejects this proposed content role.
+
+**What this does not establish.** The protocol makes the claim falsifiable but
+supplies no data. Even a positive result would be a controlled association, not
+an identity between winding and phenomenal content. No full nerve-indexed
+integer complex was built before the measurement protocol warranted it, no Lean
+declaration changed, and this branch remains outside `chain`.
+
+**Gates.** The red text test failed because the manuscript did not name the
+punctured domain, measurement map, controlled comparison or task/arousal
+stratification; all four checks pass after the specification. `check_prose.py`
+and `git diff --check` pass. Both publications compile twice: main is 95 pages
+with the unchanged 15 overfull boxes and zero undefined references or citations;
+the standalone supplement is 15 pages with its unchanged 8 overfull boxes and
+three cross-document undefined-reference warnings (`sec:soundness` twice and
+`sec:scaling`). No Lean source changed, so the clean 17,620-job F4 build remains
+the applicable Lean gate.
