@@ -111,11 +111,18 @@ that covariance is not sign-definite pointwise. §7 folds first, which is the
 same symmetrisation performed once at the start, and then compares at a single
 crossing point rather than integrating over a square.
 
-**Derivatives and rates.** `E` and `R` are shown strictly monotone, not
-differentiable, and no rate is proved: the asymptotics `E(a) = 1/2 - a²/16 + O(a⁴)`
-and `R(a) → 1` are not formalized, and neither is concavity of `R`. Nothing in
-the file needs them — the threshold theorems run on the bounds of §5 and §6,
-which are proved independently of §7.
+**Derivatives and rates.** Nothing in *this* file differentiates anything: `E`
+and `R` are shown strictly monotone, not differentiable, and no rate is proved
+here. The threshold theorems run on the bounds of §5 and §6, which are proved
+independently of §7.
+
+The second-order behaviour of `E` is available downstream, in
+`Phase8_CriticalExponent`, which differentiates the von Mises moments under the
+integral and proves `E(a) = 1/2 - a²/16 + o(a²)`
+(`vonMisesSRatio_second_order`) and, from it, the mean-field critical exponent
+`β = 1/2`. The remainder there is `o(a²)` rather than `O(a⁴)`; the stronger
+form would need a fourth derivative and no result requires it. `R(a) → 1` and
+concavity of `R` remain unformalized, and nothing needs them either.
 
 **The ansatz.** Nothing here derives the von Mises stationary density from the
 SDE `dθ = (ω + K·mean-field) dt + √(2D) dW`. That needs the Fokker–Planck

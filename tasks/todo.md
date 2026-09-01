@@ -784,7 +784,14 @@ branch to `chain`.
 
 ### S2 — The critical exponent: a square-root foot on the recovery curve
 
-- [ ] **Objective.** A signature of the sleep-inertia recovery that needs the
+- [x] **Done 2026-09-01.** `E`'s second-order expansion and the mean-field
+      exponent `β = 1/2` are theorems in `Phase8_CriticalExponent.lean`, the
+      exponent theorem is witnessed on the coherent branch rather than left as
+      an eventually-clause, and the prediction section states the square-root
+      foot with the non-zero crossing speed it needs. Pass record at the end of
+      this file.
+
+- [x] **Objective.** A signature of the sleep-inertia recovery that needs the
       *bifurcation* and not merely a saturating nonlinearity.
 
 **The claim.** Near threshold the coherent branch behaves as
@@ -2041,3 +2048,74 @@ the standalone supplement is 15 pages with its unchanged 8 overfull boxes and
 three cross-document undefined-reference warnings (`sec:soundness` twice and
 `sec:scaling`). No Lean source changed, so the clean 17,620-job F4 build remains
 the applicable Lean gate.
+
+---
+
+### S2 — the critical exponent — 2026-09-01
+
+**The estimate was right, for once.** The item said the missing ingredient was
+`E(a) = 1/2 - a²/16 + O(a⁴)`, that Mathlib should be grepped before believing it
+hard, and that given it the rest is three lines of algebra. All three held.
+`intervalIntegral.hasDerivAt_integral_of_dominated_loc_of_deriv_le` differentiates
+the cosine moments `vmMoment n a = ∫_{-π}^{π} cosⁿθ e^{a cos θ}` under the
+integral, dominated by the constant `exp (|a| + 1)` on the unit ball around the
+parameter; differentiation raises the cosine power by one, so two applications
+give `ContDiff ℝ 2`. `vonMisesSRatio_eq_moments` writes `E = 1 - M₂/M₀`, whose
+denominator is positive, and `taylor_isLittleO_univ` finishes it.
+
+**The remainder is `o(a²)`, not `O(a⁴)`, and that is deliberate.** The stronger
+form needs a fourth derivative and nothing needs the stronger form. The moments
+at zero are elementary — `2π, 0, π, 0, 3π/4` — and give `E(0) = 1/2`,
+`E'(0) = 0` by the symmetry that kills the odd moments, and `E''(0) = -1/8`.
+The docstring of `Phase8_SelfConsistency` §7, which recorded the expansion as
+unformalized, now points downstream and says which form was proved.
+
+**The exponent.** `coherent_solution_critical_exponent` substitutes the
+expansion into `coherent_iff_sRatio_eq`. Writing `a = Kr/D`, rearranging
+`E(a) = D/K` gives `K - 2D = K a² (1/8 - 2q(a))` with `q` the normalized
+remainder, and `K → 2D` along positive coherent solutions with `r → 0` sends
+`q → 0` and `r²/(K - 2D) → 1/D`. It is stated over a filter rather than a
+curve, so it constrains every such family and privileges no path.
+
+**A defect found and closed in the same pass.** The hypotheses are an
+eventually-clause, and an eventually-clause is vacuously true on the bottom
+filter, so as written the theorem was worth exactly nothing until a family
+satisfying it existed. This is A3's lesson — satisfiability is not
+non-vacuity — and it is closed the way F4 closed its own: with a witness in the
+module. `coherentBranch` selects the unique positive solution above threshold
+through `supercritical_fixed_point_existsUnique`,
+`coherentBranch_tendsto_zero` reads `coherent_branch_continuous_at_threshold`
+as a limit along `𝓝[>] (2D)`, and `coherentBranch_critical_exponent`
+discharges every hypothesis on it.
+
+**What this does not establish.** Stationary-solution asymptotics, and nothing
+more. No stability, no dynamical selection — `r = 0` remains a solution above
+threshold — and no time course. The step from the branch `r(K)` to a recovery
+curve `r(t)` is carried by the adiabatic separation the section already assumes
+plus one new assumption, that `K(t)` crosses `2D` at non-zero speed. Both are
+stated in the manuscript rather than around it: the assumptions paragraph now
+lists four things and not three.
+
+**What the manuscript gains.** The delayed sigmoid is a shape any two-timescale
+account with a slow saturating gate can produce, and the new paragraph says so
+before saying what the bifurcation adds: a square-root cusp with *infinite*
+initial slope at the foot. An exponential, a logistic and any smooth gate
+composed with a branch leaving zero linearly all have finite initial slope. The
+cusp belongs to the pitchfork, not to the two-timescale structure. The
+falsification paragraph gains the matching line — a finite initial slope takes
+the bifurcation and leaves the two-timescale account standing — Derivation 7
+gains the derivation in outline, and Table S1's threshold row gains the rate.
+
+**Gates.** `lake build` clean, 17,622 jobs, zero `sorry`, zero warnings; the
+21 new declarations each report only `propext`, `Classical.choice`,
+`Quot.sound`. Two diagnostics the incoming file carried are gone: a `ring` that
+was falling back to `ring_nf` on a filter equality (fixed by `convert … using 2`)
+and two deprecated lemma names. `check_prose.py` and `git diff --check` pass.
+Both publications compile twice: main is 98 pages with the unchanged 15 overfull
+boxes and zero undefined references or citations; the standalone supplement is
+16 pages with its unchanged 8 overfull boxes and the three baseline
+cross-document undefined references. The merged arXiv build is 52 pages with
+zero overfull boxes and zero undefined references.
+
+**Left open.** S3, the no-hysteresis discriminator, is the natural next item and
+costs no Lean; it is untouched here to keep this pass one change.

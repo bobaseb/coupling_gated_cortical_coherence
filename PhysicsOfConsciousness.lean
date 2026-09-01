@@ -21,5 +21,6 @@ import PhysicsOfConsciousness.Phase7_HardwareComparison
 import PhysicsOfConsciousness.Phase7_Rigidity
 import PhysicsOfConsciousness.Phase8_ContinuousField
 import PhysicsOfConsciousness.Phase8_SelfConsistency
+import PhysicsOfConsciousness.Phase8_CriticalExponent
 import PhysicsOfConsciousness.Examples
 import PhysicsOfConsciousness.Chain
