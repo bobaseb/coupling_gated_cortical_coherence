@@ -16,6 +16,7 @@ import PhysicsOfConsciousness.Phase7_HardwareComparison
 import PhysicsOfConsciousness.Phase7_Rigidity
 import PhysicsOfConsciousness.Phase8_ContinuousField
 import PhysicsOfConsciousness.Phase8_SelfConsistency
+import PhysicsOfConsciousness.Phase9_EMIdentification
 import PhysicsOfConsciousness.Examples
 
 /-!
@@ -400,16 +401,22 @@ def E45 (Xs Sg Sg' : Type*) [MeasurableSpace Xs] [MeasurableSpace Sg] [Measurabl
 
 Asserts that the continuum limit of the discrete coupling energy is the mean-field
 coupling constant of the cortical electromagnetic field, whose phase noise is
-positive.
+positive, and that the continuum kernel satisfies the mathematical conditions of
+`IsEMFieldCoupling` (joint continuity, positive domain measure, etc.).
 
 **This is the one that could simply be false**, and the manuscript says so: the
 kernel might be realized by synaptic connectivity, by gap junctions, or by
 nothing with a mean-field description at all. It is not a formalization gap —
 there is no Lean statement that would settle it — and it is not a modelling
-idealisation, because the framework's empirical content lives here. -/
-def E56 (Xs Sg Sg' : Type*) [MeasurableSpace Xs] [MeasurableSpace Sg] [MeasurableSpace Sg']
+idealisation, because the framework's empirical content lives here.
+
+The `IsEMFieldCoupling` half is the formal part of the empirical commitment;
+it records the *mathematical* conditions a kernel claiming to be the EM field
+must satisfy, which are independent of whether cortex satisfies them. -/
+def E56 {M : Type*} [MeasureSpace M] [TopologicalSpace M] (sys : ContinuousNeuralField M)
+    (Xs Sg Sg' : Type*) [MeasurableSpace Xs] [MeasurableSpace Sg] [MeasurableSpace Sg']
     (E : ℕ → ℝ) (L K D : ℝ) : Prop :=
-  CoarseGrains E L → FieldRealizes L K D
+  CoarseGrains E L → (FieldRealizes L K D ∧ Nonempty (IsEMFieldCoupling sys K D))
 
 /-- **n6 → n7. Physical commitment.**
 
@@ -518,8 +525,10 @@ module had before `supercritical_of_coherent`, it would not have.
   than sentences.
 -/
 theorem chain
-    {X : TopCat.{u}} [MeasurableSpace X] [BorelSpace X] [TriangulatedManifold ↥X]
+    {X : TopCat.{u}} [MeasurableSpace X] [BorelSpace X] [MeasureSpace X] [TriangulatedManifold ↥X]
     [MetricSpace (GlobalSection (X := X))] [CompleteSpace (GlobalSection (X := X))]
+    -- the continuum coupling kernel
+    (kernel : ContinuousNeuralField X)
     -- the boundary's register
     {sys : Type*} [Fintype sys] [DecidableEq sys] [Nonempty sys] [StatisticalMechanics sys]
     (upd : sys → sys)
@@ -538,7 +547,7 @@ theorem chain
     (e23 : E23 vac phi upd)
     (e34 : E34 upd Xs Sg Sg')
     (e45 : E45 Xs Sg Sg' E L)
-    (e56 : E56 Xs Sg Sg' E L K D)
+    (e56 : E56 kernel Xs Sg Sg' E L K D)
     (e67 : E67 L K D)
     (e78 : E78 K D X)
     (e89 : E89 K D τ rb) :
@@ -548,7 +557,8 @@ theorem chain
   have n3 : Dissipates upd := dissipates_of_not_surjective upd (e23 n2)
   have n4 : PredictiveBound Xs Sg Sg' := predictiveBound_of_nonempty (e34 n3)
   have n5 : CoarseGrains E L := e45 n4
-  have n6 : FieldRealizes L K D := e56 n5
+  have h56 : FieldRealizes L K D ∧ Nonempty (IsEMFieldCoupling kernel K D) := e56 n5
+  have n6 : FieldRealizes L K D := h56.1
   have n7 : Coherent K D := coherent_of_supercritical n6.1 (e67 n6)
   have n8 : Unity X := unity_of_cover (e78 n7)
   obtain ⟨T, s, hs_unified, h_lip, hs_fixed⟩ := e89 n8
@@ -582,11 +592,13 @@ theorem coherent_three_one : Coherent 3 1 := by
 theorem e67_three_one : E67 3 3 1 := fun _ => by rw [critical_coupling]; norm_num
 
 /-- The `n5 → n6` identification is satisfiable: take the coarse-graining limit
-to be the coupling constant. -/
-theorem e56_of_eq (Xs Sg Sg' : Type*)
+to be the coupling constant. Requires a proof that the continuum coupling kernel
+satisfies `IsEMFieldCoupling`. -/
+theorem e56_of_eq [MeasureSpace X] (kernel : ContinuousNeuralField X) (Xs Sg Sg' : Type*)
     [MeasurableSpace Xs] [MeasurableSpace Sg] [MeasurableSpace Sg']
-    (E : ℕ → ℝ) : E56 Xs Sg Sg' E 3 3 1 :=
-  fun _ => ⟨one_pos, by norm_num, rfl⟩
+    (E : ℕ → ℝ) (hEM : Nonempty (IsEMFieldCoupling kernel (3 : ℝ) (1 : ℝ))) :
+    E56 kernel Xs Sg Sg' E 3 3 1 :=
+  fun _ => ⟨⟨one_pos, by norm_num, rfl⟩, hEM⟩
 
 /-- `CoarseGrains` is inhabited by a constant sequence, so `E45` is satisfiable
 by a constant function. -/
@@ -655,6 +667,38 @@ theorem witness_not_surjective : ¬ Function.Surjective (fun _ : Bool => true) :
   exact Bool.noConfusion hx
 
 open Examples in
+/-- A `MeasureSpace` for `Cortex` (finite discrete type with counting measure). -/
+noncomputable instance : MeasureSpace Cortex :=
+  { volume := Measure.count }
+
+open Examples in
+/-- A trivial `ContinuousNeuralField` on Cortex for the joint witness. -/
+noncomputable def cortexNeuralField : ContinuousNeuralField Cortex :=
+  ⟨fun _ => (0 : ℝ), fun _ _ => (0 : ℝ), (0 : ℝ)⟩
+
+open Examples in
+/-- The cortex neural field satisfies `IsEMFieldCoupling` at the witness parameters. -/
+theorem cortexNeuralField_isEMFieldCoupling :
+    Nonempty (IsEMFieldCoupling cortexNeuralField (3 : ℝ) (1 : ℝ)) := by
+  refine ⟨?_, ?_, by norm_num, by norm_num⟩
+  · -- kernel_continuous: zero kernel on a discrete space is continuous
+    unfold cortexNeuralField
+    have h : (Function.uncurry fun (_ _ : Cortex) => (0 : ℝ)) = fun _ : Cortex × Cortex => (0 : ℝ) := by
+      ext ⟨x, y⟩; rfl
+    rw [h]
+    exact continuous_const
+  · -- domain_positive_measure: counting measure of Cortex (3 points) is positive
+    have hcard : Fintype.card Site = 3 := by
+      decide
+    have hvol : (volume : Measure Cortex) (Set.univ : Set Cortex) = (3 : ENNReal) := by
+      calc
+        (volume : Measure Cortex) (Set.univ : Set Cortex) = Measure.count (Set.univ : Set Site) := rfl
+        _ = (Fintype.card Site : ENNReal) := by simp
+        _ = (3 : ENNReal) := by simp [hcard]
+    rw [hvol]
+    norm_num
+
+open Examples in
 /-- **All eight arrows, at once, on one substrate.**
 
 `#print axioms chain_hypotheses_jointly_satisfiable` reports only the three, so
@@ -662,7 +706,7 @@ the witness is as sound as the conditional theorem whose hypotheses it
 discharges. The name is deliberately limited to satisfiability: the empty
 vacuum and constant coarse-graining sequence do not constitute a mechanism. -/
 theorem chain_hypotheses_jointly_satisfiable : UnifiedSelf (X := Cortex) cortexReflexive :=
-  chain (X := Cortex) (sys := Bool) (fun _ => true)
+  chain (X := Cortex) (kernel := cortexNeuralField) (sys := Bool) (fun _ => true)
     (vac := (∅ : Set Bool)) (phi := id) Bool Bool Bool
     (E := fun _ => 3) (L := 3) (K := 3) (D := 1) (τ := cortexTau)
     cortexTau_pos cortexReflexive
@@ -670,7 +714,7 @@ theorem chain_hypotheses_jointly_satisfiable : UnifiedSelf (X := Cortex) cortexR
     (fun _ => witness_not_surjective)
     (fun _ => ⟨frozenSystem⟩)
     (fun _ => tendsto_const_nhds)
-    (fun _ => ⟨one_pos, by norm_num, rfl⟩)
+    (fun _ => ⟨⟨one_pos, by norm_num, rfl⟩, cortexNeuralField_isEMFieldCoupling⟩)
     (fun _ => by rw [critical_coupling]; norm_num)
     (fun _ => ⟨cortexCover⟩)
     (fun _ => ⟨cortexCover, cortexState, (fun _ => rfl),

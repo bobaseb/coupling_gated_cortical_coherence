@@ -22,5 +22,6 @@ import PhysicsOfConsciousness.Phase7_Rigidity
 import PhysicsOfConsciousness.Phase8_ContinuousField
 import PhysicsOfConsciousness.Phase8_SelfConsistency
 import PhysicsOfConsciousness.Phase8_CriticalExponent
+import PhysicsOfConsciousness.Phase9_EMIdentification
 import PhysicsOfConsciousness.Examples
 import PhysicsOfConsciousness.Chain
