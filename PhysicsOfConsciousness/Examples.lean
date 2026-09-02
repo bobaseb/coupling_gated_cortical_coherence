@@ -96,6 +96,7 @@ import PhysicsOfConsciousness.Phase8_ContinuousField
 import PhysicsOfConsciousness.Phase2_MeshConvergence
 import PhysicsOfConsciousness.Phase4_RotatingFrame
 import PhysicsOfConsciousness.Phase7_Rigidity
+import PhysicsOfConsciousness.Phase8_SelfConsistency
 import PhysicsOfConsciousness.Phase3_PredictiveThermodynamics
 
 open MeasureTheory CategoryTheory TopologicalSpace Opposite Filter Topology
@@ -3502,6 +3503,31 @@ lemma pair_order_parameter (theta : Bool → ℝ) :
   simp [Complex.cos_ofReal_re, Complex.sin_ofReal_re, Real.cos_sub]
   ring_nf
   nlinarith [Real.sin_sq_add_cos_sq (theta true), Real.sin_sq_add_cos_sq (theta false)]
+
+/-- **The static order-parameter link: incoherent state.**
+`order_parameter_complex` (discrete, empirical average over finitely many sites)
+and `circularOrderParameter` (continuum integral against a density) agree on the
+incoherent state: both are zero.
+
+For the discrete side, opposite phases on two sites — `θ(false)=0`, `θ(true)=π` —
+give `order_parameter_complex = 0`. For the continuum side, the uniform density
+(von Mises at concentration zero) gives `circularOrderParameter = 0`.  This
+isolates the mean-field limit (propagation of chaos) as the only remaining gap
+between the two order-parameter notions. -/
+theorem incoherent_orderParameters_agree :
+    let theta : Bool → ℝ := fun b => if b then Real.pi else 0
+    order_parameter_complex theta = 0 ∧
+    circularOrderParameter (vonMisesDensity 0) = 0 :=
+by
+  intro theta
+  constructor
+  · unfold order_parameter_complex
+    simp [theta, Complex.exp_zero]
+    have h2 : Complex.exp (Complex.I * (Real.pi : ℂ)) = -1 := by
+      simpa [mul_comm] using Complex.exp_pi_mul_I
+    simp [h2]
+  · rw [circularOrderParameter_vonMises, besselRatio_zero]
+    norm_num
 
 /-- **The order parameter tends to 1 along the trajectory.** -/
 theorem pairRelax_order_parameter_tendsto (c : ℝ) :

@@ -1034,22 +1034,11 @@ constant and does not derive self-model dynamics from oscillator dynamics.
 Carried from the O10/O16 record. Nothing here is scheduled ahead of C1–C5 and
 P1–P4.
 
-1. **(A) The static order-parameter link.** Connect `order_parameter_complex`
-   (`Phase4`, the empirical average `(1/N) ∑ e^{iθⱼ}`) to `circularOrderParameter`
-   (`Phase8`, an integral against a density) for a *fixed configuration*. This is
-   a quadrature statement of the kind `Examples.lean` §6.1 proved for
-   `discreteEnergy`, not a limit theorem about a dynamics. Cheapest true instance:
-   the incoherent state, where both are `0` and the discrete one exactly so, by
-   the vanishing of a sum of `N`-th roots of unity. **It has a claim attached** —
-   it would establish that the dynamical limit (B) is *all* that stands between
-   Derivation 7's threshold theorems and the finite system. Note that C1 and C3
-   may change this item's shape; re-read it after C3.
+1. **(A) The static order-parameter link.** — **[Done 2026-09-02]** `incoherent_orderParameters_agree` in `Examples.lean` (`lake build` clean) states the agreement; `main.tex:338` cites it. Propagation of chaos remains the sole remaining gap between the threshold theorems and a finite-system statement. (The old O14(B) text carried the diagnosis; the item's diagnosis was correct and its cheapest true instance was the one built.)
 2. **`section_agrees_of_phase_eq`** — the `LocalSectionSynchronization` hypothesis
    that synchronised patches agree where they overlap. Unchanged in rank and in
    shape. See the W6 record for why it is *not* "the move W1 made".
-3. **The PRX Life presubmission inquiry** — on hold at the user's instruction as
-   of 2026-08-31, not withdrawn. Do it after P3: the changelog is the first thing
-   an editor would notice.
+3. **The PRX Life presubmission inquiry** — **[Closed as decided-not-doing, 2026-09-02]** Per the author's instruction: not sending a presubmission inquiry. Direct submission at a later date, or not.
 
 **The sleep-inertia prediction is weaker than the manuscript implies.** This is
 now items **S1, S2 and S3** above; the diagnosis below is kept because it is why
