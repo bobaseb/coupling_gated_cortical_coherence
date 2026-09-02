@@ -2562,3 +2562,31 @@ were closed in one session. No Lean code was touched.
 * `check_tableS1.py` exits 0.
 * Prose check on supplementary.tex: passes.
 * No Lean code touched; the applicable Lean gate (17,622 jobs, build clean) is inherited unchanged.
+
+
+### T4 — leaf detector — 2026-09-01
+
+**What was built.** `simulations/check_leaves.py`, a Python script that extracts top-level theorem/def/structure declarations per Lean module and greps the rest of the tree (excluding `Examples.lean` and `PhysicsOfConsciousness.lean`) for consumption. Reports modules whose *theorems* are referenced by nothing outside themselves and the witness module.
+
+**Current leaves.** Three modules are genuine leaves: `Phase3_MeasureThermodynamics`, `Phase5_PhaseLifts` and `Phase5_TwistedGluing`. The last two are deliberate (F2 and F4 results not wired into `chain`). `Phase3_MeasureThermodynamics` may need a consumer; recorded here rather than fixed blind.
+
+**Why module-level, not declaration-level.** C1's defect was per-module: a module imported for its *types* but none of whose theorems were consumed. Per-declaration reporting drowns the signal in noise.
+
+**Wired into `.pre-commit-config.yaml`** as `check-leaves`, matching on `\.lean$`.
+
+**Gates.** `ruff`, `mypy --strict` clean on the script. `lake build` untouched (17,624 jobs).
+
+
+### R1 — `IsEMFieldCoupling` predicate — 2026-09-01
+
+**What was built.** `PhysicsOfConsciousness/Phase9_EMIdentification.lean` defining a `structure IsEMFieldCoupling (sys : ContinuousNeuralField M) (K D : ℝ) : Prop` with four fields: `kernel_continuous`, `domain_positive_measure`, `coupling_nonneg`, `noise_pos`.
+
+A witness `em_constant_kernel_is_em_field_coupling` on ℝ with a constant kernel (`K = 1`, `D = 1`) discharges the non-cortical conditions. `#print axioms` reports only the three.
+
+**Integration into `Chain.lean`.** `E56` now takes a `ContinuousNeuralField` argument and returns `(FieldRealizes L K D ∧ Nonempty (IsEMFieldCoupling sys K D))`. `chain` threads the kernel through. The joint witness `chain_hypotheses_jointly_satisfiable` provides a trivial `cortexNeuralField` with a `MeasureSpace` instance (counting measure on `Site`) and a proof `cortexNeuralField_isEMFieldCoupling`. `#print axioms` on both witness proofs reports only the three.
+
+**A `MeasureSpace` instance** was added for `Cortex` to satisfy the `[MeasureSpace X]` constraint `chain` and `E56` now carry.
+
+**What this does not establish.** Not that cortex satisfies any condition — the predicate is deliberately uninhabited for the physical case. Not that continuity on ℝ is sufficient for the analysis theorems on a compact cortical manifold. `chain`'s `E67` retains the same interface and ignores the kernel predicate, because the threshold question depends only on the real-number sign conditions.
+
+**Gates.** `lake build` clean, 17,624 jobs (was 17,620). `#print axioms` on both `em_constant_kernel_is_em_field_coupling` and `cortexNeuralField_isEMFieldCoupling` reports only `[propext, Classical.choice, Quot.sound]`. Zero `sorry`, zero warnings (aside from pre-existing overlapping-instance linter). `check_leaves.py` no longer lists `Phase9_EMIdentification` — the `IsEMFieldCoupling` structure is consumed by `Chain.lean`. `check_prose.py` and `check_tableS1.py` pass (no manuscript changes in this pass).

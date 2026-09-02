@@ -57,3 +57,12 @@ repos:
         language: system
         files: ^(supplementary\.tex|.*Chain\.lean)$
         pass_filenames: false
+
+      # Leaf detector: every phase module must have at least one theorem
+      # consumed outside itself and Examples.lean. Runs on any Lean file change.
+      - id: check-leaves
+        name: no leaf modules with unconsumed theorems
+        entry: bash -c 'cd simulations && uv run python check_leaves.py'
+        language: system
+        files: \.lean$
+        pass_filenames: false
