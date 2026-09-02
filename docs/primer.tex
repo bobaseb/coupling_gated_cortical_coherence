@@ -1,0 +1,244 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\singlespacing
+\usepackage{enumitem}
+
+\title{A Plain-English Guide to the Advanced Mathematics and Physics of ``Physical Primitives of Mind''}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+This document explains the advanced mathematics and physics used in ``Physical Primitives of Mind'' (henceforth \textsc{ppom}).  It is written for readers with backgrounds in cognitive neuroscience or machine learning who want to understand the formal machinery without reading the Lean 4 code or tracking down every external reference.
+
+Each section introduces one concept, states why it is needed, gives the intuition, and then presents the formal statement.  No proof is reproduced; the aim is literacy, not mastery.
+
+\section{Symmetries, Topological Defects, and Boundaries (\textsection2 of \textsc{ppom})}
+
+\textbf{Why it is needed.}  To have a conscious agent you need a thing that is separate from its environment.  That separation is a \emph{boundary}.  The framework must explain how such a boundary arises from physics rather than assuming it.
+
+\textbf{Intuition.}  The early universe (or any physical system) starts in a symmetric state where no direction or location is special.  As it cools, this symmetry breaks: the system settles into one of several equivalent lowest-energy configurations.  If different regions settle into different configurations, the boundary between them forms a \emph{topological defect} --- a domain wall, a vortex, or a monopole.  Any such defect constitutes a bounded region with an inside and an outside.  That bounded region is the minimal physical requirement for an agent.
+
+\textbf{Key formal result.}
+\begin{quote}
+If a continuous symmetry is spontaneously broken, and the space of vacuum states is disconnected (has more than one connected component), then on a connected physical substrate any continuous field taking values in two different components must leave the vacuum set somewhere.  That ``leaving the vacuum'' is a domain-wall defect, hence a boundary.
+\end{quote}
+
+This is the $\pi_0$ (connected-components) case of Kibble's classification of topological defects.  The framework uses only domain walls; higher-dimensional defects (vortices, monopoles) are mentioned but not needed.
+
+\subsection{Lean implementation notes}
+In Lean this is \texttt{exists\_notMem\_of\_connectedComponentIn}.  The proof uses only the fact that continuous images of connected sets are connected.  No energy potential or Lagrangian appears in the theorem --- the vacuum manifold structure is sufficient.
+
+\section{Finite Phase Space and Landauer's Principle (\textsection3)}
+
+\textbf{Why it is needed.}  Once you have a bounded agent, it is bombarded by environmental signals.  It cannot absorb an infinite history because its internal state space is finite.  Something has to give: old states are erased, and erasure costs heat.  This is the thermodynamic constraint that forces the agent to be efficient.
+
+\textbf{Intuition.}  Think of a register with $N$ bits.  It can represent at most $2^N$ distinct states.  A stream of environmental perturbations longer than $2^N$ must overwrite some previous state.  Overwriting is physical erasure, and Landauer's principle says erasing one bit of information dissipates at least $k_B T \ln 2$ joules of heat.  So a bounded agent is necessarily a dissipative structure.
+
+\subsection{Formal statements}
+
+\paragraph{Capacity bound.} For any distribution on a finite state space $X$, the Shannon entropy $H(p) \le \log_2 |X|$, with equality only for the uniform distribution.  This is a theorem of information theory, requiring no physics.
+
+\paragraph{Absorption bound.} For a perturbation stream of length $k$ over an alphabet $P$, if $|P|^k > |X|$, the map from histories to internal states cannot be injective: two distinct histories leave the agent in the same state (\texttt{absorb\_not\_injective}).  This holds regardless of the update rule.
+
+\paragraph{Landauer's bound.} If the local update map is not injective (erasure occurs) and the global system+bath dynamics is injective (Liouville's theorem), then the bath expands and heat is dissipated: $\Delta Q \ge k_B T \ln 2$ per erased bit.  In Lean this is \texttt{finite\_phase\_space\_dissipates} and \texttt{landauer\_from\_reversibility}.
+
+\subsection{The Norton--Shenker distinction}
+Logical erasure (many-to-one on abstract states) need not dissipate heat if the physical implementation is injective [9].  The formalization avoids this by defining erasure as a non-injective mapping on the \emph{physical} state space, not the abstract one.
+
+\section{Structural Resonance and Predictive Information (\textsection4)}
+
+\textbf{Why it is needed.}  A dissipative structure that merely dissipates is not yet cognitive.  The framework needs a reason for the structure to organise itself to predict its environment.  That reason is thermodynamic: memory that fails to predict is waste, paid for in heat.
+
+\textbf{Intuition.}  Consider a system $X_t$ driven by an environmental signal $S_t$.  At time $t$, the system holds some information about the signal's present: $I(X_t; S_t)$.  Some of that information also predicts the signal's next value $S_{t+1}$; the rest does not.  The bound of Still, Sivak, Bell, and Crooks (2012) says:
+
+\[
+W_{\text{diss}} \ge k_B T \left[ I(X_t; S_t) - I(X_t; S_{t+1}) \right]
+\]
+
+The bracket --- nonpredictive information --- is thermodynamically costly.  A system under selection pressure to minimise dissipation is therefore forced to retain only predictive information.  This is ``structural resonance'' in the framework's language: the system's dynamics resonate with (track) the predictable components of the environment.
+
+\subsection{What is formalised}
+
+The bound is a class field (\texttt{PredictiveDissipation.still\_bound}) --- an irreducible physical postulate that each model must satisfy, not a global axiom.  Everything downstream is derived:
+\begin{itemize}
+\item The data processing inequality $I(X_t; S_{t+1}) \le I(X_t; S_t)$ (the Markov chain $X_t \to S_t \to S_{t+1}$).
+\item Non-negativity of dissipated work: $W_{\text{diss}} \ge 0$.
+\item A dissipation budget that bounds wasted memory: if dissipation is zero, every retained bit must be predictive.
+\end{itemize}
+
+\subsection{What is NOT claimed}
+The Free Energy Principle (Friston) would require $\lim_{t\to\infty} D_{KL}(P\|Q) = 0$ --- that prediction error minimises to zero.  This does \emph{not} follow.  A driven system settles into a non-equilibrium steady state with $\sigma > 0$, and the bound then permits any divergence up to $\Delta t \cdot \sigma$.  The inference is invalid; the formalisation replaces it with the correct, weaker bound above.
+
+\section{The Critical Threshold $K_c = 2D$ (\textsection5)}
+
+\textbf{Why it is needed.}  The framework claims that conscious unity occurs when the brain's spatial coupling exceeds a threshold.  That threshold is not a free parameter; it is a theorem given the assumptions.
+
+\textbf{Intuition.}  Imagine many neural oscillators coupled by strength $K$ with noise $D$.  When coupling is weak ($K < 2D$), noise dominates and oscillators fire incoherently.  When coupling is strong enough ($K > 2D$), a phase transition occurs: oscillators lock into a coherent, phase-ordered state.  The order parameter $r$ --- the resultant length of the averaged phase vectors --- jumps from near zero to positive.
+
+\subsection{The self-consistency equation}
+
+The stationary distribution of phases is von Mises:
+\[
+\rho(\theta) \propto e^{a\cos\theta}, \qquad a = \frac{Kr}{D}
+\]
+The order parameter $r$ must satisfy its own definition:
+\[
+r = \frac{I_1(a)}{I_0(a)} \equiv R(a)
+\]
+where $I_0, I_1$ are modified Bessel functions.  This is the mean-field self-consistency equation.
+
+\subsection{Formal results}
+
+\begin{itemize}
+\item \textbf{Subcritical:} For $K < 2D$, the only non-negative solution is $r = 0$.
+\item \textbf{Supercritical:} For $K > 2D$, exactly one positive solution $0 < r \le 1$ exists.
+\item \textbf{Continuous emergence:} As $K \downarrow 2D$, $r \to 0$.
+\item \textbf{Strict monotonicity:} $r$ increases strictly with $K$ above threshold.
+\item \textbf{Critical exponent:} Near threshold, $r^2/(K - K_c) \to 1/D$, i.e.\ $r \sim \sqrt{(K-K_c)/D}$.  This is the mean-field exponent $\beta = 1/2$.
+\end{itemize}
+
+\subsection{What is assumed}
+The von Mises stationary density is an input, not derived from the Fokker-Planck dynamics.  The derivation from the stochastic Kuramoto equation to this density is verified numerically in the repository (\texttt{simulations/fokker\_planck\_von\_mises.py}) but is not a Lean theorem.  This is the biggest open formalisation gap.
+
+\section{The Pitchfork Bifurcation and the Square-Root Cusp (\textsection5)}
+
+\textbf{Why it is needed.}  The temporal shape of sleep-inertia recovery (delayed sigmoid with a square-root foot) is the framework's most distinctive, falsifiable prediction.  The square-root shape comes from the bifurcation's critical exponent, not from a fitted parameter.
+
+\textbf{Intuition.}  At the phase transition, the order parameter $r$ emerges continuously from zero.  How it leaves zero is described by the exponent $\beta$: for the mean-field Kuramoto model, $\beta = 1/2$, meaning $r \propto (K - K_c)^{1/2}$.  If the coupling $K(t)$ crosses threshold at constant speed ($\dot K(t_0) \ne 0$), then shortly after onset $r(t) \propto (t - t_0)^{1/2}$.
+
+This square-root cusp has \emph{infinite initial slope}: it rises faster than any exponential, logistic, or linear function at the very first instant.  That shape is unique to the bifurcation and distinguishes it from generic saturating nonlinearities.
+
+\subsection{Formal derivation}
+The second-order expansion of $E(a) = \mathbb{E}_a[\sin^2\theta]$:
+\[
+E(a) = \frac{1}{2} - \frac{a^2}{16} + o(a^2)
+\]
+Substituting into the self-consistency equation $r = a E(a)$ with $a = Kr/D$ gives:
+\[
+K - 2D = \frac{K a^2}{8} + \text{higher order}
+\]
+Along any family of positive coherent solutions with $K \downarrow 2D$ and $r \to 0$:
+\[
+\frac{r^2}{K - 2D} \to \frac{1}{D}
+\]
+So near threshold $r \sim \sqrt{(K-2D)/D}$, hence $\beta = 1/2$.
+
+\section{Sheaf-Theoretic Unity (\textsection6)}
+
+\textbf{Why it is needed.}  Synchronisation alone does not guarantee unity.  Many oscillators can be phase-locked while each patch ``knows'' its phase but not that it belongs to a whole.  The framework needs a mechanism that assembles local states into a single global state --- literally a \emph{global section} of a sheaf.
+
+\textbf{Intuition.}  Imagine the cortex divided into overlapping patches.  Each patch has a local probability measure describing the phase distribution in that patch.  If the measures agree on overlaps (same distribution at shared locations), then the sheaf property guarantees they glue uniquely into one global measure over the whole cortex.  That global measure is the ``unified state''.
+
+\subsection{Formal statement}
+
+\begin{quote}
+Given a sheaf of probability measures $\mathcal{F}$ over a cover of the cortical surface $X$, if local states $P_U \in \mathcal{F}(U)$ agree on all intersections $U \cap V$, they uniquely glue into a global section $P_X \in \mathcal{F}(X)$.
+\end{quote}
+
+\subsection{Two independent hypotheses}
+\begin{enumerate}
+\item \textbf{Thermodynamic equilibrium:} The phase field is at the minimum of the coupling potential, ensured by convergence of the Kuramoto dynamics under the basin condition.
+\item \textbf{Overlap agreement:} Patches at a common phase agree where they overlap.
+\end{enumerate}
+
+Only the first is discharged by dynamics (under the conditional basin theorem).  The second is a separate physical postulate.  Neither is derived from the other.
+
+\section{The Reflexive Self as a Fixed Point (\textsection7)}
+
+\textbf{Why it is needed.}  A unified global state is not yet a \emph{self}.  The framework needs a mechanism that closes the loop: the system models its own state changes.
+
+\textbf{Intuition.}  On the space of global sections, define a self-prediction map: each state predicts what it will become in the next instant.  If this map is a contraction (distances shrink), the Banach fixed-point theorem guarantees a unique fixed point --- a state that is its own prediction.  This fixed point is the ``self'' in the framework: a topological structure that emerges from the dynamics rather than being added by hand.
+
+\subsection{Formal statement}
+
+\begin{quote}
+On a complete metric space of global sections, a self-prediction map that is Lipschitz with rate $e^{-(K-K_c)\tau/2} < 1$ has a unique fixed point (the ``Self'').
+\end{quote}
+
+The coherence condition $K > K_c$ ensures the rate is less than 1.  The Lipschitz law itself is an instance obligation, not derived from the field dynamics.
+
+\section{Hardware Thermodynamics and Topological Rigidity (\textsection8)}
+
+\textbf{Why it is needed.}  If consciousness requires a continuous physical medium, then discrete architectures (von Neumann computers, GPUs) cannot instantiate it.  The framework needs to argue for this separation quantitatively.
+
+\subsection{Two results}
+
+\paragraph{Fixed wiring suboptimality.}  A coupling matrix restricted by fixed wiring (some pairs cannot be connected) is strictly suboptimal compared to a fully flexible architecture using the same total resources.  The gap is proportional to the missed correlation.  Formalised as \texttt{rigid\_is\_strictly\_suboptimal}.
+
+\paragraph{Continuum vs.\ discrete.}  On an atomless (continuous) substrate, a finitely sited kernel contributes exactly zero to the continuum coupling energy.  A true continuum kernel can register non-zero energy.  Formalised as \texttt{fieldCorrelation\_sited\_eq\_zero}.
+
+\subsection{Scope caveat}
+The first result is resource-matched but depends on the wiring pattern; an architecture wired to the best pair is not beaten.  The second result is a genuine type-level separation but is \emph{not} resource-matched.  Neither result proves that a GPU ``cannot be conscious'' — that inference is an informal argument in the main text, supported but not entailed by the formal results.
+
+\section{Empirical Predictions}
+
+\subsection{The (a, r) collapse}
+
+\textbf{What it says.}  During any brain state, the concentration $a$ (log-density slope of phase distribution) and the coherence $r$ (circular resultant length) must lie on the curve $r = I_1(a)/I_0(a)$.  This is parameter-free: no subject-specific fitting, same curve for everyone.
+
+\textbf{Tested.}  Confirmed on human scalp EEG during propofol sedation (ds005620, 8 subjects).  Mean residual $-0.007 \pm 0.002$, max $0.018$.  Figure and methods in the supplement.
+
+\subsection{The sleep-inertia temporal shape}
+
+\textbf{What it says.}  Recovery from sudden awakening follows a delayed sigmoid with a square-root cusp, not an exponential.  The delay is the time for the slow variable (astrocytic volume) to cross threshold.
+
+\textbf{Untested.}  The closest available dataset is Stephan et al.\ (2025) with 1,073 awakenings.  Raw EEG is available on request.
+
+\subsection{What the results do and do not mean}
+
+The collapse result supports the von Mises stationary density --- a necessary condition for the framework, but not evidence for the consciousness claim.  A mean-field Kuramoto model on any EEG data would produce the same collapse.  The temporal shape prediction is higher-risk and would discriminate between this framework and a purely electrical account.
+
+\section{Summary Table of Concepts}
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Concept} & \textbf{Why needed} & \textbf{Status} \\ \hline
+Topological defects & Boundary for an agent & Theorem ($\pi_0$ case) \\
+Landauer erasure & Thermodynamic constraint & Instance-bound theorem \\
+Predictive information bound & Why structure predicts environment & Instance-bound postulate \\
+$K_c = 2D$ threshold & Critical coupling for unity & Conditional theorem \\
+$\beta=1/2$ exponent & Square-root cusp in recovery & Theorem \\
+Sheaf-theoretic gluing & Local $\to$ global unity & Conditional theorem \\
+Banach fixed point & Reflexive self & Conditional theorem \\
+Hardware rigidity & Discrete vs.\ continuous separation & Theorem \\
+(a, r) collapse & Parameter-free test & Confirmed empirically \\
+Sleep-inertia shape & Discriminating prediction & Untested \\ \hline
+\end{tabular}
+\end{center}
+
+\section{Glossary}
+
+\begin{description}[leftmargin=2cm,style=nextline]
+\item[Order parameter $r$] The circular resultant length: $r = |\frac{1}{N}\sum_j e^{i\theta_j}|$, ranging from 0 (incoherent) to 1 (fully phase-locked).
+\item[Concentration $a$] The concentration parameter of the von Mises distribution, estimated from the phase distribution's log-density slope.
+\item[Bessel ratio $I_1/I_0$] The modified Bessel function ratio that relates $a$ and $r$ under the von Mises density.
+\item[Critical coupling $K_c$] The threshold value $2D$ above which coherence emerges.
+\item[Sheaf] A mathematical structure that assigns data to each open set of a space, with consistency conditions on overlaps.
+\item[Global section] A single element of the sheaf defined over the whole space, agreeing with all local data.
+\item[Landauer's principle] The thermodynamic bound $k_B T \ln 2$ per erased bit of information.
+\item[Pitchfork bifurcation] A phase transition where a stable fixed point emerges continuously from zero as a parameter crosses threshold.
+\end{description}
+
+\section*{References}
+
+\begin{enumerate}
+\item Kibble, T. W. B. (1976). Topology of cosmic domains and strings. \textit{J. Phys. A}, 9(8), 1387.
+\item Landauer, R. (1961). Irreversibility and heat generation in the computing process. \textit{IBM J. Res. Dev.}, 5(3), 183--191.
+\item Still, S., Sivak, D. A., Bell, A. J., \& Crooks, G. E. (2012). Thermodynamics of prediction. \textit{Phys. Rev. Lett.}, 109, 120604.
+\item Kuramoto, Y. (1984). \textit{Chemical Oscillations, Waves, and Turbulence}. Springer.
+\item Banach, S. (1922). Sur les op\'erations dans les ensembles abstraits. \textit{Fund. Math.}, 3, 133--181.
+\item Stephan, A. M., et al. (2025). Cortical activity upon awakening from sleep reveals consistent spatio-temporal gradients across sleep stages in human EEG. \textit{Current Biology}, 35, 3812--3824.
+\item Bajwa, I. J., et al. (2025). A repeated awakening study. \textit{Sci. Rep.}, 15, 32012.
+\item Norton, J. D., \& Shenker, O. (2005). Thermodynamics and the computational philosophy. \textit{Phil. Sci.}, 72(5), 1049--1060.
+\end{enumerate}
+
+\end{document}
