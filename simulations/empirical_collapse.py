@@ -9,6 +9,7 @@ Usage:
 """
 
 import os
+from matplotlib.axes import Axes
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -34,10 +35,22 @@ BLOCKS: list[tuple[str, str, int, str]] = [
     ("sed2", "rest", 2, "Sed2 run-2"),
 ]
 
-# Bandpass parameters: theta through gamma (4-40 Hz)
+# Bandpass parameters
 BAND_LOW = 4.0
 BAND_HIGH = 40.0
 FILTER_ORDER = 4
+
+# Frequency bands for narrowband analysis
+BANDS: dict[str, list[float]] = {
+    "theta": [4.0, 8.0],
+    "alpha": [8.0, 12.0],
+    "beta": [13.0, 30.0],
+    "broad": [4.0, 40.0],
+}
+DEFAULT_BAND = "broad"
+
+# Padding to suppress filter edge artifacts (seconds per side)
+PAD_SECONDS = 3.0
 
 # Subsampling: don't compute (a, r) at every sample — every 100 ms = 500 pts at 5 kHz
 DECIMATE_FACTOR = 500  # 500 samples × 200 µs = 100 ms per bin
@@ -120,15 +133,18 @@ def _filenames(task: str, acq: str, run: int) -> tuple[str, str, str]:
 
 
 def read_brainvision(
-    task: str, acq: str, run: int, max_seconds: float = 60.0
+    task: str, acq: str, run: int, max_seconds: float = 60.0,
+    pad_seconds: float = 0.0,
 ) -> tuple[np.ndarray, float]:
     """Download and parse a BrainVision recording from the S3 mirror.
 
-    Reads at most max_seconds of data (default 60 s). The full vhdr header
-    is always downloaded (it's tiny); only the first max_seconds of the
-    .eeg binary file is fetched via Range requests.
+    Reads at most max_seconds + 2*pad_seconds of data (default 60 s). The
+    extra padding on each side is discarded after filtering to suppress
+    filter edge artifacts. The full vhdr header is always downloaded;
+    only the needed portion of the .eeg binary is fetched via Range request.
 
-    Returns (data, fs) where data has shape (n_channels, n_samples_truncated).
+    Returns (data, fs) where data has shape (n_channels, n_samples_padded)
+    and the caller should trim pad_seconds from each side after filtering.
     """
     vhdr_file, eeg_file, _ = _filenames(task, acq, run)
 
@@ -140,8 +156,9 @@ def read_brainvision(
     samp_int_us = float(meta["Common Infos.SamplingInterval"])
     fs = 1e6 / samp_int_us
 
-    # Calculate how many bytes we need for max_seconds
-    n_samp_target = int(fs * max_seconds)
+    # Download padded data — extra on both sides for filter edge suppression
+    total_seconds = max_seconds + 2.0 * pad_seconds
+    n_samp_target = int(fs * total_seconds)
     bytes_per_sample = n_channels * 4  # 4 bytes per float32 per channel
     n_bytes = n_samp_target * bytes_per_sample
 
@@ -154,7 +171,8 @@ def read_brainvision(
     ).T  # shape (n_ch, n_samp_actual)
 
     print(f"    {n_channels} ch × {n_samp_actual} samples "
-          f"({n_samp_actual / fs:.1f} s @ {fs:.0f} Hz)")
+          f"({n_samp_actual / fs:.1f} s @ {fs:.0f} Hz, "
+          f"pad={pad_seconds:.0f}s per side)")
 
     return data, fs
 
@@ -174,27 +192,36 @@ def design_bandpass(
 
 
 def extract_phase(
-    data: np.ndarray, fs: float, low: float = BAND_LOW, high: float = BAND_HIGH
+    data: np.ndarray, fs: float, low: float = BAND_LOW, high: float = BAND_HIGH,
+    pad_seconds: float = 0.0,
 ) -> np.ndarray:
     """Apply bandpass filter + Hilbert transform to each channel.
 
-    Returns phase array of shape (n_channels, n_samples) with values in [-π, π].
-    Filters only EEG channels (1-62), skips VEOG/HEOG/EMG (63-65).
+    If pad_seconds > 0, the input data has extra samples on each side that
+    are trimmed after filtering to suppress edge artifacts.
+
+    Returns phase array of shape (n_channels, n_samples) where n_samples
+    is the original length minus 2 * pad_seconds * fs.
     """
     b, a = design_bandpass(low, high, fs)
+    n_pad = int(pad_seconds * fs) if pad_seconds > 0 else 0
 
     # Only use scalp EEG channels (indices 0-61), skip EOG/EMG
     eeg_idx = np.arange(62)
 
-    phase = np.empty_like(data)
+    # Output trimmed to the target window (middle portion)
+    n_out = data.shape[1] - 2 * n_pad
+    phase = np.empty((data.shape[0], n_out))
     phase[:] = np.nan
 
     for idx in tqdm(eeg_idx, desc="Hilbert phase"):
-        # Filter
-        filtered = filtfilt(b, a, data[idx])
-        # Hilbert → analytic signal → instantaneous phase
+        # Detrend, filter the full (padded) signal
+        d = data[idx] - data[idx].mean()
+        filtered = filtfilt(b, a, d)
         analytic = hilbert(filtered)
-        phase[idx] = np.angle(analytic)
+        # Trim padding
+        trimmed = np.angle(analytic[n_pad:data.shape[1] - n_pad] if n_pad > 0 else analytic)
+        phase[idx] = trimmed
 
     return phase
 
@@ -232,6 +259,7 @@ def extract_phase_bipolar(
 
 def extract_phase_car(
     data: np.ndarray, fs: float, low: float = BAND_LOW, high: float = BAND_HIGH,
+    pad_seconds: float = 0.0,
 ) -> np.ndarray:
     """Common-average reference in phase space (circular-mean subtraction).
 
@@ -243,7 +271,7 @@ def extract_phase_car(
 
     Returns phase array same shape as input.
     """
-    phase_raw = extract_phase(data, fs, low, high)
+    phase_raw = extract_phase(data, fs, low, high, pad_seconds=pad_seconds)
     eeg_phase = phase_raw[:62]  # scalp only
 
     # Circular mean: z_bar = (1/N) Σ exp(iθ), circular_mean = arg(z_bar)
@@ -309,37 +337,37 @@ def order_parameter_r(phase: np.ndarray) -> float:
 
 
 def concentration_a(phase: np.ndarray, n_bins: int = 40) -> float:
-    """Estimate von Mises concentration `a` via log-density regression.
+    """Estimate von Mises concentration `a` via MLE on raw phase values.
 
-    The von Mises log-density is log p(θ) ∝ a cos(θ - μ) + const.  We histogram
-    the phase values into n_bins, fit log(bin_count) ~ cos(θ - μ_t) by least
-    squares, and return the slope `a`.
+    Uses scipy.stats.vonmises.fit which returns (loc, kappa) where kappa is
+    the concentration parameter.  Falls back to the Banerjee et al. (2005)
+    approximation r*(2-r²)/(1-r²) when the MLE fails or returns kappa=0.
+    This is unbiased (unlike the log-density regression which systematically
+    underestimates a via the pseudocount trick).
     """
+    from scipy.stats import vonmises
+
     theta = phase[~np.isnan(phase)]
     if len(theta) < 100:
         return 0.0
 
-    # First, estimate the mean direction μ
-    mu = np.angle(np.sum(np.exp(1j * theta)))
+    # MLE via scipy
+    try:
+        _, kappa = vonmises.fit(theta, fscale=1.0)
+        if np.isfinite(kappa) and kappa > 0.0:
+            return float(min(kappa, 50.0))
+    except Exception:  # noqa: S110 — MLE best-effort, falls back to Banerjee approx
+        pass
 
-    # Histogram
-    bins = np.linspace(-np.pi, np.pi, n_bins + 1)
-    counts, edges = np.histogram(theta, bins=bins)
-    bin_centers = 0.5 * (edges[:-1] + edges[1:])
-
-    # Log-counts (add pseudocount to avoid log(0))
-    log_counts = np.log(counts + 1.0)
-
-    # Design matrix: [cos(θ - μ), constant]
-    cos_theta = np.cos(bin_centers - mu)
-    X = np.column_stack([cos_theta, np.ones_like(cos_theta)])
-    coeffs, *_ = np.linalg.lstsq(X, log_counts, rcond=None)
-
-    a_est = float(coeffs[0])
-    # Guard against pathological values
-    if a_est < 0:
+    # Fallback: Banerjee approximation from the circular resultant
+    r = float(np.abs(np.mean(np.exp(1j * theta))))
+    if r < 1e-12:
         return 0.0
-    return min(a_est, 50.0)
+    # Approximation valid for all r ∈ [0, 1)
+    a_approx = r * (2.0 - r ** 2) / (1.0 - r ** 2)
+    if not np.isfinite(a_approx) or a_approx < 0:
+        return 0.0
+    return float(min(a_approx, 50.0))
 
 
 def compute_ar_trace(
@@ -482,14 +510,12 @@ def run_montage_comparison(
     print(f"Montage comparison: {task}_{acq} run-{run}, {max_seconds}s")
     print("─" * 60)
 
-    data, fs = read_brainvision(task, acq, run, max_seconds)
-
+    data, fs = read_brainvision(task, acq, run, max_seconds, pad_seconds=PAD_SECONDS)
     raw_traces: dict[str, tuple[np.ndarray, np.ndarray]] = {}
     cis: dict[str, tuple[float, float, float, float, float, float]] = {}
 
-    # Raw
-    print("\n  Raw scalp reference...", flush=True)
-    a_raw, r_raw = compute_ar_trace(extract_phase(data, fs))
+    print("  Raw scalp reference...", flush=True)
+    a_raw, r_raw = compute_ar_trace(extract_phase(data, fs, pad_seconds=PAD_SECONDS))
     raw_traces["raw"] = (a_raw, r_raw)
     cis["raw"] = bootstrap_ar(a_raw, r_raw)
     print(f"    a={cis['raw'][0]:.3f} [{cis['raw'][1]:.3f}, {cis['raw'][2]:.3f}]  "
@@ -608,6 +634,109 @@ def run_montage_comparison(
             ci = cis[label]
             print(f"{label:>10s}  {ci[0]:7.3f}  {ci[1]:7.3f}  {ci[2]:7.3f}  "
                   f"{ci[3]:7.3f}  {ci[4]:7.3f}  {ci[5]:7.3f}")
+
+
+# ══════════════════════════════════════════════════════════════════════
+#  Band comparison (narrowband diagnostics)
+# ══════════════════════════════════════════════════════════════════════
+
+
+def run_band_comparison(
+    task: str = "sed", acq: str = "rest", run: int = 1,
+    max_seconds: float = 20.0,
+    bands: list[str] | None = None,
+    out: str = "figures/band_comparison.png",
+) -> None:
+    """Compare (a, r) across frequency bands for one block.
+
+    Runs the full pipeline on theta (4-8), alpha (8-12), beta (13-30),
+    and broad (4-40) bands using the same data.
+    """
+    if bands is None:
+        bands = ["theta", "alpha", "beta", "broad"]
+
+    print("─" * 60)
+    print(f"Band comparison: {task}_{acq} run-{run}, {max_seconds}s")
+    print(f"Bands: {bands}")
+    print("─" * 60)
+
+    data, fs = read_brainvision(task, acq, run, max_seconds, pad_seconds=PAD_SECONDS)
+
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4.6))
+    band_colors = {"theta": "#1f77b4", "alpha": "#2ca02c", "beta": "#d62728", "broad": "gray"}
+    results: dict[str, tuple[float, float, float, float, float, float]] = {}
+
+    for band in bands:
+        lo, hi = BANDS[band]
+        print(f"\n  {band} ({lo:.0f}–{hi:.0f} Hz)...", flush=True)
+        phase = extract_phase(data, fs, lo, hi, pad_seconds=PAD_SECONDS)
+        a_tr, r_tr = compute_ar_trace(phase)
+        a_m, a_lo, a_hi, r_m, r_lo, r_hi = bootstrap_ar(a_tr, r_tr)
+        results[band] = (a_m, a_lo, a_hi, r_m, r_lo, r_hi)
+        r_theory = bessel_ratio(a_m)
+        print(f"    a={a_m:.3f} [{a_lo:.3f}, {a_hi:.3f}]  "
+              f"r={r_m:.3f} [{r_lo:.3f}, {r_hi:.3f}]  "
+              f"I₁/I₀(a)={r_theory:.3f}")
+
+        # (a, r) scatter
+        axes[0].scatter(a_tr, r_tr, s=0.6, alpha=0.1, color=band_colors.get(band, "gray"))
+        axes[0].errorbar(a_m, r_m,
+                         xerr=[[a_m - a_lo], [a_hi - a_m]],
+                         yerr=[[r_m - r_lo], [r_hi - r_m]],
+                         fmt="o", color=band_colors.get(band, "gray"),
+                         capsize=4, capthick=1.5, ms=7, zorder=5,
+                         label=f"{band} ({lo}–{hi} Hz)")
+
+        # Residual
+        resid = r_m - r_theory
+        axes[1].bar(band, resid, color=band_colors.get(band, "gray"), alpha=0.7,
+                    yerr=[[r_m - r_lo], [r_hi - r_m]])
+
+    # Theory curve on panel A
+    a_grid = np.linspace(0, 3, 200)
+    axes[0].plot(a_grid, [bessel_ratio(ai) for ai in a_grid], "k-", lw=2.5,
+                 label=r"$I_1/I_0(a)$", zorder=4)
+    axes[0].set(xlabel=r"$a$", ylabel=r"$r$", xlim=(0, 1.5), ylim=(-0.02, 1.02))
+    axes[0].legend(fontsize=7, markerscale=4, framealpha=0.9)
+    axes[0].set_title("(A)  (a, r) per band — 95 % CI")
+    axes[0].grid(alpha=0.3)
+
+    axes[1].axhline(0, color="black", ls="--", lw=1)
+    axes[1].set(xlabel="band", ylabel=r"$r - I_1/I_0(a)$")
+    axes[1].set_title("(B)  Residual by band")
+    axes[1].grid(alpha=0.3)
+
+    # Panel C: a and r as bar plot
+    x = np.arange(len(bands))
+    w = 0.35
+    a_vals = [results[b][0] for b in bands]
+    r_vals = [results[b][3] for b in bands]
+    axes[2].bar(x - w/2, a_vals, w, color="steelblue", alpha=0.7, label=r"$a$")
+    axes[2].bar(x + w/2, r_vals, w, color="firebrick", alpha=0.7, label=r"$r$")
+    axes[2].set_xticks(x)
+    axes[2].set_xticklabels(bands)
+    axes[2].set_title("(C)  Mean a and r per band")
+    axes[2].legend(fontsize=7)
+    axes[2].grid(alpha=0.3)
+
+    fig.suptitle(f"Band comparison — sub-{SUBJECT} {task} run-{run}", fontsize=11)
+    fig.tight_layout()
+    os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
+    fig.savefig(out, dpi=200)
+    print(f"\nSaved {out}")
+    plt.close(fig)
+
+    # Table
+    print(f"\n{'Band':>8s}  {'a_mean':>7s}  {'a_lo':>7s}  {'a_hi':>7s}  "
+          f"{'r_mean':>7s}  {'r_lo':>7s}  {'r_hi':>7s}  {'I₁/I₀':>7s}  {'resid':>7s}")
+    print("-" * 80)
+    for band in bands:
+        if band in results:
+            a_m, a_lo, a_hi, r_m, r_lo, r_hi = results[band]
+            r_theory = bessel_ratio(a_m)
+            print(f"{band:>8s}  {a_m:7.3f}  {a_lo:7.3f}  {a_hi:7.3f}  "
+                  f"{r_m:7.3f}  {r_lo:7.3f}  {r_hi:7.3f}  {r_theory:7.3f}  "
+                  f"{r_m - r_theory:7.3f}")
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -743,6 +872,75 @@ MULTI_SUBJECTS = [
 ]  # 8 subjects, balanced across the dataset
 
 
+def _plot_cross_panel_a(
+    ax: Axes, all_a: list[np.ndarray], all_r: list[np.ndarray],
+    names: list[str], task: str, run: int,
+) -> None:
+    """Scatter per-subject, overlay mean ± SEM, theory curve."""
+    colors = plt.cm.tab10(np.linspace(0, 1, len(all_a)))
+    for i, (a_tr, r_tr) in enumerate(zip(all_a, all_r)):
+        ax.scatter(a_tr, r_tr, s=0.5, alpha=0.12, color=colors[i], label=names[i])
+    n_bins = min(len(a) for a in all_a)
+    sa = np.column_stack([a[:n_bins] for a in all_a])
+    sr = np.column_stack([r[:n_bins] for r in all_r])
+    ax.errorbar(np.nanmean(sa, axis=1), np.nanmean(sr, axis=1),
+                 xerr=np.nanstd(sa, axis=1)/np.sqrt(sa.shape[1]),
+                 yerr=np.nanstd(sr, axis=1)/np.sqrt(sr.shape[1]),
+                 fmt="o", color="black", ms=3, capsize=2, capthick=1, zorder=5)
+    a_g = np.linspace(0, 5, 200)
+    ax.plot(a_g, [bessel_ratio(ai) for ai in a_g], "k-", lw=2.5, label=r"$I_1/I_0(a)$")
+    ax.set(xlabel=r"$a$", ylabel=r"$r$", xlim=(0, 2), ylim=(-0.02, 1.02))
+    ax.legend(fontsize=7, markerscale=3, framealpha=0.9)
+    ax.set_title(f"(A)  Cross-subject {task} run-{run} ({len(all_a)} subjs)")
+    ax.grid(alpha=0.3)
+
+
+def _plot_cross_panel_b(ax: Axes, a_subs: np.ndarray, r_subs: np.ndarray) -> None:
+    """Subject-level means vs theory."""
+    ax.scatter(a_subs, r_subs, s=40, color="steelblue", zorder=3)
+    a_g = np.linspace(0, 3, 200)
+    ax.plot(a_g, [bessel_ratio(ai) for ai in a_g], "k-", lw=2.5)
+    ax.set(xlabel=r"$a$", ylabel=r"$r$", xlim=(0, 1.5), ylim=(-0.02, 1.02))
+    ax.legend(fontsize=7)
+    ax.set_title("(B)  Mean per subject")
+    ax.grid(alpha=0.3)
+
+
+def _plot_cross_subject(
+    all_a: list[np.ndarray], all_r: list[np.ndarray],
+    subject_results: list[dict[str, float | str]],
+    task: str, run: int,
+    out: str,
+) -> None:
+    """Draw the two-panel cross-subject figure and print summary table."""
+    pooled_a = np.concatenate(all_a)
+    pooled_r = np.concatenate(all_r)
+    names = [str(r["subject"]) for r in subject_results]
+    a_subs = np.array([r["a_mean"] for r in subject_results])
+    r_subs = np.array([r["r_mean"] for r in subject_results])
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5.2))
+    _plot_cross_panel_a(ax1, all_a, all_r, names, task, run)
+    _plot_cross_panel_b(ax2, a_subs, r_subs)
+    fig.suptitle(f"ds005620 cross-subject — {BAND_LOW:.0f}–{BAND_HIGH:.0f} Hz", fontsize=11)
+    fig.tight_layout()
+    os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
+    fig.savefig(out, dpi=200)
+    print(f"Saved {out}")
+    plt.close(fig)
+
+    print(f"\n{'Subject':>12s}  {'a_mean':>7s}  {'r_mean':>7s}")
+    print("-" * 30)
+    for r in subject_results:
+        print(f"{r['subject']:>12s}  {r['a_mean']:7.3f}  {r['r_mean']:7.3f}")
+    print(f"Pooled: a={float(np.nanmean(pooled_a)):.3f}±{float(np.nanstd(pooled_a)):.3f}, "
+          f"r={float(np.nanmean(pooled_r)):.3f}±{float(np.nanstd(pooled_r)):.3f}")
+    print(f"Group: mean_a={float(np.nanmean(a_subs)):.3f} "
+          f"[{float(np.nanmin(a_subs)):.3f}–{float(np.nanmax(a_subs)):.3f}], "
+          f"mean_r={float(np.nanmean(r_subs)):.3f} "
+          f"[{float(np.nanmin(r_subs)):.3f}–{float(np.nanmax(r_subs)):.3f}]")
+
+
 def run_multi_subject(
     task: str = "sed", acq: str = "rest", run: int = 1,
     max_seconds: float = 20.0,
@@ -765,21 +963,15 @@ def run_multi_subject(
             global SUBJECT
             old_subj = SUBJECT
             SUBJECT = subj
-            data, fs = read_brainvision(task, acq, run, max_seconds)
-            phase = extract_phase(data, fs)
-            a_trace, r_trace = compute_ar_trace(phase)
+            data, fs = read_brainvision(task, acq, run, max_seconds, pad_seconds=PAD_SECONDS)
+            a_trace, r_trace = compute_ar_trace(extract_phase(data, fs, pad_seconds=PAD_SECONDS))
             SUBJECT = old_subj
-
             a_mean = float(np.nanmean(a_trace))
             r_mean = float(np.nanmean(r_trace))
             print(f"  a={a_mean:.3f}  r={r_mean:.3f}  (n={len(a_trace)})", flush=True)
-
             all_a.append(a_trace)
             all_r.append(r_trace)
-            subject_results.append({
-                "subject": f"sub-{subj}",
-                "a_mean": a_mean, "r_mean": r_mean,
-            })
+            subject_results.append({"subject": f"sub-{subj}", "a_mean": a_mean, "r_mean": r_mean})
         except Exception as e:
             print(f"  ✗ FAILED: {e}", flush=True)
 
@@ -787,142 +979,64 @@ def run_multi_subject(
         print("No subjects succeeded.")
         return
 
-    # Pool all (a, r) points across subjects
-    pooled_a = np.concatenate(all_a)
-    pooled_r = np.concatenate(all_r)
-
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5.2))
-
-    # Panel A: scatter per subject
-    colors = plt.cm.tab10(np.linspace(0, 1, len(all_a)))
-    for i, (a_trace, r_trace) in enumerate(zip(all_a, all_r)):
-        ax1.scatter(a_trace, r_trace, s=0.5, alpha=0.12, color=colors[i],
-                    label=f"{subject_results[i]['subject']}")
-
-    # Overlay the mean trace (mean a per time-bin across subjects)
-    n_bins = min(len(a) for a in all_a)
-    stacked_a = np.column_stack([a[:n_bins] for a in all_a])
-    stacked_r = np.column_stack([r[:n_bins] for r in all_r])
-    mean_a = np.nanmean(stacked_a, axis=1)
-    mean_r = np.nanmean(stacked_r, axis=1)
-    sem_a = np.nanstd(stacked_a, axis=1) / np.sqrt(stacked_a.shape[1])
-    sem_r = np.nanstd(stacked_r, axis=1) / np.sqrt(stacked_r.shape[1])
-
-    ax1.errorbar(mean_a, mean_r, xerr=sem_a, yerr=sem_r,
-                 fmt="o", color="black", ms=3, capsize=2, capthick=1,
-                 label="mean ± SEM across subjects", zorder=5)
-
-    # Theoretical curve
-    a_grid = np.linspace(0, 5, 200)
-    r_grid = np.array([bessel_ratio(ai) for ai in a_grid])
-    ax1.plot(a_grid, r_grid, "k-", lw=2.5,
-             label=r"$r = I_1(a)/I_0(a)$", zorder=4)
-
-    ax1.set_xlabel(r"concentration $a$")
-    ax1.set_ylabel(r"order parameter $r$")
-    ax1.set_xlim(0, 2)
-    ax1.set_ylim(-0.02, 1.02)
-    ax1.legend(fontsize=7, markerscale=3, framealpha=0.9)
-    ax1.set_title(f"(A)  Cross-subject {task} run-{run} ({len(MULTI_SUBJECTS)} subjs)")
-    ax1.grid(alpha=0.3)
-
-    # Panel B: subject-level means with error bars
-    a_subs = np.array([r["a_mean"] for r in subject_results])
-    r_subs = np.array([r["r_mean"] for r in subject_results])
-    ax2.scatter(a_subs, r_subs, s=40, color="steelblue", zorder=3)
-    # Overlay theoretical curve
-    a_grid2 = np.linspace(0, 3, 200)
-    r_grid2 = np.array([bessel_ratio(ai) for ai in a_grid2])
-    ax2.plot(a_grid2, r_grid2, "k-", lw=2.5,
-             label=r"$r = I_1(a)/I_0(a)$")
-    ax2.set_xlabel(r"concentration $a$")
-    ax2.set_ylabel(r"order parameter $r$")
-    ax2.set_xlim(0, 1.5)
-    ax2.set_ylim(-0.02, 1.02)
-    ax2.legend(fontsize=7)
-    ax2.set_title("(B)  Mean per subject — sed run-1")
-    ax2.grid(alpha=0.3)
-
-    fig.suptitle(
-        f"ds005620 cross-subject — {BAND_LOW:.0f}–{BAND_HIGH:.0f} Hz band",
-        fontsize=11,
-    )
-    fig.tight_layout()
-    os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
-    fig.savefig(out, dpi=200)
-    print(f"\nSaved {out}")
-    plt.close(fig)
-
-    # Summary table
-    print(f"\n{'Subject':>12s}  {'a_mean':>7s}  {'r_mean':>7s}")
-    print("-" * 30)
-    for r in subject_results:
-        print(f"{r['subject']:>12s}  {r['a_mean']:7.3f}  {r['r_mean']:7.3f}")
-    print(f"\nPooled: a={float(np.nanmean(pooled_a)):.3f}±{float(np.nanstd(pooled_a)):.3f}, "
-          f"r={float(np.nanmean(pooled_r)):.3f}±{float(np.nanstd(pooled_r)):.3f}")
-    print(f"Group-level: mean_a={float(np.nanmean(a_subs)):.3f} [{float(np.nanmin(a_subs)):.3f}–"
-          f"{float(np.nanmax(a_subs)):.3f}], "
-          f"mean_r={float(np.nanmean(r_subs)):.3f} [{float(np.nanmin(r_subs)):.3f}–"
-          f"{float(np.nanmax(r_subs)):.3f}]")
+    _plot_cross_subject(all_a, all_r, subject_results, task, run, out)
 
 
 # ══════════════════════════════════════════════════════════════════════
-#  Main
+#  Main & CLI dispatch
 # ══════════════════════════════════════════════════════════════════════
 
 
-def main() -> None:
+def _parse_args() -> tuple[str, list[str]]:
+    """Return (action, remaining_args) based on sys.argv.
+
+    Actions: 'simulate', 'montage', 'multi', 'bands', 'single'.
+    """
     import sys as _sys
-
     if "--simulate" in _sys.argv or "-s" in _sys.argv:
-        run_synthetic()
-        return
+        return "simulate", []
     if "--montage" in _sys.argv:
-        task = _sys.argv[2] if len(_sys.argv) >= 3 else "sed"
-        acq = _sys.argv[3] if len(_sys.argv) >= 4 else "rest"
-        run_n = int(_sys.argv[4]) if len(_sys.argv) >= 5 else 1
-        seconds = float(_sys.argv[5]) if len(_sys.argv) >= 6 else 20.0
-        run_montage_comparison(task, acq, run_n, seconds)
-        return
+        return "montage", _sys.argv[2:]
+    if "--bands" in _sys.argv:
+        return "bands", _sys.argv[2:]
     if "--multi" in _sys.argv or "-m" in _sys.argv:
-        task, acq, run = "sed", "rest", 1
-        if len(_sys.argv) >= 4:
-            task = _sys.argv[2]
-            acq = _sys.argv[3]
-        if len(_sys.argv) >= 5:
-            run = int(_sys.argv[4])
-        run_multi_subject(task, acq, run)
-        return
+        return "multi", _sys.argv[2:]
+    return "single", []
 
+
+def _run_single_block(task: str, acq: str, run: int) -> tuple[np.ndarray, np.ndarray] | None:
+    """Process one block and return (a_trace, r_trace) or None on failure."""
+    try:
+        data, fs = read_brainvision(task, acq, run, pad_seconds=PAD_SECONDS)
+        n_ch, n_samp = data.shape
+        print(f"  Loaded: {n_ch} ch × {n_samp} samples ({n_samp / fs:.1f} s @ {fs:.0f} Hz)")
+        phase = extract_phase(data, fs, pad_seconds=PAD_SECONDS)
+        a_trace, r_trace = compute_ar_trace(phase)
+        n_valid = int(np.sum(~np.isnan(r_trace)))
+        print(f"    (a, r) points: {n_valid}, "
+              f"a={np.nanmean(a_trace):.3f}±{np.nanstd(a_trace):.3f}, "
+              f"r={np.nanmean(r_trace):.3f}±{np.nanstd(r_trace):.3f}")
+        return a_trace, r_trace
+    except Exception as e:
+        print(f"  ✗ FAILED: {e}")
+        return None
+
+
+def _run_single_subject() -> None:
+    """Default: process all BLOCKS for the current subject and plot."""
     print("─" * 60)
     print("Bastos-Style (a, r) Collapse Pipeline")
     print(f"Subject: {SUBJECT}, Band: {BAND_LOW:.0f}–{BAND_HIGH:.0f} Hz")
-    print(" Flags: --simulate | --multi [t] [a] [r] | --montage [t] [a] [r] [sec]")
     print("─" * 60)
 
     traces: dict[str, tuple[np.ndarray, np.ndarray]] = {}
-
     for task, acq, run, label in BLOCKS:
         print(f"\n── Processing {label} ──")
-        try:
-            data, fs = read_brainvision(task, acq, run)
-            n_ch, n_samp = data.shape
-            print(f"  Loaded: {n_ch} ch × {n_samp} samples ({n_samp / fs:.1f} s @ {fs:.0f} Hz)")
-
-            phase = extract_phase(data, fs)
-            a_trace, r_trace = compute_ar_trace(phase)
-            n_valid = int(np.sum(~np.isnan(r_trace)))
-            print(f"    (a, r) points: {n_valid}, "
-                  f"a={np.nanmean(a_trace):.3f}±{np.nanstd(a_trace):.3f}, "
-                  f"r={np.nanmean(r_trace):.3f}±{np.nanstd(r_trace):.3f}")
-
-            traces[label] = (a_trace, r_trace)
-
-        except Exception as e:
-            print(f"  ✗ FAILED: {e}")
+        result = _run_single_block(task, acq, run)
+        if result is not None:
+            traces[label] = result
 
     make_figure(traces)
-
     print("\n─" * 60)
     print("Summary: mean (a, r) per block")
     print("─" * 60)
@@ -931,6 +1045,35 @@ def main() -> None:
         if mask.sum() > 0:
             print(f"  {label:20s}  a={np.nanmean(a_trace):.3f}  r={np.nanmean(r_trace):.3f}  "
                   f"(n={mask.sum()})")
+
+
+def _arg(args: list[str], i: int, default: str) -> str:
+    """Return args[i] if available, else default (avoids inline if/else)."""
+    return args[i] if len(args) > i else default
+
+
+def main() -> None:
+    action, args = _parse_args()
+
+    if action == "bands":
+        run_band_comparison(
+            _arg(args, 0, "sed"), _arg(args, 1, "rest"),
+            int(_arg(args, 2, "1")), float(_arg(args, 3, "20.0")),
+        )
+    elif action == "simulate":
+        run_synthetic()
+    elif action == "montage":
+        run_montage_comparison(
+            _arg(args, 0, "sed"), _arg(args, 1, "rest"),
+            int(_arg(args, 2, "1")), float(_arg(args, 3, "20.0")),
+        )
+    elif action == "multi":
+        run_multi_subject(
+            _arg(args, 0, "sed"), _arg(args, 1, "rest"),
+            int(_arg(args, 2, "1")),
+        )
+    else:
+        _run_single_subject()
 
 
 if __name__ == "__main__":
