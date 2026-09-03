@@ -401,8 +401,10 @@ def E45 (Xs Sg Sg' : Type*) [MeasurableSpace Xs] [MeasurableSpace Sg] [Measurabl
 
 Asserts that the continuum limit of the discrete coupling energy is the mean-field
 coupling constant of the cortical electromagnetic field, whose phase noise is
-positive, and that the continuum kernel satisfies the mathematical conditions of
-`IsEMFieldCoupling` (joint continuity, positive domain measure, etc.).
+positive, and that the field in question satisfies `IsEMFieldCoupling`: its
+kernel is jointly continuous, its substrate is normalized, `K` *is* that kernel's
+mean-field average, no single site carries more than half of it, and `D` is the
+field's own noise.
 
 **This is the one that could simply be false**, and the manuscript says so: the
 kernel might be realized by synaptic connectivity, by gap junctions, or by
@@ -410,10 +412,18 @@ nothing with a mean-field description at all. It is not a formalization gap —
 there is no Lean statement that would settle it — and it is not a modelling
 idealisation, because the framework's empirical content lives here.
 
-The `IsEMFieldCoupling` half is the formal part of the empirical commitment;
-it records the *mathematical* conditions a kernel claiming to be the EM field
-must satisfy, which are independent of whether cortex satisfies them. -/
-def E56 {M : Type*} [MeasureSpace M] [TopologicalSpace M] (sys : ContinuousNeuralField M)
+The two conjuncts do different work. `FieldRealizes` relates three real numbers
+and is what the chain's arithmetic consumes. `IsEMFieldCoupling` is what stops
+those numbers from being free: it ties `K` and `D` to a named field on a named
+substrate, so a model discharging `E56` must exhibit the kernel rather than
+assert its strength. Neither conjunct says the field is electromagnetic, or that
+the substrate is cortex; no formal object here denotes cortex.
+
+The second conjunct is not inert. `em_field_exhibits_phase_transition` below
+consumes it together with `E67` to conclude `exhibits_phase_transition` for the
+very field `E56` names — a statement about a substrate, which `FieldRealizes`
+alone cannot reach. -/
+def E56 {M : Type*} [MeasureSpace M] [TopologicalSpace M] (sys : StochasticNeuralField M)
     (Xs Sg Sg' : Type*) [MeasurableSpace Xs] [MeasurableSpace Sg] [MeasurableSpace Sg']
     (E : ℕ → ℝ) (L K D : ℝ) : Prop :=
   CoarseGrains E L → (FieldRealizes L K D ∧ Nonempty (IsEMFieldCoupling sys K D))
@@ -525,10 +535,13 @@ module had before `supercritical_of_coherent`, it would not have.
   than sentences.
 -/
 theorem chain
-    {X : TopCat.{u}} [MeasurableSpace X] [BorelSpace X] [MeasureSpace X] [TriangulatedManifold ↥X]
+    {X : TopCat.{u}} [MeasureSpace X] [BorelSpace X] [TriangulatedManifold ↥X]
     [MetricSpace (GlobalSection (X := X))] [CompleteSpace (GlobalSection (X := X))]
-    -- the continuum coupling kernel
-    (kernel : ContinuousNeuralField X)
+    -- the continuum coupling kernel, on the same substrate the cover glues over.
+    -- `MeasureSpace X` rather than `MeasurableSpace X`: the field needs a measure
+    -- to average its kernel against, and carrying both classes would put two
+    -- σ-algebras on `X` that nothing forces to agree.
+    (kernel : StochasticNeuralField X)
     -- the boundary's register
     {sys : Type*} [Fintype sys] [DecidableEq sys] [Nonempty sys] [StatisticalMechanics sys]
     (upd : sys → sys)
@@ -593,12 +606,33 @@ theorem e67_three_one : E67 3 3 1 := fun _ => by rw [critical_coupling]; norm_nu
 
 /-- The `n5 → n6` identification is satisfiable: take the coarse-graining limit
 to be the coupling constant. Requires a proof that the continuum coupling kernel
-satisfies `IsEMFieldCoupling`. -/
-theorem e56_of_eq [MeasureSpace X] (kernel : ContinuousNeuralField X) (Xs Sg Sg' : Type*)
+satisfies `IsEMFieldCoupling` — the numerical half is free, the identification is
+not. -/
+theorem e56_of_eq {M : Type*} [MeasureSpace M] [TopologicalSpace M]
+    (kernel : StochasticNeuralField M) (Xs Sg Sg' : Type*)
     [MeasurableSpace Xs] [MeasurableSpace Sg] [MeasurableSpace Sg']
     (E : ℕ → ℝ) (hEM : Nonempty (IsEMFieldCoupling kernel (3 : ℝ) (1 : ℝ))) :
     E56 kernel Xs Sg Sg' E 3 3 1 :=
   fun _ => ⟨⟨one_pos, by norm_num, rfl⟩, hEM⟩
+
+/-- **The identification half of `E56` does work.** Together with `E67` it puts
+the named field above the synchronization threshold in the sense of
+`Phase8_ContinuousField`'s `exhibits_phase_transition` — a statement about a
+substrate and its kernel, which the three real numbers of `FieldRealizes` cannot
+express on their own.
+
+This is the consumer that keeps `IsEMFieldCoupling` from being an annotation
+beside the chain rather than a hypothesis in it. -/
+theorem em_field_exhibits_phase_transition {M : Type*} [MeasureSpace M] [TopologicalSpace M]
+    [IsProbabilityMeasure (volume : Measure M)]
+    (kernel : StochasticNeuralField M) (Xs Sg Sg' : Type*)
+    [MeasurableSpace Xs] [MeasurableSpace Sg] [MeasurableSpace Sg']
+    {E : ℕ → ℝ} {L K D : ℝ}
+    (e56 : E56 kernel Xs Sg Sg' E L K D) (e67 : E67 L K D)
+    (n5 : CoarseGrains E L) :
+    exhibits_phase_transition kernel :=
+  let h56 := e56 n5
+  exhibits_phase_transition_of_isEMFieldCoupling h56.2.some (e67 h56.1)
 
 /-- `CoarseGrains` is inhabited by a constant sequence, so `E45` is satisfiable
 by a constant function. -/
@@ -667,36 +701,81 @@ theorem witness_not_surjective : ¬ Function.Surjective (fun _ : Bool => true) :
   exact Bool.noConfusion hx
 
 open Examples in
-/-- A `MeasureSpace` for `Cortex` (finite discrete type with counting measure). -/
-noncomputable instance : MeasureSpace Cortex :=
-  { volume := Measure.count }
+/-- A `MeasureSpace` for `Cortex`: counting measure on the three sites, normalized
+to total mass one.
+
+The normalization is not cosmetic. `mean_field_coupling` averages the kernel
+against `volume` *twice*, so on a substrate of total mass `m` a constant kernel
+`c` has strength `c · m²`; comparing that against `K_c = 2D` would make the
+threshold a statement about how many sites the substrate has rather than about
+how strongly it is coupled. `IsEMFieldCoupling.domain_probability` and
+`exhibits_phase_transition` both require exactly this normalization, and for
+exactly this reason. -/
+noncomputable instance cortexMeasureSpace : MeasureSpace Cortex :=
+  { volume := (3 : ENNReal)⁻¹ • Measure.count }
 
 open Examples in
-/-- A trivial `ContinuousNeuralField` on Cortex for the joint witness. -/
-noncomputable def cortexNeuralField : ContinuousNeuralField Cortex :=
-  ⟨fun _ => (0 : ℝ), fun _ _ => (0 : ℝ), (0 : ℝ)⟩
+theorem cortexVolume_apply (s : Set Site) :
+    (volume : Measure Cortex) s = (3 : ENNReal)⁻¹ * Measure.count s := rfl
 
 open Examples in
-/-- The cortex neural field satisfies `IsEMFieldCoupling` at the witness parameters. -/
+instance : IsProbabilityMeasure (volume : Measure Cortex) where
+  measure_univ := by
+    have hcard : Fintype.card Site = 3 := by decide
+    have hcount : Measure.count (Set.univ : Set Site) = (3 : ENNReal) := by
+      simp [hcard]
+    rw [cortexVolume_apply, hcount, ENNReal.inv_mul_cancel] <;> norm_num
+
+open Examples in
+/-- Each of the three sites carries a third of the substrate — at most half, so
+the modulatory condition of `IsEMFieldCoupling` holds and no site is the field. -/
+theorem cortexVolume_singleton_le (y : Site) :
+    ((volume : Measure Cortex) {y}).toReal ≤ 1 / 2 := by
+  rw [cortexVolume_apply, Measure.count_singleton, mul_one]
+  rw [show ((3 : ENNReal)⁻¹).toReal = (3 : ℝ)⁻¹ by
+    rw [ENNReal.toReal_inv]; norm_num]
+  norm_num
+
+open Examples in
+/-- The joint witness's field: the three-site cortex with a uniform kernel of
+strength `3` and phase noise `1`.
+
+Not the zero kernel. `IsEMFieldCoupling` ties `K` to `mean_field_coupling`, so
+the witness parameters `K = 3`, `D = 1` used everywhere else in this section now
+have to be produced by the field rather than declared beside it. -/
+noncomputable def cortexNeuralField : StochasticNeuralField Cortex :=
+  constField (M := Cortex) 3 1 one_pos
+
+open Examples in
+/-- The cortex neural field satisfies `IsEMFieldCoupling` at the witness
+parameters, by the general construction of `Phase9_EMIdentification`. -/
 theorem cortexNeuralField_isEMFieldCoupling :
-    Nonempty (IsEMFieldCoupling cortexNeuralField (3 : ℝ) (1 : ℝ)) := by
-  refine ⟨?_, ?_, by norm_num, by norm_num⟩
-  · -- kernel_continuous: zero kernel on a discrete space is continuous
-    unfold cortexNeuralField
-    have h : (Function.uncurry fun (_ _ : Cortex) => (0 : ℝ)) = fun _ : Cortex × Cortex => (0 : ℝ) := by
-      ext ⟨x, y⟩; rfl
-    rw [h]
-    exact continuous_const
-  · -- domain_positive_measure: counting measure of Cortex (3 points) is positive
-    have hcard : Fintype.card Site = 3 := by
-      decide
-    have hvol : (volume : Measure Cortex) (Set.univ : Set Cortex) = (3 : ENNReal) := by
-      calc
-        (volume : Measure Cortex) (Set.univ : Set Cortex) = Measure.count (Set.univ : Set Site) := rfl
-        _ = (Fintype.card Site : ENNReal) := by simp
-        _ = (3 : ENNReal) := by simp [hcard]
-    rw [hvol]
-    norm_num
+    Nonempty (IsEMFieldCoupling cortexNeuralField (3 : ℝ) (1 : ℝ)) :=
+  ⟨isEMFieldCoupling_const (by norm_num) one_pos cortexVolume_singleton_le⟩
+
+open Examples in
+/-- The witness substrate is above threshold in the sense of
+`Phase8_ContinuousField`, not merely at numbers that satisfy an inequality:
+`mean_field_coupling cortexNeuralField = 3 > 2 = critical_coupling 1`. -/
+theorem cortexNeuralField_exhibits_phase_transition :
+    exhibits_phase_transition cortexNeuralField :=
+  exhibits_phase_transition_of_isEMFieldCoupling cortexNeuralField_isEMFieldCoupling.some
+    (by rw [critical_coupling]; norm_num)
+
+open Examples in
+/-- **The predicate has teeth.** A field with no coupling at all does *not*
+satisfy `IsEMFieldCoupling` at the witness parameters, because `K` is the
+kernel's mean-field average and not a scalar standing beside it.
+
+Kept as a regression: the identification is discharged by exhibiting a kernel of
+the claimed strength, and a substrate that couples nothing cannot discharge it. -/
+theorem not_isEMFieldCoupling_of_zero_kernel :
+    ¬ IsEMFieldCoupling (constField (M := Cortex) 0 1 one_pos) (3 : ℝ) (1 : ℝ) := by
+  intro h
+  have h0 : mean_field_coupling (constField (M := Cortex) 0 1 one_pos) = 0 :=
+    mean_field_coupling_const _ 0 rfl
+  rw [h.coupling_is_mean_field] at h0
+  norm_num at h0
 
 open Examples in
 /-- **All eight arrows, at once, on one substrate.**
