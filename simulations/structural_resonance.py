@@ -1,6 +1,6 @@
 import numpy as np
-import matplotlib.pyplot as plt  
-from tqdm import tqdm  
+import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 
 def simulate_structural_resonance(N: int = 50, steps: int = 2000, dt: float = 0.05) -> None:

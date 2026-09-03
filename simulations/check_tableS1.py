@@ -44,8 +44,7 @@ def check_supplementary_table(content: str) -> list[str]:
     for m in re.finditer(pat, content):
         status = m.group(1).strip()
         # Only check rows that look like status cells
-        if not any(kw in status for kw in
-                   ["Theorem", "Modelling", "Conditional", "empirical"]):
+        if not any(kw in status for kw in ["Theorem", "Modelling", "Conditional", "empirical"]):
             continue
         ok = any(re.match(k, status) for k in KNOWN_STATUSES)
         if not ok:
@@ -53,37 +52,46 @@ def check_supplementary_table(content: str) -> list[str]:
     return errors
 
 
-def main() -> None:
-    errors = []
-
+def read_sources() -> tuple[str, str]:
+    """Both inputs, or exit 1 naming the one that is missing."""
     chain_text = CHAIN.read_text() if CHAIN.exists() else ""
     supp_text = SUPP.read_text() if SUPP.exists() else ""
 
+    missing = []
     if not chain_text:
-        errors.append(f"Chain.lean not found at {CHAIN}")
+        missing.append(f"Chain.lean not found at {CHAIN}")
     if not supp_text:
-        errors.append(f"supplementary.tex not found at {SUPP}")
-
-    if errors:
-        for e in errors:
-            print(f"FAIL: {e}", file=sys.stderr)
+        missing.append(f"supplementary.tex not found at {SUPP}")
+    if missing:
+        for m in missing:
+            print(f"FAIL: {m}", file=sys.stderr)
         sys.exit(1)
 
-    errors.extend(check_supplementary_table(supp_text))
+    return chain_text, supp_text
 
-    # Check that chain_hypotheses_jointly_satisfiable is referenced correctly
-    ref = r"chain\_hypotheses\_jointly\_satisfiable"
-    if ref not in supp_text:
-        errors.append("Table S1 does not reference "
-                       "chain_hypotheses_jointly_satisfiable")
 
-    # Check E12 finding is reflected
-    has_e12 = "E12" in supp_text and (
-        "equivalent" in supp_text or "independent roots" in supp_text
-    )
+def check_references(supp_text: str) -> list[str]:
+    """The two cross-references Table S1 has to carry, whatever else changes.
+
+    The joint witness is what makes the chain's hypotheses non-vacuous, and the
+    E12 finding is what stops the first arrow reading as a derivation; a table
+    that names neither has drifted from what `Chain.lean` says.
+    """
+    errors = []
+    if r"chain\_hypotheses\_jointly\_satisfiable" not in supp_text:
+        errors.append("Table S1 does not reference chain_hypotheses_jointly_satisfiable")
+
+    has_e12 = "E12" in supp_text and ("equivalent" in supp_text or "independent roots" in supp_text)
     if not has_e12:
-        errors.append("E12 finding (equivalent to its conclusion) "
-                       "not reflected in Table S1")
+        errors.append("E12 finding (equivalent to its conclusion) not reflected in Table S1")
+    return errors
+
+
+def main() -> None:
+    _, supp_text = read_sources()
+
+    errors = check_supplementary_table(supp_text)
+    errors.extend(check_references(supp_text))
 
     if errors:
         print("Table S1 cross-reference check FAILED:")
@@ -93,8 +101,7 @@ def main() -> None:
 
     print("Table S1 status column cross-reference check PASSED")
     print(f"  {SUPP.name}: all status cells match known patterns")
-    print("  References to chain_hypotheses_jointly_satisfiable "
-           "and E12 finding present")
+    print("  References to chain_hypotheses_jointly_satisfiable and E12 finding present")
 
 
 if __name__ == "__main__":

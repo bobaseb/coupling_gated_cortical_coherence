@@ -64,10 +64,6 @@ ALLOWED_LEAVES: dict[str, str] = {
         "the supplement; no theorem consumes it. Recorded, not endorsed — this is "
         "the C1 shape, and giving it a consumer is open work"
     ),
-    "Phase3_MeasureThermodynamics.lean": (
-        "the measure-theoretic restatement of Phase 3 has no consumer; whether it "
-        "needs one is recorded in the T4 ledger entry rather than fixed blind"
-    ),
     "Phase5_PhaseLifts.lean": (
         "deliberate — F2's results are about the obstruction, and the chain routes "
         "around it rather than through it"
@@ -138,47 +134,62 @@ def find_leaves() -> list[Path]:
     ]
 
 
-def main() -> int:
-    leaves = find_leaves()
+def classify(leaves: list[Path]) -> tuple[list[Path], list[str]]:
+    """Split the leaf set against the recorded baseline.
+
+    Returns the leaves nobody has recorded and the recorded names that have
+    since acquired a consumer — the two ways the tree and `ALLOWED_LEAVES` can
+    disagree, and both are failures.
+    """
     leaf_names = {mod.name for mod in leaves}
-
-    new_leaves = [mod for mod in leaves if mod.name not in ALLOWED_LEAVES]
+    unrecorded = [mod for mod in leaves if mod.name not in ALLOWED_LEAVES]
     stale = sorted(name for name in ALLOWED_LEAVES if name not in leaf_names)
+    return unrecorded, stale
 
-    if not new_leaves and not stale:
+
+def report_unrecorded(unrecorded: list[Path]) -> None:
+    print(
+        f"check_leaves: {len(unrecorded)} module(s) have zero declarations "
+        "consumed\n  outside themselves, Examples.lean, and the root "
+        "aggregator.\n"
+    )
+    for mod in unrecorded:
+        print(f"  {mod.relative_to(REPO)}")
+    print(
+        "\n"
+        "A module whose declarations are referenced by nothing outside\n"
+        "itself and Examples.lean is a leaf in the edge graph.\n"
+        "Its types are imported; its theorems are not. That is how C1's\n"
+        "defect arose in Phase8_SelfConsistency. Wire a consumer, or record\n"
+        "the module in ALLOWED_LEAVES with the reason it stays dangling.\n"
+    )
+
+
+def report_stale(stale: list[str]) -> None:
+    print(
+        f"check_leaves: {len(stale)} recorded leaf(s) now have a consumer.\n"
+        "  Delete them from ALLOWED_LEAVES — an exemption nobody removes is\n"
+        "  how a gate stops meaning anything.\n"
+    )
+    for name in stale:
+        print(f"  {name}")
+    print()
+
+
+def main() -> int:
+    unrecorded, stale = classify(find_leaves())
+
+    if not unrecorded and not stale:
         print(
             "check_leaves: no unrecorded leaf modules "
             f"({len(ALLOWED_LEAVES)} recorded, all still leaves)."
         )
         return 0
 
-    if new_leaves:
-        print(
-            f"check_leaves: {len(new_leaves)} module(s) have zero declarations "
-            "consumed\n  outside themselves, Examples.lean, and the root "
-            "aggregator.\n"
-        )
-        for mod in new_leaves:
-            print(f"  {mod.relative_to(REPO)}")
-        print(
-            "\n"
-            "A module whose declarations are referenced by nothing outside\n"
-            "itself and Examples.lean is a leaf in the edge graph.\n"
-            "Its types are imported; its theorems are not. That is how C1's\n"
-            "defect arose in Phase8_SelfConsistency. Wire a consumer, or record\n"
-            "the module in ALLOWED_LEAVES with the reason it stays dangling.\n"
-        )
-
+    if unrecorded:
+        report_unrecorded(unrecorded)
     if stale:
-        print(
-            f"check_leaves: {len(stale)} recorded leaf(s) now have a consumer.\n"
-            "  Delete them from ALLOWED_LEAVES — an exemption nobody removes is\n"
-            "  how a gate stops meaning anything.\n"
-        )
-        for name in stale:
-            print(f"  {name}")
-        print()
-
+        report_stale(stale)
     return 1
 
 

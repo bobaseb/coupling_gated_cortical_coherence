@@ -98,6 +98,7 @@ import PhysicsOfConsciousness.Phase4_RotatingFrame
 import PhysicsOfConsciousness.Phase7_Rigidity
 import PhysicsOfConsciousness.Phase8_SelfConsistency
 import PhysicsOfConsciousness.Phase3_PredictiveThermodynamics
+import PhysicsOfConsciousness.Phase3_LandauerBridge
 
 open MeasureTheory CategoryTheory TopologicalSpace Opposite Filter Topology
 open scoped ENNReal NNReal
@@ -4010,17 +4011,27 @@ Nothing global is stored: `sync_to_section i` is built on `trioPatch i` from
 `trioW i` alone, and `section_agrees_of_phase_eq` is discharged by
 `trioW_agree`, by computation rather than by functoriality. -/
 @[instance_reducible]
-noncomputable def trioSync : LocalSectionSynchronization Cortex where
+noncomputable def trioSyncOf (ph : Fin 3 → ℝ) : LocalSectionSynchronization Cortex where
   I := Fin 3
   cover := trioPatch
   is_cover := trioPatch_cover
-  phase := trioLimit
+  phase := ph
   sync_to_section := fun i => sectionOfMassOn (trioPatch i) (trioW i)
   section_agrees_of_phase_eq := by
     intro i j _
     refine densityOn_injective (fun x hx => ?_)
     rw [densityOn_res, densityOn_res, densityOn_sectionOfMassOn, densityOn_sectionOfMassOn]
     exact trioW_agree i j x hx
+
+/-- The local data of §17.1, at the phase field §17's trajectory reaches.
+
+The phase field is a parameter (`trioSyncOf`) because §17.2 runs the same three
+patches at a different coupling and therefore at a different limit. Nothing in
+the overlap-agreement proof mentions the phase — the patches agree because their
+profiles agree, not because they are synchronised — which is exactly why the
+parameter costs nothing. -/
+@[instance_reducible]
+noncomputable def trioSync : LocalSectionSynchronization Cortex := trioSyncOf trioLimit
 
 /-- **The witness.** A `ThermodynamicCover` whose `thermodynamic_equilibrium`
 field is discharged by a convergence argument.
@@ -4102,6 +4113,111 @@ theorem trioCover_glued_eq (s : GlobalSection (X := Cortex))
 theorem trioCover_invariantMeasure :
     trioCover.invariantMeasure = sectionOfMass trioGlued :=
   trioCover_glued_eq _ (fun i => (trioCover.sync_to_section_eq i).symm)
+
+/-! ### 17.2 The same three sites at the chain's coupling
+
+`Chain.E78` asks for a cover that is *reached* by a relaxation whose coupling is
+at least the mean-field constant `K` the coherent regime names. The joint witness
+runs at `K = 3`, and `trioCover` runs at unit coupling, so it does not answer.
+
+`trioCover3` is the same construction at coupling `3`. The numerical content is
+unchanged and this is not a coincidence: the excess and the threshold both scale
+with the coupling, so `2 · excess < a` reduces to `cos ½ > ¾` at every coupling
+strength. The initial data, the arc condition and the profiles are §17's.
+-/
+
+/-- Three sites at the mean-field coupling of the chain's witness. -/
+noncomputable def trioSys3 : KuramotoSystem (Fin 3) where
+  omega := fun _ => 0
+  A := fun _ _ => 3
+  symm := fun _ _ => rfl
+
+lemma trioSys3_omega : ∀ i, trioSys3.omega i = 0 := fun _ => rfl
+
+lemma trioSys3_coupling : ∀ i j, (3:ℝ) ≤ trioSys3.A i j := fun _ _ => le_rfl
+
+/-- The excess of `(0, 0, ½)` at coupling `3`: three times §17's, since every
+pair contributes three times as much. -/
+lemma trioStart_excess3 :
+    potentialExcess trioSys3 trioStart = 6 * (1 - Real.cos (1/2)) := by
+  rw [potentialExcess_eq]
+  simp only [trioSys3, trioStart, Fin.sum_univ_three, Matrix.cons_val_zero,
+    Matrix.cons_val_one, Matrix.head_cons, Matrix.cons_val_two, Matrix.tail_cons]
+  rw [show (0:ℝ) - 0 = 0 by ring, show (1:ℝ)/2 - 0 = 1/2 by ring,
+    show (0:ℝ) - 1/2 = -(1/2) by ring, show (1:ℝ)/2 - 1/2 = 0 by ring]
+  rw [Real.cos_neg, Real.cos_zero]
+  ring
+
+/-- …and it is still below the threshold, on the same estimate `cos ½ > ¾`. The
+coupling cancels: at strength `c` the condition reads `2 · c · 2(1 − cos ½) < c`.
+-/
+lemma trioStart_small3 : 2 * potentialExcess trioSys3 trioStart < 3 := by
+  rw [trioStart_excess3]
+  linarith [cos_half_gt]
+
+/-- The trajectory at coupling `3`, named rather than existentially quantified. -/
+noncomputable def trioTraj3 : ℝ → Fin 3 → ℝ :=
+  (is_kuramoto_trajectory_exists trioSys3 0 trioStart).choose
+
+lemma trioTraj3_traj : is_kuramoto_trajectory trioSys3 trioTraj3 :=
+  (is_kuramoto_trajectory_exists trioSys3 0 trioStart).choose_spec.1
+
+lemma trioTraj3_zero : trioTraj3 0 = trioStart :=
+  (is_kuramoto_trajectory_exists trioSys3 0 trioStart).choose_spec.2
+
+lemma trioTraj3_small : 2 * potentialExcess trioSys3 (trioTraj3 0) < 3 := by
+  rw [trioTraj3_zero]; exact trioStart_small3
+
+lemma trioTraj3_init : ∀ i j, |trioTraj3 0 i - trioTraj3 0 j| ≤ Real.pi / 2 := by
+  rw [trioTraj3_zero]; exact trioStart_init
+
+/-- The configuration it reaches. As at unit coupling, there is no formula for
+it. -/
+noncomputable def trioLimit3 : Fin 3 → ℝ :=
+  (kuramoto_tendsto_global_minimum trioSys3 trioSys3_omega (by norm_num) trioSys3_coupling
+    trioTraj3 trioTraj3_traj trioTraj3_small trioTraj3_init).choose
+
+lemma trioLimit3_tendsto (i : Fin 3) :
+    Tendsto (fun t => trioTraj3 t i) atTop (𝓝 (trioLimit3 i)) :=
+  (kuramoto_tendsto_global_minimum trioSys3 trioSys3_omega (by norm_num) trioSys3_coupling
+    trioTraj3 trioTraj3_traj trioTraj3_small trioTraj3_init).choose_spec.1 i
+
+/-- **The cover the chain's n7 → n8 edge asks for.** Coupling `3` everywhere,
+phase field the limit of a trajectory from unsynchronised initial data, and
+`thermodynamic_equilibrium` read off that convergence. -/
+@[instance_reducible]
+noncomputable def trioCover3 : ThermodynamicCover Cortex :=
+  ThermodynamicCover.ofConvergentTrajectory (trioSyncOf trioLimit3)
+    (inferInstanceAs (Fintype (Fin 3))) (inferInstanceAs (DecidableEq (Fin 3)))
+    (inferInstanceAs (Nonempty (Fin 3)))
+    trioSys3 trioSys3_omega (by norm_num) trioSys3_coupling
+    trioTraj3 trioTraj3_traj trioTraj3_small trioTraj3_init trioLimit3_tendsto
+
+/-- **It is reached, at coupling `3`.** This is what `Chain.E78` consumes: a
+cover whose patches are coupled at least as strongly as the mean field, and
+whose equilibrium configuration is arrived at rather than assumed. -/
+theorem trioCover3_reachedByRelaxation :
+    trioCover3.IsReachedByRelaxation 3 :=
+  ThermodynamicCover.ofConvergentTrajectory_isReachedByRelaxation (X := Cortex)
+    (trioSyncOf trioLimit3) (inferInstanceAs (Fintype (Fin 3)))
+    (inferInstanceAs (DecidableEq (Fin 3))) (inferInstanceAs (Nonempty (Fin 3)))
+    trioSys3 trioSys3_omega (by norm_num) trioSys3_coupling
+    trioTraj3 trioTraj3_traj trioTraj3_small trioTraj3_init trioLimit3_tendsto
+
+/-- The initial configuration is not phase-locked at this coupling either: it is
+the same configuration. -/
+theorem trioCover3_start_not_locked : ¬ is_phase_locked (trioTraj3 0) := by
+  rw [trioTraj3_zero]; exact trioStart_not_locked
+
+/-- **The fence for the coupling floor.** `trioCover` is a perfectly good cover
+whose equilibrium is reached, and it does *not* satisfy the predicate at `3`:
+unit coupling is not mean-field coupling. Without this, `E78`'s floor could be
+read as decoration. -/
+theorem trioCover_not_reachedByRelaxation_three :
+    ¬ trioCover.IsReachedByRelaxation 3 := by
+  intro h
+  have h3 : (3:ℝ) ≤ 1 := h.2.1 (0 : Fin 3) (0 : Fin 3)
+  linarith
 
 end TrioCover
 
@@ -4418,6 +4534,140 @@ theorem still_bound_is_not_an_axiom :
   rw [predictiveInfo_const, tsub_zero, one_mul]
   exact not_le.2 memory_pos
 
+/-! ### 18.5 The two-bit law, charged to Landauer's bill
+
+`§18.2` computes the wasted memory of a system whose signal is unpredictable and
+declares a `dissipatedWork` equal to it. That is legitimate — the class field is
+an obligation and the instance meets it — but the number stands beside the
+system rather than coming out of it, exactly as `K` and `D` once stood beside
+the field in `Phase9_EMIdentification`.
+
+`landauerSystem` is the same two-bit law with the number produced instead.
+`PredictiveDissipation.ofLandauer` (`Phase3_LandauerBridge.lean`) takes the
+one-bit eraser of `§1` — the register `fun _ => true`, whose Landauer heat
+`§1`'s bath fixes at `log 2` — and returns a predictive structure whose
+`dissipatedWork` *is* that heat and whose `still_bound` is derived from
+`landauer_bound`. Nothing is postulated twice.
+
+The arithmetic is the sharp case and is worth stating plainly: the register
+erases one bit, `log 2` of entropy; the correlated law wastes one bit, `log 2`
+of memory; and the bound is met with **equality** (`landauerSystem_tight`). A
+witness in which the erased entropy exceeded the waste would show the
+construction runs; this one shows it runs with nothing to spare. -/
+
+/-- The density of the correlated law against the independent one: `2` on the
+diagonal, `0` off it. The mutual information of `§18` is computed from it. -/
+noncomputable def corrDensity : Bool × Bool → ℝ≥0∞ := fun p => if p.1 = p.2 then 2 else 0
+
+lemma measurable_corrDensity : Measurable corrDensity := measurable_of_countable _
+
+theorem corrJoint_singleton (p : Bool × Bool) :
+    corrJoint {p} = if p.1 = p.2 then (2 : ℝ≥0∞)⁻¹ else 0 := by
+  simp only [corrJoint, Measure.smul_apply, Measure.add_apply, smul_eq_mul,
+    Measure.dirac_apply' _ (measurableSet_singleton p)]
+  obtain ⟨a, b⟩ := p
+  cases a <;> cases b <;> simp
+
+theorem corrJoint_eq_withDensity : corrJoint = indepJoint.withDensity corrDensity := by
+  refine Measure.ext_of_singleton fun p => ?_
+  rw [withDensity_apply _ (measurableSet_singleton p), lintegral_singleton,
+    indepJoint_singleton, corrJoint_singleton]
+  by_cases h : p.1 = p.2 <;> simp [corrDensity, h]
+  rw [show (4 : ℝ≥0∞) = 2 * 2 by norm_num,
+    ENNReal.mul_inv (by norm_num) (by norm_num), ← mul_assoc,
+    ENNReal.mul_inv_cancel (by norm_num) (by norm_num), one_mul]
+
+lemma rnDeriv_corrJoint : corrJoint.rnDeriv indepJoint =ᵐ[indepJoint] corrDensity := by
+  rw [corrJoint_eq_withDensity]
+  exact Measure.rnDeriv_withDensity _ measurable_corrDensity
+
+lemma llr_corrJoint :
+    llr corrJoint indepJoint =ᵐ[corrJoint] fun p => Real.log (corrDensity p).toReal := by
+  filter_upwards [corrJoint_ac.ae_le rnDeriv_corrJoint] with p hp
+  simp only [llr_def, hp]
+
+/-- **The memory is exactly one bit.** `§18` proves the mutual information of the
+correlated law is neither `0` nor `⊤`; this computes it. The Radon–Nikodym
+derivative against the product law is `2` on the diagonal and `0` off it, so the
+log-likelihood ratio is `log 2` wherever the law charges anything. -/
+theorem klDiv_corrJoint : klDiv corrJoint indepJoint = ENNReal.ofReal (Real.log 2) := by
+  rw [klDiv_of_ac_of_integrable corrJoint_ac Integrable.of_finite]
+  have hint : ∫ p, llr corrJoint indepJoint p ∂corrJoint = Real.log 2 := by
+    rw [integral_congr_ae llr_corrJoint, integral_fintype Integrable.of_finite]
+    simp only [corrDensity, Measure.real, corrJoint_singleton, Fintype.sum_prod_type,
+      Fintype.sum_bool]
+    norm_num
+    ring
+  rw [hint]
+  simp
+
+theorem mutualInfo_corrJoint_eq : mutualInfo corrJoint = ENNReal.ofReal (Real.log 2) := by
+  rw [mutualInfo_corrJoint, klDiv_corrJoint]
+
+theorem memory_toReal : (mutualInfo corrJoint).toReal = Real.log 2 := by
+  rw [mutualInfo_corrJoint_eq, ENNReal.toReal_ofReal (Real.log_nonneg (by norm_num))]
+
+/-- **The register of `§1`, and what it erases.** `fun _ => true` collapses two
+states onto one: `log 2 − log 1` of entropy, which is one bit. -/
+theorem erasedEntropy_boolEraser : erasedEntropy (fun _ : Bool => true) = Real.log 2 := by
+  simp [erasedEntropy, entropy, boltzmann_entropy]
+
+/-- The identification the bridge asks for, discharged by computation: the memory
+this law wastes is exactly the entropy that register destroys. -/
+theorem boolEraser_waste :
+    (nonpredictiveInfo corrJoint (Kernel.const Bool unifBool)).toReal
+      ≤ erasedEntropy (fun _ : Bool => true) := by
+  rw [nonpredictiveInfo_const, erasedEntropy_boolEraser, memory_toReal]
+
+/-- **The predictive structure of the one-bit eraser.** Same joint law as
+`§18.1` and `§18.2`; the thermal scale and the dissipated work are now `§1`'s
+temperature and `§1`'s Landauer heat, and `still_bound` is discharged by
+`landauer_bound` rather than by a declaration. -/
+@[instance_reducible]
+noncomputable def landauerSystem : PredictiveDissipation Bool Bool Bool :=
+  PredictiveDissipation.ofLandauer (sys := Bool) (fun _ => true) corrJoint
+    (Kernel.const Bool unifBool) memory_ne_top boolEraser_waste
+
+theorem landauerSystem_dissipatedWork :
+    landauerSystem.dissipatedWork = heat_dissipation (fun _ : Bool => true) := rfl
+
+theorem landauerSystem_thermalEnergy :
+    landauerSystem.thermalEnergy = Thermodynamics.temperature (sys := Bool) := rfl
+
+theorem landauerSystem_nonpredictive :
+    landauerSystem.nonpredictive = mutualInfo corrJoint :=
+  nonpredictiveInfo_const corrJoint unifBool
+
+/-- The waste is real: the instance is not one of those that satisfy every bound
+by holding no memory. -/
+theorem landauerSystem_nonpredictive_pos : 0 < (landauerSystem.nonpredictive).toReal := by
+  rw [landauerSystem_nonpredictive]; exact memory_pos
+
+/-- **The bound is attained.** `k_B T · I_nonpred = W_diss`: the bit the register
+erases is the bit the memory wastes, and Landauer's heat pays for it exactly.
+Nothing is left over, so the inequality of `still_bound` cannot be strengthened
+on this witness. -/
+theorem landauerSystem_tight :
+    landauerSystem.thermalEnergy * (landauerSystem.nonpredictive).toReal
+      = landauerSystem.dissipatedWork := by
+  rw [landauerSystem_nonpredictive, memory_toReal]
+  show (1 : ℝ) * Real.log 2 = Real.log 2
+  rw [one_mul]
+
+/-- **The regression.** `frozenSystem` is a legitimate `PredictiveDissipation`
+and it is *not* a predictive structure of the erasing register: its dissipated
+work is zero where the register's Landauer heat is `log 2`, and it wastes no
+memory at all. An edge asking only for `Nonempty (PredictiveDissipation _ _ _)`
+is discharged by it; the edge `Chain.E34` asks for more, and this is what "more"
+excludes. -/
+theorem frozenSystem_not_of_eraser :
+    frozenSystem.dissipatedWork ≠ heat_dissipation (fun _ : Bool => true)
+      ∧ (frozenSystem.nonpredictive).toReal = 0 := by
+  constructor
+  · show (0 : ℝ) ≠ Real.log 2
+    exact ne_of_lt (Real.log_pos (by norm_num))
+  · rw [frozenSystem_nonpredictive, ENNReal.toReal_zero]
+
 end PredictiveThermodynamicsWitness
 
 /-! ## 19. The capacity of a finite phase space, on two bits
@@ -4601,6 +4851,98 @@ theorem unit_resonance_antitone {theta : ℝ → ℝ} (h : Measurable theta) (D 
   structural_resonance_decreases_sigmaContinuum h D omega K_t hc hflow
 
 end ContinuumOperatorWitness
+
+/-! ## 20. The overlap-agreement hypothesis: what it says, and what it forbids
+
+`LocalSectionSynchronization.section_agrees_of_phase_eq` is Derivation 5's second
+physical hypothesis and the one no dynamics in this development bears on. It is
+ranked second in `tasks/todo.md` and stays a hypothesis; what this section adds is
+a precise reading of it and a check that it is a restriction rather than a
+formality.
+
+**The reading.** `restrict_eq_iff_densityOn_eqOn` turns the categorical statement
+— two patch-local sections have the same restriction to the overlap — into the
+pointwise one: *the two patches assign the same mass to every site they share*.
+Nothing is hidden in the sheafification. So the hypothesis says exactly this: two
+patches whose phases agree modulo `2π` carry the same local density where they
+overlap.
+
+**What it forbids.** `overlap_agreement_fails` exhibits `§4`'s two-patch cover
+carrying a single phase and two profiles that differ at the shared site. Every
+other requirement of `LocalSectionSynchronization` is met by that data — the
+patches cover `Cortex` (`patch_cover`), the sections are honest sections over
+their patches — and the class field is *false* of it. Synchronised patches that
+disagree about their shared region are therefore excluded by an assumption, not
+by the mathematics: it is the assumption that phase-locking carries local content
+with it, which is the framework's claim and not its theorem.
+
+Contrast `§17.1`. There the three profiles are pairwise different
+(`trioW_ne_01`) and the field still holds, because they differ only where the
+patches do not meet. Agreement on overlaps does not mean the patches carry the
+same content — that is the room in which `F2`'s content question lives — it means
+they do not contradict each other about the region they share.
+-/
+
+section OverlapAgreementReading
+
+/-- **The categorical condition, read pointwise.** Two sections over two opens
+have the same restriction to the overlap exactly when their densities agree at
+every site of the overlap.
+
+Both directions are the density dictionary of `§14`: `densityOn_res` says
+restriction moves no mass, and `densityOn_injective` says a section over an open
+is determined by its density there. -/
+theorem restrict_eq_iff_densityOn_eqOn {U V : Opens ↥Cortex}
+    (s : (probabilityPresheaf Cortex).obj (op U))
+    (t : (probabilityPresheaf Cortex).obj (op V)) :
+    (probabilityPresheaf Cortex).map (homOfLE (inf_le_left : U ⊓ V ≤ U)).op s
+        = (probabilityPresheaf Cortex).map (homOfLE (inf_le_right : U ⊓ V ≤ V)).op t
+      ↔ ∀ x (hx : x ∈ (U ⊓ V : Opens ↥Cortex)),
+          densityOn s x hx.1 = densityOn t x hx.2 := by
+  constructor
+  · intro h x hx
+    have h' := congrArg (fun u => densityOn u x hx) h
+    rwa [densityOn_res, densityOn_res] at h'
+  · intro h
+    refine densityOn_injective fun x hx => ?_
+    rw [densityOn_res, densityOn_res]
+    exact h x hx
+
+/-- The two patch-local sections of the fence: patch `false` reports mass `1`
+everywhere it can see, patch `true` reports mass `2`. -/
+noncomputable def disagreeingSection (i : Bool) :
+    (probabilityPresheaf Cortex).obj (op (patch i)) :=
+  sectionOfMassOn (patch i) (fun _ => if i then 2 else 1)
+
+/-- **The hypothesis is a restriction.** `§4`'s cover, one phase for both patches,
+and two profiles that differ at the site the patches share: the class field
+`section_agrees_of_phase_eq` is *false* of this data.
+
+Everything else a `LocalSectionSynchronization` asks for is present — the patches
+cover the substrate and each section is a section over its own patch — so what
+this rules out is exactly the assumption, and nothing else. Derivation 5's second
+physical hypothesis is therefore doing work: it excludes synchronised patches
+that disagree about their shared region, and no theorem here excludes them. -/
+theorem overlap_agreement_fails :
+    ¬ (∀ i j : Bool, Real.cos ((fun _ : Bool => (0:ℝ)) i - (fun _ : Bool => (0:ℝ)) j) = 1 →
+        (probabilityPresheaf Cortex).map
+            (homOfLE (inf_le_left : patch i ⊓ patch j ≤ patch i)).op (disagreeingSection i)
+          = (probabilityPresheaf Cortex).map
+            (homOfLE (inf_le_right : patch i ⊓ patch j ≤ patch j)).op (disagreeingSection j)) := by
+  intro h
+  have hmid : Site.mid ∈ (patch false ⊓ patch true : Opens ↥Cortex) :=
+    ⟨show Site.mid ≠ Site.right by decide, show Site.mid ≠ Site.left by decide⟩
+  have hagree := (restrict_eq_iff_densityOn_eqOn _ _).1
+    (h false true (by simp)) Site.mid hmid
+  rw [disagreeingSection, disagreeingSection, densityOn_sectionOfMassOn,
+    densityOn_sectionOfMassOn] at hagree
+  exact absurd hagree (by norm_num)
+
+/-- The cover in the fence is a genuine cover, so the failure above is not a
+failure to be a cover. -/
+theorem disagreeing_cover : iSup patch = ⊤ := patch_cover
+
+end OverlapAgreementReading
 
 end Examples
 end PhysicsOfConsciousness

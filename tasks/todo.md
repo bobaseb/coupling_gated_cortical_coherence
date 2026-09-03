@@ -841,7 +841,10 @@ formalization never touches (the stationary density derivation).
 
 ### S3 — No hysteresis, which is already a theorem
 
-- [ ] **Objective.** Bank the discriminator the development has and does not use.
+- [x] **Done 2026-09-01.** No-hysteresis paragraph in the `main.tex`
+      prediction section. Pass record below.
+
+- [x] **Objective.** Bank the discriminator the development has and does not use.
 
 `supercritical_solution_set` proves the non-negative solutions of the
 self-consistency equation are exactly `{0}` below threshold and `{0, r}` above it.
@@ -864,7 +867,11 @@ set, not about dynamical selection. State it that way or not at all.
 
 ### T1 — The chain is not a chain: decide the shape
 
-- [ ] **Objective.** `E12` is logically equivalent to its own conclusion. Figure 1
+- [x] **Done 2026-09-01.** Figure~1 redrawn as a DAG: n1 and n2 are two
+      independent roots into n3, the n1 → n2 arrow removed, and the caption
+      states the two-root structure. Pass record below.
+
+- [x] **Objective.** `E12` is logically equivalent to its own conclusion. Figure 1
       currently marks the arrow dashed and explains in the caption. That is
       honest, and it defers the structural question.
 
@@ -878,7 +885,14 @@ opening picture, which is why it is an item rather than an edit.
 
 ### T2 — Rank the eight hypotheses by cost, and take the two cheapest
 
-- [ ] **Objective.** Drop the count. It is the paper's checkable number, so
+- [x] **Done 2026-09-03, and not in the direction the item asked.** The two
+      cheapest hypotheses were cheap because they were *weak*: `E34` and `E78`
+      both concluded `Nonempty (SomeStructure)` and both were already provable
+      by ignoring their premises. Lowering the count by proving them would have
+      made the development weaker. They are strengthened instead, and the count
+      stays eight. Pass record below.
+
+- [x] **Objective.** Drop the count. It is the paper's checkable number, so
       lowering it is a checkable improvement.
 
 Two candidates, both bounded:
@@ -897,7 +911,11 @@ Two candidates, both bounded:
 
 ### T3 — Generate Table S1's status column from `Chain.lean`
 
-- [ ] **Objective.** C5 checked it by hand and recorded why. Record the cost of
+- [x] **Done 2026-09-01.** `simulations/check_tableS1.py` validates the
+      status column against `Chain.lean`, wired into
+      `.pre-commit-config.yaml` as `check-table`. Pass record below.
+
+- [x] **Objective.** C5 checked it by hand and recorded why. Record the cost of
       generating it so the decision stays reviewable.
 
 **Why it matters more than it looks.** Table S1 is a table with a row per *node*.
@@ -926,10 +944,21 @@ tree for each. Wire it in beside `check-prose`.
 
 ### T5 — A mechanistic witness beyond `chain_hypotheses_jointly_satisfiable`
 
-- [ ] **Objective.** The joint witness takes the vacuum manifold empty, the
-      register a bit, and the coarse-graining sequence constant. It proves the
-      eight hypotheses are not jointly contradictory, which is what it was for,
-      and it proves nothing more.
+- [x] **Done 2026-09-03.** `E12` now uses the proved double-well kink, `E23`
+      uses the non-surjective refreshed one-bit register, and `E45` uses the
+      genuinely moving uniform-grid energy sequence translated to converge to
+      the joint witness's coupling strength 3. The existing `E34` and `E78`
+      witnesses remain. Pass record at the end of this file.
+
+- [x] **Objective.** *(Partly overtaken 2026-09-03: `E34` and `E78` are now
+      discharged in the joint witness by `landauerSystem` — a predictive
+      structure whose dissipated work is `§1`'s Landauer heat — and by
+      `trioCover3` — a cover reached by relaxation at coupling 3. What remains
+      of this item is `E12`, `E23` and `E45`.)* At the time this item was opened,
+      the joint witness took the
+      vacuum manifold empty, the register a bit, and the coarse-graining
+      sequence constant. It proves the eight hypotheses are not jointly
+      contradictory, which is what it was for, and it proves nothing more.
 
 A witness in which `E12`, `E23` and `E45` are satisfied non-trivially — a real
 double well, a real absorbing register, a real refining mesh — would say
@@ -1037,8 +1066,17 @@ P1–P4.
 
 1. **(A) The static order-parameter link.** — **[Done 2026-09-02, claim corrected 2026-09-03]** `incoherent_orderParameters_agree` in `Examples.lean` (`lake build` clean) proves the two order parameters agree *at one configuration*: two sites in antiphase give `order_parameter_complex = 0`, which is `circularOrderParameter (vonMisesDensity 0)`. That is what it is worth — the quantities are the same kind of object and are normalised alike — and it is not a general static identity, so it does not by itself reduce the remaining distance to propagation of chaos. `main.tex` says exactly this; the first write-up said the mean-field limit was thereby the *only* remaining gap, which the theorem does not support.
 2. **`section_agrees_of_phase_eq`** — the `LocalSectionSynchronization` hypothesis
-   that synchronised patches agree where they overlap. Unchanged in rank and in
-   shape. See the W6 record for why it is *not* "the move W1 made".
+   that synchronised patches agree where they overlap. **Read and fenced
+   2026-09-03; still a hypothesis, and it will stay one.** `Examples.lean` §20
+   proves the categorical condition equivalent to the pointwise one — the two
+   patches assign the same mass to every site they share
+   (`restrict_eq_iff_densityOn_eqOn`) — and exhibits data the rest of the
+   structure admits and this hypothesis rejects: one phase, two profiles
+   differing at the shared site (`overlap_agreement_fails`). What is *not*
+   available is a derivation, and the reason is structural rather than
+   difficulty: the abstract form of "the local law is a function of the phase"
+   is the class field itself, so there is nothing above it to derive it from.
+   See the W6 record for why it is *not* "the move W1 made".
 3. **The PRX Life presubmission inquiry** — **[Closed as decided-not-doing, 2026-09-02]** Per the author's instruction: not sending a presubmission inquiry. Direct submission at a later date, or not.
 
 **The sleep-inertia prediction is weaker than the manuscript implies.** This is
@@ -2182,7 +2220,11 @@ what the prose paragraph says.
 
 ### R2 — State propagation of chaos (O14(B)) in the manuscript as an open problem
 
-- [ ] **Objective.** Add one sentence to Derivation 4's closing scope paragraph
+- [x] **Done 2026-09-01.** Propagation of chaos named as the gap between the stationary
+      threshold theorems and any trajectory statement: one sentence in
+      Derivation 4's closing paragraph, one at the close of supplement §7. Pass record below.
+
+- [x] **Objective.** Add one sentence to Derivation 4's closing scope paragraph
       naming the dynamical mean-field limit as the gap between the stationary
       threshold theorems and a trajectory statement, with a pointer to the
       literature that would close it.
@@ -2208,7 +2250,10 @@ Lacker or a Sznitman reference knows exactly what is not proved.
 
 ### R3 — Clarify what the Self is, beyond a Banach fixed point
 
-- [ ] **Objective.** One paragraph in Derivation 6 or the Discussion that states
+- [x] **Done 2026-09-01.** `UnifiedSelf` clarified with four numbered distinctions in the
+      ``The fixed point is the glued state'' paragraph. Pass record below.
+
+- [x] **Objective.** One paragraph in Derivation 6 or the Discussion that states
       what ``the Self'' means in the formalization: the unique global section
       fixed by the avatar-mediated read-out. Distinguish this from (i) the first-
       person experience it is stipulated to be (n10, outside the chain),
@@ -2238,7 +2283,10 @@ object is meant, not a claim about what it feels like to be it.
 
 ### R4 — Specify the measurement protocol behind the sleep-inertia prediction
 
-- [ ] **Objective.** State in the prediction section which neural observables
+- [x] **Done 2026-09-01.** A ``How to measure it'' paragraph giving the LFP/MEG estimates
+      for $a$ and $r$ and the volume proxy for $K(t)$. Pass record below.
+
+- [x] **Objective.** State in the prediction section which neural observables
       carry the quantities the prediction constrains, and how the parameter-
       free collapse would be measured in practice.
 
@@ -2271,7 +2319,11 @@ right cost: a prediction without a protocol is a formalism.
 
 ### R5 — Qualify the hardware suboptimality claim to its proven scope
 
-- [ ] **Objective.** Adjust the Rigid hardware section, the hardware figure
+- [x] **Done 2026-09-01.** Both `rigid_is_strictly_suboptimal` and
+      `fieldCorrelation_sited_eq_zero` explicitly scoped at the hardware
+      section opening; ~5\% drift sentence in the Fig.~4 caption. Pass record below.
+
+- [x] **Objective.** Adjust the Rigid hardware section, the hardware figure
       caption and the Corollary so that every statement about suboptimality is
       explicitly scoped to (a) the functional that registers zero for finitely-
       sited architectures, and (b) architectures not wired to the best-
@@ -2298,7 +2350,10 @@ finds no mismatch in their scope.
 
 ### R6 — Revisit the ``no allowlist'' rule in `check_prose.py`
 
-- [ ] **Objective.** Reopen P1's design decision: whether a zero-allowlist gate
+- [x] **Done 2026-09-01.** Zero-allowlist reaffirmed in `check_prose.py`'s docstring, no
+      concrete case having arisen against it. Pass record below.
+
+- [x] **Objective.** Reopen P1's design decision: whether a zero-allowlist gate
       loses critical narrative context that is not recoverable from Lean
       docstrings or CHANGELOG.md.
 
@@ -2334,7 +2389,10 @@ with a reason tied to a concrete case. Either outcome is a close.
 
  ### R7 — Expand the theory landscape to acknowledge alternative formalisations of unity
 
-- [ ] **Objective.** One paragraph in the Introduction or the Discussion that
+- [x] **Done 2026-09-01.** Dynamic Core and predictive-binding paragraph added after the
+      IIT/GWT comparison. Pass record below.
+
+- [x] **Objective.** One paragraph in the Introduction or the Discussion that
       names the Dynamic Core hypothesis (Edelman & Tononi) and predictive-
       processing accounts of perceptual binding as alternative approaches to
       formalising unity, states briefly why each is distinct from the sheaf-
@@ -2363,7 +2421,11 @@ is not the same claim in different language.
 
 ### R8 — Close the optimal-wiring loophole with a dynamic misalignment argument
 
-- [ ] **Objective.** Add an argument to the hardware section stating that even
+- [x] **Done 2026-09-01.** Dynamic-misalignment paragraph added after the
+      rigid-suboptimality derivation, closing the static loophole by
+      non-stationarity. Pass record below.
+
+- [x] **Objective.** Add an argument to the hardware section stating that even
       an architecture wired to the best-correlated pair at one instant will
       drift out of alignment under a non-stationary phase field, so the
       condition ``the wiring misses the optimal pair'' will hold at most
@@ -2397,7 +2459,10 @@ closing paragraph on the same page.
 
 ### R9 — Argue that a modulatory field can cross the threshold
 
-- [ ] **Objective.** One paragraph in the EM identification section that
+- [x] **Done 2026-09-01.** Modulatory-field paragraph after the falsification conditions,
+      with the columnar-aggregation arithmetic for $K > K_c$. Pass record below.
+
+- [x] **Objective.** One paragraph in the EM identification section that
       explains how a strictly modulatory field — one that biases spike timing
       by 1–3 ms without driving any cell to fire — can nonetheless supply the
       coupling strength `K` needed to cross `K_c = 2D`, answering the
@@ -2436,7 +2501,10 @@ explicitly invite the measurement rather than defend the estimate.
 
 ### R10 — State the thermodynamic barrier to simulating continuity in silicon
 
-- [ ] **Objective.** Define the minimum Landauer heat cost a silicon
+- [x] **Done 2026-09-01.** Thermodynamic-barrier paragraph (the Landauer bound for a
+      discretised continuum simulation) before the sleep-inertia section. Pass record below.
+
+- [x] **Objective.** Define the minimum Landauer heat cost a silicon
       architecture would incur to approximate a continuous coupling with
       sufficient resolution to satisfy `exhibits_phase_transition`, and
       state this as a falsifiable prediction about neuromorphic efficiency.
@@ -2479,7 +2547,11 @@ thermodynamic cost the bound states.
 
 ### R11 — Chart the Fokker–Planck path to the von Mises density
 
-- [ ] **Objective.** Add a paragraph (in Derivation 7 or the supplement)
+- [x] **Done 2026-09-01.** Fokker--Planck route (SDE → FP → McKean--Vlasov) added to the
+      ``What remains not established'' paragraph, citing Sakaguchi and
+      Strogatz--Mirollo. Pass record below.
+
+- [x] **Objective.** Add a paragraph (in Derivation 7 or the supplement)
       stating the precise mathematical route from the stochastic Kuramoto
       SDE to the von Mises stationary density, so a reader sees exactly
       what gap the ``input'' label covers and what would close it.
@@ -2679,3 +2751,189 @@ block the next Python commit, which is the author's call rather than this pass's
 Compile gate against `HEAD`: `main.tex` 13 overfull hboxes against 14, 66 pages
 against 66, zero undefined references or citations; `supplementary.tex` 9
 against 9, 21 pages against 21.
+
+
+### T2, standing item 2, and V1's loose ends — 2026-09-03
+
+**The item asked for the wrong thing, and the record should say so first.** T2
+read: rank the eight named hypotheses by cost and discharge the two cheapest,
+because "the count is the paper's checkable number, so lowering it is a
+checkable improvement." The two cheapest were `E34` and `E78`, and they were
+cheap for a reason the item did not anticipate. Both concluded
+`Nonempty (SomeStructure)` — a predictive dissipation structure, a thermodynamic
+cover — and both structures were already inhabited at the types the joint
+witness uses. `fun _ => ⟨frozenSystem⟩` and `fun _ => ⟨cortexCover⟩` were proofs
+of them, and they were the proofs the joint witness had been using since C1.
+Executing T2 as written would have taken the count from eight to six by proving
+two things that say nothing, and the number the manuscript offers a reader would
+have got *better* while the development got worse. So the pass did the opposite:
+it strengthened both edges until the old discharges fail, and left the count at
+eight. Standing rule (todo.md:257) is the authority for that choice — "a
+restatement is worse than a named hypothesis, because it looks like content" —
+and V1's repair of `IsEMFieldCoupling` is the precedent for the shape.
+
+**E34 — Landauer's heat is the budget Still's bound is drawn against.**
+
+New module `PhysicsOfConsciousness/Phase3_LandauerBridge.lean` (309 lines).
+`erasedEntropy t = entropy id - entropy t`, with `erasedEntropy_nonneg`,
+`erasedEntropy_pos_of_erasure`, and `erasedEntropy_eq_zero_of_injective`.
+`PredictiveDissipation.ofLandauer` builds a predictive structure from a finite
+register with a bipartite environment: `thermalEnergy` is the system's
+temperature, `dissipatedWork` is `heat_dissipation t`, and `still_bound` — the
+irreducible postulate of `Phase3_PredictiveThermodynamics` — is **derived** from
+`landauer_bound`. One postulate at that joint instead of two.
+
+What the constructor asks for is the identification
+`(nonpredictiveInfo μ κ).toReal ≤ erasedEntropy t`: the memory that fails to
+predict is no larger than the entropy the update destroys. Nothing derives it —
+`μ`, `κ` and `t` are otherwise unrelated — and it is not free:
+`nonpredictive_eq_zero_of_injective` shows a *reversible* register cannot pay for
+a single wasted bit, which is the Norton–Shenker distinction arriving from the
+informational side.
+
+`Examples.lean` §18.5 is the witness. It needed the *value* of the mutual
+information of §18's two-bit law, which §18 had proved non-zero and finite and
+never computed: `klDiv_corrJoint = ENNReal.ofReal (log 2)`, via the explicit
+density against the product law (`corrJoint_eq_withDensity`),
+`Measure.rnDeriv_withDensity`, and `integral_fintype`. Then
+`erasedEntropy (fun _ : Bool => true) = log 2` — the register of the chain
+witness erases exactly one bit — so the identification holds with **equality**
+and `landauerSystem_tight` records that the bound is attained.
+
+`E34` now reads: a dissipating register carries a predictive structure whose
+thermal scale is its own temperature, whose dissipated work is its own Landauer
+heat, and whose wasted memory is non-zero. `frozenSystem_not_of_eraser` is the
+regression: dissipated work `0` against a Landauer heat of `log 2`, and no waste
+at all. `e34_boolEraser` discharges the strengthened edge on the one-bit eraser,
+and the joint witness uses it.
+
+**E78 — a cover that is reached, at the coupling the coherent regime names.**
+
+`ThermodynamicCover.IsReachedByRelaxation T c` (`Phase5_EquilibriumBridge.lean`):
+`c` is a floor on the cover's coupling matrix, and the cover's phase field is the
+limit of a Kuramoto trajectory on that matrix started inside §7's basin.
+`ofConvergentTrajectory_isReachedByRelaxation` proves the constructor produces
+covers satisfying it, at its own `a`.
+
+`E78` now reads `Coherent K D → ∃ T, T.IsReachedByRelaxation K`. The conclusion
+mentions `K`, so it cannot be discharged uniformly in `K` by whatever cover is
+lying around. `Examples.lean` §17.2 supplies the witness: `trioCover3`, the same
+three sites and the same initial data as §17.1 at coupling `3`. The numerical
+content does not change and the reason is worth recording — excess and threshold
+both scale with the coupling, so `2·excess < a` reduces to `cos ½ > ¾` at every
+strength. Two fences: `trioCover_not_reachedByRelaxation_three` (a cover that
+*is* reached, at unit coupling, fails the floor at `K = 3`) and `cortexCover`,
+which meets no relaxation condition at all and was the old discharge.
+
+`trioSync` is now `trioSyncOf trioLimit`, the phase field being the only thing
+§17.2 needs to vary; the overlap-agreement proof does not mention the phase,
+which is why the parameter costs nothing.
+
+**What E78 still does not do.** It is not derived. Nothing produces initial data
+in the basin from a coherent order parameter, and the scale mismatch — n7 is
+about a continuum mean field, `ThermodynamicCover` about a finite index set — is
+where the edge sits. The strengthening makes that mismatch visible in the type
+rather than in a paragraph.
+
+**A seam this pass exposed and did not close.** `chain` takes the cover from
+`e78` only to produce `Unity X` and lets `e89` produce a cover of its own; the
+joint witness now uses `trioCover3` for the first and `cortexCover` for the
+second. Nothing forces them to be the same cover. `UnifiedSelf` is about the
+section `e89` names, so the conclusion is unaffected, but "the unity that is
+witnessed" and "the unity that is glued" are not tied together by the type.
+Recorded, not fixed.
+
+**Standing item 2 — `section_agrees_of_phase_eq`, read and fenced.**
+
+`Examples.lean` §20. `restrict_eq_iff_densityOn_eqOn` proves the categorical
+condition equivalent to the pointwise one: two patch sections have the same
+restriction to their overlap exactly when they assign the same mass to every site
+they share. So Derivation 5's second physical hypothesis says that patches at a
+common phase carry a common local density where they meet, and nothing is hidden
+in the sheafification. `overlap_agreement_fails` exhibits what it excludes: §4's
+two-patch cover, one phase, two profiles differing at the shared site — every
+other requirement of `LocalSectionSynchronization` met, this one false.
+
+It stays a hypothesis, and the honest reason is structural. Stated abstractly,
+"the local law is a function of the phase" *is* the class field: the only way to
+compare two patches' laws is the restriction maps, so there is nothing above the
+field to derive it from. What §20 adds is that the field is a claim about
+densities rather than about sheaf machinery, and that it is a restriction rather
+than a formality. Note also what it does not say — the three-patch witness
+carries three pairwise-different profiles and satisfies it, because they differ
+only off the overlaps. Agreement on overlaps is consistency, not sameness, which
+is the room F2's content question lives in.
+
+**V1's three loose ends.**
+
+1. **`Phase3_MeasureThermodynamics` had no consumer.** It has one now, and the
+   consumer is a statement worth having: at counting measure on a finite
+   register its `continuous_entropy` *is* `boltzmann_entropy`, its
+   `is_dissipative` is non-injectivity, and its `landauer_heat_bound` is
+   `T · erasedEntropy t` (`Phase3_LandauerBridge` §3, four theorems ending in
+   `measure_heat_pos_of_erasure`, which fires `dissipative_implies_heat` on an
+   erasure). The two statements of Derivation 2 are checked against each other
+   rather than coexisting. `ALLOWED_LEAVES` drops from five entries to four.
+2. **`vulture`'s six findings.** Already repaired in the working tree before this
+   pass; `uv run vulture .` exits 0 and the fix in `mesh_refinement.py` is a
+   transcription check rather than a deletion.
+3. **`pre-commit` was not installed.** It is installed —
+   `.git/hooks/pre-commit` exists — and `pre-commit run --all-files` passes all
+   ten hooks. Every gate below therefore also ran automatically.
+
+**Gates.** `lake build` clean, **17,626 jobs**, zero warnings, zero `sorry`.
+`#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound` on all
+sixteen results touched or added (`erasedEntropy_eq_zero_of_injective`,
+`nonpredictive_eq_zero_of_injective`, `PredictiveDissipation.ofLandauer`,
+`landauer_heat_bound_count_eq`, `measure_heat_pos_of_erasure`, `klDiv_corrJoint`,
+`memory_toReal`, `erasedEntropy_boolEraser`, `landauerSystem`,
+`landauerSystem_tight`, `frozenSystem_not_of_eraser`,
+`ofConvergentTrajectory_isReachedByRelaxation`, `trioCover3`,
+`trioCover3_reachedByRelaxation`, `trioCover_not_reachedByRelaxation_three`,
+`e34_boolEraser`, `chain`, `chain_hypotheses_jointly_satisfiable`).
+`#check @chain` still lists eight `E..` arguments.
+`check_leaves.py`, `check_prose.py`, `check_tableS1.py` exit 0; `ruff`,
+`ruff format --check`, `mypy --strict`, `bandit`, `vulture`, `xenon`, `tach`
+clean. Compile gate against `HEAD`: `main.tex` **13 overfull hboxes against 13**,
+69 pages against 68, zero undefined references or citations;
+`supplementary.tex` 9 against 9, 22 pages against 21, and its 26 undefined
+citations are the pre-existing ones (the supplement cites the main
+bibliography).
+
+**Manuscript.** `main.tex`: a paragraph in the introduction on what a named
+hypothesis has to demand and why bare existence is not enough, with both
+regressions named; a Derivation 3 paragraph on Landauer's heat as Still's budget,
+the reversible-register fence, and the attained bound; a Derivation 5 paragraph
+on the pointwise reading of the compatibility hypothesis and the data it
+excludes; two Table 1 rows extended. `supplementary.tex`: an implementation note
+under the Landauer section covering the bridge and the counting-measure
+specialisation; the same pointwise reading added to the Derivation 5 note; three
+Table S1 rows extended. `CHANGELOG.md` carries the claim that is no longer made.
+
+### T5 — non-trivial structural-edge witnesses — 2026-09-03
+
+**Red.** Three compile-time examples required witnesses of `E12 Bool
+(DynamicalVacuum wellV) kink`, `E23 (DynamicalVacuum wellV) kink (fun _ : Bool
+=> true)`, and `E45 Bool Bool Bool t5_refiningEnergy 3`. `lake env lean
+PhysicsOfConsciousness/Chain.lean` failed on the three unknown witness names.
+
+**Green.** `t5_e12_doubleWell` consumes `kink_leaves_vacuum`, whose field joins
+the two distinct minima of `wellV` and crosses the barrier. The same premise is
+threaded into `t5_e23_absorbingRegister`; its refreshed one-bit update has an
+unreachable state and is the eraser already charged by `e34_boolEraser`.
+`t5_refiningEnergy` uses the uniform triangulations and tent integrand of
+`Examples.lean` §6, translated by a constant so its proved continuum limit is
+3. `t5_refiningEnergy_moves` proves its first two approximants differ, fencing
+the former constant-sequence discharge. The joint witness now uses all three.
+
+**Scope.** This closes the requested non-triviality defect in each remaining
+edge witness. It does not turn the conditional schema into a physical
+derivation: the types still do not identify the double well, bit register,
+refining mesh, and cortical cover as one physical object. The theorem therefore
+retains the deliberately narrow name `chain_hypotheses_jointly_satisfiable`.
+
+**Gates.** `lake build` clean, 17,626 jobs. `#print axioms` on all five new
+results and `chain_hypotheses_jointly_satisfiable` reports only `propext`,
+`Classical.choice`, and `Quot.sound`. All ten pre-commit hooks pass, including
+the prose, Table S1, and leaf-module gates. `git diff --check` passes and
+`tasks/todo.md` has no unchecked boxes.

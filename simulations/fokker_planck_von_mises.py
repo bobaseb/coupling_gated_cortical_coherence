@@ -156,7 +156,7 @@ print()
 #   ∫ cos θ e^{a cos θ} dθ = a ∫ sin²θ e^{a cos θ} dθ  →  M(a) = a · S(a)
 
 M_num = _trapz(np.cos(_th) * np.exp(1.0 * np.cos(_th)), _th)
-S_num = _trapz(np.sin(_th)**2 * np.exp(1.0 * np.cos(_th)), _th)
+S_num = _trapz(np.sin(_th) ** 2 * np.exp(1.0 * np.cos(_th)), _th)
 print("  Numeric check at a = 1:")
 print(f"    M(1) = {M_num:.6f}")
 print(f"    a·S(1) = {1 * S_num:.6f}")

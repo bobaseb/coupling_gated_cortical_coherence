@@ -15,7 +15,9 @@ repos:
         pass_filenames: false
       - id: bandit
         name: bandit
-        entry: bash -c 'cd simulations && uv run bandit -r .'
+        # `-x ./.venv`: without it bandit walks site-packages, which is slow
+        # and reports other people's code.
+        entry: bash -c 'cd simulations && uv run bandit -r . -x ./.venv'
         language: system
         types: [python]
         pass_filenames: false

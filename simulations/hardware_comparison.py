@@ -1,5 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt  
+import matplotlib.pyplot as plt
 
 
 def simulate_hardware_comparison(N: int = 30, steps: int = 1000, dt: float = 0.05) -> None:

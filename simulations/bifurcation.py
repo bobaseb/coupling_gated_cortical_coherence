@@ -98,19 +98,34 @@ def plot_bifurcation(D: float = 1.0, out: str = "simulations/bifurcation_diagram
     fig, ax = plt.subplots(figsize=(7.0, 4.4))
 
     # Incoherent branch: the only solution below threshold, still a solution above it.
-    ax.plot(K_sub, np.zeros_like(K_sub), color="#1f77b4", lw=2.2,
-            label=r"incoherent branch $r=0$ (only solution for $K \leq K_c$)")
-    ax.plot(np.concatenate([[Kc], K_sup]), np.zeros(len(K_sup) + 1),
-            color="#1f77b4", lw=2.2, ls=":", alpha=0.9,
-            label=r"$r=0$, still a solution above $K_c$")
+    ax.plot(
+        K_sub,
+        np.zeros_like(K_sub),
+        color="#1f77b4",
+        lw=2.2,
+        label=r"incoherent branch $r=0$ (only solution for $K \leq K_c$)",
+    )
+    ax.plot(
+        np.concatenate([[Kc], K_sup]),
+        np.zeros(len(K_sup) + 1),
+        color="#1f77b4",
+        lw=2.2,
+        ls=":",
+        alpha=0.9,
+        label=r"$r=0$, still a solution above $K_c$",
+    )
 
     # Coherent branch.
-    ax.plot(K_sup, r_sup, color="#d62728", lw=2.4,
-            label=r"coherent branch: the unique $r>0$ with $r=R(Kr/D)$")
+    ax.plot(
+        K_sup,
+        r_sup,
+        color="#d62728",
+        lw=2.4,
+        label=r"coherent branch: the unique $r>0$ with $r=R(Kr/D)$",
+    )
 
     ax.axvline(Kc, color="0.4", ls="--", lw=1.2)
-    ax.annotate(r"$K_c = 2D$", xy=(Kc, 0.30), xytext=(Kc + 0.07, 0.28),
-                fontsize=11, color="0.25")
+    ax.annotate(r"$K_c = 2D$", xy=(Kc, 0.30), xytext=(Kc + 0.07, 0.28), fontsize=11, color="0.25")
 
     ax.set_xlim(0, 4 * D)
     ax.set_ylim(-0.04, 1.0)
@@ -125,14 +140,22 @@ def plot_bifurcation(D: float = 1.0, out: str = "simulations/bifurcation_diagram
 
     # Numerical checks of the four proved qualitative facts, printed so the
     # figure is not the only record that they hold of the computed curve.
-    print(f"  r just above threshold (K={K_sup[0]:.6f}): {r_sup[0]:.4g}"
-          "   [coherent_branch_continuous_at_threshold]")
-    print(f"  branch strictly increasing: {bool(np.all(np.diff(r_sup) > 0))}"
-          "   [coherent_branch_strictMono]")
-    print(f"  E(0) = {s_ratio(0.0):.6f} (proved exactly 1/2);"
-          f" E(1) = {s_ratio(1.0):.6f} < 1/2   [vonMisesSRatio_lt_half]")
-    print(f"  residual |r - R(Kr/D)| at K=4D: "
-          f"{abs(r_sup[-1] - bessel_ratio(K_sup[-1] * r_sup[-1] / D)):.2e}")
+    print(
+        f"  r just above threshold (K={K_sup[0]:.6f}): {r_sup[0]:.4g}"
+        "   [coherent_branch_continuous_at_threshold]"
+    )
+    print(
+        f"  branch strictly increasing: {bool(np.all(np.diff(r_sup) > 0))}"
+        "   [coherent_branch_strictMono]"
+    )
+    print(
+        f"  E(0) = {s_ratio(0.0):.6f} (proved exactly 1/2);"
+        f" E(1) = {s_ratio(1.0):.6f} < 1/2   [vonMisesSRatio_lt_half]"
+    )
+    print(
+        f"  residual |r - R(Kr/D)| at K=4D: "
+        f"{abs(r_sup[-1] - bessel_ratio(K_sup[-1] * r_sup[-1] / D)):.2e}"
+    )
 
 
 if __name__ == "__main__":

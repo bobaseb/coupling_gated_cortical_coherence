@@ -163,6 +163,66 @@ noncomputable def ThermodynamicCover.ofConvergentTrajectory
     have := hne
     exact (kuramoto_limit_minimizes sys hw ha hA theta h_traj h_small h_init S.phase h_conv).2
 
+/--
+**A cover whose equilibrium is reached, at coupling floor `c`.**
+
+Two claims about one cover, and both are about the cover's own data. Its
+coupling matrix is bounded below by `c` everywhere; and its phase field is the
+limit of a Kuramoto trajectory *on that matrix*, started inside the basin of §7
+— spread within a quarter turn, excess below `c/2`.
+
+**Why this exists as a predicate.** `ThermodynamicCover` asks each instance to
+assert `thermodynamic_equilibrium`, and an instance that asserts it of a field
+built locked has said nothing about arriving anywhere. A cover satisfying this
+predicate has arrived: `ofConvergentTrajectory` is the constructor that produces
+one, and `Examples.lean` §17.1 is such a cover on three sites from data that is
+not locked. The predicate is what lets a *consumer* — `Chain.E78` — demand a
+cover of that kind rather than any cover at all, and demand it at a stated
+coupling rather than at whatever coupling happens to be lying around.
+
+**What it does not say.** Nothing about `section_agrees_of_phase_eq`, the cover's
+other physical hypothesis, which no dynamics in this development bears on. And
+nothing about *which* trajectories arrive: splay and twisted configurations are
+equilibria of the same flow, so the arc and excess conditions are restrictions,
+not bookkeeping. -/
+def ThermodynamicCover.IsReachedByRelaxation (T : ThermodynamicCover X) (c : ℝ) : Prop :=
+  letI := T.I_fintype
+  letI := T.I_decidable
+  0 < c ∧ (∀ i j, c ≤ T.A i j) ∧
+    ∃ theta : ℝ → T.I → ℝ,
+      is_kuramoto_trajectory ⟨fun _ => 0, T.A, T.A_symm⟩ theta ∧
+      2 * potentialExcess ⟨fun _ => 0, T.A, T.A_symm⟩ (theta 0) < c ∧
+      (∀ i j, |theta 0 i - theta 0 j| ≤ Real.pi / 2) ∧
+      (∀ i, Tendsto (fun t => theta t i) atTop (𝓝 (T.phase i)))
+
+/-- **The constructor produces covers that satisfy the predicate**, which is what
+makes `IsReachedByRelaxation` a statement about arriving rather than a definition
+nothing meets. The coupling floor is the constructor's own `a`.
+
+The natural-frequency hypothesis is where the two systems are identified: the
+predicate is stated over `⟨fun _ => 0, T.A, T.A_symm⟩`, the reduced system the
+cover's equilibrium field is about, and `hw` says the trajectory's system is that
+one. -/
+theorem ThermodynamicCover.ofConvergentTrajectory_isReachedByRelaxation
+    (S : LocalSectionSynchronization X)
+    (hI : Fintype S.I) (hD : DecidableEq S.I) (hne : Nonempty S.I)
+    (sys : KuramotoSystem S.I) (hw : ∀ i, sys.omega i = 0)
+    {a : ℝ} (ha : 0 < a) (hA : ∀ i j, a ≤ sys.A i j)
+    (theta : ℝ → S.I → ℝ) (h_traj : is_kuramoto_trajectory sys theta)
+    (h_small : 2 * potentialExcess sys (theta 0) < a)
+    (h_init : ∀ i j, |theta 0 i - theta 0 j| ≤ Real.pi / 2)
+    (h_conv : ∀ i, Tendsto (fun t => theta t i) atTop (𝓝 (S.phase i))) :
+    (ThermodynamicCover.ofConvergentTrajectory S hI hD hne sys hw ha hA theta h_traj h_small
+      h_init h_conv).IsReachedByRelaxation a := by
+  have hsys : (⟨fun _ => 0, sys.A, sys.symm⟩ : KuramotoSystem S.I) = sys := by
+    obtain ⟨omega, A, symm⟩ := sys
+    exact congrArg (fun w => KuramotoSystem.mk w A symm) (funext hw).symm
+  refine ⟨ha, hA, theta, ?_, ?_, h_init, h_conv⟩
+  · show is_kuramoto_trajectory (⟨fun _ => 0, sys.A, sys.symm⟩ : KuramotoSystem S.I) theta
+    rw [hsys]; exact h_traj
+  · show 2 * potentialExcess (⟨fun _ => 0, sys.A, sys.symm⟩ : KuramotoSystem S.I) (theta 0) < a
+    rw [hsys]; exact h_small
+
 /-- The phase field of a cover built by `ofConvergentTrajectory` is the limit of
 the trajectory, by construction — recorded so that a caller can chain the
 constructor's hypothesis into `ThermodynamicCover.phase_locked` and the

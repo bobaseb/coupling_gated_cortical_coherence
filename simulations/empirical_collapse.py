@@ -35,11 +35,6 @@ BLOCKS: list[tuple[str, str, int, str]] = [
     ("sed2", "rest", 2, "Sed2 run-2"),
 ]
 
-# Bandpass parameters
-BAND_LOW = 4.0
-BAND_HIGH = 40.0
-FILTER_ORDER = 4
-
 # Frequency bands for narrowband analysis
 BANDS: dict[str, list[float]] = {
     "theta": [4.0, 8.0],
@@ -47,7 +42,12 @@ BANDS: dict[str, list[float]] = {
     "beta": [13.0, 30.0],
     "broad": [4.0, 40.0],
 }
+
+# Bandpass parameters.  The default passband is the named band rather than a
+# second copy of its numbers, so the two cannot drift apart.
 DEFAULT_BAND = "broad"
+BAND_LOW, BAND_HIGH = BANDS[DEFAULT_BAND]
+FILTER_ORDER = 4
 
 # Padding to suppress filter edge artifacts (seconds per side)
 PAD_SECONDS = 3.0
@@ -98,7 +98,7 @@ def _s3_download(path: str, cache: bool = True, max_bytes: int | None = None) ->
     If max_bytes is given, only the first max_bytes are fetched via a Range
     request (useful for partial downloads of large .eeg files).
     """
-    import subprocess
+    import subprocess  # nosec B404 — fixed argv below, no shell, URL from internal constants
 
     cached = os.path.join(CACHE_DIR, path.replace("/", "_"))
     if cache and os.path.exists(cached):
@@ -116,8 +116,10 @@ def _s3_download(path: str, cache: bool = True, max_bytes: int | None = None) ->
         cmd += ["-r", f"0-{max_bytes - 1}"]
     cmd.append(url)
 
-    result = subprocess.run(  # noqa: S603 — URL built from internal constants only
-        cmd, capture_output=True, timeout=DL_TIMEOUT + 30,
+    result = subprocess.run(  # noqa: S603  # nosec B603 — URL built from internal constants only
+        cmd,
+        capture_output=True,
+        timeout=DL_TIMEOUT + 30,
     )
     if result.returncode not in (0, 33):
         # exit code 33 means the Range was beyond the file — treat as empty
@@ -141,7 +143,10 @@ def _filenames(task: str, acq: str, run: int) -> tuple[str, str, str]:
 
 
 def read_brainvision(
-    task: str, acq: str, run: int, max_seconds: float = 60.0,
+    task: str,
+    acq: str,
+    run: int,
+    max_seconds: float = 60.0,
     pad_seconds: float = 0.0,
 ) -> tuple[np.ndarray, float]:
     """Download and parse a BrainVision recording from the S3 mirror.
@@ -174,13 +179,15 @@ def read_brainvision(
     eeg_raw = _s3_download(eeg_file, max_bytes=n_bytes)
 
     n_samp_actual = len(eeg_raw) // (4 * n_channels)
-    data = np.frombuffer(eeg_raw, dtype=np.float32).reshape(
-        n_samp_actual, n_channels
-    ).T  # shape (n_ch, n_samp_actual)
+    data = (
+        np.frombuffer(eeg_raw, dtype=np.float32).reshape(n_samp_actual, n_channels).T
+    )  # shape (n_ch, n_samp_actual)
 
-    print(f"    {n_channels} ch × {n_samp_actual} samples "
-          f"({n_samp_actual / fs:.1f} s @ {fs:.0f} Hz, "
-          f"pad={pad_seconds:.0f}s per side)")
+    print(
+        f"    {n_channels} ch × {n_samp_actual} samples "
+        f"({n_samp_actual / fs:.1f} s @ {fs:.0f} Hz, "
+        f"pad={pad_seconds:.0f}s per side)"
+    )
 
     return data, fs
 
@@ -191,7 +198,10 @@ def read_brainvision(
 
 
 def design_bandpass(
-    low: float, high: float, fs: float, order: int = 4,
+    low: float,
+    high: float,
+    fs: float,
+    order: int = FILTER_ORDER,
 ) -> np.ndarray:
     """Butterworth bandpass as second-order sections (SOS).
 
@@ -217,7 +227,10 @@ def design_bandpass(
 
 
 def extract_phase(
-    data: np.ndarray, fs: float, low: float = BAND_LOW, high: float = BAND_HIGH,
+    data: np.ndarray,
+    fs: float,
+    low: float = BAND_LOW,
+    high: float = BAND_HIGH,
     pad_seconds: float = 0.0,
 ) -> np.ndarray:
     """Apply bandpass filter + Hilbert transform to each channel.
@@ -245,7 +258,7 @@ def extract_phase(
         filtered = sosfiltfilt(sos, d)
         analytic = hilbert(filtered)
         # Trim padding
-        trimmed = np.angle(analytic[n_pad:data.shape[1] - n_pad] if n_pad > 0 else analytic)
+        trimmed = np.angle(analytic[n_pad : data.shape[1] - n_pad] if n_pad > 0 else analytic)
         phase[idx] = trimmed
 
     return phase
@@ -257,7 +270,10 @@ def extract_phase(
 
 
 def extract_phase_bipolar(
-    data: np.ndarray, fs: float, low: float = BAND_LOW, high: float = BAND_HIGH,
+    data: np.ndarray,
+    fs: float,
+    low: float = BAND_LOW,
+    high: float = BAND_HIGH,
 ) -> np.ndarray:
     """Bandpass + Hilbert on bipolar pairs (adjacent-channel difference).
 
@@ -283,7 +299,10 @@ def extract_phase_bipolar(
 
 
 def extract_phase_car(
-    data: np.ndarray, fs: float, low: float = BAND_LOW, high: float = BAND_HIGH,
+    data: np.ndarray,
+    fs: float,
+    low: float = BAND_LOW,
+    high: float = BAND_HIGH,
     pad_seconds: float = 0.0,
 ) -> np.ndarray:
     """Common-average reference in phase space (circular-mean subtraction).
@@ -320,8 +339,10 @@ def extract_phase_car(
 
 
 def bootstrap_ar(
-    a_trace: np.ndarray, r_trace: np.ndarray,
-    n_resamples: int = 2000, ci: float = 0.95,
+    a_trace: np.ndarray,
+    r_trace: np.ndarray,
+    n_resamples: int = 2000,
+    ci: float = 0.95,
 ) -> tuple[float, float, float, float, float, float]:
     """Bootstrap CI for mean (a, r) over time bins.
 
@@ -332,7 +353,7 @@ def bootstrap_ar(
     a_ok, r_ok = a_trace[mask], r_trace[mask]
     n = len(a_ok)
     if n < 10:
-        return (float(np.nanmean(a_trace)),)*6
+        return (float(np.nanmean(a_trace)),) * 6
 
     rng = np.random.default_rng(2026)
     a_boot = np.empty(n_resamples)
@@ -452,12 +473,12 @@ def concentration_a_mle(phase: np.ndarray) -> float:
         _, kappa = vonmises.fit(theta, fscale=1.0)
         if np.isfinite(kappa) and kappa > 0.0:
             return float(min(kappa, 50.0))
-    except Exception:  # noqa: S110 — MLE best-effort, falls back to Banerjee approx
+    except Exception:  # noqa: S110  # nosec B110 — MLE best-effort, falls back to Banerjee
         pass
     r = float(np.abs(np.mean(np.exp(1j * theta))))
     if r < 1e-12:
         return 0.0
-    a_approx = r * (2.0 - r ** 2) / (1.0 - r ** 2)
+    a_approx = r * (2.0 - r**2) / (1.0 - r**2)
     if not np.isfinite(a_approx) or a_approx < 0:
         return 0.0
     return float(min(a_approx, 50.0))
@@ -541,13 +562,20 @@ def make_figure(
 
     # Panel A: (a, r) scatter + theoretical curve
     ax1.plot(
-        a_theory, r_theory, color="black", lw=2.5,
+        a_theory,
+        r_theory,
+        color="black",
+        lw=2.5,
         label=r"$r = I_1(a)/I_0(a)$",
     )
     for label, (a_trace, r_trace) in traces.items():
         ax1.scatter(
-            a_trace, r_trace, s=1.0, alpha=0.15,
-            color=colors.get(label, "gray"), label=label,
+            a_trace,
+            r_trace,
+            s=1.0,
+            alpha=0.15,
+            color=colors.get(label, "gray"),
+            label=label,
         )
     ax1.set_xlabel(r"concentration $a$")
     ax1.set_ylabel(r"order parameter $r$")
@@ -563,8 +591,12 @@ def make_figure(
         residual = r_trace - r_pred
         x = np.arange(len(residual))
         ax2.scatter(
-            x, residual, s=0.5, alpha=0.1,
-            color=colors.get(label, "gray"), label=label,
+            x,
+            residual,
+            s=0.5,
+            alpha=0.1,
+            color=colors.get(label, "gray"),
+            label=label,
         )
     ax2.axhline(0, color="black", ls="--", lw=1.0)
     ax2.set_xlabel("time bin")
@@ -589,7 +621,9 @@ def make_figure(
 
 
 def run_montage_comparison(
-    task: str = "sed", acq: str = "rest", run: int = 1,
+    task: str = "sed",
+    acq: str = "rest",
+    run: int = 1,
     max_seconds: float = 20.0,
     out: str = "figures/montage_comparison.png",
 ) -> None:
@@ -611,24 +645,30 @@ def run_montage_comparison(
     a_raw, r_raw = compute_ar_trace(extract_phase(data, fs, pad_seconds=PAD_SECONDS))
     raw_traces["raw"] = (a_raw, r_raw)
     cis["raw"] = bootstrap_ar(a_raw, r_raw)
-    print(f"    a={cis['raw'][0]:.3f} [{cis['raw'][1]:.3f}, {cis['raw'][2]:.3f}]  "
-          f"r={cis['raw'][3]:.3f} [{cis['raw'][4]:.3f}, {cis['raw'][5]:.3f}]")
+    print(
+        f"    a={cis['raw'][0]:.3f} [{cis['raw'][1]:.3f}, {cis['raw'][2]:.3f}]  "
+        f"r={cis['raw'][3]:.3f} [{cis['raw'][4]:.3f}, {cis['raw'][5]:.3f}]"
+    )
 
     # Bipolar
     print("  Bipolar pairs...", flush=True)
     a_bip, r_bip = compute_ar_trace(extract_phase_bipolar(data, fs))
     raw_traces["bipolar"] = (a_bip, r_bip)
     cis["bipolar"] = bootstrap_ar(a_bip, r_bip)
-    print(f"    a={cis['bipolar'][0]:.3f} [{cis['bipolar'][1]:.3f}, {cis['bipolar'][2]:.3f}]  "
-          f"r={cis['bipolar'][3]:.3f} [{cis['bipolar'][4]:.3f}, {cis['bipolar'][5]:.3f}]")
+    print(
+        f"    a={cis['bipolar'][0]:.3f} [{cis['bipolar'][1]:.3f}, {cis['bipolar'][2]:.3f}]  "
+        f"r={cis['bipolar'][3]:.3f} [{cis['bipolar'][4]:.3f}, {cis['bipolar'][5]:.3f}]"
+    )
 
     # CAR phase
     print("  Circular-mean subtraction...", flush=True)
     a_car, r_car = compute_ar_trace(extract_phase_car(data, fs))
     raw_traces["car"] = (a_car, r_car)
     cis["car"] = bootstrap_ar(a_car, r_car)
-    print(f"    a={cis['car'][0]:.3f} [{cis['car'][1]:.3f}, {cis['car'][2]:.3f}]  "
-          f"r={cis['car'][3]:.3f} [{cis['car'][4]:.3f}, {cis['car'][5]:.3f}]")
+    print(
+        f"    a={cis['car'][0]:.3f} [{cis['car'][1]:.3f}, {cis['car'][2]:.3f}]  "
+        f"r={cis['car'][3]:.3f} [{cis['car'][4]:.3f}, {cis['car'][5]:.3f}]"
+    )
 
     # Figure: 3-panel
     fig, axes = plt.subplots(1, 3, figsize=(15, 4.6))
@@ -643,12 +683,20 @@ def run_montage_comparison(
         axes[0].scatter(a_tr, r_tr, s=0.8, alpha=0.08, color=colors[label])
     for label in montage_order:
         ci = cis[label]
-        axes[0].errorbar(ci[0], ci[3],
-                         xerr=[[ci[0] - ci[1]], [ci[2] - ci[0]]],
-                         yerr=[[ci[3] - ci[4]], [ci[5] - ci[3]]],
-                         fmt="o", color=colors[label], ecolor=colors[label],
-                         capsize=4, capthick=1.5, ms=6, zorder=5,
-                         label=labels_out[label])
+        axes[0].errorbar(
+            ci[0],
+            ci[3],
+            xerr=[[ci[0] - ci[1]], [ci[2] - ci[0]]],
+            yerr=[[ci[3] - ci[4]], [ci[5] - ci[3]]],
+            fmt="o",
+            color=colors[label],
+            ecolor=colors[label],
+            capsize=4,
+            capthick=1.5,
+            ms=6,
+            zorder=5,
+            label=labels_out[label],
+        )
 
     # Theoretical curve
     a_grid = np.linspace(0, 5, 200)
@@ -671,14 +719,12 @@ def run_montage_comparison(
         w = 11
         w2 = w // 2
         pad = np.full(w2, np.nan)
-        r_roll = np.concatenate([pad, np.convolve(r_tr, np.ones(w)/w, mode="valid"), pad])
+        r_roll = np.concatenate([pad, np.convolve(r_tr, np.ones(w) / w, mode="valid"), pad])
         # Bootstrap per-bin CI (2000 resamples of the phase distribution is too expensive
         # per bin; use ±1.96 × SEM from the bootstrap of the mean instead)
         r_sd = np.nanstd(r_tr)
-        axes[1].plot(x, r_roll, color=colors[label], lw=0.8, alpha=0.8,
-                     label=labels_out[label])
-        axes[1].fill_between(x, r_roll - r_sd, r_roll + r_sd,
-                             color=colors[label], alpha=0.08)
+        axes[1].plot(x, r_roll, color=colors[label], lw=0.8, alpha=0.8, label=labels_out[label])
+        axes[1].fill_between(x, r_roll - r_sd, r_roll + r_sd, color=colors[label], alpha=0.08)
 
     axes[1].set_xlabel("time bin")
     axes[1].set_ylabel(r"$r$")
@@ -692,14 +738,16 @@ def run_montage_comparison(
         x = np.arange(len(a_tr))
         w = 11
         w2 = w // 2
-        a_roll = np.concatenate([np.full(w2, np.nan),
-                                 np.convolve(a_tr, np.ones(w)/w, mode="valid"),
-                                 np.full(w2, np.nan)])
+        a_roll = np.concatenate(
+            [
+                np.full(w2, np.nan),
+                np.convolve(a_tr, np.ones(w) / w, mode="valid"),
+                np.full(w2, np.nan),
+            ]
+        )
         a_sd = np.nanstd(a_tr)
-        axes[2].plot(x, a_roll, color=colors[label], lw=0.8, alpha=0.8,
-                     label=labels_out[label])
-        axes[2].fill_between(x, a_roll - a_sd, a_roll + a_sd,
-                             color=colors[label], alpha=0.08)
+        axes[2].plot(x, a_roll, color=colors[label], lw=0.8, alpha=0.8, label=labels_out[label])
+        axes[2].fill_between(x, a_roll - a_sd, a_roll + a_sd, color=colors[label], alpha=0.08)
 
     axes[2].set_xlabel("time bin")
     axes[2].set_ylabel(r"$a$")
@@ -708,8 +756,7 @@ def run_montage_comparison(
     axes[2].grid(alpha=0.3)
 
     fig.suptitle(
-        f"Montage comparison — sub-{SUBJECT} {task} run-{run} "
-        f"({BAND_LOW:.0f}–{BAND_HIGH:.0f} Hz)",
+        f"Montage comparison — sub-{SUBJECT} {task} run-{run} ({BAND_LOW:.0f}–{BAND_HIGH:.0f} Hz)",
         fontsize=11,
     )
     fig.tight_layout()
@@ -719,14 +766,18 @@ def run_montage_comparison(
     plt.close(fig)
 
     # Table with CIs
-    print(f"\n{'Montage':>10s}  {'a_mean':>7s}  {'a_lo':>7s}  {'a_hi':>7s}  "
-          f"{'r_mean':>7s}  {'r_lo':>7s}  {'r_hi':>7s}")
+    print(
+        f"\n{'Montage':>10s}  {'a_mean':>7s}  {'a_lo':>7s}  {'a_hi':>7s}  "
+        f"{'r_mean':>7s}  {'r_lo':>7s}  {'r_hi':>7s}"
+    )
     print("-" * 65)
     for label in montage_order:
         if label in cis:
             ci = cis[label]
-            print(f"{label:>10s}  {ci[0]:7.3f}  {ci[1]:7.3f}  {ci[2]:7.3f}  "
-                  f"{ci[3]:7.3f}  {ci[4]:7.3f}  {ci[5]:7.3f}")
+            print(
+                f"{label:>10s}  {ci[0]:7.3f}  {ci[1]:7.3f}  {ci[2]:7.3f}  "
+                f"{ci[3]:7.3f}  {ci[4]:7.3f}  {ci[5]:7.3f}"
+            )
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -735,7 +786,9 @@ def run_montage_comparison(
 
 
 def run_band_comparison(
-    task: str = "sed", acq: str = "rest", run: int = 1,
+    task: str = "sed",
+    acq: str = "rest",
+    run: int = 1,
     max_seconds: float = 20.0,
     bands: list[str] | None = None,
     out: str = "figures/band_comparison.png",
@@ -767,28 +820,43 @@ def run_band_comparison(
         a_m, a_lo, a_hi, r_m, r_lo, r_hi = bootstrap_ar(a_tr, r_tr)
         results[band] = (a_m, a_lo, a_hi, r_m, r_lo, r_hi)
         r_theory = bessel_ratio(a_m)
-        print(f"    a={a_m:.3f} [{a_lo:.3f}, {a_hi:.3f}]  "
-              f"r={r_m:.3f} [{r_lo:.3f}, {r_hi:.3f}]  "
-              f"I₁/I₀(a)={r_theory:.3f}")
+        print(
+            f"    a={a_m:.3f} [{a_lo:.3f}, {a_hi:.3f}]  "
+            f"r={r_m:.3f} [{r_lo:.3f}, {r_hi:.3f}]  "
+            f"I₁/I₀(a)={r_theory:.3f}"
+        )
 
         # (a, r) scatter
         axes[0].scatter(a_tr, r_tr, s=0.6, alpha=0.1, color=band_colors.get(band, "gray"))
-        axes[0].errorbar(a_m, r_m,
-                         xerr=[[a_m - a_lo], [a_hi - a_m]],
-                         yerr=[[r_m - r_lo], [r_hi - r_m]],
-                         fmt="o", color=band_colors.get(band, "gray"),
-                         capsize=4, capthick=1.5, ms=7, zorder=5,
-                         label=f"{band} ({lo}–{hi} Hz)")
+        axes[0].errorbar(
+            a_m,
+            r_m,
+            xerr=[[a_m - a_lo], [a_hi - a_m]],
+            yerr=[[r_m - r_lo], [r_hi - r_m]],
+            fmt="o",
+            color=band_colors.get(band, "gray"),
+            capsize=4,
+            capthick=1.5,
+            ms=7,
+            zorder=5,
+            label=f"{band} ({lo}–{hi} Hz)",
+        )
 
         # Residual
         resid = r_m - r_theory
-        axes[1].bar(band, resid, color=band_colors.get(band, "gray"), alpha=0.7,
-                    yerr=[[r_m - r_lo], [r_hi - r_m]])
+        axes[1].bar(
+            band,
+            resid,
+            color=band_colors.get(band, "gray"),
+            alpha=0.7,
+            yerr=[[r_m - r_lo], [r_hi - r_m]],
+        )
 
     # Theory curve on panel A
     a_grid = np.linspace(0, 3, 200)
-    axes[0].plot(a_grid, [bessel_ratio(ai) for ai in a_grid], "k-", lw=2.5,
-                 label=r"$I_1/I_0(a)$", zorder=4)
+    axes[0].plot(
+        a_grid, [bessel_ratio(ai) for ai in a_grid], "k-", lw=2.5, label=r"$I_1/I_0(a)$", zorder=4
+    )
     axes[0].set(xlabel=r"$a$", ylabel=r"$r$", xlim=(0, 1.5), ylim=(-0.02, 1.02))
     axes[0].legend(fontsize=7, markerscale=4, framealpha=0.9)
     axes[0].set_title("(A)  (a, r) per band — 95 % CI")
@@ -804,8 +872,8 @@ def run_band_comparison(
     w = 0.35
     a_vals = [results[b][0] for b in bands]
     r_vals = [results[b][3] for b in bands]
-    axes[2].bar(x - w/2, a_vals, w, color="steelblue", alpha=0.7, label=r"$a$")
-    axes[2].bar(x + w/2, r_vals, w, color="firebrick", alpha=0.7, label=r"$r$")
+    axes[2].bar(x - w / 2, a_vals, w, color="steelblue", alpha=0.7, label=r"$a$")
+    axes[2].bar(x + w / 2, r_vals, w, color="firebrick", alpha=0.7, label=r"$r$")
     axes[2].set_xticks(x)
     axes[2].set_xticklabels(bands)
     axes[2].set_title("(C)  Mean a and r per band")
@@ -820,16 +888,20 @@ def run_band_comparison(
     plt.close(fig)
 
     # Table
-    print(f"\n{'Band':>8s}  {'a_mean':>7s}  {'a_lo':>7s}  {'a_hi':>7s}  "
-          f"{'r_mean':>7s}  {'r_lo':>7s}  {'r_hi':>7s}  {'I₁/I₀':>7s}  {'resid':>7s}")
+    print(
+        f"\n{'Band':>8s}  {'a_mean':>7s}  {'a_lo':>7s}  {'a_hi':>7s}  "
+        f"{'r_mean':>7s}  {'r_lo':>7s}  {'r_hi':>7s}  {'I₁/I₀':>7s}  {'resid':>7s}"
+    )
     print("-" * 80)
     for band in bands:
         if band in results:
             a_m, a_lo, a_hi, r_m, r_lo, r_hi = results[band]
             r_theory = bessel_ratio(a_m)
-            print(f"{band:>8s}  {a_m:7.3f}  {a_lo:7.3f}  {a_hi:7.3f}  "
-                  f"{r_m:7.3f}  {r_lo:7.3f}  {r_hi:7.3f}  {r_theory:7.3f}  "
-                  f"{r_m - r_theory:7.3f}")
+            print(
+                f"{band:>8s}  {a_m:7.3f}  {a_lo:7.3f}  {a_hi:7.3f}  "
+                f"{r_m:7.3f}  {r_lo:7.3f}  {r_hi:7.3f}  {r_theory:7.3f}  "
+                f"{r_m - r_theory:7.3f}"
+            )
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -858,29 +930,6 @@ def simulate_von_mises_phases(
     return phases
 
 
-def simulate_with_noise(
-    a_signal: float, a_noise: float = 0.1,
-    n_channels: int = 62, n_samples: int = 150000,
-) -> np.ndarray:
-    """Von Mises signal plus independent noise phase per channel.
-
-    Each channel's phase = von Mises(0, a_signal) + von Mises(0, a_noise)
-    added in angular sense (wrapped).  a_noise = 0.1 approximates uniform.
-    """
-    from scipy.stats import vonmises
-
-    rng = np.random.default_rng(71)
-    signal = np.asarray(
-        vonmises.rvs(loc=0, kappa=a_signal, size=(n_channels, n_samples), random_state=rng),
-        dtype=np.float64,
-    )
-    noise = np.asarray(
-        vonmises.rvs(loc=0, kappa=a_noise, size=(n_channels, n_samples), random_state=rng),
-        dtype=np.float64,
-    )
-    return np.asarray(np.angle(np.exp(1j * signal) * np.exp(1j * noise)), dtype=np.float64)
-
-
 def _negative_control_cases(n: int = 31000) -> dict[str, np.ndarray]:
     """Phase samples from distributions that are and are not von Mises.
 
@@ -897,9 +946,8 @@ def _negative_control_cases(n: int = 31000) -> dict[str, np.ndarray]:
         "von Mises a=1.5": rng.vonmises(0.0, 1.5, n),
         "von Mises a=3.0": rng.vonmises(0.0, 3.0, n),
         # Model FALSE — a working test must reject these.
-        "wrapped Cauchy rho=0.6": 2.0 * np.arctan(
-            ((1.0 - rho) / (1.0 + rho)) * np.tan(np.pi * (u - 0.5))
-        ),
+        "wrapped Cauchy rho=0.6": 2.0
+        * np.arctan(((1.0 - rho) / (1.0 + rho)) * np.tan(np.pi * (u - 0.5))),
         "top-hat arc |th|<1.2": rng.uniform(-1.2, 1.2, n),
         "50% vM(4) + 50% uniform": np.where(
             mix, rng.vonmises(0.0, 4.0, n), rng.uniform(-np.pi, np.pi, n)
@@ -939,9 +987,11 @@ def run_estimator_validation() -> None:
         a_log = concentration_a(theta)
         d_mle = r - bessel_ratio(a_mle)
         d_log = r - bessel_ratio(a_log)
-        print(f"{name:<28}{a_mle:>8.3f}{d_mle:>9.4f}{'':>3}{a_log:>10.3f}{d_log:>9.4f}")
-        (false_resid if "model true" not in name and "von Mises" not in name
-         else true_resid).append(abs(d_log))
+        flag = "  â out of range" if a_log > A_BIAS_VALID_MAX else ""
+        print(f"{name:<28}{a_mle:>8.3f}{d_mle:>9.4f}{'':>3}{a_log:>10.3f}{d_log:>9.4f}{flag}")
+        (
+            false_resid if "model true" not in name and "von Mises" not in name else true_resid
+        ).append(abs(d_log))
 
     worst_true = max(true_resid)
     best_false = min(false_resid)
@@ -949,6 +999,8 @@ def run_estimator_validation() -> None:
     print(f"log-density: worst residual on a TRUE von Mises   = {worst_true:.4f}")
     print(f"log-density: smallest residual on a FALSE model   = {best_false:.4f}")
     print(f"separation ratio                                  = {best_false / worst_true:.1f}x")
+    print(f"log-density: â is trusted up to a = {A_BIAS_VALID_MAX:.1f}; above it the")
+    print("             pseudocount bias is material and the estimate is out of range")
 
     if best_false <= 4.0 * worst_true:
         print("\nFAIL — the estimator does not separate true from false models.")
@@ -980,14 +1032,20 @@ def run_synthetic(out: str = "figures/synthetic_collapse.png") -> None:
         # Ground truth r
         r_true = bessel_ratio(a_true)
 
-        print(f"  a_est={a_mean:.4f}  r_est={r_mean:.4f}  r_true={r_true:.4f}  "
-              f"residual={r_mean - r_true:.4f}")
+        print(
+            f"  a_est={a_mean:.4f}  r_est={r_mean:.4f}  r_true={r_true:.4f}  "
+            f"residual={r_mean - r_true:.4f}"
+        )
 
-        results.append({
-            "a_true": a_true, "a_est": a_mean,
-            "r_true": r_true, "r_est": r_mean,
-            "residual": r_mean - r_true,
-        })
+        results.append(
+            {
+                "a_true": a_true,
+                "a_est": a_mean,
+                "r_true": r_true,
+                "r_est": r_mean,
+                "residual": r_mean - r_true,
+            }
+        )
 
         # Scatter on the (a, r) plot
         ax1.scatter(a_est, r_est, s=2, alpha=0.3, label=f"a={a_true:.1f}", zorder=3)
@@ -1027,8 +1085,10 @@ def run_synthetic(out: str = "figures/synthetic_collapse.png") -> None:
     print(f"\n{'a_true':>7s}  {'a_est':>7s}  {'r_est':>7s}  {'r_true':>7s}  {'resid':>7s}")
     print("-" * 50)
     for r in results:
-        print(f"{r['a_true']:7.2f}  {r['a_est']:7.4f}  {r['r_est']:7.4f}  "
-              f"{r['r_true']:7.4f}  {r['residual']:7.4f}")
+        print(
+            f"{r['a_true']:7.2f}  {r['a_est']:7.4f}  {r['r_est']:7.4f}  "
+            f"{r['r_true']:7.4f}  {r['residual']:7.4f}"
+        )
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -1036,13 +1096,24 @@ def run_synthetic(out: str = "figures/synthetic_collapse.png") -> None:
 # ══════════════════════════════════════════════════════════════════════
 
 MULTI_SUBJECTS = [
-    "1010", "1016", "1022", "1033", "1045", "1054", "1060", "1067",
+    "1010",
+    "1016",
+    "1022",
+    "1033",
+    "1045",
+    "1054",
+    "1060",
+    "1067",
 ]  # 8 subjects, balanced across the dataset
 
 
 def _plot_cross_panel_a(
-    ax: Axes, all_a: list[np.ndarray], all_r: list[np.ndarray],
-    names: list[str], task: str, run: int,
+    ax: Axes,
+    all_a: list[np.ndarray],
+    all_r: list[np.ndarray],
+    names: list[str],
+    task: str,
+    run: int,
 ) -> None:
     """Scatter per-subject, overlay mean ± SEM, theory curve."""
     colors = plt.cm.tab10(np.linspace(0, 1, len(all_a)))
@@ -1051,10 +1122,18 @@ def _plot_cross_panel_a(
     n_bins = min(len(a) for a in all_a)
     sa = np.column_stack([a[:n_bins] for a in all_a])
     sr = np.column_stack([r[:n_bins] for r in all_r])
-    ax.errorbar(np.nanmean(sa, axis=1), np.nanmean(sr, axis=1),
-                 xerr=np.nanstd(sa, axis=1)/np.sqrt(sa.shape[1]),
-                 yerr=np.nanstd(sr, axis=1)/np.sqrt(sr.shape[1]),
-                 fmt="o", color="black", ms=3, capsize=2, capthick=1, zorder=5)
+    ax.errorbar(
+        np.nanmean(sa, axis=1),
+        np.nanmean(sr, axis=1),
+        xerr=np.nanstd(sa, axis=1) / np.sqrt(sa.shape[1]),
+        yerr=np.nanstd(sr, axis=1) / np.sqrt(sr.shape[1]),
+        fmt="o",
+        color="black",
+        ms=3,
+        capsize=2,
+        capthick=1,
+        zorder=5,
+    )
     a_g = np.linspace(0, 5, 200)
     ax.plot(a_g, [bessel_ratio(ai) for ai in a_g], "k-", lw=2.5, label=r"$I_1/I_0(a)$")
     ax.set(xlabel=r"$a$", ylabel=r"$r$", xlim=(0, 2), ylim=(-0.02, 1.02))
@@ -1075,9 +1154,11 @@ def _plot_cross_panel_b(ax: Axes, a_subs: np.ndarray, r_subs: np.ndarray) -> Non
 
 
 def _plot_cross_subject(
-    all_a: list[np.ndarray], all_r: list[np.ndarray],
+    all_a: list[np.ndarray],
+    all_r: list[np.ndarray],
     subject_results: list[dict[str, float | str]],
-    task: str, run: int,
+    task: str,
+    run: int,
     out: str,
 ) -> None:
     """Draw the two-panel cross-subject figure and print summary table."""
@@ -1101,16 +1182,22 @@ def _plot_cross_subject(
     print("-" * 30)
     for r in subject_results:
         print(f"{r['subject']:>12s}  {r['a_mean']:7.3f}  {r['r_mean']:7.3f}")
-    print(f"Pooled: a={float(np.nanmean(pooled_a)):.3f}±{float(np.nanstd(pooled_a)):.3f}, "
-          f"r={float(np.nanmean(pooled_r)):.3f}±{float(np.nanstd(pooled_r)):.3f}")
-    print(f"Group: mean_a={float(np.nanmean(a_subs)):.3f} "
-          f"[{float(np.nanmin(a_subs)):.3f}–{float(np.nanmax(a_subs)):.3f}], "
-          f"mean_r={float(np.nanmean(r_subs)):.3f} "
-          f"[{float(np.nanmin(r_subs)):.3f}–{float(np.nanmax(r_subs)):.3f}]")
+    print(
+        f"Pooled: a={float(np.nanmean(pooled_a)):.3f}±{float(np.nanstd(pooled_a)):.3f}, "
+        f"r={float(np.nanmean(pooled_r)):.3f}±{float(np.nanstd(pooled_r)):.3f}"
+    )
+    print(
+        f"Group: mean_a={float(np.nanmean(a_subs)):.3f} "
+        f"[{float(np.nanmin(a_subs)):.3f}–{float(np.nanmax(a_subs)):.3f}], "
+        f"mean_r={float(np.nanmean(r_subs)):.3f} "
+        f"[{float(np.nanmin(r_subs)):.3f}–{float(np.nanmax(r_subs)):.3f}]"
+    )
 
 
 def run_multi_subject(
-    task: str = "sed", acq: str = "rest", run: int = 1,
+    task: str = "sed",
+    acq: str = "rest",
+    run: int = 1,
     max_seconds: float = 20.0,
     out: str = "figures/cross_subject_collapse.png",
 ) -> None:
@@ -1161,6 +1248,7 @@ def _parse_args() -> tuple[str, list[str]]:
     Actions: 'simulate', 'validate', 'montage', 'multi', 'bands', 'single'.
     """
     import sys as _sys
+
     if "--simulate" in _sys.argv or "-s" in _sys.argv:
         return "simulate", []
     if "--validate" in _sys.argv:
@@ -1183,9 +1271,11 @@ def _run_single_block(task: str, acq: str, run: int) -> tuple[np.ndarray, np.nda
         phase = extract_phase(data, fs, pad_seconds=PAD_SECONDS)
         a_trace, r_trace = compute_ar_trace(phase)
         n_valid = int(np.sum(~np.isnan(r_trace)))
-        print(f"    (a, r) points: {n_valid}, "
-              f"a={np.nanmean(a_trace):.3f}±{np.nanstd(a_trace):.3f}, "
-              f"r={np.nanmean(r_trace):.3f}±{np.nanstd(r_trace):.3f}")
+        print(
+            f"    (a, r) points: {n_valid}, "
+            f"a={np.nanmean(a_trace):.3f}±{np.nanstd(a_trace):.3f}, "
+            f"r={np.nanmean(r_trace):.3f}±{np.nanstd(r_trace):.3f}"
+        )
         return a_trace, r_trace
     except Exception as e:
         print(f"  ✗ FAILED: {e}")
@@ -1213,8 +1303,10 @@ def _run_single_subject() -> None:
     for label, (a_trace, r_trace) in traces.items():
         mask = ~np.isnan(r_trace)
         if mask.sum() > 0:
-            print(f"  {label:20s}  a={np.nanmean(a_trace):.3f}  r={np.nanmean(r_trace):.3f}  "
-                  f"(n={mask.sum()})")
+            print(
+                f"  {label:20s}  a={np.nanmean(a_trace):.3f}  r={np.nanmean(r_trace):.3f}  "
+                f"(n={mask.sum()})"
+            )
 
 
 def _arg(args: list[str], i: int, default: str) -> str:
@@ -1227,8 +1319,10 @@ def main() -> None:
 
     if action == "bands":
         run_band_comparison(
-            _arg(args, 0, "sed"), _arg(args, 1, "rest"),
-            int(_arg(args, 2, "1")), float(_arg(args, 3, "20.0")),
+            _arg(args, 0, "sed"),
+            _arg(args, 1, "rest"),
+            int(_arg(args, 2, "1")),
+            float(_arg(args, 3, "20.0")),
         )
     elif action == "simulate":
         run_synthetic()
@@ -1236,12 +1330,15 @@ def main() -> None:
         run_estimator_validation()
     elif action == "montage":
         run_montage_comparison(
-            _arg(args, 0, "sed"), _arg(args, 1, "rest"),
-            int(_arg(args, 2, "1")), float(_arg(args, 3, "20.0")),
+            _arg(args, 0, "sed"),
+            _arg(args, 1, "rest"),
+            int(_arg(args, 2, "1")),
+            float(_arg(args, 3, "20.0")),
         )
     elif action == "multi":
         run_multi_subject(
-            _arg(args, 0, "sed"), _arg(args, 1, "rest"),
+            _arg(args, 0, "sed"),
+            _arg(args, 1, "rest"),
             int(_arg(args, 2, "1")),
         )
     else:

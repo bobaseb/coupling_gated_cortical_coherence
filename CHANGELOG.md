@@ -20,6 +20,37 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-03 — two of the eight named hypotheses were satisfiable without their premises
+
+**Claimed:** that `chain`'s eight named hypotheses are eight gaps, each an
+implication between two node predicates, and that the count is the checkable
+number the reader can obtain with `#check @chain`.
+
+**The problem:** two of the eight had conclusions that mentioned nothing from
+their own premises. `E34` asked for `Nonempty (PredictiveDissipation Xs Sg Sg')`
+and `E78` for `Nonempty (ThermodynamicCover X)`; both structures were already
+inhabited at the types the joint witness uses, so `fun _ => ⟨frozenSystem⟩` and
+`fun _ => ⟨cortexCover⟩` proved them without reading their hypotheses. The count
+was right and two of the things counted were not gaps — an arrow whose proof
+discards its premise is the manufactured-edge shape `Chain.lean` exists to
+prevent.
+
+**What is claimed now:** `E34` asks for a predictive structure whose thermal
+scale is the register's own temperature, whose dissipated work is that
+register's Landauer heat, and whose wasted memory is non-zero. `E78` asks for a
+cover whose patch coupling is at least the mean-field constant `K` and whose
+equilibrium configuration is the limit of a relaxation on that coupling
+(`ThermodynamicCover.IsReachedByRelaxation`). Both are discharged in the joint
+witness — by `landauerSystem` and by `trioCover3` — and each has a regression
+naming a witness the bare form accepted and the strengthened form does not
+(`frozenSystem_not_of_eraser`, `trioCover_not_reachedByRelaxation_three`). The
+count is still eight.
+
+**Where the reasoning is:** `tasks/todo.md`, the T2 pass record of 2026-09-03,
+and the docstrings of `E34` and `E78` in `Chain.lean`.
+
+---
+
 ## 2026-08-31 — the chain composes, and two claims about it were wrong
 
 **Claimed:** that a machine-checked chain guarantees "no link can quietly borrow

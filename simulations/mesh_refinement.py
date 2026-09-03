@@ -40,6 +40,14 @@ def compute_continuous_potential(N_ground_truth: int = 2000) -> float:
     Theta_X = np.sin(X)
     Theta_Y = np.sin(Y)
 
+    # The array above is `integrand` evaluated on the grid; check the
+    # transcription at one point rather than trusting it.  `meshgrid` puts the
+    # pair (x_i, x_j) at [j, i].
+    i, j = 1, 2
+    vectorised = float(K[j, i] * np.cos(Theta_Y[j, i] - Theta_X[j, i]))
+    if abs(integrand(float(x[i]), float(x[j])) - vectorised) > 1e-12:
+        raise AssertionError("vectorised kernel does not match the scalar integrand")
+
     integral = np.sum(K * np.cos(Theta_Y - Theta_X)) * (dx**2)
     return float(-0.5 * integral)
 

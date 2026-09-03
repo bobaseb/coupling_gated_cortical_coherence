@@ -367,19 +367,41 @@ def E23 {Y V : Type*} (vac : Set V) (phi : Y → V)
 /-- **n3 → n4. Formalization gap.**
 
 Asserts that a register that dissipates carries a `PredictiveDissipation`
-structure: a joint law over state and signal, a Markov signal dynamics, finite
-memory, a thermal scale, and Still's bound.
+structure *of that register*: a joint law over state and signal, a Markov signal
+dynamics, finite memory, and a thermal budget that is the register's own — its
+thermal scale is the system's temperature, its dissipated work is the system's
+Landauer heat, and the memory it wastes is not zero.
+
+**Why the three conjuncts are there.** Asking only for
+`Nonempty (PredictiveDissipation Xs Sg Sg')` — which is what this edge asked
+until 2026-09-03 — is asking for a structure that already exists:
+`Examples.lean` §18.1's `frozenSystem` proves it for `Xs = Sg = Sg' = Bool` with
+no reference to `t` at all, so the edge was dischargeable *by ignoring its
+hypothesis*, which is the manufactured-edge shape this module exists to prevent.
+`frozenSystem_not_of_eraser` is the regression: its dissipated work is `0` where
+the register's Landauer heat is `log 2`, and it wastes no memory, so it fails
+two of the three conjuncts.
 
 **What would discharge it.** Landauer's heat and Still's dissipated work are two
-different accounts of the same physical quantity, and no theorem here identifies
-them: `heat_dissipation` is `T · Δ boltzmann_entropy` of the bath, `dissipatedWork`
-is `W − ΔF` over one drive step. Discharging this edge means building a bipartite
-environment whose Landauer heat *is* the dissipated work of a predictive
-structure, which is a real formalization task and not a research problem. -/
-def E34 {sys : Type*} [Thermodynamics sys] (t : sys → sys)
+accounts of the same physical quantity, and `Phase3_LandauerBridge.lean` now
+identifies them: `PredictiveDissipation.ofLandauer` builds exactly this structure
+from a bipartite environment, deriving `still_bound` from `landauer_bound`
+instead of assuming it a second time. What that constructor still requires, and
+what keeps this edge a named hypothesis rather than a theorem, is the physical
+identification `(nonpredictiveInfo μ κ).toReal ≤ erasedEntropy t`: that the bits
+the register clears are the bits its memory wasted. Nothing relates `μ`, `κ` and
+`t` except that inequality, and `nonpredictive_eq_zero_of_injective` shows it is
+not free — a reversible register cannot pay for a single wasted bit.
+
+`e34_boolEraser` below discharges the edge on `§1`'s one-bit eraser, where the
+inequality is an equality. -/
+def E34 {sys : Type*} [Fintype sys] [DecidableEq sys] [Thermodynamics sys] (t : sys → sys)
     (Xs Sg Sg' : Type*) [MeasurableSpace Xs] [MeasurableSpace Sg] [MeasurableSpace Sg'] :
     Prop :=
-  Dissipates t → Nonempty (PredictiveDissipation Xs Sg Sg')
+  Dissipates t → ∃ R : PredictiveDissipation Xs Sg Sg',
+    R.thermalEnergy = Thermodynamics.temperature (sys := sys)
+      ∧ R.dissipatedWork = heat_dissipation t
+      ∧ 0 < (R.nonpredictive).toReal
 
 /-- **n4 → n5. Modelling assumption.**
 
@@ -449,19 +471,34 @@ Asserts that a substrate with a coherent order parameter carries a
 the minimum of the reduced Kuramoto potential, whose synchronized patches agree
 where they overlap.
 
-**What would discharge it.** Two things, of very different sizes.
-`Phase5_EquilibriumBridge`'s `ThermodynamicCover.ofConvergentTrajectory` already
-builds the equilibrium field from a convergent trajectory, so the first half is
-reachable for initial data within a quarter turn. The second half is
-`LocalSectionSynchronization.section_agrees_of_phase_eq` — that synchronized
-patches agree on overlaps — which is untouched by any dynamics in this
-development and is the standing open item ranked second in `tasks/todo.md`.
+**Why the cover has to be a reached one, and coupled at `K`.** Until 2026-09-03
+this edge asked for `Nonempty (ThermodynamicCover X)`, and `Examples.lean` §4's
+`cortexCover` proves that outright — a cover whose phase field is constant by
+construction and whose coupling is unit, with no reference to `K`, to `D`, or to
+any dynamics. The edge was dischargeable by ignoring its hypothesis. It now asks
+for `ThermodynamicCover.IsReachedByRelaxation K`
+(`Phase5_EquilibriumBridge.lean`): the cover's patches are coupled at least as
+strongly as the mean field the coherent regime names, and its equilibrium
+configuration is the limit of a Kuramoto trajectory on that coupling rather than
+a configuration the instance was placed at.
 
-Note also the scale mismatch this edge hides: n7 is a statement about a continuum
-mean field and `ThermodynamicCover` is a statement about a finite index set. -/
+Both halves have a fence. `trioCover_not_reachedByRelaxation_three` is a cover
+that *is* reached and fails the coupling floor at `K = 3`; `cortexCover` is a
+cover that meets no relaxation condition at all. `trioCover3` — three sites,
+coupling `3`, initial data that is not phase-locked — is what discharges the
+edge in §8, through `ThermodynamicCover.ofConvergentTrajectory`.
+
+**What would still discharge it as a theorem, and does not.** Nothing derives a
+cover from a coherent order parameter. `ofConvergentTrajectory` needs initial
+data in the basin of §7, and n7 supplies a statement about a continuum mean
+field, not initial data for a finite index set — the scale mismatch is exactly
+where the edge sits, and the strengthened form makes it visible in the type
+rather than in this paragraph. The cover's other physical hypothesis,
+`LocalSectionSynchronization.section_agrees_of_phase_eq`, is untouched by any
+dynamics here and is the standing open item ranked second in `tasks/todo.md`. -/
 def E78 (K D : ℝ) (X : TopCat.{u}) [MeasurableSpace X] [BorelSpace X]
     [TriangulatedManifold ↥X] : Prop :=
-  Coherent K D → Nonempty (ThermodynamicCover X)
+  Coherent K D → ∃ T : ThermodynamicCover X, T.IsReachedByRelaxation K
 
 /-- **n8 → n9. Modelling assumption, with the state identity explicit.**
 
@@ -568,12 +605,14 @@ theorem chain
   have n1 : Capacity sys := capacity sys
   have n2 : LeavesVacuum vac phi := e12 n1
   have n3 : Dissipates upd := dissipates_of_not_surjective upd (e23 n2)
-  have n4 : PredictiveBound Xs Sg Sg' := predictiveBound_of_nonempty (e34 n3)
+  obtain ⟨R, _, _, _⟩ := e34 n3
+  have n4 : PredictiveBound Xs Sg Sg' := predictiveBound_of_nonempty ⟨R⟩
   have n5 : CoarseGrains E L := e45 n4
   have h56 : FieldRealizes L K D ∧ Nonempty (IsEMFieldCoupling kernel K D) := e56 n5
   have n6 : FieldRealizes L K D := h56.1
   have n7 : Coherent K D := coherent_of_supercritical n6.1 (e67 n6)
-  have n8 : Unity X := unity_of_cover (e78 n7)
+  obtain ⟨T78, _⟩ := e78 n7
+  have n8 : Unity X := unity_of_cover ⟨T78⟩
   obtain ⟨T, s, hs_unified, h_lip, hs_fixed⟩ := e89 n8
   let _ : Nonempty (GlobalSection (X := X)) := ⟨s⟩
   obtain ⟨p, hp, huniq⟩ :=
@@ -585,10 +624,10 @@ theorem chain
 
 `chain` would be worth nothing if its hypotheses could not hold: an unsatisfiable
 premise proves anything. The arrows below are the ones whose content is
-numerical, and each is exhibited satisfied at `D = 1`, `K = 3`. The remaining five
-(`E12`, `E23`, `E34`, `E45`, `E78`) assert relations between structures rather
-than between numbers, and a witness for them is a witness for the chain as a
-whole; that is not built here.
+numerical, and each is exhibited satisfied at `D = 1`, `K = 3`. Section 8
+discharges all eight simultaneously. Its structural edges use the double-well
+domain wall, a one-bit eraser tied to Landauer's heat, a genuinely refining mesh,
+and a cover reached by relaxation.
 
 §7 witnesses the n7 → n9 theorem on the three-site cortex. §8 additionally uses
 the two-patch cover whose glued section is that same fixed point.
@@ -633,6 +672,21 @@ theorem em_field_exhibits_phase_transition {M : Type*} [MeasureSpace M] [Topolog
     exhibits_phase_transition kernel :=
   let h56 := e56 n5
   exhibits_phase_transition_of_isEMFieldCoupling h56.2.some (e67 h56.1)
+
+open Examples in
+/-- **The n3 → n4 edge, discharged on the one-bit eraser.**
+
+`Examples.lean` §18.5 builds `landauerSystem` by `PredictiveDissipation.ofLandauer`
+from `§1`'s bipartite environment, so its thermal scale and its dissipated work
+are the register's own and its `still_bound` comes out of `landauer_bound`. The
+register erases one bit and the law wastes one bit, so the budget is met with
+equality (`landauerSystem_tight`).
+
+This is a discharge *at one register and one joint law*, not a proof of `E34`:
+the identification of the wasted memory with the erased entropy is supplied here
+by computation on two bits and is exactly what no theorem supplies in general. -/
+theorem e34_boolEraser : E34 (fun _ : Bool => true) Bool Bool Bool :=
+  fun _ => ⟨landauerSystem, rfl, rfl, landauerSystem_nonpredictive_pos⟩
 
 /-- `CoarseGrains` is inhabited by a constant sequence, so `E45` is satisfiable
 by a constant function. -/
@@ -684,13 +738,13 @@ whose hypotheses are jointly unsatisfiable proves its conclusion for no reason a
 all, and eight implications between eight different structures is exactly the
 shape in which that can hide. The witness below rules it out.
 
-**What the witness is and is not.** Every piece of it already existed:
+**What the witness is and is not.** Every physical ingredient already existed:
 `Examples.lean` §1 has a `StatisticalMechanics` instance on `Bool`, §18 has a
 `PredictiveDissipation` on the two-bit law, §17 has a `ThermodynamicCover` on the
-three-site cortex, and §10 has the reflexive boundary. What is new is that they
-are made to satisfy the *edges* at once. It is a mathematical witness: the
-register is a bit, the vacuum manifold is empty, and the coarse-graining sequence
-is constant. It shows joint satisfiability, not a mechanistic cortical chain.
+three-site cortex, §11 has a double-well domain wall, §6 has a moving refining
+mesh, and §10 has the reflexive boundary. What is new is that they are made to
+satisfy the *edges* at once. It is a strengthened mathematical witness, not a
+derivation that identifies these toy systems with one cortical mechanism.
 -/
 
 open Examples in
@@ -777,25 +831,93 @@ theorem not_isEMFieldCoupling_of_zero_kernel :
   rw [h.coupling_is_mean_field] at h0
   norm_num at h0
 
+/-! ### T5: the three remaining mechanistic edges -/
+
+open Examples in
+/-- `E12` on the genuine double well: the kink connects its two distinct vacuum
+components and crosses the barrier at the origin. The capacity premise is
+present because `E12` requires it; the wall itself is supplied by the proved
+double-well geometry rather than by an empty vacuum. -/
+theorem t5_e12_doubleWell : E12 Bool (DynamicalVacuum wellV) kink :=
+  fun _ => kink_leaves_vacuum
+
+open Examples in
+/-- `E23` on a refreshed one-bit input register. After the step the input slot
+is always `true`, so `false` is unreachable. Unlike the former empty-vacuum
+witness, the premise is the domain wall of `t5_e12_doubleWell`. -/
+theorem t5_e23_absorbingRegister :
+    E23 (DynamicalVacuum wellV) kink (fun _ : Bool => true) :=
+  fun _ => witness_not_surjective
+
+open Examples in
+/-- The actual energies of the uniform refining grids, translated so that their
+continuum limit is the chain witness's coupling strength `3`. Translation
+preserves the genuinely changing approximants while aligning the limit with the
+field used by `E56`. -/
+noncomputable def t5_refiningEnergy (n : ℕ) : ℝ :=
+  discreteEnergy (gridTriangulation (n + 1)) volume (fun x : ℝ => |x - 1 / 2|)
+    + (3 - ∫ x in Set.Ico (0 : ℝ) 1, |x - 1 / 2|)
+
+open Examples in
+/-- The translated grid energies converge to `3` by the proved mesh-refinement
+theorem, rather than because the sequence is constant. -/
+theorem t5_refiningEnergy_tendsto : Tendsto t5_refiningEnergy atTop (𝓝 3) := by
+  have h := grid_mesh_refinement (fun x : ℝ => |x - 1 / 2|) tent_uniformContinuous
+  change Tendsto (fun n =>
+      discreteEnergy (gridTriangulation (n + 1)) volume (fun x : ℝ => |x - 1 / 2|)
+        + (3 - ∫ x in Set.Ico (0 : ℝ) 1, |x - 1 / 2|)) atTop (𝓝 3)
+  have ht := h.add_const (3 - ∫ x in Set.Ico (0 : ℝ) 1, |x - 1 / 2|)
+  have heq : (∫ x in Set.Ico (0 : ℝ) 1, |x - 1 / 2|)
+      + (3 - ∫ x in Set.Ico (0 : ℝ) 1, |x - 1 / 2|) = 3 := by ring
+  rw [heq] at ht
+  exact ht
+
+open Examples in
+/-- Regression: the refining witness is not the old constant sequence. -/
+theorem t5_refiningEnergy_moves : t5_refiningEnergy 0 ≠ t5_refiningEnergy 1 := by
+  intro h
+  unfold t5_refiningEnergy at h
+  rw [tent_energy_one, tent_energy_two] at h
+  norm_num at h
+
+open Examples in
+/-- `E45` realized by the moving uniform-grid sequence. The predictive premise
+selects this coarse-graining regime; it does not manufacture convergence. -/
+theorem t5_e45_refiningMesh : E45 Bool Bool Bool t5_refiningEnergy 3 :=
+  fun _ => t5_refiningEnergy_tendsto
+
+/-! ### T5 specifications: the three remaining mechanistic edges -/
+
+open Examples in
+example : E12 Bool (DynamicalVacuum wellV) kink := t5_e12_doubleWell
+
+open Examples in
+example : E23 (DynamicalVacuum wellV) kink (fun _ : Bool => true) :=
+  t5_e23_absorbingRegister
+
+open Examples in
+example : E45 Bool Bool Bool t5_refiningEnergy 3 := t5_e45_refiningMesh
+
 open Examples in
 /-- **All eight arrows, at once, on one substrate.**
 
 `#print axioms chain_hypotheses_jointly_satisfiable` reports only the three, so
 the witness is as sound as the conditional theorem whose hypotheses it
-discharges. The name is deliberately limited to satisfiability: the empty
-vacuum and constant coarse-graining sequence do not constitute a mechanism. -/
+discharges. The name remains limited to satisfiability: concrete non-trivial
+edge witnesses do not identify the double well, register, mesh and cortical
+cover as one physical mechanism. -/
 theorem chain_hypotheses_jointly_satisfiable : UnifiedSelf (X := Cortex) cortexReflexive :=
   chain (X := Cortex) (kernel := cortexNeuralField) (sys := Bool) (fun _ => true)
-    (vac := (∅ : Set Bool)) (phi := id) Bool Bool Bool
-    (E := fun _ => 3) (L := 3) (K := 3) (D := 1) (τ := cortexTau)
+    (vac := DynamicalVacuum wellV) (phi := kink) Bool Bool Bool
+    (E := t5_refiningEnergy) (L := 3) (K := 3) (D := 1) (τ := cortexTau)
     cortexTau_pos cortexReflexive
-    (fun _ => ⟨true, Set.notMem_empty _⟩)
-    (fun _ => witness_not_surjective)
-    (fun _ => ⟨frozenSystem⟩)
-    (fun _ => tendsto_const_nhds)
+    t5_e12_doubleWell
+    t5_e23_absorbingRegister
+    e34_boolEraser
+    t5_e45_refiningMesh
     (fun _ => ⟨⟨one_pos, by norm_num, rfl⟩, cortexNeuralField_isEMFieldCoupling⟩)
     (fun _ => by rw [critical_coupling]; norm_num)
-    (fun _ => ⟨cortexCover⟩)
+    (fun _ => ⟨trioCover3, trioCover3_reachedByRelaxation⟩)
     (fun _ => ⟨cortexCover, cortexState, (fun _ => rfl),
       cortexPredict_lipschitz_rate, cortexPredict_fixed⟩)
 
