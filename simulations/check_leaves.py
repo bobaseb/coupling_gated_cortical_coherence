@@ -61,15 +61,26 @@ ALLOWED_LEAVES: dict[str, str] = {
     "Phase3_KLBound.lean": (
         "referenced only from Phase3_PredictiveThermodynamics docstrings "
         "(`structural_resonance_bound`, `discrete_entropy_rate_nonneg`) and from "
-        "the supplement; no theorem consumes it. Recorded, not endorsed — this is "
-        "the C1 shape, and giving it a consumer is open work"
+        "the supplement; no theorem consumes it. Recorded, not endorsed: unlike "
+        "the entries below, a consumer here is constructible and giving it one "
+        "is open work"
     ),
     "Phase5_PhaseLifts.lean": (
         "deliberate — F2's results are about the obstruction, and the chain routes "
         "around it rather than through it"
     ),
     "Phase5_TwistedGluing.lean": (
-        "deliberate — F4's twisted-gluing results are not wired into `chain`"
+        "deliberate, and terminal by content rather than by omission. The "
+        "module's own results are limitative: `isCoboundary_of_phaseField` and "
+        "`gluesUpToPhase_of_phaseField` show that any Kuramoto configuration, "
+        "twisted or splay, has coboundary offsets and glues, so there is no "
+        "obstruction left to route into `chain`. A consumer is constructible "
+        "only with the trivial phase action, under which `TwistedFamily` "
+        "collapses to `LocalSectionSynchronization` and the link would restate "
+        "Phase5_GlobalSection. A non-vacuous one needs `IsFreeOn`, which the "
+        "trivial action fails, and that requires enlarging the local state to "
+        "carry phase — a modelling decision, not a formalization step, and not "
+        "one to be taken to close this gate"
     ),
     "Phase8_CriticalExponent.lean": (
         "referenced only from a Phase8_SelfConsistency docstring "

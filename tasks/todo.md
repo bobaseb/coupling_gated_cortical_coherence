@@ -162,23 +162,23 @@ not smuggle it into a simulation item or strengthen the edge merely to close it.
 
 ### C3 — Decide whether the phase-action module is ever to have a consumer
 
-- [ ] Decide whether `Phase5_TwistedGluing`'s results are to be reachable from
+- [x] Decide whether `Phase5_TwistedGluing`'s results are to be reachable from
       the chain, which requires enlarging the local state so that phase — or an
       independent transition datum — is part of it.
 
-Of the four modules exempted in `check_leaves.py`'s `ALLOWED_LEAVES`, three are
-terminal by construction. This one is not: its own docstring records that
-`probabilityPresheaf` admits no free phase action, so *no* consumer is
-constructible until the local state space changes. The exemption is therefore a
-deferred modelling decision wearing the same clothes as a finished result, and
-405 lines of cocycle machinery sit behind it. This is the same family of
-decision as the overlap-compatibility note below; do not enlarge the presheaf to
-close a gate.
+Decided: no. The module is terminal by content, not merely unwired, and its
+`ALLOWED_LEAVES` entry now says which. Enlarging the local state remains an open
+modelling question and is recorded below, not scheduled.
 
 ## Recorded, not scheduled
 
 - A dynamical mean-field limit/propagation-of-chaos theorem remains a research
   programme; S4 cannot close it.
+- Enlarging the local state space so that phase, or an independent transition
+  datum, is part of it would give `Phase5_TwistedGluing` a non-vacuous consumer.
+  That is a physical modelling choice about what a local state is, with the
+  presheaf, Derivation 5 and the frustration argument downstream of it. It is
+  not to be undertaken to close a leaf gate; see the C3 record below.
 - Overlap compatibility remains an explicit physical hypothesis. The existing
   equivalence and counterexample explain its content; do not schedule another
   attempt to derive it from the current class fields.
@@ -187,10 +187,13 @@ close a gate.
 - PRX Life presubmission was explicitly declined. Direct submission, if any, is
   a later author decision rather than a repository task.
 - Three of the four recorded leaf modules are terminal and are not to be
-  re-litigated per pass. `Phase3_KLBound` is superseded in part by
+  re-litigated per pass; C3 settled that `Phase5_TwistedGluing` is the third of
+  them rather than a deferred decision. `Phase3_KLBound` is superseded in part by
   `Phase3_PredictiveThermodynamics`, and its own header says which inference it
   no longer supports. `Phase5_PhaseLifts` proves the discrete winding
   obstruction and the chain has no winding node to consume it.
+  `Phase5_TwistedGluing` proves that phase frustration produces no obstruction to
+  glue around, so there is nothing for the chain to consume.
   `Phase8_CriticalExponent` ends in a prediction the manuscript consumes and
   Lean does not. The gate will say so if any of them acquires a consumer.
 - The `.venv` console scripts embed an absolute interpreter path, so renaming
@@ -218,3 +221,51 @@ C2 requires the covers to coincide. `E89` now consumes the reached cover from
 `E78`, and `chain` returns it in `UnifiedSelf`. The witness proves reachability
 with a constant synchronized trajectory; this does not prove selection from an
 incoherent state.
+
+### 2026-09-03 — C3
+
+Decided that `Phase5_TwistedGluing` is not to be reachable from `chain`, and
+recorded the reason in `ALLOWED_LEAVES` in place of the previous one-line
+"not wired into `chain`".
+
+The premise the item was written on was too strong. It said no consumer is
+constructible. One is: `gluesUpToPhase_of_isCoboundary` and
+`gluesUpToPhase_of_phaseField` require a `PhaseAction`, not a free one, and
+`probabilityPresheaf` admits the trivial action. But under the trivial action
+`TwistedFamily.agrees_up_to_phase` reduces to exact overlap agreement, so that
+consumer restates `Phase5_GlobalSection` and the chain link would carry no
+information. Freeness — `IsFreeOn`, which the module's own docstring says fails
+at the uniform phase distribution and for any structureless local state — is
+what a non-vacuous consumer needs, and it is unavailable without enlarging the
+local state.
+
+The decisive point is content, not constructibility. `isCoboundary_of_phaseField`
+and `gluesUpToPhase_of_phaseField` show that any Kuramoto configuration, twisted
+or splay, supplies absolute patch phases whose differences are automatically a
+coboundary, so the family glues. `gluesUpToPhase_of_isFreeOn` bounds the rest: a
+non-zero class needs a hole in the cover. The module therefore ends in a negative
+result — phase frustration creates no gluing obstruction — which is what
+`supplementary.tex` already states, and a negative result has nothing downstream
+to consume it. This places it with `Phase5_PhaseLifts` and
+`Phase8_CriticalExponent`, not with `Phase3_KLBound`.
+
+The 405 lines are the price of that negative result, and are not reduced by this
+decision. What changes is that the exemption now records a closed judgement
+rather than an open one.
+
+Also de-referenced "the C1 shape" in the `Phase3_KLBound` entry: it pointed at
+the previous ledger's C1 (`Chain.lean` composition, archived), not this ledger's,
+which is the EEG estimand. A gate comment that cites a ledger label ages badly;
+it now describes the shape instead.
+
+Artifacts: `simulations/check_leaves.py`, `tasks/todo.md`. No Lean, manuscript or
+simulation change. Gates: all ten hooks green.
+
+One observation from running them, since it confirms the whole-tree hook hazard
+recorded above. While S1's `test_dynamic_ramp.py` existed without its
+`dynamic_ramp.py`, `mypy --strict` read the untracked test and failed on the
+missing import, which blocked this commit although C3 touches no Python that
+mypy objects to. A red test therefore blocks unrelated commits for as long as it
+is red — the red phase of red-green-refactor is not commit-neutral here. S1's
+module has since landed and the gates are green; the lesson is to close a red
+test in the same sitting it is written.
