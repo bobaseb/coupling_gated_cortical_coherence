@@ -12,9 +12,20 @@ appear in a *non-trivial consumer* (any Lean file except the module itself,
 ``PhysicsOfConsciousness.lean``, and ``Examples.lean``). A module with zero such
 references is a leaf — its types are imported; its theorems are dead.
 
+**Comments are stripped before searching.** A name that appears only in a
+docstring is exactly the state C1 was in: discussed in prose, unused in code.
+Counting prose as consumption would let the gate certify the defect it exists to
+find. (The block-comment stripper is a non-greedy match and does not model Lean's
+nested ``/- -/``; a nested comment leaves a fragment behind, which can only make
+the check stricter, never laxer.)
+
+``ALLOWED_LEAVES`` is the recorded baseline: modules that are leaves today, each
+with the reason. A leaf outside that set fails the gate, and so does an entry
+that has stopped being a leaf — an exemption nobody removes is how a gate rots.
+
 Run: python simulations/check_leaves.py
 
-Exit 0 if no leaf modules found, 1 otherwise.
+Exit 0 if the leaf set is exactly ``ALLOWED_LEAVES``, 1 otherwise.
 """
 
 from __future__ import annotations
@@ -43,11 +54,48 @@ NOT_CHECKED = {
 #     look non-leaf and defeat the check.
 NOT_CONSUMERS = {"PhysicsOfConsciousness.lean", "Examples.lean"}
 
+# The recorded baseline. Each entry is a module that is a leaf *and is known to
+# be one*, with the reason it is tolerated. Adding to this dict is a decision;
+# it should be made in the ledger, not in passing.
+ALLOWED_LEAVES: dict[str, str] = {
+    "Phase3_KLBound.lean": (
+        "referenced only from Phase3_PredictiveThermodynamics docstrings "
+        "(`structural_resonance_bound`, `discrete_entropy_rate_nonneg`) and from "
+        "the supplement; no theorem consumes it. Recorded, not endorsed — this is "
+        "the C1 shape, and giving it a consumer is open work"
+    ),
+    "Phase3_MeasureThermodynamics.lean": (
+        "the measure-theoretic restatement of Phase 3 has no consumer; whether it "
+        "needs one is recorded in the T4 ledger entry rather than fixed blind"
+    ),
+    "Phase5_PhaseLifts.lean": (
+        "deliberate — F2's results are about the obstruction, and the chain routes "
+        "around it rather than through it"
+    ),
+    "Phase5_TwistedGluing.lean": (
+        "deliberate — F4's twisted-gluing results are not wired into `chain`"
+    ),
+    "Phase8_CriticalExponent.lean": (
+        "referenced only from a Phase8_SelfConsistency docstring "
+        "(`vonMisesSRatio_second_order`) and from the manuscript. The exponent is "
+        "a terminal prediction: nothing in Lean is downstream of beta = 1/2, and "
+        "nothing is expected to be"
+    ),
+}
+
 DECL_RE = re.compile(
     r"^(?:(?:noncomputable|protected|private)\s+)?"
     r"(?:structure|theorem|lemma|def|opaque)\s+"
     r"([a-zA-Z_]\w*)"
 )
+
+BLOCK_COMMENT_RE = re.compile(r"/-.*?-/", re.DOTALL)
+LINE_COMMENT_RE = re.compile(r"--.*$", re.MULTILINE)
+
+
+def strip_comments(text: str) -> str:
+    """Remove Lean block and line comments, so prose never counts as usage."""
+    return LINE_COMMENT_RE.sub("", BLOCK_COMMENT_RE.sub("", text))
 
 
 def extract_decls(path: Path) -> set[str]:
@@ -62,7 +110,8 @@ def extract_decls(path: Path) -> set[str]:
 
 def module_has_consumer(mod_path: Path, consumer_dir: Path) -> bool:
     """Return True if at least one declaration from *mod_path* is referenced
-    in a consumer file outside NOT_CONSUMERS and the module itself."""
+    in the *code* of a consumer file outside NOT_CONSUMERS and the module
+    itself."""
     decls = extract_decls(mod_path)
     if not decls:
         return True  # no declarations to be a leaf
@@ -72,7 +121,7 @@ def module_has_consumer(mod_path: Path, consumer_dir: Path) -> bool:
             continue
         if consumer.name in NOT_CONSUMERS:
             continue
-        content = consumer.read_text(encoding="utf-8")
+        content = strip_comments(consumer.read_text(encoding="utf-8"))
         for d in decls:
             if re.search(rf"\b{re.escape(d)}\b", content):
                 return True
@@ -80,35 +129,57 @@ def module_has_consumer(mod_path: Path, consumer_dir: Path) -> bool:
     return False
 
 
+def find_leaves() -> list[Path]:
+    """Every checked module with no code-level consumer, in path order."""
+    return [
+        mod
+        for mod in sorted(LEAN_DIR.rglob("*.lean"))
+        if mod.name not in NOT_CHECKED and not module_has_consumer(mod, LEAN_DIR)
+    ]
+
+
 def main() -> int:
-    modules = sorted(LEAN_DIR.rglob("*.lean"))
-    leaves: list[str] = []
+    leaves = find_leaves()
+    leaf_names = {mod.name for mod in leaves}
 
-    for mod in modules:
-        if mod.name in NOT_CHECKED:
-            continue
-        if not module_has_consumer(mod, LEAN_DIR):
-            rel = mod.relative_to(REPO)
-            leaves.append(str(rel))
+    new_leaves = [mod for mod in leaves if mod.name not in ALLOWED_LEAVES]
+    stale = sorted(name for name in ALLOWED_LEAVES if name not in leaf_names)
 
-    if leaves:
+    if not new_leaves and not stale:
         print(
-            f"check_leaves: {len(leaves)} modules have zero declarations consumed\n"
-            f"  outside themselves, Examples.lean, and the root aggregator.\n"
+            "check_leaves: no unrecorded leaf modules "
+            f"({len(ALLOWED_LEAVES)} recorded, all still leaves)."
         )
-        for lf in leaves:
-            print(f"  {lf}")
+        return 0
+
+    if new_leaves:
+        print(
+            f"check_leaves: {len(new_leaves)} module(s) have zero declarations "
+            "consumed\n  outside themselves, Examples.lean, and the root "
+            "aggregator.\n"
+        )
+        for mod in new_leaves:
+            print(f"  {mod.relative_to(REPO)}")
         print(
             "\n"
             "A module whose declarations are referenced by nothing outside\n"
             "itself and Examples.lean is a leaf in the edge graph.\n"
             "Its types are imported; its theorems are not. That is how C1's\n"
-            "defect arose in Phase8_SelfConsistency.\n"
+            "defect arose in Phase8_SelfConsistency. Wire a consumer, or record\n"
+            "the module in ALLOWED_LEAVES with the reason it stays dangling.\n"
         )
-        return 1
 
-    print("check_leaves: every phase module has at least one declaration consumed elsewhere.")
-    return 0
+    if stale:
+        print(
+            f"check_leaves: {len(stale)} recorded leaf(s) now have a consumer.\n"
+            "  Delete them from ALLOWED_LEAVES — an exemption nobody removes is\n"
+            "  how a gate stops meaning anything.\n"
+        )
+        for name in stale:
+            print(f"  {name}")
+        print()
+
+    return 1
 
 
 if __name__ == "__main__":

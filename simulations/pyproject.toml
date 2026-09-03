@@ -23,6 +23,11 @@ dev = [
     "xenon>=0.9.3",
 ]
 
+[tool.vulture]
+# `uv run vulture .` from this directory would otherwise walk `.venv`,
+# where a site-packages file exceeds the AST recursion limit.
+exclude = [".venv/"]
+
 [tool.ruff]
 line-length = 100
 
