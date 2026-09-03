@@ -273,28 +273,21 @@ Each recording was divided into non-overlapping 100 ms bins (500 samples at 5 kH
 \item \textbf{Concentration $a$:} The slope of the log-density of the same phase distribution regressed on $\cos\theta$, as specified in the main text. Phases are centred on their circular mean, binned into 40 bins on $[-\pi,\pi]$, and $\log$ of the binned density (with a $0.5$ pseudocount) is regressed on $\cos\theta$ by \emph{unweighted} ordinary least squares. Under the von Mises model $\log\rho(\theta) = a\cos\theta - \log(2\pi I_0(a))$, so the slope is $a$.
 \end{itemize}
 
-The estimator must not be a maximum-likelihood one, and the reason is structural rather than
-practical. The von Mises family is a one-parameter exponential family whose sufficient statistic is
-$\sum_j \cos\theta_j$ --- that is, $r$ itself. Every ML estimator of the concentration therefore
-solves its score equation $I_1(\hat a)/I_0(\hat a) = r$, so $\hat a = A^{-1}(r)$ identically, and the
-pair $(\hat a, r)$ lies on $r = I_1(a)/I_0(a)$ for any input whatsoever, including phases drawn from
-a distribution that is not von Mises and including pure noise. This holds for
-\texttt{scipy.stats.vonmises.fit}, for a Poisson generalised linear model of the binned counts on
-$\cos\theta$, and for the Banerjee et al.\ (2005) closed form $a \approx r(2-r^2)/(1-r^2)$, which
-approximates the same inverse. Under such an estimator the collapse is an algebraic identity and the
-test has no content. For the same reason the regression must be left unweighted: weighting bins by
-their counts recovers the ML score equation and reinstates the identity. Equal weight per bin is what
-makes the estimate depend on the shape of the distribution rather than on its first trigonometric
-moment.
+The estimator must not be a maximum-likelihood one. The von Mises family is a one-parameter
+exponential family whose sufficient statistic is $\sum_j \cos\theta_j$ --- that is, $r$ itself --- so
+any ML estimate of the concentration solves its score equation $I_1(\hat a)/I_0(\hat a) = r$ and
+returns $\hat a = A^{-1}(r)$ identically. The pair $(\hat a, r)$ would then lie on
+$r = I_1(a)/I_0(a)$ for any input whatsoever, including phases drawn from a distribution that is not
+von Mises, and the collapse would be an algebraic identity rather than a test. For the same reason
+the regression is left unweighted: weighting bins by their counts recovers the ML score equation.
+Equal weight per bin is what makes the estimate depend on the shape of the distribution rather than
+on its first trigonometric moment.
 
-The pseudocount makes the log-density estimator mildly biased, and that cost is accepted knowingly.
-Against 200 synthetic replicates at this analysis's per-bin sample size ($62$ channels $\times\ 500$
+The pseudocount biases the estimator. Against 200 synthetic replicates at this analysis's per-bin sample size ($62$ channels $\times\ 500$
 samples $= 31{,}000$ phases, 40 bins), the bias is $\le 0.007$ for $a \le 3$ and reaches $-0.375$ only
 at $a = 5$, where the troughs of the distribution empty out and the pseudocount dominates them; the
 sampling standard deviation over the same range is $0.008$--$0.048$. All values reported below lie
-well inside the unbiased range. Accuracy in $\hat a$ is in any case not what this test requires: a
-mildly biased estimator that is sensitive to distributional shape yields a test that can fail, whereas
-an unbiased estimator that is a deterministic function of $r$ yields one that cannot.
+well inside the unbiased range.
 
 The discriminating power of the estimator was verified directly on distributions that are not von
 Mises. At the same sample size, a wrapped Cauchy ($\rho = 0.6$), a top-hat arc, and a $50/50$ mixture
@@ -308,7 +301,7 @@ of $31.7\times$. A uniform distribution passes, correctly, since it is von Mises
 
 \subsection{Narrowband analysis}
 
-The pipeline was run separately on four narrow bands (theta 4--8 Hz, alpha 8--12 Hz, beta 13--30 Hz, gamma 30--40 Hz) and the broad band (4--40 Hz) to test whether the collapse is band-specific. The second-order-section filter design is load-bearing here rather than a detail of implementation: at the $5$ kHz sampling rate of this dataset an EEG passband sits at a very low normalised frequency, and a transfer-function (\texttt{b,a}) realisation of the same Butterworth design loses catastrophic precision, returning \texttt{NaN} in the theta and alpha bands and overflowing by some $37$ orders of magnitude in the 4--40 Hz band. Increasing the filter order worsens this rather than curing it.
+The pipeline was run separately on four narrow bands (theta 4--8 Hz, alpha 8--12 Hz, beta 13--30 Hz, gamma 30--40 Hz) and the broad band (4--40 Hz) to test whether the collapse is band-specific.
 
 \subsection{Results}
 
