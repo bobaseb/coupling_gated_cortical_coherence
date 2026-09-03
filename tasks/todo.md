@@ -908,7 +908,8 @@ n7 → n9 claim survived a hand check for as long as it did.
 
 ### T4 — A leaf detector, so the C1 audit is a script and not a memory
 
-- [ ] **Objective.** C1's defect was found by reading the import graph. Nothing
+- [x] **Objective.** *(Delivered 2026-09-02; the gate was red on the tree that
+      added it and is green as of 2026-09-03. See the T4 and V1 records below.)* C1's defect was found by reading the import graph. Nothing
       stops it recurring.
 
 A module can be imported and have none of its *theorems* consumed —
@@ -1034,7 +1035,7 @@ constant and does not derive self-model dynamics from oscillator dynamics.
 Carried from the O10/O16 record. Nothing here is scheduled ahead of C1–C5 and
 P1–P4.
 
-1. **(A) The static order-parameter link.** — **[Done 2026-09-02]** `incoherent_orderParameters_agree` in `Examples.lean` (`lake build` clean) states the agreement; `main.tex:338` cites it. Propagation of chaos remains the sole remaining gap between the threshold theorems and a finite-system statement. (The old O14(B) text carried the diagnosis; the item's diagnosis was correct and its cheapest true instance was the one built.)
+1. **(A) The static order-parameter link.** — **[Done 2026-09-02, claim corrected 2026-09-03]** `incoherent_orderParameters_agree` in `Examples.lean` (`lake build` clean) proves the two order parameters agree *at one configuration*: two sites in antiphase give `order_parameter_complex = 0`, which is `circularOrderParameter (vonMisesDensity 0)`. That is what it is worth — the quantities are the same kind of object and are normalised alike — and it is not a general static identity, so it does not by itself reduce the remaining distance to propagation of chaos. `main.tex` says exactly this; the first write-up said the mean-field limit was thereby the *only* remaining gap, which the theorem does not support.
 2. **`section_agrees_of_phase_eq`** — the `LocalSectionSynchronization` hypothesis
    that synchronised patches agree where they overlap. Unchanged in rank and in
    shape. See the W6 record for why it is *not* "the move W1 made".
@@ -2140,7 +2141,9 @@ a PRX Life referee will raise first.
 
 ### R1 — Formalise the EM identification as a predicate, not only as prose
 
-- [ ] **Objective.** Introduce `IsEMFieldCoupling` (or a similarly named `Prop`)
+- [x] **Objective.** *(Delivered 2026-09-02; the fourth "done when" condition —
+      the manuscript stating what the predicate demands — closed 2026-09-03. See
+      the R1 record and the V1 record below.)* Introduce `IsEMFieldCoupling` (or a similarly named `Prop`)
       whose fields are the necessary conditions the framework places on the
       posited continuum kernel, so that the step from `ContinuousNeuralField` to
       `exhibits_phase_transition` is mediated by a checkable hypothesis rather
@@ -2557,7 +2560,9 @@ were closed in one session. No Lean code was touched.
 
 **What was built.** `simulations/check_leaves.py`, a Python script that extracts top-level theorem/def/structure declarations per Lean module and greps the rest of the tree (excluding `Examples.lean` and `PhysicsOfConsciousness.lean`) for consumption. Reports modules whose *theorems* are referenced by nothing outside themselves and the witness module.
 
-**Current leaves.** Three modules are genuine leaves: `Phase3_MeasureThermodynamics`, `Phase5_PhaseLifts` and `Phase5_TwistedGluing`. The last two are deliberate (F2 and F4 results not wired into `chain`). `Phase3_MeasureThermodynamics` may need a consumer; recorded here rather than fixed blind.
+**Current leaves.** Three modules were reported as leaves: `Phase3_MeasureThermodynamics`, `Phase5_PhaseLifts` and `Phase5_TwistedGluing`. The last two are deliberate (F2 and F4 results not wired into `chain`). `Phase3_MeasureThermodynamics` may need a consumer; recorded here rather than fixed blind.
+
+**Two defects in this pass, both repaired 2026-09-03 (V1 record).** The script exits 1 when it finds a leaf, and it found three — so the gate was *red on the tree that added it*, and every later Lean commit could only land because `pre-commit` is not installed here (`.git/hooks/pre-commit` does not exist) and there is no CI. A gate committed red is either inert or a permanent block; neither is a check. Second, the search ran over raw file text, so a name appearing in a *docstring* counted as consumption — which is the C1 shape itself, prose about a module standing in for use of it. Stripping comments exposes two further leaves, `Phase3_KLBound` and `Phase8_CriticalExponent`.
 
 **Why module-level, not declaration-level.** C1's defect was per-module: a module imported for its *types* but none of whose theorems were consumed. Per-declaration reporting drowns the signal in noise.
 
@@ -2576,6 +2581,101 @@ A witness `em_constant_kernel_is_em_field_coupling` on ℝ with a constant kerne
 
 **A `MeasureSpace` instance** was added for `Cortex` to satisfy the `[MeasureSpace X]` constraint `chain` and `E56` now carry.
 
-**What this does not establish.** Not that cortex satisfies any condition — the predicate is deliberately uninhabited for the physical case. Not that continuity on ℝ is sufficient for the analysis theorems on a compact cortical manifold. `chain`'s `E67` retains the same interface and ignores the kernel predicate, because the threshold question depends only on the real-number sign conditions.
+**What this does not establish.** Not that cortex satisfies any condition. Not that continuity on ℝ is sufficient for the analysis theorems on a compact cortical manifold. `chain`'s `E67` retains the same interface and ignores the kernel predicate, because the threshold question depends only on the real-number sign conditions.
 
-**Gates.** `lake build` clean, 17,624 jobs (was 17,620). `#print axioms` on both `em_constant_kernel_is_em_field_coupling` and `cortexNeuralField_isEMFieldCoupling` reports only `[propext, Classical.choice, Quot.sound]`. Zero `sorry`, zero warnings (aside from pre-existing overlapping-instance linter). `check_leaves.py` no longer lists `Phase9_EMIdentification` — the `IsEMFieldCoupling` structure is consumed by `Chain.lean`. `check_prose.py` and `check_tableS1.py` pass (no manuscript changes in this pass).
+**Gates.** `lake build` clean, 17,624 jobs (was 17,620). `#print axioms` on both `em_constant_kernel_is_em_field_coupling` and `cortexNeuralField_isEMFieldCoupling` reports only `[propext, Classical.choice, Quot.sound]`. Zero `sorry`. `check_leaves.py` does not list `Phase9_EMIdentification` — the `IsEMFieldCoupling` structure is consumed by `Chain.lean`. `check_prose.py` and `check_tableS1.py` pass (no manuscript changes in this pass).
+
+**Three corrections to this record, made 2026-09-03 (V1 record).** (i) The pass was *not* warning-free and the warnings were *not* pre-existing: adding `[MeasureSpace X]` beside the existing `[MeasurableSpace X]` created an instance diamond that the `overlappingInstances` linter flagged in both `chain` and `e56_of_eq`, and giving `e56_of_eq` an `X` pulled three unused section variables into it. Standing rule 7 says zero warnings; this pass had three. (ii) "The predicate is deliberately uninhabited for the physical case" is contradicted by `cortexNeuralField_isEMFieldCoupling` in the same commit. What is true is weaker and worth saying plainly: no object in the development denotes cortex, so no witness is a cortical witness. (iii) The predicate as first written did not constrain the identification. `coupling_nonneg` and `noise_pos` were about the free scalars `K` and `D`; the only condition on `sys` was continuity of its kernel, so the identically-zero field discharged it — and that is the field the `Cortex` witness used.
+
+
+### V1 — audit of T4, R1 and (A), and the repairs — 2026-09-03
+
+**Why.** The three preceding passes were verified rather than trusted: `lake
+build` re-run from the committed tree, `#print axioms` re-run on every new
+result, every gate re-run, and each ledger claim checked against what the code
+does. The build claims held exactly — 17,624 jobs, exit 0, zero `sorry`, only
+`propext`, `Classical.choice`, `Quot.sound`. Five things did not, and are fixed
+here.
+
+**1. Standing rule 7 was violated and the record said otherwise.** R1 introduced
+three build warnings and the record called them pre-existing. `chain` carried
+`[MeasurableSpace X]` and `[MeasureSpace X]` together, which puts two σ-algebras
+on `X` that nothing forces to agree; the linter is right that this is a diamond
+and it was not there before R1. **Fix:** `chain` takes `[MeasureSpace X]`
+and `[BorelSpace X]`, the measurable structure coming from the measure, and
+`e56_of_eq` is stated over its own `M` instead of borrowing `X` and its three
+unused section variables. Build is warning-free.
+
+**2. The predicate did not constrain the identification.** With `K` and `D` free
+scalars and only continuity asked of the kernel, a field coupling *nothing*
+satisfied it — and did, in the `Cortex` witness. **Fix:** `IsEMFieldCoupling` is
+now stated over a `StochasticNeuralField` and has six fields, of which three are
+new and load-bearing: `domain_probability` (the substrate is normalised, the
+hypothesis `mean_field_coupling` needs to be a strength rather than a size),
+`coupling_is_mean_field` (`K` *is* the kernel averaged over both arguments), and
+`no_site_dominates` (no single site contributes more than half of `K` — the
+manuscript's *modulatory* claim, in formal dress, and the condition a
+vertex-supported kernel fails). `noise_is_field_noise` ties `D` to `sys.D`, so
+`noise_pos` is now derived from the field rather than assumed.
+`not_isEMFieldCoupling_of_zero_kernel` is kept as the regression: the old
+witness is no longer accepted. The `Cortex` witness is a uniform kernel of
+strength 3 on the three sites under normalised counting measure, so `K = 3` and
+`D = 1` are produced by the field instead of declared beside it, and
+`cortexNeuralField_exhibits_phase_transition` falls out.
+
+**3. The second conjunct of `E56` was inert.** `chain` bound it and used only
+`.1`. **Fix:** `exhibits_phase_transition_of_isEMFieldCoupling` (Phase 9) and
+`em_field_exhibits_phase_transition` (Chain) consume it together with `E67` to
+conclude `exhibits_phase_transition` for the field `E56` names — a statement
+about a substrate, which `FieldRealizes`'s three reals cannot express. The
+identification hypothesis now has a consumer.
+
+**4. R1's fourth "done when" was not met.** `Phase9`/`IsEMFieldCoupling` appeared
+nowhere in the publication. **Fix:** `main.tex` §"What the formal statement
+demands" states the five conditions a model must exhibit and names the
+regression and the consumer; Table S1's EM row reads "Conditions formalized; the
+identification itself not derived" instead of "Not formalized and not derived",
+which had stopped being true.
+
+**5. The leaf gate was red and could be fooled by prose.** See the two paragraphs
+added to the T4 record. **Fix:** `check_leaves.py` strips Lean comments before
+searching, so a docstring mention no longer counts as consumption, and carries
+`ALLOWED_LEAVES` — the five modules that are leaves today, each with its reason
+— failing on any leaf outside that set *and* on any recorded entry that has
+since acquired a consumer, so the baseline cannot rot quietly. Two of the five
+(`Phase3_KLBound`, `Phase8_CriticalExponent`) were invisible before the comment
+stripping.
+
+**Also.** `(A)`'s manuscript sentence claimed agreement at the incoherent state
+made propagation of chaos the *only* remaining gap; one configuration does not
+support that, and both `main.tex` and the ranked item now say what the theorem
+says. The `vulture` hook had been unrunnable since the repository was renamed
+(console-script shebangs pointed at the old path) and, once runnable, walked
+`.venv` into a `RecursionError`; `[tool.vulture] exclude = [".venv/"]` in
+`simulations/pyproject.toml` fixes the second, reinstalling the scripts the
+first. It now reports six pre-existing findings in `empirical_collapse.py`,
+`fermi_estimate_check.py` and `mesh_refinement.py` — untouched here, since
+`empirical_collapse.py` has uncommitted work in it.
+
+**Not done, deliberately.** The `MeasureSpace Cortex` instance stays in
+`Chain.lean` rather than moving to `Examples.lean` where standing rule 2 would
+put a witness: a global measure instance on `Cortex` would enter instance
+resolution for `Examples.lean`'s own measure-theoretic proofs, and the risk is
+not worth the tidiness. `pre-commit` is still not installed on this machine, so
+every gate here is manual; installing it would make `vulture`'s six findings
+block the next Python commit, which is the author's call rather than this pass's.
+
+**Gates.** `lake build` clean, 17,624 jobs, **zero warnings**, zero `sorry`.
+`#print axioms` on all twelve of the results touched or added
+(`isEMFieldCoupling_const`, `em_unitInterval_isEMFieldCoupling`,
+`exhibits_phase_transition_of_isEMFieldCoupling`, `IsEMFieldCoupling.noise_pos`,
+`IsEMFieldCoupling.domain_positive_measure`, `em_field_exhibits_phase_transition`,
+`cortexVolume_singleton_le`, `cortexNeuralField_isEMFieldCoupling`,
+`cortexNeuralField_exhibits_phase_transition`,
+`not_isEMFieldCoupling_of_zero_kernel`, `chain`,
+`chain_hypotheses_jointly_satisfiable`) reports only the three.
+`check_leaves.py`, `check_prose.py`, `check_tableS1.py` exit 0; `ruff`,
+`ruff format --check` and `mypy --strict` clean on `check_leaves.py`.
+Compile gate against `HEAD`: `main.tex` 13 overfull hboxes against 14, 66 pages
+against 66, zero undefined references or citations; `supplementary.tex` 9
+against 9, 21 pages against 21.
