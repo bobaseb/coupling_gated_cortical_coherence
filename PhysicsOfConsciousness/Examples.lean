@@ -403,7 +403,7 @@ noncomputable instance cortexSync : LocalSectionSynchronization Cortex :=
   LocalSectionSynchronization.ofInvariantMeasure Bool patch patch_cover (fun _ => 0) globalSect
     (fun _ _ h => by unfold globalSect; rw [phaseMeasure_periodic h])
 
-/-- Uniform unit coupling between the two patches. The configuration `phase = 0`
+/-- Uniform coupling `3` between the two patches. The configuration `phase = 0`
     is a global minimum of the Kuramoto potential by
     `phase_locked_minimizes_potential`, so `thermodynamic_equilibrium` is
     discharged rather than assumed here. -/
@@ -411,12 +411,28 @@ noncomputable instance cortexCover : ThermodynamicCover Cortex where
   toLocalSectionSynchronization := cortexSync
   I_fintype := inferInstanceAs (Fintype Bool)
   I_decidable := inferInstanceAs (DecidableEq Bool)
-  A := fun _ _ => 1
+  A := fun _ _ => 3
   A_symm := fun _ _ => rfl
-  A_pos := fun _ _ => one_pos
+  A_pos := fun _ _ => by norm_num
   thermodynamic_equilibrium := fun theta =>
     phase_locked_minimizes_potential (V := Bool)
-      ⟨fun _ => 0, fun _ _ => 1, fun _ _ => rfl⟩ (fun _ _ => one_pos) theta
+      ⟨fun _ => 0, fun _ _ => 3, fun _ _ => rfl⟩ (fun _ _ => by norm_num) theta
+
+/-- The cover used by the reflexive witness is also reached at the chain's
+coupling. The constant zero trajectory suffices because its phase field is the
+already synchronized limit; this establishes reachability, not dynamical
+selection from an incoherent state. -/
+theorem cortexCover_reachedByRelaxation_three :
+    cortexCover.IsReachedByRelaxation 3 := by
+  refine ⟨by norm_num, (fun _ _ => le_rfl), (fun _ _ => 0), ?_, ?_, ?_, ?_⟩
+  · intro i t
+    simpa using hasDerivAt_const t (0 : ℝ)
+  · simp [potentialExcess, kuramoto_potential_dynamic]
+  · intro i j
+    simpa using (div_nonneg Real.pi_pos.le (by norm_num : (0 : ℝ) ≤ 2))
+  · intro i
+    change Tendsto (fun _ : ℝ => 0) atTop (𝓝 0)
+    exact tendsto_const_nhds
 
 /-- Derivation 5, applied to the witness: the two patch-local sections glue to a
     unique global section. Not vacuous — `cortexCover` above is a real instance. -/

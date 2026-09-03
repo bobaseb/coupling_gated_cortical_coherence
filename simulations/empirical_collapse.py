@@ -9,6 +9,7 @@ Usage:
 """
 
 import os
+from dataclasses import dataclass
 from matplotlib.axes import Axes
 
 import matplotlib.pyplot as plt
@@ -505,6 +506,49 @@ def compute_ar_trace(
         a_trace[i] = concentration_a(chunk)
 
     return a_trace, r_trace
+
+
+@dataclass(frozen=True)
+class WindowSensitivity:
+    """Summary of the pooled spatiotemporal estimator at one bin width."""
+
+    window_ms: int
+    pooled_samples: int
+    mean_residual: float
+
+
+def compute_window_sensitivity(
+    phase: np.ndarray, fs: float, windows_ms: tuple[int, ...] = (5, 10, 20, 50, 100)
+) -> list[WindowSensitivity]:
+    """Evaluate collapse residuals across stated spatiotemporal pooling windows."""
+    rows: list[WindowSensitivity] = []
+    for window_ms in windows_ms:
+        width = max(1, round(fs * window_ms / 1000.0))
+        a_trace, r_trace = compute_ar_trace(phase, decimate=width)
+        residual = r_trace - np.array([bessel_ratio(a) for a in a_trace])
+        rows.append(
+            WindowSensitivity(
+                window_ms=window_ms,
+                pooled_samples=phase.shape[0] * width,
+                mean_residual=float(np.nanmean(residual)),
+            )
+        )
+    return rows
+
+
+def make_window_sensitivity_figure(
+    rows: list[WindowSensitivity], out: str = "figures/window_sensitivity.png"
+) -> None:
+    """Plot mean collapse residual against the pooling-window duration."""
+    fig, ax = plt.subplots(figsize=(6.4, 4.2))
+    ax.axhline(0.0, color="black", linewidth=1.0)
+    ax.plot([row.window_ms for row in rows], [row.mean_residual for row in rows], "o-")
+    ax.set(xlabel="pooling window (ms)", ylabel=r"mean $r-I_1(a)/I_0(a)$")
+    ax.grid(alpha=0.3)
+    fig.tight_layout()
+    os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
+    fig.savefig(out, dpi=200)
+    plt.close(fig)
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -1245,7 +1289,7 @@ def run_multi_subject(
 def _parse_args() -> tuple[str, list[str]]:
     """Return (action, remaining_args) based on sys.argv.
 
-    Actions: 'simulate', 'validate', 'montage', 'multi', 'bands', 'single'.
+    Actions: 'simulate', 'validate', 'montage', 'multi', 'bands', 'windows', 'single'.
     """
     import sys as _sys
 
@@ -1259,6 +1303,8 @@ def _parse_args() -> tuple[str, list[str]]:
         return "bands", _sys.argv[2:]
     if "--multi" in _sys.argv or "-m" in _sys.argv:
         return "multi", _sys.argv[2:]
+    if "--windows" in _sys.argv:
+        return "windows", _sys.argv[2:]
     return "single", []
 
 
@@ -1341,6 +1387,13 @@ def main() -> None:
             _arg(args, 1, "rest"),
             int(_arg(args, 2, "1")),
         )
+    elif action == "windows":
+        data, fs = read_brainvision("sed", "rest", 1, 20.0, pad_seconds=PAD_SECONDS)
+        phase = extract_phase_bipolar(data, fs)
+        rows = compute_window_sensitivity(phase, fs)
+        make_window_sensitivity_figure(rows)
+        for row in rows:
+            print(f"{row.window_ms:3d} ms: residual={row.mean_residual:+.6f}")
     else:
         _run_single_subject()
 

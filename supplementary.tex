@@ -2,6 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{graphicx}
 \usepackage{geometry}
 \usepackage{longtable}
 \usepackage{setspace}
@@ -269,7 +270,7 @@ For each recording block, 20--30 seconds of data were downloaded from the public
 
 \subsection{(a, r) estimation}
 
-Each recording was divided into non-overlapping 100 ms bins (500 samples at 5 kHz). For each bin $t$:
+Each recording was divided into non-overlapping 100 ms bins (500 samples at 5 kHz). The estimand is the pooled spatiotemporal phase distribution over 62 sites and 100~ms, not an instantaneous 62-site spatial distribution. Pooling is required because the independent log-density estimator requires at least 100 phase samples. For each bin $t$:
 
 \begin{itemize}
 \item \textbf{Order parameter $r$:} $r(t) = \left|\frac{1}{N} \sum_{j=1}^{N} e^{i\theta_j(t)}\right|$, where $N = 62$. This is exactly the Lean definition \texttt{order\_parameter}.
@@ -308,7 +309,14 @@ The pipeline was run separately on four narrow bands (theta 4--8 Hz, alpha 8--12
 
 \subsection{Results}
 
-Residuals are reported per 100 ms bin and then averaged, rather than computed from block-mean $a$ and block-mean $r$; because $I_1/I_0$ is nonlinear, the latter is not the mean residual. The estimator's own noise floor at this sample size is $0.0024$.
+Residuals are reported per 100 ms bin and then averaged, rather than computed from block-mean $a$ and block-mean $r$; because $I_1/I_0$ is nonlinear, the latter is not the mean residual. The estimator's own noise floor at this sample size is $0.0024$. Window sensitivity gave mean residuals $-0.0261$, $-0.0079$, $+0.0017$, $-0.0019$ and $+0.0001$ at 5, 10, 20, 50 and 100~ms respectively (Figure~\ref{fig:window-sensitivity}); the result is stable over 20--100~ms, but not at 5--10~ms.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.62\linewidth]{simulations/figures/window_sensitivity.png}
+\caption{Sensitivity of the mean collapse residual to the spatiotemporal pooling window. This assesses the pooled estimator and does not turn 62-channel EEG into an instantaneous spatial sample.}
+\label{fig:window-sensitivity}
+\end{figure}
 
 \begin{itemize}
 \item \textbf{Single subject (sub-1016, 7 blocks).} In the bipolar montage the mean residual $r - I_1(a)/I_0(a)$ lies between $-0.0025$ and $+0.0033$ in the 4--40 Hz band, between $-0.0046$ and $+0.0046$ in alpha, and between $-0.0016$ and $+0.0043$ in beta --- at or below the noise floor in every block. In the common-reference montage the residual is systematically negative, between $-0.041$ and $-0.003$ (4--40 Hz) and between $-0.052$ and $-0.036$ (alpha).

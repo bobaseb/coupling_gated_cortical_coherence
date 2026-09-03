@@ -496,9 +496,8 @@ where the edge sits, and the strengthened form makes it visible in the type
 rather than in this paragraph. The cover's other physical hypothesis,
 `LocalSectionSynchronization.section_agrees_of_phase_eq`, is untouched by any
 dynamics here and is the standing open item ranked second in `tasks/todo.md`. -/
-def E78 (K D : ℝ) (X : TopCat.{u}) [MeasurableSpace X] [BorelSpace X]
-    [TriangulatedManifold ↥X] : Prop :=
-  Coherent K D → ∃ T : ThermodynamicCover X, T.IsReachedByRelaxation K
+def E78 (K D : ℝ) (T : ThermodynamicCover X) : Prop :=
+  Coherent K D → T.IsReachedByRelaxation K
 
 /-- **n8 → n9. Modelling assumption, with the state identity explicit.**
 
@@ -514,9 +513,20 @@ makes knowingly. What it buys is that the contraction constant is read off the
 substrate rather than stipulated — which is why replacing it by a bare
 `ContractingWith c` would be weaker, not simpler. -/
 def E89 {X : TopCat.{u}} [MeasurableSpace X] [BorelSpace X] [TriangulatedManifold ↥X]
-    [MetricSpace (GlobalSection (X := X))] (K D τ : ℝ) (rb : ReflexiveBoundary X) : Prop :=
-  Unity X → ∃ (T : ThermodynamicCover X) (s : GlobalSection (X := X)),
-    IsUnifiedBy T s ∧ LipschitzWith (resonanceRate K D τ) rb.predict ∧ rb.predict s = s
+    [MetricSpace (GlobalSection (X := X))] (K D τ : ℝ) (T : ThermodynamicCover X)
+    (rb : ReflexiveBoundary X) : Prop :=
+  T.IsReachedByRelaxation K →
+    ∃ s : GlobalSection (X := X),
+      IsUnifiedBy T s ∧ LipschitzWith (resonanceRate K D τ) rb.predict ∧ rb.predict s = s
+
+/- Regression specification for C2: E89 must consume the particular reached cover
+supplied by E78, rather than choosing an unrelated cover. -/
+example {X : TopCat.{u}} [MeasurableSpace X] [BorelSpace X] [TriangulatedManifold ↥X]
+    [MetricSpace (GlobalSection (X := X))] {K D τ : ℝ} {rb : ReflexiveBoundary X}
+    (T : ThermodynamicCover X) (e89 : E89 K D τ T rb) (hT : T.IsReachedByRelaxation K) :
+    ∃ s : GlobalSection (X := X), IsUnifiedBy T s ∧
+      LipschitzWith (resonanceRate K D τ) rb.predict ∧ rb.predict s = s :=
+  e89 hT
 
 /-! ## 4. The edge that the figure does not draw
 
@@ -590,6 +600,7 @@ theorem chain
     (E : ℕ → ℝ) (L : ℝ)
     -- the mean-field parameters and the elapsed time
     {K D τ : ℝ} (hτ : 0 < τ)
+    (T : ThermodynamicCover X)
     -- the reflexive boundary
     (rb : ReflexiveBoundary X)
     -- the eight unproved arrows
@@ -599,8 +610,8 @@ theorem chain
     (e45 : E45 Xs Sg Sg' E L)
     (e56 : E56 kernel Xs Sg Sg' E L K D)
     (e67 : E67 L K D)
-    (e78 : E78 K D X)
-    (e89 : E89 K D τ rb) :
+    (e78 : E78 K D T)
+    (e89 : E89 K D τ T rb) :
     UnifiedSelf rb := by
   have n1 : Capacity sys := capacity sys
   have n2 : LeavesVacuum vac phi := e12 n1
@@ -611,9 +622,9 @@ theorem chain
   have h56 : FieldRealizes L K D ∧ Nonempty (IsEMFieldCoupling kernel K D) := e56 n5
   have n6 : FieldRealizes L K D := h56.1
   have n7 : Coherent K D := coherent_of_supercritical n6.1 (e67 n6)
-  obtain ⟨T78, _⟩ := e78 n7
-  have n8 : Unity X := unity_of_cover ⟨T78⟩
-  obtain ⟨T, s, hs_unified, h_lip, hs_fixed⟩ := e89 n8
+  have hT : T.IsReachedByRelaxation K := e78 n7
+  have n8 : Unity X := unity_of_cover ⟨T⟩
+  obtain ⟨s, hs_unified, h_lip, hs_fixed⟩ := e89 hT
   let _ : Nonempty (GlobalSection (X := X)) := ⟨s⟩
   obtain ⟨p, hp, huniq⟩ :=
     self_of_coherent_order_parameter n6.1 n6.2.1 hτ n7 rb h_lip
@@ -910,15 +921,15 @@ theorem chain_hypotheses_jointly_satisfiable : UnifiedSelf (X := Cortex) cortexR
   chain (X := Cortex) (kernel := cortexNeuralField) (sys := Bool) (fun _ => true)
     (vac := DynamicalVacuum wellV) (phi := kink) Bool Bool Bool
     (E := t5_refiningEnergy) (L := 3) (K := 3) (D := 1) (τ := cortexTau)
-    cortexTau_pos cortexReflexive
+    cortexTau_pos cortexCover cortexReflexive
     t5_e12_doubleWell
     t5_e23_absorbingRegister
     e34_boolEraser
     t5_e45_refiningMesh
     (fun _ => ⟨⟨one_pos, by norm_num, rfl⟩, cortexNeuralField_isEMFieldCoupling⟩)
     (fun _ => by rw [critical_coupling]; norm_num)
-    (fun _ => ⟨trioCover3, trioCover3_reachedByRelaxation⟩)
-    (fun _ => ⟨cortexCover, cortexState, (fun _ => rfl),
+    (fun _ => cortexCover_reachedByRelaxation_three)
+    (fun _ => ⟨cortexState, (fun _ => rfl),
       cortexPredict_lipschitz_rate, cortexPredict_fixed⟩)
 
 /-! ## 9. The n5 → n7 edge: why there is not one
