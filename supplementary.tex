@@ -270,12 +270,37 @@ Each recording was divided into non-overlapping 100 ms bins (500 samples at 5 kH
 
 \begin{itemize}
 \item \textbf{Order parameter $r$:} $r(t) = \left|\frac{1}{N} \sum_{j=1}^{N} e^{i\theta_j(t)}\right|$, where $N = 62$. This is exactly the Lean definition \texttt{order\_parameter}.
-\item \textbf{Concentration $a$:} Maximum likelihood estimate via \texttt{scipy.stats.vonmises.fit} on the raw phase values. The MLE returns $(\text{loc}, \kappa)$ where $\kappa = a$ is the concentration parameter. When the MLE fails (rare), the Banerjee et al.\ (2005) approximation $a \approx r(2 - r^2)/(1 - r^2)$ was used as a fallback.
+\item \textbf{Concentration $a$:} The slope of the log-density of the same phase distribution regressed on $\cos\theta$, as specified in the main text. Phases are centred on their circular mean, binned into 40 bins on $[-\pi,\pi]$, and $\log$ of the binned density (with a $0.5$ pseudocount) is regressed on $\cos\theta$ by \emph{unweighted} ordinary least squares. Under the von Mises model $\log\rho(\theta) = a\cos\theta - \log(2\pi I_0(a))$, so the slope is $a$.
 \end{itemize}
 
-Log-density regression on binned phase histograms requires a pseudocount (here $\log(\text{counts} + 1)$)
-that systematically underestimates $a$ by 3--7$\times$ at moderate coherence, because the pseudocount
-dominates bins with fewer than one count. The MLE used above eliminates this bias entirely.
+The estimator must not be a maximum-likelihood one, and the reason is structural rather than
+practical. The von Mises family is a one-parameter exponential family whose sufficient statistic is
+$\sum_j \cos\theta_j$ --- that is, $r$ itself. Every ML estimator of the concentration therefore
+solves its score equation $I_1(\hat a)/I_0(\hat a) = r$, so $\hat a = A^{-1}(r)$ identically, and the
+pair $(\hat a, r)$ lies on $r = I_1(a)/I_0(a)$ for any input whatsoever, including phases drawn from
+a distribution that is not von Mises and including pure noise. This holds for
+\texttt{scipy.stats.vonmises.fit}, for a Poisson generalised linear model of the binned counts on
+$\cos\theta$, and for the Banerjee et al.\ (2005) closed form $a \approx r(2-r^2)/(1-r^2)$, which
+approximates the same inverse. Under such an estimator the collapse is an algebraic identity and the
+test has no content. For the same reason the regression must be left unweighted: weighting bins by
+their counts recovers the ML score equation and reinstates the identity. Equal weight per bin is what
+makes the estimate depend on the shape of the distribution rather than on its first trigonometric
+moment.
+
+The pseudocount makes the log-density estimator mildly biased, and that cost is accepted knowingly.
+Against 200 synthetic replicates at this analysis's per-bin sample size ($62$ channels $\times\ 500$
+samples $= 31{,}000$ phases, 40 bins), the bias is $\le 0.007$ for $a \le 3$ and reaches $-0.375$ only
+at $a = 5$, where the troughs of the distribution empty out and the pseudocount dominates them; the
+sampling standard deviation over the same range is $0.008$--$0.048$. All values reported below lie
+well inside the unbiased range. Accuracy in $\hat a$ is in any case not what this test requires: a
+mildly biased estimator that is sensitive to distributional shape yields a test that can fail, whereas
+an unbiased estimator that is a deterministic function of $r$ yields one that cannot.
+
+The discriminating power of the estimator was verified directly on distributions that are not von
+Mises. At the same sample size, a wrapped Cauchy ($\rho = 0.6$), a top-hat arc, and a $50/50$ mixture
+of a von Mises with a uniform give residuals $r - I_1(\hat a)/I_0(\hat a)$ of $+0.088$, $-0.117$ and
+$+0.075$ respectively, against a worst case of $0.0024$ on genuine von Mises samples --- a separation
+of $31.7\times$. A uniform distribution passes, correctly, since it is von Mises at $a = 0$.
 
 \subsection{Bootstrap confidence intervals}
 
@@ -283,20 +308,26 @@ dominates bins with fewer than one count. The MLE used above eliminates this bia
 
 \subsection{Narrowband analysis}
 
-The pipeline was run separately on three narrow bands (theta 4--8 Hz, alpha 8--12 Hz, beta 13--30 Hz) and the broad band (4--40 Hz) to test whether the collapse is band-specific.
+The pipeline was run separately on four narrow bands (theta 4--8 Hz, alpha 8--12 Hz, beta 13--30 Hz, gamma 30--40 Hz) and the broad band (4--40 Hz) to test whether the collapse is band-specific. The second-order-section filter design is load-bearing here rather than a detail of implementation: at the $5$ kHz sampling rate of this dataset an EEG passband sits at a very low normalised frequency, and a transfer-function (\texttt{b,a}) realisation of the same Butterworth design loses catastrophic precision, returning \texttt{NaN} in the theta and alpha bands and overflowing by some $37$ orders of magnitude in the 4--40 Hz band. Increasing the filter order worsens this rather than curing it.
 
 \subsection{Results}
 
-The collapse holds across all conditions tested:
+Residuals are reported per 100 ms bin and then averaged, rather than computed from block-mean $a$ and block-mean $r$; because $I_1/I_0$ is nonlinear, the latter is not the mean residual. The estimator's own noise floor at this sample size is $0.0024$.
 
 \begin{itemize}
-\item \textbf{Single subject (sub-1016, 7 blocks):} All blocks lie on $I_1/I_0$ with residuals bounded by $\pm 0.008$, spanning the range from near-unconsciousness ($a=0.12, r=0.06$) to alert wakefulness ($a=1.58, r=0.61$).
-\item \textbf{Cross-subject (8 subjects, sed run-1):} Mean residual $-0.007 \pm 0.002$ (SEM), RMSE = 0.009, max $|r - I_1/I_0(a)| = 0.018$. Every subject collapses to the theoretical curve across a 15-fold range of $a$.
-\item \textbf{Narrowband:} Both beta and broad bands show clean collapse. Theta and alpha were near the noise floor for 20 s of data at 5 kHz; longer recordings or a higher-order filter would resolve this.
+\item \textbf{Single subject (sub-1016, 7 blocks).} In the bipolar montage the mean residual $r - I_1(a)/I_0(a)$ lies between $-0.0025$ and $+0.0033$ in the 4--40 Hz band, between $-0.0046$ and $+0.0046$ in alpha, and between $-0.0016$ and $+0.0043$ in beta --- at or below the noise floor in every block. In the common-reference montage the residual is systematically negative, between $-0.041$ and $-0.003$ (4--40 Hz) and between $-0.052$ and $-0.036$ (alpha).
+\item \textbf{Cross-subject (8 subjects, sed run-1).} Bipolar: mean residual $-0.0002 \pm 0.0002$ (SEM), RMSE $0.0005$, max $|r - I_1/I_0(a)| = 0.0013$. Common-reference: mean residual $-0.0057 \pm 0.0028$ (SEM), RMSE $0.0093$, max $0.0246$. Group $a = 0.373$ (range $0.302$--$0.542$) and $r = 0.173$ (range $0.145$--$0.222$).
+\item \textbf{Narrowband.} Theta, alpha, beta, gamma and the broad band all collapse, with mean residuals of $-0.0018$, $+0.0001$, $+0.0001$, $+0.0000$ and $+0.0000$ respectively (sub-1016, sed run-1, bipolar). The collapse is not band-specific.
 \end{itemize}
+
+The gap between the two montages is the one systematic feature of the results. The common-reference residual is negative in every block and every subject, which is the signature expected of volume conduction: a shared reference adds a common-mode component that raises the resultant length $r$ without correspondingly sharpening the shape of the phase distribution. The bipolar derivation removes it, and the residual falls by roughly an order of magnitude.
 
 \subsection{Interpretation}
 
-The (a, r) collapse to $I_1/I_0$ is confirmed on human scalp EEG during propofol sedation. This is a necessary condition for the framework's phase-distribution claim: the von Mises stationary density is consistent with the data. The result does not test the empirical commitment that the endogenous electromagnetic field is the coupling medium, nor the stipulation that the global section is experience. The two sleep-inertia predictions --- the temporal shape (delayed sigmoid vs.\ exponential) and the threshold condition ($a/r > 2$) --- remain untested on human data.
+The (a, r) collapse to $I_1/I_0$ is consistent with human scalp EEG during propofol sedation, in a bipolar montage and in every frequency band tested. This is a necessary condition for the framework's phase-distribution claim: the von Mises stationary density is compatible with the data.
+
+The strength of that confirmation is limited by the range of $a$ the data occupy, and we state the limit rather than leave it to a referee. Across the eight subjects $a$ spans only $0.302$--$0.542$. Over so short an arc the Bessel ratio is nearly straight: $I_1(a)/I_0(a)$ departs from the naive linear form $a/2$ by at most $0.0094$ across that interval, and from $\tanh(a/2)$ by at most $0.0030$, while the per-bin residual scatter is $0.02$--$0.03$. The data therefore confirm that $r$ and $a$ stand in the relation the theory requires, but they do not discriminate $I_1/I_0$ from a straight line, and no claim of having done so should be read into them. Discriminating the curve from its tangent needs recordings that reach $a \gtrsim 1.5$, where the two separate by more than $0.17$; the sleep-inertia protocol of the main text is attractive partly because a recovery sweeping through threshold traverses exactly that range.
+
+The result does not test the empirical commitment that the endogenous electromagnetic field is the coupling medium, nor the stipulation that the global section is experience. The two sleep-inertia predictions --- the temporal shape (delayed sigmoid vs.\ exponential) and the threshold condition ($a/r > 2$) --- remain untested on human data.
 
 \end{document}
