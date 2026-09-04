@@ -1,0 +1,243 @@
+"""Generate the S1 dynamic-ramp figures and numerical report from checkpoints."""
+
+from __future__ import annotations
+
+import json
+from dataclasses import dataclass
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.figure import Figure
+from numpy.typing import NDArray
+
+from bifurcation import bessel_ratio, coherent_r
+from dynamic_ramp_analysis import (
+    collapse_deviation,
+    fit_onset_exponent,
+    fit_power_law,
+    replica_escape_couplings,
+)
+
+
+FloatArray = NDArray[np.float64]
+FIGURE_DIR = Path("figures")
+SPEEDS = (0.1, 0.01, 0.001, 0.0001)
+ESCAPE_LEVEL = 0.2
+SUSTAIN = 3
+
+
+@dataclass(frozen=True)
+class Leg:
+    speed: float
+    n_oscillators: int
+    coupling: FloatArray
+    order_mean: FloatArray
+    order_std: FloatArray
+    order_replicas: FloatArray
+    concentration_mean: FloatArray
+    concentration_replicas: FloatArray
+
+
+@dataclass(frozen=True)
+class LegMetrics:
+    speed: float
+    escaped: int
+    delay_mean: float
+    delay_sd: float
+    collapse_deviation: float
+    onset_exponent: float
+
+
+def _load_leg(path: Path) -> Leg:
+    with np.load(path, allow_pickle=False) as saved:
+        config = json.loads(str(saved["config"]))
+        return Leg(
+            speed=float(config["ramp_speed"]),
+            n_oscillators=int(config["n_oscillators"]),
+            coupling=np.asarray(saved["coupling"]),
+            order_mean=np.asarray(saved["order_mean"]),
+            order_std=np.asarray(saved["order_std"]),
+            order_replicas=np.asarray(saved["order_replicas"]),
+            concentration_mean=np.asarray(saved["concentration_mean"]),
+            concentration_replicas=np.asarray(saved["concentration_replicas"]),
+        )
+
+
+def _speed_path(speed: float) -> Path:
+    return FIGURE_DIR / f"dynamic_ramp_replicas_v{speed:.0e}.npz"
+
+
+def _load_speed_legs() -> list[Leg]:
+    return [_load_leg(_speed_path(speed)) for speed in SPEEDS]
+
+
+def _metrics(leg: Leg) -> LegMetrics:
+    escape = replica_escape_couplings(leg.coupling, leg.order_replicas, ESCAPE_LEVEL, SUSTAIN)
+    finite = escape[np.isfinite(escape)]
+    postcritical = leg.coupling >= 2.0
+    deviation = collapse_deviation(
+        leg.concentration_replicas[postcritical].ravel(),
+        leg.order_replicas[postcritical].ravel(),
+    )
+    onset = fit_onset_exponent(leg.coupling, leg.order_mean)
+    return LegMetrics(
+        speed=leg.speed,
+        escaped=int(finite.size),
+        delay_mean=float(np.mean(finite) - 2.0),
+        delay_sd=float(np.std(finite, ddof=1)) if finite.size > 1 else float("nan"),
+        collapse_deviation=deviation,
+        onset_exponent=onset.exponent,
+    )
+
+
+def _save_figure(fig: Figure, name: str) -> None:
+    fig.tight_layout()
+    fig.savefig(FIGURE_DIR / name, dpi=200)
+    plt.close(fig)
+
+
+def _plot_bifurcation(legs: list[Leg]) -> None:
+    fig, ax = plt.subplots(figsize=(7.2, 4.8))
+    static_k = np.linspace(1.5, 2.5, 180)
+    static_r = np.array([coherent_r(float(value)) for value in static_k])
+    ax.plot(static_k, static_r, color="black", lw=2.0, label="stationary coherent branch")
+    for leg in legs:
+        ax.plot(leg.coupling, leg.order_mean, lw=1.7, label=rf"$v={leg.speed:g}$")
+        sem = leg.order_std / np.sqrt(leg.order_replicas.shape[1])
+        ax.fill_between(
+            leg.coupling,
+            leg.order_mean - sem,
+            leg.order_mean + sem,
+            alpha=0.12,
+        )
+    ax.axhline(1.0 / np.sqrt(2000), color="0.4", ls=":", label=r"$1/\sqrt{2000}$")
+    ax.axvline(2.0, color="0.5", ls="--", lw=1.0)
+    ax.set(xlabel=r"coupling $K$", ylabel=r"ensemble mean $r$", ylim=(0.0, 0.7))
+    ax.legend(fontsize=8, ncol=2)
+    ax.grid(alpha=0.25)
+    _save_figure(fig, "dynamic_ramp_bifurcation_delay.png")
+
+
+def _delay_arrays(metrics: list[LegMetrics]) -> tuple[FloatArray, FloatArray, FloatArray]:
+    uncensored = [item for item in metrics if item.escaped == 32]
+    speeds = np.array([item.speed for item in uncensored])
+    delays = np.array([item.delay_mean for item in uncensored])
+    errors = np.array([item.delay_sd / np.sqrt(item.escaped) for item in uncensored])
+    return speeds, delays, errors
+
+
+def _n_control_metrics() -> tuple[FloatArray, FloatArray, FloatArray]:
+    paths = (
+        FIGURE_DIR / "dynamic_ramp_N500_v1e-02.npz",
+        _speed_path(0.01),
+        FIGURE_DIR / "dynamic_ramp_N8000_v1e-02.npz",
+    )
+    legs = [_load_leg(path) for path in paths]
+    sizes = np.array([leg.n_oscillators for leg in legs], dtype=float)
+    escapes = [replica_escape_couplings(leg.coupling, leg.order_replicas) for leg in legs]
+    delays = np.array([np.nanmean(values) - 2.0 for values in escapes])
+    errors = np.array(
+        [np.nanstd(values, ddof=1) / np.sqrt(np.isfinite(values).sum()) for values in escapes]
+    )
+    return sizes, delays, errors
+
+
+def _plot_delay_scaling(metrics: list[LegMetrics]) -> None:
+    speeds, delays, errors = _delay_arrays(metrics)
+    fit = fit_power_law(speeds, delays)
+    grid = np.geomspace(speeds.min(), speeds.max(), 100)
+    fig, axes = plt.subplots(1, 2, figsize=(10.0, 4.2))
+    axes[0].errorbar(speeds, delays, yerr=errors, fmt="o", capsize=3, label="measured")
+    axes[0].plot(grid, fit.prefactor * grid**fit.exponent, label=rf"fit $v^{{{fit.exponent:.3f}}}$")
+    axes[0].plot(grid, np.sqrt(2.0 * grid * np.log(2000)), ls="--", label=r"$\sqrt{2v\ln N}$")
+    axes[0].set(xscale="log", yscale="log", xlabel=r"ramp speed $v$", ylabel=r"delay $\Delta K$")
+    axes[0].legend(fontsize=8)
+    sizes, n_delays, n_errors = _n_control_metrics()
+    axes[1].errorbar(np.sqrt(np.log(sizes)), n_delays, yerr=n_errors, fmt="o-", capsize=3)
+    axes[1].set(xlabel=r"$\sqrt{\ln N}$", ylabel=r"delay $\Delta K$ at $v=10^{-2}$")
+    for axis in axes:
+        axis.grid(alpha=0.25)
+    _save_figure(fig, "dynamic_ramp_delay_scaling.png")
+
+
+def _plot_collapse(legs: list[Leg], metrics: list[LegMetrics]) -> None:
+    fig, ax = plt.subplots(figsize=(6.6, 4.8))
+    concentration_grid = np.linspace(0.0, 2.5, 240)
+    curve = np.array([bessel_ratio(float(value)) for value in concentration_grid])
+    ax.plot(concentration_grid, curve, color="black", lw=2.0, label=r"$I_1(a)/I_0(a)$")
+    for leg, metric in zip(legs, metrics, strict=True):
+        ax.plot(
+            leg.concentration_mean,
+            leg.order_mean,
+            lw=1.3,
+            label=rf"$v={leg.speed:g}$, Dev={metric.collapse_deviation:.4f}",
+        )
+    ax.set(xlabel=r"log-density concentration $a$", ylabel=r"order parameter $r$")
+    ax.legend(fontsize=8)
+    ax.grid(alpha=0.25)
+    _save_figure(fig, "dynamic_ramp_collapse.png")
+
+
+def _plot_onset(metrics: list[LegMetrics]) -> None:
+    speeds = np.array([item.speed for item in metrics])
+    exponents = np.array([item.onset_exponent for item in metrics])
+    fig, ax = plt.subplots(figsize=(6.6, 4.4))
+    ax.plot(speeds, exponents, "o-", lw=1.7)
+    ax.axhline(0.5, color="green", ls="--", label=r"square-root $\beta=1/2$")
+    ax.axhline(1.0, color="red", ls=":", label=r"linear $\beta=1$")
+    ax.set(xscale="log", xlabel=r"ramp speed $v$", ylabel=r"effective onset exponent $\beta$")
+    ax.legend(fontsize=8)
+    ax.grid(alpha=0.25)
+    _save_figure(fig, "dynamic_ramp_onset_exponent.png")
+
+
+def _write_report(metrics: list[LegMetrics]) -> None:
+    speeds, delays, _ = _delay_arrays(metrics)
+    delay_fit = fit_power_law(speeds, delays)
+    floor = next(item.collapse_deviation for item in metrics if item.speed == min(SPEEDS))
+    threshold = 2.0 * floor
+    bracketed = any(item.collapse_deviation >= threshold for item in metrics)
+    rows = "\n".join(
+        f"| {item.speed:g} | {item.escaped}/32 | {item.delay_mean:.4f} | "
+        f"{item.delay_sd:.4f} | {item.collapse_deviation:.5f} | {item.onset_exponent:.3f} |"
+        for item in metrics
+    )
+    report = f"""# Dynamic-ramp numerical report
+
+Finite-N heuristic evidence only; these runs prove no trajectory theorem and do
+not discharge the adiabatic assumption. Seed 20260903, 32 replicas, N=2000,
+D=1, dt=0.01. Escape is the first of three consecutive decimated samples with
+r >= {ESCAPE_LEVEL}; pre-critical crossings are excluded.
+
+| v | escaped | mean delay | replica SD | collapse Dev | beta_eff |
+|---:|---:|---:|---:|---:|---:|
+{rows}
+
+The delay fit excludes the right-censored v=0.1 leg and gives exponent
+{delay_fit.exponent:.3f} against the predicted 0.5. The slowest-ramp deviation
+floor is Dev_0={floor:.5f}; 2 Dev_0={threshold:.5f}. The critical-speed crossing
+is {"bracketed" if bracketed else "not bracketed"} by the four-speed sweep.
+
+Using D_phys=1.5 rad/s, v_phys=v D_phys^2. A 100--1000 s crossing of a coupling
+window of width 1.5 rad/s corresponds to v=0.000667--0.00667 in simulation
+units, inside the tested range. This conversion compares scales; it is not a
+measurement of astrocytic coupling dynamics.
+"""
+    (FIGURE_DIR / "DYNAMIC_RAMP_REPORT.md").write_text(report, encoding="utf-8")
+
+
+def main() -> None:
+    """Generate all required S1 summary artifacts."""
+    legs = _load_speed_legs()
+    metrics = [_metrics(leg) for leg in legs]
+    _plot_bifurcation(legs)
+    _plot_delay_scaling(metrics)
+    _plot_collapse(legs, metrics)
+    _plot_onset(metrics)
+    _write_report(metrics)
+    print("wrote dynamic-ramp figures and DYNAMIC_RAMP_REPORT.md")
+
+
+if __name__ == "__main__":
+    main()

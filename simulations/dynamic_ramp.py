@@ -9,7 +9,12 @@ identical-frequency von Mises stationary curve with critical coupling ``2D``.
 from __future__ import annotations
 
 import argparse
-from dataclasses import dataclass
+import json
+import os
+import tempfile
+from dataclasses import asdict, dataclass, field
+from pathlib import Path
+from typing import Any
 
 import numpy as np
 from numpy.typing import NDArray
@@ -47,8 +52,24 @@ class RampResult:
     order_mean: FloatArray
     order_std: FloatArray
     concentration_mean: FloatArray
+    order_replicas: FloatArray
+    concentration_replicas: FloatArray
     steps: int
     phase_snapshots: int = 0
+
+
+@dataclass
+class _RampState:
+    phases: FloatArray
+    rng: np.random.Generator
+    step: int = 0
+    times: list[float] = field(default_factory=list)
+    couplings: list[float] = field(default_factory=list)
+    order_means: list[float] = field(default_factory=list)
+    order_stds: list[float] = field(default_factory=list)
+    concentrations: list[float] = field(default_factory=list)
+    order_replicas: list[FloatArray] = field(default_factory=list)
+    concentration_replicas: list[FloatArray] = field(default_factory=list)
 
 
 def _validate_config(config: RampConfig) -> None:
@@ -86,14 +107,14 @@ def estimate_log_density_concentration(phases: FloatArray, bins: int = 36) -> fl
     return float(np.dot(centred_predictor, centred_response) / denominator)
 
 
-def _summarize(phases: FloatArray, bins: int) -> tuple[float, float, float]:
+def _summarize(phases: FloatArray, bins: int) -> tuple[FloatArray, FloatArray]:
     complex_order = np.mean(np.exp(1j * phases), axis=1)
     order = np.abs(complex_order)
     concentration = np.array(
         [estimate_log_density_concentration(replica, bins) for replica in phases],
         dtype=float,
     )
-    return float(np.mean(order)), float(np.std(order)), float(np.mean(concentration))
+    return order, concentration
 
 
 def _sample_steps(steps: int, sample_every: int) -> list[int]:
@@ -103,54 +124,183 @@ def _sample_steps(steps: int, sample_every: int) -> list[int]:
     return sampled
 
 
-def simulate_ramp(config: RampConfig) -> RampResult:
-    """Integrate the ensemble by Euler-Maruyama and retain decimated summaries."""
-    _validate_config(config)
+def _total_steps(config: RampConfig) -> int:
     duration = 2.0 * config.coupling_half_window / config.ramp_speed
     steps = int(round(duration / config.dt))
     if not np.isclose(steps * config.dt, duration):
         raise ValueError("ramp duration must be an integer multiple of dt")
+    return steps
 
-    sampled_steps = _sample_steps(steps, config.sample_every)
-    sampled_lookup = set(sampled_steps)
+
+def _new_state(config: RampConfig) -> _RampState:
     rng = np.random.default_rng(config.seed)
     phases = rng.uniform(-np.pi, np.pi, (config.n_replicas, config.n_oscillators))
+    return _RampState(phases=phases, rng=rng)
+
+
+def _record(state: _RampState, config: RampConfig) -> None:
+    time = state.step * config.dt
+    coupling = config.critical_coupling - config.coupling_half_window + config.ramp_speed * time
+    order, concentration = _summarize(state.phases, config.concentration_bins)
+    state.times.append(time)
+    state.couplings.append(coupling)
+    state.order_means.append(float(np.mean(order)))
+    state.order_stds.append(float(np.std(order)))
+    state.concentrations.append(float(np.mean(concentration)))
+    state.order_replicas.append(order)
+    state.concentration_replicas.append(concentration)
+
+
+def _advance(state: _RampState, config: RampConfig) -> None:
+    time = state.step * config.dt
+    coupling = config.critical_coupling - config.coupling_half_window + config.ramp_speed * time
+    complex_order = np.mean(np.exp(1j * state.phases), axis=1)
+    order = np.abs(complex_order)[:, None]
+    mean_phase = np.angle(complex_order)[:, None]
+    drift = coupling * order * np.sin(mean_phase - state.phases)
     noise_scale = np.sqrt(2.0 * config.diffusion * config.dt)
-    coupling_start = config.critical_coupling - config.coupling_half_window
+    state.phases += config.dt * drift + noise_scale * state.rng.standard_normal(state.phases.shape)
+    state.phases = (state.phases + np.pi) % (2.0 * np.pi) - np.pi
+    state.step += 1
 
-    times: list[float] = []
-    coupling_values: list[float] = []
-    order_means: list[float] = []
-    order_stds: list[float] = []
-    concentrations: list[float] = []
 
-    for step in range(steps + 1):
-        time = step * config.dt
-        coupling = coupling_start + config.ramp_speed * time
-        if step in sampled_lookup:
-            order_mean, order_std, concentration = _summarize(phases, config.concentration_bins)
-            times.append(time)
-            coupling_values.append(coupling)
-            order_means.append(order_mean)
-            order_stds.append(order_std)
-            concentrations.append(concentration)
-        if step == steps:
-            continue
-        complex_order = np.mean(np.exp(1j * phases), axis=1)
-        order = np.abs(complex_order)[:, None]
-        mean_phase = np.angle(complex_order)[:, None]
-        drift = coupling * order * np.sin(mean_phase - phases)
-        phases += config.dt * drift + noise_scale * rng.standard_normal(phases.shape)
-        phases = (phases + np.pi) % (2.0 * np.pi) - np.pi
-
+def _to_result(state: _RampState, steps: int) -> RampResult:
     return RampResult(
-        time=np.asarray(times),
-        coupling=np.asarray(coupling_values),
-        order_mean=np.asarray(order_means),
-        order_std=np.asarray(order_stds),
-        concentration_mean=np.asarray(concentrations),
+        time=np.asarray(state.times),
+        coupling=np.asarray(state.couplings),
+        order_mean=np.asarray(state.order_means),
+        order_std=np.asarray(state.order_stds),
+        concentration_mean=np.asarray(state.concentrations),
+        order_replicas=np.asarray(state.order_replicas),
+        concentration_replicas=np.asarray(state.concentration_replicas),
         steps=steps,
     )
+
+
+def _config_json(config: RampConfig) -> str:
+    return json.dumps(asdict(config), sort_keys=True)
+
+
+def _save_checkpoint(path: Path, config: RampConfig, state: _RampState) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(dir=path.parent, suffix=".npz", delete=False) as temporary:
+        temporary_path = Path(temporary.name)
+        np.savez_compressed(
+            temporary,
+            config=np.asarray(_config_json(config)),
+            rng_state=np.asarray(json.dumps(state.rng.bit_generator.state)),
+            step=np.asarray(state.step),
+            phases=state.phases,
+            time=np.asarray(state.times),
+            coupling=np.asarray(state.couplings),
+            order_mean=np.asarray(state.order_means),
+            order_std=np.asarray(state.order_stds),
+            concentration_mean=np.asarray(state.concentrations),
+            order_replicas=np.asarray(state.order_replicas),
+            concentration_replicas=np.asarray(state.concentration_replicas),
+        )
+    os.replace(temporary_path, path)
+
+
+def _load_checkpoint(path: Path, config: RampConfig) -> _RampState:
+    with np.load(path, allow_pickle=False) as saved:
+        saved_config = str(saved["config"])
+        if saved_config != _config_json(config):
+            raise ValueError("checkpoint configuration does not match requested ramp")
+        rng = np.random.default_rng()
+        rng_state: dict[str, Any] = json.loads(str(saved["rng_state"]))
+        rng.bit_generator.state = rng_state
+        return _RampState(
+            phases=np.asarray(saved["phases"]),
+            rng=rng,
+            step=int(saved["step"]),
+            times=np.asarray(saved["time"]).tolist(),
+            couplings=np.asarray(saved["coupling"]).tolist(),
+            order_means=np.asarray(saved["order_mean"]).tolist(),
+            order_stds=np.asarray(saved["order_std"]).tolist(),
+            concentrations=np.asarray(saved["concentration_mean"]).tolist(),
+            order_replicas=list(np.asarray(saved["order_replicas"])),
+            concentration_replicas=list(np.asarray(saved["concentration_replicas"])),
+        )
+
+
+def _record_if_due(state: _RampState, config: RampConfig, sampled_lookup: set[int]) -> None:
+    time = state.step * config.dt
+    already_recorded = bool(state.times) and state.times[-1] == time
+    if state.step in sampled_lookup and not already_recorded:
+        _record(state, config)
+
+
+def _checkpoint_if_due(
+    state: _RampState,
+    config: RampConfig,
+    checkpoint: Path | None,
+    checkpoint_every: int,
+    steps: int,
+    report_progress: bool,
+) -> None:
+    if checkpoint is None or state.step % checkpoint_every != 0:
+        return
+    _save_checkpoint(checkpoint, config, state)
+    if report_progress:
+        percent = 100.0 * state.step / steps
+        print(f"checkpoint step={state.step}/{steps} ({percent:.1f}%)", flush=True)
+
+
+def _finish_run(
+    state: _RampState, config: RampConfig, checkpoint: Path | None, steps: int
+) -> RampResult:
+    if checkpoint is not None:
+        _save_checkpoint(checkpoint, config, state)
+    return _to_result(state, steps)
+
+
+def _run(
+    config: RampConfig,
+    state: _RampState,
+    checkpoint: Path | None = None,
+    checkpoint_every: int = 0,
+    max_steps: int | None = None,
+    report_progress: bool = False,
+) -> RampResult | None:
+    steps = _total_steps(config)
+    sampled_lookup = set(_sample_steps(steps, config.sample_every))
+    stop_step = steps if max_steps is None else min(max_steps, steps)
+    while state.step <= stop_step:
+        _record_if_due(state, config, sampled_lookup)
+        if state.step == steps:
+            return _finish_run(state, config, checkpoint, steps)
+        if state.step == stop_step:
+            break
+        _advance(state, config)
+        _checkpoint_if_due(state, config, checkpoint, checkpoint_every, steps, report_progress)
+    if checkpoint is not None:
+        _save_checkpoint(checkpoint, config, state)
+    return None
+
+
+def simulate_ramp(config: RampConfig) -> RampResult:
+    """Integrate the ensemble by Euler-Maruyama and retain decimated summaries."""
+    _validate_config(config)
+    result = _run(config, _new_state(config))
+    if result is None:
+        raise RuntimeError("uncheckpointed ramp stopped before completion")
+    return result
+
+
+def run_checkpointed(
+    config: RampConfig,
+    checkpoint: Path,
+    checkpoint_every: int,
+    max_steps: int | None = None,
+    report_progress: bool = False,
+) -> RampResult | None:
+    """Run or resume one ramp leg, atomically saving its current state."""
+    _validate_config(config)
+    if checkpoint_every <= 0:
+        raise ValueError("checkpoint_every must be positive")
+    state = _load_checkpoint(checkpoint, config) if checkpoint.exists() else _new_state(config)
+    return _run(config, state, checkpoint, checkpoint_every, max_steps, report_progress)
 
 
 def detect_escape_coupling(
@@ -166,25 +316,61 @@ def detect_escape_coupling(
     return None if len(crossings) == 0 else float(coupling[crossings[0]])
 
 
+def production_config(speed: float, seed: int, n_oscillators: int = 2000) -> RampConfig:
+    """Build the prescribed production configuration with useful decimation."""
+    steps = int(round(1.0 / (speed * 0.01)))
+    sample_every = max(1, min(1000, steps // 100))
+    return RampConfig(
+        n_oscillators=n_oscillators,
+        n_replicas=32,
+        diffusion=1.0,
+        ramp_speed=speed,
+        coupling_half_window=0.5,
+        dt=0.01,
+        sample_every=sample_every,
+        concentration_bins=36,
+        seed=seed,
+    )
+
+
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--seed", type=int, default=20260903)
+    parser.add_argument("--speed", type=float)
+    parser.add_argument("--checkpoint", type=Path)
+    parser.add_argument("--n-oscillators", type=int, default=2000)
     return parser.parse_args()
 
 
 def main() -> None:
-    """Run the reduced deterministic smoke configuration."""
+    """Run the smoke configuration or one checkpointed production-speed leg."""
     args = _parse_args()
-    config = RampConfig(seed=args.seed)
-    result = simulate_ramp(config)
+    if args.speed is None:
+        config = RampConfig(seed=args.seed)
+        result = simulate_ramp(config)
+    else:
+        config = production_config(args.speed, args.seed, args.n_oscillators)
+        checkpoint = args.checkpoint
+        if checkpoint is None:
+            checkpoint = Path("figures") / f"dynamic_ramp_v{args.speed:.0e}.npz"
+        checkpoint_result = run_checkpointed(
+            config,
+            checkpoint,
+            checkpoint_every=5000,
+            report_progress=True,
+        )
+        if checkpoint_result is None:
+            raise RuntimeError("production ramp stopped before completion")
+        result = checkpoint_result
     escape = detect_escape_coupling(
         result.coupling,
         result.order_mean,
         config.n_oscillators,
         critical_coupling=config.critical_coupling,
     )
+    mode = "smoke" if args.speed is None else f"production v={config.ramp_speed:g}"
     print(
-        f"smoke seed={config.seed} steps={result.steps} samples={len(result.time)} "
+        f"{mode} seed={config.seed} steps={result.steps} samples={len(result.time)} "
         f"escape_K={escape} final_r={result.order_mean[-1]:.4f}"
     )
 

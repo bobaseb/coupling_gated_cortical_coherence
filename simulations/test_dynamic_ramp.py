@@ -1,12 +1,17 @@
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import cast
 
 import numpy as np
 
 from dynamic_ramp import (
     RampConfig,
+    RampResult,
     detect_escape_coupling,
     estimate_log_density_concentration,
+    production_config,
+    run_checkpointed,
     simulate_ramp,
 )
 
@@ -28,7 +33,10 @@ class DynamicRampTest(unittest.TestCase):
         second = simulate_ramp(config)
 
         np.testing.assert_array_equal(first.order_mean, second.order_mean)
+        np.testing.assert_array_equal(first.order_replicas, second.order_replicas)
         np.testing.assert_array_equal(first.concentration_mean, second.concentration_mean)
+        self.assertEqual(first.order_replicas.shape, (11, 3))
+        self.assertEqual(first.concentration_replicas.shape, (11, 3))
         self.assertAlmostEqual(first.coupling[0], config.critical_coupling - 0.2)
         self.assertAlmostEqual(first.coupling[-1], config.critical_coupling + 0.2)
         self.assertTrue(np.any(first.coupling == config.critical_coupling))
@@ -77,6 +85,65 @@ class DynamicRampTest(unittest.TestCase):
         escape = detect_escape_coupling(coupling, order, n_oscillators=400)
 
         self.assertIsNone(escape)
+
+    def test_interrupted_checkpoint_resumes_to_identical_result(self) -> None:
+        config = RampConfig(
+            n_oscillators=32,
+            n_replicas=2,
+            diffusion=0.1,
+            ramp_speed=0.5,
+            coupling_half_window=0.1,
+            dt=0.02,
+            sample_every=3,
+            seed=123,
+        )
+        expected = simulate_ramp(config)
+
+        with TemporaryDirectory() as directory:
+            checkpoint = Path(directory) / "leg.npz"
+            partial = run_checkpointed(config, checkpoint, checkpoint_every=4, max_steps=11)
+            resumed = run_checkpointed(config, checkpoint, checkpoint_every=4)
+
+        self.assertIsNone(partial)
+        self.assertIsNotNone(resumed)
+        self.assertIsInstance(resumed, RampResult)
+        resumed_result = cast(RampResult, resumed)
+        np.testing.assert_array_equal(resumed_result.order_mean, expected.order_mean)
+        np.testing.assert_array_equal(
+            resumed_result.concentration_mean, expected.concentration_mean
+        )
+
+    def test_checkpoint_stores_one_current_state_not_phase_history(self) -> None:
+        config = RampConfig(
+            n_oscillators=16,
+            n_replicas=2,
+            diffusion=0.1,
+            ramp_speed=0.5,
+            coupling_half_window=0.1,
+            dt=0.02,
+            sample_every=2,
+            seed=456,
+        )
+
+        with TemporaryDirectory() as directory:
+            checkpoint = Path(directory) / "leg.npz"
+            run_checkpointed(config, checkpoint, checkpoint_every=2, max_steps=6)
+            with np.load(checkpoint, allow_pickle=False) as saved:
+                self.assertEqual(saved["phases"].shape, (2, 16))
+                self.assertEqual(saved["order_replicas"].shape, (4, 2))
+                self.assertNotIn("phase_history", saved.files)
+
+    def test_production_decimation_retains_about_one_hundred_samples(self) -> None:
+        self.assertEqual(production_config(0.1, seed=1).sample_every, 10)
+        self.assertEqual(production_config(0.01, seed=1).sample_every, 100)
+        self.assertEqual(production_config(0.001, seed=1).sample_every, 1000)
+        self.assertEqual(production_config(0.0001, seed=1).sample_every, 1000)
+
+    def test_production_config_accepts_finite_size_control(self) -> None:
+        config = production_config(0.01, seed=2, n_oscillators=8000)
+
+        self.assertEqual(config.n_oscillators, 8000)
+        self.assertEqual(config.n_replicas, 32)
 
 
 if __name__ == "__main__":

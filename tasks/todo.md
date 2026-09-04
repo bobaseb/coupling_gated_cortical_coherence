@@ -78,7 +78,7 @@ removes duplicated infrastructure.
 
 ### S1 — Dynamic sleep-inertia ramp and critical slowing down
 
-- [ ] Implement and run `tasks/dynamic_ramp.md`.
+- [x] Implement and run `tasks/dynamic_ramp.md`.
 
 Quantify bifurcation delay while `K(t)` crosses `K_c = 2D`; estimate the maximum
 ramp speed for which the adiabatic curve remains accurate, compare it with the
@@ -269,3 +269,44 @@ mypy objects to. A red test therefore blocks unrelated commits for as long as it
 is red — the red phase of red-green-refactor is not commit-neutral here. S1's
 module has since landed and the gates are green; the lesson is to close a red
 test in the same sitting it is written.
+
+### 2026-09-04 — S1 dynamic sleep-inertia ramp
+
+Red tests fixed the numerical contract before the production run: deterministic
+Euler--Maruyama evolution, exact checkpoint/resume equivalence, decimated
+per-replica summaries without phase history, the independent log-density slope
+estimator, post-critical sustained escape detection, finite-size controls and
+known synthetic power-law/onset fits. `dynamic_ramp.py` implements the run and
+atomic checkpoints; `dynamic_ramp_analysis.py` and `dynamic_ramp_report.py`
+implement the declared analyses.
+
+The full sweep used seed 20260903, 32 replicas, N=2000, D=1, dt=0.01 and
+v in {0.1, 0.01, 0.001, 0.0001}. It completed 1,111,000 integration steps per
+replica, with approximately two hours of elapsed compute across resumable
+sessions. The N-dependence control added N=500 and 8000 at v=0.01; those legs
+took about 16 seconds and four minutes respectively. Checkpoints store only the
+current 32-by-N phase state, RNG state and decimated summaries.
+
+Escape was operationalized as the first of three consecutive samples at
+r >= 0.2, after K_c. All replicas escaped for the three slower ramps; only 5/32
+did so at v=0.1 before the window ended, making that leg right-censored. Mean
+delays were 0.1947, 0.0684 and 0.0253 for v=0.01, 0.001 and 0.0001, giving a
+log--log exponent 0.443 against the predicted 1/2. At v=0.01 the delay increased
+from 0.0619 through 0.1947 to 0.2341 across N=500, 2000 and 8000, qualitatively
+matching the predicted sqrt(log N) dependence, though three sizes do not
+establish that law.
+
+Early-foot fits over 0.1 <= r <= 0.4 gave beta_eff = 0.964, 0.898, 0.471 and
+0.417 from fastest to slowest: the square-root foot is recovered only in the
+slow regime and moves toward the linear falsifier as the ramp accelerates. The
+independent (a,r) traces stayed close to I1(a)/I0(a). Their post-critical RMS
+deviations were 0.00245, 0.00599, 0.00689 and 0.00705; taking the slowest value
+as Dev_0, no leg reached 2 Dev_0=0.01410. The specified v* is therefore not
+bracketed, a negative result rather than grounds for extrapolating a number.
+
+Artifacts are the six per-replica checkpoint files, four PNG panels and
+`simulations/figures/DYNAMIC_RAMP_REPORT.md`. The result is finite-N heuristic
+evidence. It proves no trajectory theorem, does not discharge adiabaticity or
+dynamical selection, and does not turn the physical-unit conversion into a
+measurement. The focused tests and the full ruff, formatting, strict mypy,
+bandit, vulture, xenon, tach, prose, table and leaf gates pass.

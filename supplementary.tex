@@ -245,6 +245,39 @@ We state the failure conditions rather than leaving them to a referee.
 
 Four things are assumed, and they are not small. The identification of the effective coupling $K$ with a monotone function of extracellular geometry is a modelling assumption, not a measurement. The threshold $K_c = 2D$ uses an assumed von Mises stationary density, so the argument relies on the proved existence and continuity of the coherent branch, not the numerical threshold. The square-root cusp needs the slow variable to cross threshold at non-zero speed ($\dot K(t_0) \ne 0$), weaker than the adiabatic separation the whole argument assumes. And the exponent theorem proves no stability or dynamical selection --- $r = 0$ remains a solution above threshold --- so the time course $r(t)$ is carried by the adiabatic assumption, not a trajectory theorem. The prediction is about functional form, not a time constant: a flat foot of definite shape whose width is set by the slow variable.
 
+\subsection{Finite-ramp numerical check}
+
+A finite-$N$ Euler--Maruyama ensemble quantifies the range over which the
+adiabatic reading is accurate.  With identical frequencies, $D=1$, $N=2000$,
+$32$ seeded replicas and $\dot K=v\in\{10^{-1},10^{-2},10^{-3},10^{-4}\}$,
+escape is defined as the first of three consecutive sampled points at $r\geq
+0.2$ after $K_c$.  The fastest leg is right-censored: only $5/32$ replicas
+escape before $K=2.5$.  All replicas escape at the three slower speeds, with
+mean delays $\Delta K=0.1947$, $0.0684$ and $0.0253$.  Their log--log fit gives
+$\Delta K\propto v^{0.443}$, near the predicted exponent $1/2$ at this
+resolution.  At fixed $v=10^{-2}$ the delay increases
+from $0.0619$ through $0.1947$ to $0.2341$ as $N$ increases from $500$ through
+$2000$ to $8000$, qualitatively agreeing with the predicted $\sqrt{\log N}$
+dependence; three sizes are evidence for the trend, not a scaling law.
+
+The early-foot fit $r=A(K-K_0)^{\beta_{\rm eff}}$ over $0.1\leq r\leq0.4$
+gives $\beta_{\rm eff}=0.964,0.898,0.471,0.417$ from fastest to slowest.  Thus
+the slow ramps recover the square-root foot, while fast driving pushes the
+observable foot toward the linear falsifier stated below.  With
+$D=1.5\,\mathrm{rad\,s^{-1}}$, traversing the simulated coupling window
+over the proposed $10^2$--$10^3$-second sleep-inertia interval corresponds to
+$v=6.67\times10^{-4}$--$6.67\times10^{-3}$ in simulation units.  This range
+straddles the crossover between the square-root-like and smeared feet, so the
+adiabatic shape is safe at the slow end but not established across the whole
+biological interval.  The independently
+estimated $(a,r)$ traces remain close to $I_1(a)/I_0(a)$ even where the
+trajectory lags the stationary branch.  Post-critical RMS deviations are
+$0.00245,0.00599,0.00689,0.00705$; using the slowest run as the finite-$N$
+floor $\mathrm{Dev}_0$, none reaches $2\mathrm{Dev}_0=0.01410$.  The specified
+critical speed $v^*$ is therefore not bracketed by this sweep.  This numerical
+check exhibits finite sampled dynamics only: it proves neither stability nor
+dynamical selection and does not discharge the adiabatic assumption.
+
 \subsection{What the alternative predicts}
 
 An account on which grogginess is the electrical realignment itself has no slow variable and no threshold. Its recovery is exponential near the fixed point: monotone from $t = 0$, fastest at the start, with no flat foot. The discriminator is the presence or absence of an initial interval of no recovery, in data already collected.
