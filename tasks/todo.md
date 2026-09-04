@@ -98,7 +98,7 @@ empirical 0.1–0.3 mm band must be reported rather than tuned away.
 
 ### S3 — Dynamical selection of the coherent branch
 
-- [ ] Implement and run `tasks/dynamical_selection.md`.
+- [x] Implement and run `tasks/dynamical_selection.md`.
 
 Measure escape from the finite-N fluctuation floor below, at and above threshold;
 compare steady states with the static self-consistency curve; and fit the early
@@ -348,3 +348,43 @@ single-seed parameter sweep. It does not establish a phase transition, exclude
 metastability or seed dependence, measure cortex, validate the Fermi arithmetic,
 or discharge any Lean obligation. The focused tests and the full repository
 gates pass.
+
+### 2026-09-04 — S3 dynamical selection of the coherent branch
+
+Red tests fixed the numerical contract before implementation: the O(N)
+mean-field reduction agrees with the explicit pair sum; seeded Euler--Maruyama
+trajectories are reproducible and endpoint-inclusive; only decimated ensemble
+order summaries are retained; the theoretical rate is exactly `(K-2D)/2`; and
+a synthetic log-linear trace recovers its known rate while an underspecified
+fit window is rejected. The first reduced sweep exposed an overly short
+post-transient fit window at N=64; the corrected N=128 near-threshold smoke sweep
+passed without relaxing the required `r < 0.3` cap.
+
+The full run used seed 20260904, 500 replicas, N=1000, identical frequencies,
+D=1, dt=0.01 and 5,000 steps at K in {1.6, 2.0, 2.8}. The early-growth sweep
+used 1,000 steps at ten couplings from 2.2 through 3.1. Saved integration runtime
+was 1,383.97 seconds. The three trajectory files are about 10 KB each and contain
+configuration, decimated ensemble mean and standard deviation, the finite-size
+reference and runtime, never phases or per-replica histories.
+
+Steady ensemble-mean r was 0.06266 below threshold, 0.16049 at threshold and
+0.67735 above threshold. The static coherent value at K=2.8 is 0.68270, a
+residual of -0.00535. The nonzero subcritical value and the enhanced critical
+value are finite-N fluctuations, not coherent fixed points, and are reported
+alongside the 1/sqrt(N)=0.03162 reference rather than relabelled as selection.
+
+All growth fits over t>=1 and r<0.3 had R-squared from 0.9738 to 0.9968. Rates
+rose from 0.14398 at K=2.2 to 0.52282 at K=3.1. Their fitted law was
+`lambda = 0.43240 K - 0.82318`, against the exact infinite-N prediction
+`0.5 K - 1.0`: the slope was 13.5% low and the inferred zero crossing was 1.904.
+The run therefore exhibits escape toward the coherent branch and nearly linear
+early growth, while retaining the quantitative finite-size/time-window
+discrepancy as a negative result.
+
+Artifacts are `dynamical_selection.py`, its six deterministic tests, three
+compact NPZ summaries, JSON metadata, three PNG figures and
+`simulations/figures/dynamical_selection/DYNAMICAL_SELECTION_REPORT.md`.
+`main.tex` remains unchanged and continues to state that dynamical selection is
+not proved. This single-N, single-seed finite simulation establishes neither a
+trajectory theorem nor propagation of chaos and discharges no Lean obligation.
+The focused tests and the full repository gates pass.
