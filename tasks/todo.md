@@ -88,7 +88,7 @@ four ramp speeds one process per core only after reduced tests pass.
 
 ### S2 — Spatially decaying two-dimensional ephaptic kernel
 
-- [ ] Implement and run `tasks/spatially_decaying_kernel.md`.
+- [x] Implement and run `tasks/spatially_decaying_kernel.md`.
 
 Use FFT convolution on a periodic 128×128 sheet and row-normalize the exponential
 kernel so total coupling is fixed across the length-scale sweep. Measure global
@@ -310,3 +310,41 @@ evidence. It proves no trajectory theorem, does not discharge adiabaticity or
 dynamical selection, and does not turn the physical-unit conversion into a
 measurement. The focused tests and the full ruff, formatting, strict mypy,
 bandit, vulture, xenon, tach, prose, table and leaf gates pass.
+
+### 2026-09-04 — S2 spatially decaying ephaptic kernel
+
+Red tests fixed the numerical contract before implementation: the periodic
+exponential kernel excludes self-coupling and has row sum exactly `K_0`; FFT
+convolution agrees with an explicit periodic sum; wrapped plaquette circulation
+detects balanced vortices and antivortices; the shared 0.1--0.3 mm constants
+convert correctly to grid units; and seeded smoke trajectories are reproducible,
+endpoint-inclusive and retain only decimated summaries plus one final snapshot.
+
+The reduced 24-by-24 smoke sweep completed before production. The full sweep
+used a periodic 128-by-128 sheet of extent 2.0 mm, seed 20260904, `K_0=8`,
+thermodynamic diffusion 0.5 rad2/s, quenched Gaussian frequency spread 1.5
+rad/s, `dt=0.01`, and 20,000 steps at each of 22 decay lengths. Its saved
+integration runtime was 1,152 seconds. Seven transition-local controls were
+added after the original 15-point sweep showed that a coarse two-point
+interpolation would give false precision. Each length is independently
+resumable; files contain decimated `r(t)` and defect density, the final phase and
+winding maps, and configuration metadata, never a phase history.
+
+With coherence operationalized as steady `r > 0.2`, the smallest interpolated
+length above which every larger sampled length remained coherent was 0.0140 mm.
+The transition region was metastable rather than monotone in a single seeded
+trajectory: `r` ranged from 0.040 to 0.238 between 0.0085 and 0.0140 mm, before
+jumping to 0.618 at 0.01467 mm. Defect density declined from 0.00157 at 0.0078125
+mm to about 0.00001 at 0.01467 mm. In the empirical band, steady `r` was 0.9424,
+0.9427 and 0.9427 at 0.1, 0.2 and 0.3 mm, while defect density was at most
+2.5e-6. The declared finite model therefore did not fragment in the empirical
+band; its operational boundary lay roughly seven times below the 0.1 mm lower
+bound.
+
+Artifacts are `spatial_kernel.py`, its six deterministic tests, 22 compact NPZ
+runs, a JSON summary, the order/defect sweep figure and the cyclic final-phase
+maps under `simulations/figures/spatial_kernel/`. The result is one finite-N,
+single-seed parameter sweep. It does not establish a phase transition, exclude
+metastability or seed dependence, measure cortex, validate the Fermi arithmetic,
+or discharge any Lean obligation. The focused tests and the full repository
+gates pass.

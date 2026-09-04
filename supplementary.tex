@@ -215,6 +215,16 @@ Neurons do not only signal through synapses: transmembrane currents generate ext
 
 The endogenous field's effect on any individual neuron is modulatory: it biases when a cell fires; it does not decide whether it fires \cite{anastassiou2015}. The claim is therefore that the field is modulatory in effect and integrative in spatial reach --- weak per synapse, and the only variable in the system that is defined everywhere at once. What the framework needs is the reach, not the strength.
 
+\subsection{Finite-sheet spatial-decay control}
+
+A finite stochastic control asks whether fixing total coupling while shortening its spatial reach fragments the phase field. On a periodic $128\times128$ sheet spanning 2.0~mm, an exponential kernel was row-normalised to total coupling $K_0=8$ at every decay length; the dynamics used thermodynamic diffusion $0.5$~rad$^2$/s, quenched Gaussian frequency spread $1.5$~rad/s, and 20,000 Euler--Maruyama steps per length. With steady $r>0.2$ as the declared operational coherence criterion, the smallest interpolated decay length above which every larger sampled length remained coherent was 0.0140~mm. The transition-local trajectories were metastable and non-monotone, so that number is an operational boundary rather than a critical-point estimate with statistical precision. At the empirical controls 0.1, 0.2 and 0.3~mm, steady $r$ was respectively 0.9424, 0.9427 and 0.9427, and winding-defect density was at most $2.5\times10^{-6}$. Thus this finite, single-seed parameter sweep does not show fragmentation in the empirical decay-length band; its boundary lies about sevenfold below the band's 0.1~mm lower limit. It neither measures cortex nor proves a transition, and it leaves seed dependence and the near-boundary metastability unresolved.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.96\linewidth]{simulations/figures/spatial_kernel/spatial_kernel_sweep.png}
+\caption{Finite-sheet heuristic evidence under a row-normalised spatial kernel. The left panel shows global order traces and the $1/\sqrt{N}$ finite-size floor; the right compares steady order and wrapped plaquette winding-defect density across physical decay lengths. The shaded band is 0.1--0.3~mm. This sampled simulation establishes no general transition or biological identification.}
+\end{figure}
+
 \subsection{Critics}
 
 The longest-standing objection is that the fields are too weak to matter, pressed from within the field-theoretic camp by Pockett herself \cite{pockett2012, pockett2002}. V\"or\"oslakos and colleagues found that applied current is shunted through scalp, delivering fields at or below $1$ V/m in cortex \cite{voroslakos2018}. That is a bound on \emph{applied} rather than endogenous fields, but it constrains how much causal work a field of that magnitude can do, and is the reason we do not claim the field drives spiking.
