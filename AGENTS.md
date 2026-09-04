@@ -25,6 +25,18 @@ If Python code is introduced to this repository, the following tooling MUST be c
 - Match existing patterns in the codebase. Consistency over novelty.
 - If scope expands, stop and split into separate changes.
 
+### Generated simulation results in publications
+
+- Computed numerical results reported in `main.tex` or `supplementary.tex` must be TeX
+  macros generated directly by a Python script from saved machine-readable
+  simulation summaries or checkpoints. Do not duplicate computed numerals in
+  publication prose.
+- Commit the generator, generated `.tex` macro file, source summary and a test
+  that detects generation drift. The generated file must identify its source
+  script and say not to edit it manually.
+- Regenerating publication macros must never rerun a production sweep. It reads
+  existing compact artifacts; simulation execution remains a separate command.
+
 ## 4. Anti-Hallucination Gate for References
 - **Verify All References:** Any time a new reference or citation is added to the project (e.g., in `main.tex`), it MUST be verified for correctness via an online web search before being committed. You must independently confirm the authors, title, year, and publication venue. No fabricated or unverified references are allowed.
 

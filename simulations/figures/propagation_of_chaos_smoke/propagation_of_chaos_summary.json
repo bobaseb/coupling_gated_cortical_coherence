@@ -1,0 +1,100 @@
+{
+  "records": [
+    {
+      "config": {
+        "n_oscillators": 10,
+        "n_ensembles": 64,
+        "diffusion": 1.0,
+        "coupling": 1.0,
+        "dt": 0.02,
+        "steps": 100,
+        "seed": 20260904
+      },
+      "snapshot": {
+        "mean_order": 0.3903886637485573,
+        "finite_size_floor": 0.31622776601683794,
+        "measured_concentration": 0.3903886637485573,
+        "runtime_seconds": 0.009375105611979961
+      },
+      "metrics": {
+        "correlation": 0.1294220708954009,
+        "distance_mean": 0.09592606742638712,
+        "distance_std": 0.0075817655237042396,
+        "density_l1_error": 0.7172410391621978,
+        "self_consistency_error": 0.19882082251467437
+      }
+    },
+    {
+      "config": {
+        "n_oscillators": 40,
+        "n_ensembles": 64,
+        "diffusion": 1.0,
+        "coupling": 1.0,
+        "dt": 0.02,
+        "steps": 100,
+        "seed": 20260905
+      },
+      "snapshot": {
+        "mean_order": 0.17261212224332476,
+        "finite_size_floor": 0.15811388300841897,
+        "measured_concentration": 0.17261212224332476,
+        "runtime_seconds": 0.026660618372261524
+      },
+      "metrics": {
+        "correlation": 0.17296515177242877,
+        "distance_mean": 0.10900201763135736,
+        "distance_std": 0.01983524143922738,
+        "density_l1_error": 0.5962492820158729,
+        "self_consistency_error": 0.08662590860184974
+      }
+    },
+    {
+      "config": {
+        "n_oscillators": 10,
+        "n_ensembles": 64,
+        "diffusion": 1.0,
+        "coupling": 3.0,
+        "dt": 0.02,
+        "steps": 100,
+        "seed": 20261004
+      },
+      "snapshot": {
+        "mean_order": 0.671875921682725,
+        "finite_size_floor": 0.31622776601683794,
+        "measured_concentration": 2.0156277650481753,
+        "runtime_seconds": 0.008831902407109737
+      },
+      "metrics": {
+        "correlation": 0.543170170650954,
+        "distance_mean": 0.11399364969000943,
+        "distance_std": 0.007100068399234606,
+        "density_l1_error": 0.5656665038784068,
+        "self_consistency_error": 0.028448538513194954
+      }
+    },
+    {
+      "config": {
+        "n_oscillators": 40,
+        "n_ensembles": 64,
+        "diffusion": 1.0,
+        "coupling": 3.0,
+        "dt": 0.02,
+        "steps": 100,
+        "seed": 20261005
+      },
+      "snapshot": {
+        "mean_order": 0.4752125227066535,
+        "finite_size_floor": 0.15811388300841897,
+        "measured_concentration": 1.4256375681199605,
+        "runtime_seconds": 0.025693656876683235
+      },
+      "metrics": {
+        "correlation": 0.1804554966599019,
+        "distance_mean": 0.09714964512230821,
+        "distance_std": 0.007702205779046715,
+        "density_l1_error": 0.6338913168588023,
+        "self_consistency_error": 0.10199296456531792
+      }
+    }
+  ]
+}

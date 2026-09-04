@@ -107,7 +107,7 @@ selected by theorem” statement unchanged.
 
 ### S4 — Finite-N evidence around propagation of chaos
 
-- [ ] Implement and run `tasks/propagation_of_chaos.md`.
+- [x] Implement and run `tasks/propagation_of_chaos.md`.
 
 Sweep `N`, measure circular cross-correlation, matched-sample joint-versus-product
 distance and stationary-density error. Use sliced Wasserstein or the specified
@@ -388,3 +388,47 @@ compact NPZ summaries, JSON metadata, three PNG figures and
 not proved. This single-N, single-seed finite simulation establishes neither a
 trajectory theorem nor propagation of chaos and discharges no Lean obligation.
 The focused tests and the full repository gates pass.
+
+### 2026-09-04 — S4 finite-N propagation-of-chaos diagnostics
+
+Red tests fixed the numerical contract before implementation: circular pair
+correlation is branch-cut invariant and rejects degenerate samples; seeded
+sliced Wasserstein distance on a torus embedding detects dependence; the von
+Mises density is normalized and even; and seeded Euler--Maruyama snapshots are
+reproducible and retain only two oscillator samples plus one aligned density
+sample. The reduced deterministic sweep completed before production.
+
+The full run used seed 20260904 with deterministic per-leg offsets, 1,000
+ensembles, identical frequencies, D=1, dt=0.01, 5,000 steps, K in {1, 3}, and N
+in {10, 50, 100, 500, 1000}. The joint-versus-product statistic used a torus
+embedding, 64 seeded sliced-Wasserstein projections and 30 matched bootstrap
+resamples of 250 observations, avoiding the cubic exact multidimensional solver.
+Saved integration runtime was 1,622.35 seconds.
+
+The subcritical control showed finite-size convergence: mean r declined from
+0.3726 to 0.0402 and absolute circular pair correlation from 0.0458 to 0.0010.
+The sliced distance declined only from 0.0468 to 0.0419, exposing its
+matched-sample estimator floor, while co-rotating density L1 error fell from
+0.2640 to 0.1286.
+
+The supercritical run produced a negative result for the specified
+unconditional 1/N claim. Mean r stabilized near 0.72, while lab-frame pair
+correlation remained between 0.459 and 0.525 across the full N sweep. The sliced
+distance decreased from 0.1042 to 0.0812 but remained about twice the
+subcritical floor. The unpinned coherent ensemble retains dependence through
+its random collective orientation; conditional propagation of chaos modulo
+that orientation is a different estimand and was not silently substituted.
+
+The co-rotating density check did agree with the stationary target. At K=3 and
+N=1000, measured r=0.7208 gave a=2.1624, density L1 error 0.1291 and Bessel
+self-consistency residual 0.00191. Artifacts are `propagation_of_chaos.py`, seven
+deterministic tests, ten compact NPZ snapshots, a JSON summary, one PNG figure
+and `PROPAGATION_OF_CHAOS_REPORT.md`. `supplementary.tex` reports S3 and S4
+alongside the existing S1 and S2 controls through `simulation_results.tex`,
+which `simulation_tex.py` regenerates from their saved summaries and checkpoints
+without rerunning production. Its drift test and the corresponding `AGENTS.md`
+rule make that the standard publication path for computed simulation results.
+This single-seed finite sweep proves
+neither unconditional nor symmetry-quotiented propagation of chaos, and closes
+no Lean or manuscript obligation. The focused tests and all repository gates
+pass.

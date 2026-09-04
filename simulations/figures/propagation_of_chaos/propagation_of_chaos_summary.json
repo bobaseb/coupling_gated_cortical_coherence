@@ -1,0 +1,244 @@
+{
+  "records": [
+    {
+      "config": {
+        "n_oscillators": 10,
+        "n_ensembles": 1000,
+        "diffusion": 1.0,
+        "coupling": 1.0,
+        "dt": 0.01,
+        "steps": 5000,
+        "seed": 20260904
+      },
+      "snapshot": {
+        "mean_order": 0.37263999686530175,
+        "finite_size_floor": 0.31622776601683794,
+        "measured_concentration": 0.37263999686530175,
+        "runtime_seconds": 4.947173045016825
+      },
+      "metrics": {
+        "correlation": -0.04582978462694873,
+        "distance_mean": 0.046754896607046764,
+        "distance_std": 0.006749564763248618,
+        "density_l1_error": 0.26395386929786174,
+        "self_consistency_error": 0.1894809582364808
+      }
+    },
+    {
+      "config": {
+        "n_oscillators": 50,
+        "n_ensembles": 1000,
+        "diffusion": 1.0,
+        "coupling": 1.0,
+        "dt": 0.01,
+        "steps": 5000,
+        "seed": 20260905
+      },
+      "snapshot": {
+        "mean_order": 0.1732326424657888,
+        "finite_size_floor": 0.1414213562373095,
+        "measured_concentration": 0.1732326424657888,
+        "runtime_seconds": 23.439065162092447
+      },
+      "metrics": {
+        "correlation": 0.03519679560603957,
+        "distance_mean": 0.04364060172181554,
+        "distance_std": 0.004670971240829891,
+        "density_l1_error": 0.2098664578033499,
+        "self_consistency_error": 0.0869396190674128
+      }
+    },
+    {
+      "config": {
+        "n_oscillators": 100,
+        "n_ensembles": 1000,
+        "diffusion": 1.0,
+        "coupling": 1.0,
+        "dt": 0.01,
+        "steps": 5000,
+        "seed": 20260906
+      },
+      "snapshot": {
+        "mean_order": 0.12478186466442637,
+        "finite_size_floor": 0.1,
+        "measured_concentration": 0.12478186466442637,
+        "runtime_seconds": 49.637467781081796
+      },
+      "metrics": {
+        "correlation": 0.009617863673250338,
+        "distance_mean": 0.044334738296561996,
+        "distance_std": 0.005870249360306311,
+        "density_l1_error": 0.17765733083476876,
+        "self_consistency_error": 0.0625120504046333
+      }
+    },
+    {
+      "config": {
+        "n_oscillators": 500,
+        "n_ensembles": 1000,
+        "diffusion": 1.0,
+        "coupling": 1.0,
+        "dt": 0.01,
+        "steps": 5000,
+        "seed": 20260907
+      },
+      "snapshot": {
+        "mean_order": 0.05482766532688831,
+        "finite_size_floor": 0.044721359549995794,
+        "measured_concentration": 0.05482766532688831,
+        "runtime_seconds": 261.6454401034862
+      },
+      "metrics": {
+        "correlation": -0.019170263500674314,
+        "distance_mean": 0.04302653715290647,
+        "distance_std": 0.004215362063680649,
+        "density_l1_error": 0.1453742174375554,
+        "self_consistency_error": 0.027424128502565554
+      }
+    },
+    {
+      "config": {
+        "n_oscillators": 1000,
+        "n_ensembles": 1000,
+        "diffusion": 1.0,
+        "coupling": 1.0,
+        "dt": 0.01,
+        "steps": 5000,
+        "seed": 20260908
+      },
+      "snapshot": {
+        "mean_order": 0.04016242535723866,
+        "finite_size_floor": 0.03162277660168379,
+        "measured_concentration": 0.04016242535723866,
+        "runtime_seconds": 515.8084143819287
+      },
+      "metrics": {
+        "correlation": 0.0010455712460234591,
+        "distance_mean": 0.04189899937789729,
+        "distance_std": 0.0045806531015195676,
+        "density_l1_error": 0.1285750406231102,
+        "self_consistency_error": 0.020085260516160976
+      }
+    },
+    {
+      "config": {
+        "n_oscillators": 10,
+        "n_ensembles": 1000,
+        "diffusion": 1.0,
+        "coupling": 3.0,
+        "dt": 0.01,
+        "steps": 5000,
+        "seed": 20261004
+      },
+      "snapshot": {
+        "mean_order": 0.7386060617528899,
+        "finite_size_floor": 0.31622776601683794,
+        "measured_concentration": 2.21581818525867,
+        "runtime_seconds": 4.641952962614596
+      },
+      "metrics": {
+        "correlation": 0.5245067590730825,
+        "distance_mean": 0.10415573907126886,
+        "distance_std": 0.009499138982934498,
+        "density_l1_error": 0.1629740856720172,
+        "self_consistency_error": 0.008390985120256378
+      }
+    },
+    {
+      "config": {
+        "n_oscillators": 50,
+        "n_ensembles": 1000,
+        "diffusion": 1.0,
+        "coupling": 3.0,
+        "dt": 0.01,
+        "steps": 5000,
+        "seed": 20261005
+      },
+      "snapshot": {
+        "mean_order": 0.7220311503805283,
+        "finite_size_floor": 0.1414213562373095,
+        "measured_concentration": 2.166093451141585,
+        "runtime_seconds": 21.296315602958202
+      },
+      "metrics": {
+        "correlation": 0.4807405320144109,
+        "distance_mean": 0.1007349180345,
+        "distance_std": 0.00842388396989375,
+        "density_l1_error": 0.12666667510037682,
+        "self_consistency_error": 0.0012171489917757183
+      }
+    },
+    {
+      "config": {
+        "n_oscillators": 100,
+        "n_ensembles": 1000,
+        "diffusion": 1.0,
+        "coupling": 3.0,
+        "dt": 0.01,
+        "steps": 5000,
+        "seed": 20261006
+      },
+      "snapshot": {
+        "mean_order": 0.7212314582594427,
+        "finite_size_floor": 0.1,
+        "measured_concentration": 2.163694374778328,
+        "runtime_seconds": 43.59860140923411
+      },
+      "metrics": {
+        "correlation": 0.5100292005754884,
+        "distance_mean": 0.09278564726089471,
+        "distance_std": 0.009797870029350718,
+        "density_l1_error": 0.15382180604964457,
+        "self_consistency_error": 0.0016733912550775942
+      }
+    },
+    {
+      "config": {
+        "n_oscillators": 500,
+        "n_ensembles": 1000,
+        "diffusion": 1.0,
+        "coupling": 3.0,
+        "dt": 0.01,
+        "steps": 5000,
+        "seed": 20261007
+      },
+      "snapshot": {
+        "mean_order": 0.7194833438990101,
+        "finite_size_floor": 0.044721359549995794,
+        "measured_concentration": 2.1584500316970305,
+        "runtime_seconds": 227.38103854563087
+      },
+      "metrics": {
+        "correlation": 0.4593040488773543,
+        "distance_mean": 0.08475298133027007,
+        "distance_std": 0.009210633050564987,
+        "density_l1_error": 0.1364882895525006,
+        "self_consistency_error": 0.0026683425675009254
+      }
+    },
+    {
+      "config": {
+        "n_oscillators": 1000,
+        "n_ensembles": 1000,
+        "diffusion": 1.0,
+        "coupling": 3.0,
+        "dt": 0.01,
+        "steps": 5000,
+        "seed": 20261008
+      },
+      "snapshot": {
+        "mean_order": 0.7208075744275306,
+        "finite_size_floor": 0.03162277660168379,
+        "measured_concentration": 2.162422723282592,
+        "runtime_seconds": 469.95942252967507
+      },
+      "metrics": {
+        "correlation": 0.4600037092958814,
+        "distance_mean": 0.081174781828452,
+        "distance_std": 0.009422432965437589,
+        "density_l1_error": 0.12908793209650835,
+        "self_consistency_error": 0.0019149488202306886
+      }
+    }
+  ]
+}

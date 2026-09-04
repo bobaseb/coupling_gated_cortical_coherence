@@ -7,6 +7,7 @@
 \usepackage{longtable}
 \usepackage{setspace}
 \usepackage{hyperref}
+\input{simulations/simulation_results}
 \geometry{a4paper, margin=1in}
 
 \title{Supplementary Materials: Mathematical Derivations and Lean 4 Formalizations}
@@ -93,6 +94,49 @@ The proposed content-sensitive test compares nested preregistered classifiers. T
 \textit{Lean 4 Implementation (\texttt{Phase8\_CriticalExponent.lean}):} The rate is what separates the bifurcation from a generic saturating gate, and it costs the differentiation the file above avoids. \texttt{vmMoment $n$ $a$} is the cosine moment $\int_{-\pi}^{\pi}\cos^{n}\!\theta\,e^{a\cos\theta}$, and \texttt{hasDerivAt\_\allowbreak vmMoment} differentiates it in $a$ under the integral sign, raising the cosine power by one; the interchange is Mathlib's dominated-convergence form for interval integrals, dominated by the constant $e^{|a|+1}$ on the unit ball around the parameter, which is where the compactness of $[-\pi,\pi]$ and the boundedness of $\cos$ do their work. Iterating gives \texttt{contDiff\_\allowbreak two\_\allowbreak vmMoment}, and \texttt{vonMisesSRatio\_\allowbreak eq\_\allowbreak moments} rewrites $E(a) = 1 - \texttt{vmMoment }2\,a/\texttt{vmMoment }0\,a$, so $E$ inherits two derivatives from a quotient whose denominator is positive. The moments at $a=0$ are elementary integrals of powers of $\cos$: $2\pi$, $0$, $\pi$, $0$ and $3\pi/4$. They give $E(0) = 1/2$, $E'(0) = 0$ --- the first derivative vanishes by the symmetry that kills the odd moments --- and $E''(0) = -1/8$, and Taylor's theorem in Mathlib's \texttt{taylor\_\allowbreak isLittleO\_\allowbreak univ} form then yields \texttt{vonMises\-SRatio\_\allowbreak second\_\allowbreak order}: $E(a) - (\tfrac12 - a^{2}/16)$ is $o(a^{2})$ at the origin. The remainder is $o(a^{2})$ and not $O(a^{4})$; the stronger form would need a fourth derivative and nothing here requires it. \texttt{coherent\_\allowbreak solution\_\allowbreak critical\_\allowbreak exponent} then combines the expansion with \texttt{coherent\_\allowbreak iff\_\allowbreak sRatio\_\allowbreak eq}: writing $a = Kr/D$ and rearranging $E(a) = D/K$ gives $K - 2D = K a^{2}(\tfrac18 - 2q(a))$ with $q$ the normalized remainder, and letting $K \to 2D$ along any family of positive coherent solutions with $r \to 0$ sends $q \to 0$ and $r^{2}/(K-2D) \to 1/D$. The statement is deliberately filter-indexed rather than parameterized by a curve, so it constrains every such family and privileges no path. Because its hypotheses hold only eventually along the filter, and an eventual clause is vacuously true on the empty one, the file also exhibits a family satisfying it: \texttt{coherentBranch} selects the unique positive solution above threshold via \texttt{supercritical\_\allowbreak fixed\_\allowbreak point\_\allowbreak existsUnique}, \texttt{coherentBranch\_\allowbreak tendsto\_\allowbreak zero} reads \texttt{coherent\_\allowbreak branch\_\allowbreak continuous\_\allowbreak at\_\allowbreak threshold} as a limit along $K \downarrow 2D$, and \texttt{coherentBranch\_\allowbreak critical\_\allowbreak exponent} discharges every hypothesis on it. Scope is inherited unchanged from the file above: this is asymptotics of the solutions of a stationary equation. It establishes no stability, no dynamical selection and no time course, so reading it as a square-root foot on a recovery curve requires the adiabatic separation and a threshold crossing at non-zero speed, both of which the main text states as assumptions. Every declaration in the file depends only on \texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}.
 
 \noindent The gap between these stationary-density results and any statement about a finite trajectory is the dynamical mean-field limit --- propagation of chaos for the Kuramoto system, which is a research programme rather than a lemma \cite{lacke2016, sznitman1991}. No theorem in this development closes it.
+
+\subsection{Finite mean-field trajectory controls}
+
+Two finite-$N$ controls probe this gap without closing it.  First, 500 seeded
+replicas of 1,000 identical-frequency oscillators were integrated at fixed
+coupling.  Their steady order was \selectionSubOrder{} below threshold,
+\selectionCriticalOrder{} at threshold and \selectionSuperOrder{} above
+threshold.  The last value lies \selectionStaticResidual{} from the stationary
+coherent value \selectionTheoryOrder.  Early-growth fits gave
+$\lambda=\selectionRateSlope K\selectionRateIntercept$, against the infinite-$N$
+linearization $\lambda=0.5K-1$.  This exhibits finite sampled escape toward the
+coherent branch; it proves no stability or dynamical-selection theorem.
+
+Second, 1,000 ensembles were swept from $N=\chaosNMin$ to $N=\chaosNMax$ at
+$K=1$ and $K=3$.  In the subcritical control, mean order fell from
+\chaosSubOrderLowN{} to \chaosSubOrderHighN{} and absolute circular pair
+correlation from \chaosSubCorrelationLowN{} to \chaosSubCorrelationHighN.
+The matched-sample sliced joint--product distance changed only from
+\chaosSubDistanceLowN{} to \chaosSubDistanceHighN, exposing its finite-sample
+floor.  Above threshold, mean order stabilized at \chaosSuperOrder, but the
+unconditional lab-frame pair correlation remained between
+\chaosSuperCorrelationMin{} and \chaosSuperCorrelationMax{} rather than
+following the $1/N$ reference.  The unpinned collective orientation is a shared
+latent variable, so unconditional independence and independence conditional on
+that orientation are different claims.  In the co-rotating frame, the $N=1000$
+density at measured concentration $a=\chaosMeasuredConcentration$ had $L^1$
+error \chaosDensityError{} from the von Mises target and Bessel
+self-consistency residual \chaosBesselResidual.  These finite, single-seed
+diagnostics prove neither form of propagation of chaos and discharge no Lean
+obligation.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.98\linewidth]{simulations/figures/propagation_of_chaos/propagation_of_chaos.png}
+\caption{Finite-$N$ convergence diagnostics for identical frequencies.  The
+left panel compares branch-cut-invariant pair correlation with a $1/N$
+reference; the centre uses matched sliced-Wasserstein joint--product samples;
+the right compares the co-rotating $N=1000$ histogram with the von Mises density
+at measured concentration.  The persistent supercritical lab-frame dependence
+is a negative result for the unconditional protocol, not a theorem about the
+conditional mean-field limit.}
+\label{fig:propagation-of-chaos}
+\end{figure}
 
 Perceptual anomalies such as visual snow can be modeled as boundary conditions where microscopic thermal noise ($D$) fails to be fully coarse-grained away by the continuous field, leaking across the $K_c$ threshold into the macroscopic gestalt.
 
@@ -217,7 +261,7 @@ The endogenous field's effect on any individual neuron is modulatory: it biases 
 
 \subsection{Finite-sheet spatial-decay control}
 
-A finite stochastic control asks whether fixing total coupling while shortening its spatial reach fragments the phase field. On a periodic $128\times128$ sheet spanning 2.0~mm, an exponential kernel was row-normalised to total coupling $K_0=8$ at every decay length; the dynamics used thermodynamic diffusion $0.5$~rad$^2$/s, quenched Gaussian frequency spread $1.5$~rad/s, and 20,000 Euler--Maruyama steps per length. With steady $r>0.2$ as the declared operational coherence criterion, the smallest interpolated decay length above which every larger sampled length remained coherent was 0.0140~mm. The transition-local trajectories were metastable and non-monotone, so that number is an operational boundary rather than a critical-point estimate with statistical precision. At the empirical controls 0.1, 0.2 and 0.3~mm, steady $r$ was respectively 0.9424, 0.9427 and 0.9427, and winding-defect density was at most $2.5\times10^{-6}$. Thus this finite, single-seed parameter sweep does not show fragmentation in the empirical decay-length band; its boundary lies about sevenfold below the band's 0.1~mm lower limit. It neither measures cortex nor proves a transition, and it leaves seed dependence and the near-boundary metastability unresolved.
+A finite stochastic control asks whether fixing total coupling while shortening its spatial reach fragments the phase field. On a periodic $128\times128$ sheet spanning 2.0~mm, an exponential kernel was row-normalised to total coupling $K_0=8$ at every decay length; the dynamics used thermodynamic diffusion $0.5$~rad$^2$/s, quenched Gaussian frequency spread $1.5$~rad/s, and 20,000 Euler--Maruyama steps per length. With steady $r>0.2$ as the declared operational coherence criterion, the smallest interpolated decay length above which every larger sampled length remained coherent was \spatialCriticalDecay~mm. The transition-local trajectories were metastable and non-monotone, so that number is an operational boundary rather than a critical-point estimate with statistical precision. At the empirical controls 0.1, 0.2 and 0.3~mm, steady $r$ was respectively \spatialOrderOne, \spatialOrderTwo{} and \spatialOrderThree, and winding-defect density was at most $\spatialDefectMaximum$. Thus this finite, single-seed parameter sweep does not show fragmentation in the empirical decay-length band; its boundary lies about sevenfold below the band's 0.1~mm lower limit. It neither measures cortex nor proves a transition, and it leaves seed dependence and the near-boundary metastability unresolved.
 
 \begin{figure}[ht]
 \centering
@@ -261,17 +305,17 @@ A finite-$N$ Euler--Maruyama ensemble quantifies the range over which the
 adiabatic reading is accurate.  With identical frequencies, $D=1$, $N=2000$,
 $32$ seeded replicas and $\dot K=v\in\{10^{-1},10^{-2},10^{-3},10^{-4}\}$,
 escape is defined as the first of three consecutive sampled points at $r\geq
-0.2$ after $K_c$.  The fastest leg is right-censored: only $5/32$ replicas
+0.2$ after $K_c$.  The fastest leg is right-censored: only $\rampFastEscaped/\rampReplicas$ replicas
 escape before $K=2.5$.  All replicas escape at the three slower speeds, with
-mean delays $\Delta K=0.1947$, $0.0684$ and $0.0253$.  Their log--log fit gives
-$\Delta K\propto v^{0.443}$, near the predicted exponent $1/2$ at this
+mean delays $\Delta K=\rampDelaySlowOne$, $\rampDelaySlowTwo$ and $\rampDelaySlowThree$.  Their log--log fit gives
+$\Delta K\propto v^{\rampDelayExponent}$, near the predicted exponent $1/2$ at this
 resolution.  At fixed $v=10^{-2}$ the delay increases
-from $0.0619$ through $0.1947$ to $0.2341$ as $N$ increases from $500$ through
+from $\rampNDelayOne$ through $\rampNDelayTwo$ to $\rampNDelayThree$ as $N$ increases from $500$ through
 $2000$ to $8000$, qualitatively agreeing with the predicted $\sqrt{\log N}$
 dependence; three sizes are evidence for the trend, not a scaling law.
 
 The early-foot fit $r=A(K-K_0)^{\beta_{\rm eff}}$ over $0.1\leq r\leq0.4$
-gives $\beta_{\rm eff}=0.964,0.898,0.471,0.417$ from fastest to slowest.  Thus
+gives $\beta_{\rm eff}=\rampOnsetOne,\rampOnsetTwo,\rampOnsetThree,\rampOnsetFour$ from fastest to slowest.  Thus
 the slow ramps recover the square-root foot, while fast driving pushes the
 observable foot toward the linear falsifier stated below.  With
 $D=1.5\,\mathrm{rad\,s^{-1}}$, traversing the simulated coupling window
@@ -282,8 +326,8 @@ adiabatic shape is safe at the slow end but not established across the whole
 biological interval.  The independently
 estimated $(a,r)$ traces remain close to $I_1(a)/I_0(a)$ even where the
 trajectory lags the stationary branch.  Post-critical RMS deviations are
-$0.00245,0.00599,0.00689,0.00705$; using the slowest run as the finite-$N$
-floor $\mathrm{Dev}_0$, none reaches $2\mathrm{Dev}_0=0.01410$.  The specified
+$\rampCollapseOne,\rampCollapseTwo,\rampCollapseThree,\rampCollapseFour$; using the slowest run as the finite-$N$
+floor $\mathrm{Dev}_0$, none reaches $2\mathrm{Dev}_0=\rampCollapseThreshold$.  The specified
 critical speed $v^*$ is therefore not bracketed by this sweep.  This numerical
 check exhibits finite sampled dynamics only: it proves neither stability nor
 dynamical selection and does not discharge the adiabatic assumption.
