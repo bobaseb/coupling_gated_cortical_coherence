@@ -128,7 +128,8 @@ the analytically expected fact that a sufficiently strong positive term wins.
 
 ### S6 — Joint phase/plasticity dynamics
 
-- [ ] Revise and run `tasks/joint_phases_plasticity.md`.
+- [x] Revise and run `tasks/joint_phases_plasticity.md`.
+      Completed under `tasks/s6_execution.md`; structural specificity failed.
 
 Extend `simulations/structural_resonance.py` with explicit fast/slow separation,
 the full symmetric gradient, total-coupling renormalization, `r(t)` and a shuffled
@@ -548,3 +549,58 @@ artifacts with `frustration_summary.py` and publication macros with
 `main.tex` and Lean are unchanged. Fourteen focused/drift tests and all required
 repository quality gates pass. The supplement compiles; its warnings are
 compared against a clean HEAD build, with no new warning categories.
+
+
+### 2026-09-05 — S6 joint phase/plasticity dynamics
+
+The execution contract in `tasks/s6_execution.md` fixed parameters and failure
+criteria before production. Revised `structural_resonance.py` in place with
+Euler--Maruyama noise, the full symmetric-edge gradient, fixed total coupling,
+50-fast-step plasticity cadence, seeded clustered frequencies, and decimated
+order/dissipation/template-distance diagnostics. Red tests preceded code for
+the finite-difference gradient, resource projection, shuffle, collective drift,
+reproducibility, update cadence and invalid configuration. Reporting and
+publication macro tests also failed before implementation.
+
+A reduced N=24, 2000-step smoke run passed before the six production legs:
+N=100, D=0.1, dt=0.01, 40000 steps, mean row coupling 4, learning rate 0.001,
+seeds 20260906, 20261906, 20262906, each adaptive and frozen with matched initial
+state/noise. Frequencies 0.5, 1, 1.5 occupy clusters of 34, 33, 33 nodes;
+grand mean is 0.995. Summed saved production integration runtime is 46.35 s.
+No phase histories are retained; six compact NPZ files hold initial/final K,
+final phases, templates/permutation, parameters and decimated observables.
+Smoke artifacts are retained separately.
+
+Adaptive second-half order is 0.98109--0.98149; minimum sampled order after
+t=10 exceeds 0.9718 in every seed. Last-quarter dissipation differs from the
+preceding quarter by -0.033% to +0.214%, passing the declared 5% plateau
+criterion. Tail dissipation is 1377.91--1379.97, versus 1380.61--1382.34 in
+frozen controls. First-quarter means are 1380.37--1388.77, but the initial
+near-aligned state has lower dissipation: this is not monotonic joint descent.
+
+The structural result is negative. True-template distance increases by
+1.73158--1.77532 and its reduction is worse than the shuffled reduction by
+0.03761--0.09785 in all seeds. Coherence persists but the specified plasticity
+does not recover the environmental block structure in this regime. Frozen
+controls also maintain coherence. No parameters or run duration were tuned
+after seeing this failure.
+
+The cluster target is explicitly a one-hot latent-input covariance template,
+hollowed and resource-matched, not a covariance estimated from constant
+frequencies or wrapped phases. A nonzero mean drive gives collective current
+but does not turn squared drift into entropy production; axes and prose label
+it a dissipation function. Zero-mean heterogeneous frequencies also need not
+satisfy detailed balance, correcting the original specification's premise.
+This finite experiment proves neither NESS convergence of adaptive dynamics,
+noise-free locking, general descent nor structural resonance. E45 and all Lean
+obligations remain unchanged; no timestep/learning-rate convergence is inferred.
+
+Artifacts: `simulations/figures/structural_resonance/` contains production and
+smoke summaries, the three-panel figure and generated `REPORT.md`.
+`structural_resonance_report.py` regenerates the report/plot from saved files;
+`simulation_tex.py` generates the supplement's numerical macros without
+integration. Eight focused/report/macro tests pass. Ruff, formatting, strict
+mypy, bandit, vulture, xenon, tach and all three repository checks pass;
+new production blocks have maximum cyclomatic complexity 7 (radon).
+The supplement and PDF report the negative result. Warning comparison uses a
+clean HEAD archive; existing citation/reference and box warnings remain.

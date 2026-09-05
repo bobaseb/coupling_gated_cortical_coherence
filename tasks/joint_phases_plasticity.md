@@ -1,6 +1,11 @@
 # Agent Execution Specification: Joint Fast-Slow Co-Evolution of (theta, K)
 
-**Priority: 6 of 6 - lowest value of the set, and blocked on a conceptual fix.**
+**Completed 2026-09-05.** The numerical contract and corrections to the
+thermodynamic interpretation below are in `s6_execution.md`; results are in
+`todo.md` and `simulations/figures/structural_resonance/REPORT.md`.
+Structural specificity failed in all three production seeds.
+
+**Priority: 6 of 6.**
 Measured budget on this Pi 5: 0.5 ms/step at N = 100; the whole run is minutes.
 See `simulation_shared_notes.md`.
 

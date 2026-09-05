@@ -1,0 +1,58 @@
+[
+  {
+    "name": "20260906_adaptive",
+    "config": {
+      "n": 24,
+      "steps": 2000,
+      "dt": 0.01,
+      "diffusion": 0.1,
+      "row_sum": 4.0,
+      "learning_rate": 0.001,
+      "update_every": 50,
+      "sample_every": 50,
+      "seed": 20260906
+    },
+    "adaptive": true,
+    "runtime_seconds": 0.07764523010700941,
+    "tail_order": 0.9826813565091767,
+    "minimum_order_after_ten": 0.9749597935434585,
+    "tail_dissipation": 342.57117478241975,
+    "initial_dissipation": 295.49505196225925,
+    "first_quarter_dissipation": 346.4562309156579,
+    "last_quarter_dissipation": 349.4590269711867,
+    "plateau_relative_change": 0.043178284964773495,
+    "plateau_pass": true,
+    "true_distance_reduction": -0.012893843641304414,
+    "shuffled_distance_reduction": -0.011356539543250221,
+    "specificity_advantage": -0.001537304098054193,
+    "mean_drive": 1.0
+  },
+  {
+    "name": "20260906_frozen",
+    "config": {
+      "n": 24,
+      "steps": 2000,
+      "dt": 0.01,
+      "diffusion": 0.1,
+      "row_sum": 4.0,
+      "learning_rate": 0.001,
+      "update_every": 50,
+      "sample_every": 50,
+      "seed": 20260906
+    },
+    "adaptive": false,
+    "runtime_seconds": 0.06448145676404238,
+    "tail_order": 0.9826833751216346,
+    "minimum_order_after_ten": 0.9749518232421995,
+    "tail_dissipation": 342.82176361969266,
+    "initial_dissipation": 295.49505196225925,
+    "first_quarter_dissipation": 346.73462234818487,
+    "last_quarter_dissipation": 349.7282864600069,
+    "plateau_relative_change": 0.0432656149411943,
+    "plateau_pass": true,
+    "true_distance_reduction": 0.0,
+    "shuffled_distance_reduction": 0.0,
+    "specificity_advantage": 0.0,
+    "mean_drive": 1.0
+  }
+]

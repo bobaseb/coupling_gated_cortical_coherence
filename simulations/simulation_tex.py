@@ -117,6 +117,24 @@ def _frustration_macros() -> list[str]:
     return lines
 
 
+def _plasticity_macros() -> list[str]:
+    data = cast(
+        list[JsonObject],
+        json.loads((FIGURES / "structural_resonance" / "summary.json").read_text(encoding="utf-8")),
+    )
+    adaptive = [row for row in data if row["adaptive"]]
+    lines = []
+    for key, name in (
+        ("tail_order", "Order"),
+        ("tail_dissipation", "Dissipation"),
+        ("true_distance_reduction", "Reduction"),
+    ):
+        values = [cast(float, row[key]) for row in adaptive]
+        for suffix, value in (("Min", min(values)), ("Max", max(values))):
+            lines.append(_macro(f"plasticity{name}{suffix}", f"{value:.4f}"))
+    return lines
+
+
 def generate_simulation_tex(output: Path) -> None:
     """Write all completed simulation macros from compact saved results."""
     chaos_summary = cast(
@@ -149,6 +167,9 @@ def generate_simulation_tex(output: Path) -> None:
         "",
         "% S5: conditional frustration rescue",
         *_frustration_macros(),
+        "",
+        "% S6: joint phase/plasticity dynamics",
+        *_plasticity_macros(),
     ]
     output.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
