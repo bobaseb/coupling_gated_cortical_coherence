@@ -1,4 +1,4 @@
-# Physics of Consciousness — simulation work plan
+# Physics of Consciousness — calibration and validation work plan
 
 **Replanned 2026-09-03.** The preceding ledger is archived unchanged at
 `_archive/todo_2026-09-03_pre-simulations-replan.md`. It closed every scheduled
@@ -6,11 +6,99 @@ formalization, manuscript, audit and witness item through T5. Earlier ledgers
 remain at `_archive/todo_2026-08-31_pre-composability-replan.md` and
 `_archive/todo_2026-08-30_pre-strategic-replan.md`.
 
-This pass is numerical. The detailed execution specifications live beside this
-file under `tasks/`; this ledger records their order, gates and closure criteria
-without duplicating them.
+The S1--S6 numerical pass and C1--C3 decisions are complete. The active
+follow-ups are R1--R5 below, added after the PRX Life editorial pass. These
+track unresolved calibration and empirical validation. Detailed execution specifications must precede new runs.
 
-## Scope and success criteria
+## Active follow-ups — calibration and empirical validation
+
+**Added 2026-09-05.** These are research limitations to resolve or report
+explicitly. Use existing data where suitable; a missing measurement is a recorded limitation,
+not a parameter to tune until the model passes. Preserve uncertainty and negative
+results. R1--R4 supply inputs to R5; independent preparatory work can proceed
+without assuming the missing inputs are known.
+
+### R1 — Calibrate effective coupling and phase diffusion in consistent units
+
+- [ ] Specify an identifiable estimator or controlled measurement for the
+      interaction strength K and phase diffusion D in the same cortical regime.
+      Separate phase diffusion from quenched frequency spread and observation
+      noise. Determine the inverse-time calibration gamma in K_eff=gamma*N*s*E*f,
+      or replace that conversion with a justified, directly estimated rate model.
+
+**Completion:** a documented mapping from measurements to K and D, with units,
+parameter identifiability, uncertainty and held-out or independent checks.
+Report whether the resulting K/D interval supports threshold crossing; do not
+infer gamma from the requirement K/D>2 or from the same Bessel collapse used to
+test the model. If the available data cannot identify the rates, document the
+missing measurement and retain the conditional field-strength interpretation.
+
+### R2 — Validate spatial aggregation and the mean-field approximation
+
+- [ ] Estimate or constrain the spatial interaction kernel, effective population
+      size and decay range. Account for signs, frequency heterogeneity and the
+      chosen normalization when reducing the kernel to a scalar coupling.
+
+**Completion:** an explicit aggregation rule with sensitivity bounds and a
+comparison of the spatial model with its scalar approximation in the intended
+regime. S2 fixes total coupling while varying range; it does not measure that
+coupling or establish that simple population summation applies to cortex.
+Avoid double-counting population size after kernel normalization. If spatial
+heterogeneity invalidates the identical-frequency threshold, state the regime
+restriction rather than carrying K_c=2D over unchanged.
+
+### R3 — Calibrate extracellular geometry against coupling and recovery time
+
+- [ ] Establish whether a proposed geometry observable (for example a diffusion
+      MRI measure or an astrocytic signal) predicts independently estimated
+      effective coupling, and determine its sign, lag, uncertainty and timescale.
+
+**Completion:** a justified observation-to-geometry-to-coupling mapping and an
+estimate of K(t), its crossing speed and phase relaxation times. Test the
+monotone-gate and adiabatic assumptions instead of imposing them. Use calibrated
+D to translate dimensionless ramp rates into physical time. An onset time or
+coupling trajectory fitted solely to the coherence trace is not an independent
+prediction of latency. If the proxy is not identifiable, specify the additional
+measurement needed; do not equate ADC or calcium directly with K.
+
+### R4 — Calibrate the phase-observation model and uncertainty
+
+- [ ] Quantify the effects of source mixing, reference montage, spatial coverage,
+      filtering, temporal pooling and correlated samples on the independent
+      concentration estimator, circular order, onset and a/r ratio.
+
+**Completion:** validation against known synthetic or controlled signals through
+matched observation/preprocessing steps, with bias and uncertainty over a broad
+concentration range. Preserve the distinction between instantaneous spatial and
+pooled spatiotemporal distributions. Use dependence-aware uncertainty estimates
+and subject-level held-out checks; the current independent-bin bootstrap is
+exploratory. Fix finite-size escape thresholds before fitting recovery, and do
+not interpret a/r near the fluctuation floor as a reliable coupling estimate.
+Demonstrate that the Bessel relation can be distinguished from its tangent or
+other plausible phase distributions at the available signal quality.
+
+### R5 — Test awakening recovery against competing mechanisms
+
+- [ ] Specify and test a protocol combining phase estimates, an independently
+      defined behavioral recovery endpoint and a validated geometry/coupling
+      observable, with model comparison fixed before outcome inspection.
+
+**Completion:** held-out comparison of the calibrated coupling-gated prediction
+with exponential, flexible sigmoidal and other plausible slow-recovery models
+under the same observation noise and filtering. Report power or identifiability
+limits, latency and onset uncertainty, and whether geometry adds predictive
+information beyond the phase trace. Finite-rate effects must be included; a
+linear apparent onset alone does not reject the field model outside the
+adiabatic regime. Propofol EEG compatibility is not an awakening test, and a
+successful Bessel fit does not identify the physical coupling medium.
+
+**Limits outside calibration:** R1--R5 do not prove E45, overlap compatibility,
+propagation of chaos, the reflexive read-out mechanism or the identification
+with experience. A test of actual environmental learning would need a separately
+specified changing input and held-out prediction metric; S6's failed structural
+specificity remains a negative result, not a task to tune away.
+
+## Completed simulation pass — scope and success criteria
 
 The six planned simulations provide **heuristic numerical evidence**. They do
 not discharge `E45`, `E56`, `E67`, propagation of chaos, dynamical selection or
@@ -47,7 +135,7 @@ The shared corrections and measured Raspberry Pi 5 budgets are canonical in
 
 - The public-data collapse pipeline is implemented in
   `simulations/empirical_collapse.py`. Its independent log-density estimator and
-  SOS bandpass correction are complete; the remaining protocol question is C1.
+  SOS bandpass correction are complete; the pooled-estimand decision is recorded in completed C1.
 - The field-magnitude arithmetic is implemented in
   `simulations/fermi_estimate_check.py` and its constants are generated in
   `simulations/fermi_params.tex`.
@@ -641,3 +729,15 @@ the presentation-only Python change also passes the repository quality hooks.
 The bibliography correction is verified against the Sznitman chapter's publisher;
 a vague Lacker preprint entry is removed. Author metadata and confirmation of
 the disclosure remain listed in the editorial note. Nothing is submitted.
+
+
+### 2026-09-05 — Calibration follow-ups and title
+
+Added R1--R5 with completion criteria for rate calibration, spatial aggregation,
+geometry-to-coupling dynamics, observation/uncertainty calibration, and a direct
+awakening model comparison. The completed S1--S6/C1--C3 records are retained.
+Calibration does not close the remaining formal or philosophical assumptions.
+Renamed the article to "A conditional field model of cortical coherence and
+recovery" to match its biological subject and conditional scope; synchronized
+the supplement title and rebuilt both PDFs. Prose and table gates pass, and
+both builds remain free of warnings and box errors.
