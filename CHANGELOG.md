@@ -20,6 +20,34 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-05 — PRX Life manuscript tightening
+
+The main article is reorganized around a conditional cortical-coupling model,
+its awakening prediction, and the completed numerical controls. Repeated proof
+implementation and speculative comparisons are condensed; technical scope
+remains in the supplement and Lean sources.
+
+Claims withdrawn or narrowed:
+
+- Dimensionless population phase-shift arithmetic does not establish cortical
+  threshold crossing. A separately calibrated inverse-time factor is required.
+- A monotone coupling gate does not uniquely predict a sigmoid, and the static
+  square-root branch does not guarantee an observable cusp at finite ramp rate.
+  The absence of a stationary fold does not exclude dynamical hysteresis.
+- Squared drift is not generally thermodynamic entropy production. S6 does not
+  support environmental learning; coherence also persists in frozen controls.
+- Sheaf gluing and wiring-support inequalities do not exclude digital
+  consciousness or establish that continuity alone supplies phenomenal unity.
+- EEG pooling estimates a spatiotemporal distribution. The exploratory bin
+  bootstrap does not preserve temporal dependence, and compatibility with the
+  Bessel curve over a narrow range is not a discriminating confirmation.
+
+Both publications share references.tex. Unused references and an unverified,
+underspecified Lacker preprint entry are removed; the existing Sznitman chapter
+is retained with publisher-verified bibliographic details. No new simulations
+or Lean results are introduced. This is preparation for author review, not a
+submission or a claim that the biological assumptions have been validated.
+
 ## 2026-09-03 — two of the eight named hypotheses were satisfiable without their premises
 
 **Claimed:** that `chain`'s eight named hypotheses are eight gaps, each an

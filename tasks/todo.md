@@ -622,3 +622,22 @@ All scheduled S1--S6 and C1--C3 items are now complete. This closes the numerica
 pass, not the unscheduled physical or mathematical research questions above.
 Further simulation work should be a separately specified test of a consequential
 claim, rather than an extension of this completed ledger.
+
+### 2026-09-05 — PRX Life editorial pass
+
+Completed the separate manuscript specification in `tasks/prxlife_editorial_pass.md`.
+Reframed the main article around a conditional cortical-coupling model and a
+testable awakening hypothesis, retaining all eight assumptions and all six
+simulation outcomes. Reduced the main article to approximately 4,000 words
+before references and 26 review-format pages (from 70). The supplement retains
+formal implementation details and is reconciled on calibration, plasticity,
+finite-rate effects, hardware scope and the pooled EEG estimand. Shared
+references resolve citations in both PDFs. The S6 figure is regenerated from
+saved artifacts with larger legend text; no simulations are rerun.
+
+Both PDFs compile without warnings or box errors after comparison with the
+clean HEAD archive. Publication prose, table, leaf and macro/report checks pass;
+the presentation-only Python change also passes the repository quality hooks.
+The bibliography correction is verified against the Sznitman chapter's publisher;
+a vague Lacker preprint entry is removed. Author metadata and confirmation of
+the disclosure remain listed in the editorial note. Nothing is submitted.

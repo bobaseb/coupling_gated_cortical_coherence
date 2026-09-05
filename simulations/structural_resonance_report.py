@@ -64,7 +64,7 @@ def render_report(root: Path, output: Path) -> None:
 
 def plot(root: Path) -> None:
     records = read_records(root)
-    fig, axes = plt.subplots(3, 1, figsize=(10, 10), sharex=True)
+    fig, axes = plt.subplots(3, 1, figsize=(8, 9), sharex=True)
     for row in records:
         with np.load(root / f"{row['name']}.npz", allow_pickle=False) as data:
             time = data["time"]
@@ -96,7 +96,7 @@ def plot(root: Path) -> None:
     axes[2].set_xlabel("Time")
     for axis in axes:
         axis.grid(alpha=0.2)
-        axis.legend(fontsize=7, ncol=2)
+        axis.legend(fontsize=10, ncol=2)
     fig.tight_layout()
     fig.savefig(root / "joint_dynamics.png", dpi=160)
     plt.close(fig)

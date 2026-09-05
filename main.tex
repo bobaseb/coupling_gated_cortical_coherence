@@ -7,16 +7,8 @@
 \usepackage{hyperref}
 \usepackage{setspace}
 \usepackage[round]{natbib}
-\usepackage{longtable}
-\usepackage{tikz}
-\usetikzlibrary{positioning,arrows.meta}
-\definecolor{cthm}{HTML}{C6DFBF}
-\definecolor{cobl}{HTML}{F6DDA8}
-\definecolor{cemp}{HTML}{D3C9EA}
-\definecolor{cstip}{HTML}{EEC2C2}
-\definecolor{cvoc}{HTML}{D9D9D9}
-\DeclareRobustCommand{\keysq}[1]{{\fboxsep=0pt\fcolorbox{black!55}{#1}{\rule{0pt}{1.7ex}\rule{1.7ex}{0pt}}}}
-% Float placement: six figures in a 40-page paper otherwise pile up at the end.
+\usepackage{array}
+% Float placement for the review manuscript.
 \renewcommand{\topfraction}{0.9}
 \renewcommand{\bottomfraction}{0.8}
 \renewcommand{\textfraction}{0.07}
@@ -27,10 +19,10 @@
 \renewcommand{\cite}[1]{\citep{#1}}
 \doublespacing
 
-\title{Physical Primitives of Mind: Modeling Consciousness via Symmetries and Landauer Erasure}
+\title{Physical primitives of mind: A conditional field model of cortical coherence}
 \author{Sebastian Bobadilla-Suarez\\
 \texttt{sebastian.bobadilla.s@gmail.com}}
-\date{31 August 2026}
+\date{5 September 2026}
 \usepackage{lineno}
 % The arXiv build strips lineno; the figures call \nolinenumbers, so keep it defined.
 \providecommand{\nolinenumbers}{}
@@ -38,681 +30,231 @@
 \usepackage{xfp}  % \fpeval for inline Fermi-parameter arithmetic
 
 \input{simulations/fermi_params}
+\input{simulations/simulation_results}
 
 \begin{document}
-\linenumbers
-
+\begingroup
+\singlespacing
 \maketitle
+\endgroup
 
 \begin{abstract}
-We present a machine-checked synthesis of established physical results into a single conditional route from the finiteness of a localized system's phase space to a unified cognitive fixed point. No new fundamental physics is proposed: Kibble's classification of topological defects, Landauer's erasure bound, the bound of Still and colleagues relating dissipation to nonpredictive information, the threshold $K_c = 2D$ for the noisy mean-field Kuramoto model, and Banach's fixed-point theorem are all imported. What is new is that they are stated in one formal language, their mutual consistency mechanically checked, and the points at which the route relies on stipulation rather than derivation located exactly. One conditional theorem in Lean~4 composes eight named hypotheses to its endpoint; the unproved steps are its arguments rather than sentences about it, and they are jointly satisfiable rather than jointly empty. Two links are marked rather than argued around: the identification of the posited continuum kernel with the endogenous electromagnetic field of cortex is an empirical commitment with four stated failure conditions, and the identification of a global section of the probability sheaf with the unity of experience is a stipulation. The framework is falsifiable in one place that is its own. Recovery from sudden awakening should follow a delayed sigmoid with a square-root cusp rather than an exponential, because the slow variable gating recovery is astrocytic volume rather than cortical phase realignment, and throughout that recovery the concentration and the coherence of the phase distribution must collapse onto the parameter-free curve $r = I_1(a)/I_0(a)$.
+\singlespacing
+How could changes in the physical coupling of neural populations constrain the recovery of coherent activity after sleep? We develop a conditional field model connecting information dissipation, cortical coupling, and compatible local states. A Lean~4 formalization separates established mathematical results from eight explicit assumptions needed to compose them; a common toy model demonstrates their joint satisfiability without identifying them with cortical physiology. The experimentally relevant component is a noisy mean-field phase model in which a slowly varying coupling crosses a synchronization threshold. Its stationary coherent branch has square-root onset and a von Mises concentration--coherence relation. Finite simulations delimit these predictions: ramp speed changes the apparent onset exponent, spatial coherence depends on the specified coupling regime, and coupling plasticity preserves coherence without recovering the tested environmental structure. An exploratory scalp-EEG analysis is compatible with the concentration--coherence relation over a range too narrow to distinguish it from a linear approximation. The framework therefore supplies a testable hypothesis for coupling-gated recovery, rather than a derivation of consciousness. Its decisive requirements are independent calibration of effective cortical coupling and an awakening experiment that separates slow coupling changes from alternative recovery mechanisms.
 \end{abstract}
+\linenumbers
 
 \section{Introduction}
-The pursuit of a physical theory of consciousness typically involves searching for the biological correlates of mind or treating subjective experience as an abstract computational algorithm. This paper asks a more fundamental question: if we assume only basic physical primitives---continuous symmetries, geometry, and thermodynamics---is the emergence of a unified, perceiving entity a natural physical attractor?
 
-We propose a framework in which the structural properties of consciousness are organized as candidate physical attractor states, running from continuous symmetries and boundaries, through dissipation and physical resonance, to the macroscopic electromagnetic unity proposed by field theories of mind. This is not a derivation from basic principles: the formal result is a conditional composition schema whose eight unproved arrows are explicit assumptions. To avoid critiques of ``math theatre,'' we delineate between literal physical mechanisms (thermodynamic erasure via Landauer's principle, boundaries from spontaneous symmetry breaking) and theoretical mappings, using Lean~4 formalization as our mathematical anchor. We adopt a perspective aligned with Russellian monism: objective measurements of macroscopic electromagnetic fields constitute the third-person ``outside,'' while the system's internal physical deformation to reach structural resonance constitutes the first-person intrinsic experience.
+Neural activity changes across sleep, awakening and anesthesia, but a change in synchrony does not by itself identify the physical interaction responsible for it. A field account makes a stronger proposal: spatially distributed neural processes are coordinated partly through the endogenous extracellular electromagnetic field, and changes in the medium can change that coordination \cite{mcfadden2002,mcfadden2020,pockett2012}. Ephaptic effects provide a possible interaction mechanism \cite{frohlich2010,anastassiou2015}. Whether that mechanism is sufficient to support the proposed collective state remains an empirical question.
 
-\subsection*{What is new here, and what is not}
-A framework paper about consciousness invites a particular suspicion, and it is better answered at the start than at the end. \textbf{No new physics is derived here.} Every physical result the chain invokes is established, and most of it is old: Picard--Lindel\"of for the well-posedness of the coupled dynamics \cite{coddington1955}; Kibble's classification of topological defects by the homotopy of the vacuum manifold \cite{kibble1976}; Landauer's bound on the heat cost of erasure \cite{landauer1961}; Gibbs' inequality for the relative entropy \cite{cover2006}; Barbalat's lemma for the asymptotics of a dissipating trajectory \cite{barbalat1959}; the threshold $K_c = 2D$ for the noisy mean-field Kuramoto model \cite{sakaguchi1988}; the bound of Still, Sivak, Bell and Crooks relating dissipation to nonpredictive information \cite{still2012}; the identity of Kawai, Parrondo and Van den Broeck equating dissipated work with the relative entropy between forward and time-reversed ensembles \cite{kawai2007}; and Banach's fixed-point theorem \cite{banach1922}. A physicist reading this paper will recognize all of it. Conceding the point costs nothing.
+We ask what a field account must assume to connect physical constraints on information processing to a coherent, globally consistent state. The model combines finite information capacity, thermodynamic bounds on memory, a continuum coupling description, synchronization, and the gluing of compatible local states. A reflexive extension requires the resulting state to be a fixed point of a map that reads its own local encoding. These are distinct constructions: thermodynamic efficiency does not imply synchronization, and synchronization does not imply either compatible representations or subjective experience.
 
-What is new is of a different kind, and it is a smaller claim. These results are stated in one formal language, their mutual consistency mechanically checked, and the places where the chain relies on stipulation rather than derivation located exactly. The development declares \textbf{no axioms}: \texttt{\#print axioms} reports only \texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}. Every physical postulate is a field of a class each model discharges for itself, and every class is inhabited by an explicit witness, so no theorem is vacuous. The links form a single conditional composition theorem --- \texttt{chain} in 	exttt{Chain.lean} --- with \textbf{eight named hypotheses}: four formalization gaps, two modelling assumptions, two physical commitments. Its conclusion 	exttt{UnifiedSelf} says the sheaf-glued section is the unique fixed point of self-prediction, rather than Unity and Self being unrelated. The theorem \texttt{chain\_hypotheses\_jointly\_satisfiable} discharges all eight on one toy substrate, ruling out inconsistency without evidence that cortex realizes the composition.
+The contribution has three parts. First, a machine-checked composition makes the missing connections explicit. Second, a slowly varying coupling yields a conditional prediction for recovery after awakening, with a stationary square-root onset and a specified phase-distribution relation. Third, numerical controls test the robustness and limits of the dynamical interpretation, including negative results. The established ingredients include Landauer's bound \cite{landauer1961}, the dissipation cost of nonpredictive information \cite{still2012}, the noisy Kuramoto transition \cite{sakaguchi1988}, and Banach's fixed-point theorem \cite{banach1922}. Their biological composition, rather than any new fundamental physical law, is the object of study.
 
-The schema exposes two missing arrows: the capacity bound implies the heat cost directly, skipping the boundary, and neither of the two theorem-arrows is one the framework's usual narration draws.
+The proposed connection to consciousness is restricted. We use a global section to represent consistency across local descriptions and a reflexive fixed point to represent self-consistency. Identifying either construction with phenomenal unity is a philosophical commitment, not a theorem or an outcome of the simulations. The biological tests concern coupling, coherence and recovery; they can challenge the physical model without resolving that identification.
 
-A hypothesis of that theorem is worth counting only if it cannot be discharged by ignoring it, and two of the eight are about the existence of a structure: a predictive structure at the third arrow, a thermodynamic cover at the seventh. Both structures are inhabited in the development independently of the premise --- a two-bit predictive system, a two-patch cover --- so bare existence would be an arrow whose proof discards its own hypothesis. Each therefore demands a structure tied to the object the premise is about. The third asks for a predictive structure whose thermal scale is the register's own temperature, whose dissipated work is the register's own Landauer heat, and whose wasted memory is not zero; the seventh asks for a cover whose patch coupling is at least the mean-field constant the coherent regime names, and whose equilibrium configuration is the limit of a relaxation on that coupling rather than a configuration the instance is placed at. Each demand has a regression beside it: a predictive structure that dissipates nothing fails the first (\texttt{frozenSystem\_\allowbreak not\_\allowbreak of\_\allowbreak eraser}), and a cover reached by relaxation at unit coupling fails the second at $K = 3$ (\texttt{trioCover\_\allowbreak not\_\allowbreak reachedByRelaxation\_\allowbreak three}).
+\section{A coupling-gated model of cortical coherence}
+\label{sec:field}
 
-The framework is not thereby unfalsifiable, and one of its predictions is its own rather than a rival's. Section~\ref{sec:prediction} argues that recovery from sudden awakening should follow a \emph{delayed sigmoid} rather than an exponential, because the variable gating recovery is astrocytic volume and cerebrospinal-fluid clearance, on a timescale of seconds to minutes, while the cortical rhythms whose realignment is usually taken to constitute the recovery move in milliseconds. That is a claim about functional form; it is fittable against data of a kind already collected; and a purely electrical account of the same recovery predicts a different form. Because a delayed sigmoid is what any slow saturating gate would give, that section also states the sharper claim the same mathematics supports: at every instant of the recovery the concentration and the coherence of the phase distribution must lie on the fixed curve $r = I_1(a)/I_0(a)$, the same curve for every subject, with no free parameters and with the threshold read off the ratio $a/r$ rather than fitted.
+\subsection{Dynamics and stationary solutions}
 
-\section{The chain, and the status of each of its links}
-\label{sec:chain}
-The machine-checked dependency accounting is carried out in Lean~4, building on recent efforts to formalize consciousness and brain semantics such as the `OnlyOne' system \cite{scherf2026} and sheaf-theoretic models of neural manifolds \cite{inoue2026}. Figure~\ref{fig:chain} shows the schema with the status of every node \emph{and of every arrow} marked, and Table~\ref{tab:summary} states in seven rows what each link assumes. The complete claim-by-claim map to Lean identifiers is Table~S1 in the supplement; the main text does not depend on reading it.
+The finite stochastic model is
+\begin{equation}
+ d\theta_i=\left[\omega_i+\sum_j K_{ij}(t)\sin(\theta_j-\theta_i)\right]dt
+ +\sqrt{2D}\,dW_i,
+ \qquad
+ r_N=\left|\frac1N\sum_i e^{i\theta_i}\right|.
+\end{equation}
+Here $D>0$ is phase diffusion, $W_i$ are independent Wiener processes, and $K_{ij}$ has inverse-time units, with angles treated as dimensionless. The uniform mean-field convention is $K_{ij}=K/N$. Frequency heterogeneity and phase diffusion are separate parameters; a frequency-spread width cannot be substituted for $D$ when applying the identical-frequency stationary theory.
 
-One result about the formalization itself is worth stating here rather than in the supplement, because it is what makes the accounting mean anything. An axiom that is inconsistent silently makes every theorem downstream of it vacuous while leaving the build green, and the failure has one shape: \emph{an axiom that constrains a symbol it does not itself bind}. Such a declaration is not a postulate about one system but a constraint on every model of the class the symbol belongs to, including models built to violate it, and a class that has such a model is thereby inconsistent. Three tempting global axiom shapes --- pointwise vacuum minimization with the energy functional as an implicit argument, a Landauer heat identity equating a free class field with a bath-entropy difference for every instance, and an entropy-production bound asserted against all pairs of distributions --- each prove \texttt{False}, from that one root cause. The rule that prevents it is the rule we follow throughout: \emph{a physical postulate that mentions a class field must be a field of that class, never a standalone axiom quantified over all instances.} A postulate is then an obligation each model discharges, not a global claim about every model. The supplement gives the three refutations and the corresponding witness constructions, which are what keep the classes inhabited and their theorems non-vacuous.
+For identical frequencies in their rotating frame, the assumed stationary density is
+\begin{equation}
+ \rho(\theta)=\frac{e^{a\cos(\theta-\psi)}}{2\pi I_0(a)},
+ \qquad a=\frac{Kr}{D},\qquad
+ r=R(a):=\frac{I_1(a)}{I_0(a)}.
+ \label{eq:selfconsistency}
+\end{equation}
+The $I_n$ are modified Bessel functions, and $\psi$ is the collective phase. Lean verifies normalization, the density's circular order parameter, and the self-consistency equation. At $K\leq K_c=2D$, the only nonnegative self-consistent order parameter is zero. At $K>K_c$, exactly one positive solution coexists with zero; the positive branch is continuous at threshold and strictly increasing with $K$.
+
+The near-threshold expansion gives
+\begin{equation}
+ \frac{r^2}{K-K_c}\longrightarrow\frac1D,
+ \qquad r\sim\sqrt{\frac{K-K_c}{D}}.
+ \label{eq:onset}
+\end{equation}
+This is a result about the stationary solution branch. Of the coherent branch we prove existence, uniqueness, continuous emergence at threshold and strict growth in $K$, but not that it is dynamically selected. The dynamical mean-field limit---propagation of chaos---is the missing link between the finite system and the stationary description \cite{sznitman1991}. No theorem in this development closes it. Exchange symmetry alone does not justify factorization of the joint law, particularly for an ensemble with an unpinned collective phase.
 
 \begin{figure}[htbp]
 \centering
-\singlespacing
-\nolinenumbers
-\begin{tikzpicture}[
-  node distance=3.2mm,
-  every node/.style={font=\scriptsize},
-  box/.style={draw=black!55, rounded corners=2pt, line width=0.4pt,
-              text width=10.2cm, align=left, inner sep=2.9pt},
-  narr/.style={text width=4.8cm, align=left, inner sep=2.9pt,
-               draw=black!55, rounded corners=2pt, line width=0.4pt},
-  arr/.style={-{Latex[length=1.6mm]}, draw=black!65, line width=0.6pt, dash pattern=on 1.1pt off 1.1pt},
-  thm/.style={-{Latex[length=1.6mm]}, draw=black!80, line width=0.9pt},
-  stip/.style={-{Latex[length=1.6mm]}, draw=black!45, line width=0.6pt, dash pattern=on 0.3pt off 1.4pt},
-]
-\node[box, fill=cvoc]                     (n0) {\textbf{Spacetime symmetries and the metric.}\\ \emph{Setting.} Inhabited, and consumed by no theorem: the Poincar\'e group is an illustration, not a premise the chain uses.};
-\node[narr, fill=cthm, below=8mm of n0, xshift=-4.8cm] (n1) {\textbf{A finite phase space has bounded information capacity.}\\ \emph{Theorem.} $H(p) \le \log|X|$, with equality only at the uniform law; a stream of $|P|^k > |X|$ histories cannot be recorded injectively, and a state the dynamics cannot reach costs heat.};
-\node[narr, fill=cthm, below=8mm of n0, xshift=4.8cm]  (n2) {\textbf{Broken symmetry forces a boundary.}\\ \emph{Theorem.} A connected substrate whose field reaches two components of the vacuum manifold must leave it somewhere: the $\pi_0$ case of Kibble's classification.};
-\node[box, fill=cobl,  below=of n1, xshift=4.8cm]       (n3) {\textbf{A boundary with finite phase space must erase, and erasure costs heat.}\\ \emph{Theorem from an instance obligation.} Contraction under globally injective dynamics is proved; the heat identity is a class field each model discharges.};
-\node[box, fill=cobl,  below=of n3]                     (n4) {\textbf{Dissipation is bounded below by the \emph{nonpredictive} information retained.}\\ \emph{Theorem from an instance obligation.} Still et al.'s bound is a class field; the split of memory into predictive and nonpredictive parts is derived from it.};
-\node[box, fill=cthm,  below=of n4]                     (n5) {\textbf{The discrete coupling energy converges to its continuum integral.}\\ \emph{Theorem.} Along regular refining triangulations. The limit is a \emph{scalar}: no theorem here produces a kernel of two continuum points, and a kernel sited at the vertices contributes zero coupling energy (Section~\ref{sec:scaling}).};
-\node[box, fill=cemp,  below=of n5]                     (n6) {\textbf{A continuum kernel is posited and identified with endogenous cortical EM coupling.}\\ \emph{Modelling assumption, then empirical commitment.} Neither the kernel nor its cortical realization is produced by the scalar convergence theorem.};
-\node[box, fill=cthm,  below=of n6]                     (n7) {\textbf{Above $K_c = 2D$ a coherent order parameter exists, is unique, emerges continuously and grows with $K$.}\\ \emph{Theorem about the self-consistency equation}, from an assumed stationary density rather than from the dynamics.};
-\node[box, fill=cthm,  below=of n7]                     (n8) {\textbf{Overlap-compatible local states glue to one global section: unity.}\\ \emph{Theorem} over a thermodynamic cover. Compatibility is an instance obligation; the equilibrium hypothesis is discharged from a convergence theorem on an explicit basin.};
-\node[box, fill=cthm,  below=of n8]                     (n9) {\textbf{The self-prediction map has a unique fixed point: the Self.}\\ \emph{Conditional theorem + modelling postulate.} Banach proves uniqueness given a Lipschitz bound; the bound at rate $e^{-(K-K_c)\tau/2}$ is independently assumed and witnessed, not derived from coherence.};
-\node[box, fill=cstip, below=of n9]                    (n10) {\textbf{That fixed point is experience.}\\ \emph{Stipulation.} Named and owned, not derived, and no argument below it depends on its being true.};
-\foreach \a/\b in {n3/n4, n4/n5, n5/n6, n6/n7, n7/n8, n8/n9}
-  \draw[arr] (\a) -- (\b);
-\draw[arr] (n2.south) -- (n3.north);
-\draw[stip] (n9) -- (n10);
-\draw[thm] (n1.east) to[out=0,in=180] (n3.west);
-\draw[thm] (n7.east) to[out=-18,in=18] (n9.east);
-\end{tikzpicture}
-\caption{The conditional composition schema, with the status of every node and the
-distinction between the two kinds of arrow.
-\emph{Nodes.}
-\keysq{cthm}~theorem;
-\keysq{cobl}~theorem resting on a class field that each model must discharge;
-\keysq{cemp}~empirical commitment, neither formalized nor derived;
-\keysq{cstip}~stipulation;
-\keysq{cvoc}~setting, consumed by no theorem.
-\emph{Arrows.} A \textbf{solid} arrow is a Lean theorem. A \textbf{dashed} arrow is a
-named hypothesis of \texttt{chain} (	exttt{Chain.lean}): an implication between the two
-node statements which the development does not prove and which is therefore an argument
-the theorem takes. A \textbf{dotted} arrow is the stipulation, which is not a hypothesis of
-anything.
-The list has \textbf{two independent roots}: n1 (finite capacity) and n2 (broken symmetry
-boundary) are each a theorem, and each supplies a different premise for the Landauer step
-at n3. Their mutual arrow was removed because the capacity bound mentions no vacuum
-manifold and the $\pi_0$ obstruction mentions no entropy --- they are two starting points
-of the document and not two links of one chain. Reading the arrows rather than the boxes:
-every arrow drawn vertically below n3 is a hypothesis, and the two solid arrows ---
-finiteness straight to Landauer and the coherent order parameter to the Self --- are edges
-the narration does not itself draw. The two weak links are marked rather than argued
-around: the continuum kernel is posited, its identification with the cortical
-electromagnetic field is empirical, and the final step to experience is stipulated.}
-\label{fig:chain}
+\includegraphics[width=0.85\linewidth]{bifurcation_diagram.png}
+\caption{Stationary self-consistency for identical frequencies and phase diffusion $D=1$. The positive coherent branch appears continuously above $K_c=2D$ and increases with coupling. Zero remains a solution above threshold. The curve is computed from the same integral expressions used in the formalization; it illustrates the static theorems and does not establish dynamical selection.}
+\label{fig:bifurcation}
 \end{figure}
+
+A spatial version replaces the finite sum by an integral against a kernel $K(x,y)$. We normalize the substrate measure to total mass one, so the mean-field strength is a kernel average rather than a quantity that grows with the arbitrary measure of the substrate. Reduction of a heterogeneous spatial kernel to a scalar $K$ is an additional modelling step. The threshold in Eq.~\eqref{eq:selfconsistency} does not automatically apply to every spatial or signed network.
+
+\subsection{Physical identification and calibration}
+\label{sec:scaling}
+
+Regular mesh refinement gives convergence of a discrete coupling-energy quadrature to its continuum integral. This is scalar energy convergence, not convergence of trajectories and not a construction of a physical kernel. The model posits a continuum kernel and separately identifies its cortical realization with endogenous electromagnetic coupling. The formal predicate requires a jointly continuous kernel, a normalized substrate, a mean-field strength equal to its spatial average, and no single site providing more than half of that mean-field coupling. Toy witnesses satisfy these conditions; none is a model calibrated to cortex.
+
+Extracellular fields can modulate spike timing \cite{frohlich2010,anastassiou2015}, and field-based models have been proposed for integrating distributed neural information \cite{pinotsis2022,mcfadden2020}. These observations motivate an effective interaction. They do not establish its magnitude relative to phase diffusion, its spatial averaging rule, or its causal role in conscious experience. Likewise, changes in phase organization under propofol \cite{bastos2021} do not measure a crossing of the model's coupling threshold.
+
+The physical-unit conversion is a material limitation. An estimate proportional to $N\Delta t f$, using population size, a spike-time shift and oscillation frequency, is dimensionless. It cannot be compared directly with an inverse-time diffusion parameter. A conversion such as
+\begin{equation}
+ K_{\mathrm{eff}}=\gamma N s E f
+\end{equation}
+requires a rate calibration $\gamma$, where $s$ is the time shift per unit field and $E$ the field amplitude. The saved field-strength calculations are conditional on this calibration and on the chosen spatial aggregation; they do not independently establish $K_{\mathrm{eff}}>2D$ in cortex. Determining the interaction kernel and phase diffusion from the same physical system is necessary before the threshold can become a quantitative biological claim.
+
+\section{Recovery after awakening: a conditional prediction}
+\label{sec:prediction}
+
+Sleep-associated changes in extracellular space and clearance motivate a possible slow control of coupling \cite{xie2013}. We hypothesize that recovery after awakening includes a change in effective coupling $K(t)$, mediated by extracellular geometry, on a slower timescale than phase dynamics. Neither the monotonic relation between geometry and coupling nor its role in human sleep inertia follows from the cited physiological observation. The model requires both to be measured.
+
+If $K(t)$ rises through $K_c$ and the phase distribution tracks the coherent stationary branch, Eq.~\eqref{eq:onset} predicts
+\begin{equation}
+ r(t)\sim\sqrt{\frac{\dot K(t_0)}{D}}\,(t-t_0)^{1/2},
+ \qquad t>t_0,\quad \dot K(t_0)>0.
+ \label{eq:recovery}
+\end{equation}
+The ideal stationary description has a subthreshold interval followed by continuous onset. Saturation requires a specified subsequent coupling trajectory; monotonic coupling alone does not determine a logistic or any unique sigmoid. The onset time is fixed by $K(t_0)=K_c$ only if $K(t)$ is independently known. When coupling is inferred from the same coherence trace, this is not a parameter-free prediction of latency.
+
+Critical slowing down limits the adiabatic prediction in Eq.~\eqref{eq:recovery} near threshold. Finite populations also have nonzero fluctuating order below threshold. Consequently, an observable onset requires a predeclared threshold above the finite-size floor, and a finite-rate trajectory need not display an infinite-slope cusp. The ramp controls below quantify this limitation.
+
+\subsection{Distributional and temporal tests}
+
+The stationary model makes a second prediction: phase concentration and coherence obey $r=I_1(a)/I_0(a)$. This relation has no fitted shape parameter, but its applicability depends on the stationary-density assumption and the observation model. It is common to the von Mises family and therefore cannot by itself identify ephaptic coupling or distinguish this framework from every alternative synchronization model. Within the same ansatz, $a/r=K/D$ for $r>0$; the limiting threshold ratio is a consequence of the density relation, not an independent test of it. Ratios near the finite-size floor are especially unstable.
+
+The estimators must be independent. Estimate $r$ by the circular resultant length and $a$ by an unweighted regression of log-density on the cosine of phase relative to the circular mean. Estimating $a$ by inverting the Bessel ratio from $r$ would enforce the relation being tested. Neither estimator should use linear statistics on wrapped phases. At least 100 spatial samples are required by the implemented density estimator; with fewer sites, pooling over time changes the estimand to a spatiotemporal distribution and must be stated explicitly.
+
+An awakening experiment should combine phase estimates, an independent measure of recovery performance, and a separately validated indicator of extracellular geometry. A diffusion-MRI observable or an astrocytic signal is not itself a measurement of $K$; its relation to effective coupling requires calibration. The analysis should compare coupling-gated recovery with exponential, flexible sigmoidal and other slow-recovery models under the same temporal filtering and observation noise. Latency alone cannot distinguish the mechanism, because multiple processes can create delays.
+
+Useful outcomes are failure of the stationary phase-density relation over a sufficiently broad concentration range, absence of the proposed coupling--geometry association, or a recovery trace better explained by alternatives after finite-rate and observation effects are accounted for. A linear apparent onset is evidence against the adiabatic approximation only where that approximation is independently justified. It does not falsify the whole field hypothesis under arbitrary ramp speeds. Similarly, the absence of a fold in the stationary equation excludes stationary coexistence of two positive branches in this model; it does not exclude finite-rate hysteresis or adjudicate all theories of ignition.
+
+\section{Thermodynamic constraints and the formal composition}
+\label{sec:chain}
+
+The synchronization model is embedded in a broader conditional construction. Table~\ref{tab:summary} lists its eight connecting hypotheses. Four are recorded as formalization gaps, two as modelling assumptions and two as physical commitments. These categories describe their role in the composition, not their plausibility or ease of proof. In particular, finite capacity does not imply a symmetry-breaking boundary: these are independent starting assumptions, even though the composition can accept an implication between them as an argument.
 
 \begin{table}[htbp]
 \centering
 \singlespacing
-\nolinenumbers
 \small
-\begin{tabular}{|p{0.29\linewidth}|p{0.155\linewidth}|p{0.425\linewidth}|}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.09\linewidth}>{\raggedright\arraybackslash}p{0.20\linewidth}>{\raggedright\arraybackslash}p{0.60\linewidth}}
 \hline
-\textbf{Claim} & \textbf{Status} & \textbf{What is assumed} \\ \hline
-A finite phase space has bounded information capacity & Theorem &
-Finiteness of the state space, and nothing else --- no symmetry group, no metric.
-$H \le \log|X|$, with equality only at the uniform law. On an infinite state space
-the step from ``unreachable state'' to ``erasure'' fails, and the failure is
-exhibited rather than assumed away. \\ \hline
-Broken symmetry forces a boundary & Theorem &
-Substrate connected; vacuum manifold disconnected. No hypothesis mentions energy,
-a potential, or a symmetry. \\ \hline
-Erasure costs heat & Theorem + class field &
-Global system--bath dynamics injective (Liouville). The heat identity
-\texttt{heat\_eq} is discharged per instance, not asserted for all models. \\ \hline
-Dissipation is bounded below by nonpredictive information & Theorem + class field &
-Still et al.'s bound is discharged per instance; the environment evolves by a
-Markov kernel the system does not act on. On a finite register with a bipartite
-environment the bound is \emph{derived} from Landauer's, given the identification
-of the wasted memory with the erased entropy --- an identification no theorem
-supplies, and one a reversible register cannot satisfy with any waste at all. \\ \hline
-The discrete coupling energy converges to its continuum integral; the field carrying that coupling is the cortical EM field
-& Theorem; \textbf{then empirical} &
-Convergence holds along regular refining triangulations, for the energy functional
-and not the dynamics. The limit is a scalar: no theorem produces a kernel of two
-continuum points, and a kernel sited at the triangulation's vertices contributes
-zero coupling energy on an atomless substrate. The physical identification is a
-commitment with stated failure conditions (Section~\ref{sec:scaling}). \\ \hline
-Above $K_c = 2D$ a unique coherent state exists, and overlap-compatible patches glue
-into a unique global section & Theorem &
-Von Mises stationary density assumed rather than derived from the Fokker--Planck
-operator; couplings positive and symmetric, so unfrustrated. Gluing needs a cover at
-the potential minimum whose synchronized patches agree on overlaps; the first is
-derived from a convergent trajectory, the second is an instance obligation
-throughout and says, pointwise, that patches at a common phase assign the same
-mass to every site they share. \\ \hline
-The coherent order parameter carries a unique reflexive fixed point: the Self & Conditional theorem + modelling postulate &
-The self-prediction map is the avatar's read-out of its own encoding, and its
-Lipschitz rate $e^{-(K-K_c)\tau/2}$ is an instance obligation. The hypothesis is the
-\emph{existence of the coherent order parameter}, not a comparison against the number
-$2D$: \texttt{self\_\allowbreak of\_\allowbreak coherent\_\allowbreak order\_\allowbreak parameter}
-recovers $K > K_c$ from it, so this step consumes the previous link's theorem. The step
-from fixed point to experience is stipulated. \\ \hline
+Edge & Status & Required connection \\
+\hline
+E12 & Formalization gap & A finite-capacity system realizes a field that leaves its vacuum manifold. Capacity alone does not imply this. \\
+E23 & Formalization gap & The boundary is associated with a finite register whose update leaves states unreachable. \\
+E34 & Formalization gap & Erasure supplies a predictive structure with the same thermal scale and heat budget, and nonzero wasted memory. \\
+E45 & Modelling assumption & A predictive dissipation bound places coupling energies in a convergent coarse-graining regime. \\
+E56 & Physical commitment & The limiting coupling is realized by a specified field satisfying the kernel conditions. Its identification with cortex is empirical. \\
+E67 & Physical commitment & That field operates above the synchronization threshold. \\
+E78 & Formalization gap & Coherence supplies a cover with coupling at least the named mean-field value, reached by relaxation and carrying compatible local states. \\
+E89 & Modelling assumption & The state glued on that same cover is fixed by a contracting map mediated by its local self-encoding. \\
+\hline
 \end{tabular}
-\caption{The chain in seven claims. ``Class field'' means a physical postulate that
-each model discharges for itself rather than a global axiom; the development
-declares \textbf{no axioms}, and \texttt{\#print axioms} on any result reports only
-\texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}.
-The complete map from claims to Lean identifiers, with the scope limitation of each,
-is Table~S1 in the supplement.}
+\caption{The assumptions consumed by the conditional composition theorem. Node-level results do not establish these connecting implications. The complete theorem map and witnesses are in Supplemental Material, Table~S1.}
 \label{tab:summary}
 \end{table}
 
-\section{Symmetries as setting, and the capacity of a finite phase space}
-Our starting premise relies on fundamental geometry. Continuous spacetime symmetries act upon field states, and the invariance of the system's total energy under that action is recorded by the class \texttt{SymmetryInvariantAction} (\texttt{Phase1\_Primitives.lean}). Physically, it is such an invariance that Noether's theorem converts into the conservation of energy and momentum. The scope of the \emph{formal} claim is narrower and we state it plainly: the invariance is a class field, an assumption a model must discharge, and no conserved quantity is ever constructed from it. There is no Noether theorem in our Lean, and nothing downstream depends on one. The class is inhabited by a double-well potential $V(v) = (v^2-1)^2$ on a two-point spacetime with the $\mathbb{Z}_2$ action $v \mapsto \pm v$, whose vacuum manifold $\{-1,1\}$ is proved degenerate with the two minima exchanged by the symmetry. That is symmetry breaking exhibited rather than assumed; it is still not a conserved quantity. Symmetries and the metric are therefore \emph{setting} rather than content, and Figure~\ref{fig:chain} marks them as such.
+\subsection{Capacity, boundaries and predictive memory}
 
-The other half of the premise is not setting. Because phase space is finite, any localized physical system possesses a mathematical limit on the information it can embody at any moment, and three theorems in \texttt{Phase1\_PhaseSpaceCapacity.lean} carry it, whose only hypothesis about the system is that its state space is finite.
+For a finite state space $X$, Shannon entropy satisfies $H(p)\leq\log|X|$, with equality only for the uniform distribution. A stream with more possible histories than $|X|$ cannot be encoded injectively in that register. Separately, a continuous field on a connected substrate that reaches distinct components of a disconnected vacuum manifold must leave that manifold somewhere, the simplest topological-defect construction \cite{kibble1976}. Relating this locus to a particular finite information-processing register is an additional hypothesis.
 
-The first is the capacity bound. A probability distribution $p$ on a finite state space $X$ satisfies $H(p) \le \log|X|$ (\texttt{shannon\_\allowbreak entropy\_\allowbreak le\_\allowbreak log\_\allowbreak card}), with equality if and only if $p$ is uniform (\texttt{shannon\_\allowbreak entropy\_\allowbreak eq\_\allowbreak log\_\allowbreak card\_\allowbreak iff}). The ``only if'' half is the part worth stating: $\log|X|$ is the exact capacity rather than a convenient over-estimate. The proof is Gibbs' inequality against the uniform law, with the $p(x) = 0$ case carrying the slack that makes the equality condition sharp.
+A non-surjective update on a finite register is non-injective. Under the specified system--bath model and thermal assumptions, erasure carries a Landauer heat cost \cite{landauer1961}. Finite capacity does not imply that every update erases, and logical many-to-one processing must be distinguished from its physical implementation \cite{norton2005,shenker2000}. The formalization records the physical heat identity as an obligation of each model and supplies an explicit one-bit eraser satisfying it.
 
-The second says the limit binds. Let the boundary absorb a stream of perturbations drawn from an alphabet $P$; a stream of length $k$ has $|P|^k$ possible histories, and once $|X| < |P|^k$ the map from histories to final states cannot be injective (\texttt{absorb\_\allowbreak not\_\allowbreak injective}), so two distinct histories leave the system in the same state (\texttt{source\_\allowbreak entropy\_\allowbreak exceeds\_\allowbreak capacity}). The update map is arbitrary and may be reversible at every individual step; the collision is forced by counting alone, which is the sense in which the premise, and not the model of the dynamics, does the work.
-
-The third is what the thermodynamic step consumes. On a finite state space, a map that fails to reach every state is not injective (\texttt{is\_\allowbreak erasure\_\allowbreak of\_\allowbreak not\_\allowbreak surjective}) --- which is exactly the erasure condition Landauer's bound requires --- so any update of a finite phase space leaving some state unreachable dissipates strictly positive heat (\texttt{finite\_\allowbreak phase\_\allowbreak space\_\allowbreak dissipates}). On an infinite phase space the step simply fails: the successor map on $\mathbb{N}$ misses $0$ and is injective. That failure is recorded beside the witnesses, so the finiteness hypothesis is fenced rather than assumed to be load-bearing. None of this derives the finiteness of phase space; finiteness is assumed, as in any statistical-mechanical treatment. What is removed is the gap between assuming the premise and using it.
-
-\section{Symmetry breaking and the inevitability of boundaries}
-A perfectly symmetric universe is the uniform vacuum; no distinct entities exist. For any dynamic process to occur, the continuous symmetries of the background field must undergo spontaneous symmetry breaking, and topology then dictates the creation of defects such as domain walls. This necessitates a physical boundary---a localized topological distinction between an ``inside'' and an ``outside.'' Such a defect is necessary to define a separate entity but not sufficient for agency: the boundary is relational, defined by the twisted geometry of the field surrounding it, and must be coupled with non-equilibrium thermodynamics to exhibit active behaviour.
-
-That first claim is about topology, and it needs a different argument from the energy claim beside it. The energy half --- an energy-minimizing field sits in the vacuum manifold almost everywhere (\texttt{pointwise\_\allowbreak vacuum\_\allowbreak of\_\allowbreak global\_\allowbreak min}) --- together with the observation that a defect \emph{obstructs} extension over a contractible interior, produces no defect: both are statements about a field already given. What produces one is \texttt{exists\_\allowbreak notMem\_\allowbreak of\_\allowbreak connected\-Component\-In}: if the substrate is connected and a continuous field takes values in two \emph{different connected components} of the vacuum manifold $M$, then somewhere the field is not in $M$ at all. That excluded region is the wall. This is the $\pi_0$ case of Kibble's classification \cite{kibble1976}, and the proof is elementary in exactly the way it is elementary in the physics literature: the continuous image of a connected space is connected, and a connected subset of $M$ lies inside one component of it. No hypothesis mentions energy, a potential, or a symmetry.
-
-We formalize the $\pi_0$ case and stop there. The higher cases --- $\pi_1 \ne 0$ forcing vortex lines, $\pi_2 \ne 0$ forcing monopoles --- are available in Mathlib's homotopy library and not taken, because the argument this paper runs uses domain walls and nothing else. The witness is the double well, where the vacuum manifold is \emph{computed} to be exactly $\{-1,1\}$ rather than merely known to contain both minima, and its disconnection is proved in the form the theorem consumes. \texttt{wellV\_\allowbreak domain\_\allowbreak wall} then quantifies over \emph{every} continuous field on \emph{any} connected substrate reaching both minima, with no formula for the field in the statement; that the class is non-empty is checked separately, since a theorem quantified over all fields is worthless if none satisfies its hypotheses.
-
-\section{The thermodynamic constraint}
-This topological boundary is subjected to gauge perturbations from the ``outside'' environment. Because the internal phase space is finite, it cannot absorb an unbounded sequence of incoming perturbations and must overwrite old internal states. By Landauer's principle \cite{landauer1961}, the erasure of physical information irreversibly decreases internal entropy, mandating that the system exhaust heat into the environment.
-
-Norton and Shenker have argued that \textit{logical} erasure (many-to-one on abstract computational states) need not dissipate heat if implemented by an injective physical process \cite{norton2005, shenker2000}. Our formalization addresses this by defining erasure as a non-injective mapping on the \textit{physical} state space and formalizing the global system--bath evolution as strictly injective (Liouville). Heat dissipation is then a consequence of local state-space contraction under globally reversible dynamics. The finiteness premise enters exactly here: on a finite phase space, a state becoming unreachable is the same as non-injectivity, and \texttt{finite\_\allowbreak phase\_\allowbreak space\_\allowbreak dissipates} is the result. The Norton--Shenker distinction is preserved rather than blurred: an update that keeps the incoming perturbation on record is injective and dissipates nothing, while one that overwrites it is not. Converting the combinatorial statement to heat requires the class field \texttt{StatisticalMechanics.heat\_eq}, discharged by an explicit one-bit erasure system.
-
-\section{Prediction as the thermodynamic cost of memory}
-A dissipative structure is driven by its environment. Write $X_t$ for the state of the structure and $S_t$ for the environmental signal driving it, and let the signal evolve by a dynamics of its own on which the structure does not act. Two quantities are then defined at each step: the \textit{memory} $I(X_t ; S_t)$, and the \textit{predictive information} $I(X_t ; S_{t+1})$, which is what that same state says about the signal's next value.
-
-\paragraph{What the entropy-production bound does not give.} There is a natural route from entropy production to predictive processing, and it does not work. Modelling the environment as a stochastic driving force $P(\mathrm{ext})$ and the internal transitions as $Q(\mathrm{int})$, entropy production is bounded below by $D_{KL}(P \| Q)/\Delta t$ --- this is Gibbs' inequality, carried in Lean as an instance obligation. Rearranged it reads $D_{KL} \le \Delta t\,\sigma$, so a system descending on $\sigma$ lowers a \textit{bound} on the divergence, and it is tempting to conclude that the internal transition probabilities come to mirror the environment's statistical symmetries. They do not, because a driven system does not relax to $\sigma = 0$: it relaxes to a non-equilibrium steady state at strictly positive entropy production, and the bound then yields only $D_{KL} \le \Delta t\,\sigma_{\mathrm{NESS}}$, a positive number. No limit may be read off it.
-
-\paragraph{Where predictive processing comes from.} Still, Sivak, Bell and Crooks \cite{still2012} prove that for a system driven by an environmental signal the work dissipated over one step of the drive obeys
+For a system state $X_t$ driven by an environmental signal $S_t$, the predictive dissipation bound is
 \begin{equation}
-W_{\mathrm{diss}} \;\ge\; k_B T \left[\, I(X_t ; S_t) \;-\; I(X_t ; S_{t+1}) \,\right].
+ W_{\mathrm{diss}}\geq k_BT\left[I(X_t;S_t)-I(X_t;S_{t+1})\right].
+ \label{eq:predictive}
 \end{equation}
-The bracket is the \textit{nonpredictive} information: what the structure retains about the signal's present that says nothing about its future. Memory that fails to predict is not merely useless to the structure; it is thermodynamic waste, quantified in energy. The bound is carried as the class field \texttt{PredictiveDissipation.\allowbreak still\_bound}, for the same reason as every other physical postulate here: its \texttt{axiom} form, quantified over all joint laws with the dissipated work fixed, is refutable, and the development refutes it.
+Under the no-back-action Markov structure $X_t\to S_t\to S_{t+1}$, data processing makes the bracket nonnegative \cite{still2012}. The bound constrains nonpredictive memory at a given dissipation budget. It does not specify a learning rule, maximize prediction, or require the internal representation to reproduce environmental geometry. Connecting this budget to Landauer heat additionally requires nonpredictive information to be bounded by the entropy erased by the register. The formal bridge derives Eq.~\eqref{eq:predictive} from Landauer's bound under that identification; it does not derive the identification.
 
-What is \textit{derived} is everything downstream. First, the bracket is non-negative: $X_t \to S_t \to S_{t+1}$ is a Markov chain, so the data processing inequality gives $I(X_t ; S_{t+1}) \le I(X_t ; S_t)$ (\texttt{predictiveInfo\_\allowbreak le\_\allowbreak mutualInfo}). Second, dissipation is bounded below by a non-negative quantity, so $W_{\mathrm{diss}} \ge 0$ follows rather than being assumed (\texttt{dissipatedWork\_\allowbreak nonneg}). Third, the inference runs in the valid direction: $I(X_t;S_t) - I(X_t;S_{t+1}) \le W_{\mathrm{diss}}/k_B T$, so any bound on dissipation is immediately a bound on wasted memory (\texttt{nonpredictive\_\allowbreak le\_\allowbreak dissipation}). In the idealised quasi-static case every retained bit is predictive.
+A bound $D_{KL}\leq\Delta t\,\sigma$ also cannot force $D_{KL}\to0$ unless its right-hand side tends to zero. Gibbs' inequality proves nonnegativity of relative entropy, not a general identification of relative entropy with physical entropy production. These distinctions prevent an informational inequality from being read as a derivation of environmental learning, Bayesian inference, or semantic content.
 
-The no-back-action hypothesis is load-bearing and we exhibit what breaks without it. In the formalization it is not an assumption stated beside the theorem but the shape of the evolution itself: the signal's step is the parallel kernel $\mathrm{id} \parallel \kappa$, so no channel from $X_t$ to $S_{t+1}$ exists. A Markov kernel on the \emph{pair} which copies the system's state into the signal carries an independent two-bit law to a perfectly correlated one, raising mutual information from zero to a positive value: an agent that steers its environment can know more about that environment's future than about its present, and Still's bound is not about such an agent. Both regimes are exhibited over one correlated two-bit joint law. With the signal frozen, every remembered bit is predictive and the instance may dissipate nothing, with the memory itself proved strictly positive; with the signal redrawn from its stationary law at each step, the entire memory is nonpredictive and the instance is \emph{forced} to dissipate $k_B T$ times all of it. Kawai, Parrondo and Van den Broeck \cite{kawai2007} supply the corresponding equality --- average dissipated work is exactly $k_B T$ times the relative entropy between forward and time-reversed phase-space densities --- carried here as a predicate on an instance, which replaces the abstract dissipation field with a quantity an experiment can estimate (\texttt{nonpredictive\_\allowbreak le\_\allowbreak arrow}).
+\subsection{Compatible states and reflexive fixed points}
+\label{sec:unity}
 
-\paragraph{Landauer's heat is the budget Still's bound is drawn against.} The two dissipation accounts in the chain --- a finite register charged for destroying information, a driven structure charged for keeping information it cannot use --- are accounts of one physical quantity, and the bridge module
-\texttt{Phase3\_\allowbreak Landauer\-Bridge.lean} identifies them. \texttt{PredictiveDissipation.\allowbreak ofLandauer} takes a register with a bipartite environment and returns a predictive structure whose thermal scale is that register's temperature and whose dissipated work \emph{is} its Landauer heat, with \texttt{still\_bound} derived from \texttt{landauer\_bound} rather than assumed a second time. What the construction asks for is one inequality, and it is the physics: the memory the structure wastes is no larger than the entropy the update erases, $\left(I_{\mathrm{mem}} - I_{\mathrm{pred}}\right) \le S(\mathrm{id}) - S(t)$. That the wasted bits and the cleared bits are the same bits is an identification no theorem supplies, and it is not free: on a \emph{reversible} update the erased entropy is zero, so the inequality forces the wasted memory to vanish outright (\texttt{nonpredictive\_\allowbreak eq\_\allowbreak zero\_\allowbreak of\_\allowbreak injective}). A register that keeps a record rather than clearing one cannot be given a budget for waste --- which is the Norton--Shenker distinction of the previous section, arriving from the informational side. On the one-bit eraser the two quantities are equal: the register destroys $\log 2$ of entropy, the correlated two-bit law wastes $\log 2$ of memory, and the bound is met with equality (\texttt{landauerSystem\_\allowbreak tight}). The measure-theoretic statement of the same principle is checked against the combinatorial one rather than left beside it: at counting measure on a finite register the volume-contraction bound is exactly $T\left(S(\mathrm{id}) - S(t)\right)$ (\texttt{landauer\_\allowbreak heat\_\allowbreak bound\_\allowbreak count\_\allowbreak eq}).
+A sheaf formalizes local descriptions and their restriction to smaller regions. If local sections agree on every overlap, the sheaf condition gives a unique global section. In the probability-sheaf construction, this is consistency of local density information; it is not implied by agreement of oscillator phases. The development includes a counterexample with equal phases but incompatible densities on an overlap. The model must exclude such configurations through its compatibility hypothesis.
 
-\paragraph{What this does not establish.} It does not deliver the Free Energy Principle. Still's bound says that prediction is thermodynamically favoured; it says nothing about hierarchical generative models, variational free energy, or Bayesian inference. The Free Energy Principle \cite{friston2010, friston2009, hohwy2013, clark2016, spisak2026} and the General Resonance Theory of Consciousness \cite{hunt2019} are consonant with what is proved here, which is a weaker relation than derivation and the only one we assert. Nor does it solve the symbol grounding problem \cite{harnad1990}: maximal predictive information is compatible with the structure storing a lossy or unrecognisable function of the signal, and a state that predicts is not thereby a state that means. The narrower claim is the one worth making: whatever internal states a physical structure holds, those that do not help predict its environment are paid for in heat, so the pressure toward states indexed to the environment is energetic rather than semantic. We call the phenomenon \textit{structural resonance}, and there is no teleological drive to ``survive'' in it: predicting the environment is simply the cheaper of the two ways to hold a memory.
+A thermodynamic cover couples this gluing construction to a phase configuration at a potential minimum. For the deterministic positive-coupling model, convergence to that minimum is proved under an explicit initial basin condition. Other equilibria prevent an unconditional conclusion. The stationary noisy order parameter, the deterministic relaxation, and the cover must therefore be connected by E78 rather than identified without a hypothesis. Neither field continuity nor synchronization alone guarantees a globally compatible representation.
 
-A separate gap lies between the stationary threshold theorems of Derivation~\ref{sec:field} and any statement about trajectories: the threshold $K_c = 2D$ is proved for a stationary density, not for the finite-oscillator system, and the dynamical mean-field limit --- propagation of chaos for the Kuramoto system --- is the missing link between them \cite{lacke2016, sznitman1991}. No theorem in this development closes it.
+\label{sec:self}
+A reflexive extension equips global sections with a complete metric and a predictive map formed by restricting a state to a local encoding region and reading that encoding out. If the map contracts and fixes the section supplied by the cover, Banach's theorem gives uniqueness of that same fixed point. The contraction rate is assumed, and the equality between the glued section and the fixed point is part of E89. A coherent order parameter supplies the supercritical inequality required by the stated contraction bound; it does not construct the map or prove that cortical dynamics implements it.
 
-\section{Macroscopic scaling: a theorem and a commitment}
-\label{sec:scaling}
-Three steps of different kinds meet here and are easy to run together: convergence of a scalar energy, which is a theorem; introduction of a continuum coupling kernel, which is a modelling assumption; and identification of that kernel with the brain's endogenous electromagnetic field, which is an empirical claim about cortex. Neither later step inherits the licence of the first. Kept apart, the empirical claim is the framework's central commitment and the place where it is most easily wrong --- which is where a claim of this kind belongs.
+The theorem \texttt{chain} concludes \texttt{UnifiedSelf} from these hypotheses. A common toy witness satisfies all eight, so their conjunction is not empty. The project declares no additional Lean axioms beyond the foundational axioms used by Lean's libraries; physical content resides in hypotheses and model fields. This checks the conditional mathematical composition, not the empirical truth of its premises. Detailed constructions, scope statements and counterexamples are retained in the supplement and source files.
 
-\paragraph{The formal half.} \texttt{Phase2\_MeshConvergence.lean} proves that the discrete coupling energy converges to a continuous integral along regular refining triangulations (\texttt{mesh\_\allowbreak refinement\_\allowbreak convergence}). Because the summand is symmetric, the double sum is the midpoint rule over unordered edges, so the discrete energy is a quadrature of the continuous one. What this does not establish: it is a statement about an energy functional, not about dynamics --- no trajectory convergence and no renormalization-group flow. The continuous object, \texttt{ContinuousNeuralField}, is \textit{posited} with a coupling kernel $K$, not produced by the theorem.
+\section{Numerical controls and exploratory observations}
+
+The simulations provide finite-regime evidence and do not discharge a formal edge. Each new control uses explicit seeds and compact saved summaries; the numerical values below are generated from those artifacts. The supplement gives parameters, estimators, failure criteria and additional panels. Identical-frequency controls use phase diffusion rather than a quenched frequency-spread surrogate, and order plots display the $1/\sqrt{N}$ reference.
+
+\subsection{Finite-rate and mean-field controls}
+
+The dynamic-ramp study (Fig.~\ref{fig:ramp}) uses $N=2000$, $D=1$ and 32 replicas at four coupling speeds. Escape is the first of three consecutive saved samples at $r\geq0.2$ after threshold. Only $\rampFastEscaped/\rampReplicas$ replicas escape within the fastest window. The three slower ramps have mean coupling delays $\rampDelaySlowOne$, $\rampDelaySlowTwo$ and $\rampDelaySlowThree$, with a fitted delay exponent $\rampDelayExponent$. The apparent onset exponent changes from $\rampOnsetOne$ at the fastest speed to $\rampOnsetFour$ at the slowest. Thus the measured onset depends on ramp speed; the stationary square-root law cannot be imposed on an arbitrary recovery trace. The specified deviation-based critical ramp speed is not bracketed by the sweep.
 
 \begin{figure}[htbp]
 \centering
-\nolinenumbers
-\includegraphics[width=0.82\linewidth]{mesh_refinement_convergence.png}
-\caption{The coarse-graining theorem, exercised numerically. The discrete coupling
-energy of $N$ units evenly spaced on the ring, with a Gaussian kernel of periodic
-distance and phase field $\theta(x) = \sin x$, is compared against the continuous
-integral it is proved to converge to. The error falls as $\mathcal{O}(N^{-2})$, the
-rate of the midpoint rule, which is the quadrature the Lean statement uses. The
-theorem asserts convergence, not a rate; the rate is what the simulation adds, and it
-is the ordinary rate for this quadrature rather than anything the framework predicts.
-The convergence is of an \emph{energy functional} --- nothing here says the discrete
-trajectories converge to the continuous ones. Parameters and scripts are in the
-supplement.}
-\label{fig:mesh}
+\includegraphics[width=0.90\linewidth]{figures/dynamic_ramp_bifurcation_delay.png}
+\caption{Finite-rate departures from the stationary branch. Ensemble-mean order is plotted against the increasing coupling for four ramp speeds $v$, with bands of one standard error across replicas. The dashed vertical line is the static threshold and the dotted horizontal line the finite-size reference. Faster ramps delay escape; the stationary branch is not a universal time course for recovery.}
+\label{fig:ramp}
 \end{figure}
 
-\paragraph{The empirical step.} The formal half supplies scalar energy convergence and no kernel. The field sections therefore posit a symmetric continuum kernel as a modelling input. Which physical variable in cortex realizes that independently supplied kernel is a further empirical question, and we state our answer as a commitment:
+The dynamical-selection control shows escape toward a coherent branch above threshold, but retains quantitative finite-size discrepancies. At $K=2.8$, steady mean order is $\selectionSuperOrder$ against the static value $\selectionTheoryOrder$. The fitted growth-rate slope is $\selectionRateSlope$, compared with the theoretical slope $1/2$. The propagation-of-chaos diagnostics show decreasing subcritical dependence with increasing population size. In the supercritical unpinned ensemble, however, pair correlation remains substantial because realizations share a random collective orientation. This negative unconditional result does not settle a conditional mean-field limit after removal of that orientation.
 
-\begin{quote}
-\textit{The model identifies its posited continuum kernel with the endogenous electromagnetic field of mammalian cortex.}
-\end{quote}
+\subsection{Spatial coupling, frustration and calibration}
 
-This is a claim about biology, not a consequence of anything above it. It is what makes the framework falsifiable and it is what we expect to be attacked.
+A periodic two-dimensional sheet with row-normalized exponential coupling remains coherent in the sampled empirical decay-length band under the declared total coupling and frequency spread. At decay lengths $0.1$, $0.2$ and $0.3$~mm, steady order is $\spatialOrderOne$, $\spatialOrderTwo$ and $\spatialOrderThree$. This is one finite parameter regime; fixing total coupling while changing range tests fragmentation, not whether cortex supplies that total coupling.
 
-\paragraph{What supports it.} Neurons do not only signal through synapses: transmembrane currents generate extracellular fields that shift membrane potentials of neighbouring cells, a mechanism known as ephaptic coupling. Endogenous fields of $1$--$5$ mV/mm entrain spike timing \cite{frohlich2010, anastassiou2015}, and stable electric fields carry information that survives representational drift \cite{pinotsis2022}. The field is spatially continuous and superposes contributions from large populations --- a medium in which spatially separated activity is combined without further mechanism. This is the integrative role the CEMI field theory assigns it \cite{mcfadden2002, mcfadden2020, pockett2012}, physically supported by astrocytic syncytia joined by gap junctions \cite{verkhratsky2018}.
+A row-balanced Dale-law network shows that row balance alone does not guarantee a floor-level incoherent baseline. In a separately specified weak-synapse regime, a uniform modulatory term produces an operational coherence crossing at $K_{\mathrm{eff}}/D$ between $\frustrationCouplingMin$ and $\frustrationCouplingMax$. The physical field conversion remains conditional on the rate calibration $\gamma$. Neither the spatial control nor the rescue sweep measures cortical coupling or resolves the unit-conversion limitation.
 
-\paragraph{What the evidence supports, and what it does not.} The endogenous field's effect on any individual neuron is modulatory --- it biases when a cell fires; it does not decide whether it fires \cite{anastassiou2015}. We do not claim it is the \textit{primary} dissipative structure. The claim is that it is modulatory in effect and integrative in spatial reach: weak per synapse, and the only variable defined everywhere at once. What the framework needs is the reach, not the strength.
+\subsection{Joint phase and coupling plasticity}
 
-\paragraph{Why reach is the property that matters.} A theory of consciousness needs an account of why many local processes make one experience, and most supply it by stipulation or by a measure. The account here is structural, and it is the framework's strongest argument. The field is the only variable in the system that is \emph{defined everywhere at once}. Unity is not asserted of it; unity is what a field is. That is what makes the sheaf-theoretic step of Section~\ref{sec:unity} available at all --- local states glue to one global section because there is one object over which gluing can happen --- so the answer to the combination problem is a piece of geometry rather than a postulate. Compare ``integration'' in Integrated Information Theory, which is a number, or ``broadcast'' in Global Workspace Theory, which is a metaphor about a workspace. It is also what the empirical identification is carrying: if the posited continuum coupling is realized by something that is \emph{not} defined everywhere at once --- by synaptic connectivity, say --- then this argument is unavailable, and the framework loses the property that distinguishes it from its rivals rather than merely losing a mechanism.
-
-\paragraph{What the formal statement demands.} The identification is a hypothesis of the chain rather than a remark beside it. \texttt{IsEMFieldCoupling} (\texttt{Phase9\_\allowbreak EMIdentification.lean}) is the predicate the arrow \texttt{E56} carries, and a model claiming the kernel is the endogenous field has to exhibit five things: a jointly continuous kernel; a normalised substrate, so that coupling strength is not a statement about how many sites the substrate has; a mean-field constant $K$ that \emph{is} that kernel averaged over both arguments rather than a number set beside it; no single site contributing more than half of it, which is the modulatory condition above in formal dress; and a noise $D$ that is the field's own. It does not decide the biology --- its witnesses are a unit interval and a three-site toy, and no object in the development denotes cortex --- but it makes failure locatable: a kernel concentrated at one vertex fails the fourth condition, a substrate that couples nothing cannot discharge the third (\texttt{not\_\allowbreak isEMFieldCoupling\_\allowbreak of\_\allowbreak zero\_\allowbreak kernel}), and the threshold commitment $K > K_c$ attaches to the same field the identification names (\texttt{em\_\allowbreak field\_\allowbreak exhibits\_\allowbreak phase\_\allowbreak transition}).
-
-\paragraph{Its critics.} The longest-standing objection is that the fields are too weak to matter, pressed from within the field-theoretic camp by Pockett herself \cite{pockett2012, pockett2002}. V\"or\"oslakos and colleagues found that applied current is shunted through scalp, delivering fields at or below $1$ V/m in cortex \cite{voroslakos2018}. That is a bound on \textit{applied} rather than endogenous fields, but it constrains how much causal work a field of that magnitude can do, and is the reason we do not claim the field drives spiking.
-
-\paragraph{What would falsify it.} We state the failure conditions rather than leaving them to a referee. \textbf{Epiphenomenality:} if the endogenous field can be cancelled or shunted without altering transmembrane currents and neither behaviour nor report changes, the identification fails. \textbf{Magnitude gap:} if the spatial integration required demands field effects an order of magnitude above the $1$--$5$ mV/mm measured in cortex, the commitment fails on arithmetic. \textbf{Timescale mismatch:} if recovery from sleep inertia tracks an exponential rather than the delayed sigmoid the slow variable predicts, the framework loses its own prediction. \textbf{Dissociation:} if large-scale field coherence is preserved where unity is lost --- or absent where it is retained --- the identification has no physical carrier.
-
-\paragraph{Can a modulatory field cross the threshold?} The objection that $\fermiFieldMin$--$\fermiFieldMax$ mV/mm is too weak to meet $K > K_c$ assumes that the per-neuron effect of the field is what enters the mean-field coupling constant. It enters through population arithmetic. A field of $\fermiEtheta$ mV/mm shifts spike timing by $\sim\fpeval{\fermiEtheta*\fermiShift}$ ms \cite{anastassiou2011, anastassiou2015}; at $\fermiFgamma$ Hz, that is a per-neuron phase advance of $\Delta t\cdot f \approx \fermiPhAdv$ per cycle. The LFP decay length $\lambda \sim \fermiLam$ mm \cite{linden2011} encloses $N \approx \fermiN$ neurons at a cortical density of $\fermiRho$ mm$^{-3}$ \cite{herculanohouzel2009}. Integrating: $K \sim N\,\Delta t\,f \approx \fermiK{\fermiEtheta}{\fermiFgamma}$. Against a Lorentzian frequency-spread floor $D \sim \fermiD$ rad/s \cite{strogatz1991, buzaki2004}, the ratio $K/D \sim \fermiKD{\fermiEtheta}{\fermiFgamma}$ clears the threshold $K_c/D = \fermiThreshold$ by a wide margin. The estimate is parametric in $\lambda$, which is empirically known and spans $\fermiLamMin$--$\fermiLamMax$ mm \cite{linden2011}; across the full range and with field amplitudes at the measured bounds, the ratio stays above $\fermiKDlam{\fermiEgamma}{\fermiFgamma}{\fermiLamMax}$. Sweeping across canonical EEG bands with band-typical amplitudes (gamma: $\fermiEgamma$ mV/mm; beta: $\fermiEbeta$; alpha: $\fermiEalpha$; theta: $\fermiEtheta$; delta: $\fermiEdelta$), the same arithmetic yields $K/D$ ranging from $\fermiKD{\fermiEgamma}{\fermiFgamma}$ down to $\fermiKD{\fermiEdelta}{\fermiFdelta}$ --- delta is the one band that sits below $K_c$, consistent with the loss of consciousness during slow-wave sleep. This is not a measurement, and it is the one commitment of the chain that is simplest to falsify on arithmetic alone: if the coupling parameters sit at the conservative end of each published range, $K/D$ drops to $\fermiKDcons$ --- still above threshold, but requiring the combination to survive independent measurement rather than being ruled out by the same arithmetic.
-
-\paragraph{The regime the theorems cover.} The dissipative account --- well-posedness, the Lyapunov identity, monotone descent, and that the motion stops along every trajectory --- holds with no assumption on the sign of the coupling. \emph{Where} it stops does not, and the claims about the destination all live on the positive side. The memory capacity of a frustrated cortical network is therefore not supported by any theorem here, and we do not assert it as part of the chain. The natural repair --- letting local states agree on overlaps up to a phase and asking whether the offset cocycle is a coboundary --- fails because locked, twisted and splay configurations all assign a phase to every patch, so their offsets are automatically a coboundary.
-
-Primate LFP phase maps contain phase singularities with integer winding number, and human cortical spiral centres classify cognitive tasks \cite{townsend2015, xu2023}. \texttt{Phase5\_PhaseLifts} formalizes the measured loop: transitions from one global real lift telescope to zero, while a three-patch loop with winding one admits no global lift. The supplement gives the measurement protocol and preregistered test this supports --- a falsifiable content test outside the conditional chain.
-
-\section{Global sections and the unity of consciousness}
-\label{sec:unity}
-The system is now characterized by a continuous macroscopic electrodynamic field generated by many coupled micro-components, forced to resonate with the environment. From here on the coupling regime is the unfrustrated one, which is what every theorem below requires. The Kuramoto model \cite{kuramoto1984} guarantees that past a critical coupling threshold these distributed local fields undergo a phase transition into unified synchronization \cite{bauer2022}, and \texttt{Phase4\_KuramotoDynamics.lean} confirms that the phase-locked state minimizes the Lyapunov potential --- in the precise sense that the functional minimized is the coupling potential read in the frame rotating with the natural frequency, which \texttt{Phase4\_RotatingFrame.lean} shows is the honest reduced description of a system of identical oscillators. With any natural frequency non-zero the full potential is unbounded below, so it has no minimum for phase-locking to attain; the reduction is exact only for identical frequencies, and a genuine spread leaves residual detunings whose threshold is nowhere in our development.
-
-The phase transition supplies synchronized phases. A separate compatibility hypothesis says the corresponding local states agree on every overlap; given that, the sheaf condition glues them into a singular \textit{global section} (\texttt{Phase5\_GlobalSection.lean}). The field acts as a single, indivisible topological space, providing the \textit{unity of consciousness}---a necessary condition for integrated experience. \texttt{ThermodynamicCover} demands that the cover's phase field minimize the reduced Kuramoto potential, and \texttt{potential\_\allowbreak min\_\allowbreak iff\_\allowbreak phase\_\allowbreak locked} characterizes those minimizers exactly, in both directions. Every instance is therefore already phase-locked, and the class's single condition on its local data --- that patches at a common phase agree where they overlap --- makes the family compatible. \texttt{probability\_\allowbreak glue\_\allowbreak unique}, the sheaf property of the probability presheaf, which contains no physics at all, then glues that family into exactly one global section.
-
-The shape of the class makes this an emergence theorem rather than a uniqueness theorem. Were the class to carry a global section as a field, together with a second field declaring every local section a restriction of it, the global object would exist before the sheaf condition was consulted. It carries neither: the global section is constructed, and being a restriction is a \emph{theorem}. The witness makes this concrete: two patches carry mass profiles $(2,1,7)$ and $(5,1,3)$ across three sites, agreeing only at the shared site. The theorem returns profile $(2,1,3)$ --- neither of the two, and neither restricts correctly to both patches. The global state carries information no single patch had.
-
-Two hypotheses carry physical content. That synchronized patches agree on their overlaps is a modelling assumption, not a consequence of any dynamics we formalize. The other, \texttt{thermodynamic\_\allowbreak equilibrium}, asks that the cover already sit at the potential minimum. That one is discharged rather than assumed, and the route is worth stating because it determines the scope of the unity claim. \texttt{kuramoto\_\allowbreak cauchy\_\allowbreak problem} proves the Kuramoto initial value problem well posed on all of $\mathbb{R}$, so through every initial state there passes exactly one trajectory; along every trajectory of a zero-frequency system the dynamic potential converges and the total dissipation $\int_0^\infty \sum_i \dot\theta_i^2$ is finite; and since the dissipation rate is Lipschitz in time, Barbalat's lemma --- which Mathlib does not carry, and which is proved here --- gives $\sum_i \dot\theta_i^2 \to 0$, so the motion stops along every trajectory. \emph{Where} it stops is taken conditionally, by a route that avoids the LaSalle invariance principle, which Mathlib also does not carry. The flow is a gradient flow, so $\dot V = -\sum_i\dot\theta_i^2$ is an identity rather than an inequality; the minimizers of $V$ are characterized exactly; and on the region where every pair of phases lies within a quarter turn a Polyak--{\L}ojasiewicz estimate holds, $2a^2 W \le (\sum_{ij}A_{ij})\sum_i \dot\theta_i^2$, with $W$ the excess above the minimum and $a>0$ a lower bound for the coupling. The invariant region is produced by the Lyapunov function rather than assumed: a single pair contributes $\tfrac12 a(1-\cos)$ to the excess, so an excess below $a/2$ forces every pairwise cosine positive for all time. Descent plus the estimate integrates to $W(t) \le W(0)e^{-ct}$, which makes each $|\dot\theta_i|$ integrable on $[0,\infty)$, and a trajectory with integrable velocity converges. The conclusion (\texttt{kuramoto\_\allowbreak tendsto\_\allowbreak global\_\allowbreak minimum}) is that if the phases start within a quarter turn of each other and the initial excess is below $a/2$, the trajectory converges to a phase-locked configuration which is a \emph{global} minimizer, with order parameter $r^2 = 1$. \texttt{ThermodynamicCover.of\-Convergent\-Trajectory} then takes a cover whose phase field is the limit of such a trajectory and discharges the equilibrium field \emph{by that convergence}, with the cover's coupling matrix the coupling matrix of the dynamics rather than a separately chosen one. On the resulting three-patch witness the starting configuration is provably not phase-locked, so the configuration unity requires is arrived at rather than posited.
-
-\paragraph{What the compatibility hypothesis says.} The remaining assumption is stated categorically --- two patch-local sections have the same restriction to their overlap --- and on a discrete substrate it has a pointwise reading, which is what makes it a physical claim rather than a bookkeeping condition. \texttt{restrict\_\allowbreak eq\_\allowbreak iff\_\allowbreak densityOn\_\allowbreak eqOn} proves the two equivalent: the restrictions agree exactly when the two patches assign the same mass to every site they share. So the hypothesis says that patches whose phases agree modulo $2\pi$ carry the same local density where they overlap. It excludes something concrete: a two-patch cover of the three-site substrate, carrying one phase and two profiles that differ at the shared site, satisfies every other requirement --- the patches cover the substrate, each section is a section over its own patch --- and fails this one (\texttt{overlap\_\allowbreak agreement\_\allowbreak fails}). No dynamics in the development excludes such data; the assumption does. Note also what the hypothesis does \emph{not} say. Patches may carry different content where they do not meet: the three-patch witness has three pairwise-different profiles and satisfies the condition, because they differ only outside the overlaps. Agreement on overlaps is consistency, not sameness.
-
-The two hypotheses cannot be dropped, and this is the honest scope of the result. Splay and twisted configurations are equilibria of the same flow, so ``every trajectory reaches the unified state'' is false as a general statement, and the initial-data condition is the standard arc condition under which the true statement holds. What is claimed is conditional --- unity is reached from configurations already sufficiently coherent --- and not that an arbitrary initial state is carried into unity.
-
-\paragraph{Against IIT and GWT.} Our global section plays a structurally analogous role to IIT's $\Phi$ \cite{tononi2016} but is arrived at from the opposite end: forced by a thermodynamic phase transition rather than postulated from phenomenal axioms. The unity condition is checkable from field dynamics rather than requiring the intractable computation of $\Phi$, and exclusion falls out --- gluing either succeeds or it does not. Both are vulnerable to the objection that the criterion could be satisfied by a system with no claim to experience \cite{aaronson2014}; our reply is that gluing is necessary but not sufficient, and that the topological boundary and reflexive structure are additional required conditions. Global Workspace Theory \cite{baars1997, dehaene2014} specifies a functional architecture without specifying what physical property makes broadcast content conscious \cite{block1995}. Our framework supplies the missing substrate: the continuous field \emph{is} the medium of integration, and the $K_c = 2D$ threshold gives a physical condition for ignition. Where GWT is agnostic about implementation, we make a falsifiable commitment --- unity requires a continuous physical medium --- which predicts that a functionally equivalent discrete broadcast architecture would not be conscious.
-
-\paragraph{Dynamic Core and predictive binding.} Two further accounts share enough of our premises that distinguishing them clarifies what the sheaf-theoretic contribution is. The Dynamic Core hypothesis \cite{edelman2000, tononi1998} holds that a distributed neural ensemble whose members sustain re-entrant interactions among themselves more strongly than with the rest of the brain constitutes a functional cluster whose activity correlates with conscious content. That premise --- synchrony over a distributed set --- is one we share. Where we differ is in what makes a cluster a unity: the Dynamic Core is identified operationally (the cluster that passes a mutual-information test), while the present framework identifies it topologically (the cluster whose phases glue to a single global section). The distinction matters because the sheaf condition makes unity a binary state --- sections either glue or they do not --- while the Dynamic Core remains a graded property depending on a threshold for the mutual-information test. Predictive-processing accounts of binding \cite{friston2005, hohwy2013} treat unified perception as the consequence of a hierarchical generative model whose top-down predictions resolve bottom-up sensory ambiguity. The present framework agrees that inference --- in the thermodynamic sense of Still's bound --- is what drives the internal state toward the environment's statistics, but it gives the binding mechanism a different structure: global sections are constructed from local compatibility conditions rather than from prediction error minimization, and the unified state is a fixed point of the field's own dynamics rather than of a recognition model. Each alternative accounts for a different aspect of the phenomenon --- the Dynamic Core for the distributed-synchrony observation, predictive binding for the inferential character of perception --- and the present framework's contribution is to provide a formal language in which the unity claim itself can be stated precisely enough to be falsified.
-
-\section{Reflexive topology and the emergence of the Self}
-\label{sec:self}
-While a global section provides unity, a Self requires reflexivity. The unified field is a dissipative structure that must resonate with external perturbations while managing its own internal phase transitions, and time evolution drives it to minimize thermodynamic friction with its own state changes. This mandates \textit{auto-resonance}: the field must predict itself. The Self emerges as a higher-order topological feature when the internal geometry folds to include a low-dimensional avatar of its own computational and causal boundary within its predictive model (\texttt{Phase6\_ReflexiveTopology.lean}) \cite{levin2019}.
-
-\paragraph{What carries the weight.} \texttt{reflexive\_topology\_implies\_self} is the Banach fixed-point theorem with the physical commitments in its hypotheses: the space of global sections is assumed nonempty, metric and complete, and the predictive map is assumed to contract. All four are discharged on the three-site substrate, and the metric is constructed rather than posited. The construction first pierces the sheafification: on a discrete substrate every point has a smallest open neighbourhood, so the mass a germ carries at a point is well defined, and \texttt{massEquivOn} proves that over any open the sections of the probability sheaf \emph{are} the finite measures on that open, read as densities against counting measure. Mathlib supplies no inverse to this sheafification, so the correspondence had to be constructed. The metric on sections is then the uniform distance between densities, proved complete by exhibiting the limit section of a Cauchy sequence rather than by the degenerate route of showing Cauchy sequences eventually constant. The metric choice is load-bearing: under the $0/1$ metric every contraction is constant (\texttt{contracting\_\allowbreak implies\_\allowbreak const}), and the L\'evy--Prokhorov metric does not support this argument on a discrete substrate, because the $\varepsilon$-thickening of a set is the set itself for $\varepsilon < 1$.
-
-\paragraph{The map is the avatar, or there is no map.} The predictive map is the composite of the avatar's encoding and read-out, not free data alongside it. With the map free, Banach's fixed-point theorem projects it out and never touches the avatar --- replacing the avatar by a constant leaves the same Self. Three consequences follow from the composite structure. The Self lies in the range of the read-out (\texttt{self\_\allowbreak mem\_\allowbreak range\_\allowbreak readout}), so it is reconstructed from a single section over the avatar region. Under the resonance condition $s = \mathrm{readout}(s|_{\mathrm{avatar}})$: the field is what its own localized self-encoding reconstructs. Blinding the avatar \emph{moves} the Self: the blinded boundary's map is constant, and the original Self is not a fixed point. If a family of resonant avatars \emph{covers} the substrate then the global state is determined by their local readings alone, so unity is recovered from the avatars by the same sheaf condition.
-
-\paragraph{The contraction law is an independent modelling postulate.} The rate $\exp(-(K - K_c)\tau/2)$ with $K_c = 2D$ is the linear relaxation rate of the mean-field order parameter over an interval $\tau$. The framework independently assumes that the avatar-mediated self-prediction map is Lipschitz at this same rate; no oscillator or field theorem derives that bound. Given the postulate, the threshold results determine whether Banach can use it: above threshold the rate is below one, so the assumed bound yields a unique fixed point; at or below threshold the rate is at least one, and contraction at that rate is false for every self-map of every metric space. This says only that the Banach route is unavailable below threshold, not that a Self cannot exist there. The postulate is witnessed at $K=3$, $D=1$, $\tau=2\ln 2$, but designing a witness to realize the factor is not a derivation of self-model dynamics from oscillator dynamics. The rate may be derivable from a thermodynamic consistency requirement --- if the map contracted any slower, the friction of updating the avatar would exceed the entropy the external drive dissipates --- but that derivation is not given here and the rate remains a postulate of the framework.
-
-\paragraph{The fixed point is the glued state.} The standalone Banach theorem produces a fixed point somewhere in the space of global sections; by itself it does not say that this is the section the sheaf condition glued. 	exttt{Chain.lean} preserves that identity. 	exttt{IsUnifiedBy T s} says that $s$ restricts to every local state of the cover $T$, and the endpoint 	exttt{UnifiedSelf} says that this same $s$ is the unique fixed point of the reflexive map. The edge hypothesis must therefore supply the equality $	exttt{predict}\,s = s$ as well as the Lipschitz bound; Banach supplies uniqueness but not the equality between the thermodynamic and reflexive constructions. On the witness, the two-patch cover glues exactly to the state that is already the unique fixed point of the non-constant avatar map. This exposes, rather than removes, the physical identification the composition requires. What is still not established is that any field dynamics produces this particular read-out or performs the restriction, and that a cortex has the coupling the witness uses --- the parameters are a choice of units, and nothing here derives a coupling constant from cortex. It is worth distinguishing what 	exttt{UnifiedSelf} means in the formalization from what it does not mean. (i) Within Lean it is the unique global section that satisfies two equations --- the unification equation (it restricts to every local state of the cover) and the fixed-point equation (the avatar-mediated map returns it). (ii) It is not the first-person experience it is stipulated to be: that is n10 and sits outside the chain. (iii) It is not any fixed point of any map on any metric space; the Banach theorem supplies a unique attractor, but the claim about experience is that its content is the structure of the unified state, not that it exists as a mathematical object. (iv) It is not a claim about a conscious self in the psychological sense --- the object is a thermodynamic and topological feature, and its identification with a subject is a philosophical commitment of the framework, not a theorem.
-
-\section{Continuous stochastic thermodynamics and the field}
-\label{sec:field}
-To move beyond finite graph analogies, we model the macroscopic electrodynamic field as a \textit{continuous neural field}, extending the discrete Kuramoto model to a continuous spatial coupling kernel $K(x,y)$ (\texttt{Phase8\_ContinuousField.lean}). For positive diffusion $D$, a candidate objective for coupling plasticity is the squared-drift dissipation functional
+For fixed phases, consider the squared-drift objective
 \begin{equation}
-\sigma = \int \frac{1}{D} \left( \omega(x) + \int K_t(x,y) \sin(\theta_y - \theta_x)\, dy \right)^2 dx .
+ \sigma(K)=\frac1D\int\left[\omega(x)+\int K(x,y)\sin(\theta_y-\theta_x)\,d\mu(y)\right]^2d\mu(x).
 \end{equation}
-This functional is not generally a thermodynamic entropy-production rate: that identification requires probability-current information beyond the deterministic drift. Whether biological couplings follow its gradient is a modelling question. The mathematical result is conditional: with phases fixed, a coupling kernel following the specified gradient flow decreases this functional. The drift is a fixed $\omega$ plus a linear operator applied to $K$, so $\sigma$ is a quadratic functional of an affine image of the kernel. A squared norm is Fr\'echet differentiable on any real inner-product space, and an affine map is its own derivative, so the composite differentiates by the chain rule (\texttt{hasFDerivAt\_\allowbreak quadratic\_\allowbreak of\_\allowbreak affine}). The drift map as a bounded operator $L^2(\mu\otimes\mu) \to L^2(\mu)$ exists by Cauchy--Schwarz, and its adjoint exists because $L^2$ is complete, giving $\nabla\sigma(K) = (2/D)\,A^{*}(AK+\omega)$. \texttt{structural\_\allowbreak resonance\_\allowbreak decreases\_\allowbreak sigma\-Continuum} is the descent result with no finiteness hypothesis in it, run on Lebesgue measure restricted to $(0,1)$, a substrate that is neither finite nor atomic. One limitation stays explicit: the phase field is held fixed throughout, so this is plasticity of the coupling at frozen phases, not joint $(\theta, K)$ dynamics.
+It is a quadratic functional of an affine image of the kernel. The formalization constructs the bounded drift operator $A$ and its adjoint on the relevant $L^2$ spaces, obtaining $\nabla\sigma=(2/D)A^*(AK+\omega)$. The specified gradient flow decreases this objective at fixed phases. The objective is not generally a thermodynamic entropy-production rate, which requires probability-current information. Whether biological couplings follow this flow is an additional modelling question.
 
-A second result constrains the objective under reciprocity; it does not establish dynamical convergence. For a \emph{reciprocal} kernel $K(x,y) = K(y,x)$, the integrand $K(x,y)\sin(\theta_y - \theta_x)$ is antisymmetric, so Fubini identifies its double integral with its own negative and the total coupling contribution vanishes. The total drift is therefore $\int\omega$ whatever the phases: coupling moves drift between sites but neither creates nor destroys it. Evaluating at the phase-locked configuration pins its value, and the mean-matching hypothesis follows for every competitor (\texttt{phase\_\allowbreak locked\_\allowbreak minimizes\_\allowbreak entropy\_\allowbreak of\_\allowbreak symm}). Reciprocity is the physically intended condition, but is not a formality: a \emph{one-way} coupling on two sites is strictly beaten, halving $\sigma$.
+The joint control evolves noisy phases with clustered frequencies and nonzero grand-mean drive, while updating symmetric couplings every 50 fast steps. Couplings remain nonnegative, hollow and normalized to a fixed total. The symmetric-edge derivative of $\frac12\sum_i v_i^2$ is $(v_i-v_j)\sin(\theta_j-\theta_i)$, so both endpoints contribute. Resource constraints and evolving phases remove the fixed-phase monotonicity guarantee.
 
-The joint phase/plasticity control in Fig.~\ref{fig:resonance} tests finite dynamics
-with a fixed coupling budget beyond the frozen-phase theorem. Across
-three seeds, adaptive couplings preserve high phase coherence and give slightly
-lower squared drift than matched frozen-coupling controls. However, their
-distance to the environmental cluster template increases, with worse distance
-changes than the shuffled-label comparison in every seed. The template represents
-shared latent signals within frequency clusters; it is diagnostic and does not
-enter the plasticity update. Thus this regime supplies no evidence that minimizing
-squared drift learns environmental structure. It also measures no predictive
-information, so it does not test the thermodynamic bound on nonpredictive memory.
-The connection from that bound to coupling organization remains the E45 modelling
-assumption.
+Across three seeds, second-half order lies between $\plasticityOrderMin$ and $\plasticityOrderMax$. Matched frozen-coupling controls maintain similar coherence. The distance to the true cluster template increases in every adaptive run, with worse changes than the shuffled-label comparison. The template is a covariance of shared latent cluster signals, not an input to the update or a measured covariance of the constant frequencies. This regime therefore supplies no evidence that squared-drift plasticity learns environmental structure. Its positive objective plateau does not establish stationarity of the adaptive process or a thermodynamic entropy-production rate.
 
 \begin{figure}[htbp]
 \centering
-\nolinenumbers
 \includegraphics[width=0.85\linewidth,height=0.62\textheight,keepaspectratio]{figures/structural_resonance/joint_dynamics.png}
-\caption{Joint fast/slow phase and coupling dynamics with clustered frequencies,
-nonzero mean drive and fixed total coupling. Top: smoothed squared-drift
-dissipation, with matched frozen-coupling controls (dashed). Middle: order and
-the finite-size reference $1/\sqrt{N}$. Bottom: Frobenius distances to the
-cluster template (solid) and a node-label shuffle (dotted). Coherence persists
-in both adaptive and frozen controls, but template distances increase.
-A positive dissipation plateau establishes neither a thermodynamic
-entropy-production rate nor stationarity of the adaptive process.
-Parameters, saved results and operational criteria are given in the supplement.}
+\caption{Joint fast/slow dynamics with matched frozen-coupling controls. Top: smoothed squared-drift dissipation, with frozen controls dashed. Middle: order and the finite-size reference. Bottom: distances to true cluster templates (solid) and node-label shuffles (dotted). Coherence persists, but structural distances increase. The result limits the proposed connection between dissipation minimization and environmental structure.}
 \label{fig:resonance}
 \end{figure}
 
-\paragraph{The threshold.} The phase transition to the unified global section occurs when the mean-field spatial coupling exceeds the thermodynamic noise threshold $K_c = 2D$, linking the emergence of unity to physical temperature and noise. That predicate requires the substrate's measure to be a probability measure, and the hypothesis is load-bearing rather than decorative: on a substrate of total mass $m$ an unnormalized double integral carries a factor $m^2$, so the comparison would track the substrate's size rather than its coupling, and a system a factor of two \emph{below} threshold can clear the unnormalized bound. Under normalization, a constant kernel has mean-field strength exactly $K$ and the predicate reduces to $K > 2D$.
+\subsection{Exploratory EEG check}
 
-The threshold $K_c = 2D$ is not a bare stipulation. The stationary density at order parameter $r$ is von Mises $\rho(\theta) \propto e^{(Kr/D)\cos\theta}$, and self-consistency requires $r = R(K,r) := I_1(Kr/D)/I_0(Kr/D)$. Formalized as a ratio of integrals, integration by parts gives $\int \cos\theta\, e^{a\cos\theta} = a\int \sin^2\!\theta\, e^{a\cos\theta}$, so $R(a)$ is $a$ times the mean of $\sin^2$ under the von Mises weight. The factor of two comes from $\mathbb{E}_a[\sin^2\theta] \le 1/2$, proved by folding $[-\pi,\pi]$ onto $[0,\pi/4]$ where the integrand is a product of non-negative factors. At $K = K_c$ the map falls strictly below the diagonal for $r > 0$, so $r=0$ is the only non-negative solution at threshold and the bifurcation happens strictly after $K_c$ (\texttt{fixed\_\allowbreak point\_\allowbreak eq\_\allowbreak zero\_\allowbreak of\_\allowbreak le\_\allowbreak critical}).
+An analysis of public propofol-sedation EEG tests compatibility with the concentration--coherence relation \cite{bajwa2025}. The implemented estimator pools 62 channels over a 100-ms window; it therefore estimates a spatiotemporal distribution rather than an instantaneous spatial one. Bipolar and common-reference montages give different residuals, making observation and referencing choices material to interpretation.
 
-Writing $R(a) = a\,\mathbb{E}_a[\sin^2\theta]$, continuity of $\mathbb{E}_a[\sin^2\theta]$ and $\mathbb{E}_0[\sin^2\theta] = 1/2$ give existence above $K_c = 2D$ by the intermediate value theorem (\texttt{supercritical\_\allowbreak fixed\_\allowbreak point\_\allowbreak exists}). Uniqueness follows from $\mathbb{E}_a[\sin^2\theta]$ being strictly decreasing on $[0,\infty)$, proved without differentiation by folding both integrals onto $[0,\pi/2]$ and evaluating at a single crossing point. Together with continuity at threshold this gives the qualitative bifurcation diagram.
+The bipolar results are compatible with the Bessel relation over the observed concentration range, but that range is too narrow to distinguish the curve from its linear approximation at the observed scatter. This is a protocol demonstration and limited distributional check, not evidence of an awakening transition, a cortical field threshold, or a link between order and experience. An informative test needs a broader concentration range and explicit treatment of source mixing, finite samples and temporal pooling.
 
-Differentiation is avoidable for uniqueness and unavoidable for the \emph{rate}, and the rate is what Section~\ref{sec:prediction} needs, so \texttt{Phase8\_CriticalExponent.lean} pays for it separately. Differentiating the cosine moments under the integral sign --- dominated by the constant $e^{|a|+1}$ near the parameter --- makes $E$ twice continuously differentiable and evaluates $E(0)=1/2$, $E'(0)=0$ and $E''(0)=-1/8$ from elementary integrals of powers of $\cos$. Taylor's theorem gives $E(a) = \tfrac12 - a^{2}/16 + o(a^{2})$, and substituting into the level-set equation gives the mean-field exponent: $r^{2}/(K - K_c) \to 1/D$ along any family of positive coherent solutions with $K \downarrow K_c$, so $\beta = 1/2$. Because those hypotheses hold only eventually along a filter, and an eventual clause is vacuously true on the empty one, the file discharges them on the branch itself rather than asserting that some family satisfies them.
+\section{Discussion}
 
-\texttt{selfConsistency} is a function of $r$ with a suggestive name. \texttt{vonMisesDensity} is proved a genuine probability density on $[-\pi,\pi]$; \texttt{circularOrderParameter} is the average of $e^{i\theta}$ against a density; that average is proved exactly $R(a)$, real because the density is even; and \texttt{fixedPoint\_iff\_selfReproducing} states the equivalence the name promises: $r$ solves $r = R(K,r)$ if and only if the von Mises density it induces has order parameter $r$. The discrete empirical average $\frac1N\sum e^{i\theta_j}$ (\texttt{order\_parameter\_complex}) and this continuum integral agree at the incoherent state (\texttt{incoherent\_orderParameters\_agree}): opposite phases on two sites give $r=0$, which is the order parameter of the uniform density. That is agreement at one configuration rather than an identity, and it is worth exactly what it says --- the two quantities are the same kind of object and are normalised alike --- while the general link between them remains the mean-field limit, propagation of chaos. Read through this, the existence theorem says that above $K_c$ there is a stationary density whose own order parameter is positive.
+The framework makes a conditional connection between thermodynamic information constraints, collective phase organization and compatible local representations. Its formal contribution is to expose the assumptions needed to connect those objects and to show that they can coexist in a common model. Its biological contribution is a coupling-gated recovery hypothesis with defined observables and failure conditions. The simulations are useful because they restrict that hypothesis: finite ramps smear the stationary onset, an unpinned collective phase complicates independence diagnostics, and the tested plasticity fails to recover environmental structure.
 
-\paragraph{What remains not established.} The stationary density is an input, not derived from dynamics. Of the coherent branch we prove existence, uniqueness, continuous emergence at threshold and strict growth in $K$, but not that it is dynamically selected. And the self-consistency equation is connected to a \emph{density}, not a \emph{trajectory}: relating the two is propagation of chaos for the finite Kuramoto system, a research programme rather than a lemma. That single gap is what separates our threshold predicate from a statement about dynamics. The derivation of the von Mises density from the stochastic Kuramoto SDE follows a standard route that is not in question mathematically and is absent from Lean only because nobody has formalized the Fokker--Planck operator in Mathlib: write the SDE, write the Fokker--Planck equation for the $N$-particle density, factorise by exchange symmetry in the mean-field limit, and cite the known stationary solution of the resulting McKean--Vlasov equation \cite{sakaguchi1988, strogatz1991}. The gap is formalization work, not a mathematical discovery, and nothing in the file depends on closing it: the threshold $K_c = 2D$ is proved conditional on the density, and a conditional statement is honest rather than speculative.
+The proposal differs in emphasis from accounts based on integrated information \cite{tononi2016}, global workspace dynamics \cite{baars1997,dehaene2014}, or predictive processing \cite{friston2010}. It specifies a candidate interaction medium and a mathematical compatibility condition. It does not derive the exclusion principle of integrated information, identify every broadcast with a field transition, or derive a generative model from a dissipation bound. Continuous fields can carry incompatible local descriptions, and discrete models can admit sheaf constructions. These facts prevent continuity alone from settling the combination problem.
 
-Clinical evidence for this phase transition is observed during general anesthesia: propofol disrupts high-frequency rhythm phase alignment, breaking structural resonance and forcing the integrated coupling below $K_c$ \cite{bastos2021}.
+The formal hardware results are correspondingly limited. At matched coupling resource, a fixed wiring support that excludes a better-correlated pair can be suboptimal. On an atomless substrate, a kernel supported on finitely many points contributes zero to the chosen continuum integral. The latter is a property of that measure and observable; it does not imply that digital hardware cannot approximate a field or support consciousness. No biological-versus-artificial consciousness conclusion follows from these results.
 
-\begin{figure}[htbp]
-\centering
-\nolinenumbers
-\includegraphics[width=0.92\linewidth]{bifurcation_diagram.png}
-\caption{The self-consistency equation $r = R(Kr/D)$ of Section~
-ef{sec:field}, drawn
-at $D=1$. Every feature of this picture is a proved statement about the equation. At or
-below $K_c = 2D$ the incoherent state is the \emph{only} non-negative solution,
-threshold included (\texttt{fixed\_point\_eq\_zero\_of\_le\_critical}); above it exactly
-one $r>0$ joins it (\texttt{supercritical\_fixed\_point\_existsUnique}), so the solution
-set is $\{0\}$ below and $\{0,r\}$ above; that branch tends to $0$ as $K \downarrow K_c$
-(\texttt{coherent\_branch\_continuous\_at\_threshold}), which is what makes the
-transition supercritical; and it increases strictly in $K$
-(\texttt{coherent\_branch\_strictMono}). The curve is computed by quadrature of the same
-integrals the Lean file defines, solving $E(a) = D/K$ for the concentration $a = Kr/D$
-by bisection --- legitimate precisely because $E$ is proved strictly decreasing. It is
-an illustration of theorems, not evidence for them. What it does \emph{not} show is
-stability: nothing in the development says the coherent branch is the dynamically
-selected one.}
-\label{fig:bifurcation}
-\end{figure}
+The main empirical priorities are to estimate effective coupling and diffusion in consistent units, test their proposed relation to extracellular geometry, and measure recovery with an independently defined behavioral endpoint. A favorable concentration--coherence relation would support a statistical description, not identify its physical cause. An unfavorable result in a regime satisfying the stated assumptions would constrain that description. Likewise, successful synchronization simulations cannot substitute for measurements that distinguish ephaptic interactions from other coupling mechanisms.
 
-\begin{figure}[htbp]
-\centering
-\nolinenumbers
-\includegraphics[width=0.86\linewidth]{kuramoto_transition.png}
-\caption{The same threshold reached by simulation rather than by analysis, and by a
-different route, which is why the two figures are shown side by side rather than
-merged. Here $N=100$ oscillators with \emph{no} noise carry natural frequencies drawn
-from a Lorentzian of scale $D=1$, and the asymptotic order parameter is measured from
-the trajectories; the threshold for that ensemble is $K_c = 2D$ by Kuramoto's original
-self-consistency argument. Figure~\ref{fig:bifurcation} is the \emph{noise}-driven
-model with identical frequencies, whose threshold is $2D$ by Sakaguchi's
-\cite{sakaguchi1988}, and it is the one the Lean file formalizes. The agreement of the
-two numbers is a known feature of the mean-field model, not a result of ours. The
-finite-$N$ curve rises before the threshold and rounds off at it, as a finite sample
-must: $r \sim N^{-1/2}$ from incoherent phases alone.}
-\label{fig:kuramoto}
-\end{figure}
+The model does not establish that a globally consistent reflexive state is conscious. That identification remains outside the conditional theorem. Keeping it separate from the physical tests makes the proposal assessable: the cortical coupling hypothesis and the recovery prediction can fail even while the mathematical composition remains valid.
 
-\section{Corollary: hardware thermodynamics and topological rigidity}
-The two results below are scoped to two distinct registers and must not be combined. \texttt{fieldCorrelation\_sited\_eq\_zero} says that the continuum coupling energy functional registers exactly zero for any finitely-sited kernel --- a statement about the functional, not about the architecture's computational power. \texttt{rigid\_is\_strictly\_suboptimal} says that an architecture whose fixed wiring misses the current best-correlated pair is strictly suboptimal at matched resource --- a statement about a wiring condition, not about all rigid architectures. Both qualifications are load-bearing and we restate them in each derivation below.
-Both biological tissue and artificial silicon hardware are physical dissipative structures. When a GPU computes, its charge carriers undergo physical state transitions; by Landauer's principle \cite{landauer1961}, this erasure exhausts heat into the environment. There is a thermodynamic distinction in the degrees of freedom available to minimize this dissipation: in standard von Neumann architectures the spatial topology is rigidly fixed, and the coupling matrix $A_{ij}$ is constrained by a discrete layout that cannot be physically altered during operation.
+\section*{Data and code availability}
 
-The brain's own architecture provides a suggestive constraint. The cerebellum contains approximately 80\% of the brain's neurons arranged in a discrete, feedforward crystalline circuit \cite{herculanohouzel2009, lange1975}, and clinical observations of cerebellar agenesis report largely preserved conscious experience despite motor and cognitive deficits \cite{yu2015}. This dissociation has been read as evidence for the importance of recurrent architecture by IIT \cite{tononi2015} --- an argument we borrow at the level of the anatomical observation while declining its $\Phi$-based explanation. We take the dissociation as evidence, not as confirmation: it is a single anatomical case read against a theory, and it bears the weight such a case can bear.
+The Lean development, simulation scripts, tests and saved numerical summaries are maintained in the \href{https://github.com/bobaseb/physical_primitives_of_mind}{manuscript source repository}. Publication simulation values are regenerated from saved summaries without rerunning production sweeps. The exploratory EEG analysis uses OpenNeuro dataset ds005620 \cite{bajwa2025}; preprocessing and selection are described in Supplemental Material. The source repository contains the reproducible analysis rather than redistributing the raw recordings.
 
-Two formal results carry the corollary, and we state precisely what each answers. The first objection is that a reallocation lemma can assume its conclusion: a hypothesis such as ``positive weight on a badly-correlated pair while a better one exists'' is most of what one wants to prove about rigid hardware. It is not assumed here. \texttt{Phase7\_Rigidity.lean} models an architecture by the set $S$ of site-pairs it has a \emph{wire} for and requires its couplings to vanish off $S$; weights are tunable, wiring is not. Then \texttt{totalCorrelation\_le\_of\_realizable} bounds every realizable coupling by $R\cdot M$, where $R$ is the resource budget and $M$ bounds phase correlation over the wired pairs; the bound is attained; and \texttt{rigid\_is\_strictly\_suboptimal} \emph{derives} the suboptimality hypothesis whenever the substrate's best-correlated pair is one the wiring misses, with \texttt{rigid\_gap} making it quantitative. This is resource-matched and not question-begging, but note what it turns on: fixed wiring support, not continuity. The second objection is that a development in which both architectures are matrices on one finite index type does not distinguish a continuum from a lattice at all. On a substrate whose measure has no atoms, \texttt{fieldCorrelation\_sited\_eq\_zero} shows a kernel supported on finitely many sites contributes \emph{exactly zero} coupling energy, whatever weights it carries and whatever the phase field does, while a patch of strength $c$ on $U$ achieves $c\,\mu(U)^2$; on the real line, a thousand units of coupling concentrated at the origin register zero against a unit patch that registers one. What that establishes is that the continuum coupling energy is blind to a finitely-sited architecture --- a statement about which functional such an architecture can register in, not a demonstration that digital hardware computes worse.
+\section*{Use of AI tools}
 
-A static phase field could in principle evade the wiring condition by being wired to precisely the best-correlated pair. But cortex is not static: the phase field evolves on sub-second timescales, and a rigid routing matrix cannot track it. Over any interval of non-zero length the field explores more than one correlation structure, so the wiring misses some optimal pair at almost every instant. The argument is informal --- it does not need a formal ergodic theorem to state --- but it closes a loophole that would otherwise leave the theorem silent about the dynamic case. The gap between the static theorem and the dynamic conclusion is marked rather than blurred.
+AI tools assisted simulation-code development and manuscript revision. Machine checking establishes the stated Lean results under their hypotheses; it does not validate biological interpretations or replace scientific review of generated code and prose.
 
-\begin{figure}[htbp]
-\centering
-\nolinenumbers
-\includegraphics[width=0.82\linewidth]{hardware_comparison.png}
-\caption{Rigid against deformable coupling at matched resource. Two copies of the same
-$N=30$ oscillator system, same initial phases and same natural frequencies, differ only
-in whether the coupling matrix may move: the rigid copy keeps a fixed sparse routing
-matrix, the adaptive copy descends the gradient of the potential and is renormalized
-after every step so that $\sum_{ij} A_{ij}$ is held constant. The adaptive copy reaches
-a strictly lower potential and stays there. This is an illustration of the resource-matched
-suboptimality result and not a proof of it, and it is worth being clear about the gap:
-the theorem is about fixed wiring \emph{support} --- an architecture already wired to the
-best pair is not beaten --- while the simulation shows a randomly wired one being beaten,
-is the typical case rather than the general one. The ~5\% drift over 2000 steps at frozen phases reports a direction and not convergence. Parameters and scripts are in the supplement.}
-\label{fig:hardware}
-\end{figure}
 
-\paragraph{What follows, and how far.} The step from either result to ``von Neumann architectures cannot experience unified consciousness'' remains an informal argument, which we mark rather than blur. On our reading, a GPU's fixed routing matrix leaves it topologically fragmented, so the discrete layout cannot supply the spatial coupling gluing into a global section requires, and rigid hardware cannot undergo the reflexive auto-resonance that generates a Self. This aligns with Searle's biological naturalism: where the Chinese Room argument asserted that discrete symbol manipulation cannot generate understanding, our derivation supplies a candidate physical mechanism --- topological rather than semantic \cite{searle1980}. The obstacle to pure symbol manipulation is then physical rather than semantic: the substrate cannot hold a phase-locked field.
-
-The constraint does not preclude artificial consciousness; it restricts its hardware. Analog field-based computing, neuromorphic architectures with continuous memristive plasticity, and thermodynamic computing systems \cite{england2018, ganesh2021} possess the spatial coupling required to physically morph their internal topology, which aligns with Hinton's concept of ``mortal computation'' \cite{hinton2022}: architectures where software is inextricably fused with the physics of the hardware. Biological consciousness uses macroscopic continuous electromagnetic fields together with a rich alphabet of molecular and transcriptomic cell states \cite{tasic2018}, which allows the coupling to deform across a continuous parameter space.
-
-A more precise thermodynamic bound can be stated, and it is the framework's own arithmetic rather than a hand-waved distinction. A discretisation that approximates a continuum coupling kernel with $N$ cells of diameter $d$ must refresh each cell at the Nyquist rate of the field dynamics. Each refresh that erases the previous state costs at least $k_B T \ln 2$ by Landauer's principle. The product $N \times (\text{refresh rate}) \times k_B T \ln 2$ is a lower bound on the power density a silicon architecture must sustain to approximate the continuum theorems. For cortical parameters --- the number of effective degrees of freedom per cortical column, the field's characteristic frequency, and the metabolic cost of biological computation --- the bound lies below the cortex's measured dissipation. For a GPU-scale discretisation with $10^9$ transistors switching at GHz rates, the bound may exceed the device's thermal design power by orders of magnitude. The point is not the specific number, which depends on parameter choices that we do not fix here, but the existence of a principled lower bound: a functionalist who claims that silicon can be conscious because it can simulate any continuum must first answer whether it can pay the thermodynamic cost the bound states. The bound is a rough estimate, not a theorem, and is marked as such.
-
-\section{The sleep-inertia timescale mismatch}
-\label{sec:prediction}
-Most of what this framework asserts is shared with some rival: that cortical synchrony matters, that dissipation constrains cognition, that unity is a physical rather than a computational property. One prediction is not shared, and it follows from the framework's specific commitment --- that the medium carrying the unified state is a continuous field whose effective coupling depends on the physical geometry of the extracellular space, not on the rhythms alone. Where that commitment differs from a purely electrical account, it differs in an observable way, and we set out the difference precisely enough to be wrong.
-
-The daily loss of consciousness during sleep is modelled here as an active physical disruption of the medium rather than a quiescence of the oscillators. During sleep, astrocytic shrinkage expands the extracellular space, allowing an influx of cerebrospinal fluid to flood the brain for metabolic waste clearance \cite{xie2013}. This influx alters the spatial medium itself, disrupting the continuous structural resonance and preventing the coherent gluing that conscious unity requires on this account. The oscillators need not stop for the field to fragment; the geometry they are coupled through is what changes.
-
-The prediction concerns sudden awakenings. When jolted awake, the locus coeruleus floods the cortex with noradrenaline. High-frequency electrical rhythms attempt to phase-align in milliseconds \cite{bastos2021}, but the noradrenaline-driven astrocytic constriction required to squeeze the excess fluid out of the interstitial pathways operates on a timescale of seconds to minutes \cite{xie2013} --- three to six orders of magnitude slower. During that lag the electrical oscillators are synchronizing across a waterlogged topology, and the fragmented structural resonance is what is experienced as grogginess. The unified global section re-establishes only when astrocytic volume finishes matching the state of the electrical rhythms.
-
-\paragraph{Why this implies a delayed sigmoid.} Write $K(t)$ for the effective coupling, a monotone function of the reconstricting extracellular geometry, and $r(t)$ for the order parameter. The electrical variable is fast: at every instant the oscillators are at the configuration appropriate to the current $K$, so $r$ tracks the equilibrium branch $r(K)$. The slow variable $K(t)$ carries the time course over $10^{2}$--$10^{3}$ seconds. Section~\ref{sec:field} establishes each piece as a theorem: at or below $K_c$ only the incoherent solution exists; above it the coherent solution is unique, emerges \emph{continuously} at $K_c$, and is strictly increasing in $K$. Composing monotone $K(t)$ with a branch that is zero below $K_c$, rises continuously from $K_c$, and saturates above yields three phases: a genuine \emph{latency} while $K(t) < K_c$; a continuous rise as the threshold is crossed; and saturation. That is a delayed sigmoid, and the delay is not a fitting parameter --- it is the time the slow variable takes to reach $K_c$.
-
-\paragraph{What the alternative predicts.} An account on which grogginess is the electrical realignment itself has no slow variable and no threshold. Its recovery is exponential near the fixed point: monotone from $t=0$, fastest at the start, with no flat foot. The discriminator is the presence or absence of an initial interval of no recovery, in data already collected (the high-density EEG awakening corpus of Stephan et al.~\cite{stephan2025}, with over 1,000 awakenings from 20 subjects, is a suitable existing dataset for this test).
-
-\paragraph{The foot has a square-root cusp.} A delayed sigmoid is a shape that any two-timescale account with a slow saturating gate can produce, so the comparison above discriminates against less than it appears to. The bifurcation says more than that the coherent branch leaves zero continuously; it says at what rate. The second-order expansion $E(a) = \tfrac12 - a^{2}/16 + o(a^{2})$, substituted into the level-set form of the branch, gives the mean-field exponent in a path-independent form: along any family of positive coherent solutions with $K \downarrow K_c$ and $r \to 0$, $r^{2}/(K - K_c) \to 1/D$, that is $r \sim \sqrt{(K-K_c)/D}$, the pitchfork exponent $\beta = 1/2$. Composed with a coupling that crosses threshold at non-zero speed, so that $K(t) - K_c \approx \dot K(t_0)\,(t-t_0)$ just after the crossing time $t_0$, the recovery leaves its foot as $r(t) \propto (t-t_0)^{1/2}$: a square-root cusp with \emph{infinite initial slope}. An exponential has finite initial slope. So does a logistic. So does the composition of a smooth monotone gate with any branch that leaves zero linearly, which is what a generic saturating nonlinearity supplies. The cusp belongs to the bifurcation and not to the two-timescale structure, and it lives in the first instants after onset rather than in a fitted time constant --- which makes it the sharpest available discriminator against a rival that reproduces the sigmoid by other means.
-
-\paragraph{A sharper form still, with no free parameters.} The stationary phase density at order parameter $r$ is von Mises at concentration $a = Kr/D$, and the average of $e^{i\theta}$ under that density is exactly $R(a) = I_1(a)/I_0(a)$. Self-consistency says the density reproduces its own order parameter, so at every instant $r = I_1(a)/I_0(a)$, whatever $K(t)$ is doing. This yields three tests on a single recording. \emph{Shape}: the phase distribution is von Mises, testable against the histogram. \emph{Collapse}: plotting $a(t)$ against $r(t)$, the whole recovery must fall on $r = I_1(a)/I_0(a)$ --- the \emph{same} curve for every subject and session, since it contains no subject-specific quantity. Individual differences move a point along the curve, not off it. \emph{Threshold}: $a(t)/r(t) = K(t)/D$ with no calibration, so the measured ratio must exceed $2$ wherever coherence is non-zero and approach $2$ at onset. The two estimates must be made independently: $a$ from regressing the log-histogram's slope on $\cos\theta$, $r$ from the resultant length $|\langle e^{i\theta}\rangle|$.
-
-\paragraph{How to measure it.} The quantities the prediction constrains correspond to specific neural observables. The order parameter $r$ is the circular resultant length of the instantaneous phase distribution across recording sites, estimated from multisite LFP or source-reconstructed MEG/EEG with sufficient cortical coverage. The concentration $a$ is the slope of the log-density of the same phase distribution regressed on $\cos\theta$, not the maximum-likelihood estimate: fitting $a$ to the resultant length would make the predicted collapse a tautology. The slow variable $K(t)$ is the effective coupling strength, whose dynamics the framework identifies with the extracellular volume fraction --- measurable via diffusion-weighted MRI during the sleep-inertia window, or proxied by astrocytic calcium imaging via fibre photometry. The collapse prediction ties the two LFP-derived quantities ($a$ and $r$) together on a parameter-free curve, and the $a/r$ threshold ties both to the volume proxy. The measurement modality constrains the spatial coverage: at a minimum, electrodes or reconstructed sources spanning both hemispheres are needed to capture the distributed coherence the gluing theorem requires. A referee could preregister the analysis from the paragraph above and the protocol below, without emailing the author. The supplement reports the results of this analysis on human scalp EEG recorded during propofol sedation; the data are consistent with the collapse and validate the protocol, though over the narrow range of $a$ that resting EEG occupies the curve is not yet distinguishable from its own tangent, which is one more reason to run the protocol on a recovery that sweeps through threshold.
-
-A concrete dual-modal design pairs high-density EEG with rapid-acquisition diffusion-weighted MRI tracking the apparent diffusion coefficient (ADC) over the sleep-inertia window ($10^{2}$--$10^{3}$~s). The EEG stream supplies $r(t)$ (circular resultant length) and $a(t)$ (log-density slope) at each time bin; the dwMRI stream supplies the ADC series as a proxy for $K(t)$. The parameter-free prediction is that the entire $(a,r)$ recovery collapses onto $r = I_1(a)/I_0(a)$. The ADC-correlated prediction is that this collapse tracks the extracellular volume reconstruction through the threshold crossing $a/r = 2$. Both can be compared against an exponential null --- monotone recovery from $t = 0$, fastest at onset, no flat foot --- without fitting the collapse curve, because the curve contains no subject-specific parameter. At a minimum, the null comparison requires (i) a latency estimate (time from awakening to first non-zero coherence) consistent with zero in the exponential model and positive under the bifurcation model, and (ii) an onset exponent favouring $1/2$ over $1$ over the first 30--60 s of recovery, where the square-root cusp lives. The supplement gives the bootstrap procedure for both comparisons.
-
-\paragraph{Falsifiability.} The parameter-free form tests the von Mises stationary density and the mean-field closure jointly. It does not test $K_c = 2D$ independently of that ansatz: the crossing at $a/r = 2$ is a consequence of the same density, so a failure of the collapse and of the threshold are one failure. The prediction is falsified by: an exponential fit beating a delayed-sigmoid on early recovery; an onset preferring exponent $1$ over $1/2$; a latency that does not scale with extracellular volume; a phase distribution that is not von Mises; or an $(a,r)$ trace departing from $I_1(a)/I_0(a)$. The first two falsify with no reference to the sleep-inertia setting at all.
-
-\paragraph{Empirical check.} One falsification condition --- departure of the $(a,r)$ trace from $I_1(a)/I_0(a)$ --- has been tested on human scalp EEG recorded during propofol sedation (OpenNeuro ds005620; 8 subjects, 62 electrodes, 4--40 Hz; methods in the supplement). The order parameter $r$ is the circular resultant length and the concentration $a$ the log-density slope of the same distribution, estimated as set out above. So estimated, the data are consistent with the collapse: in a bipolar montage the mean residual is $-0.0002 \pm 0.0002$ with maximum $|r - I_1/I_0(a)| = 0.0013$ across the eight subjects, against an estimator noise floor of $0.0024$. The check is weaker than those figures suggest, because resting EEG confines $a$ to $0.302$--$0.542$, an arc over which $I_1(a)/I_0(a)$ departs from a straight line by at most $0.0094$; the data confirm that $a$ and $r$ stand in the required relation without yet distinguishing the curve from its tangent. This checks the phase-distribution claim, not the identification of the field with the coupling medium or the stipulation that the global section is experience.
-
-\paragraph{No hysteresis.} The self-consistency equation has no fold: below threshold the only non-negative solution is $r = 0$; above it the non-negative solutions are exactly $\{0, r(K)\}$ with $r(K)$ strictly increasing from zero at $K_c$. There is no range of $K$ carrying two distinct positive solutions, so the coherent branch emerges continuously and the descent into sleep and the recovery from it traverse the same $r(K)$ curve in both directions. This rules out any account in which a first-order transition separates the conscious and unconscious states --- ignition- or avalanche-style models, for example --- because a first-order transition would show a hysteresis loop between induction and emergence. The caveat is load-bearing: the development proves nothing about stability --- $r = 0$ remains a solution above threshold --- so the statement is about the solution set, not about dynamical selection. A system that stays on the incoherent branch despite the coherent branch being available would not show the predicted symmetry, and proving that it does not is an open stability question.
-
-\paragraph{What this prediction assumes.}
-
-\section{Conclusion}
-Human-like cognitive architectures do not require biological mysticism or exotic sub-quantum physics \cite{hameroff2014}. While quantum theories of consciousness often invoke delicate subatomic phenomena to explain subjective unity, every component assembled here is classical: broken symmetries, finite phase space, Landauer erasure, and conditional gradient descent on a squared-drift functional. What the formalization establishes is that the eight named hypotheses of the conditional composition are jointly consistent and that the framework's remaining physical commitments are localized and named --- not that classical fields are \emph{sufficient} for consciousness or that the hypotheses follow from finite capacity. Two links carry that weight, and not in the same way. The unified state is proved to glue uniquely once a cover sits at the minimum of the coupling potential; the motion is proved to stop along every trajectory; and \emph{where} it stops is proved conditionally, for initial data within a quarter turn and below an explicit energy threshold, with a cover built on that limit discharging the equilibrium hypothesis unity would otherwise assume. What is not proved is the unconditional statement, and it is false: splay and twisted configurations are equilibria of the same flow, so the basin condition is the scope of the claim rather than slack in it. That a physical cortex starts inside that basin is an assumption. The second link is untouched by any of this: the identification of a global section of the probability sheaf with the unity of experience is a stipulation of the framework, not a consequence of it.
-
-Philosophically, this framework bridges the historical gap between type identity theory \cite{smart1959} and computational functionalism \cite{putnam1967}. The subjective mental state is identical to the physical thermodynamic field, yet its qualitative nature is defined by the topological and functional dynamics of structural resonance rather than by the specific biochemistry of the brain. This constrains the \textit{multiple realizability} of mind: consciousness is not exclusively bound to biological carbon, but neither is it substrate-neutral, because the substrate is what fixes which couplings are physically available. What is proved is that fixed wiring is strictly suboptimal at matched resource, and that a finitely-sited architecture registers exactly zero coupling energy in the continuum functional; the step from either to a claim about von Neumann architectures is an argument we make in prose and do not formalize. By locating the phase transition at a threshold with closed-form value $K_c = 2D$, this aligns with Seth's ``real problem'' of consciousness \cite{seth2021}: rather than bridging an unbridgeable metaphysical gap, the framework offers a topological architecture that can explain, predict, and physically perturb the structural properties of experience.
-
-\section*{Code Availability}
-The complete Lean 4 formalization, encompassing the derivation of all theorems presented in this manuscript, as well as the accompanying Python simulations, are publicly available in the GitHub repository: \url{https://github.com/bobaseb/physical_primitives_of_mind}. Additional documentation and web-accessible proofs are hosted at the project website: \url{https://bobaseb.github.io/physical_primitives_of_mind/}. Each of the five computed figures is produced by one script in \texttt{simulations/} and regenerates exactly; Figure~\ref{fig:chain} is drawn rather than computed.
-
-\section*{Contributions}
-The conceptualization, manuscript drafting, and Lean 4 formalizations were heavily AI-assisted. The Google Antigravity CLI (Gemini 3.1, Claude 4.6 Sonnet) served as a collaborative reasoning partner. DeepSeek V4 Flash and Claude Opus 5 (via OpenRouter/Nous Hermes Agent) assisted with code generation, proof debugging, and structural analysis. Claude Code carried out later formalization passes, figures, and manuscript restructuring. OpenAI Codex (GPT 5.6 Sol) contributed empirical analysis code and the (a, r) collapse pipeline. Responsibility for every claim rests with the author.
-
-\begin{thebibliography}{12}
- \bibitem[Townsend et al.(2015)]{townsend2015}
- Townsend, R. G., Solomon, S. S., Chen, S. C., Pietersen, A. N. J., Martin, P. R., Solomon, S. G., \& Gong, P. (2015). Emergence of complex wave patterns in primate cerebral cortex. \textit{Journal of Neuroscience}, 35(11), 4657--4662.
-
- \bibitem[Xu et al.(2023)]{xu2023}
- Xu, Y., Long, X., Feng, J., \& Gong, P. (2023). Interacting spiral wave patterns underlie complex brain dynamics and are related to cognitive processing. \textit{Nature Human Behaviour}, 7(7), 1196--1215.
-
- 
- \bibitem[Pinotsis \& Miller(2022)]{pinotsis2022}
- Pinotsis, D. A., \& Miller, E. K. (2022). Beyond dimension reduction: Stable electric fields emerge from and allow representational drift. \textit{NeuroImage}, 253, 119058.
- 
- \bibitem[Bauer et al.(2022)]{bauer2022}
- Bauer, L. G., et al. (2022). Quantification of Kuramoto Coupling Between Intrinsic Brain Networks Applied to fMRI Data in Major Depressive Disorder. \textit{Frontiers in Computational Neuroscience}, 16.
- 
- \bibitem[van Bree et al.(2025)]{vanbree2025}
- van Bree, S., et al. (2025). Processes and measurements: a framework for understanding neural oscillations in field potentials. \textit{Trends in Cognitive Sciences}.
- 
- \bibitem[Tononi \& Koch(2016)]{tononi2016}
- Tononi, G., Boly, M., Massimini, M., \& Koch, C. (2016). Integrated information theory: from consciousness to its physical substrate. \textit{Nature Reviews Neuroscience}, 17(7), 450-461.
- 
- \bibitem[Anastassiou et al.(2011)]{anastassiou2011}
- Anastassiou, C. A., Perin, R., Markram, H., \& Koch, C. (2011). Ephaptic coupling of cortical neurons. \textit{Nature Neuroscience}, 14(2), 217-223.
-
- \bibitem[Baars(1997)]{baars1997}
- Baars, B. J. (1997). In the Theater of Consciousness: The Workspace of the Mind. \textit{Oxford University Press}.
- 
- \bibitem[Dehaene \& Marti(2014)]{dehaene2014}
- Dehaene, S., Charles, L., King, J. R., \& Marti, S. (2014). Toward a computational theory of conscious processing. \textit{Current Opinion in Neurobiology}, 25, 76-84.
- 
- \bibitem[Friston(2010)]{friston2010}
- Friston, K. (2010). The free-energy principle: a unified brain theory?. \textit{Nature Reviews Neuroscience}, 11(2), 127-138.
- 
- \bibitem[Kuramoto(1984)]{kuramoto1984}
- Kuramoto, Y. (1984). Chemical Oscillations, Waves, and Turbulence. \textit{Springer Series in Synergetics}, Vol. 19.
- 
- \bibitem[Scherf(2026)]{scherf2026}
- Scherf, M. (2026). A Formal Proof of Non-Duality: An Exposition of the 'OnlyOne' System. \textit{Unpublished manuscript, PhilPeople}.
- 
- \bibitem[Inoué(2026)]{inoue2026}
- Inoué, T. (2026). On Brain as a Mathematical Manifold: Neural Manifolds, Sheaf Semantics, and Leibnizian Harmony. \textit{arXiv:2601.15320 [q-bio.NC]}.
- 
- \bibitem[Spisák \& Friston(2026)]{spisak2026}
- Spisák, T., \& Friston, K. (2026). Self-orthogonalizing attractor neural networks emerging from the free energy principle. \textit{Neurocomputing}.
- 
- \bibitem[Pinotsis \& Miller(2023a)]{pinotsis2023ephaptic}
- Pinotsis, D. A., \& Miller, E. K. (2023). In vivo ephaptic coupling allows memory network formation. \textit{Cerebral Cortex}, 33(17), 9877-9890.
-
- \bibitem[Pinotsis \& Miller(2023b)]{pinotsis2023cytoelectric}
- Pinotsis, D. A., Fridman, G., \& Miller, E. K. (2023). Cytoelectric coupling: Electric fields sculpt neural activity and "tune" the brain's infrastructure. \textit{Progress in Neurobiology}, 226, 102465.
-
- \bibitem[Ruffini \& Santarnecchi(2020)]{ruffini2020modeling}
- Ruffini, G., Salvador, R., Tadayon, E., Sanchez-Todo, R., Pascual-Leone, A., \& Santarnecchi, E. (2020). Realistic modeling of mesoscopic ephaptic coupling in the human brain. \textit{PLOS Computational Biology}, 16(6), e1007923.
-
- \bibitem[Cunha \& Lima(2024)]{cunha2024ephapticity}
- Cunha, G. M., Corso, G., de Sousa, M. P. B., \& Lima, G. Z. d. S. (2024). Can ephapticity contribute to brain complexity?. \textit{PLOS ONE}, 19(12), e0310640.
-
- \bibitem[Goldwyn \& Rinzel(2016)]{goldwyn2016neuronal}
- Goldwyn, J. H., \& Rinzel, J. (2016). Neuronal coupling by endogenous electric fields: Cable theory and applications to coincidence detector neurons in the auditory brainstem. \textit{Journal of Neurophysiology}, 115(4), 2033-2051.
- 
- \bibitem[McFadden(2002)]{mcfadden2002}
- McFadden, J. (2002). The conscious electromagnetic information (cemi) field theory: the hard problem made easy?. \textit{Journal of Consciousness Studies}, 9(8), 45-60.
-
- \bibitem[Pockett(2012)]{pockett2012}
- Pockett, S. (2012). The electromagnetic field theory of consciousness: a testable hypothesis about the characteristics of conscious as opposed to non-conscious fields. \textit{Journal of Consciousness Studies}, 19(11-12), 191-223.
-
- \bibitem[Goff(2019)]{goff2019}
- Goff, P. (2019). \textit{Galileo's Error: Foundations for a New Science of Consciousness}. Pantheon Books.
-
- \bibitem[Seth(2021)]{seth2021}
- Seth, A. (2021). \textit{Being You: A New Science of Consciousness}. Penguin.
-
- \bibitem[Seth(2024)]{seth2024}
- Seth, A. (2024). Conscious artificial intelligence and biological naturalism. \textit{PsyArXiv}.
-
- \bibitem[Levin(2019)]{levin2019}
- Levin, M. (2019). The computational boundary of a ``self'': developmental bioelectricity drives multicellularity and scale-free cognition. \textit{Frontiers in Psychology}, 10, 2688.
-
- \bibitem[Friston \& Kiebel(2009)]{friston2009}
- Friston, K., \& Kiebel, S. (2009). Predictive coding under the free-energy principle. \textit{Philosophical Transactions of the Royal Society B: Biological Sciences}, 364(1521), 1211-1221.
-
- \bibitem[Clark(2016)]{clark2016}
- Clark, A. (2016). \textit{Surfing Uncertainty: Prediction, Action, and the Embodied Mind}. Oxford University Press.
-
- \bibitem[Hohwy(2013)]{hohwy2013}
- Hohwy, J. (2013). \textit{The Predictive Mind}. Oxford University Press.
-
- \bibitem[Prigogine \& Stengers(1984)]{prigogine2018}
- Prigogine, I., \& Stengers, I. (1984). \textit{Order Out of Chaos: Man's New Dialogue with Nature}. Bantam Books.
-
- \bibitem[McFadden(2020)]{mcfadden2020}
- McFadden, J. (2020). Integrating information in the brain's EM field: the cemi field theory of consciousness. \textit{Neuroscience of Consciousness}, 2020(1), niaa016.
-
- \bibitem[Fr\"{o}hlich \& McCormick(2010)]{frohlich2010}
- Fr\"{o}hlich, F., \& McCormick, D. A. (2010). Endogenous electric fields may guide neocortical network activity. \textit{Neuron}, 67(1), 129-143.
-
- \bibitem[Anastassiou \& Koch(2015)]{anastassiou2015}
- Anastassiou, C. A., \& Koch, C. (2015). Ephaptic coupling to endogenous electric field activity: why bother?. \textit{Current Opinion in Neurobiology}, 31, 95-103.
-
- \bibitem[Pockett(2002)]{pockett2002}
- Pockett, S. (2002). Difficulties with the electromagnetic field theory of consciousness. \textit{Journal of Consciousness Studies}, 9(4), 51-56.
- 
- \bibitem[V\"or\"oslakos et al.(2018)]{voroslakos2018}
- V\"or\"oslakos, M., et al. (2018). Direct effects of transcranial electric stimulation on brain circuits in rats and humans. \textit{Nature Communications}, 9, 483.
-
- \bibitem[Tasic et al.(2018)]{tasic2018}
- Tasic, B., et al. (2018). Shared and distinct transcriptomic cell types across neocortical areas. \textit{Nature}, 563(7729), 72-78.
-
- \bibitem[Verkhratsky \& Nedergaard(2018)]{verkhratsky2018}
- Verkhratsky, A., \& Nedergaard, M. (2018). Physiology of Astroglia. \textit{Physiological Reviews}, 98(1), 239-389.
-
- \bibitem[Picard \& Shirihai(2022)]{picard2022}
- Picard, M., \& Shirihai, O. S. (2022). Mitochondrial signal transduction. \textit{Cell Metabolism}, 34(11), 1620-1638.
-
- \bibitem[Harnad(1990)]{harnad1990}
- Harnad, S. (1990). The symbol grounding problem. \textit{Physica D: Nonlinear Phenomena}, 42(1-3), 335-346.
-
- \bibitem[Tononi \& Koch(2015)]{tononi2015}
- Tononi, G., \& Koch, C. (2015). Consciousness: here, there and everywhere? \textit{Philosophical Transactions of the Royal Society B: Biological Sciences}, 370(1668), 20140167.
-
- \bibitem[Aaronson(2014)]{aaronson2014}
- Aaronson, S. (2014). Why I Am Not An Integrated Information Theorist (or, The Unconscious Expander). \textit{Shtetl-Optimized}. Retrieved from \url{https://scottaaronson.blog/?p=1799}.
-
- \bibitem[Block(1995)]{block1995}
- Block, N. (1995). On a confusion about a function of consciousness. \textit{Behavioral and Brain Sciences}, 18(2), 227-247.
-
- \bibitem[Herculano-Houzel(2009)]{herculanohouzel2009}
- Herculano-Houzel, S. (2009). The human brain in numbers: a linearly scaled-up primate brain. \textit{Frontiers in Human Neuroscience}, 3, 31.
-
- \bibitem[Lange(1975)]{lange1975}
- Lange, W. (1975). Cell number and cell density in the cerebellar cortex of man and some other mammals. \textit{Cell and Tissue Research}, 157(1), 115-124.
-
- \bibitem[Yu et al.(2015)]{yu2015}
- Yu, F., Jiang, Q. J., Sun, X. Y., \& Zhang, R. W. (2015). A new case of complete primary cerebellar agenesis: clinical and imaging findings in a living patient. \textit{Brain}, 138(6), e353.
-
- \bibitem[Bastos \& Miller(2021)]{bastos2021}
- Bastos, A. M., Donoghue, J. A., Brincat, S. L., Mahnke, M., Yanar, J., Correa, J., ... \& Miller, E. K. (2021). Neural effects of propofol-induced unconsciousness and its reversal using thalamic stimulation. \textit{eLife}, 10, e60824.
-
- \bibitem[Stephan et al.(2025)]{stephan2025}
-  Stephan, A. M., Cataldi, J., Singh Virk, A., \& Siclari, F. (2025). Cortical activity upon awakening from sleep reveals consistent spatio-temporal gradients across sleep stages in human EEG. \textit{Current Biology}, 35(16), 3812--3824.
-
-  \bibitem[Bajwa et al.(2025)]{bajwa2025}
-   Bajwa, I. J., Nilsen, A. S., Skukies, R., Aamodt, A., Ernst, G., Storm, J. F., \& Juel, B. E. (2025). A repeated awakening study exploring the capacity of complexity measures to capture dreaming during propofol sedation. \textit{Scientific Reports}, 15, 32012.
-
-  \bibitem[Hameroff \& Penrose(2014)]{hameroff2014}
- Hameroff, S., \& Penrose, R. (2014). Consciousness in the universe: A review of the 'Orch OR' theory. \textit{Physics of Life Reviews}, 11(1), 39-78.
-
- \bibitem[Hunt \& Schooler(2019)]{hunt2019}
- Hunt, T., \& Schooler, J. W. (2019). The easy part of the hard problem: a resonance theory of consciousness. \textit{Frontiers in Human Neuroscience}, 13, 378.
-
- \bibitem[England(2018)]{england2018}
- England, J. L. (2018). Dissipative adaptation in driven self-assembly. \textit{Nature Nanotechnology}, 13(4), 287-295.
-
- \bibitem[Ganesh \& Parrondo(2021)]{ganesh2021}
- Ganesh, N., \& Parrondo, J. M. R. (2021). Thermodynamic computing with non-equilibrium systems. \textit{Nature Physics}.
-
- \bibitem[Hinton(2022)]{hinton2022}
- Hinton, G. (2022). The Forward-Forward Algorithm: Some Preliminary Investigations. \textit{arXiv preprint arXiv:2212.13345}.
-
- \bibitem[Searle(1980)]{searle1980}
- Searle, J. R. (1980). Minds, brains, and programs. \textit{Behavioral and Brain Sciences}, 3(3), 417-424.
-
- \bibitem[Smart(1959)]{smart1959}
- Smart, J. J. C. (1959). Sensations and brain processes. \textit{The Philosophical Review}, 68(2), 141-156.
-
- \bibitem[Putnam(1967)]{putnam1967}
- Putnam, H. (1967). Psychological predicates. In \textit{Art, Mind, and Religion}. University of Pittsburgh Press.
-
- \bibitem[Xie \& Nedergaard(2013)]{xie2013}
- Xie, L., Kang, H., Xu, Q., Chen, M. J., Liao, Y., Thiyagarajan, M., ... \& Nedergaard, M. (2013). Sleep drives metabolite clearance from the adult brain. \textit{Science}, 342(6156), 373-377.
-
- \bibitem[Nagel(1986)]{nagel1986}
- Nagel, T. (1986). \textit{The View from Nowhere}. Oxford University Press.
-
- \bibitem[Love(2026)]{love2026}
- Love, B. C. (2026). Consciousness, AI, and the Limits of Scientific Explanation. \textit{arXiv preprint arXiv:2606.00226}.
-
- \bibitem[Norton(2005)]{norton2005}
- Norton, J. D. (2005). Eaters of the lotus: Landauer's principle and the return of Maxwell's demon. \textit{Studies in History and Philosophy of Science Part B: Studies in History and Philosophy of Modern Physics}, 36(2), 375-411.
-
- \bibitem[Landauer(1961)]{landauer1961}
- Landauer, R. (1961). Irreversibility and heat generation in the computing process. \textit{IBM Journal of Research and Development}, 5(3), 183-191.
- 
- \bibitem[Kibble(1976)]{kibble1976}
- Kibble, T. W. B. (1976). Topology of cosmic domains and strings. \textit{Journal of Physics A: Mathematical and General}, 9(8), 1387-1398.
- 
- \bibitem[Sakaguchi(1988)]{sakaguchi1988}
- Sakaguchi, H. (1988). Cooperative phenomena in coupled oscillator systems under external fields. \textit{Progress of Theoretical Physics}, 79(1), 39-46.
- 
- \bibitem[Barbalat(1959)]{barbalat1959}
- Barb\u{a}lat, I. (1959). Syst\`{e}mes d'\'{e}quations diff\'{e}rentielles d'oscillations non lin\'{e}aires. \textit{Revue Roumaine de Math\'{e}matiques Pures et Appliqu\'{e}es}, 4, 267-270.
- 
- \bibitem[Still et al.(2012)]{still2012}
- Still, S., Sivak, D. A., Bell, A. J., \& Crooks, G. E. (2012). Thermodynamics of prediction. \textit{Physical Review Letters}, 109(12), 120604.
- 
- \bibitem[Kawai et al.(2007)]{kawai2007}
- Kawai, R., Parrondo, J. M. R., \& Van den Broeck, C. (2007). Dissipation: The phase-space perspective. \textit{Physical Review Letters}, 98(8), 080602.
- 
- \bibitem[Banach(1922)]{banach1922}
- Banach, S. (1922). Sur les op\'{e}rations dans les ensembles abstraits et leur application aux \'{e}quations int\'{e}grales. \textit{Fundamenta Mathematicae}, 3(1), 133-181.
- 
- \bibitem[Coddington \& Levinson(1955)]{coddington1955}
- Coddington, E. A., \& Levinson, N. (1955). Theory of Ordinary Differential Equations. \textit{McGraw-Hill}, New York.
- 
- \bibitem[Cover \& Thomas(2006)]{cover2006}
- Cover, T. M., \& Thomas, J. A. (2006). Elements of Information Theory (2nd ed.). \textit{Wiley-Interscience}, Hoboken, NJ.
- 
- \bibitem[Shenker(2000)]{shenker2000}
-  Shenker, O. R. (2000). Logic and entropy. \textit{Philosophy of Science}, 67, S146-S152.
-
- \bibitem[Lacker(2016)]{lacke2016}
-  Lacker, D. (2016). Mean field games and interacting particle systems. \textit{Preprint}.
-
- \bibitem[Sznitman(1991)]{sznitman1991}
-  Sznitman, A.-S. (1991). Topics in propagation of chaos. In \textit{Lecture Notes in Mathematics}, vol.~1464. Springer.
-
- \bibitem[Edelman \& Tononi(2000)]{edelman2000}
-  Edelman, G. M., \& Tononi, G. (2000). \textit{A Universe of Consciousness: How Matter Becomes Imagination}. Basic Books.
-
- \bibitem[Tononi \& Edelman(1998)]{tononi1998}
-  Tononi, G., \& Edelman, G. M. (1998). Consciousness and complexity. \textit{Science}, 282(5395), 1846--1851.
-
- \bibitem[Friston(2005)]{friston2005}
-  Friston, K. (2005). A theory of cortical responses. \textit{Philosophical Transactions of the Royal Society B}, 360(1456), 815--836.
-
- \bibitem[Strogatz \& Mirollo(1991)]{strogatz1991}
-  Strogatz, S. H., \& Mirollo, R. E. (1991). Stability of incoherence in a population of coupled oscillators. \textit{Journal of Statistical Physics}, 63(3-4), 613--635.
-
- \bibitem[Buzsáki \& Draguhn(2004)]{buzaki2004}
-Buzsáki, G., \& Draguhn, A. (2004). Neuronal oscillations in cortical networks. \textit{Science}, 304(5679), 1926-1929.
-
-\bibitem[Lindén et al.(2011)]{linden2011}
-Lind\'{e}n, H., Pettersen, K. H., \& Einevoll, G. T. (2011). Modeling the spatial reach of the local field potential. \textit{Neuron}, 72(5), 859-872.
-
-\end{thebibliography}
-
-\section*{Acknowledgments}
-We thank our family --- Merari Lavander Ferreira and Clara Bobadilla Ferreira --- for their patience and support during the long gestation of this work. The project began while the author held his daughter during her first year, watching her sleep and wondering about the noise in his own visual field.
-
-\paragraph{Operational phase estimand.} The instantaneous spatial phase distribution is the target estimand. When fewer than 100 simultaneous sites are available, the independent log-density estimator instead uses a preregistered pooled spatiotemporal distribution; the propofol analysis pools 62 channels over non-overlapping 100~ms windows and names that distinction explicitly.
+\input{references}
 
 \end{document}
