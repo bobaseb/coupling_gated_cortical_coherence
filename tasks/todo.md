@@ -604,3 +604,21 @@ mypy, bandit, vulture, xenon, tach and all three repository checks pass;
 new production blocks have maximum cyclomatic complexity 7 (radon).
 The supplement and PDF report the negative result. Warning comparison uses a
 clean HEAD archive; existing citation/reference and box warnings remain.
+
+### 2026-09-05 — S6 main-publication reconciliation
+
+Reconciled `main.tex` with the completed joint-dynamics control. The field
+section names the objective as squared-drift dissipation, scopes the descent
+theorem to the specified flow at fixed phases, and separates biological gradient
+following from the mathematical result. Replaced the obsolete covariance figure
+and its entropy-production/NESS interpretation with the saved S6 figure and
+negative structural-specificity result. The conclusion uses the same scope.
+No new computed numerals or references were introduced; detailed results remain
+in the supplement through generated macros. Rebuilt `main.pdf`, inspected the
+figure page, and compared warnings against a clean HEAD build: no added or
+removed warnings. Prose and whitespace gates pass.
+
+All scheduled S1--S6 and C1--C3 items are now complete. This closes the numerical
+pass, not the unscheduled physical or mathematical research questions above.
+Further simulation work should be a separately specified test of a consequential
+claim, rather than an extension of this completed ledger.

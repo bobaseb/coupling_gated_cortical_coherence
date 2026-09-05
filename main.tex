@@ -312,31 +312,40 @@ While a global section provides unity, a Self requires reflexivity. The unified 
 
 \section{Continuous stochastic thermodynamics and the field}
 \label{sec:field}
-To move beyond finite graph analogies, we model the macroscopic electrodynamic field as a \textit{continuous neural field}, extending the discrete Kuramoto model to a continuous spatial coupling kernel $K(x,y)$ (\texttt{Phase8\_ContinuousField.lean}). Subject to thermodynamic noise $D$, the system undergoes non-equilibrium stochastic thermodynamics, and rather than a static Landauer bound the field dynamics minimize an entropy production functional
+To move beyond finite graph analogies, we model the macroscopic electrodynamic field as a \textit{continuous neural field}, extending the discrete Kuramoto model to a continuous spatial coupling kernel $K(x,y)$ (\texttt{Phase8\_ContinuousField.lean}). For positive diffusion $D$, a candidate objective for coupling plasticity is the squared-drift dissipation functional
 \begin{equation}
 \sigma = \int \frac{1}{D} \left( \omega(x) + \int K_t(x,y) \sin(\theta_y - \theta_x)\, dy \right)^2 dx .
 \end{equation}
-Biological fields dynamically deform their spatial topology $K_t(x,y)$ to undergo gradient descent on this functional, and that descent is a theorem rather than a modelling assertion. The drift is a fixed $\omega$ plus a linear operator applied to $K$, so $\sigma$ is a quadratic functional of an affine image of the kernel. A squared norm is Fr\'echet differentiable on any real inner-product space, and an affine map is its own derivative, so the composite differentiates by the chain rule (\texttt{hasFDerivAt\_quadratic\_of\_affine}). The drift map as a bounded operator $L^2(\mu\otimes\mu) \to L^2(\mu)$ exists by Cauchy--Schwarz, and its adjoint exists because $L^2$ is complete, giving $\nabla\sigma(K) = (2/D)\,A^{*}(AK+\omega)$. \texttt{structural\_\allowbreak resonance\_\allowbreak decreases\_\allowbreak sigma\-Continuum} is the descent result with no finiteness hypothesis in it, run on Lebesgue measure restricted to $(0,1)$, a substrate that is neither finite nor atomic. One limitation stays explicit: the phase field is held fixed throughout, so this is plasticity of the coupling at frozen phases, not joint $(\theta, K)$ dynamics.
+This functional is not generally a thermodynamic entropy-production rate: that identification requires probability-current information beyond the deterministic drift. Whether biological couplings follow its gradient is a modelling question. The mathematical result is conditional: with phases fixed, a coupling kernel following the specified gradient flow decreases this functional. The drift is a fixed $\omega$ plus a linear operator applied to $K$, so $\sigma$ is a quadratic functional of an affine image of the kernel. A squared norm is Fr\'echet differentiable on any real inner-product space, and an affine map is its own derivative, so the composite differentiates by the chain rule (\texttt{hasFDerivAt\_\allowbreak quadratic\_\allowbreak of\_\allowbreak affine}). The drift map as a bounded operator $L^2(\mu\otimes\mu) \to L^2(\mu)$ exists by Cauchy--Schwarz, and its adjoint exists because $L^2$ is complete, giving $\nabla\sigma(K) = (2/D)\,A^{*}(AK+\omega)$. \texttt{structural\_\allowbreak resonance\_\allowbreak decreases\_\allowbreak sigma\-Continuum} is the descent result with no finiteness hypothesis in it, run on Lebesgue measure restricted to $(0,1)$, a substrate that is neither finite nor atomic. One limitation stays explicit: the phase field is held fixed throughout, so this is plasticity of the coupling at frozen phases, not joint $(\theta, K)$ dynamics.
 
-A second result concerns where descent is headed, and is unconditional on kernel class. For a \emph{reciprocal} kernel $K(x,y) = K(y,x)$, the integrand $K(x,y)\sin(\theta_y - \theta_x)$ is antisymmetric, so Fubini identifies its double integral with its own negative and the total coupling contribution vanishes. The total drift is therefore $\int\omega$ whatever the phases: coupling moves drift between sites but neither creates nor destroys it. Evaluating at the phase-locked configuration pins its value, and the mean-matching hypothesis follows for every competitor (\texttt{phase\_\allowbreak locked\_\allowbreak minimizes\_\allowbreak entropy\_\allowbreak of\_\allowbreak symm}). Reciprocity is the physically intended condition, but is not a formality: a \emph{one-way} coupling on two sites is strictly beaten, halving $\sigma$.
+A second result constrains the objective under reciprocity; it does not establish dynamical convergence. For a \emph{reciprocal} kernel $K(x,y) = K(y,x)$, the integrand $K(x,y)\sin(\theta_y - \theta_x)$ is antisymmetric, so Fubini identifies its double integral with its own negative and the total coupling contribution vanishes. The total drift is therefore $\int\omega$ whatever the phases: coupling moves drift between sites but neither creates nor destroys it. Evaluating at the phase-locked configuration pins its value, and the mean-matching hypothesis follows for every competitor (\texttt{phase\_\allowbreak locked\_\allowbreak minimizes\_\allowbreak entropy\_\allowbreak of\_\allowbreak symm}). Reciprocity is the physically intended condition, but is not a formality: a \emph{one-way} coupling on two sites is strictly beaten, halving $\sigma$.
+
+The joint phase/plasticity control in Fig.~\ref{fig:resonance} tests finite dynamics
+with a fixed coupling budget beyond the frozen-phase theorem. Across
+three seeds, adaptive couplings preserve high phase coherence and give slightly
+lower squared drift than matched frozen-coupling controls. However, their
+distance to the environmental cluster template increases, with worse distance
+changes than the shuffled-label comparison in every seed. The template represents
+shared latent signals within frequency clusters; it is diagnostic and does not
+enter the plasticity update. Thus this regime supplies no evidence that minimizing
+squared drift learns environmental structure. It also measures no predictive
+information, so it does not test the thermodynamic bound on nonpredictive memory.
+The connection from that bound to coupling organization remains the E45 modelling
+assumption.
 
 \begin{figure}[htbp]
 \centering
 \nolinenumbers
-\includegraphics[width=\linewidth]{structural_resonance.png}
-\caption{Coupling plasticity at frozen statistics: $N=50$ units driven by perturbations
-drawn from a fixed environmental covariance $\Sigma_{\mathrm{ext}}$, with the coupling
-matrix $K$ descending the gradient of $\sigma$ and clipped to stay non-negative and
-hollow. \textbf{Left:} entropy production, smoothed over $50$ steps, falls from its
-transient and settles into a fluctuating plateau --- a non-equilibrium steady state at
-strictly positive $\sigma$, not a relaxation to zero. That plateau is the reason this
-section declines the inference from $\sigma \to \min$ to $D_{KL} \to 0$: the system
-visibly does not reach $\sigma = 0$. \textbf{Right:} the distance
-$\|K - \Sigma_{\mathrm{ext}}\|$ decreases monotonically over the run, the internal
-geometry drifting toward the statistics of the drive. Two cautions. The descent here is
-on $\sigma$ at frozen phases, which is the regime the theorem covers; and the right
-panel falls by about $5\%$ over $2000$ steps, so what it shows is a direction of drift,
-not convergence. Parameters and scripts are in the supplement.}
+\includegraphics[width=0.85\linewidth,height=0.62\textheight,keepaspectratio]{figures/structural_resonance/joint_dynamics.png}
+\caption{Joint fast/slow phase and coupling dynamics with clustered frequencies,
+nonzero mean drive and fixed total coupling. Top: smoothed squared-drift
+dissipation, with matched frozen-coupling controls (dashed). Middle: order and
+the finite-size reference $1/\sqrt{N}$. Bottom: Frobenius distances to the
+cluster template (solid) and a node-label shuffle (dotted). Coherence persists
+in both adaptive and frozen controls, but template distances increase.
+A positive dissipation plateau establishes neither a thermodynamic
+entropy-production rate nor stationarity of the adaptive process.
+Parameters, saved results and operational criteria are given in the supplement.}
 \label{fig:resonance}
 \end{figure}
 
@@ -456,7 +465,7 @@ A concrete dual-modal design pairs high-density EEG with rapid-acquisition diffu
 \paragraph{What this prediction assumes.}
 
 \section{Conclusion}
-Human-like cognitive architectures do not require biological mysticism or exotic sub-quantum physics \cite{hameroff2014}. While quantum theories of consciousness often invoke delicate subatomic phenomena to explain subjective unity, every component assembled here is classical: broken symmetries, finite phase space, Landauer erasure, and gradient descent on entropy production. What the formalization establishes is that the eight named hypotheses of the conditional composition are jointly consistent and that the framework's remaining physical commitments are localized and named --- not that classical fields are \emph{sufficient} for consciousness or that the hypotheses follow from finite capacity. Two links carry that weight, and not in the same way. The unified state is proved to glue uniquely once a cover sits at the minimum of the coupling potential; the motion is proved to stop along every trajectory; and \emph{where} it stops is proved conditionally, for initial data within a quarter turn and below an explicit energy threshold, with a cover built on that limit discharging the equilibrium hypothesis unity would otherwise assume. What is not proved is the unconditional statement, and it is false: splay and twisted configurations are equilibria of the same flow, so the basin condition is the scope of the claim rather than slack in it. That a physical cortex starts inside that basin is an assumption. The second link is untouched by any of this: the identification of a global section of the probability sheaf with the unity of experience is a stipulation of the framework, not a consequence of it.
+Human-like cognitive architectures do not require biological mysticism or exotic sub-quantum physics \cite{hameroff2014}. While quantum theories of consciousness often invoke delicate subatomic phenomena to explain subjective unity, every component assembled here is classical: broken symmetries, finite phase space, Landauer erasure, and conditional gradient descent on a squared-drift functional. What the formalization establishes is that the eight named hypotheses of the conditional composition are jointly consistent and that the framework's remaining physical commitments are localized and named --- not that classical fields are \emph{sufficient} for consciousness or that the hypotheses follow from finite capacity. Two links carry that weight, and not in the same way. The unified state is proved to glue uniquely once a cover sits at the minimum of the coupling potential; the motion is proved to stop along every trajectory; and \emph{where} it stops is proved conditionally, for initial data within a quarter turn and below an explicit energy threshold, with a cover built on that limit discharging the equilibrium hypothesis unity would otherwise assume. What is not proved is the unconditional statement, and it is false: splay and twisted configurations are equilibria of the same flow, so the basin condition is the scope of the claim rather than slack in it. That a physical cortex starts inside that basin is an assumption. The second link is untouched by any of this: the identification of a global section of the probability sheaf with the unity of experience is a stipulation of the framework, not a consequence of it.
 
 Philosophically, this framework bridges the historical gap between type identity theory \cite{smart1959} and computational functionalism \cite{putnam1967}. The subjective mental state is identical to the physical thermodynamic field, yet its qualitative nature is defined by the topological and functional dynamics of structural resonance rather than by the specific biochemistry of the brain. This constrains the \textit{multiple realizability} of mind: consciousness is not exclusively bound to biological carbon, but neither is it substrate-neutral, because the substrate is what fixes which couplings are physically available. What is proved is that fixed wiring is strictly suboptimal at matched resource, and that a finitely-sited architecture registers exactly zero coupling energy in the continuum functional; the step from either to a claim about von Neumann architectures is an argument we make in prose and do not formalize. By locating the phase transition at a threshold with closed-form value $K_c = 2D$, this aligns with Seth's ``real problem'' of consciousness \cite{seth2021}: rather than bridging an unbridgeable metaphysical gap, the framework offers a topological architecture that can explain, predict, and physically perturb the structural properties of experience.
 
