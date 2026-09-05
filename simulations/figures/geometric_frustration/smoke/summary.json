@@ -1,0 +1,25 @@
+{
+  "status": "baseline_failed_sweep_not_run",
+  "config": {
+    "n": 100,
+    "diffusion": 1.0,
+    "dt": 0.01,
+    "steps": 2000,
+    "sample_every": 10,
+    "seed": 20260905,
+    "probability": 0.5,
+    "positive_sum": 4.0
+  },
+  "baseline_order": 0.2687841642219472,
+  "noise_control_order": 0.09348752108109729,
+  "finite_size_floor": 0.1,
+  "baseline_gate": "second-half mean r <= 2/sqrt(N)",
+  "row_sum_min_mean_max": [
+    -6.661338147750939e-16,
+    -3.7747582837255325e-17,
+    6.661338147750939e-16
+  ],
+  "runtime_seconds": 0.1550385868176818,
+  "critical_epsilon": null,
+  "conditional_field_mV_mm": null
+}

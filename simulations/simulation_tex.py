@@ -103,6 +103,20 @@ def _selection_macros() -> list[str]:
     ]
 
 
+def _frustration_macros() -> list[str]:
+    data = _read_json(FIGURES / "geometric_frustration" / "followup_summary.json")
+    lines = []
+    for key, prefix in (("baseline_range", "Baseline"), ("coupling_range", "Coupling")):
+        values = cast(list[float], data[key])
+        for suffix, value in zip(("Min", "Max"), values, strict=True):
+            lines.append(_macro(f"frustration{prefix}{suffix}", f"{value:.4f}"))
+    for suffix in ("min", "max"):
+        values = cast(list[float], data[f"conditional_field_{suffix}"])
+        for word, value in zip(("One", "Two", "Three"), values, strict=True):
+            lines.append(_macro(f"frustrationField{word}{suffix.title()}", f"{value:.4f}"))
+    return lines
+
+
 def generate_simulation_tex(output: Path) -> None:
     """Write all completed simulation macros from compact saved results."""
     chaos_summary = cast(
@@ -132,6 +146,9 @@ def generate_simulation_tex(output: Path) -> None:
         "",
         "% S4: propagation of chaos",
         *chaos_lines,
+        "",
+        "% S5: conditional frustration rescue",
+        *_frustration_macros(),
     ]
     output.write_text("\n".join(lines) + "\n", encoding="utf-8")
 

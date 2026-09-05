@@ -1,0 +1,91 @@
+import unittest
+import json
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+import numpy as np
+
+from geometric_frustration import (
+    Config,
+    balanced_network,
+    drift,
+    field_required,
+    simulate,
+    threshold,
+    run,
+    epsilon_grid,
+)
+
+
+class FrustrationTest(unittest.TestCase):
+    def test_network_obeys_dale_balance_and_no_self_edges(self) -> None:
+        matrix = balanced_network(100, 0.2, 4.0, 42)
+        np.testing.assert_allclose(matrix.sum(axis=1), 0, atol=1e-14)
+        self.assertTrue(np.all(matrix[:, :80] >= 0))
+        self.assertTrue(np.all(matrix[:, 80:] <= 0))
+        np.testing.assert_array_equal(np.diag(matrix), 0)
+        np.testing.assert_allclose(np.maximum(matrix, 0).sum(axis=1), 4)
+        np.testing.assert_array_equal(matrix, balanced_network(100, 0.2, 4.0, 42))
+
+    def test_drift_matches_explicit_pair_sum(self) -> None:
+        matrix = balanced_network(50, 0.5, 4.0, 7)
+        phases = np.random.default_rng(8).uniform(-np.pi, np.pi, 50)
+        expected = np.sum((matrix + 0.03) * np.sin(phases[None, :] - phases[:, None]), axis=1)
+        np.testing.assert_allclose(drift(phases, matrix, 0.03), expected, atol=1e-14)
+
+    def test_field_conversion_reuses_millisecond_constants(self) -> None:
+        self.assertAlmostEqual(field_required(2, 0.2), 2 / (1675.5160819145565 * 0.0004 * 40))
+        self.assertAlmostEqual(field_required(2, 0.1) / field_required(2, 0.2), 8)
+
+    def test_simulation_is_seeded_decimated_and_endpoint_inclusive(self) -> None:
+        config = Config(n=50, steps=21, sample_every=5)
+        matrix = balanced_network(50, 0.5, 4, 2)
+        first = simulate(config, matrix, 0.02, 3)
+        second = simulate(config, matrix, 0.02, 3)
+        np.testing.assert_array_equal(first["order"], second["order"])
+        self.assertEqual(first["time"].size, 6)
+        self.assertAlmostEqual(first["time"][-1], 0.21)
+        self.assertEqual(first["final_phases"].shape, (50,))
+
+    def test_threshold_uses_persistent_crossing_and_rejects_unbracketed(self) -> None:
+        self.assertEqual(
+            threshold(np.arange(5.0), np.array([0.04, 0.3, 0.1, 0.3, 0.4])), (2.5, 2, 3)
+        )
+        with self.assertRaises(ValueError):
+            threshold(np.arange(3.0), np.array([0.04, 0.1, 0.15]))
+
+    def test_failed_baseline_stops_sweep_and_saves_negative_result(self) -> None:
+        with TemporaryDirectory() as directory:
+            output = Path(directory)
+            with self.assertRaisesRegex(ValueError, "Baseline exceeds"):
+                run(Config(n=100, steps=2000, probability=0.5), output)
+            summary = json.loads((output / "summary.json").read_text())
+            self.assertIsNone(summary["critical_epsilon"])
+            self.assertEqual(len(list(output.glob("leg_*.npz"))), 1)
+            self.assertLess(summary["noise_control_order"], 2 * summary["finite_size_floor"])
+            self.assertTrue((output / "baseline.png").exists())
+
+    def test_invalid_configuration_is_rejected(self) -> None:
+        with self.assertRaisesRegex(ValueError, "positive"):
+            simulate(Config(dt=0), np.zeros((500, 500)), 0, 2)
+
+    def test_weak_synapse_sweep_still_brackets_mean_field_threshold(self) -> None:
+        config = Config(positive_sum=1)
+        values = epsilon_grid(config)
+        self.assertEqual(values.size, 20)
+        self.assertEqual(values[0], 0)
+        self.assertTrue(np.all(np.diff(values) > 0))
+        self.assertGreater(values[-1], 2 * config.diffusion / config.n)
+
+    def test_rate_calibration_is_explicit_and_inverse(self) -> None:
+        self.assertAlmostEqual(field_required(2, 0.2, rate=10), field_required(2, 0.2) / 10)
+        with self.assertRaisesRegex(ValueError, "positive"):
+            field_required(2, 0.2, rate=0)
+
+    def test_negative_synaptic_strength_cannot_reverse_dale_signs(self) -> None:
+        with self.assertRaisesRegex(ValueError, "nonnegative"):
+            balanced_network(100, 0.2, -1, 42)
+
+
+if __name__ == "__main__":
+    unittest.main()

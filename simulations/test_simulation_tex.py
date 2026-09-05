@@ -17,6 +17,7 @@ class SimulationTexTest(unittest.TestCase):
         self.assertIn(r"\newcommand{\spatialCriticalDecay}{0.0140}", content)
         self.assertIn(r"\newcommand{\selectionRateSlope}{0.43240}", content)
         self.assertIn(r"\newcommand{\chaosBesselResidual}{0.00191}", content)
+        self.assertIn(r"\newcommand{\frustrationCouplingMin}", content)
 
     def test_committed_macros_match_saved_results(self) -> None:
         with TemporaryDirectory() as directory:

@@ -1,0 +1,542 @@
+[
+  {
+    "config": {
+      "n": 250,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20261905,
+      "probability": 0.2,
+      "positive_sum": 0.0
+    },
+    "mean_order": 0.054434367893357004,
+    "scaled_second_moment": 0.9227130141043736,
+    "runtime_seconds": 0.9382315520197153
+  },
+  {
+    "config": {
+      "n": 250,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20262905,
+      "probability": 0.2,
+      "positive_sum": 0.0
+    },
+    "mean_order": 0.056171455321878096,
+    "scaled_second_moment": 0.9477328404437516,
+    "runtime_seconds": 1.0072063310071826
+  },
+  {
+    "config": {
+      "n": 250,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20263905,
+      "probability": 0.2,
+      "positive_sum": 0.0
+    },
+    "mean_order": 0.05314085516176347,
+    "scaled_second_moment": 0.9025402315786825,
+    "runtime_seconds": 0.9139169091358781
+  },
+  {
+    "config": {
+      "n": 250,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20261905,
+      "probability": 0.2,
+      "positive_sum": 1.0
+    },
+    "mean_order": 0.07105071084359071,
+    "scaled_second_moment": 1.619405102909602,
+    "runtime_seconds": 0.9232349628582597
+  },
+  {
+    "config": {
+      "n": 250,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20262905,
+      "probability": 0.2,
+      "positive_sum": 1.0
+    },
+    "mean_order": 0.07649257514353362,
+    "scaled_second_moment": 1.8165358754549024,
+    "runtime_seconds": 0.9124281145632267
+  },
+  {
+    "config": {
+      "n": 250,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20263905,
+      "probability": 0.2,
+      "positive_sum": 1.0
+    },
+    "mean_order": 0.0832716738076919,
+    "scaled_second_moment": 2.0986048262736032,
+    "runtime_seconds": 0.9219259824603796
+  },
+  {
+    "config": {
+      "n": 250,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20261905,
+      "probability": 0.2,
+      "positive_sum": 2.0
+    },
+    "mean_order": 0.11712130128366534,
+    "scaled_second_moment": 4.127346021744977,
+    "runtime_seconds": 0.9146308172494173
+  },
+  {
+    "config": {
+      "n": 250,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20262905,
+      "probability": 0.2,
+      "positive_sum": 2.0
+    },
+    "mean_order": 0.09160160326549457,
+    "scaled_second_moment": 2.6096885702776587,
+    "runtime_seconds": 0.9380905330181122
+  },
+  {
+    "config": {
+      "n": 250,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20263905,
+      "probability": 0.2,
+      "positive_sum": 2.0
+    },
+    "mean_order": 0.09986380666416418,
+    "scaled_second_moment": 3.2182114833810807,
+    "runtime_seconds": 0.9240681668743491
+  },
+  {
+    "config": {
+      "n": 250,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20261905,
+      "probability": 0.2,
+      "positive_sum": 4.0
+    },
+    "mean_order": 0.14151093984706503,
+    "scaled_second_moment": 6.39111632103469,
+    "runtime_seconds": 0.9146059099584818
+  },
+  {
+    "config": {
+      "n": 250,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20262905,
+      "probability": 0.2,
+      "positive_sum": 4.0
+    },
+    "mean_order": 0.18285446088250393,
+    "scaled_second_moment": 10.26440196945581,
+    "runtime_seconds": 0.9166798908263445
+  },
+  {
+    "config": {
+      "n": 250,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20263905,
+      "probability": 0.2,
+      "positive_sum": 4.0
+    },
+    "mean_order": 0.1424408658615679,
+    "scaled_second_moment": 6.479858232928997,
+    "runtime_seconds": 0.9166576499119401
+  },
+  {
+    "config": {
+      "n": 500,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20261905,
+      "probability": 0.2,
+      "positive_sum": 0.0
+    },
+    "mean_order": 0.03944196766634841,
+    "scaled_second_moment": 0.9627902798112838,
+    "runtime_seconds": 2.7140609603375196
+  },
+  {
+    "config": {
+      "n": 500,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20262905,
+      "probability": 0.2,
+      "positive_sum": 0.0
+    },
+    "mean_order": 0.04086205706393631,
+    "scaled_second_moment": 1.0897620407743311,
+    "runtime_seconds": 2.6672720815986395
+  },
+  {
+    "config": {
+      "n": 500,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20263905,
+      "probability": 0.2,
+      "positive_sum": 0.0
+    },
+    "mean_order": 0.040949158346161675,
+    "scaled_second_moment": 1.0538793402493305,
+    "runtime_seconds": 2.925276800058782
+  },
+  {
+    "config": {
+      "n": 500,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20261905,
+      "probability": 0.2,
+      "positive_sum": 1.0
+    },
+    "mean_order": 0.05559831265897776,
+    "scaled_second_moment": 1.9951134978135354,
+    "runtime_seconds": 5.455591009929776
+  },
+  {
+    "config": {
+      "n": 500,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20262905,
+      "probability": 0.2,
+      "positive_sum": 1.0
+    },
+    "mean_order": 0.050814782477856826,
+    "scaled_second_moment": 1.666981201467276,
+    "runtime_seconds": 5.340558186173439
+  },
+  {
+    "config": {
+      "n": 500,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20263905,
+      "probability": 0.2,
+      "positive_sum": 1.0
+    },
+    "mean_order": 0.057425290064178895,
+    "scaled_second_moment": 2.0977368084948895,
+    "runtime_seconds": 5.203639777377248
+  },
+  {
+    "config": {
+      "n": 500,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20261905,
+      "probability": 0.2,
+      "positive_sum": 2.0
+    },
+    "mean_order": 0.07704067702964709,
+    "scaled_second_moment": 3.554454689713647,
+    "runtime_seconds": 5.363158205524087
+  },
+  {
+    "config": {
+      "n": 500,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20262905,
+      "probability": 0.2,
+      "positive_sum": 2.0
+    },
+    "mean_order": 0.0816156413757828,
+    "scaled_second_moment": 4.180347750445263,
+    "runtime_seconds": 5.375529907643795
+  },
+  {
+    "config": {
+      "n": 500,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20263905,
+      "probability": 0.2,
+      "positive_sum": 2.0
+    },
+    "mean_order": 0.09639767596728696,
+    "scaled_second_moment": 5.471526116581878,
+    "runtime_seconds": 5.2919134851545095
+  },
+  {
+    "config": {
+      "n": 500,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20261905,
+      "probability": 0.2,
+      "positive_sum": 4.0
+    },
+    "mean_order": 0.1310952210961567,
+    "scaled_second_moment": 10.38229701695789,
+    "runtime_seconds": 5.217633838765323
+  },
+  {
+    "config": {
+      "n": 500,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20262905,
+      "probability": 0.2,
+      "positive_sum": 4.0
+    },
+    "mean_order": 0.15908387833289844,
+    "scaled_second_moment": 14.994488327834894,
+    "runtime_seconds": 8.938752704299986
+  },
+  {
+    "config": {
+      "n": 500,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20263905,
+      "probability": 0.2,
+      "positive_sum": 4.0
+    },
+    "mean_order": 0.15426849419263422,
+    "scaled_second_moment": 14.298090014365295,
+    "runtime_seconds": 10.304175129160285
+  },
+  {
+    "config": {
+      "n": 1000,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20261905,
+      "probability": 0.2,
+      "positive_sum": 0.0
+    },
+    "mean_order": 0.027943324574106514,
+    "scaled_second_moment": 0.9572250512395792,
+    "runtime_seconds": 35.36424678657204
+  },
+  {
+    "config": {
+      "n": 1000,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20262905,
+      "probability": 0.2,
+      "positive_sum": 0.0
+    },
+    "mean_order": 0.0279550461314132,
+    "scaled_second_moment": 1.0229695572637192,
+    "runtime_seconds": 35.453918647021055
+  },
+  {
+    "config": {
+      "n": 1000,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20263905,
+      "probability": 0.2,
+      "positive_sum": 0.0
+    },
+    "mean_order": 0.027113384906288143,
+    "scaled_second_moment": 0.9461515337095912,
+    "runtime_seconds": 35.656014235690236
+  },
+  {
+    "config": {
+      "n": 1000,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20261905,
+      "probability": 0.2,
+      "positive_sum": 1.0
+    },
+    "mean_order": 0.03550920993098902,
+    "scaled_second_moment": 1.6726630131948563,
+    "runtime_seconds": 34.310799004510045
+  },
+  {
+    "config": {
+      "n": 1000,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20262905,
+      "probability": 0.2,
+      "positive_sum": 1.0
+    },
+    "mean_order": 0.038967757760863274,
+    "scaled_second_moment": 1.9091518075799023,
+    "runtime_seconds": 43.78506315033883
+  },
+  {
+    "config": {
+      "n": 1000,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20263905,
+      "probability": 0.2,
+      "positive_sum": 1.0
+    },
+    "mean_order": 0.037971305275111174,
+    "scaled_second_moment": 1.7914919518073231,
+    "runtime_seconds": 34.89363777637482
+  },
+  {
+    "config": {
+      "n": 1000,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20261905,
+      "probability": 0.2,
+      "positive_sum": 2.0
+    },
+    "mean_order": 0.06020513370188853,
+    "scaled_second_moment": 4.361553717488656,
+    "runtime_seconds": 35.789333396591246
+  },
+  {
+    "config": {
+      "n": 1000,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20262905,
+      "probability": 0.2,
+      "positive_sum": 2.0
+    },
+    "mean_order": 0.05818152722640996,
+    "scaled_second_moment": 4.279265726859728,
+    "runtime_seconds": 28.316865033470094
+  },
+  {
+    "config": {
+      "n": 1000,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20263905,
+      "probability": 0.2,
+      "positive_sum": 2.0
+    },
+    "mean_order": 0.0534609211600043,
+    "scaled_second_moment": 3.6886383058122183,
+    "runtime_seconds": 20.566372759640217
+  },
+  {
+    "config": {
+      "n": 1000,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20261905,
+      "probability": 0.2,
+      "positive_sum": 4.0
+    },
+    "mean_order": 0.09991147490738912,
+    "scaled_second_moment": 12.262022198024109,
+    "runtime_seconds": 18.86302201729268
+  },
+  {
+    "config": {
+      "n": 1000,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20262905,
+      "probability": 0.2,
+      "positive_sum": 4.0
+    },
+    "mean_order": 0.08891332011640893,
+    "scaled_second_moment": 9.839777517636785,
+    "runtime_seconds": 19.195482902228832
+  },
+  {
+    "config": {
+      "n": 1000,
+      "diffusion": 1.0,
+      "dt": 0.01,
+      "steps": 10000,
+      "sample_every": 10,
+      "seed": 20263905,
+      "probability": 0.2,
+      "positive_sum": 4.0
+    },
+    "mean_order": 0.075871251178148,
+    "scaled_second_moment": 6.9291952265765175,
+    "runtime_seconds": 19.44245695695281
+  }
+]

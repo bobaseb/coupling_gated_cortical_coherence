@@ -117,7 +117,9 @@ propagation of chaos.
 
 ### S5 — Frustration rescue and physical-unit consistency
 
-- [ ] Implement and run `tasks/overcoming_geometric_frustration.md`.
+- [x] Implement and run `tasks/overcoming_geometric_frustration.md`.
+      Completed with the declared follow-up in `tasks/s5_followup.md`: weak-regime
+      rescue and sensitivity controls; physical conversion remains conditional.
 
 Build a row-balanced Dale-law baseline, verify it remains at the finite-N floor,
 then sweep the uniform modulatory term around `2D/N`. The useful result is the
@@ -432,3 +434,117 @@ This single-seed finite sweep proves
 neither unconditional nor symmetry-quotiented propagation of chaos, and closes
 no Lean or manuscript obligation. The focused tests and all repository gates
 pass.
+
+
+### 2026-09-05 — S5 attempted; baseline and units gates unresolved
+
+Intent: test a fixed, seeded, row-balanced Dale-law baseline before the uniform
+modulatory sweep, operationalize the threshold as second-half mean r crossing
+0.2 and remaining above it at all larger sampled couplings, and convert it using
+the shared Fermi constants. Reject a baseline above twice 1/sqrt(N), a generous
+finite-size gate fixed before the runs. No manuscript or Lean changes.
+
+Red tests preceded the implementation: Dale signs, row sums, zero diagonal,
+exact sine-difference reduction against an explicit pair sum, milliseconds-to-
+seconds conversion, deterministic decimated endpoint-inclusive trajectories and
+persistent threshold bracketing. A regression also verifies that a failed
+baseline saves a null threshold and stops before leg 1; invalid timestep testing
+failed before validation was added. Seven focused tests pass.
+
+The implementation chooses the two unspecified synaptic parameters explicitly:
+ER edge probability 0.2 and positive row sum 4, with negative row sum -4, no
+self-edges and 80/20 presynaptic column signs. Each row's two signs are normalized
+separately, preserving Dale's law without assuming identical inhibitory weights.
+Topology seed is 20260905; phase/noise seed is 20260906. The exact sine-difference
+factorization uses two matrix-vector products instead of the outer-sine matrix;
+OPENBLAS_NUM_THREADS=1 avoids small-matrix threading overhead.
+
+The reduced N=100, probability=0.5, 2,000-step control failed with steady
+r=0.26878. A production-size baseline diagnostic (not the gated sweep) then used
+N=500, D=1, omega=0, dt=0.01, 10,000 steps and sampling every ten steps.
+Its row sums range from -8.88e-16 to 1.33e-15, but its second-half mean
+r=0.13214 exceeds twice the 0.04472 finite-size reference. The matched
+independent-noise control gives r=0.04207. Saved runtime for the N=500 baseline
+and noise control is 5.68 seconds. Row balance alone therefore does not produce
+the required floor-level baseline for this finite network. Neither baseline was
+tuned after observing the failure; the 20-value rescue sweep was not started.
+
+Artifacts: `simulations/geometric_frustration.py`, its report module and seven
+tests, plus compact baseline/control NPZ files, JSON summaries, baseline figures
+and `FRUSTRATION_REPORT.md` under `simulations/figures/geometric_frustration/`
+and its `smoke/` subdirectory. No phase histories are stored. Critical epsilon
+and converted field are null, not inferred from the analytic reference.
+
+Open questions before S5 can close:
+
+- Which synaptic strength/topology should define the baseline? Weakening the
+  chosen coupling until the baseline passes would change the tested regime.
+- What rate calibration maps the Fermi quantity `N_cortex * shift * f` onto
+  the SDE coupling? With shift in seconds and frequency in inverse seconds,
+  that product is dimensionless; the SDE K and D have inverse-time units.
+  The requested mV/mm arithmetic alone cannot establish physical-unit
+  consistency. No conversion or cortical magnitude conclusion is claimed.
+
+S5 remains unchecked, and S6 was not started. The result is one finite seeded
+negative control, not evidence of macroscopic order in a limit or a general
+failure of Dale-balanced networks. It closes no Lean or gluing obligation.
+The focused tests, ruff, formatting, strict mypy, bandit, vulture, xenon, tach,
+prose, table and leaf gates pass. Publication files are unchanged, so no TeX
+regeneration or compilation is required.
+
+
+### 2026-09-05 — S5 follow-up completed; calibration remains a physical limitation
+
+The user authorized further simulation work after the failed baseline. The
+follow-up specification in `tasks/s5_followup.md` fixed its sizes, strengths,
+seeds, weak-regime sweep and timestep controls before executing them. This is a
+separate sensitivity study, preserving the original strength-4 failed result.
+New red tests covered the weak-strength sweep extent, explicit inverse-rate
+calibration, tail second-moment statistic and rejection of negative strengths
+that would reverse Dale signs. Report and TeX drift tests cover saved results.
+
+The diagnostic sweep used N={250,500,1000}, g={0,1,2,4}, p=0.2, D=1,
+omega=0, dt=0.01, 10,000 steps, and seeds 20261905, 20262905, 20263905.
+At g=1 the N=500 baseline range is 0.05081--0.05743; every seed passes the
+unchanged 2/sqrt(N) gate. At g=4 the mean order also decreases with size,
+while N*mean(r^2) stays elevated (roughly 6--15 across sampled sizes/seeds).
+This is consistent with amplified finite-size fluctuations and shows why one
+floor-gate failure was insufficient grounds to block all numerical progress.
+It does not prove an asymptotic law or rehabilitate g=4 under the declared gate.
+
+The reduced weak-regime sweep passed before the three N=500 full sweeps.
+Each used g=1 and 20 epsilon values: zero plus 19 log-spaced values giving
+uniform K=0.4--4. The upper limit extends beyond g when g<2D so the sweep
+can bracket the mean-field reference. Operational epsilon crossings were
+0.0037988--0.0038774, K_eff/D=1.8994--1.9387, with a shared sampled bracket
+0.0037133--0.0042200. Final strong-uniform-coupling order was 0.8247--0.8306.
+This weak-synapse regime is below the positive-only mean-field threshold, so it
+does not establish that inhibition is the cause of baseline disorder.
+
+All 18 predeclared timestep controls completed at K={1.6,2.0,2.4}, with equal
+duration and sampling cadence for dt=0.01 and 0.005. Low/high-order regimes
+persisted; at K=2 the seed ranges shifted from 0.2379--0.2916 to
+0.1950--0.2500. This near-threshold discrepancy and the different noise paths
+limit precision; these are sensitivity checks, not an integrator convergence
+proof. Summed saved integration runtime for the 36 baseline diagnostics,
+60 rescue legs and 18 timestep controls was 1166.97 seconds; the independent
+processes ran concurrently, so this is not wall-clock elapsed time.
+
+The explicit conversion is E=K_eff/(gamma*N_cortex*shift*f). Gamma carries the
+missing inverse-time calibration. At the conditional gamma=1 convention the
+field ranges are 0.56681--0.57854, 0.07085--0.07232 and 0.02099--0.02143
+mV/mm at decay lengths 0.1, 0.2 and 0.3 mm. They scale as 1/gamma; their
+position below the 1--5 comparison band is conditional arithmetic, not an
+independent physical-unit validation. Determining gamma remains unscheduled
+physical modelling/measurement work, not something this finite simulation can
+infer. No Lean or gluing obligation is closed.
+
+Artifacts: compact per-leg NPZ files and metadata, diagnostic and timestep JSON,
+three rescue summaries and phase/baseline plots, aggregate transition and size
+figures, `followup_summary.json` and `FOLLOWUP_REPORT.md`. Regenerate comparison
+artifacts with `frustration_summary.py` and publication macros with
+`simulation_tex.py`, both from saved data without a production rerun.
+`supplementary.tex` and its PDF state the conditional result and limitations;
+`main.tex` and Lean are unchanged. Fourteen focused/drift tests and all required
+repository quality gates pass. The supplement compiles; its warnings are
+compared against a clean HEAD build, with no new warning categories.

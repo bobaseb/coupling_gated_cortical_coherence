@@ -8,6 +8,7 @@
 \usepackage{setspace}
 \usepackage{hyperref}
 \input{simulations/simulation_results}
+\input{simulations/fermi_params}
 \geometry{a4paper, margin=1in}
 
 \title{Supplementary Materials: Mathematical Derivations and Lean 4 Formalizations}
@@ -137,6 +138,63 @@ is a negative result for the unconditional protocol, not a theorem about the
 conditional mean-field limit.}
 \label{fig:propagation-of-chaos}
 \end{figure}
+
+\subsubsection*{Dale-balanced rescue and calibration limits}
+Finite simulations separate synaptic balance from the magnitude of fluctuations.
+The network has no self-edges, an Erd\H{o}s--R\'enyi edge probability of $0.2$,
+and excitatory/inhibitory presynaptic fractions of $80/20$.  Each row's positive
+and negative weights sum to $g$ and $-g$, respectively.  With identical
+frequencies, $D=1$, $N=500$, $g=1$, step size $0.01$ and duration $100$, three
+seeded runs give zero-field mean order in
+$[\frustrationBaselineMin,\frustrationBaselineMax]$, close to the
+$1/\sqrt{N}$ reference.  Controls at $g\in\{0,1,2,4\}$ and
+$N\in\{250,500,1000\}$ show why row balance alone is insufficient to prescribe
+that reference: signed coupling can amplify finite-size fluctuations.
+Order decreases with size in both the weak and strong controls while
+$N\langle r^2\rangle$ remains above the independent-phase value of unity;
+these finite sizes do not establish an asymptotic scaling law.
+The $g=1$ regime is also below the positive-only mean-field threshold, so its
+low order does not establish a causal role for inhibition in preventing coherence.
+
+A uniform per-pair term $\epsilon$ adds mean-field strength
+$K_{\mathrm{eff}}=N\epsilon$.  The operational crossing, defined by second-half
+mean $r=0.2$ with all larger sampled couplings above it, occurs at
+$K_{\mathrm{eff}}/D\in[\frustrationCouplingMin,\frustrationCouplingMax]$
+across the three seeds (Fig.~\ref{fig:frustration-rescue}).  This range describes
+finite-run variability, not a confidence interval or an infinite-size critical
+point.  Equal-duration half-step controls probe numerical sensitivity near the
+transition; they do not establish convergence of the integrator.
+
+The field conversion requires an explicit calibration rate $\gamma$:
+\[
+ E_{\mathrm{req}}=\frac{K_{\mathrm{eff}}}
+ {\gamma N_{\mathrm{cortex}}\,\mathrm{shift}\,f}.
+\]
+Since $\mathrm{shift}\,f$ is dimensionless, $\gamma$ supplies the inverse-time
+units of the dynamical coupling.  Under the numerical convention $\gamma=1$
+in the simulation's inverse-time unit, the shared Fermi arithmetic gives field
+ranges $[\frustrationFieldOneMin,\frustrationFieldOneMax]$,
+$[\frustrationFieldTwoMin,\frustrationFieldTwoMax]$ and
+$[\frustrationFieldThreeMin,\frustrationFieldThreeMax]$ mV/mm at decay lengths
+$0.1$, $0.2$ and $0.3$ mm.  These conditional numbers fall below the
+$\fermiFieldMin$--$\fermiFieldMax$ mV/mm comparison band and scale inversely
+with $\gamma$.  The simulation does not measure that calibration, so it cannot
+independently validate physical-unit consistency or a cortical field threshold.
+Neither rescue nor these controls discharge a Lean or gluing obligation.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\linewidth]{simulations/figures/geometric_frustration/transition.png}
+\caption{Finite-$N$ rescue in the declared weak-synapse regime. Points are
+three-seed mean order; blue shading gives the seed range. Orange shading marks
+the union of sampled crossing brackets. The top axis uses the conditional
+$\gamma=1$ field conversion at decay length $0.2$ mm; green shading is the
+$\fermiFieldMin$--$\fermiFieldMax$ mV/mm comparison band. The dashed horizontal
+line is $1/\sqrt{N}$. The balanced strong-synapse control remains a distinct
+regime and does not satisfy the floor-level baseline gate.}
+\label{fig:frustration-rescue}
+\end{figure}
+
 
 Perceptual anomalies such as visual snow can be modeled as boundary conditions where microscopic thermal noise ($D$) fails to be fully coarse-grained away by the continuous field, leaking across the $K_c$ threshold into the macroscopic gestalt.
 
