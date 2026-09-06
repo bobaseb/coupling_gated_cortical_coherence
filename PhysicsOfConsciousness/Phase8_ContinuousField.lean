@@ -347,7 +347,14 @@ noncomputable def mean_field_coupling (sys : StochasticNeuralField M) : ℝ :=
   ∫ x : M, ∫ y : M, sys.K x y
 
 /--
-The substrate is above the synchronization threshold.
+The substrate's scalar mean-field coupling is above the stationary
+self-consistency threshold.
+
+This predicate is an inequality, not a theorem about a spatial trajectory or a
+transition of an arbitrary heterogeneous kernel. The stationary von Mises
+self-consistency results that use this threshold live in
+`Phase8_SelfConsistency.lean`; applying them requires their additional
+assumptions.
 
 **The probability-measure hypothesis is not decoration.** `mean_field_coupling`
 integrates the kernel against `volume` twice, so on a substrate of total mass
@@ -376,14 +383,7 @@ theorem exhibits_phase_transition_const_iff [IsProbabilityMeasure (volume : Meas
     exhibits_phase_transition sys ↔ c > 2 * sys.D := by
   rw [exhibits_phase_transition, mean_field_coupling_const sys c hK, critical_coupling]
 
--- 5. Empirical Grounding
-noncomputable def cortical_temperature_kelvin : ℝ := 310.15
-noncomputable def boltzmann_constant : ℝ := 1.380649e-23
-noncomputable def macroscopic_noise_D : ℝ := cortical_temperature_kelvin * boltzmann_constant
-
-noncomputable def ephaptic_critical_coupling : ℝ := critical_coupling macroscopic_noise_D
-
--- 6. Gradient Descent Mechanism
+-- 5. Gradient Descent Mechanism
 -- Replace tautological definitions with meaningful dynamic bounds.
 -- Structural resonance occurs when the time evolution of the coupling matrix K_t
 -- aligns with the negative gradient of the entropy production. 

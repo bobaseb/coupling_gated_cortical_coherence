@@ -20,6 +20,37 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-06 — Narrative revision after external review
+
+Claims narrowed:
+
+- **Uniqueness of the global section and the reflexive fixed point was presented
+  as derived without further postulate.** The theorems give uniqueness *relative
+  to* a cover whose local sections agree and a contracting self-prediction map.
+  Choosing those — which regions, which overlaps, which encoding region, and so
+  where the subject ends — is not supplied by gluing or by Banach, and is what
+  E78 and E89 carry. The article now says so, and claims only that the
+  construction removes the need for an additional principle to select among the
+  experiences a fixed cover and map admit.
+- **The square-root onset was promised before its condition.** The prediction
+  holds while the phase distribution tracks the stationary branch; that
+  condition is now inside the claim in the abstract and introduction rather than
+  arriving later as a qualification.
+
+Added, not withdrawn: an introduction-level spine (coherent activity, compatible
+local descriptions, self-representation), a worked overlap example making
+compatibility concrete before the sheaf machinery, and forward motivation for
+the plasticity control. Evaluative framing was cut throughout; the scope
+statements were kept.
+
+New advisory gate `simulations/check_hedging.py`, hook `check-hedging`. It
+reports disclaimer and reader-instruction language and always passes: whether a
+hedge earns its place is a judgement about its paragraph, not a rule, so unlike
+`check_prose` it decides nothing. Scope statements are counted for density
+rather than flagged, because flagging them would be advice to overclaim.
+
+---
+
 ## 2026-09-05 — PRX Life manuscript tightening
 
 The main article is reorganized around a conditional cortical-coupling model,

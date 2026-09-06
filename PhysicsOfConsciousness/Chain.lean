@@ -323,14 +323,13 @@ Eight propositions, one per unproved arrow. Each is an implication between two o
 the node predicates above, so that discharging one is a statement about the two
 links it joins rather than about an opaque symbol.
 
-The kinds, tallied: **four formalization gaps** (`E12`, `E23`, `E34`, `E78`),
-**two modelling assumptions** (`E45`, `E89`) and **two physical commitments**
-(`E56`, `E67`). There were nine until `supercritical_of_coherent` discharged the
-n7 → n9 edge.
+The kinds, tallied: **one independent physical premise** (`E12`), **three
+formalization gaps** (`E23`, `E34`, `E78`), **two modelling assumptions**
+(`E45`, `E89`) and **two physical commitments** (`E56`, `E67`). There were nine
+until `supercritical_of_coherent` discharged the n7 → n9 edge.
 -/
 
-/-- **n1 → n2. Formalization gap — and the sharpest one, because there is nothing
-to formalize.**
+/-- **n1 and n2 are independent physical premises, not a formalization gap.**
 
 `Capacity sys` is a theorem with no hypotheses, so `E12` is logically equivalent
 to its own conclusion: assuming it is assuming n2 outright. That is not a defect
@@ -555,9 +554,9 @@ development, and this theorem is where they are put together.
 
 **How to read the count.** `#check @chain` lists the arguments. Eight of them are
 propositions named `E..`; each is an implication between two node predicates, so
-none of them can be discharged by a definitional unfolding. Four are
-formalization gaps, two are modelling assumptions and two are physical
-commitments.
+none of them can be discharged by a definitional unfolding. One is an independent
+physical premise, three are formalization gaps, two are modelling assumptions and
+two are physical commitments.
 
 **The last step runs through n7.** `self_of_coherent_order_parameter` takes the
 *existence of a coherent order parameter* as its hypothesis, not `K > 2D`, so
@@ -566,11 +565,17 @@ module had before `supercritical_of_coherent`, it would not have.
 
 **What it does not establish.**
 
-* Not that the hypotheses are jointly satisfiable. §6 discharges the arrows whose
-  content is numerical, at concrete parameters, so those are not vacuous; a
-  *simultaneous* witness for all eight — which would need a substrate carrying a
-  cover, a reflexive boundary and a predictive structure at once — is not built
-  here and is recorded as the next non-vacuity task.
+* Not that the toy witness identifies its ingredients as one physical mechanism.
+  §8 supplies a simultaneous witness for all eight hypotheses, but its double
+  well, register, mesh and cortical cover remain deliberately distinct toy
+  systems.
+* Not a downstream preservation of every constraint in `E34` or `E56`. `E34`'s
+  thermal-scale, heat-budget and nonzero-waste conjuncts constrain the predictive
+  structure admitted at n4, but the n4 → n5 passage uses only its existence.
+  Likewise, `chain` uses `FieldRealizes` to reach n7; the concrete-kernel part of
+  `E56` is consumed separately by `em_field_exhibits_phase_transition`. These
+  constraints therefore validate their local links, rather than becoming
+  additional conjuncts of `UnifiedSelf`.
 * Not n10. The step from the fixed point to experience is the framework's
   stipulation and is deliberately outside this statement.
 * Not the identification of Unity with the fixed point. That identification is

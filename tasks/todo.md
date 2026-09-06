@@ -98,6 +98,60 @@ with experience. A test of actual environmental learning would need a separately
 specified changing input and held-out prediction metric; S6's failed structural
 specificity remains a negative result, not a task to tune away.
 
+## Submission readiness — bounded final pass
+
+The numerical pass is complete enough for submission once the following
+review-facing items are closed. These are presentation and consistency checks,
+not a request to expand R1--R5 or reopen the simulation programme.
+
+### P1 — Make the contribution legible to a skeptical referee
+
+- [x] State in the introduction, discussion and cover letter what the formal
+      composition and numerical controls add beyond the established noisy
+      phase model. Explain which conclusions are conditional, which are new
+      testable predictions, and which controls restrict the interpretation.
+- [x] Keep the biological contribution centred on the coupling-gated recovery
+      hypothesis; do not imply that the thermodynamic, sheaf or reflexive
+      constructions derive consciousness or identify a unique mechanism.
+
+### P2 — Reconcile the exploratory EEG claims
+
+- [x] Audit the supplement's residuals against its stated estimator noise floor.
+      In particular, explain or correct the wording that calls residuals up to
+      0.0046 "at or below" a 0.0024 floor.
+- [x] Check the interpretation of the common-reference negative residual. The
+      claimed volume-conduction mechanism must have the correct direction for
+      both the resultant length and the fitted concentration; revise the text
+      or the diagnostic explanation if the signs do not match.
+- [x] Preserve the stated limits: pooled 62-channel/100-ms data are a
+      spatiotemporal estimand, and the observed concentration range does not
+      distinguish the Bessel curve from a simple linear approximation.
+
+### P3 — Align public-facing claims with the manuscript
+
+- [x] Update `README.md`, `index.html` and any badges or landing-page copy that
+      still describe the project as deriving consciousness from first principles,
+      proving biological superiority over silicon, or mathematically barring
+      artificial consciousness. Use the manuscript's present conditional scope.
+- [x] Ensure the title, journal target and project status are consistent across
+      the source, generated PDFs, README and website.
+
+### P4 — Freeze a reproducible submission package
+
+- [ ] Confirm author affiliation, funding, competing-interest and contribution
+      metadata, and review the AI-use disclosure against the full project history.
+      *Blocked on the author: none of these values is derivable from the repository.*
+- [ ] Add or confirm the journal-required data-availability statement and the
+      supplemental-material description in the submission source.
+      *Blocked on a journal choice: the manuscript carries a generic statement.*
+- [x] Rebuild main and supplement from a clean checkout; run Lean, simulation
+      macro/report, prose, table, leaf and Python quality checks; record the
+      exact commit and generated artifacts used for submission.
+- [ ] Review every cited reference and every generated numerical macro once
+      after the final prose edit (no new citations or macros were introduced by
+      the narrative pass; the existing set still needs its final read). Do not submit while any source/PDF, estimator,
+      or public-description inconsistency remains.
+
 ## Completed simulation pass — scope and success criteria
 
 The six planned simulations provide **heuristic numerical evidence**. They do
@@ -741,3 +795,175 @@ Renamed the article to "A conditional field model of cortical coherence and
 recovery" to match its biological subject and conditional scope; synchronized
 the supplement title and rebuilt both PDFs. Prose and table gates pass, and
 both builds remain free of warnings and box errors.
+
+### 2026-09-05 — Lean scope audit cleanup
+
+Removed unused definitions that equated phase diffusion with thermal energy:
+the manuscript correctly treats $D$ as an inverse-time diffusion parameter, so
+the former $k_B T$ definitions had incompatible units and no consumers. Tightened
+the Lean documentation for `exhibits_phase_transition`: it records a scalar
+mean-field threshold inequality and does not establish spatial dynamics. E12 is
+now classified consistently as an independent physical premise rather than a
+formalization gap, leaving E23, E34 and E78 as the three formalization gaps.
+The chain documentation now states that E34's detailed accounting constraints
+and E56's concrete-kernel predicate constrain their local links; its final
+`UnifiedSelf` conclusion does not retain them. No theorem statements, axioms or
+physical claims changed.
+
+
+### 2026-09-06 — Narrative pass and P1--P3 closure
+
+Restructured the main article around its positive claim rather than its
+disclaimers. The empirical arc is contiguous: model, prediction, numerical
+controls; the formal composition and the interpretive commitment follow it.
+
+Changes to `main.tex`:
+
+- Retitled to "Coupling-gated cortical coherence: what a field theory of
+  conscious unity must assume, and what it predicts". Abstract rewritten to lead
+  with the constraint on recovery time courses.
+- Introduction states four contributions. The ramp-speed dependence of the
+  apparent onset exponent and the failure of squared-drift plasticity to recover
+  environmental structure are promoted from robustness checks to contributions,
+  since both are results about method and about a common intuition and transfer
+  beyond this framework. A paragraph states what machine checking adds beyond a
+  prose table of assumptions (it forbids silent changes of subject), and a
+  paragraph states why the physical model and the formal composition belong in
+  one article.
+- New Section, "A protocol for the awakening experiment": the six design
+  requirements as a numbered list, collected from prose that was scattered
+  across the prediction section.
+- The nine chain nodes are now enumerated in the main text before Table 1, and
+  the table's first column names each edge's endpoints. The E-notation was
+  undecodable without the supplement.
+- New Section, "What the construction commits to about consciousness". The
+  identification of the glued global section with the unity of a conscious
+  episode, and of the reflexive fixed point with a minimal self, is stated as a
+  two-clause commitment, argued for on three grounds (compatibility rather than
+  agreement; uniqueness derived rather than stipulated; the self as a condition
+  rather than an addition), and its costs stated: it does not address why any
+  physical condition is accompanied by experience, it is open to the standard
+  zombie objection, and it is multiply realizable, so the substrate claim rests
+  entirely on E56 and E67. Dissociation between compatibility and report is
+  named as what would count against it, and the missing operational measure of
+  overlap compatibility is named as the obstacle.
+- The EEG subsection is reframed as a demonstration of the estimation protocol
+  on public data, which is what it is; its two fragilities (pooled estimand,
+  montage dependence) are stated as findings about the protocol.
+- The hardware results in the discussion are given their scope explicitly.
+
+Changes to `supplementary.tex`:
+
+- Title synchronized.
+- P2: the alpha-band residuals up to $0.0046$ are no longer described as at or
+  below a $0.0024$ noise floor; they are placed on that scale and against the
+  $0.075$--$0.117$ separation from non-von-Mises alternatives.
+- P2: the common-reference negative residual had been attributed to a
+  common-mode component raising $r$, which has the wrong sign --- that mechanism
+  predicts a positive residual. It is now attributed to the leptokurtic
+  direction matching the wrapped-Cauchy control, and stated as a candidate
+  mechanism whose direction is consistent with the data.
+- Three passages narrating the development's own drafting history were rewritten
+  as present-tense statements of scope. The prose gate does not catch these
+  patterns; AGENTS.md section 5 covers them.
+
+A cover-letter draft is at `tasks/cover_letter.md`, closing the cover-letter half
+of P1. Its journal-specific fields are left blank pending the P4 target decision.
+
+P1's second bullet asked that the manuscript not imply the thermodynamic, sheaf
+or reflexive constructions derive consciousness. The author has since directed
+that the interpretive commitment be made load-bearing rather than only
+disclaimed. The new section satisfies both: it asserts the identification and
+argues for it, while stating in the same section that it is neither a theorem
+nor a simulation result, that no reply to the zombie objection is offered, and
+that the substrate claim rests entirely on E56 and E67. Nothing in the article
+claims a derivation.
+
+Changes to `README.md` and `index.html` (P3): both described the project as
+deriving the structural hallmarks of consciousness from first principles, and
+`index.html` claimed digital hardware is mathematically barred from generating
+unified consciousness. Both now state the conditional chain, name the eight
+assumptions as assumptions, carry the manuscript's title and abstract, and state
+the hardware results with their scope. The stale *Open Mind* submission target
+is removed from both.
+
+Gates: `check_prose`, `check_tableS1` and `check_leaves` pass. Both PDFs rebuild
+free of warnings and box errors: main 33 pages (from 26; the added protocol,
+node list and commitment section account for the growth, partly offset by
+tightening the introduction, the calibration subsection and the discussion),
+supplement 25 pages. No Lean, simulation code, macro or figure was changed, so
+no numerical value in either document moved. Nothing is submitted.
+
+The R1--R5 calibration follow-ups remain open. They require measurements that do
+not exist in this repository, and the narrative pass deliberately did not soften
+their absence: the unit-conversion limitation is stated in the manuscript as the
+sharpest open limitation of the framework, and item 1 of the awakening protocol
+makes measuring $K$ and $D$ in consistent units a precondition of the
+experiment rather than an assumption of it.
+
+## 2026-09-06 — External narrative review (paper only)
+
+An external reviewer read `main.tex` and `supplementary.tex` for narrative
+strengths and weaknesses. The five criticisms and their disposition:
+
+1. *Too many competing central stories; plasticity arrives before the
+   thermodynamic argument that motivates it.* Addressed in two places. The
+   introduction now states the account's three requirements — coupling
+   sufficient for coherent activity, local descriptions compatible enough to
+   glue, a glued state supporting an accurate model of itself — before the
+   narrower coupling-gated claim, so the four contributions read as successive
+   steps rather than as a list. Section 5.3 now opens by naming the
+   dissipation-minimization expectation it tests and pointing forward to the
+   predictive bound, which removes the ordering dependence without moving the
+   subsection into Section 6. Moving it was considered and rejected: it would
+   split the numerical controls across two sections and break the supplement's
+   cross-references, for a gain the forward pointer already delivers.
+2. *The abstract's "must show a square-root onset" is firmer than the body
+   permits.* The stationary-tracking condition is now inside the promise in both
+   the abstract and the introduction, and the simulations are framed as
+   measuring what that condition costs rather than as retracting the promise.
+3. *Conscious unity arrives too late as a developed problem.* The introduction
+   carries a worked overlap example — two regions whose receptive territories
+   intersect, phase-locked, whose distributions on the overlap disagree about
+   where an object is — so `global section` has a concrete referent before it
+   becomes precise. Section 7's first feature no longer re-explains it.
+4. *Uniqueness language exceeds the stated scope.* Accepted in full; this was a
+   real overclaim. Section 7 now states that uniqueness is relative to a cover
+   and a map, that choosing them — which regions, which overlaps, where the
+   subject ends — is what E78 and E89 carry, and that what the construction
+   removes is the need for a further principle to select among the experiences a
+   *fixed* cover and map admit. The discussion's parallel sentence is qualified
+   to match.
+5. *Repeated qualifications and self-evaluating phrases interrupt the argument.*
+   Partly accepted. The evaluative frames are cut ("the most portable result in
+   the article", "is doing real work", "worth stating in general terms", "the
+   commitment is expensive", "easy to over-read"); the scope statements
+   themselves are kept, because they are the article's honesty and thinning them
+   to raise the pace would trade that for tempo.
+
+The author asked for a gate for disclaimer language, flagging only, with agents
+deciding merit. `simulations/check_hedging.py` and `test_check_hedging.py`
+implement it, wired as the advisory `check-hedging` pre-commit hook. It reports
+three categories and always exits 0 (`--strict` exits 1 for a caller that has
+read the report and wants the state held). `reader-instruction` and
+`empty-hedge` are flagged by line; `scope-disclaimer` is only counted, reported
+as a density per thousand words, because flagging a scope statement is advice to
+overclaim and the failure mode is a paragraph carrying four of them, not any one.
+The rationale for the split from `check_prose` is in the module docstring: that
+gate enforces a rule with a yes/no answer and fails the commit, and this one
+cannot, so it does not pretend to.
+
+The first run over the revised publication flagged two residual hits, both acted
+on: "are easy to over-read, so we state their scope" in the discussion and "Two
+limitations are worth stating" in supplementary S3. Current state: 0 flagged in
+both files; scope density 9.5 per 1000 words in `main.tex` against 6.2 in
+`supplementary.tex`. The main article is the denser of the two, which is the
+measurable form of criticism 5 and the number to watch on the next pass.
+
+Gates: `check_prose`, `check_tableS1`, `check_hedging` and the 64-test
+`simulations` suite pass; ruff, ruff-format, mypy strict, vulture, bandit and
+xenon pass on the two new files. Both PDFs rebuild without errors or undefined
+references: main 34 pages (from 33; the introduction's spine paragraph and
+overlap example account for the growth), supplement 25. No Lean, simulation
+code, macro or figure changed, so no numerical value in either document moved.
+`index.html` carries the matching abstract clause. Nothing is submitted.

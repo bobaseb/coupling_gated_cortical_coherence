@@ -1,16 +1,16 @@
 <div align="center">
   
 # 🌌 Physical Primitives of Mind
-**Modeling Consciousness via Symmetries and Landauer Erasure**
+**Coupling-gated cortical coherence: what a field theory of conscious unity must assume, and what it predicts**
 
 <br />
 
 [![Lean 4 Verified](https://img.shields.io/badge/Lean_4-Verified-27ae60?style=for-the-badge&logo=lean)](https://leanprover.github.io/)
-[![Status: Under Review](https://img.shields.io/badge/Status-Under_Review-f39c12?style=for-the-badge&logo=open-access)](https://direct.mit.edu/opmi)
+[![Status: Preprint](https://img.shields.io/badge/Status-Preprint-f39c12?style=for-the-badge&logo=open-access)](main.pdf)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey?style=for-the-badge)](https://creativecommons.org/licenses/by/4.0/)
 
-*A rigorous physical framework demonstrating how cognitive architectures emerge as attractor states from fundamental physical primitives.*
+*A conditional field model of cortical coherence, with a machine-checked composition, a testable recovery prediction, and its assumptions named.*
 
 [**Read the Paper**](main.pdf) | [**Math Supplement**](supplementary.pdf) | [**Project Website**](https://bobaseb.github.io/physical_primitives_of_mind/)
 
@@ -20,22 +20,34 @@
 
 ## 🧠 Overview
 
-The pursuit of a physical theory of consciousness typically searches for biological correlates or treats subjective experience as an abstract algorithm. This repository asks a more fundamental question:
+A field account of cortical coordination holds that distributed neural processes are coupled in part through the endogenous extracellular electromagnetic field. This repository asks what such an account must assume in order to reach a globally consistent, self-referential state, and what it predicts before it gets there.
 
-> *If we assume nothing but the most basic physical primitives—continuous symmetries (the Poincaré group), geometry, and thermodynamics—is the emergence of a unified, perceiving entity a natural physical attractor?*
+Nothing here derives consciousness from first principles. The physical core is a noisy mean-field phase model whose coupling varies slowly and crosses a synchronization threshold; the resulting **coupling-gated recovery hypothesis** is the article's testable content. A Lean 4 development composes the established ingredients into one conditional theorem and isolates the **eight hypotheses** that composition consumes. The identification of the resulting mathematical object with the unity of a conscious episode is stated and argued for as a philosophical commitment, not proved.
 
-We demonstrate that the structural hallmarks of consciousness can be derived as physical attractor states. By establishing a deductive chain starting from absolute first principles, we show how continuous symmetries break to form boundaries, how those boundaries dissipate free energy as non-equilibrium steady states, and how their evolution along paths of least action results in physical resonance with their environment.
+## ⚡ The conditional chain
 
-## ⚡ Core Framework
+Nine nodes; the eight arrows between them are the assumptions, not results:
 
-The deductive chain mapping physical primitives to cognitive properties:
+1. **Finite capacity** — a finite phase space has bounded information capacity.
+2. **Boundary** — a broken symmetry forces the field to leave its vacuum manifold.
+3. **Erasure** — the boundary erases, and erasure costs Landauer heat.
+4. **Predictive bound** — dissipation bounds nonpredictive memory.
+5. **Continuum limit** — discrete couplings coarse-grain to a scalar continuum energy.
+6. **Field identification** — a specified physical field realizes that coupling (*empirical commitment*).
+7. **Coherence** — above `K_c = 2D` the field carries a unique coherent order parameter.
+8. **Unity** — compatible local states glue to a unique global section.
+9. **Self** — that section is the unique fixed point of a self-prediction map.
 
-1. **Symmetry Breaking ➔ Boundaries:** Spontaneous symmetry breaking generates necessary topological boundaries between an "inside" and "outside".
-2. **Landauer's Principle ➔ Dissipation:** Because phase space is finite, the boundary is subjected to thermodynamic erasure, acting as a dissipative structure.
-3. **Least Action ➔ Structural Resonance:** To minimize entropy production, the internal topology morphs to mirror the environment (Predictive Processing).
-4. **Thermodynamic Noise ➔ Phase Synchronization:** Macroscopic scaling triggers a Kuramoto phase transition.
-5. **Phase Synchronization ➔ Global Sections:** Local fields mathematically glue into a unified topological space (Unity of Consciousness).
-6. **Auto-Resonance ➔ The Self:** The field must predict itself to reach the absolute minimal dissipation state.
+Table 1 of the manuscript classifies the eight connecting hypotheses: one independent physical premise, three formalization gaps, two modelling assumptions and two physical commitments. A common toy witness satisfies all eight, so their conjunction is not empty; that is consistency, not cortex.
+
+## 🧪 What the simulations show
+
+The numerical controls restrict the hypothesis rather than confirm it, and two results transfer beyond this framework:
+
+- **Ramp speed sets the apparent onset exponent.** An exponent fitted to a driven recovery trace reports the drive at least as much as the mechanism.
+- **Squared-drift plasticity does not learn structure.** Coupling updates that descend the objective preserve coherence while moving *away* from the generating structure, below a shuffled-label comparison. Dissipation minimization does not imply representational learning.
+
+The exploratory EEG analysis is a demonstration of the estimation protocol on public data, over a concentration range too narrow to be informative about the relation itself.
 
 ---
 
@@ -71,7 +83,7 @@ lake build
 
 The manuscript and supplementary materials are written in LaTeX and compiled using `pdflatex`:
 
-- `main.tex`: The main manuscript formatted for submission to *Open Mind*.
+- `main.tex`: The main manuscript.
 - `supplementary.tex`: The mathematical appendix detailing the Lean 4 formalisms.
 
 ## 🤖 AI Assistance

@@ -52,6 +52,19 @@ repos:
         files: ^(main|supplementary)\.tex$
         pass_filenames: false
 
+      # Disclaimer and reader-instruction language. Advisory: unlike
+      # check-prose this reports and always passes, because whether a hedge
+      # earns its place is a judgement about the paragraph it sits in, not a
+      # rule. `verbose: true` so the report is visible on a passing run --
+      # a silent advisory hook is no hook at all.
+      - id: check-hedging
+        name: disclaimer language report (advisory)
+        entry: bash -c 'cd simulations && uv run python check_hedging.py'
+        language: system
+        files: ^(main|supplementary)\.tex$
+        pass_filenames: false
+        verbose: true
+
       # Table S1 status column cross-reference against Chain.lean
       - id: check-table
         name: table S1 status column matches chain.lean

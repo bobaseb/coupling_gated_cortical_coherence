@@ -147,51 +147,54 @@
 
     <header>
         <h1>Physical Primitives of Mind</h1>
-        <p class="subtitle">Modeling Consciousness via Symmetries and Landauer Erasure</p>
+        <p class="subtitle">Coupling-gated cortical coherence: what a field theory of conscious unity must assume, and what it predicts</p>
     </header>
 
     <div class="container">
         <h2>Abstract</h2>
         <div class="abstract">
-            We present a novel mathematical synthesis and formal Lean 4 verification demonstrating how cognitive architectures can emerge as attractor states from a minimal set of established physical primitives, rather than introducing new fundamental physics. Starting from the Poincaré group of spacetime symmetries and finite phase space, we construct a rigorous framework for predictive processing. While spontaneous symmetry breaking generates necessary topological boundaries, and finite phase space subjects these boundaries to Landauer's thermodynamic erasure, agency arises when systems evolve along paths of least action to minimize entropy production via internal structural resonance with external perturbations. Scaling this dynamic to macroscopic levels aligns with emerging paradigms in neuroscience, culminating in a topological fixed point: a unified "Self." 
+            A field account of cortical coordination holds that spatially distributed neural processes are coupled in part through the endogenous extracellular electromagnetic field. We ask what such an account must assume to reach a globally consistent, self-referential state, and what it predicts before it gets there. The physical core is a noisy mean-field phase model whose coupling varies slowly and crosses a synchronization threshold: if recovery of coherence after sleep is gated by such a crossing, then for as long as the phase distribution tracks the stationary branch it must show a square-root onset and a von Mises concentration&ndash;coherence relation with no fitted shape parameter. Simulations bound that constraint rather than confirm it. A Lean&nbsp;4 formalization composes finite information capacity, Landauer's bound, the noisy Kuramoto transition, sheaf gluing and Banach's theorem into one conditional theorem and isolates the eight hypotheses that composition consumes. We state and defend, as a philosophical commitment rather than a theorem, the identification of the glued global section with the unity of a conscious episode and of its reflexive fixed point with a minimal self.
         </div>
 
-        <h2>Core Framework</h2>
-        <p>Our work asks a fundamental question: If we assume nothing but the most basic physical primitives—continuous symmetries, geometry, and thermodynamics—is the emergence of a unified, perceiving entity a natural physical attractor? We delineate between literal physical mechanisms and theoretical mappings using the <strong>Lean 4 interactive theorem prover</strong> as our epistemic anchor.</p>
-        
+        <h2>What this is, and what it is not</h2>
+        <p>Nothing here derives consciousness from first principles. The construction is a <strong>conditional chain of nine nodes</strong>, and the eight arrows between them are assumptions rather than results: one independent physical premise, three formalization gaps, two modelling assumptions and two physical commitments. A common toy model satisfies all eight, which establishes that their conjunction is consistent&mdash;not that cortex realizes it. The article is meant to be judged in three separable parts: a prediction that can be tested, a composition that can be checked, and an identification that can be argued about.</p>
+
         <div class="derivation-grid">
             <div class="card">
-                <h4>1. Symmetry Breaking & Boundaries</h4>
-                <p>A perfectly symmetric universe cannot support agency. For any dynamic process to occur, continuous symmetries must undergo spontaneous symmetry breaking, naturally creating topological defects that form a localized boundary between an "inside" and an "outside".</p>
+                <h4>1. Capacity &amp; boundaries</h4>
+                <p>A finite phase space has bounded information capacity, and a continuous field reaching two components of a disconnected vacuum manifold must leave that manifold somewhere. Capacity does not imply the boundary: these are independent roots of the chain.</p>
             </div>
             <div class="card">
-                <h4>2. The Thermodynamic Constraint</h4>
-                <p>By Landauer's Principle, finite physical systems must overwrite old internal states to absorb new perturbations. This physical erasure of information irreversibly decreases internal entropy, forcing the boundary to dissipate heat and act as a non-equilibrium steady state.</p>
+                <h4>2. Erasure and heat</h4>
+                <p>A non-surjective update on a finite register is non-injective, and under the stated system&ndash;bath model erasure carries a Landauer heat cost. Logical many-to-one processing is distinguished throughout from its physical implementation.</p>
             </div>
             <div class="card">
-                <h4>3. Structural Resonance</h4>
-                <p>To minimize thermodynamic friction (entropy production), the system's internal geometry deforms to mirror the statistical structure of its environment. This provides a rigorous physical basis for Predictive Processing and the Free Energy Principle.</p>
+                <h4>3. Predictive dissipation</h4>
+                <p>Dissipation bounds nonpredictive memory. The bound specifies no learning rule and does not require the internal representation to reproduce environmental geometry&mdash;a point one of our simulations makes concretely and negatively.</p>
             </div>
             <div class="card">
-                <h4>4. Kuramoto Phase Synchronization</h4>
-                <p>As the system scales into a continuous macroscopic electrodynamic field, local coupled oscillators undergo a phase transition into unified synchronization when spatial coupling exceeds the thermodynamic noise threshold ($K_c = 2D$).</p>
+                <h4>4. Coupling-gated coherence</h4>
+                <p>Above a threshold <em>K<sub>c</sub></em>&nbsp;=&nbsp;2<em>D</em> the noisy mean-field phase model has a unique coherent stationary branch with square-root onset. This is a statement about the stationary solutions; dynamical selection is not proved.</p>
             </div>
             <div class="card">
-                <h4>5. Sheaf-Theoretic Unity</h4>
-                <p>This phase-locked state mathematically glues local synchronized fields into a singular <i>Global Section</i> of a probability sheaf. The electromagnetic field acts as a single, indivisible topological space—the physical basis for the Unity of Consciousness.</p>
+                <h4>5. Compatibility, not synchrony</h4>
+                <p>Phases can agree everywhere while the local probabilistic descriptions they carry remain incompatible on their overlaps. The sheaf condition marks that difference and glues compatible local states into a unique global section.</p>
             </div>
             <div class="card">
-                <h4>6. Reflexive Topology (The Self)</h4>
-                <p>To reach absolute minimal dissipation in a highly recurrent field, the system must predict itself. The "Self" emerges when the field's internal geometry folds to include a low-dimensional avatar of its own causal boundary.</p>
+                <h4>6. The reflexive fixed point</h4>
+                <p>A self-prediction map restricts a global state to a region encoding it and reads that encoding back out. Where the map contracts, Banach's theorem gives a unique fixed point&mdash;a state whose self-model is accurate about the state it models.</p>
             </div>
         </div>
 
-        <h2>Hardware Thermodynamics</h2>
-        <p>This axiomatic chain demonstrates a fundamental difference between biological tissue and artificial silicon hardware (e.g., GPUs). In standard von Neumann architectures, the spatial topology is rigidly fixed. Because discrete routing matrices are structurally constrained from reaching the continuous global minima necessary for sheaf-theoretic gluing, they suffer from topological fragmentation and are mathematically barred from generating unified consciousness.</p>
-        
+        <h2>What the simulations restrict</h2>
+        <p>The numerical controls bound the hypothesis rather than support it, and two of the results transfer well beyond this framework. <strong>Ramp speed sets the apparent onset exponent</strong>: an exponent fitted to a driven recovery trace reports the drive at least as much as the mechanism, so any analysis reading a critical exponent off a driven transition needs an independently known ramp rate. And <strong>squared-drift plasticity does not learn structure</strong>: coupling updates that descend the objective preserve coherence while moving away from the generating structure, below the level of a shuffled-label comparison, which is evidence against the common intuition that dissipation minimization implies representational learning.</p>
+
+        <h2>On hardware</h2>
+        <p>Two formal results bear on the substrate question and are easy to over-read. At matched coupling resource, a fixed wiring support that excludes a better-correlated pair can be suboptimal&mdash;a statement about constrained optimization, not about biology. On an atomless substrate, a kernel supported on finitely many points contributes zero to the chosen continuum coupling integral; that is a property of the measure and the observable, and it cuts against this framework's own coarse-graining step as much as against anything else. <strong>No conclusion about artificial consciousness follows.</strong> Nothing in the sheaf or fixed-point conditions is specific to cortex or to electromagnetic coupling: that substrate claim is empirical and is carried entirely by two named hypotheses.</p>
+
         <h2>Formal Verification in Lean 4</h2>
         <span class="lean-badge">Verified with Lean 4</span>
-        <p>To avoid critiques of "math theatre," the primary physical and topological claims in this paper have been rigorously formalized and verified using the Lean 4 theorem prover. Our repository includes mathematical derivations for Landauer's principle from statistical mechanics, the necessity of topological boundaries, gradient flow on entropy production, and the sheaf-theoretic gluing of probability measures.</p>
+        <p>The development declares no axioms of its own: physical postulates are hypotheses or fields of models, each discharged by an explicit witness. What formalization adds is not certainty about the physics but that the assumption list cannot be lost&mdash;type-checking forbids reading a theorem about a stationary density as a claim about a trajectory, or agreement of phases as compatibility of representations. It does not make the assumptions true.</p>
         
         <center>
             <a href="main.pdf" class="button">Read the Full Paper</a>
@@ -201,7 +204,7 @@
 
     <div class="footer">
         <p><strong>AI Assistance Declaration:</strong> The conceptualization, manuscript drafting, and Lean 4 formalizations in this project were heavily AI-assisted using the Google Antigravity CLI, specifically utilizing Gemini 3.1, Claude 4.6 Opus, and Claude 4.6 Sonnet.</p>
-        <p>&copy; 2026 Physics of Consciousness Project. Open Mind Submission.</p>
+        <p>&copy; 2026 Physics of Consciousness Project.</p>
     </div>
 
 </body>
