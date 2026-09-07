@@ -8,6 +8,8 @@
 \usepackage{setspace}
 \usepackage[round]{natbib}
 \usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,calc,decorations.pathreplacing}
 % Float placement for the review manuscript.
 \renewcommand{\topfraction}{0.9}
 \renewcommand{\bottomfraction}{0.8}
@@ -41,7 +43,7 @@
 
 \begin{abstract}
 \singlespacing
-A field account of cortical coordination holds that spatially distributed neural processes are coupled in part through the endogenous extracellular electromagnetic field. We ask what such an account must assume to reach a globally consistent, self-referential state, and what it predicts before it gets there. The physical core is a noisy mean-field phase model whose coupling varies slowly and crosses a synchronization threshold: if recovery of coherence after sleep is gated by such a crossing, it is not free to take an arbitrary time course: for as long as the phase distribution tracks the stationary branch it must show a square-root onset and a von Mises concentration--coherence relation with no fitted shape parameter. That tracking condition is part of the prediction rather than a caveat on it, and the simulations measure what it costs. Ramp speed sets the apparent onset exponent, so an exponent fitted to a driven recovery trace reports the drive as much as the mechanism. A coupling plasticity that descends a squared-drift objective preserves coherence while moving away from the environmental structure it is expected to learn, below the level of a shuffled-label comparison, which is evidence against the common intuition that dissipation minimization implies representational learning. A Lean~4 formalization composes finite information capacity, Landauer's bound, the noisy Kuramoto transition, sheaf gluing and Banach's theorem into one conditional theorem and isolates the eight hypotheses that composition consumes; a common toy model satisfies all eight. We state and defend, as a philosophical commitment rather than a theorem, the identification of the glued global section with the unity of a conscious episode and of its reflexive fixed point with a minimal self. The decisive empirical requirements are independent calibration of effective cortical coupling and an awakening experiment that separates slow coupling change from alternative recovery mechanisms.
+A field account of cortical coordination holds that spatially distributed neural processes are coupled in part through the endogenous extracellular electromagnetic field. We ask what such an account must assume to reach a globally consistent, self-referential state, and what it predicts before it gets there. Its physical core is a noisy mean-field phase model whose coupling drifts through a synchronization threshold. If recovery of coherence after sleep is gated by that crossing, it is not free to take an arbitrary time course. For as long as the phase distribution tracks the stationary branch, it must show a square-root onset and a von Mises concentration--coherence relation with no fitted shape parameter. The tracking condition is part of the prediction, and the simulations measure its cost: ramp speed sets the apparent onset exponent, so an exponent fitted to a driven recovery trace reports the drive as much as the mechanism. A coupling plasticity descending a squared-drift objective preserves coherence while moving away from the environmental structure it should learn, below a shuffled-label comparison: dissipation minimization does not imply representational learning. A Lean~4 formalization composes finite capacity, Landauer's bound, the noisy Kuramoto transition, sheaf gluing and Banach's theorem into one conditional theorem, isolating the eight hypotheses it consumes; a common toy model satisfies all eight. We defend as a philosophical commitment, not a theorem, the identification of the glued section with the unity of a conscious episode and of its reflexive fixed point with a minimal self. Testing the account requires independent calibration of effective cortical coupling and an awakening experiment separating slow coupling change from alternative recovery mechanisms.
 \end{abstract}
 \linenumbers
 
@@ -59,7 +61,7 @@ A prose table of assumptions would list the same eight items, so the fourth cont
 
 The physical model and the formal composition belong in one article because they are two halves of one commitment. The coupling-gated prediction is worth testing under this framework, rather than as one more synchronization model, only because the coherent state it produces is claimed to do further work: to support a globally consistent representation and a reflexive fixed point that we identify with phenomenal unity and a minimal self.
 
-The distinction that does that work is between phases agreeing and descriptions fitting together, and it is concrete. Take two cortical regions whose receptive territories overlap, each carrying a probability distribution over what occupies the shared part. Their oscillators can be locked to the same phase at every instant while one region's distribution on the overlap places an object left of fixation and the other places it right. The phases agree; the descriptions do not, and no single distribution over the shared territory restricts to both. A theory that identifies unity with synchrony cannot mark that difference, and so cannot separate a brain whose regions oscillate together from one whose regions are about the same world. The sheaf condition marks exactly it: local states glue to one global section when their restrictions to shared regions coincide, and otherwise not at all. Coherence enters as the physical condition under which compatibility can be maintained, not as a substitute for it, and the self-prediction map then asks the further question of whether the glued state contains an accurate model of itself. That identification is a philosophical commitment rather than a theorem, and Section~\ref{sec:commitment} states it, argues for it, and says what would count against it. Its separation from the physical tests is what makes both assessable: the cortical coupling hypothesis and the recovery prediction can fail while the mathematical composition stands, and the composition can stand while the identification is wrong. The established ingredients \cite{landauer1961,still2012,sakaguchi1988,banach1922} therefore appear here for their biological composition, not for any new fundamental physical law.
+The distinction that does that work is between phases agreeing and descriptions fitting together, and it is concrete. Take two cortical regions whose receptive territories overlap, each carrying a probability distribution over what occupies the shared part. Their oscillators can be locked to the same phase at every instant while one region's distribution on the overlap places an object left of fixation and the other places it right. The phases agree; the descriptions do not, and no single distribution over the shared territory restricts to both. A theory that identifies unity with synchrony cannot mark that difference, and so cannot separate a brain whose regions oscillate together from one whose regions are about the same world. The sheaf condition marks exactly it: local states glue to one global section when their restrictions to shared regions coincide, and otherwise not at all. Coherence enters as the physical condition under which compatibility can be maintained, not as a substitute for it, and the self-prediction map then asks the further question of whether the glued state contains an accurate model of itself. That identification is a commitment, not a theorem, and Section~\ref{sec:commitment} states it, argues for it, and says what would count against it. Its separation from the physical tests is what makes both assessable: the cortical coupling hypothesis and the recovery prediction can fail while the mathematical composition stands, and the composition can stand while the identification is wrong. The established ingredients \cite{landauer1961,still2012,sakaguchi1988,banach1922} therefore appear here for their biological composition, not for any new fundamental physical law.
 
 \section{A coupling-gated model of cortical coherence}
 \label{sec:field}
@@ -99,20 +101,20 @@ This is a result about the stationary solution branch. Of the coherent branch we
 \label{fig:bifurcation}
 \end{figure}
 
-A spatial version replaces the finite sum by an integral against a kernel $K(x,y)$. We normalize the substrate measure to total mass one, so the mean-field strength is a kernel average rather than a quantity that grows with the arbitrary measure of the substrate. Reduction of a heterogeneous spatial kernel to a scalar $K$ is an additional modelling step, and the threshold in Eq.~\eqref{eq:selfconsistency} does not automatically apply to every spatial or signed network.
+A spatial version replaces the finite sum by an integral against a kernel $K(x,y)$. We normalize the substrate measure to total mass one, so the mean-field strength is a kernel average, not a quantity that grows with the arbitrary measure of the substrate. Reduction of a heterogeneous spatial kernel to a scalar $K$ is an additional modelling step, and the threshold in Eq.~\eqref{eq:selfconsistency} does not automatically apply to every spatial or signed network.
 
 \subsection{Physical identification and calibration}
 \label{sec:scaling}
 
-Regular mesh refinement gives convergence of a discrete coupling-energy quadrature to its continuum integral. This is scalar energy convergence, not convergence of trajectories and not a construction of a physical kernel. The model posits a continuum kernel and separately identifies its cortical realization with endogenous electromagnetic coupling. The formal predicate requires a jointly continuous kernel, a normalized substrate, a mean-field strength equal to its spatial average, and no single site providing more than half of that mean-field coupling. Toy witnesses satisfy these conditions; none is a model calibrated to cortex.
+Regular mesh refinement gives convergence of a discrete coupling-energy quadrature to its continuum integral: scalar energy convergence, not convergence of trajectories and not a construction of a physical kernel. The model posits a continuum kernel and separately identifies its cortical realization with endogenous electromagnetic coupling. The formal predicate requires a jointly continuous kernel, a normalized substrate, a mean-field strength equal to its spatial average, and no single site providing more than half of that mean-field coupling. Toy witnesses satisfy these conditions; none is a model calibrated to cortex.
 
 Extracellular fields can modulate spike timing \cite{frohlich2010,anastassiou2015}, and field-based models have been proposed for integrating distributed neural information \cite{pinotsis2022,mcfadden2020}. These observations motivate an effective interaction without establishing its magnitude relative to phase diffusion, its spatial averaging rule, or its causal role in experience; changes in phase organization under propofol \cite{bastos2021} likewise do not measure a crossing of the model's coupling threshold.
 
-The physical-unit conversion is the sharpest open limitation of the framework, and we state it as such rather than working around it. An estimate proportional to $N\Delta t f$, using population size, a spike-time shift and oscillation frequency, is dimensionless. It cannot be compared directly with an inverse-time diffusion parameter. A conversion such as
+The physical-unit conversion is the sharpest open limitation of the framework. An estimate proportional to $N\Delta t f$, using population size, a spike-time shift and oscillation frequency, is dimensionless. It cannot be compared directly with an inverse-time diffusion parameter. A conversion such as
 \begin{equation}
  K_{\mathrm{eff}}=\gamma N s E f
 \end{equation}
-requires a rate calibration $\gamma$, where $s$ is the time shift per unit field and $E$ the field amplitude. The saved field-strength calculations are conditional on this calibration and on the chosen spatial aggregation; they do not independently establish $K_{\mathrm{eff}}>2D$ in cortex. Determining the interaction kernel and phase diffusion from the same physical system is necessary before the threshold becomes a quantitative biological claim, and Section~\ref{sec:protocol} makes that measurement the first item of the proposed experiment rather than an assumption of it.
+requires a rate calibration $\gamma$, where $s$ is the time shift per unit field and $E$ the field amplitude. The saved field-strength calculations are conditional on this calibration and on the chosen spatial aggregation; they do not independently establish $K_{\mathrm{eff}}>2D$ in cortex. Determining the interaction kernel and phase diffusion from the same physical system is necessary before the threshold becomes a quantitative biological claim; Section~\ref{sec:protocol} makes that measurement the first item of the proposed experiment.
 
 \section{Recovery after awakening: a conditional prediction}
 \label{sec:prediction}
@@ -131,7 +133,7 @@ Critical slowing down limits the adiabatic prediction of Eq.~\eqref{eq:recovery}
 
 \subsection{Distributional and temporal tests}
 
-The stationary model makes a second prediction: phase concentration and coherence obey $r=I_1(a)/I_0(a)$. This relation has no fitted shape parameter, but its applicability depends on the stationary-density assumption and the observation model. It is common to the von Mises family and therefore cannot by itself identify ephaptic coupling or distinguish this framework from every alternative synchronization model. Within the same ansatz, $a/r=K/D$ for $r>0$; the limiting threshold ratio is a consequence of the density relation, not an independent test of it, and ratios near the finite-size floor are especially unstable.
+The stationary model makes a second prediction: phase concentration and coherence obey $r=I_1(a)/I_0(a)$, with no fitted shape parameter. Its applicability depends on the stationary-density assumption and the observation model, and the relation is common to the whole von Mises family, so agreement with it identifies neither ephaptic coupling nor this framework against alternative synchronization models. Within the same ansatz $a/r=K/D$ for $r>0$, so the limiting threshold ratio follows from the density relation instead of testing it, and ratios near the finite-size floor are especially unstable.
 
 The estimators must be independent, which is the constraint most easily violated in practice. Estimating $a$ by inverting the Bessel ratio from $r$ would enforce the relation being tested, and linear statistics on wrapped phases estimate neither quantity.
 
@@ -154,7 +156,7 @@ The design fails informatively in three ways: failure of the stationary phase-de
 \section{Numerical controls}
 \label{sec:numerics}
 
-The simulations characterize the finite-size, finite-rate regime that the stationary theory does not cover. They are reported here, ahead of the formal composition, because they bear directly on whether the prediction of Section~\ref{sec:prediction} is measurable; none of them discharges a hypothesis of the composition in Section~\ref{sec:chain}. Each control uses explicit seeds and compact saved summaries, and the numerical values below are generated from those artifacts. The supplement gives parameters, estimators, failure criteria and additional panels. Identical-frequency controls use phase diffusion rather than a quenched frequency-spread surrogate, and order plots display the $1/\sqrt{N}$ reference.
+The simulations characterize the finite-size, finite-rate regime that the stationary theory leaves open, and they bear on whether the prediction of Section~\ref{sec:prediction} is measurable at all. None of them discharges a hypothesis of the composition in Section~\ref{sec:chain}. Each control uses explicit seeds and compact saved summaries, and the numerical values below are generated from those artifacts. The supplement gives parameters, estimators, failure criteria and additional panels. Identical-frequency controls use phase diffusion rather than a quenched frequency-spread surrogate, and order plots display the $1/\sqrt{N}$ reference.
 
 \subsection{Ramp speed sets the apparent onset exponent}
 \label{sec:ramp}
@@ -176,7 +178,7 @@ The dynamical-selection control shows escape toward a coherent branch above thre
 
 A periodic two-dimensional sheet with row-normalized exponential coupling remains coherent in the sampled empirical decay-length band under the declared total coupling and frequency spread. At decay lengths $0.1$, $0.2$ and $0.3$~mm, steady order is $\spatialOrderOne$, $\spatialOrderTwo$ and $\spatialOrderThree$. This is one finite parameter regime; fixing total coupling while changing range tests fragmentation, not whether cortex supplies that total coupling.
 
-A row-balanced Dale-law network shows that row balance alone does not guarantee a floor-level incoherent baseline. In a separately specified weak-synapse regime, a uniform modulatory term produces an operational coherence crossing at $K_{\mathrm{eff}}/D$ between $\frustrationCouplingMin$ and $\frustrationCouplingMax$. The physical field conversion remains conditional on the rate calibration $\gamma$. Neither the spatial control nor the rescue sweep measures cortical coupling or resolves the unit-conversion limitation.
+A row-balanced Dale-law network shows that row balance alone does not guarantee a floor-level incoherent baseline. In a separately specified weak-synapse regime, a uniform modulatory term produces an operational coherence crossing at $K_{\mathrm{eff}}/D$ between $\frustrationCouplingMin$ and $\frustrationCouplingMax$. That ratio is dimensionless; carrying it over to cortex needs the rate calibration $\gamma$ of Section~\ref{sec:scaling}, which neither this sweep nor the spatial control supplies.
 
 \subsection{Squared-drift plasticity does not learn structure}
 
@@ -218,7 +220,89 @@ The synchronization model of Section~\ref{sec:field} is one link of a longer con
 \noindent
 \textbf{n1} a finite phase space has bounded information capacity; \textbf{n2} a broken symmetry forces a boundary, where the field leaves its vacuum manifold; \textbf{n3} the boundary erases, and erasure costs heat; \textbf{n4} that dissipation bounds nonpredictive memory; \textbf{n5} discrete couplings coarse-grain to a continuum limit; \textbf{n6} a specified physical field realizes that limiting coupling; \textbf{n7} above threshold the field carries a unique coherent order parameter; \textbf{n8} compatible local states glue to a unique global section; \textbf{n9} that section is the unique fixed point of a self-prediction map.
 \end{quote}
-Node-level results are established or cited; what the composition consumes are the eight implications between them. Table~\ref{tab:summary} lists these, classified by their role in the composition rather than by their plausibility. In particular, finite capacity does not imply a symmetry-breaking boundary: n1 and n2 are independent roots, even though the composition can accept an implication between them as an argument.
+Node-level results are established or cited; what the composition consumes are the eight implications between them. Figure~\ref{fig:chain} shows where they sit and what kind of assumption each one is, and Table~\ref{tab:summary} states them, classified by their role in the composition rather than by their plausibility. In particular, finite capacity does not imply a symmetry-breaking boundary: n1 and n2 are independent roots, even though the composition can accept an implication between them as an argument.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  font=\footnotesize,
+  nd/.style={draw, rounded corners=2pt, align=center, inner sep=3pt,
+             text width=43mm, minimum height=6.5mm,
+             execute at begin node={\hyphenpenalty=10000\exhyphenpenalty=10000},
+             fill=black!5},
+  ar/.style={-{Latex[length=2.2mm]}, shorten >=1.5pt, shorten <=1.5pt},
+  gap/.style={ar, densely dotted, line width=1.2pt},
+  mod/.style={ar, dash pattern=on 3pt off 2pt, line width=0.9pt},
+  phys/.style={ar, dash pattern=on 6pt off 2.5pt, line width=0.9pt},
+  prem/.style={ar, dash pattern=on 5pt off 2pt on 1pt off 2pt, line width=0.9pt, black!55},
+  note/.style={anchor=mid west, align=left, text width=62mm, font=\scriptsize},
+  eid/.style={anchor=mid west, font=\scriptsize\bfseries},
+]
+\nolinenumbers
+\def\vs{8mm}
+\node[nd] (n1) {\textbf{n1} finite information capacity};
+\node[nd, below=\vs of n1] (n2) {\textbf{n2} symmetry-breaking boundary};
+\node[nd, below=\vs of n2] (n3) {\textbf{n3} erasure heat cost};
+\node[nd, below=\vs of n3] (n4) {\textbf{n4} bound on nonpredictive memory};
+\node[nd, below=\vs of n4] (n5) {\textbf{n5} continuum coupling limit};
+\node[nd, below=\vs of n5] (n6) {\textbf{n6} physical field realization};
+\node[nd, below=\vs of n6] (n7) {\textbf{n7} unique coherent order parameter};
+\node[nd, below=\vs of n7] (n8) {\textbf{n8} unique global section};
+\node[nd, below=\vs of n8] (n9) {\textbf{n9} unique reflexive fixed point};
+
+\draw[prem] (n1) -- (n2);
+\draw[gap]  (n2) -- (n3);
+\draw[gap]  (n3) -- (n4);
+\draw[mod]  (n4) -- (n5);
+\draw[phys] (n5) -- (n6);
+\draw[phys] (n6) -- (n7);
+\draw[gap]  (n7) -- (n8);
+\draw[mod]  (n8) -- (n9);
+
+\newcommand{\edgenote}[4]{%
+  \node[eid] at ($(#1.south east)!0.5!(#2.north east) + (3mm,0)$) {#3};
+  \node[note] at ($(#1.south east)!0.5!(#2.north east) + (11mm,0)$) {#4};}
+\edgenote{n1}{n2}{E12}{a finite-capacity system realizes a field that leaves its vacuum manifold}
+\edgenote{n2}{n3}{E23}{the boundary is a finite register whose update strands states}
+\edgenote{n3}{n4}{E34}{erasure supplies predictive structure at the same thermal scale}
+\edgenote{n4}{n5}{E45}{the dissipation bound places couplings in a convergent regime}
+\edgenote{n5}{n6}{E56}{the limiting coupling is realized by a specified physical field}
+\edgenote{n6}{n7}{E67}{that field operates above the synchronization threshold}
+\edgenote{n7}{n8}{E78}{coherence supplies a cover carrying compatible local states}
+\edgenote{n8}{n9}{E89}{a contracting map fixes the section glued on that cover}
+
+\newcommand{\domain}[3]{%
+  \draw[decorate, decoration={brace, amplitude=4pt}, black!55]
+    ($(#1.north west)+(-2mm,0)$) -- ($(#2.south west)+(-2mm,0)$)
+    node[midway, left=6pt, rotate=90, anchor=south, align=center,
+         font=\scriptsize, text=black!55] {#3};}
+\domain{n1}{n4}{thermodynamic constraints}
+\domain{n5}{n7}{field and coherence}
+\domain{n8}{n9}{unity and self}
+
+\node[anchor=north west, font=\scriptsize] at ($(n9.south west)+(0,-5mm)$) {%
+  \begin{tikzpicture}[baseline, font=\scriptsize,
+    ar/.style={-{Latex[length=2.2mm]}},
+    gap/.style={ar, densely dotted, line width=1.2pt},
+    mod/.style={ar, dash pattern=on 3pt off 2pt, line width=0.9pt},
+    phys/.style={ar, dash pattern=on 6pt off 2.5pt, line width=0.9pt},
+    prem/.style={ar, dash pattern=on 5pt off 2pt on 1pt off 2pt, line width=0.9pt, black!55}]
+    \draw[prem] (0,0)    -- (13mm,0);    \node[anchor=west] at (14mm,0)    {independent physical premise};
+    \draw[gap]  (0,-4mm) -- (13mm,-4mm); \node[anchor=west] at (14mm,-4mm) {formalization gap};
+    \draw[mod]  (58mm,0) -- (71mm,0);   \node[anchor=west] at (72mm,0)   {modelling assumption};
+    \draw[phys] (58mm,-4mm) -- (71mm,-4mm); \node[anchor=west] at (72mm,-4mm) {physical commitment};
+  \end{tikzpicture}};
+\end{tikzpicture}
+\caption{The conditional composition. Each node is an established or cited
+result; each arrow is an implication the composition consumes and no theorem
+here supplies, styled by the kind of assumption it carries. The three
+formalization gaps bracket the two physical commitments, so the chain's
+empirical content sits between links of a different kind on either side. E12 is
+drawn as a premise because n1 and n2 are independent roots.
+Table~\ref{tab:summary} states each connection in full.}
+\label{fig:chain}
+\end{figure}
+
 
 \begin{table}[htbp]
 \centering
@@ -276,7 +360,7 @@ The composition terminates in a mathematical object, and we take a position on w
 
 Three features of the construction motivate the identification, and each distinguishes it from a bare synchrony measure.
 
-First, compatibility rather than agreement. Oscillator phases can agree everywhere while the local probabilistic descriptions they carry remain incompatible on their overlaps, and Section~\ref{sec:unity} exhibits that configuration inside the formalization rather than only as an illustration. If the unity of experience is a matter of local contents being about one world rather than merely co-timed, then compatibility, not coherence, is the property to look for---and coherence enters as the physical condition under which compatibility can be maintained, which is what E78 asserts.
+First, compatibility rather than agreement. Oscillator phases can agree everywhere while the local probabilistic descriptions they carry remain incompatible on their overlaps, and Section~\ref{sec:unity} exhibits that configuration inside the formalization, not only as an illustration. If the unity of experience is a matter of local contents being about one world rather than merely co-timed, then compatibility, not coherence, is the property to look for---and coherence enters as the physical condition under which compatibility can be maintained, which is what E78 asserts.
 
 Second, uniqueness follows from the construction rather than from a separate selection principle. Accounts of conscious unity need something that picks one experience from among the candidates a system could support; integrated information theory postulates exclusion for this purpose \cite{tononi2016}. Here uniqueness arrives twice as a consequence: given a cover whose local sections agree, the sheaf condition gives exactly one global section, and given a contracting self-prediction map, Banach's theorem gives exactly one fixed point. The scope of that claim needs stating exactly, because the stronger reading is available and is not ours. Uniqueness is relative to a cover and a map, and choosing them---which regions, which overlaps, which encoding region, and so where the subject ends---is not supplied by either theorem. It is what E78 and E89 carry. What the construction removes is the need for an additional principle to select among the experiences a fixed cover and map would otherwise admit; it does not remove the need to say which cover and map a given subject has. That is a structural argument, not evidence.
 
@@ -304,7 +388,7 @@ The article therefore asks to be judged in three separable parts: a prediction t
 
 \section*{Data and code availability}
 
-The Lean development, simulation scripts, tests and saved numerical summaries are maintained in the \href{https://github.com/bobaseb/physical_primitives_of_mind}{manuscript source repository}. Publication simulation values are regenerated from saved summaries without rerunning production sweeps. The exploratory EEG analysis uses OpenNeuro dataset ds005620 \cite{bajwa2025}; preprocessing and selection are described in Supplemental Material. The source repository contains the reproducible analysis rather than redistributing the raw recordings.
+The Lean development, simulation scripts, tests and saved numerical summaries are maintained in the \href{https://github.com/bobaseb/physical_primitives_of_mind}{manuscript source repository}. Publication simulation values are regenerated from saved summaries without rerunning production sweeps. The exploratory EEG analysis uses OpenNeuro dataset ds005620 \cite{bajwa2025}; preprocessing and selection are described in Supplemental Material. The source repository contains the reproducible analysis and does not redistribute the raw recordings.
 
 \section*{Use of AI tools}
 

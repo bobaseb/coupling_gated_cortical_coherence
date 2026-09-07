@@ -967,3 +967,59 @@ references: main 34 pages (from 33; the introduction's spine paragraph and
 overlap example account for the growth), supplement 25. No Lean, simulation
 code, macro or figure changed, so no numerical value in either document moved.
 `index.html` carries the matching abstract clause. Nothing is submitted.
+
+### 2026-09-07 — Abstract, chain figure and scope-statement rebalance
+
+The previous pass named the main article's scope-statement density as "the
+number to watch on the next pass". This pass acts on it, adds the chain figure,
+and shortens the abstract. No claim was added, removed, weakened or
+strengthened; no Lean, simulation code, macro or numerical value changed.
+
+`main.tex`:
+
+- Abstract cut from 297 to 266 words and from a single 8-sentence block with a
+  60-word double-colon opener to 10 sentences. The field-theory framing and the
+  order of the four contributions are unchanged. The final word cap depends on
+  the P4 journal choice and is not yet fixed.
+- New Figure~4: the nine-node chain drawn as a TikZ diagram, with each of the
+  eight edges styled by its kind (independent physical premise, formalization
+  gap, modelling assumption, physical commitment) and annotated with a
+  compressed statement of the connection it carries. Table~1 is retained and
+  now states the connections in full; the figure carries what the table cannot,
+  namely that the chain is linear, that every node is established while no edge
+  is, and that the three formalization gaps bracket the two physical
+  commitments. `\usepackage{tikz}` added.
+- Scope statements consolidated where a paragraph stated a result and then
+  interrupted the argument with three separate limits: the Bessel-relation
+  paragraph of Section~\ref{sec:prediction}, and the three consecutive
+  limit-closing paragraphs of the physical-identification subsection. The
+  rate-calibration limitation was stated four times; it is now stated once in
+  the physical-identification subsection, referenced from the frustration sweep
+  and from protocol item 1.
+- The "reported here, ahead of the formal composition, because..." sentence
+  opening the numerical controls is gone: the ordering no longer defends
+  itself, and the two substantive claims in that sentence (bearing on
+  measurability; discharging no hypothesis) are kept.
+- Six incidental uses of "rather than" reworded. The parallel "First,
+  compatibility rather than agreement / Second, uniqueness ... / Third, the
+  reflexive clause ..." openers of the commitment section are deliberate and
+  were left alone.
+
+`supplementary.tex`: the Table S1 preamble now points at Figure~4 as well as
+Table~1. `index.html` and `README.md` track the revised abstract wording.
+
+Result: `main.tex` scope statements 59 to 51, none deleted to lower the number —
+each was either consolidated with an adjacent one or replaced by a
+cross-reference to where the same limit is stated. Density reads 7.7 per 1000
+words against the supplement's 6.2, but the figure's edge annotations add words
+to the denominator; on the previous word base the figure is 8.2. Gates:
+`check_prose`, `check_hedging` (0 flagged), `check_tableS1` and `check_leaves`
+pass. Both PDFs rebuild with no errors, no undefined references and no overfull
+boxes: main 35 pages (from 34, the figure), supplement 25.
+
+**Not done, and split out deliberately:** `prepare_arxiv.sh` is stale. It copies
+five figures the article no longer includes and copies neither
+`figures/dynamic_ramp_bifurcation_delay.png` nor
+`figures/structural_resonance/joint_dynamics.png`, which it does include, so the
+arXiv tarball would build with missing graphics. This predates this pass and
+belongs with P4's submission-package item rather than with a narrative edit.

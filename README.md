@@ -22,7 +22,7 @@
 
 A field account of cortical coordination holds that distributed neural processes are coupled in part through the endogenous extracellular electromagnetic field. This repository asks what such an account must assume in order to reach a globally consistent, self-referential state, and what it predicts before it gets there.
 
-Nothing here derives consciousness from first principles. The physical core is a noisy mean-field phase model whose coupling varies slowly and crosses a synchronization threshold; the resulting **coupling-gated recovery hypothesis** is the article's testable content. A Lean 4 development composes the established ingredients into one conditional theorem and isolates the **eight hypotheses** that composition consumes. The identification of the resulting mathematical object with the unity of a conscious episode is stated and argued for as a philosophical commitment, not proved.
+Nothing here derives consciousness from first principles. The physical core is a noisy mean-field phase model whose coupling drifts through a synchronization threshold; the resulting **coupling-gated recovery hypothesis** is the article's testable content. A Lean 4 development composes the established ingredients into one conditional theorem and isolates the **eight hypotheses** that composition consumes. The identification of the resulting mathematical object with the unity of a conscious episode is stated and argued for as a philosophical commitment, not proved.
 
 ## ⚡ The conditional chain
 
