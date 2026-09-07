@@ -12,7 +12,7 @@
 
 *A conditional field model of cortical coherence, with a machine-checked composition, a testable recovery prediction, and its assumptions named.*
 
-[**Read the Paper**](main.pdf) | [**Math Supplement**](supplementary.pdf) | [**Project Website**](https://bobaseb.github.io/physical_primitives_of_mind/)
+[**Read the Paper**](main.pdf) | [**Math Supplement**](supplementary.pdf) | [**Maths Primer**](docs/primer.pdf) | [**Project Website**](https://bobaseb.github.io/physical_primitives_of_mind/)
 
 </div>
 
@@ -85,6 +85,10 @@ The manuscript and supplementary materials are written in LaTeX and compiled usi
 
 - `main.tex`: The main manuscript.
 - `supplementary.tex`: The mathematical appendix detailing the Lean 4 formalisms.
+
+A third document is a companion rather than part of the publication:
+
+- `docs/primer.tex`: a plain-English primer on the advanced mathematics and physics used in both, for readers coming from cognitive neuroscience, machine learning or philosophy of mind. It works through each object in turn — what it is, why the framework needs it, what is actually proved, and what is not — and covers the topology, thermodynamics, operator theory, Kuramoto dynamics, bifurcation theory, sheaf theory, fixed-point theory, circular statistics and formal methodology that the two papers use. It reads the manuscript's generated numerical macros, so its figures cannot drift from the saved simulation summaries. Where it differs from `main.tex` or `supplementary.tex`, those are authoritative.
 
 ## 🤖 AI Assistance
 
