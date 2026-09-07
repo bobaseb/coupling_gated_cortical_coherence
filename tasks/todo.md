@@ -202,6 +202,13 @@ not a request to expand R1--R5 or reopen the simulation programme.
 
 ### P4 — Freeze a reproducible submission package
 
+The submission mechanics are specified in `tasks/prx_submission.md`, written
+against PRX Life as the working target. That file expands the three items below
+and adds the format-conversion, float-numbering, reference-list and
+essential-versus-supplemental items that the venue decision governs. It is
+mechanics only and reopens no claim.
+
+
 - [ ] Confirm author affiliation, funding, competing-interest and contribution
       metadata, and review the AI-use disclosure against the full project history.
       *Blocked on the author: none of these values is derivable from the repository.*
