@@ -7,8 +7,9 @@ remain at `_archive/todo_2026-08-31_pre-composability-replan.md` and
 `_archive/todo_2026-08-30_pre-strategic-replan.md`.
 
 The S1--S6 numerical pass and C1--C3 decisions are complete. The active
-follow-ups are R1--R5 below, added after the PRX Life editorial pass. These
-track unresolved calibration and empirical validation. Detailed execution specifications must precede new runs.
+follow-ups are R1--R6 below. R1--R5 were added after the PRX Life editorial
+pass and track unresolved calibration; R6 was added 2026-09-07 and tracks a
+missing observable rather than a missing calibration. Detailed execution specifications must precede new runs.
 
 ## Active follow-ups — calibration and empirical validation
 
@@ -16,7 +17,8 @@ track unresolved calibration and empirical validation. Detailed execution specif
 explicitly. Use existing data where suitable; a missing measurement is a recorded limitation,
 not a parameter to tune until the model passes. Preserve uncertainty and negative
 results. R1--R4 supply inputs to R5; independent preparatory work can proceed
-without assuming the missing inputs are known.
+without assuming the missing inputs are known. R6 takes no input from R1--R5 and
+can proceed while calibration is unresolved.
 
 ### R1 — Calibrate effective coupling and phase diffusion in consistent units
 
@@ -105,7 +107,48 @@ linear apparent onset alone does not reject the field model outside the
 adiabatic regime. Propofol EEG compatibility is not an awakening test, and a
 successful Bessel fit does not identify the physical coupling medium.
 
-**Limits outside calibration:** R1--R5 do not prove E45, overlap compatibility,
+### R6 — Construct and validate an overlap-compatibility observable
+
+**Added 2026-09-07.** R1--R5 make the coupling clause evaluable. This item is
+about the compatibility clause, which currently has no observable at all: not a
+poorly calibrated one, none. `main.tex` Section 7 says so --- constructing one
+is named there as the main obstacle to making the commitment empirically live.
+It is ranked here because it is the only edge no competing account motivates. A
+favorable threshold or Bessel result is compatible with most noisy-coupling
+synchronization models, as Section 3.1 concedes; a compatibility measure is not.
+
+- [ ] Define a restriction map and a compatibility statistic for decoded local
+      distributions on overlapping cortical territories, and validate them where
+      the correct answer is constructed rather than inferred.
+
+**Completion:** a documented observable with an explicit restriction of a
+region's decoded distribution to a shared sub-territory, a compatibility
+statistic with a stated null and dependence-aware uncertainty, and validation on
+synthetic and controlled data in which compatible and incompatible overlaps are
+built by design --- including the configuration the formalization already
+exhibits, equal phases with disagreeing densities on the overlap
+(`overlap_agreement_fails`). Report behaviour under source mixing, decoding
+error and coverage limits. Two failure modes are specific to this measurement
+and must be tested for, not assumed absent: a decoder that shrinks both
+posteriors toward a shared prior manufactures compatibility, and one with
+independent per-region bias manufactures incompatibility. Keep the observable
+separate from the phase estimate --- a compatibility measure computed from
+phases is exactly the substitution E78 exists to forbid, and would make the
+result circular.
+
+**What R6 does not do.** It does not derive overlap compatibility from
+coherence; that is E78 and remains a hypothesis, and the standing entry under
+"Recorded, not scheduled" still forbids another attempt to derive it from the
+current class fields. It does not test the coupling-gated recovery hypothesis,
+and it does not bear on whether the glued section is experience. It makes the
+compatibility clause measurable instead of only stated, which is the
+precondition for the dissociation tests Section 7 names and nothing more. A null
+result --- no configuration in reachable data separates compatible from
+incompatible overlaps at achievable decoding quality --- is a reportable limit
+on the framework's testability, not a reason to relax the statistic until it
+separates.
+
+**Limits outside calibration:** R1--R6 do not prove E45, overlap compatibility,
 propagation of chaos, the reflexive read-out mechanism or the identification
 with experience. A test of actual environmental learning would need a separately
 specified changing input and held-out prediction metric; S6's failed structural
@@ -339,7 +382,9 @@ modelling question and is recorded below, not scheduled.
   not to be undertaken to close a leaf gate; see the C3 record below.
 - Overlap compatibility remains an explicit physical hypothesis. The existing
   equivalence and counterexample explain its content; do not schedule another
-  attempt to derive it from the current class fields.
+  attempt to derive it from the current class fields. Measuring it is a separate
+  question from deriving it, and is scheduled as R6; the prohibition here is on
+  the derivation only.
 - The formalization paper and audit paper remain viable separate publications.
   Neither belongs in this numerical pass.
 - PRX Life presubmission was explicitly declined. Direct submission, if any, is
