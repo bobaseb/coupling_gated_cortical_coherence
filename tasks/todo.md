@@ -136,6 +136,14 @@ separate from the phase estimate --- a compatibility measure computed from
 phases is exactly the substitution E78 exists to forbid, and would make the
 result circular.
 
+**Specification published 2026-09-07.** `supplementary.tex` now carries "What a
+measurement of overlap compatibility would require" --- the three components,
+the three silent-failure modes and the scope --- and `main.tex` Section 7 points
+at it. That is the specification only. R6 stays open on the construction and
+validation, which is the checkbox above; publishing what an observable must
+satisfy is not the same as having one, and the item must not be closed on the
+strength of the supplement section.
+
 **What R6 does not do.** It does not derive overlap compatibility from
 coherence; that is E78 and remains a hypothesis, and the standing entry under
 "Recorded, not scheduled" still forbids another attempt to derive it from the
@@ -1160,3 +1168,52 @@ undefined references and no overfull boxes, 36 pages from 35.
 Prose is now judged done for this manuscript. The remaining leverage is the P4
 journal decision (which determines whether Section 7 stays), the stale
 `prepare_arxiv.sh`, author metadata, and the final reference/macro read.
+
+### 2026-09-07 — The empirical programme enters the supplement
+
+The R1--R6 follow-ups imply a research programme, and two parts of it were
+recorded only in this ledger while the publication either gestured at them or
+was silent. Both are now stated where a referee reads them. Ledger items stay
+open: what moved is the specification, not the work.
+
+`supplementary.tex`, two additions:
+
+- "Why the rate calibration is not derivable", under the cortical field
+  identification. The dimensional half was already in the frustration control
+  ("shift f is dimensionless, so gamma supplies the inverse-time units"); the
+  new material is the substantive half. gamma is a hypothesis about how long a
+  field-driven timing shift persists, with three non-interchangeable candidates
+  (f, 1/tau, D), and the third is declined for a reason worth stating in print:
+  under gamma=D the test K_eff/D>2 reduces to NsEf>2, cancelling the diffusion
+  parameter out of a test whose content was the ratio of coupling to diffusion.
+  The same objection covers any gamma recovered by requiring the model to cross
+  its own threshold or read off the Bessel collapse. This is R1's argument,
+  which the ledger held and the publication asserted without support.
+- "What a measurement of overlap compatibility would require", after the
+  interpretive scope section. Three components (restriction map;
+  statistic with a null under decoding noise; validation where compatibility is
+  built rather than inferred, targeting `overlap_agreement_fails`), three silent
+  failure modes (shrinkage toward a shared prior manufactures compatibility,
+  independent per-region bias manufactures incompatibility, and computing the
+  statistic from phases assumes away E78's content), and a scope paragraph
+  saying it would make the consequent measurable while leaving the implication a
+  hypothesis. This is R6, and it is the part of the programme no competing
+  account motivates.
+
+`main.tex`: two pointers, in the physical-identification subsection and in
+Section 7. Section 7 previously named the missing observable as the main
+obstacle and stopped; it now says where the requirements are stated.
+
+Deliberately not done: R1--R5 were not ported. Protocol items 1--6 of Section 3.3
+already are R1--R5 in condensed form, S10 carries the assumptions and
+alternatives, and S9.4 the falsification conditions. The ledger's prohibitions
+are anti-self-deception scaffolding for whoever does the work and do not belong
+in a publication. The two additions above are the parts with no existing home.
+
+Gates: ten pre-commit hooks pass on the whole tree; `check_hedging` 0 flagged,
+main 53 scope statements at 7.8 per 1000 words, supplement 102 at 6.1 (down from
+6.2 --- the new sections add more words than scope statements). Both PDFs rebuild
+with no errors, no undefined references and no overfull boxes: main 36 pages,
+supplement 27 from 25. Cited Lean identifiers `restrict_eq_iff_densityOn_eqOn`
+and `overlap_agreement_fails` verified present in `Examples.lean`. No Lean,
+simulation code, macro or numerical value changed.
