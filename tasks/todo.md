@@ -33,6 +33,19 @@ infer gamma from the requirement K/D>2 or from the same Bessel collapse used to
 test the model. If the available data cannot identify the rates, document the
 missing measurement and retain the conditional field-strength interpretation.
 
+**Disposition for the current manuscript (2026-09-07).** R1 is not closable in
+this repository. gamma carries inverse-time units and the Fermi arithmetic
+supplies a dimensionless N*s*E*f, so no rearrangement of existing quantities
+identifies it; and estimating K and D in the same cortical regime needs
+simultaneous recordings with a controlled perturbation, which no public dataset
+here provides. Scalp EEG cannot substitute -- R4's source-mixing and pooling
+objections apply first. The item therefore takes its own documented-limitation
+branch for submission purposes: `main.tex` states the missing rate calibration
+once in the physical-identification subsection, makes it item 1 of the protocol,
+and repeats it as the first empirical priority in the discussion. R1 stays
+unchecked because the measurement is unmade, not because the manuscript is
+silent about it. Do not attempt to close it with a fitted gamma.
+
 ### R2 — Validate spatial aggregation and the mean-field approximation
 
 - [ ] Estimate or constrain the spatial interaction kernel, effective population
@@ -1066,3 +1079,39 @@ Output is now `arxiv_submit/ax.tar.gz`. `arxiv_submit/` remains gitignored, so
 the tracked change is `prepare_arxiv.sh` alone. Still open under P4: author
 metadata, the journal-specific data-availability statement, and the final read
 of every reference and generated macro.
+
+### 2026-09-07 — Framing of the simulation section and the formalization claim
+
+A prose pass acting on the previous record's assessment that further
+scope-statement surgery had reached diminishing returns. Three changes, none
+touching a claim, a numeral, Lean, simulation code or a macro.
+
+- Section 5 is `Simulation results`, not `Numerical controls`. Its two portable
+  findings — ramp speed sets the apparent onset exponent, squared-drift
+  plasticity degrades structural alignment — are results that hold for any
+  analysis of a driven transition or of dissipation-driven plasticity, and a
+  heading calling them checks on this framework's own prediction invited a
+  reader to skip them. The opening paragraph now says which two transfer and
+  keeps the finite-run-at-sampled-parameters guard that the heading no longer
+  carries implicitly. New label `sec:plasticity`.
+- Section 5.1 leads with the general statement and reaches this framework's own
+  prediction second. The previous order stated the constraint as a cost to the
+  paper's hypothesis first, which understated its reach.
+- The introduction's method paragraph now names the checkable object the
+  formalization bought: the cover at a single common phase whose local densities
+  disagree on the overlap (`overlap_agreement_fails`), which satisfies every
+  other requirement of the gluing theorem and fails compatibility alone. The
+  paragraph opens by conceding that a prose table would list the same eight
+  assumptions; it now closes on the one thing such a table cannot carry. This
+  answers the referee question the paragraph raises but previously answered only
+  with a claim about authoring discipline.
+
+Result: scope statements 51 to 52, density unchanged at 7.7 per 1000 words
+against the supplement's 6.2. The one addition is the deliberate guard above.
+Gates: all ten pre-commit hooks pass on the whole tree; `check_hedging` reports
+0 flagged in both files; 64 tests pass. `main.pdf` rebuilds with no errors, no
+undefined references and no overfull boxes, 36 pages from 35.
+
+Prose is now judged done for this manuscript. The remaining leverage is the P4
+journal decision (which determines whether Section 7 stays), the stale
+`prepare_arxiv.sh`, author metadata, and the final reference/macro read.
