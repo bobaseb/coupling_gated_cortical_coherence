@@ -311,9 +311,21 @@ instance : DiscreteTopology Site := ⟨rfl⟩
 instance : MeasurableSpace Site := borel Site
 instance : BorelSpace Site := ⟨rfl⟩
 
-/-- The substrate as an object of `TopCat`. `abbrev` (not `def`) so that the
-    `MeasurableSpace`/`BorelSpace` instances above are found through the
-    coercion `↥Cortex`. -/
+/-- The substrate as an object of `TopCat`.
+
+    **The name is shorthand, not a claim.** `Site` is the three-element type
+    `left | mid | right` under the discrete topology; `Chain.lean` gives it
+    counting measure normalized to a probability measure, and takes its coupling
+    to be the constant kernel at `K = 3`, `D = 1`. Every `cortex`-prefixed
+    definition here and in `Chain.lean` inherits that scope. This is the
+    development's running example substrate, and it is the one on which
+    `chain_hypotheses_jointly_satisfiable` discharges all eight edges at once —
+    which establishes that their conjunction is inhabited, and nothing further.
+    It is not a model of cortex, and no witness over it identifies the double
+    well, the register, the mesh and the cover as one physical system.
+
+    `abbrev` (not `def`) so that the `MeasurableSpace`/`BorelSpace` instances
+    above are found through the coercion `↥Cortex`. -/
 abbrev Cortex : TopCat.{0} := TopCat.of Site
 
 /-- A triangulation. As documented on `TriangulatedManifold`, the class does not
