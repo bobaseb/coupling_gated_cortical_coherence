@@ -1023,3 +1023,46 @@ five figures the article no longer includes and copies neither
 `figures/structural_resonance/joint_dynamics.png`, which it does include, so the
 arXiv tarball would build with missing graphics. This predates this pass and
 belongs with P4's submission-package item rather than with a narrative edit.
+
+### 2026-09-07 — The arXiv build produces a document that compiles (P4)
+
+`prepare_arxiv.sh` could not have produced a usable submission from the current
+sources. It carried a hardcoded figure list that had gone stale: it copied five
+figures the article no longer includes and neither of the two under
+`simulations/figures/` that it does. It also never copied
+`simulations/simulation_results.tex` or `references.tex`, so every generated
+numerical macro and the entire bibliography would have been undefined, and it
+merged the supplement without stripping the supplement's own
+`\input{references}`, giving a second bibliography. Nothing caught any of this,
+because the script never compiled what it packed.
+
+Rewritten so that neither failure can recur:
+
+- **The file set is read from the sources.** Figures come from
+  `\includegraphics` in `main.tex` and `supplementary.tex` on every run,
+  resolved the way `\graphicspath{{simulations/}{./}}` resolves them. A
+  reference with no file on disk fails the build instead of being skipped.
+- **The `simulations/` subtree is reproduced rather than flattened**, so
+  `\graphicspath` and both `\input{simulations/...}` paths resolve unchanged.
+  No path rewriting remains, which removes the class of bug entirely. arXiv
+  accepts subdirectories.
+- **`longtable` is added to the merged preamble.** It is in the supplement's
+  preamble, which the merge discards, and Table S1 needs it.
+- **The assembled document is compiled before it is packed.** Any LaTeX error,
+  missing graphic, undefined reference or undefined citation fails the script,
+  and no tarball is written. `\pdfoutput=1` is prepended so arXiv runs pdflatex
+  rather than inferring the engine.
+- `\linenumbers` deletion is anchored to a whole line, and the sources are
+  copied rather than edited in place.
+
+Verified: the clean run compiles to 39 pages with 0 errors, 0 undefined
+references or citations and all eight figures embedded; the generated macros,
+the bibliography, the new chain figure and the Table S1 longtable all appear in
+the output. Each of the three guards was exercised against a deliberately
+broken source and exits 1: missing figure, LaTeX error, undefined reference.
+`main.tex` is unchanged by the script and by these tests.
+
+Output is now `arxiv_submit/ax.tar.gz`. `arxiv_submit/` remains gitignored, so
+the tracked change is `prepare_arxiv.sh` alone. Still open under P4: author
+metadata, the journal-specific data-availability statement, and the final read
+of every reference and generated macro.
