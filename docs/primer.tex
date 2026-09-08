@@ -45,8 +45,8 @@
 \begin{abstract}
 \noindent
 This primer explains, from the ground up, every piece of advanced mathematics
-and physics used in \emph{Coupling-gated cortical coherence} (hereafter
-\textsc{ppom}) and its Supplemental Material. It is written for readers with a
+and physics used in the manuscript \emph{Coupling-gated cortical coherence}
+and its Supplemental Material. It is written for readers with a
 background in cognitive neuroscience, psychology, machine learning or
 philosophy of mind who want to follow the argument without reading Lean~4 source
 or chasing down each cited result. Its parts cover topology and symmetry
@@ -78,7 +78,7 @@ from the manuscript or the Supplemental Material, those are authoritative.
 %======================================================================
 \section{What the argument is, and where the mathematics sits}
 
-\textsc{ppom} makes three separable claims, and it is worth having them apart
+The manuscript makes three separable claims, and it is worth having them apart
 before any mathematics arrives, because almost every scope caveat in this
 primer is a statement about which of the three a given theorem touches.
 
@@ -299,7 +299,7 @@ leaving $\mathcal{V}$ somewhere.
 \end{itemize}
 
 $\pi_0(\mathcal{V})$ is just the set of connected components---the crudest
-possible topological invariant, and the only one \textsc{ppom} uses.
+possible topological invariant, and the only one the framework uses.
 
 \why
 A domain wall is a boundary. If a defect is forced, a bounded region is
@@ -709,7 +709,7 @@ on the unit interval (\id{Examples.lean}~\S20). The symmetric-kernel result is
 The Kuramoto model is the standard minimal model of synchronization. $N$
 oscillators each carry a phase $\theta_i$ on the circle and an intrinsic
 frequency $\omega_i$; each is pulled towards the others by a sinusoidal
-coupling. \textsc{ppom} uses the \emph{noisy} version:
+coupling. The framework uses the \emph{noisy} version:
 \begin{equation}
  d\theta_i=\Big[\omega_i+\sum_j K_{ij}(t)\sin(\theta_j-\theta_i)\Big]dt
  +\sqrt{2D}\,dW_i ,
@@ -736,7 +736,7 @@ which is precisely the structure the coupling-gated recovery hypothesis needs.
 One modelling point is made repeatedly and is easy to miss. \emph{Frequency
 heterogeneity and phase diffusion are separate parameters.} Classical Kuramoto
 analyses often use a spread of natural frequencies $\omega_i$ as the
-disordering influence; \textsc{ppom}'s stationary theory assumes
+disordering influence; the framework's stationary theory assumes
 \emph{identical} frequencies and gets its disorder from $D$. A frequency-spread
 width cannot be substituted for $D$ when applying that theory, and the
 simulations are run with diffusion rather than a quenched-frequency surrogate
@@ -1232,7 +1232,7 @@ the transition belongs to. For mean-field theories $\beta=1/2$, giving a
 square-root shape.
 
 \why
-This is the source of \textsc{ppom}'s most distinctive falsifiable
+This is the source of the framework's most distinctive falsifiable
 prediction. A square root has \emph{infinite initial slope}: at the first
 instant it rises faster than any exponential, logistic or linear function. If
 recovery from awakening is gated by a threshold crossing, its onset should show
@@ -1411,7 +1411,7 @@ therefore says little about the underlying transition unless the ramp rate is
 independently known and the finite-size floor is declared---and that holds for
 \emph{any} analysis reading a critical exponent off a driven transition.
 
-The first thing it constrains is \textsc{ppom}'s own prediction: the stationary
+The first thing it constrains is the framework's own prediction: the stationary
 square-root law cannot be imposed on an arbitrary recovery trace, and its
 absence is not by itself evidence against a coupling-gated mechanism. A linear
 apparent onset counts against the adiabatic branch interpretation only in a
@@ -1624,7 +1624,7 @@ A \emph{presheaf} assigns data to each open region of a space, together with
 \emph{restriction maps} that cut data down to smaller regions. If
 $\mathcal{F}(U)$ is the set of ``local descriptions over $U$'' and
 $V\subseteq U$, there is a map $\mathcal{F}(U)\to\mathcal{F}(V)$ discarding
-what happens outside $V$. In \textsc{ppom} the data are probability measures:
+what happens outside $V$. In this framework the data are probability measures:
 each cortical patch carries a distribution over what it represents.
 
 A presheaf is a \emph{sheaf} when local data that agree on overlaps assemble
@@ -2293,7 +2293,7 @@ out.
 \scope
 Even a perfect result here identifies neither ephaptic coupling nor this
 framework: the relation is common to the whole von Mises family, so agreement
-with it does not distinguish \textsc{ppom} from alternative synchronization
+with it does not distinguish this framework from alternative synchronization
 models. Worse, within the same ansatz $a/r=K/D$ for $r>0$, so the limiting
 threshold ratio \emph{follows from} the density relation instead of testing
 it---and ratios near the finite-size floor are especially unstable.

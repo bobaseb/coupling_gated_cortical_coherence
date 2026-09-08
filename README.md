@@ -1,7 +1,7 @@
 <div align="center">
   
-# 🌌 Physical Primitives of Mind
-**Coupling-gated cortical coherence: what a field theory of conscious unity must assume, and what it predicts**
+# 🌌 Coupling-gated cortical coherence
+**What a field theory of conscious unity must assume, and what it predicts**
 
 <br />
 
@@ -12,7 +12,7 @@
 
 *A conditional field model of cortical coherence, with a machine-checked composition, a testable recovery prediction, and its assumptions named.*
 
-[**Read the Paper**](main.pdf) | [**Math Supplement**](supplementary.pdf) | [**Maths Primer**](docs/primer.pdf) | [**Project Website**](https://bobaseb.github.io/physical_primitives_of_mind/)
+[**Read the Paper**](main.pdf) | [**Math Supplement**](supplementary.pdf) | [**Maths Primer**](docs/primer.pdf) | [**Project Website**](https://bobaseb.github.io/coupling_gated_cortical_coherence/)
 
 </div>
 
@@ -72,8 +72,8 @@ Ensure you have [elan](https://github.com/leanprover/elan) installed, which mana
 
 ```bash
 # Clone the repository
-git clone https://github.com/bobaseb/physical_primitives_of_mind.git
-cd physical_primitives_of_mind
+git clone https://github.com/bobaseb/coupling_gated_cortical_coherence.git
+cd coupling_gated_cortical_coherence
 
 # Build the Lean 4 project
 lake build

@@ -73,6 +73,21 @@ repos:
         files: ^(supplementary\.tex|.*Chain\.lean)$
         pass_filenames: false
 
+      # Tracked PDFs are deliverables: README.md and index.html link
+      # main.pdf, supplementary.pdf and docs/primer.pdf directly, so a source
+      # change committed without the rebuilt PDF publishes stale text to
+      # whoever follows one of those links. Selects on `files` for the same
+      # reason check-prose does -- it reads documents, not Python. Also reports,
+      # without failing, a publication change that leaves the companion primer
+      # untouched; hence `verbose: true`, as for check-hedging.
+      - id: check-pdf-freshness
+        name: tracked pdfs are as new as their sources
+        entry: bash -c 'cd simulations && uv run python check_pdf_freshness.py'
+        language: system
+        files: \.(tex|png|pdf)$
+        pass_filenames: false
+        verbose: true
+
       # Leaf detector: every phase module must have at least one theorem
       # consumed outside itself and Examples.lean. Runs on any Lean file change.
       - id: check-leaves
