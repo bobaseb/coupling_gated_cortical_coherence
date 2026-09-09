@@ -1,10 +1,24 @@
 """Deterministic contracts for joint phase/plasticity dynamics."""
 
 import unittest
+from typing import Any
 
 import numpy as np
 
-from structural_resonance import Config, drift, environment, project, simulate, symmetric_gradient
+from structural_resonance import (
+    Config,
+    alignment_ratio,
+    descent_fractions,
+    drift,
+    environment,
+    permutation_percentile,
+    project,
+    simulate,
+    step_direction,
+    sweep_records,
+    symmetric_gradient,
+    template_correlation,
+)
 
 
 class StructuralResonanceTest(unittest.TestCase):
@@ -30,18 +44,73 @@ class StructuralResonanceTest(unittest.TestCase):
             project(np.zeros((3, 3)), 7.0)
 
     def test_environment_and_collective_drive(self) -> None:
-        omega, target, shuffled, permutation = environment(12, 48.0, 42)
-        self.assertGreater(float(omega.mean()), 0.0)
-        np.testing.assert_array_equal(shuffled, target[np.ix_(permutation, permutation)])
-        self.assertFalse(np.array_equal(target, shuffled))
-        self.assertAlmostEqual(float(target.sum()), 48.0)
+        world = environment(12, 48.0, 42)
+        self.assertGreater(float(world.omega.mean()), 0.0)
+        np.testing.assert_array_equal(
+            world.shuffled, world.target[np.ix_(world.permutation, world.permutation)]
+        )
+        self.assertFalse(np.array_equal(world.target, world.shuffled))
+        self.assertAlmostEqual(float(world.target.sum()), 48.0)
         theta = np.linspace(-3.0, 3.0, 12)
-        self.assertAlmostEqual(float(drift(theta, target, omega).mean()), float(omega.mean()))
+        self.assertAlmostEqual(float(drift(theta, world.target, world.omega).mean()), 1.0)
+        np.testing.assert_array_equal(world.labels, np.arange(12) * 3 // 12)
+
+    def test_random_step_matches_gradient_norm_and_symmetry(self) -> None:
+        """The random arm isolates gradient specificity, so its step size must match."""
+        config = Config(n=8)
+        world = environment(8, 32.0, 7)
+        rng = np.random.default_rng(0)
+        theta = rng.normal(size=8)
+        coupling = project(rng.uniform(0.0, 1.0, (8, 8)), 32.0)
+        gradient = step_direction("gradient", theta, coupling, world.omega, rng)
+        noise = step_direction("random", theta, coupling, world.omega, rng)
+        self.assertAlmostEqual(float(np.linalg.norm(noise)), float(np.linalg.norm(gradient)))
+        np.testing.assert_allclose(noise, noise.T)
+        np.testing.assert_array_equal(noise.diagonal(), 0.0)
+        self.assertFalse(np.allclose(noise, gradient))
+        self.assertEqual(config.permutations, 2000)
+
+    def test_arms_share_one_phase_noise_stream(self) -> None:
+        """At zero learning rate every arm must reproduce the frozen trajectory exactly."""
+        config = Config(n=12, steps=400, learning_rate=0.0)
+        frozen = simulate(config, "frozen")
+        for mode in ("gradient", "random"):
+            result = simulate(config, mode)
+            np.testing.assert_allclose(result["order"], frozen["order"])
+            np.testing.assert_allclose(result["theta_final"], frozen["theta_final"])
+
+    def test_alignment_statistics_are_scale_free(self) -> None:
+        labels = np.arange(12) * 3 // 12
+        block = 1.0 + (labels[:, None] == labels[None, :]).astype(float)
+        np.fill_diagonal(block, 0.0)
+        self.assertAlmostEqual(template_correlation(block, block), 1.0)
+        self.assertAlmostEqual(template_correlation(2.0 * block, block), 1.0)
+        self.assertAlmostEqual(alignment_ratio(block, labels), alignment_ratio(3.0 * block, labels))
+        self.assertAlmostEqual(alignment_ratio(block, labels), 2.0)
+        self.assertAlmostEqual(alignment_ratio(np.ones((12, 12)), labels), 1.0)
+
+    def test_permutation_percentile_brackets_alignment(self) -> None:
+        labels = np.arange(12) * 3 // 12
+        target = project((labels[:, None] == labels[None, :]).astype(float), 48.0)
+        self.assertAlmostEqual(permutation_percentile(target, target, 200, 3), 0.0)
+        antipodal = project(1.0 - (labels[:, None] == labels[None, :]).astype(float), 48.0)
+        self.assertGreater(permutation_percentile(antipodal, target, 200, 3), 0.99)
+
+    def test_descent_fraction_is_measured_against_the_frozen_arm(self) -> None:
+        records: list[dict[str, Any]] = [
+            {"seed": 1, "mode": "frozen", "tail_dissipation": 1400.0, "sigma_floor": 1000.0},
+            {"seed": 1, "mode": "gradient", "tail_dissipation": 1120.0, "sigma_floor": 1000.0},
+            {"seed": 1, "mode": "random", "tail_dissipation": 1400.0, "sigma_floor": 1000.0},
+        ]
+        descent_fractions(records)
+        self.assertAlmostEqual(records[0]["descent_fraction"], 0.0)
+        self.assertAlmostEqual(records[1]["descent_fraction"], 0.7)
+        self.assertAlmostEqual(records[2]["descent_fraction"], 0.0)
 
     def test_seed_storage_and_update_cadence(self) -> None:
         config = Config(n=12, steps=101, update_every=50, sample_every=50)
-        first = simulate(config)
-        second = simulate(config)
+        first = simulate(config, "gradient")
+        second = simulate(config, "gradient")
         for key in first:
             np.testing.assert_array_equal(first[key], second[key])
         np.testing.assert_allclose(first["time"], [0.0, 0.5, 1.0, 1.01])
@@ -49,13 +118,24 @@ class StructuralResonanceTest(unittest.TestCase):
         self.assertEqual(first["theta_final"].shape, (12,))
         self.assertNotIn("theta_history", first)
         self.assertAlmostEqual(float(first["coupling_final"].sum()), config.n * config.row_sum)
-        frozen = simulate(config, adaptive=False)
+        frozen = simulate(config, "frozen")
         np.testing.assert_array_equal(frozen["coupling_initial"], frozen["coupling_final"])
         self.assertFalse(np.array_equal(first["coupling_initial"], first["coupling_final"]))
 
+    def test_sweep_reports_every_rate(self) -> None:
+        rates = (0.0, 0.05)
+        records = sweep_records(Config(n=12, steps=200), rates)
+        self.assertEqual([row["learning_rate"] for row in records], list(rates))
+        for row in records:
+            self.assertIn("tail_dissipation", row)
+            self.assertIn("minimum_order_after_ten", row)
+            self.assertIn("plateau_relative_change", row)
+
     def test_invalid_config(self) -> None:
         with self.assertRaises(ValueError):
-            simulate(Config(dt=-1.0))
+            simulate(Config(dt=-1.0), "gradient")
+        with self.assertRaises(ValueError):
+            simulate(Config(n=12, steps=50), "orthogonal")
 
 
 if __name__ == "__main__":

@@ -559,9 +559,9 @@ manuscript is emphatic about it.} The bound does \emph{not}:
 \item entail Bayesian inference or semantic content.
 \end{itemize}
 Section~\ref{sec:plasticity} reports a simulation making this concrete: a
-coupling update descending a dissipation-like objective maintains coherence
-while moving \emph{away} from the structure it is expected to learn---worse
-than a random relabelling of the nodes.
+coupling update that removes most of a squared-drift objective maintains
+coherence while moving \emph{away} from the structure it is expected to
+learn---further from it than from almost every relabelling of the nodes.
 
 \lean
 \id{Phase3\_PredictiveThermodynamics.lean}. The class is inhabited twice over
@@ -1471,10 +1471,13 @@ mechanism is inferred from any of this.
 \label{sec:plasticity}
 
 \what
-The widely held expectation---and the one the predictive-dissipation bound
-invites---is that a coupled system descending a dissipation-like objective
-will, in doing so, come to mirror the structure of its input. This control
-tests the expectation directly, and the expectation fails.
+It is tempting to read the predictive-dissipation bound as saying that a system
+lowering its dissipation thereby comes to mirror the structure of its input.
+The bound licenses no such reading: it bounds \emph{non-predictive} memory, and
+a memory carrying no information at all satisfies it with room to spare, so
+lowering dissipation presses toward \emph{less} representation rather than
+toward better-aligned representation. This control exhibits a system in which
+the pressure is not merely toward less but away.
 
 \statement
 Phases evolve with noise and clustered frequencies (three nearly equal clusters
@@ -1483,31 +1486,69 @@ symmetric couplings update every 50 fast steps by descending the squared-drift
 objective of Section~\ref{sec:sigma}. Couplings stay non-negative, hollow, and
 normalized to fixed total resource. The symmetric-edge derivative of
 $\tfrac12\sum_i v_i^2$ is $(v_i-v_j)\sin(\theta_j-\theta_i)$, so both endpoints
-of an edge contribute.
+of an edge contribute. Each seed runs three arms on one phase-noise stream: the
+gradient step, a symmetric random step of the same Frobenius norm, and a frozen
+kernel.
 
-Across three seeds:
+Denying an implication means exhibiting its antecedent, so the first thing to
+measure is how much of the objective the update actually removes. Symmetric
+coupling cancels from the mean drift, which fixes $\sum_i v_i$ and so puts a
+floor of $N\langle\omega\rangle^2/D=\plasticitySigmaFloor$ under the objective:
+the update can equalize drift across nodes but never remove it. Across three
+seeds:
 \begin{itemize}[leftmargin=*,noitemsep]
+\item The frozen arm sits at $\plasticityFrozenDissipationMin$ to
+$\plasticityFrozenDissipationMax$; the gradient arm reaches
+$\plasticityDissipationMin$ to $\plasticityDissipationMax$, removing
+$\plasticityDescentMin$ to $\plasticityDescentMax$ of the headroom between the
+two. \textbf{So the objective really is being minimized.} The matched random
+arm removes $\plasticityRandomDescentMin$ to $\plasticityRandomDescentMax$,
+so this belongs to the gradient direction and not to displacing a kernel at
+fixed resource.
 \item Second-half mean order lies between $\plasticityOrderMin$ and
-$\plasticityOrderMax$; matched \emph{frozen}-coupling controls maintain similar
-coherence. \textbf{So coherence is preserved---and the plasticity is not what
-preserves it.}
-\item The dissipation function ranges from $\plasticityDissipationMin$ to
-$\plasticityDissipationMax$, and all seeds meet the declared plateau criterion.
-\item Distance to the true cluster template \emph{increases} in every adaptive
-run, with worse changes than a matched \emph{shuffled-label} comparison.
+$\plasticityOrderMax$. \textbf{So coherence survives the descent.}
+\item The ratio of mean within-cluster to mean between-cluster coupling---a
+measure unchanged by rescaling the kernel---falls from
+$\plasticityRatioInitialMin$--$\plasticityRatioInitialMax$ to
+$\plasticityRatioMin$--$\plasticityRatioMax$, while the random arm leaves it at
+$\plasticityRandomRatioMin$--$\plasticityRandomRatioMax$. Against $2000$ node
+relabellings the final kernel is further from the true template than from a
+fraction $\plasticityPercentileMin$ to $\plasticityPercentileMax$ of them.
 \end{itemize}
 
 \noindent
-The objective descends, coherence is maintained, and the coupling matrix moves
-away from the generating structure---below the level of a random relabelling
-of the nodes. \textbf{Coherence is not a proxy for representational alignment
-in this regime, and dissipation minimization does not imply representational
-learning.}
+The objective descends by most of what is available to it, coherence is
+maintained, and within-cluster coupling falls to a fraction of between-cluster
+coupling. \textbf{Coherence is not a proxy for representational alignment in
+this regime, and descending a squared-drift functional does not produce
+representational learning.}
+
+Nor is the direction of the failure accidental, and this is the part worth
+carrying away. Because symmetric coupling conserves the mean drift, minimizing
+$\sum_i v_i^2$ can only \emph{equalize} drift across nodes---and equalizing
+drift rewards coupling between clusters of \emph{unlike} frequency, which is
+the complement of a template rewarding coupling within clusters of \emph{like}
+frequency. Objective and template are opposed by construction. That is not a
+weakness of the demonstration but its content: nothing about a system's
+dissipation fixes which structure its slow variables acquire, and which
+functional they follow is what decides it.
 
 \scope
 The template is a covariance of shared latent cluster signals, used as a
 diagnostic---it is not an input to the update, nor a measured covariance of
-the constant frequencies. Resource constraints and evolving phases remove the
+the constant frequencies. Two readouts are recorded but do not carry the
+result. Frobenius distance to the template grows, but the kernel norm grows by
+a factor $\plasticityNormGrowthMin$ to $\plasticityNormGrowthMax$ over the same
+interval and a fixed \emph{total} does not hold the \emph{norm} fixed, so most
+of that growth is mass concentrating onto fewer edges rather than misalignment;
+this is why the scale-free ratio is the statistic quoted above. The
+off-diagonal correlation with the template ends at
+$\plasticityCorrelationMin$ to $\plasticityCorrelationMax$, near where it
+started: at this sparsity edge-level variance swamps a block-mean contrast. The
+learning rate $\plasticityLearningRate$ is chosen by a sweep from
+$\plasticitySweepLowRate$ to $\plasticitySweepHighRate$ as the rate at which
+the objective descends furthest---a declared selection, not a rate at which the
+update is known to converge. Resource constraints and evolving phases remove the
 fixed-phase monotonicity guarantee of Section~\ref{sec:sigma}, so this is not a
 counterexample to that theorem but a demonstration of its scope. A plateau in
 the objective establishes neither stationarity of the adaptive process nor a

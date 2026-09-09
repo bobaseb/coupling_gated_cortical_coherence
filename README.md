@@ -45,7 +45,7 @@ Table 1 of the manuscript classifies the eight connecting hypotheses: one indepe
 The numerical controls restrict the hypothesis rather than confirm it, and two results transfer beyond this framework:
 
 - **Ramp speed sets the apparent onset exponent.** An exponent fitted to a driven recovery trace reports the drive at least as much as the mechanism.
-- **Squared-drift plasticity does not learn structure.** Coupling updates that descend the objective preserve coherence while moving *away* from the generating structure, below a shuffled-label comparison. Dissipation minimization does not imply representational learning.
+- **Squared-drift plasticity does not learn structure.** Coupling updates that descend the objective remove about two thirds of the objective available to them and preserve coherence, while driving within-cluster coupling to a fraction of between-cluster coupling — *away* from the generating structure, and further from it than from almost every node relabelling. A matched random update of the same step size does neither. Descending that functional does not produce representational learning, and the direction of the failure follows from a conservation law: symmetric coupling fixes the mean drift, so the objective can only equalize drift, which rewards exactly the coupling the template penalizes.
 
 The exploratory EEG analysis is a demonstration of the estimation protocol on public data, over a concentration range too narrow to be informative about the relation itself.
 

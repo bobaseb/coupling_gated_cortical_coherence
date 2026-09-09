@@ -18,7 +18,9 @@ class SimulationTexTest(unittest.TestCase):
         self.assertIn(r"\newcommand{\selectionRateSlope}{0.43240}", content)
         self.assertIn(r"\newcommand{\chaosBesselResidual}{0.00191}", content)
         self.assertIn(r"\newcommand{\frustrationCouplingMin}", content)
-        self.assertIn(r"\newcommand{\plasticityOrderMin}{0.9811}", content)
+        self.assertIn(r"\newcommand{\plasticityOrderMin}{0.9167}", content)
+        self.assertIn(r"\newcommand{\plasticityDescentMin}{0.6773}", content)
+        self.assertIn(r"\newcommand{\plasticityRandomDescentMax}{-0.0103}", content)
 
     def test_committed_macros_match_saved_results(self) -> None:
         with TemporaryDirectory() as directory:

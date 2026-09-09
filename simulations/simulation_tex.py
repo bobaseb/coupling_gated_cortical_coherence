@@ -117,22 +117,59 @@ def _frustration_macros() -> list[str]:
     return lines
 
 
+_PLASTICITY_RANGES = (
+    ("gradient", "tail_order", "Order"),
+    ("gradient", "tail_dissipation", "Dissipation"),
+    ("gradient", "descent_fraction", "Descent"),
+    ("gradient", "initial_alignment_ratio", "RatioInitial"),
+    ("gradient", "tail_alignment_ratio", "Ratio"),
+    ("gradient", "permutation_percentile", "Percentile"),
+    ("gradient", "kernel_norm_growth", "NormGrowth"),
+    ("gradient", "true_distance_reduction", "Reduction"),
+    ("gradient", "final_template_correlation", "Correlation"),
+    ("random", "descent_fraction", "RandomDescent"),
+    ("random", "tail_alignment_ratio", "RandomRatio"),
+    ("frozen", "tail_dissipation", "FrozenDissipation"),
+    ("frozen", "permutation_percentile", "FrozenPercentile"),
+)
+
+
+def _plasticity_records(name: str) -> list[JsonObject]:
+    path = FIGURES / "structural_resonance" / name
+    return cast(list[JsonObject], json.loads(path.read_text(encoding="utf-8")))
+
+
 def _plasticity_macros() -> list[str]:
-    data = cast(
-        list[JsonObject],
-        json.loads((FIGURES / "structural_resonance" / "summary.json").read_text(encoding="utf-8")),
-    )
-    adaptive = [row for row in data if row["adaptive"]]
+    data = _plasticity_records("summary.json")
     lines = []
-    for key, name in (
-        ("tail_order", "Order"),
-        ("tail_dissipation", "Dissipation"),
-        ("true_distance_reduction", "Reduction"),
-    ):
-        values = [cast(float, row[key]) for row in adaptive]
+    for mode, key, name in _PLASTICITY_RANGES:
+        values = [cast(float, row[key]) for row in data if row["mode"] == mode]
         for suffix, value in (("Min", min(values)), ("Max", max(values))):
             lines.append(_macro(f"plasticity{name}{suffix}", f"{value:.4f}"))
-    return lines
+    config = cast(JsonObject, data[0]["config"])
+    lines.append(_macro("plasticitySigmaFloor", f"{cast(float, data[0]['sigma_floor']):.0f}"))
+    lines.append(_macro("plasticityLearningRate", f"{cast(float, config['learning_rate']):g}"))
+    return lines + _sweep_macros()
+
+
+def _sweep_macros() -> list[str]:
+    sweep = sorted(
+        _plasticity_records("sweep.json"), key=lambda row: cast(float, row["learning_rate"])
+    )
+    best = min(sweep, key=lambda row: cast(float, row["tail_dissipation"]))
+    return [
+        _macro("plasticitySweepLowRate", f"{cast(float, sweep[0]['learning_rate']):g}"),
+        _macro("plasticitySweepHighRate", f"{cast(float, sweep[-1]['learning_rate']):g}"),
+        _macro("plasticitySweepBestRate", f"{cast(float, best['learning_rate']):g}"),
+        _macro(
+            "plasticitySweepLowDissipation",
+            f"{cast(float, sweep[0]['tail_dissipation']):.4f}",
+        ),
+        _macro(
+            "plasticitySweepHighDissipation",
+            f"{cast(float, sweep[-1]['tail_dissipation']):.4f}",
+        ),
+    ]
 
 
 def generate_simulation_tex(output: Path) -> None:

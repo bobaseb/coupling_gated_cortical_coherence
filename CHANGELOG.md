@@ -20,6 +20,47 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-09 — S6 plasticity control: the antecedent is now measured
+
+The claim is unchanged and the evidence for it is different. Denying that
+dissipation minimization implies representational learning requires a run in
+which dissipation is actually minimized, and the previous S6 run did not supply
+one.
+
+Claims that were made and are no longer made:
+
+- That the objective descended in the S6 run. At the previous learning rate the
+  gradient arm's second-half squared drift was 1377.9--1380.0 against
+  1380.6--1382.3 for its frozen control: about 0.7% of the headroom between the
+  frozen arm and the floor `N*mean(omega)^2/D` that the conserved mean drift
+  imposes. A matched-norm random update was indistinguishable from it. The
+  production rate is now selected by a committed sweep as the rate at which the
+  objective descends furthest, and the gradient arm removes 0.68--0.69 of that
+  headroom while the random arm removes none.
+- That the kernel moved away from the template "below the level of a random
+  relabelling", on the evidence of Frobenius distance against one shuffle. Most
+  of that distance growth was kernel-norm growth under a resource total that
+  constrains the entry sum and not the norm; a scale-free correlation moved from
+  -0.020 to -0.026. The alignment claim now rests on the within-over-between
+  cluster coupling ratio and a 2000-draw permutation null, with the distance and
+  the correlation reported as readouts that do not carry the effect.
+- That the expectation being refuted is that dissipation descent makes a system
+  mirror its input. The predictive dissipation bound licenses no such reading in
+  the first place: it bounds *nonpredictive* memory, which a memory carrying no
+  information satisfies with room to spare.
+
+Added rather than narrowed: the opposition between this objective and this
+template is now stated as a conservation-law consequence rather than left as an
+empirical surprise. Symmetric coupling fixes `sum_i v_i`, so minimizing
+`sum_i v_i^2` can only equalize drift across nodes, which rewards coupling
+between clusters of unlike frequency — the complement of a template rewarding
+coupling within clusters of like frequency. That is what makes the run a
+counterexample rather than a coincidence.
+
+Reasoning and criteria: `tasks/s6_execution.md`.
+
+---
+
 ## 2026-09-06 — Narrative revision after external review
 
 Claims narrowed:

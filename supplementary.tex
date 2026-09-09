@@ -315,31 +315,75 @@ What the witnesses establish is that the classes are inhabitable, so the theorem
 A finite driven control co-evolves phases and symmetric nonnegative couplings
 at fixed total coupling. It uses $N=100$, $D=0.1$, $dt=0.01$, mean row coupling
 $4$, and three nearly equal frequency clusters at $0.5$, $1$ and $1.5$ per unit
-time. Couplings update every $50$ fast steps with learning rate $0.001$ for
-$400$ time units, across three seeds. The symmetric-edge derivative of
+time. Couplings update every $50$ fast steps with learning rate
+$\plasticityLearningRate$ for $400$ time units, across three seeds. The
+symmetric-edge derivative of
 $\frac12\sum_i v_i^2$ is $(v_i-v_j)\sin(\theta_j-\theta_i)$; each update clips
 negative weights, hollows the diagonal and restores the total resource.
 This constrained update does not guarantee monotonic descent during joint noisy dynamics.
+Each seed runs three arms on a single phase-noise stream: the gradient step, a
+symmetric hollow random step rescaled to the gradient's Frobenius norm, and a
+frozen kernel. At zero learning rate all three arms reproduce one trajectory,
+which is the contract the shared stream is tested against.
+
+The nonzero grand-mean frequency drives the collective coordinate, since
+symmetric interactions cancel in its mean drift. That cancellation fixes
+$\sum_i v_i$ across phase fields, so the objective cannot fall below
+$N\langle\omega\rangle^2/D=\plasticitySigmaFloor$ and the update can only
+equalize drift across nodes rather than remove it. The frozen arm sits at
+$\plasticityFrozenDissipationMin$ to $\plasticityFrozenDissipationMax$; the
+gradient arm's second-half mean is $\plasticityDissipationMin$ to
+$\plasticityDissipationMax$, removing a fraction $\plasticityDescentMin$ to
+$\plasticityDescentMax$ of the headroom between the frozen arm and that floor.
+The matched random arm removes $\plasticityRandomDescentMin$ to
+$\plasticityRandomDescentMax$ of it, so the descent is specific to the gradient
+direction and not to displacing a kernel of that step size at fixed resource.
+The learning rate is selected by a sweep from $\plasticitySweepLowRate$ to
+$\plasticitySweepHighRate$ on one seed, reported in the run's \texttt{REPORT.md}:
+the objective's second-half mean falls from
+$\plasticitySweepLowDissipation$ at the smallest rate to a minimum at
+$\plasticitySweepBestRate$ and rises again to
+$\plasticitySweepHighDissipation$ at the largest. Rates past the minimum lose
+descent while still meeting the plateau criterion, so the criterion does not by
+itself select a rate and no convergence in the rate is claimed.
 
 Second-half mean order ranges from
-$\plasticityOrderMin$ to $\plasticityOrderMax$. The dissipation function
-$\sum_i v_i^2/D$ ranges from
-$\plasticityDissipationMin$ to $\plasticityDissipationMax$.
-All seeds meet the declared plateau criterion: the last-quarter mean differs
-from the preceding quarter by at most $5\%$. Frozen-coupling controls with
-matched initial states and noise have similar order and dissipation.
+$\plasticityOrderMin$ to $\plasticityOrderMax$, so coherence survives the
+descent. All seeds meet the declared plateau criterion: the last-quarter mean
+differs from the preceding quarter by at most $5\%$.
 The environmental template is the covariance of unit-variance latent signals
 shared within each frequency cluster, rescaled and hollowed to match the
 coupling resource; it is a diagnostic template, not an input to plasticity.
-Its initial-minus-final Frobenius distance lies in
-$[\plasticityReductionMin,\plasticityReductionMax]$: distance increases in
-every seed, with less improvement than for a matched shuffled-label template.
-This regime therefore maintains coherence but does not exhibit structural resonance.
+Alignment is reported by two statistics unchanged under rescaling the kernel.
+The ratio of mean within-cluster to mean between-cluster coupling starts at
+$\plasticityRatioInitialMin$ to $\plasticityRatioInitialMax$ and ends at
+$\plasticityRatioMin$ to $\plasticityRatioMax$, against
+$\plasticityRandomRatioMin$ to $\plasticityRandomRatioMax$ for the random arm.
+Against $2000$ node relabellings drawn per run, the final kernel is further from
+the true template than from a fraction $\plasticityPercentileMin$ to
+$\plasticityPercentileMax$ of them. The frozen arm's initial kernel already sits
+at $\plasticityFrozenPercentileMin$ to $\plasticityFrozenPercentileMax$, so the
+gradient arm is read against the frozen arm and not against the null median.
 
-The nonzero grand-mean frequency drives the collective coordinate, since
-symmetric interactions cancel in its mean drift. The squared-drift objective
-includes this drive and fluctuating relative drift; it is not a thermodynamic
-entropy-production estimate, which would require probability-current information.
+Two readouts are reported and not relied on. The initial-minus-final Frobenius
+distance to the template lies in
+$[\plasticityReductionMin,\plasticityReductionMax]$, but the kernel norm grows
+by a factor $\plasticityNormGrowthMin$ to $\plasticityNormGrowthMax$ over the
+same interval, and a fixed total resource constrains the sum of the entries
+rather than their norm; most of the distance growth is therefore concentration
+of mass onto fewer edges rather than loss of alignment, and the distance to the
+shuffled template grows with it. The off-diagonal correlation with the template
+ends at $\plasticityCorrelationMin$ to $\plasticityCorrelationMax$, close to its
+starting value: at the sparsity the descent produces, edge-level variance
+dominates a block-mean contrast that the within-over-between ratio resolves.
+
+Minimizing squared drift under a conserved mean drift equalizes drift across
+nodes, which rewards coupling between clusters of unlike frequency, whereas the
+template rewards coupling within clusters of like frequency. The disagreement is
+a property of this pairing of objective and template. The squared-drift
+objective includes the drive and fluctuating relative drift; it is not a
+thermodynamic entropy-production estimate, which would require
+probability-current information.
 These finite trajectories establish neither stationarity of the adaptive
 process nor noiseless phase locking, and do not discharge the E45 modelling
 assumption or extend the fixed-phase descent theorem.
@@ -347,12 +391,16 @@ assumption or extend the fixed-phase descent theorem.
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.85\linewidth]{simulations/figures/structural_resonance/joint_dynamics.png}
-\caption{Joint fast/slow dynamics in three finite seeded runs. Top: dissipation
-function, smoothed over 21 saved samples, with matched frozen-coupling controls
-(dashed). Middle: order and the $1/\sqrt{N}$ reference. Bottom: distances to the
-cluster template (solid) and its node-label shuffle (dotted). Coherence persists,
-but template distances increase; these diagnostics provide no evidence of
-structural resonance or a thermodynamic entropy-production rate.}
+\caption{Joint fast/slow dynamics in three finite seeded runs, three arms each:
+gradient (solid), matched-norm random step (dash-dotted), frozen kernel (dashed).
+First: dissipation function, smoothed over 21 saved samples, against the
+$N\langle\omega\rangle^2/D$ floor the conserved mean drift imposes. Second: order
+and the $1/\sqrt{N}$ reference. Third: mean within-cluster over mean
+between-cluster coupling, with the no-preference line at unity. Fourth:
+distances to the cluster template (solid) and its node-label shuffle (dotted),
+which grow together as the kernel norm grows. Only the gradient arm descends the
+objective, and only it loses cluster alignment; these diagnostics provide no
+evidence of structural resonance or a thermodynamic entropy-production rate.}
 \end{figure}
 
 \section{The cortical field identification}
