@@ -25,8 +25,12 @@ retractions are not stylistic; they are the substance of what changed:
 reasons about their referees; it reflects an early framing of the work and not
 a current submission plan.
 
-`ecc_impact_analysis.md` refers to a separate repository at a relative path
-that is not part of this project and is not published with it.
+`ecc_impact_analysis.md` refers to Energetically Coherent Computation (ECC), a
+separate project by the same author, published at
+<https://github.com/bobaseb/energetically-coherent-computation> and licensed
+CC BY-NC-ND 4.0. It is cited there by a relative checkout path, which will not
+resolve for anyone reading this repository; use the link. No ECC text or code
+is vendored into this repository.
 
 The archived `todo_*.md` ledgers are the most reliable files here: they are
 dated pass records, each superseded by the next, and the active ledger names
