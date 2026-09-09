@@ -125,7 +125,7 @@ This project was heavily AI-assisted, across the Lean 4 development, the simulat
 - **OpenAI Codex CLI** — Astra, Terra, Luna, Sol
 - **Claude Code** — Claude Opus 5
 - **Gemini Pro**, through its web interface
-- **Claude Opus 4**, through OpenRouter
+- **Fable (Claude Opus 4)** — through OpenRouter, accessed with the Hermes CLI
 
 Because they were used in combination and in alternation, no file, proof, figure or result is attributable to any one of them, and none is claimed to be. The author is responsible for all content, including everything a tool produced. Machine checking establishes the stated Lean results under their hypotheses; it does not validate the biological interpretation, and it does not replace scientific review of generated code and prose.
 
