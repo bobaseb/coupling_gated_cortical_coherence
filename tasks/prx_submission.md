@@ -193,12 +193,19 @@ inconsistency remains.
 
 ## E — Metadata and policy statements *(author-only)*
 
-### E1 — Author metadata
+### E1 — Author metadata — PARTIALLY CLOSED
 
-- [ ] Affiliation, ORCID, funding, competing interests, author contributions.
+- [x] Affiliation and ORCID.
+- [ ] Funding, competing interests, author contributions.
 
-Verified in repo: the author block carries a name and an email address and
-nothing else. None of these values is derivable from the repository.
+The author block now carries the affiliation (Independent Researcher) and
+ORCID 0000-0002-5951-0772 alongside the existing name and email.
+
+The remainder is venue-dependent and not required by arXiv. Single-author work
+makes an author-contributions statement moot at most venues. Funding and
+competing-interest declarations are supplied on the submission form rather
+than in the source at APS journals; if the target requires them in the
+manuscript, they go in a declarations block beside the AI-use disclosure.
 
 ### E2 — Data availability
 
