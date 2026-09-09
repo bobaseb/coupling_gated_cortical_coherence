@@ -144,7 +144,7 @@ E34 & formalization gap & erasure supplies predictive structure at the same ther
 E45 & modelling assumption & the dissipation bound places couplings in a convergent regime \\
 E56 & physical commitment & the limiting coupling is realized by a specified physical field \\
 E67 & physical commitment & that field operates above the synchronization threshold \\
-E78 & formalization gap & coherence supplies a cover carrying \emph{compatible} local states \\
+E78 & formalization gap & coherence drives a \emph{given} cover to its relaxed equilibrium \\
 E89 & modelling assumption & a contracting map fixes the section glued on that cover \\
 \hline
 \end{tabular}
@@ -1735,7 +1735,8 @@ a three-patch cover whose phase field is the limit of a trajectory started
 \emph{unsynchronized}.
 \item[Overlap agreement (not discharged).] Patches at a common phase agree
 where they overlap. \textbf{No dynamics in the development derives this.} It is
-a class field, and it is exactly what E78 carries.
+a class field of the cover the theorem is handed, so it is assumed alongside
+the eight edges rather than carried by one of them.
 \end{description}
 
 \noindent
@@ -1934,8 +1935,13 @@ has a unique fixed point.
 \end{quote}
 
 \noindent
-The rate is the linear relaxation factor of the mean-field order parameter
-over an interval $\tau$, so supercriticality $K>\Kc$ makes it less than one.
+The rate in the exponent, $(K-\Kc)/2$, is the growth rate of the incoherent
+state's instability, so supercriticality $K>\Kc$ makes the factor less than one.
+Relaxation about the \emph{coherent} branch is twice as fast---linearizing
+$\dot r = \tfrac12(K-2D)r - cr^3$ about its stable fixed point gives
+$(K-\Kc)$---so $\lambda$ is the larger of the two factors and the Lipschitz
+obligation stated with it is the weaker. Both are below one on exactly the
+half-plane $K>\Kc$.
 Two results split the parameter plane at exactly Sakaguchi's threshold, and
 the negative half is proved as well as the positive: at or below threshold,
 contraction at that rate is false for \emph{every} self-map of \emph{every}
@@ -2225,11 +2231,13 @@ witness.
 \section{The chain theorem}
 
 \statement
-\id{Chain.lean}'s theorem \id{chain} takes the eight named hypotheses E12--E89
-and concludes \id{UnifiedSelf}: that the particular section glued by a
+\id{Chain.lean}'s theorem \id{chain} takes the eight named hypotheses E12--E89,
+together with a \id{ThermodynamicCover} and a \id{ReflexiveBoundary} whose class
+fields carry physical content of their own, and concludes \id{UnifiedSelf}: that the particular section glued by a
 thermodynamic cover \emph{is} the unique fixed point of self-prediction.
-\id{chain\_hypotheses\_jointly\_satisfiable} discharges all eight on one toy
-substrate.
+\id{chain\_hypotheses\_jointly\_satisfiable} discharges all eight at once on a
+witness assembled from a double well, a register, a uniform-grid mesh and a
+three-site cortex, which remain distinct toy systems rather than one mechanism.
 
 Two of the eight ask for more than bare existence, and each has a regression
 test rejecting a structure that would satisfy the weaker form:
@@ -2693,7 +2701,8 @@ requirement and not a refinement.
 
 \scope
 Such an observable would \emph{not} establish E78, which asserts that coherence
-supplies a cover carrying compatible local states. It would make the consequent
+drives a cover the theorem is given to its relaxed equilibrium, nor the cover's
+own compatibility field. It would make the consequent
 measurable and leave the implication a hypothesis. It bears on neither the
 recovery prediction nor the identification of the glued section with
 experience. What it supplies is the missing term in the dissociation test. A

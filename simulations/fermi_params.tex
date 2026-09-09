@@ -9,8 +9,8 @@
 \newcommand{\fermiLamMax}{0.3}           % measured upper bound
 \newcommand{\fermiRho}{5e+04}           % neuron density (mm$^{-3}$)
 \newcommand{\fermiShift}{0.4}           % ephaptic shift per mV/mm (ms)
-\newcommand{\fermiD}{1.5}           % Lorentzian half-width (rad/s)
-\newcommand{\fermiThreshold}{2.0}           % $K_c/D$ (universal constant)
+\newcommand{\fermiGamma}{1.5}           % Lorentzian half-width of frequency spread (rad/s)
+\newcommand{\fermiThreshold}{2.0}           % $K_c/\gamma$, noiseless Lorentzian
 
 % --- Measured field range (mV/mm) across all EEG bands ---
 \newcommand{\fermiFieldMin}{1}           % 
@@ -32,18 +32,20 @@
 \newcommand{\fermiConsE}{1.0}           % conservative field (mV/mm)
 \newcommand{\fermiConsShift}{0.3}           % conservative shift per mV/mm (ms)
 \newcommand{\fermiConsLam}{0.15}           % conservative decay length (mm)
-\newcommand{\fermiConsD}{2.0}           % conservative Lorentzian width (rad/s)
+\newcommand{\fermiConsGamma}{2.0}           % conservative Lorentzian width (rad/s)
 
 %% --- Parameterized kernel functions ---
 %% \fermiK{E}{f} = coupling constant K, e.g. \fermiK{\fermiEtheta}{\fermiFgamma}
-%% \fermiKD{E}{f} = ratio K/D
-%% \fermiKDlam{E}{f}{lam} = K/D with explicit lam (for range statement)
+%% \fermiKGamma{E}{f} = ratio K/gamma, read against K_c/gamma = 2 (noiseless Lorentzian)
+%% \fermiKGammalam{E}{f}{lam} = K/gamma with explicit lam (for range statement)
+%% Nothing here divides by a phase-diffusion D: the identical-frequency noisy
+%% threshold K_c = 2D is a different statement and takes a different input.
 
 \newcommand{\fermiN}{\fpeval{round(4/3*pi*\fermiLam^3*5e+04,0)}}
 \newcommand{\fermiK}[2]{\fpeval{round(4/3*pi*\fermiLam^3*5e+04 * (#1*0.4/1000) * #2, 0)}}
-\newcommand{\fermiKD}[2]{\fpeval{round(4/3*pi*\fermiLam^3*5e+04 * (#1*0.4/1000) * #2 / \fermiD, 1)}}
-\newcommand{\fermiKDlam}[3]{\fpeval{round(4/3*pi*#3^3*5e+04 * (#1*0.4/1000) * #2 / \fermiD, 1)}}
+\newcommand{\fermiKGamma}[2]{\fpeval{round(4/3*pi*\fermiLam^3*5e+04 * (#1*0.4/1000) * #2 / \fermiGamma, 1)}}
+\newcommand{\fermiKGammalam}[3]{\fpeval{round(4/3*pi*#3^3*5e+04 * (#1*0.4/1000) * #2 / \fermiGamma, 1)}}
 
 % --- Pre-computed values used directly in prose ---
 \newcommand{\fermiPhAdv}{\fpeval{round(3.0*0.4/1000*6,3)}}
-\newcommand{\fermiKDcons}{\fpeval{round(4/3*pi*\fermiConsLam^3*5e+04 * (1.0*0.4/1000) * 40 / \fermiConsD, 1)}}
+\newcommand{\fermiKGammaCons}{\fpeval{round(4/3*pi*\fermiConsLam^3*5e+04 * (1.0*0.4/1000) * 40 / \fermiConsGamma, 1)}}

@@ -111,6 +111,18 @@ edit "drop the date"                 '/^\\date{/d'
 edit "drop the lineno package"       '/\\usepackage{lineno}/d'
 edit "drop \\linenumbers"            '/^\\linenumbers$/d'
 
+# A citation link broken across a page break makes pdfTeX abort with
+# "\pdfendlink ended up in different nesting level" -- a fatal signal, not a
+# warning, and one no source file can predict: which citation lands on a break
+# depends on every word before it, and the merged document paginates unlike
+# either half. Boxing each citation group removes the class of failure rather
+# than the instance; \emergencystretch is the last-resort slack that keeps a
+# citation too wide for the space left from overfilling its line instead.
+# Both belong here rather than in main.tex: the standalone article paginates
+# differently and boxing its citations at 12pt overfills a line by 164pt.
+edit "keep citations off page breaks" \
+  's/\\renewcommand{\\cite}\[1\]{\\citep{#1}}/\\renewcommand{\\cite}[1]{\\mbox{\\citep{#1}}}\n\\emergencystretch=6em/'
+
 # 4. Merge the supplement in as an appendix. Its preamble is dropped, and so is
 #    its own \input{references}: the merged document has one bibliography.
 #    Copying from the \section*{Overview} marker is what carries the S-prefix

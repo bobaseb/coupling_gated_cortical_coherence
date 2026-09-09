@@ -14,6 +14,7 @@ from matplotlib.axes import Axes
 
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.optimize import brentq
 from scipy.signal import butter, hilbert, sosfiltfilt
 from tqdm import tqdm
 
@@ -569,6 +570,56 @@ def bessel_ratio(a: float) -> float:
     Z = float(np.trapezoid(w, _THETA))
     M = float(np.trapezoid(c * w, _THETA))
     return M / Z
+
+
+# Group concentration range measured across the eight subjects of the
+# cross-subject block (`run_multi_subject`, sed run-1, bipolar montage).
+OBSERVED_CONCENTRATION_RANGE = (0.302, 0.542)
+
+
+@dataclass(frozen=True)
+class TangentSeparation:
+    """How far I₁/I₀ departs from its small-a surrogates, and where it parts."""
+
+    linear_deviation: float
+    tanh_deviation: float
+    probe: float
+    probe_separation: float
+    target: float
+    target_concentration: float
+
+
+def _max_deviation(grid: np.ndarray, surrogate: np.ndarray) -> float:
+    curve = np.array([bessel_ratio(a) for a in grid])
+    return float(np.max(np.abs(curve - surrogate)))
+
+
+def tangent_separation(
+    observed_range: tuple[float, float] = OBSERVED_CONCENTRATION_RANGE,
+    probe: float = 1.5,
+    target: float = 0.17,
+    samples: int = 401,
+) -> TangentSeparation:
+    """Quantify how informative a concentration range is about the curve's shape.
+
+    Over `observed_range` the deviations from a/2 and from tanh(a/2) say how much
+    of I₁/I₀ a recording confined to that range can see. `probe` and `target` read
+    the same separation the other way round: the gap at one concentration, and the
+    concentration at which the gap first reaches a stated size.
+    """
+
+    def gap(a: float) -> float:
+        return a / 2 - bessel_ratio(a)
+
+    grid = np.linspace(*observed_range, samples)
+    return TangentSeparation(
+        linear_deviation=_max_deviation(grid, grid / 2),
+        tanh_deviation=_max_deviation(grid, np.tanh(grid / 2)),
+        probe=probe,
+        probe_separation=gap(probe),
+        target=target,
+        target_concentration=float(brentq(lambda a: gap(a) - target, 2.0 * target, 10.0)),
+    )
 
 
 # ══════════════════════════════════════════════════════════════════════

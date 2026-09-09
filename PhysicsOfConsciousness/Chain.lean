@@ -465,10 +465,12 @@ def E67 (L K D : ℝ) : Prop :=
 
 /-- **n7 → n8. Formalization gap.**
 
-Asserts that a substrate with a coherent order parameter carries a
-`ThermodynamicCover`: a finite cover with positive symmetric couplings sitting at
-the minimum of the reduced Kuramoto potential, whose synchronized patches agree
-where they overlap.
+Asserts that a coherent order parameter drives a `ThermodynamicCover` — a
+separate argument of `chain`, not something this edge produces — to an
+equilibrium reached by relaxation at coupling at least `K`. The cover's own
+physical content, in particular that its synchronized patches agree where they
+overlap, sits in the class fields it arrives with and is therefore assumed
+outside the eight edges rather than supplied by this one.
 
 **Why the cover has to be a reached one, and coupled at `K`.** Until 2026-09-03
 this edge asked for `Nonempty (ThermodynamicCover X)`, and `Examples.lean` §4's
@@ -481,11 +483,15 @@ strongly as the mean field the coherent regime names, and its equilibrium
 configuration is the limit of a Kuramoto trajectory on that coupling rather than
 a configuration the instance was placed at.
 
-Both halves have a fence. `trioCover_not_reachedByRelaxation_three` is a cover
-that *is* reached and fails the coupling floor at `K = 3`; `cortexCover` is a
-cover that meets no relaxation condition at all. `trioCover3` — three sites,
-coupling `3`, initial data that is not phase-locked — is what discharges the
-edge in §8, through `ThermodynamicCover.ofConvergentTrajectory`.
+The coupling floor has a fence: `trioCover_not_reachedByRelaxation_three` is a
+cover that *is* reached and fails the floor at `K = 3`, so the floor cannot be
+read as decoration. `cortexCover` clears it —
+`cortexCover_reachedByRelaxation_three` is what discharges the edge in §8 — on
+the constant zero trajectory, whose phase field is the already synchronized
+limit; that establishes reachability and not dynamical selection from an
+incoherent state. `trioCover3` — three sites, coupling `3`, initial data that is
+not phase-locked — is the harder witness, built through
+`ThermodynamicCover.ofConvergentTrajectory`.
 
 **What would still discharge it as a theorem, and does not.** Nothing derives a
 cover from a coherent order parameter. `ofConvergentTrajectory` needs initial
@@ -500,15 +506,17 @@ def E78 (K D : ℝ) (T : ThermodynamicCover X) : Prop :=
 
 /-- **n8 → n9. Modelling assumption, with the state identity explicit.**
 
-Asserts both that the self-prediction map is Lipschitz at the order parameter's
-linear relaxation rate and that the particular section glued by the cover is a
-fixed point of that map. Banach supplies uniqueness; it cannot supply this
-identification, which is the physical content the former edge omitted.
+Asserts both that the self-prediction map is Lipschitz at `resonanceRate` and
+that the particular section glued by the cover is a fixed point of that map.
+Banach supplies uniqueness; it cannot supply this identification, which is the
+physical content the former edge omitted.
 
-An idealisation rather than a gap: the rate is the linearisation of the
-mean-field dynamics about the coherent branch, and taking the *nonlinear*
-self-model to contract at the *linearised* rate is a modelling step the framework
-makes knowingly. What it buys is that the contraction constant is read off the
+An idealisation rather than a gap: the rate exponentiates `(K - K_c)/2`, the
+growth rate of the incoherent state's instability, and taking the *nonlinear*
+self-model to contract at a *linearised* rate is a modelling step the framework
+makes knowingly. The coherent branch relaxes at `(K - K_c)`, so the assumed
+factor is the larger one and the hypothesis the weaker; both are `< 1` exactly
+when `K > K_c`. What it buys is that the contraction constant is read off the
 substrate rather than stipulated — which is why replacing it by a bare
 `ContractingWith c` would be weaker, not simpler. -/
 def E89 {X : TopCat.{u}} [MeasurableSpace X] [BorelSpace X] [TriangulatedManifold ↥X]

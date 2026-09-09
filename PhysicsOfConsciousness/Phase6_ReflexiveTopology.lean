@@ -36,8 +36,10 @@
     a section over the avatar region alone. That is the low-dimensional fold the
     header has always claimed, as a theorem rather than as a name.
   * **The contraction rate comes from `K` and `D`.** `resonanceRate K D τ` is
-    `exp (-(K - K_c) τ / 2)` with `K_c = critical_coupling D = 2D`: the linear
-    relaxation rate of the mean-field order parameter, over a time `τ`.
+    `exp (-(K - K_c) τ / 2)` with `K_c = critical_coupling D = 2D`, where `(K - K_c)/2`
+    is the growth rate of the *incoherent* state's instability, over a time `τ`.
+    Relaxation about the coherent branch is `(K - K_c)`, twice as fast, so this factor
+    is the larger of the two and the Lipschitz hypothesis stated with it is the weaker.
     `resonanceRate_lt_one` and `one_le_resonanceRate` then split the parameter plane at
     Sakaguchi's threshold, and `self_of_supercritical` derives the Self from `K > 2D`
     rather than from a hard-coded `1/2`. Below the threshold
@@ -477,9 +479,17 @@ rate is a contraction rate at all.
 
 **The rate.** Near the incoherent state the noisy mean-field Kuramoto order parameter
 obeys `ṙ = ((K - K_c)/2) r + O(r³)` with `K_c = 2D` (Sakaguchi 1988; `critical_coupling`
-in `Phase8_ContinuousField.lean` is that threshold). Perturbations of the order parameter
-therefore relax at rate `(K - K_c)/2`, and over a time `τ` they are damped by
-`exp(-(K - K_c) τ / 2)`. `resonanceRate K D τ` is that factor.
+in `Phase8_ContinuousField.lean` is that threshold), so `(K - K_c)/2` is the rate at
+which the incoherent state loses stability. Over a time `τ` that rate gives the factor
+`exp(-(K - K_c) τ / 2)`, and `resonanceRate K D τ` is that factor.
+
+**Which rate this is not.** Linearising `ṙ = ((K - 2D)/2) r - c r³` about the *coherent*
+fixed point gives a relaxation rate of `(K - K_c)`, twice the growth rate above, so
+perturbations of the coherent branch decay by `exp(-(K - K_c) τ)`, which is smaller.
+`resonanceRate` is therefore the larger factor, and requiring the self-model to be
+Lipschitz at it is a weaker demand than the coherent branch's own relaxation would
+license. Both factors are `< 1` on exactly the same half-plane `K > K_c`, so nothing
+downstream distinguishes them.
 
 **What is assumed and what is derived.** That the substrate's self-model is Lipschitz
 with *this* constant is an instance obligation — it is the modelling input, and it is the
@@ -495,9 +505,11 @@ exact only near threshold. -/
 
 open scoped NNReal
 
-/-- The damping factor of the self-model over a time `τ`: the linear relaxation rate of
-the mean-field order parameter, `(K - K_c)/2` with `K_c = critical_coupling D = 2D`,
-exponentiated over `τ`. Replaces the hard-coded `1/2` of the pre-2026-08-31 statements. -/
+/-- The damping factor of the self-model over a time `τ`: the growth rate of the
+incoherent state's instability, `(K - K_c)/2` with `K_c = critical_coupling D = 2D`,
+exponentiated over `τ`. The coherent branch relaxes at `(K - K_c)`, so this is the
+larger factor and the weaker Lipschitz hypothesis; the threshold `K > K_c` is the same
+for both. -/
 noncomputable def resonanceRate (K D τ : ℝ) : ℝ≥0 :=
   Real.toNNReal (Real.exp (-(K - critical_coupling D) * τ / 2))
 

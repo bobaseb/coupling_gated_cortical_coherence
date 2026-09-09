@@ -21,6 +21,10 @@ class SimulationTexTest(unittest.TestCase):
         self.assertIn(r"\newcommand{\plasticityOrderMin}{0.9167}", content)
         self.assertIn(r"\newcommand{\plasticityDescentMin}{0.6773}", content)
         self.assertIn(r"\newcommand{\plasticityRandomDescentMax}{-0.0103}", content)
+        self.assertIn(r"\newcommand{\collapseLinearDeviation}{0.0095}", content)
+        self.assertIn(r"\newcommand{\collapseTanhDeviation}{0.0030}", content)
+        self.assertIn(r"\newcommand{\collapseProbeSeparation}{0.154}", content)
+        self.assertIn(r"\newcommand{\collapseTargetConcentration}{1.56}", content)
 
     def test_committed_macros_match_saved_results(self) -> None:
         with TemporaryDirectory() as directory:

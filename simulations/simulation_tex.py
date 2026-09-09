@@ -11,6 +11,7 @@ import numpy as np
 
 from dynamic_ramp_analysis import fit_power_law, replica_escape_couplings
 from dynamic_ramp_report import SPEEDS, _load_leg, _metrics
+from empirical_collapse import tangent_separation
 from propagation_of_chaos import Summary, write_tex_macros
 
 
@@ -172,6 +173,19 @@ def _sweep_macros() -> list[str]:
     ]
 
 
+def _collapse_macros() -> list[str]:
+    """Emit the Bessel-curve separations that set what the EEG range can discriminate."""
+    separation = tangent_separation()
+    return [
+        _macro("collapseLinearDeviation", f"{separation.linear_deviation:.4f}"),
+        _macro("collapseTanhDeviation", f"{separation.tanh_deviation:.4f}"),
+        _macro("collapseProbe", f"{separation.probe:g}"),
+        _macro("collapseProbeSeparation", f"{separation.probe_separation:.3f}"),
+        _macro("collapseTarget", f"{separation.target:g}"),
+        _macro("collapseTargetConcentration", f"{separation.target_concentration:.2f}"),
+    ]
+
+
 def generate_simulation_tex(output: Path) -> None:
     """Write all completed simulation macros from compact saved results."""
     chaos_summary = cast(
@@ -207,6 +221,9 @@ def generate_simulation_tex(output: Path) -> None:
         "",
         "% S6: joint phase/plasticity dynamics",
         *_plasticity_macros(),
+        "",
+        "% Empirical (a, r) collapse: what the observed range discriminates",
+        *_collapse_macros(),
     ]
     output.write_text("\n".join(lines) + "\n", encoding="utf-8")
 

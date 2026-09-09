@@ -1,12 +1,20 @@
 #!/usr/bin/env python3
 """
-Fermi estimate: K > D from published numbers.
+Fermi estimate: K > 2*gamma from published numbers.
 
 K = N * Δt * f
-  N    = number of neurons within one LFP decay length
-  Δt   = ephaptic phase shift per neuron (seconds)
-  f    = oscillation frequency (Hz)
-  D    = Lorentzian half-width of intrinsic frequency spread (rad/s)
+  N     = number of neurons within one LFP decay length
+  Δt    = ephaptic phase shift per neuron (seconds)
+  f     = oscillation frequency (Hz)
+  gamma = Lorentzian half-width of the intrinsic frequency spread (rad/s)
+
+The threshold this estimate is read against is the noiseless Lorentzian one,
+K_c = 2 gamma. It is *not* the identical-frequency noisy threshold K_c = 2D of
+the manuscript's stationary theory, where D is a phase-diffusion coefficient: a
+frequency-spread width and a diffusion coefficient are different quantities that
+happen to enter their own thresholds with the same factor of two. Nothing here
+may be substituted for D in that theory, which is why no symbol in this file is
+named D.
 
 Usage:
   python simulations/fermi_estimate_check.py                        # default values
@@ -36,8 +44,8 @@ DEFAULTS = {
     "lam": 0.2,  # LFP decay length (mm)
     "rho": 5e4,  # neuron density (mm^-3)
     "f": 40.0,  # oscillation frequency (Hz)
-    "D": 1.5,  # Lorentzian half-width (rad/s)
-    "Kc_factor": 2.0,  # K_c = Kc_factor * D
+    "gamma": 1.5,  # Lorentzian half-width of the frequency spread (rad/s)
+    "Kc_factor": 2.0,  # noiseless Lorentzian threshold K_c = Kc_factor * gamma
 }
 
 # Measured field range (mV/mm) across all EEG bands
@@ -61,7 +69,7 @@ BANDS = {
 CONS_E = 1.0
 CONS_SHIFT = 0.3
 CONS_LAM = 0.15
-CONS_D = 2.0
+CONS_GAMMA = 2.0
 
 
 # One evaluated parameter set: the inputs, the intermediate counts and the
@@ -81,12 +89,12 @@ def compute_k(
 
 
 def scenario(
-    name: str, E: float, shift: float, lam: float, rho: float, f: float, D: float
+    name: str, E: float, shift: float, lam: float, rho: float, f: float, gamma: float
 ) -> Scenario:
     """Evaluate one scenario and return a result dict."""
     N, dt_n, K = compute_k(E, shift, lam, rho, f)
-    Kc = DEFAULTS["Kc_factor"] * D
-    ratio = K / D
+    Kc = DEFAULTS["Kc_factor"] * gamma
+    ratio = K / gamma
     return {
         "name": name,
         "E": E,
@@ -94,7 +102,7 @@ def scenario(
         "lam": lam,
         "rho": rho,
         "f": f,
-        "D": D,
+        "gamma": gamma,
         "N": N,
         "dt_n": dt_n,
         "K": K,
@@ -108,9 +116,9 @@ def format_result(r: Scenario, verbose: bool = False) -> str:
     lines = [
         f"  E = {r['E']:.1f} mV/mm,  shift = {r['shift']:.2f} ms/(mV/mm),  "
         f"lambda = {r['lam']:.2f} mm",
-        f"  rho = {r['rho']:.1e} mm^-3,  f = {r['f']:.0f} Hz,  D = {r['D']:.1f} rad/s",
+        f"  rho = {r['rho']:.1e} mm^-3,  f = {r['f']:.0f} Hz,  gamma = {r['gamma']:.1f} rad/s",
         f"  N(neurons within lambda) = {r['N']:.0f},  dt_n = {r['dt_n']:.2f} ms",
-        f"  K = {r['K']:.1f},  K_c = {r['Kc']:.1f},  K/D = {r['ratio']:.1f}",
+        f"  K = {r['K']:.1f},  K_c = {r['Kc']:.1f},  K/gamma = {r['ratio']:.1f}",
     ]
     if verbose:
         vol = 4.0 / 3.0 * math.pi * r["lam"] ** 3
@@ -140,7 +148,7 @@ def _tce(name: str, args: str, expr: str) -> str:
 
 def write_tex(path: str) -> None:
     """Write fermi_params.tex from this script's constants."""
-    D_val = DEFAULTS["D"]
+    gamma_val = DEFAULTS["gamma"]
     lam = DEFAULTS["lam"]
     shift = DEFAULTS["shift"]
 
@@ -150,12 +158,15 @@ def write_tex(path: str) -> None:
     def k_expr(e: str = "#1", f: str = "#2", lam_sym: str = "\\fermiLam") -> str:
         return f"round(4/3*pi*{lam_sym}^3*{DEFAULTS['rho']:.0e} * ({e}*{shift}/1000) * {f}, 0)"
 
-    def kd_expr(
-        e: str = "#1", f: str = "#2", lam_sym: str = "\\fermiLam", D_sym: str = "\\fermiD"
+    def kg_expr(
+        e: str = "#1",
+        f: str = "#2",
+        lam_sym: str = "\\fermiLam",
+        gamma_sym: str = "\\fermiGamma",
     ) -> str:
         return (
             f"round(4/3*pi*{lam_sym}^3*{DEFAULTS['rho']:.0e}"
-            f" * ({e}*{shift}/1000) * {f} / {D_sym}, 1)"
+            f" * ({e}*{shift}/1000) * {f} / {gamma_sym}, 1)"
         )
 
     lines = [
@@ -166,8 +177,8 @@ def write_tex(path: str) -> None:
         _tc("fermiLamMax", FERMI_LAM_MAX, "measured upper bound"),
         _tc("fermiRho", f"{DEFAULTS['rho']:.0e}", "neuron density (mm$^{-3}$)"),
         _tc("fermiShift", shift, "ephaptic shift per mV/mm (ms)"),
-        _tc("fermiD", D_val, "Lorentzian half-width (rad/s)"),
-        _tc("fermiThreshold", DEFAULTS["Kc_factor"], "$K_c/D$ (universal constant)"),
+        _tc("fermiGamma", gamma_val, "Lorentzian half-width of frequency spread (rad/s)"),
+        _tc("fermiThreshold", DEFAULTS["Kc_factor"], "$K_c/\\gamma$, noiseless Lorentzian"),
         "",
         "% --- Measured field range (mV/mm) across all EEG bands ---",
         _tc("fermiFieldMin", FERMI_FIELD_MIN, ""),
@@ -186,24 +197,26 @@ def write_tex(path: str) -> None:
         _tc("fermiConsE", CONS_E, "conservative field (mV/mm)"),
         _tc("fermiConsShift", CONS_SHIFT, "conservative shift per mV/mm (ms)"),
         _tc("fermiConsLam", CONS_LAM, "conservative decay length (mm)"),
-        _tc("fermiConsD", CONS_D, "conservative Lorentzian width (rad/s)"),
+        _tc("fermiConsGamma", CONS_GAMMA, "conservative Lorentzian width (rad/s)"),
         "",
         r"%% --- Parameterized kernel functions ---",
         r"%% \fermiK{E}{f} = coupling constant K, e.g. \fermiK{\fermiEtheta}{\fermiFgamma}",
-        r"%% \fermiKD{E}{f} = ratio K/D",
-        r"%% \fermiKDlam{E}{f}{lam} = K/D with explicit lam (for range statement)",
+        r"%% \fermiKGamma{E}{f} = ratio K/gamma, read against K_c/gamma = 2 (noiseless Lorentzian)",
+        r"%% \fermiKGammalam{E}{f}{lam} = K/gamma with explicit lam (for range statement)",
+        r"%% Nothing here divides by a phase-diffusion D: the identical-frequency noisy",
+        r"%% threshold K_c = 2D is a different statement and takes a different input.",
         "",
         _tce("fermiN", "", n_expr()),
         _tce("fermiK", "2", k_expr()),
-        _tce("fermiKD", "2", kd_expr()),
-        _tce("fermiKDlam", "3", kd_expr(lam_sym="#3")),
+        _tce("fermiKGamma", "2", kg_expr()),
+        _tce("fermiKGammalam", "3", kg_expr(lam_sym="#3")),
         "",
         "% --- Pre-computed values used directly in prose ---",
         _tce("fermiPhAdv", "", f"round({BANDS['theta'][0]}*{shift}/1000*{BANDS['theta'][1]},3)"),
         _tce(
-            "fermiKDcons",
+            "fermiKGammaCons",
             "",
-            kd_expr(str(CONS_E), str(BANDS["gamma"][1]), "\\fermiConsLam", "\\fermiConsD"),
+            kg_expr(str(CONS_E), str(BANDS["gamma"][1]), "\\fermiConsLam", "\\fermiConsGamma"),
         ),
     ]
 
@@ -216,7 +229,7 @@ def write_tex(path: str) -> None:
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Fermi estimate: does K exceed D for cortical parameters?"
+        description="Fermi estimate: does K exceed 2*gamma for cortical parameters?"
     )
     parser.add_argument("-v", "--verbose", action="store_true", help="show per-step arithmetic")
     parser.add_argument(
@@ -256,7 +269,7 @@ def _apply_overrides(overrides: list[str]) -> dict[str, float]:
 def _build_scenarios(params: dict[str, float]) -> list[Scenario]:
     """The default parameter set plus the four bracketing cases."""
     return [
-        scenario("Lower bound", 1.5, 0.3, 0.15, 5e4, params["f"], params["D"]),
+        scenario("Lower bound", 1.5, 0.3, 0.15, 5e4, params["f"], params["gamma"]),
         scenario(
             "Default (mid-range)",
             params["E"],
@@ -264,17 +277,17 @@ def _build_scenarios(params: dict[str, float]) -> list[Scenario]:
             params["lam"],
             params["rho"],
             params["f"],
-            params["D"],
+            params["gamma"],
         ),
-        scenario("Upper bound", 5.0, 0.5, 0.3, 8e4, params["f"], params["D"]),
-        scenario("Gamma-band", 0.5, 0.4, 0.2, 5e4, 40.0, params["D"]),
-        scenario("Theta-band", 3.0, 0.4, 0.2, 5e4, 6.0, params["D"]),
+        scenario("Upper bound", 5.0, 0.5, 0.3, 8e4, params["f"], params["gamma"]),
+        scenario("Gamma-band", 0.5, 0.4, 0.2, 5e4, 40.0, params["gamma"]),
+        scenario("Theta-band", 3.0, 0.4, 0.2, 5e4, 6.0, params["gamma"]),
     ]
 
 
 def _print_scenarios(scenarios: list[Scenario], verbose: bool) -> None:
     print("=" * 64)
-    print("  Fermi Estimate: K > D for endogenous cortical fields")
+    print("  Fermi Estimate: K > 2*gamma for endogenous cortical fields")
     print("=" * 64)
     print()
 
@@ -284,37 +297,39 @@ def _print_scenarios(scenarios: list[Scenario], verbose: bool) -> None:
         print()
 
     print("── Summary ─────────────────────────────────────────────────────")
-    print(f"{'Scenario':<30s} {'N':>8s} {'K':>8s} {'K/D':>8s}  {'Pass?':>6s}")
+    print(f"{'Scenario':<30s} {'N':>8s} {'K':>8s} {'K/gam':>8s}  {'Pass?':>6s}")
     print("-" * 64)
     for s in scenarios:
-        ok = "YES" if s["ratio"] > s["Kc"] / s["D"] else "NO"
+        ok = "YES" if s["ratio"] > s["Kc"] / s["gamma"] else "NO"
         print(f"{s['name']:<30s} {s['N']:>8.0f} {s['K']:>8.1f} {s['ratio']:>8.1f}  {ok:>6s}")
     print()
 
 
 def _print_sensitivity(params: dict[str, float]) -> None:
-    worst = scenario("Conservative bound", CONS_E, CONS_SHIFT, CONS_LAM, 5e4, params["f"], CONS_D)
+    worst = scenario(
+        "Conservative bound", CONS_E, CONS_SHIFT, CONS_LAM, 5e4, params["f"], CONS_GAMMA
+    )
     print(
-        f"Conservative bound:  K/D = {worst['ratio']:.1f},"
-        f"  threshold = {worst['Kc'] / worst['D']:.1f}"
+        f"Conservative bound:  K/gamma = {worst['ratio']:.1f},"
+        f"  threshold = {worst['Kc'] / worst['gamma']:.1f}"
     )
     print()
 
-    print("── Sensitivity to D (default params, D varied) ─────────────────")
-    for D_val in [0.5, 1.0, 1.5, 2.0, 3.0, 5.0]:
+    print("── Sensitivity to gamma (default params, gamma varied) ─────────")
+    for gamma_val in [0.5, 1.0, 1.5, 2.0, 3.0, 5.0]:
         sen = scenario(
-            "", params["E"], params["shift"], params["lam"], params["rho"], params["f"], D_val
+            "", params["E"], params["shift"], params["lam"], params["rho"], params["f"], gamma_val
         )
-        ok = sen["ratio"] > sen["Kc"] / sen["D"]
-        print(f"  D = {D_val:3.1f} rad/s  =>  K/D = {sen['ratio']:>8.1f}  {ok}")
+        ok = sen["ratio"] > sen["Kc"] / sen["gamma"]
+        print(f"  gamma = {gamma_val:3.1f} rad/s  =>  K/gamma = {sen['ratio']:>8.1f}  {ok}")
     print()
 
 
 def _check_margin(scenarios: list[Scenario]) -> None:
-    """Exit non-zero if any physiological scenario falls below `K_c/D = 2`."""
+    """Exit non-zero if any physiological scenario falls below `K_c/gamma = 2`."""
     print("── Checking the magnitude gap ──────────────────────────────────")
     min_ratio = min(s["ratio"] for s in scenarios)
-    print(f"  Min K/D across physiological scenarios: {min_ratio:.1f}")
+    print(f"  Min K/gamma across physiological scenarios: {min_ratio:.1f}")
     print(f"  Survival margin (ratio / 2): {min_ratio / 2:.1f}x")
     print()
 
