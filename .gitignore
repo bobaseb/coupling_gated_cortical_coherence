@@ -21,3 +21,6 @@ __pycache__/
 *.fdb_latexmk
 *.synctex.gz
 arxiv_submit/
+
+# Local agent/tool state
+.hermes/

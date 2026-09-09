@@ -73,21 +73,28 @@ Per AGENTS.md rule 4, any reference whose fields are touched during the
 conversion is re-verified online before commit. A format change is not a licence
 to skip verification on a citation that gets retyped.
 
-### B3 — Supplement float numbering **(any venue)**
+### B3 — Supplement float numbering **(any venue)** — DONE
 
-- [ ] Prefix supplement figure numbers with `S`.
+- [x] Prefix supplement figure numbers with `S`.
 
-Verified in repo: `supplementary.tex` line 239 sets
-`\renewcommand{\thetable}{S\arabic{table}}`, so the claims table renders as
-Table S1 and matches the `Supplemental Material, Table~S1` reference in
-`main.tex`. There is no corresponding `\thefigure` renewal, so the supplement's
-five figures render as Figure 1–5 and collide with the main article's Figure
-1–4. Add the matching `\renewcommand{\thefigure}{S\arabic{figure}}` and
-`\setcounter{figure}{0}` beside the existing table lines.
+`supplementary.tex` sets `\renewcommand{\thefigure}{S\arabic{figure}}` and
+`\setcounter{figure}{0}` immediately after `\section*{Overview}`, alongside the
+existing `\thetable` renewal that already produced Table S1. The placement is
+deliberate: it is *before* the first supplement figure (which the table lines at
+the claims section are not), and it sits inside the region `prepare_arxiv.sh`
+copies when merging the supplement in as an appendix, so one edit fixes both
+documents.
 
-`main.tex` currently references no supplement figure (verified), so this changes
-no cross-reference. Rebuild and confirm the supplement's internal
-`\ref`s still resolve.
+Verified after rebuild: the standalone supplement renders Figure S1–S5 and
+Table S1, and the merged arXiv PDF renders Figure 1–4 / Table 1 for the main
+article and Figure S1–S5 / Table S1 for the appendix, with no undefined
+references in either. `main.tex` references no supplement figure, so no
+cross-reference changed.
+
+This also settles the cosmetic worry about `main.tex` saying "Supplemental
+Material" four times while the arXiv build merges the supplement into the same
+PDF: the appendix's floats now carry the S prefix the prose implies, so the two
+read consistently and no per-build prose rewrite is needed.
 
 ---
 
@@ -247,7 +254,7 @@ build, run `uv sync --reinstall` in `simulations/` before trusting a green run.
 - [ ] Confirm the submission tarball builds and contains every figure the
       sources include.
 
-`prepare_arxiv.sh` was repaired in commit 2299546 to read its own sources and
+`prepare_arxiv.sh` was repaired in commit 17d8e4b to read its own sources and
 verify what it packs. Re-run it after any B1 conversion, since a class change
 alters which files the build touches.
 

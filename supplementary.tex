@@ -21,6 +21,12 @@
 \maketitle
 
 \section*{Overview}
+% Supplement floats carry an S prefix so they cannot be confused with the
+% main article's Figure 1-4 / Table 1. Placed here rather than beside the
+% first float so it also applies when prepare_arxiv.sh merges this file in
+% as an appendix, which copies from this marker onward.
+\renewcommand{\thefigure}{S\arabic{figure}}
+\setcounter{figure}{0}
 This document supplies the formal constructions, numerical methods and exploratory EEG analysis for the conditional field model in the main article. Mathematical results are distinguished from model assumptions and physical identifications. The Lean development uses only its library's foundational axioms; physical postulates are hypotheses or fields of models with explicit witnesses. The soundness section below explains why an unrestricted postulate about model-dependent quantities can be inconsistent. Source code and saved simulation summaries are maintained at \url{https://github.com/bobaseb/coupling_gated_cortical_coherence}.
 
 \section{Symmetry Breaking and the Emergence of Boundaries}

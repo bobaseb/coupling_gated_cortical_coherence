@@ -65,6 +65,15 @@ To ensure our derivations are mathematically rigorous and avoid "math theatre," 
 | 🔹 **Phase 6** | `Phase6_ReflexiveTopology.lean` | ✅ Verified |
 | 🔹 **Phase 7** | `Phase7_HardwareComparison.lean` | ✅ Verified |
 | 🔹 **Phase 8** | `Phase8_ContinuousField.lean` | ✅ Verified |
+| 🔹 **Phase 9** | `Phase9_EMIdentification.lean` | ✅ Verified |
+| ⛓️ **Composition** | `Chain.lean` | ✅ Verified |
+
+The table names one representative module per phase; the development is 27
+modules in total, and `Chain.lean` is the one that matters most — it imports all
+nine phases and states the single conditional theorem, with the eight
+connecting hypotheses as explicit arguments. `Examples.lean` carries the toy
+witness that satisfies all eight at once, which is what makes the conjunction
+non-empty rather than vacuous.
 
 ### 🚀 Building the Proofs
 
@@ -79,6 +88,24 @@ cd coupling_gated_cortical_coherence
 lake build
 ```
 
+### 🐍 Simulations and tests
+
+The numerical controls, the exploratory EEG analysis and the repository's own
+gate scripts live under `simulations/`, managed with
+[uv](https://docs.astral.sh/uv/):
+
+```bash
+cd simulations
+uv sync --group dev
+uv run pytest
+```
+
+Published values are not recomputed at build time: each simulation writes a
+saved summary, and the manuscript reads only the LaTeX macros generated from
+those summaries, so a quoted number cannot drift from the run that produced it.
+See [`simulations/README.md`](simulations/README.md) for the gate scripts and
+the data policy.
+
 ## 📝 Manuscript
 
 The manuscript and supplementary materials are written in LaTeX and compiled using `pdflatex`:
@@ -92,7 +119,15 @@ A third document is a companion rather than part of the publication:
 
 ## 🤖 AI Assistance
 
-The conceptualization, manuscript drafting, and Lean 4 formalizations in this project were heavily AI-assisted. We gratefully acknowledge the use of **the Google Antigravity CLI**, specifically utilizing **Gemini 3.1**, **Claude 4.6 Opus**, and **Claude 4.6 Sonnet** as pair-programming and reasoning partners throughout the research process.
+This project was heavily AI-assisted, across the Lean 4 development, the simulation and analysis code, and the drafting and revision of the manuscript and supplement. Several assistants were used in an interleaved way throughout:
+
+- **Google Antigravity CLI** — Gemini 3.1, Claude 4.6 Opus, Claude 4.6 Sonnet
+- **OpenAI Codex CLI** — Astra, Terra, Luna, Sol
+- **Claude Code** — Claude Opus 5
+- **Gemini Pro**, through its web interface
+- **Claude Opus 4**, through OpenRouter
+
+Because they were used in combination and in alternation, no file, proof, figure or result is attributable to any one of them, and none is claimed to be. The author is responsible for all content, including everything a tool produced. Machine checking establishes the stated Lean results under their hypotheses; it does not validate the biological interpretation, and it does not replace scientific review of generated code and prose.
 
 ## 📄 License
 
