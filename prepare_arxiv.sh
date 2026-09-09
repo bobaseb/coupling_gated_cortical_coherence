@@ -1,12 +1,15 @@
 #!/bin/bash
 # Build the arXiv submission from the manuscript sources.
 #
-# Two rules keep this from going stale. The file set is *read from the .tex
-# sources* on every run rather than listed here, so a figure added to or dropped
-# from the article needs no edit to this script. And the assembled document is
-# compiled before it is packed, with any LaTeX error, missing graphic, or
-# undefined reference or citation failing the build -- a tarball that does not
-# compile is never written.
+# Four rules keep this from going stale or shipping something broken. The file
+# set is *read from the .tex sources* on every run rather than listed here, so a
+# figure added to or dropped from the article needs no edit to this script. Every
+# edit this script makes to the sources is checked to have applied, because a sed
+# that silently matches nothing produces a document that still compiles and is no
+# longer the one intended. The tarball is packed from the files actually copied,
+# not from a hardcoded list that can omit one. And the assembled document is
+# compiled *from the unpacked tarball*, so a file missing from the archive fails
+# the build here rather than on arXiv's.
 #
 # Layout: the `simulations/` subtree is reproduced rather than flattened, so
 # main.tex's own \graphicspath and \input paths resolve unchanged and no path
@@ -21,14 +24,35 @@ cd "$ROOT"
 rm -rf "$OUT"
 mkdir -p "$OUT/simulations"
 
+# Every repository file that goes into the submission, recorded as it is copied.
+# The manifest written at the end is built from this, and so is the tar command:
+# a file that is copied is packed, and one that is not copied is not silently
+# expected to be there.
+sources=(prepare_arxiv.sh)
+
+copy_in() {  # copy_in <repo-relative path> [destination directory]
+  local src="$1" dest="${2:-$OUT}"
+  mkdir -p "$dest"
+  cp "$src" "$dest/"
+  sources+=("$src")
+}
+
 # 1. Sources and the generated macro files the article \inputs.
-cp main.tex supplementary.tex references.tex "$OUT/"
-cp simulations/fermi_params.tex simulations/simulation_results.tex "$OUT/simulations/"
-cp arxiv_assets/neurips_2026.sty "$OUT/"
+for f in main.tex supplementary.tex references.tex; do copy_in "$f"; done
+for f in simulations/fermi_params.tex simulations/simulation_results.tex; do
+  copy_in "$f" "$OUT/simulations"
+done
+copy_in arxiv_assets/neurips_2026.sty
 
 # 2. Figures, resolved the way \graphicspath{{simulations/}{./}} resolves them.
-#    A reference with no source file on disk is an error, not a warning.
+#    A reference with no source file on disk is an error, not a warning. So is
+#    the same file printed twice: main.tex and supplementary.tex are one
+#    document after the merge below, and a figure both of them include is
+#    printed twice in the submitted PDF under two numbers. The two spellings
+#    need not match -- the article reaches a figure through \graphicspath and
+#    the supplement spells the path out -- so the check is on the resolved file.
 missing=0
+declare -a figures=()
 while IFS= read -r fig; do
   src=""
   for prefix in "" "simulations/"; do
@@ -39,12 +63,23 @@ while IFS= read -r fig; do
     missing=1
     continue
   fi
-  mkdir -p "$OUT/$(dirname "$src")"
-  cp "$src" "$OUT/$src"
-  echo "  figure: $src"
+  figures+=("$src")
 done < <(grep -ho '\\includegraphics\(\[[^]]*\]\)\?{[^}]*}' main.tex supplementary.tex |
-         sed 's/.*{//; s/}$//' | sort -u)
+         sed 's/.*{//; s/}$//')
 [ "$missing" -eq 0 ] || { echo "prepare_arxiv: figure references unresolved" >&2; exit 1; }
+
+repeated="$(printf '%s\n' "${figures[@]}" | sort | uniq -d)"
+if [ -n "$repeated" ]; then
+  echo "prepare_arxiv: these figures are printed more than once in the merged document:" >&2
+  printf '  %s\n' "$repeated" >&2
+  echo "prepare_arxiv: point at the one printing with \\ref instead (AGENTS.md section 7)" >&2
+  exit 1
+fi
+
+while IFS= read -r src; do
+  copy_in "$src" "$OUT/$(dirname "$src")"
+  echo "  figure: $src"
+done < <(printf '%s\n' "${figures[@]}" | sort -u)
 
 cd "$OUT"
 
@@ -54,17 +89,48 @@ cd "$OUT"
 #    discarded by the merge below while its Table S1 still needs the package.
 # \pdfoutput=1 on the first line tells arXiv to run pdflatex rather than
 # guessing from the file set.
-sed -i 's/\\documentclass\[12pt\]{article}/\\pdfoutput=1\n\\documentclass{article}\n\\usepackage[preprint]{neurips_2026}\n\\usepackage{longtable}/' main.tex
-sed -i '/\\usepackage\[round\]{natbib}/d' main.tex
-sed -i '/\\doublespacing/d' main.tex
-sed -i '/^\\date{/d' main.tex
-sed -i '/\\usepackage{lineno}/d' main.tex
-sed -i '/^\\linenumbers$/d' main.tex
+#
+# Each edit is checked to have changed the file. A sed whose pattern no longer
+# matches is the failure this script cannot otherwise see: the document still
+# compiles, and it is the wrong document -- unstyled, double-spaced, or carrying
+# line numbers into a posted preprint.
+edit() {  # edit <description> <sed expression>
+  local what="$1" expression="$2" before
+  before="$(sha256sum main.tex | cut -d' ' -f1)"
+  sed -i "$expression" main.tex
+  if [ "$before" = "$(sha256sum main.tex | cut -d' ' -f1)" ]; then
+    echo "prepare_arxiv: '$what' changed nothing -- main.tex no longer matches this script" >&2
+    exit 1
+  fi
+}
+
+edit "apply the NeurIPS style" 's/\\documentclass\[12pt\]{article}/\\pdfoutput=1\n\\documentclass{article}\n\\usepackage[preprint]{neurips_2026}\n\\usepackage{longtable}/'
+edit "drop the article's own natbib" '/\\usepackage\[round\]{natbib}/d'
+edit "drop double spacing"           '/\\doublespacing/d'
+edit "drop the date"                 '/^\\date{/d'
+edit "drop the lineno package"       '/\\usepackage{lineno}/d'
+edit "drop \\linenumbers"            '/^\\linenumbers$/d'
 
 # 4. Merge the supplement in as an appendix. Its preamble is dropped, and so is
 #    its own \input{references}: the merged document has one bibliography.
+#    Copying from the \section*{Overview} marker is what carries the S-prefix
+#    renumbering that sits just after it, so both the marker and the renumbering
+#    are checked to have survived: without them the supplement's floats continue
+#    the article's numbering and every "Table S1" in the text points at nothing.
 sed -n '/\\section\*{Overview}/,$p' supplementary.tex |
   sed '/\\end{document}/d; /\\input{references}/d' > supp_body.tex
+
+sections_expected="$(grep -c '^\\section' supplementary.tex)"
+sections_merged="$(grep -c '^\\section' supp_body.tex || true)"
+if [ "$sections_merged" != "$sections_expected" ]; then
+  echo "prepare_arxiv: the appendix merge captured $sections_merged of $sections_expected sections" >&2
+  echo "prepare_arxiv: supplementary.tex's \\section*{Overview} marker moved or was renamed" >&2
+  exit 1
+fi
+grep -q 'renewcommand{\\thefigure}{S' supp_body.tex || {
+  echo "prepare_arxiv: the merged appendix does not renumber its figures with an S prefix" >&2
+  exit 1
+}
 
 end_line=$(grep -n '^\\end{document}' main.tex | head -1 | cut -d: -f1)
 {
@@ -80,31 +146,67 @@ grep -v '^%' merged.tex > final_main.tex
 mv final_main.tex main.tex
 rm -f supp_body.tex merged.tex supplementary.tex
 
-# 5. Compile what is about to be shipped, and refuse to ship it if it is broken.
-echo "prepare_arxiv: verifying the assembled document compiles"
-for pass in 1 2 3; do
-  pdflatex -interaction=nonstopmode -file-line-error main.tex > "pass$pass.out" 2>&1 || true
-done
+# 5. Pack the sources: main.tex as merged above, and everything copied in that
+#    the merged document still reads. supplementary.tex is gone, absorbed.
+declare -a packed=(main.tex)
+while IFS= read -r src; do
+  case "$src" in
+    main.tex|supplementary.tex|prepare_arxiv.sh) continue ;;
+    arxiv_assets/*) packed+=("$(basename "$src")") ;;
+    *) packed+=("$src") ;;
+  esac
+done < <(printf '%s\n' "${sources[@]}" | sort -u)
+
+rm -f ./*.aux ./*.log ./*.out ./*.toc
+tar -czf ax.tar.gz "${packed[@]}"
+
+# 6. Compile what is about to be shipped, from the unpacked archive and nothing
+#    else. Compiling in place would pass on a file that exists in this directory
+#    and is missing from the tarball, which is the one failure a local build
+#    cannot distinguish from success.
+echo "prepare_arxiv: verifying the packed submission compiles"
+verify="$(mktemp -d)"
+trap 'rm -rf "$verify"' EXIT
+tar -xzf ax.tar.gz -C "$verify"
+(
+  cd "$verify"
+  for pass in 1 2 3; do
+    pdflatex -interaction=nonstopmode -file-line-error main.tex > "pass$pass.out" 2>&1 || true
+  done
+)
 
 fail=0
 check() {  # check <description> <grep-pattern>
-  if grep -qE "$2" main.log; then
+  if grep -qE "$2" "$verify/main.log"; then
     echo "prepare_arxiv: $1" >&2
-    grep -E "$2" main.log | head -5 >&2
+    grep -E "$2" "$verify/main.log" | head -5 >&2
     fail=1
   fi
 }
 check "LaTeX errors in the assembled document" '^(\./)?[^ ]*:[0-9]+: |^! '
 check "undefined references"                   'LaTeX Warning: Reference .* undefined'
 check "undefined citations"                    'LaTeX Warning: Citation .* undefined'
-[ -f main.pdf ] || { echo "prepare_arxiv: no main.pdf produced" >&2; fail=1; }
-[ "$fail" -eq 0 ] || { echo "prepare_arxiv: NOT packing a broken submission" >&2; exit 1; }
+check "missing graphics"                       'File .* not found'
+[ -f "$verify/main.pdf" ] || { echo "prepare_arxiv: no main.pdf produced" >&2; fail=1; }
+[ "$fail" -eq 0 ] || { echo "prepare_arxiv: NOT shipping a broken submission" >&2; exit 1; }
 
+cp "$verify/main.pdf" main.pdf
 pages=$(pdfinfo main.pdf | awk '/^Pages:/{print $2}')
-echo "prepare_arxiv: compiled cleanly, $pages pages"
+echo "prepare_arxiv: compiled cleanly from the tarball, $pages pages"
 
-# 6. Pack the sources. Build artifacts stay out of the tarball.
-rm -f ./*.aux ./*.log ./*.out ./*.toc
-tar -czf ax.tar.gz main.tex references.tex neurips_2026.sty simulations
+# 7. Record what this was built from. arxiv_submit/ is not tracked, so nothing
+#    else can tell whether the directory sitting here is the current manuscript
+#    or last week's; check_arxiv_freshness.py answers that from this file.
+{
+  printf '# arXiv submission built %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  printf '# from commit %s%s\n' \
+    "$(git -C "$ROOT" rev-parse --short HEAD)" \
+    "$(git -C "$ROOT" diff --quiet HEAD 2>/dev/null || echo ' (working tree modified)')"
+  printf '# regenerate with ./prepare_arxiv.sh\n'
+  printf '%s\n' "${sources[@]}" | sort -u | while IFS= read -r src; do
+    sha256sum "$ROOT/$src" | sed "s| .*| $src|"
+  done
+} > BUILD_MANIFEST
+
 echo "prepare_arxiv: $OUT/ax.tar.gz is ready"
 tar -tzf ax.tar.gz

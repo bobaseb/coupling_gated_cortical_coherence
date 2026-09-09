@@ -41,6 +41,16 @@ class DependencyTest(unittest.TestCase):
 
         self.assertEqual(check_pdf_freshness.dependencies(primer), {macros.resolve()})
 
+    def test_external_documents_are_followed(self) -> None:
+        """The supplement reads the article's numbering, so the article is a source of it."""
+        main = self.write("main.tex", "\\input{shared}\n")
+        shared = self.write("shared.tex", "macros\n")
+        supplement = self.write("supplementary.tex", "\\usepackage{xr}\n\\externaldocument{main}\n")
+
+        self.assertEqual(
+            check_pdf_freshness.dependencies(supplement), {main.resolve(), shared.resolve()}
+        )
+
     def test_figures_resolve_through_graphicspath(self) -> None:
         figure = self.write("figures/plot.png", "not really a png")
         tex = self.write(

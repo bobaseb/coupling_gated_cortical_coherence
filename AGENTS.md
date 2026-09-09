@@ -59,3 +59,45 @@ The rule exists for the same reason the development declares no axioms: a constr
 - **The gate:** `simulations/check_pdf_freshness.py`, wired into `.pre-commit-config.yaml` as `check-pdf-freshness`. It derives each PDF's dependency set from the sources on every run — transitive `\input`s and every figure, resolved through `\graphicspath` — so a figure added to the article needs no edit to the script, on the same principle as `prepare_arxiv.sh`. A commit that stages any of those sources without the PDF fails. Rebuild is two `pdflatex` passes; the second resolves the table of contents and cross-references the first one wrote.
 - **The advisory half.** `docs/primer.tex` is a companion document, not part of the publication, and it goes stale in a second way: when the manuscript's *content* moves and the primer's explanation of it does not. That has no yes/no answer, so a commit that changes `main.tex` or `supplementary.tex` and leaves the primer untouched is reported and passes, in the manner of `check-hedging`.
 - **Naming.** The primer refers to the work as "the manuscript" or "the framework" and defines no acronym for the title. An abbreviation of a title is a second place the title lives, and it is the one nobody updates when the title changes.
+
+## 7. The arXiv Submission Is One Document
+
+`main.tex` and `supplementary.tex` are two documents on this machine and one
+document on arXiv: `prepare_arxiv.sh` merges the supplement in as an appendix,
+applies the NeurIPS style, packs the sources and compiles the result. Three
+failure modes are invisible from either source file, so three gates read the
+assembled submission rather than the files it is assembled from.
+
+- **No figure is printed twice.** A figure both files include appears twice in
+  the submitted PDF, under two numbers, with two captions and no cross reference
+  between them. The two spellings need not match — the article reaches a figure
+  through `\graphicspath` and the supplement spells the path out — so the rule is
+  about the resolved file. Keep the printing in the document that argues from it
+  and point at it from the other: `\usepackage{xr}` and `\externaldocument{main}`
+  in the supplement's preamble make `\ref{fig:resonance}` resolve to the
+  article's numbering, and the merged document resolves the same label natively.
+  A number written by hand is a second place the numbering lives, and it is the
+  one nobody updates. **The gate:** `simulations/check_figures.py`, as
+  `check-figures`.
+- **A built submission is never behind the manuscript.** `arxiv_submit/` is not
+  tracked, so no diff shows it going stale, and the person who discovers it is
+  the person uploading it. `prepare_arxiv.sh` records the digest of every source
+  it packed in `arxiv_submit/BUILD_MANIFEST`; the gate recomputes them and
+  re-derives the source set from the `.tex` files, so an added figure is caught
+  as well as a changed one. The escape hatch is to have no built submission
+  rather than a stale one: `rm -rf arxiv_submit` passes. **The gate:**
+  `simulations/check_arxiv_freshness.py`, as `check-arxiv-freshness`.
+- **The script fails loudly or not at all.** `prepare_arxiv.sh` edits the sources
+  it copies, and a `sed` that matches nothing produces a document that still
+  compiles and is no longer the one intended — unstyled, double-spaced, or
+  carrying line numbers into a posted preprint. Every edit is checked to have
+  changed the file, the appendix merge is checked to have captured every section
+  and the S-prefix renumbering, the tarball is packed from the files actually
+  copied rather than a hardcoded list, and the submission is compiled *from the
+  unpacked tarball*, so a file missing from the archive fails here rather than on
+  arXiv's build.
+
+The preprint notice in `arxiv_assets/neurips_2026.sty` reads "Preprint." and not
+the upstream "Preprint. Under review.": posting to arXiv is not a submission to
+anywhere, and the footer of page 1 is not the place to imply one. Local
+modifications to that vendored style are listed in its header comment.

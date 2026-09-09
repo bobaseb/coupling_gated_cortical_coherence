@@ -88,6 +88,26 @@ repos:
         pass_filenames: false
         verbose: true
 
+      # One document on arXiv: prepare_arxiv.sh merges the supplement into the
+      # article as an appendix, so a figure both files include is printed twice
+      # in the submitted PDF under two numbers. Neither source file can see it.
+      - id: check-figures
+        name: no figure is printed twice
+        entry: bash -c 'cd simulations && uv run python check_figures.py'
+        language: system
+        files: ^(main|supplementary)\.tex$
+        pass_filenames: false
+
+      # The uploaded artifact is arxiv_submit/, which is not tracked, so no diff
+      # ever shows it going stale. Passes when there is no built submission --
+      # the escape hatch is `rm -rf arxiv_submit`, not a stale directory.
+      - id: check-arxiv-freshness
+        name: the built arxiv submission matches the manuscript
+        entry: bash -c 'cd simulations && uv run python check_arxiv_freshness.py'
+        language: system
+        files: \.(tex|png|sty|sh)$
+        pass_filenames: false
+
       # Leaf detector: every phase module must have at least one theorem
       # consumed outside itself and Examples.lean. Runs on any Lean file change.
       - id: check-leaves

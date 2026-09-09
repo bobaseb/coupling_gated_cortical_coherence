@@ -9,6 +9,12 @@
 \usepackage{setspace}
 \usepackage{hyperref}
 \usepackage[round]{natbib}
+% Figure and table numbers of the main article are read from main.aux rather
+% than written by hand, so renumbering there cannot leave a wrong pointer
+% here. Build main.tex first. prepare_arxiv.sh discards this preamble, and
+% the merged document resolves the same labels natively.
+\usepackage{xr}
+\externaldocument{main}
 \input{simulations/simulation_results}
 \input{simulations/fermi_params}
 \geometry{a4paper, margin=1in}
@@ -248,7 +254,7 @@ The table below is the claim-by-claim map, kept here rather than in the main
 text. It is here because it is a reference rather than an argument: each row names
 the Lean identifier that carries a claim and states the scope limitation of that
 identifier, and no step of the main text depends on the reader working through it.
-Figure~4 and Table~1 in the main text give the eight connecting hypotheses, their kinds and their statements; the present table records node-level results and their implementation scope.
+Figure~\ref{fig:chain} and Table~\ref{tab:summary} in the main text give the eight connecting hypotheses, their kinds and their statements; the present table records node-level results and their implementation scope.
 
 \begingroup
 \scriptsize
@@ -384,25 +390,19 @@ a property of this pairing of objective and template. The squared-drift
 objective includes the drive and fluctuating relative drift; it is not a
 thermodynamic entropy-production estimate, which would require
 probability-current information.
+The four panels of Figure~\ref{fig:resonance} in the main article are these
+trajectories: the dissipation function, smoothed over 21 saved samples, against
+the $N\langle\omega\rangle^2/D$ floor; the order parameter against the
+$1/\sqrt{N}$ reference; the within-over-between coupling ratio against the
+no-preference line at unity; and the distances to the cluster template and to its
+node-label shuffle, which grow together as the kernel norm grows. Only the
+gradient arm descends the objective, and only it loses cluster alignment; these
+diagnostics provide no evidence of structural resonance or a thermodynamic
+entropy-production rate.
+
 These finite trajectories establish neither stationarity of the adaptive
 process nor noiseless phase locking, and do not discharge the E45 modelling
 assumption or extend the fixed-phase descent theorem.
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=0.85\linewidth]{simulations/figures/structural_resonance/joint_dynamics.png}
-\caption{Joint fast/slow dynamics in three finite seeded runs, three arms each:
-gradient (solid), matched-norm random step (dash-dotted), frozen kernel (dashed).
-First: dissipation function, smoothed over 21 saved samples, against the
-$N\langle\omega\rangle^2/D$ floor the conserved mean drift imposes. Second: order
-and the $1/\sqrt{N}$ reference. Third: mean within-cluster over mean
-between-cluster coupling, with the no-preference line at unity. Fourth:
-distances to the cluster template (solid) and its node-label shuffle (dotted),
-which grow together as the kernel norm grows. Only the gradient arm descends the
-objective, and only it loses cluster alignment; these diagnostics provide no
-evidence of structural resonance or a thermodynamic entropy-production rate.}
-\end{figure}
-
 \section{The cortical field identification}
 
 The framework identifies its posited continuum coupling kernel with the endogenous electromagnetic field of mammalian cortex. This is a claim about biology, not a consequence of any theorem above it.

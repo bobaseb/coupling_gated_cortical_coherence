@@ -61,6 +61,12 @@ SUFFIXES: tuple[str, ...] = ("", ".tex", ".png", ".pdf")
 
 _COMMENT = re.compile(r"(?<!\\)%.*$", re.MULTILINE)
 _INPUT = re.compile(r"\\(?:input|include)\{([^}]*)\}")
+# xr's cross-document link: the supplement reads the main article's numbering out
+# of its .aux, so a change that renumbers the article leaves the supplement's
+# pointers into it stale. The .aux is a build artifact and not a source; the
+# source it is built from is the .tex of the same name, which is what this
+# resolves to.
+_EXTERNAL = re.compile(r"\\externaldocument(?:\[[^\]]*\])?\{([^}]*)\}")
 _GRAPHICS = re.compile(r"\\includegraphics(?:\[[^\]]*\])?\{([^}]*)\}")
 _GRAPHICSPATH = re.compile(r"\\graphicspath\{((?:\{[^{}]*\})+)\}")
 _BRACED = re.compile(r"\{([^{}]*)\}")
@@ -131,7 +137,7 @@ def dependencies(tex: Path) -> set[Path]:
     while pending:
         current = pending.pop()
         text = _read(current)
-        for name in _INPUT.findall(text):
+        for name in _INPUT.findall(text) + _EXTERNAL.findall(text):
             child = _resolve(name, [current.parent])
             if child is not None and child not in found:
                 found.add(child)
@@ -141,6 +147,32 @@ def dependencies(tex: Path) -> set[Path]:
             if figure is not None:
                 found.add(figure)
     return found
+
+
+def figure_uses(tex: Path) -> list[Path]:
+    """Every figure *tex* prints, resolved, one entry per \\includegraphics.
+
+    Repeats are kept and the transitive ``\\input``s are followed, because the
+    question this answers is how many times a figure is *printed*, not which
+    figures a document depends on. ``\\externaldocument`` is not followed: the
+    other document's figures are printed by that document, not by this one.
+    """
+    uses: list[Path] = []
+    seen: set[Path] = set()
+    pending = [tex]
+    while pending:
+        current = pending.pop()
+        text = _read(current)
+        for name in _INPUT.findall(text):
+            child = _resolve(name, [current.parent])
+            if child is not None and child not in seen:
+                seen.add(child)
+                pending.append(child)
+        for name in _GRAPHICS.findall(text):
+            figure = _resolve(name, _graphics_dirs(text, current.parent))
+            if figure is not None:
+                uses.append(figure)
+    return uses
 
 
 def document_sources(root: Path) -> dict[str, set[str]]:
