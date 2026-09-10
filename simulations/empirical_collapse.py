@@ -25,6 +25,9 @@ SUBJECT = "1016"
 # Local cache directory for downloaded EEG files (avoids re-download)
 CACHE_DIR = os.path.join(os.path.dirname(__file__), "cache_ds005620")
 
+# Anchored on this file, not the working directory: simulations/README.md.
+FIGURES = os.path.join(os.path.dirname(__file__), "figures")
+
 # Recording blocks: (task, acquisition, runs)
 BLOCKS: list[tuple[str, str, int, str]] = [
     # (task, acquisition, run, label)
@@ -538,7 +541,7 @@ def compute_window_sensitivity(
 
 
 def make_window_sensitivity_figure(
-    rows: list[WindowSensitivity], out: str = "figures/window_sensitivity.png"
+    rows: list[WindowSensitivity], out: str = os.path.join(FIGURES, "window_sensitivity.png")
 ) -> None:
     """Plot mean collapse residual against the pooling-window duration."""
     fig, ax = plt.subplots(figsize=(6.4, 4.2))
@@ -629,7 +632,7 @@ def tangent_separation(
 
 def make_figure(
     traces: dict[str, tuple[np.ndarray, np.ndarray]],
-    out_path: str = "figures/empirical_collapse.png",
+    out_path: str = os.path.join(FIGURES, "empirical_collapse.png"),
 ) -> None:
     """Produce the two-panel (a, r) collapse figure.
 
@@ -720,7 +723,7 @@ def run_montage_comparison(
     acq: str = "rest",
     run: int = 1,
     max_seconds: float = 20.0,
-    out: str = "figures/montage_comparison.png",
+    out: str = os.path.join(FIGURES, "montage_comparison.png"),
 ) -> None:
     """Compare (a, r) traces across montages on one block.
 
@@ -886,7 +889,7 @@ def run_band_comparison(
     run: int = 1,
     max_seconds: float = 20.0,
     bands: list[str] | None = None,
-    out: str = "figures/band_comparison.png",
+    out: str = os.path.join(FIGURES, "band_comparison.png"),
 ) -> None:
     """Compare (a, r) across frequency bands for one block.
 
@@ -1103,7 +1106,7 @@ def run_estimator_validation() -> None:
     print("\nPASS — the collapse test discriminates.")
 
 
-def run_synthetic(out: str = "figures/synthetic_collapse.png") -> None:
+def run_synthetic(out: str = os.path.join(FIGURES, "synthetic_collapse.png")) -> None:
     """Run the full pipeline on synthetic von Mises data to validate a-recovery."""
     print("─" * 60)
     print("Synthetic (a, r) Collapse — Validation")
@@ -1294,7 +1297,7 @@ def run_multi_subject(
     acq: str = "rest",
     run: int = 1,
     max_seconds: float = 20.0,
-    out: str = "figures/cross_subject_collapse.png",
+    out: str = os.path.join(FIGURES, "cross_subject_collapse.png"),
 ) -> None:
     """Compute (a, r) across subjects for one common block and aggregate."""
     print("─" * 60)

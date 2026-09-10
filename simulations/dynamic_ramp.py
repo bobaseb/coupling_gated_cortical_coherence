@@ -22,6 +22,9 @@ from numpy.typing import NDArray
 
 FloatArray = NDArray[np.float64]
 
+# Anchored on this file, not the working directory: simulations/README.md.
+FIGURES = Path(__file__).resolve().parent / "figures"
+
 
 @dataclass(frozen=True)
 class RampConfig:
@@ -352,7 +355,7 @@ def main() -> None:
         config = production_config(args.speed, args.seed, args.n_oscillators)
         checkpoint = args.checkpoint
         if checkpoint is None:
-            checkpoint = Path("figures") / f"dynamic_ramp_v{args.speed:.0e}.npz"
+            checkpoint = FIGURES / f"dynamic_ramp_v{args.speed:.0e}.npz"
         checkpoint_result = run_checkpointed(
             config,
             checkpoint,

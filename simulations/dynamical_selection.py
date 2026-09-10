@@ -24,6 +24,9 @@ from bifurcation import coherent_r
 
 FloatArray = NDArray[np.float64]
 
+# Anchored on this file, not the working directory: simulations/README.md.
+FIGURES = Path(__file__).resolve().parent / "figures"
+
 # Growth-fit window, stated relative to the two scales that bound it: the
 # finite-size floor 1/sqrt(N) below and the static coherent branch above.
 _FLOOR_MULTIPLE = 2.0
@@ -410,7 +413,7 @@ def _save_summary(output: Path, config: SelectionConfig, summary: ExperimentSumm
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--smoke", action="store_true")
-    parser.add_argument("--output", type=Path, default=Path("figures/dynamical_selection"))
+    parser.add_argument("--output", type=Path, default=FIGURES / "dynamical_selection")
     return parser.parse_args()
 
 

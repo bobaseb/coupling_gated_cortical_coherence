@@ -23,7 +23,8 @@ from dynamic_ramp_analysis import (
 
 
 FloatArray = NDArray[np.float64]
-FIGURE_DIR = Path("figures")
+# Anchored on this file, not the working directory: simulations/README.md.
+FIGURE_DIR = Path(__file__).resolve().parent / "figures"
 SPEEDS = (0.1, 0.01, 0.001, 0.0001)
 ESCAPE_LEVEL = 0.2
 SUSTAIN = 3

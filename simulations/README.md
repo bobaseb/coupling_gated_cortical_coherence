@@ -26,8 +26,9 @@ uv sync --group dev
 uv run pytest
 ```
 
-80 tests, no production sweep among them; they exercise the estimators,
-analysis and report generators on small fixtures and run in well under a minute.
+119 tests, no production sweep among them; they exercise the estimators,
+analysis and report generators on small fixtures and run in about a minute and a
+half.
 
 ## Repository gates
 
@@ -61,10 +62,35 @@ already had in prose:
 `exact = true`, so an import no rule permits fails the commit and so does a rule
 no import uses — the file cannot drift from the code in either direction.
 
-
 ## Data
 
 The exploratory EEG analysis uses OpenNeuro dataset
 [ds005620](https://openneuro.org/datasets/ds005620). Recordings are cached to
 `cache_ds005620/`, which is git-ignored: this repository carries the analysis,
 not the raw human recordings, and does not redistribute them.
+
+## Outputs
+
+Everything a run writes under `figures/` is tracked — the `.npz` checkpoints as
+well as the `summary.json`, the `REPORT.md` and the figures built from them. The
+checkpoints are what `simulation_tex.py` reads to generate the publication
+macros, so a summary without the run behind it would leave a quoted number with
+nothing to recompute it from. The cost is a repository that grows by the size of
+each sweep; that is the trade this project makes deliberately, and it is why the
+EEG cache above is the one output that is *not* tracked.
+
+The practical consequence is that `git status` is the record of whether a sweep
+finished. A run that leaves untracked files under `figures/` is a run whose
+artifacts have not been committed yet, not a run whose artifacts do not belong.
+
+Output paths are addressed from the module file, never from the working
+directory:
+
+```python
+FIGURES = Path(__file__).resolve().parent / "figures"
+```
+
+A path relative to the working directory fails silently rather than loudly — a
+sweep started from anywhere but this directory writes a fresh, empty `figures/`
+tree beside itself, and the report generator that reads the real one afterwards
+finds nothing, or finds last week's run.

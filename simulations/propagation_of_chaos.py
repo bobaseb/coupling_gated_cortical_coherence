@@ -25,6 +25,9 @@ from bifurcation import bessel_ratio
 
 
 FloatArray = NDArray[np.float64]
+
+# Anchored on this file, not the working directory: simulations/README.md.
+FIGURES = Path(__file__).resolve().parent / "figures"
 Summary = dict[str, object]
 
 
@@ -396,12 +399,12 @@ def write_tex_macros(summary: Summary, output: Path) -> None:
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--smoke", action="store_true")
-    parser.add_argument("--output", type=Path, default=Path("figures/propagation_of_chaos"))
+    parser.add_argument("--output", type=Path, default=FIGURES / "propagation_of_chaos")
     parser.add_argument("--write-tex", type=Path)
     parser.add_argument(
         "--summary",
         type=Path,
-        default=Path("figures/propagation_of_chaos/propagation_of_chaos_summary.json"),
+        default=FIGURES / "propagation_of_chaos" / "propagation_of_chaos_summary.json",
     )
     return parser.parse_args()
 

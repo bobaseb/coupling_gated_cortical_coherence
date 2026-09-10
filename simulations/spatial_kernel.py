@@ -25,8 +25,10 @@ from fermi_estimate_check import FERMI_LAM_MAX, FERMI_LAM_MIN
 FloatArray = NDArray[np.float64]
 IntArray = NDArray[np.int64]
 
-PRODUCTION_OUTPUT = Path("figures/spatial_kernel")
-REFINED_OUTPUT = Path("figures/spatial_kernel_refined")
+# Anchored on this file, not the working directory: simulations/README.md.
+FIGURES = Path(__file__).resolve().parent / "figures"
+PRODUCTION_OUTPUT = FIGURES / "spatial_kernel"
+REFINED_OUTPUT = FIGURES / "spatial_kernel_refined"
 
 
 @dataclass(frozen=True)
