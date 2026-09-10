@@ -6,6 +6,7 @@
 <br />
 
 [![Lean 4 Verified](https://img.shields.io/badge/Lean_4-Verified-27ae60?style=for-the-badge&logo=lean)](https://leanprover.github.io/)
+[![Checks](https://img.shields.io/github/actions/workflow/status/bobaseb/coupling_gated_cortical_coherence/ci.yml?branch=master&style=for-the-badge&label=checks&logo=githubactions&logoColor=white)](https://github.com/bobaseb/coupling_gated_cortical_coherence/actions/workflows/ci.yml)
 [![Status: Preprint](https://img.shields.io/badge/Status-Preprint-f39c12?style=for-the-badge&logo=open-access)](main.pdf)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey?style=for-the-badge)](https://creativecommons.org/licenses/by/4.0/)
@@ -105,6 +106,15 @@ saved summary, and the manuscript reads only the LaTeX macros generated from
 those summaries, so a quoted number cannot drift from the run that produced it.
 See [`simulations/README.md`](simulations/README.md) for the gate scripts and
 the data policy.
+
+### 🔁 Off this machine
+
+Both halves are checked on someone else's computer as well as the author's.
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs the test suite and
+the whole `pre-commit` gate set on every push, and `lake build` against
+Mathlib's prebuilt cache on an x86 runner. The twelve gates are otherwise
+enforced on one machine only, where `git commit -n` can skip every one of
+them.
 
 ## 📝 Manuscript
 

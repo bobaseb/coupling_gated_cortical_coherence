@@ -499,6 +499,35 @@ exchange for a shorter `ls`. What the review did find is below.
 
 ### E1 — Continuous integration, off this machine
 
+**Done 2026-09-10, two stages of the three.** `.github/workflows/ci.yml` runs
+two independent jobs on every push to `master`, on every pull request and on
+demand. The Python job syncs `simulations/` with `uv`, runs `uv run pytest`, and
+then runs `pre-commit run --all-files` — the whole twelve-hook gate set, which
+is the thing nothing outside this machine verified. The Lean job installs elan
+with the toolchain left to `lean-toolchain`, fetches Mathlib's prebuilt cache
+and runs `lake build` on an x86 runner. Checkouts are pinned shallow.
+
+**The `pdflatex` stage is not there, and that is the decision the item left
+open.** The tracked PDFs are rebuilt and committed with their sources
+(`AGENTS.md` §6), so a `.tex` file that does not compile cannot reach `master`
+in the first place; and the document arXiv builds is neither `.tex` file but the
+merged one `prepare_arxiv.sh` assembles and compiles from its own tarball, which
+`check-arxiv-freshness` already forces to be current before an upload. A TeX
+Live install on every push would exercise neither. The reasoning is recorded in
+the workflow's own header comment, where the next person to want the job will
+look.
+
+**What is verified and what is not.** `pre-commit run --all-files` was run
+against the whole tree here and exits 0, and the venv-relative invocation the
+workflow uses is the one that was run. The pinned Mathlib revision was checked
+to be an ancestor of `mathlib4` master, so the prebuilt cache the Lean job
+fetches exists for it. The runner setup itself — `astral-sh/setup-uv`, the elan
+install, `lake exe cache get` — cannot be exercised from here, and
+`lake exe cache get` must not be run on this machine: the local `.lake` was
+built from source for aarch64, and Mathlib's cache is per platform. The first
+push is the first real run of both jobs, and the README badge reports whatever
+that run says.
+
 There is no `.github/`. All twelve gates run only under `pre-commit`, on one
 machine, and `git commit -n` skips every one of them. Nothing verifies
 `lake build`, `uv run pytest` or `pre-commit run --all-files` anywhere else, so

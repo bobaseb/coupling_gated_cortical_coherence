@@ -1,0 +1,95 @@
+# Off-machine verification of the gates this repository already has.
+#
+# Every one of them otherwise runs only under `pre-commit`, on one machine, and
+# `git commit -n` skips all of them. Without this file "reproducible" means
+# "reproducible on the author's Raspberry Pi", which is the one claim the
+# repository cannot check for itself.
+#
+# Two jobs, and deliberately not a third. The Python job needs a checkout and
+# `uv`. The Lean job needs an x86 runner, because Mathlib's prebuilt cache is
+# per toolchain and per platform and building Mathlib from source is not a
+# thing to do on every push. A `pdflatex` stage is not here: the tracked PDFs
+# are rebuilt and committed alongside their sources (`AGENTS.md` section 6), so
+# a source that does not compile cannot reach master, and the document arXiv
+# builds is not either `.tex` file but the merged one `prepare_arxiv.sh`
+# assembles and compiles from its own tarball before an upload. Neither would
+# be exercised by installing TeX Live here. See E1 in `tasks/todo.md`.
+
+name: checks
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: tests and repository gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      # Shallow, and pinned so it stays that way: the working tree carries 248
+      # tracked `.npz` checkpoints and no gate here reads history.
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: simulations/uv.lock
+
+      - name: Sync the environment
+        working-directory: simulations
+        run: uv sync --group dev
+
+      - name: Tests
+        working-directory: simulations
+        run: uv run pytest
+
+      - name: Cache pre-commit hook environments
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      # The whole local gate set at once, which is the thing nothing else
+      # verifies. Two of the twelve hooks report nothing here, by their own
+      # design rather than by accident: `check-pdf-freshness` reads the staged
+      # diff, of which a checkout has none, and `check-arxiv-freshness` passes
+      # when `arxiv_submit/` is absent, which is its documented escape hatch.
+      # The `ruff` hook is allowed to write: a fix it makes is a file this
+      # commit should have carried, and the diff is printed.
+      - name: Repository gates
+        run: simulations/.venv/bin/pre-commit run --all-files --show-diff-on-failure
+
+  lean:
+    name: lake build
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      # `--default-toolchain none` leaves the version to `lean-toolchain`,
+      # which is the file that should decide it.
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o elan-init.sh
+          sh elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Fetch the Mathlib build cache
+        run: lake exe cache get
+
+      - name: Build
+        run: lake build
