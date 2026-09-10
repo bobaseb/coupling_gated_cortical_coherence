@@ -20,6 +20,49 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-10 — Audit remediation, part D: a control matched on deformation
+
+One new control arm. The plasticity run's specificity claim rested on a random
+arm matched to the gradient arm on per-step Frobenius norm, and part B recorded
+that this matches the step size without matching what the steps accumulate: the
+random arm's fresh isotropic draws cancel, leaving it at a kernel norm growth of
+about 1.3 where the gradient arm reaches 12.4 to 14.7. The fourth arm takes the
+gradient step itself under a node relabelling drawn afresh at each update. A
+relabelling is an isometry of the matrix and a bijection of the edges, so the
+step keeps the gradient's norm and the whole multiset of its entries and changes
+only which edges receive them.
+
+Claims that were made and are no longer made:
+
+- That a matched-norm random arm is the control the specificity of the descent
+  needs. It is one of two. The permuted arm reproduces the gradient arm's
+  cumulative kernel deformation (11.4 to 16.3 against 12.4 to 14.7) and its
+  second-half order to three decimals, and neither descends the objective nor
+  loses cluster alignment, so the two controls now separate the step's size, the
+  deformation it accumulates and the direction it points in.
+
+What the new arm shows, none of which reverses a published finding:
+
+- A step of the gradient's magnitude and shape delivered to the wrong edges
+  *raises* the squared-drift objective, by 16 to 33 per cent of the frozen arm's
+  headroom above the drive floor. The random arm's isotropic steps leave it
+  within 2 per cent of the frozen arm; the difference is that the permuted step
+  is structured and consistently mis-targeted rather than self-cancelling.
+- Within-over-between coupling under the permuted arm lands at 0.729 to 1.294,
+  a range that contains the no-preference line and does not overlap the gradient
+  arm's 0.351 to 0.614. Its typical value sits a little under one because with
+  three clusters two thirds of the node pairs are between-cluster, so a dominant
+  edge lands between more often than within.
+- Against 2000 node relabellings the permuted arm's final kernel reaches 0.268
+  to 0.841, at or below the frozen arm's 0.644 to 0.911, where the gradient arm
+  reaches 0.951 to 1.000.
+
+The nine pre-existing runs were reproduced bit-identically by the rerun, the new
+arm drawing from the update stream that the gradient and frozen arms do not
+touch. `tasks/todo.md` carries the prediction registered before the arm was
+implemented, the two designs rejected for failing the matching criterion, and
+the one prediction the run falsified.
+
 ## 2026-09-10 — Audit remediation, parts B and C: the reference and the cause
 
 Eight corrections. Six read a derived quantity out of an artifact the repository

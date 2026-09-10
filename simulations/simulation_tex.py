@@ -260,6 +260,11 @@ _PLASTICITY_RANGES = (
     ("random", "descent_fraction", "RandomDescent"),
     ("random", "tail_alignment_ratio", "RandomRatio"),
     ("random", "kernel_norm_growth", "RandomNormGrowth"),
+    ("permuted", "tail_order", "PermutedOrder"),
+    ("permuted", "descent_fraction", "PermutedDescent"),
+    ("permuted", "tail_alignment_ratio", "PermutedRatio"),
+    ("permuted", "kernel_norm_growth", "PermutedNormGrowth"),
+    ("permuted", "permutation_percentile", "PermutedPercentile"),
     ("frozen", "tail_dissipation", "FrozenDissipation"),
     ("frozen", "permutation_percentile", "FrozenPercentile"),
 )

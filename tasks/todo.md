@@ -421,7 +421,7 @@ interesting one and must not be presented as a failure of the run.
 
 ### D1 — A plasticity control matched on cumulative deformation
 
-- [ ] B6 records that the matched-norm random arm ends 10× less deformed than
+- [x] B6 records that the matched-norm random arm ends 10× less deformed than
       the gradient arm, so it does not control for the sparsification channel.
       A control that does would fix a random symmetric direction once per seed
       and take persistent steps along it, or rescale the random step so that
@@ -436,6 +436,26 @@ within-over-between ratio below 1, because only the gradient direction is
 correlated with the drift-equalising structure. If it does drive the ratio down,
 the published claim narrows to a statement about sparsification under a fixed
 resource total, and that must be reported rather than absorbed.
+
+**Prediction registered 2026-09-10, before the arm was implemented or run.**
+Whatever the fourth arm's direction, under the conservation argument:
+
+1. `kernel_norm_growth` lands with the gradient arm's 12.4--14.7 and not with
+   the random arm's 1.29--1.31. That is the matching criterion the arm exists
+   to meet, and an arm that misses it is the wrong arm.
+2. `descent_fraction` stays near zero, as the random arm's -0.017--(-0.010)
+   does. Only the gradient direction lowers the objective.
+3. `tail_alignment_ratio` stays at 1 within fluctuation, and does **not** fall
+   to the gradient arm's 0.35--0.61. A direction drawn independently of the
+   labels is uncorrelated with the cluster indicator, so sparsifying along it
+   removes within- and between-cluster mass in proportion.
+4. `permutation_percentile` sits at or below the frozen arm's 0.64--0.91 band
+   rather than at the gradient arm's 0.95--1.00.
+
+The discriminating prediction is 1 together with 3: same deformation, no loss of
+alignment. If 3 fails — if a label-blind direction of the same cumulative
+deformation also drives the ratio below 1 — then the published claim narrows to
+sparsification under a fixed resource total, and the manuscript says so.
 
 **Scope:** this does not bear on the conservation-law argument
 ($\sum_i v_i$ is conserved under symmetric coupling, so minimising $\sum_i v_i^2$
@@ -914,3 +934,89 @@ tarball at 44 pages.
 
 **Scope.** No number, figure, proof or claim changes. No production sweep was
 rerun and none needed to be.
+
+### 2026-09-10 — D1 (a plasticity control matched on deformation)
+
+**Prediction first.** The four numbered predictions above were written into this
+file and committed before any arm was implemented. Result: 1, 3 and 4 hold; 2 is
+false in a direction worth reporting.
+
+**Three designs, screened on the matching criterion.** The criterion is
+`kernel_norm_growth`, which the gradient arm carries to 12.4--14.7 and the
+existing random arm to 1.29--1.31. Screening measured deformation and order
+only.
+
+1. *One symmetric Gaussian direction fixed per seed, stepped at the gradient's
+   norm.* Reaches 1.66 at the production seed and stops there. A single
+   direction can zero only the edges it points at once; after that the clip is
+   already saturated and the kernel sits at a fixed point. Rejected.
+2. *The isotropic random step rescaled* — the ledger's own second suggestion.
+   There is no scale that works: at gains 2, 5 and 20 the arm reaches 1.389,
+   1.500 and 1.605. The additive isotropic family has a deformation ceiling near
+   1.6 regardless of step size, so matching deformation requires a different
+   step family and not a different step size. Rejected.
+3. *The gradient step under a node relabelling drawn afresh at each update.*
+   Accepted. A relabelling is an isometry of the matrix and a bijection of the
+   edges, so the step carries the gradient's Frobenius norm and its entire entry
+   multiset onto edges the gradient did not select; nothing is rescaled and no
+   gain is tuned. A multiplicative variant (`noise * coupling`, matched norm) was
+   also measured and reaches the target deformation, but at 0.20--0.44 order it
+   destroys the coherence the comparison needs, and its step scale is a knob.
+
+Screening ran at three seeds, so the alignment numbers of design 3 were visible
+before the production run was written. The production module reproduces them.
+
+**Red test first.** `test_permuted_step_relabels_the_gradient_without_rescaling_it`
+pins the isometry contract (equal norm, equal sorted entries, symmetric, hollow,
+not the gradient); `test_permuted_arm_tracks_the_deformation_the_random_arm_cancels`
+pins the point of the arm at 24 nodes; the shared-stream test now covers four
+arms. 121/121 tests pass, from 119.
+
+**Run.** Full production sweep, 3 seeds x 4 arms, 2m32s on this Pi. The nine
+pre-existing runs came back bit-identical — the new arm draws from the update
+stream, which the gradient and frozen arms never touch and which is fresh per
+`simulate` call — so `summary.json` gained three records and changed nothing
+else, and `sweep.json` is unchanged.
+
+**Findings.** Permuted arm against gradient arm across the three seeds:
+deformation 11.418/12.805/16.330 against 12.409/13.836/14.696; second-half order
+0.9184--0.9189 against 0.9167--0.9222; descent fraction -0.332/-0.205/-0.161
+against 0.677/0.679/0.691; within-over-between 0.729/0.765/1.294 against
+0.351/0.416/0.614; permutation percentile 0.268/0.763/0.841 against
+0.951/0.975/1.000. So at the gradient arm's own deformation and its own
+coherence, a step carrying the gradient's entries to the wrong edges neither
+descends the objective nor loses cluster alignment. The two ratio ranges do not
+overlap.
+
+**The falsified prediction.** Prediction 2 said the arm's descent fraction would
+sit near zero as the random arm's does. It does not: the permuted arm *raises*
+the objective by 16--33% of the frozen arm's headroom. The random arm's isotropic
+draws cancel, so it stays within 2% of the frozen arm; a permuted gradient step
+is structured and consistently mis-targeted, and a step of descent magnitude in a
+wrong direction ascends. Reported in both documents rather than absorbed.
+
+**On the ratio's tilt.** Two of the three permuted values sit near 0.75. That is
+not a weak version of the gradient arm's effect but a property of the statistic
+under concentration: with three clusters, two thirds of node pairs are
+between-cluster, so a dominant edge lands between more often than within and
+pushes a ratio of block means under one. The supplement says so where it reports
+the range.
+
+**Artifacts.** `structural_resonance.py` (fourth mode, `step_direction`
+docstring and module docstring); `structural_resonance_report.py` (fourth line
+style, a norm-growth column, the two-control paragraph); `simulation_tex.py`
+(five permuted macro pairs); `test_structural_resonance.py` (two new tests, one
+extended); three new `.npz`; `summary.json`; `REPORT.md`; `joint_dynamics.png`;
+`simulation_results.tex`; `main.tex` (abstract, introduction, §4.3, caption);
+`supplementary.tex`; `docs/primer.tex`; `CHANGELOG.md`; all three PDFs;
+`arxiv_submit/`.
+
+**Scope.** The conservation-law argument is untouched and was never at issue —
+it is analytic. D2 stays open: the negative result is still demonstrated on one
+pairing of objective and template, and this arm says nothing about a second
+template.
+
+**Gates.** 121/121 tests, `ruff`, `ruff format`, `mypy`, `bandit`, `vulture`,
+`xenon`, `tach`, `check_prose`, `check_hedging`, `check_tableS1`,
+`check_figures`, `check_pdf_freshness`, `check_arxiv_freshness`, `check_leaves`.
+The merged arXiv document compiles from the unpacked tarball at 44 pages.

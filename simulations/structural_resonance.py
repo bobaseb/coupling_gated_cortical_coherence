@@ -4,11 +4,16 @@ The objective is half the squared deterministic drift. Its symmetric-edge
 partial derivative includes both endpoints. Clip/rescale is a resource
 retraction, not an orthogonal projection or a monotonic-descent guarantee.
 
-Three arms share one phase-noise stream per seed. The gradient arm descends the
+Four arms share one phase-noise stream per seed. The gradient arm descends the
 objective; the random arm takes a symmetric step of the same Frobenius norm in a
-direction unrelated to it; the frozen arm holds the kernel fixed. The random arm
-is what separates the gradient's effect from the effect of moving a kernel of
-that step size under a fixed total resource at all.
+direction unrelated to it; the permuted arm takes the gradient step itself under
+a random node relabelling; the frozen arm holds the kernel fixed. The random arm
+separates the gradient's effect from the effect of moving a kernel of that step
+size under a fixed total resource at all. Its successive isotropic steps cancel,
+so it ends an order of magnitude less deformed than the gradient arm and cannot
+separate the gradient direction from comparable cumulative deformation; the
+permuted arm can, since a relabelling is an isometry that leaves the step's entry
+multiset alone and changes only which edges receive them.
 
 Frobenius distance to a template confounds alignment with kernel norm, which a
 fixed resource total does not hold constant. The reported alignment statistics
@@ -30,7 +35,7 @@ from numpy.typing import NDArray
 
 Array = NDArray[np.float64]
 ROOT = Path(__file__).resolve().parent / "figures" / "structural_resonance"
-MODES = ("gradient", "random", "frozen")
+MODES = ("gradient", "random", "permuted", "frozen")
 SWEEP_RATES = (0.001, 0.05, 0.1, 0.2, 0.3, 0.4)
 DIAGNOSTIC_NAMES = (
     "order",
@@ -114,10 +119,19 @@ def symmetric_gradient(theta: Array, velocity: Array) -> Array:
 def step_direction(
     mode: str, theta: Array, coupling: Array, omega: Array, rng: np.random.Generator
 ) -> Array:
-    """The gradient, or a symmetric hollow random matrix rescaled to its norm."""
+    """The gradient, a node relabelling of it, or a random matrix of its norm.
+
+    A relabelling preserves the Frobenius norm and the multiset of entries, so
+    the permuted arm takes a step of the gradient's size *and* of its shape,
+    acting on edges the gradient did not select. The random arm preserves the
+    size alone, and its fresh draws cancel across updates.
+    """
     gradient = symmetric_gradient(theta, drift(theta, coupling, omega))
-    if mode != "random":
+    if mode == "gradient":
         return gradient
+    if mode == "permuted":
+        order = rng.permutation(len(theta))
+        return gradient[np.ix_(order, order)]
     noise = rng.normal(size=gradient.shape)
     noise = (noise + noise.T) / 2
     np.fill_diagonal(noise, 0.0)

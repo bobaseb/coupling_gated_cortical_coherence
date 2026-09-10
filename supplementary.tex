@@ -349,10 +349,11 @@ symmetric-edge derivative of
 $\frac12\sum_i v_i^2$ is $(v_i-v_j)\sin(\theta_j-\theta_i)$; each update clips
 negative weights, hollows the diagonal and restores the total resource.
 This constrained update does not guarantee monotonic descent during joint noisy dynamics.
-Each seed runs three arms on a single phase-noise stream: the gradient step, a
-symmetric hollow random step rescaled to the gradient's Frobenius norm, and a
-frozen kernel. At zero learning rate all three arms reproduce one trajectory,
-which is the contract the shared stream is tested against.
+Each seed runs four arms on a single phase-noise stream: the gradient step, a
+symmetric hollow random step rescaled to the gradient's Frobenius norm, that
+same gradient step composed with a random node relabelling drawn afresh at every
+update, and a frozen kernel. At zero learning rate all four arms reproduce one
+trajectory, which is the contract the shared stream is tested against.
 
 The nonzero grand-mean frequency drives the collective coordinate, since
 symmetric interactions cancel in its mean drift. That cancellation fixes
@@ -366,6 +367,27 @@ $\plasticityDescentMax$ of the headroom between the frozen arm and that floor.
 The matched random arm removes $\plasticityRandomDescentMin$ to
 $\plasticityRandomDescentMax$ of it, so the descent is specific to the gradient
 direction and not to displacing a kernel of that step size at fixed resource.
+
+A matched step size is not a matched deformation. Fresh isotropic steps cancel
+across updates, so the random arm ends at a cumulative kernel norm growth of
+$\plasticityRandomNormGrowthMin$ to $\plasticityRandomNormGrowthMax$ against the
+gradient arm's $\plasticityNormGrowthMin$ to $\plasticityNormGrowthMax$, and
+hardly enters the channel by which clipping and rescaling concentrate a fixed
+resource onto fewer edges. The permuted arm is matched on that channel instead.
+A node relabelling is an isometry of the matrix and a bijection of the edges, so
+it preserves the step's Frobenius norm and the whole multiset of its entries and
+changes only which edges receive them; the arm therefore takes a step of the
+gradient's size and of its shape, uncorrelated with the frequency clusters by
+construction. It reaches a norm growth of $\plasticityPermutedNormGrowthMin$ to
+$\plasticityPermutedNormGrowthMax$, a range bracketing the gradient arm's, and a
+second-half mean order of $\plasticityPermutedOrderMin$ to
+$\plasticityPermutedOrderMax$, which lies inside the gradient arm's range. Its
+descent fraction is
+$\plasticityPermutedDescentMin$ to $\plasticityPermutedDescentMax$: a step of
+the gradient's magnitude delivered to the wrong edges raises the objective. The
+comparison the two controls jointly support is therefore between arms of equal
+step size, equal cumulative deformation and equal coherence.
+
 The learning rate is selected by a sweep from $\plasticitySweepLowRate$ to
 $\plasticitySweepHighRate$ on one seed, reported in the run's \texttt{REPORT.md}:
 the objective's second-half mean falls from
@@ -386,12 +408,22 @@ Alignment is reported by two statistics unchanged under rescaling the kernel.
 The ratio of mean within-cluster to mean between-cluster coupling starts at
 $\plasticityRatioInitialMin$ to $\plasticityRatioInitialMax$ and ends at
 $\plasticityRatioMin$ to $\plasticityRatioMax$, against
-$\plasticityRandomRatioMin$ to $\plasticityRandomRatioMax$ for the random arm.
+$\plasticityRandomRatioMin$ to $\plasticityRandomRatioMax$ for the random arm
+and $\plasticityPermutedRatioMin$ to $\plasticityPermutedRatioMax$ for the
+permuted one. The permuted range is wide and contains the no-preference
+line. Concentrating a fixed resource onto few edges makes a ratio of block means
+fluctuate, and with three clusters two thirds of the node pairs are
+between-cluster, so a dominant edge lands between more often than within and the
+typical value sits a little under one. The three permuted values nonetheless lie
+above the gradient arm's three without overlap, at kernel deformations that
+overlap almost exactly.
 Against $2000$ node relabellings drawn per run, the final kernel is further from
 the true template than from a fraction $\plasticityPercentileMin$ to
 $\plasticityPercentileMax$ of them. The frozen arm's initial kernel already sits
 at $\plasticityFrozenPercentileMin$ to $\plasticityFrozenPercentileMax$, so the
-gradient arm is read against the frozen arm and not against the null median.
+gradient arm is read against the frozen arm and not against the null median; the
+permuted arm, at the gradient arm's deformation, reaches
+$\plasticityPermutedPercentileMin$ to $\plasticityPermutedPercentileMax$.
 
 Two readouts are reported and not relied on. The initial-minus-final Frobenius
 distance to the template lies in
@@ -418,7 +450,8 @@ the $N\langle\omega\rangle^2/D$ floor; the order parameter against the
 $1/\sqrt{N}$ reference; the within-over-between coupling ratio against the
 no-preference line at unity; and the distances to the cluster template and to its
 node-label shuffle, which grow together as the kernel norm grows. Only the
-gradient arm descends the objective, and only it loses cluster alignment; these
+gradient arm descends the objective, and only it loses cluster alignment, the
+permuted arm holding the same deformation without either; these
 diagnostics provide no evidence of structural resonance or a thermodynamic
 entropy-production rate.
 

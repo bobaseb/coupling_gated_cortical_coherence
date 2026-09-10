@@ -1497,9 +1497,9 @@ symmetric couplings update every 50 fast steps by descending the squared-drift
 objective of Section~\ref{sec:sigma}. Couplings stay non-negative, hollow, and
 normalized to fixed total resource. The symmetric-edge derivative of
 $\tfrac12\sum_i v_i^2$ is $(v_i-v_j)\sin(\theta_j-\theta_i)$, so both endpoints
-of an edge contribute. Each seed runs three arms on one phase-noise stream: the
-gradient step, a symmetric random step of the same Frobenius norm, and a frozen
-kernel.
+of an edge contribute. Each seed runs four arms on one phase-noise stream: the
+gradient step, a symmetric random step of the same Frobenius norm, that same
+gradient step delivered to randomly relabelled nodes, and a frozen kernel.
 
 Denying an implication means exhibiting its antecedent, so the first thing to
 measure is how much of the objective the update actually removes. Symmetric
@@ -1515,16 +1515,31 @@ $\plasticityDescentMin$ to $\plasticityDescentMax$ of the headroom between the
 two. \textbf{So the objective really is being minimized.} The matched random
 arm removes $\plasticityRandomDescentMin$ to $\plasticityRandomDescentMax$,
 so this belongs to the gradient direction and not to displacing a kernel at
-fixed resource.
+fixed resource. A matched step size is not a matched deformation, though:
+isotropic steps cancel across updates, leaving that arm at a kernel norm growth
+of $\plasticityRandomNormGrowthMin$ to $\plasticityRandomNormGrowthMax$ where
+the gradient arm reaches $\plasticityNormGrowthMin$ to
+$\plasticityNormGrowthMax$. The permuted arm closes that gap: a relabelling
+moves the gradient's own entries onto edges it did not choose, so the arm
+deforms the kernel to $\plasticityPermutedNormGrowthMin$ to
+$\plasticityPermutedNormGrowthMax$ and holds order at
+$\plasticityPermutedOrderMin$ to $\plasticityPermutedOrderMax$ while
+\emph{raising} the objective by $\plasticityPermutedDescentMin$ to
+$\plasticityPermutedDescentMax$ of the headroom.
 \item Second-half mean order lies between $\plasticityOrderMin$ and
 $\plasticityOrderMax$. \textbf{So coherence survives the descent.}
 \item The ratio of mean within-cluster to mean between-cluster coupling---a
 measure unchanged by rescaling the kernel---falls from
 $\plasticityRatioInitialMin$--$\plasticityRatioInitialMax$ to
 $\plasticityRatioMin$--$\plasticityRatioMax$, while the random arm leaves it at
-$\plasticityRandomRatioMin$--$\plasticityRandomRatioMax$. Against $2000$ node
-relabellings the final kernel is further from the true template than from a
-fraction $\plasticityPercentileMin$ to $\plasticityPercentileMax$ of them.
+$\plasticityRandomRatioMin$--$\plasticityRandomRatioMax$ and the equally
+deformed permuted arm leaves it at $\plasticityPermutedRatioMin$ to
+$\plasticityPermutedRatioMax$, above the gradient arm's range and containing
+unity. Against $2000$
+node relabellings the final kernel is further from the true template than from a
+fraction $\plasticityPercentileMin$ to $\plasticityPercentileMax$ of them,
+where the permuted arm reaches $\plasticityPermutedPercentileMin$ to
+$\plasticityPermutedPercentileMax$.
 \end{itemize}
 
 \noindent
