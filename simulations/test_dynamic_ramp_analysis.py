@@ -61,6 +61,30 @@ class DynamicRampAnalysisTest(unittest.TestCase):
         self.assertAlmostEqual(fit.exponent, 0.5, places=6)
         self.assertAlmostEqual(fit.onset_coupling, 2.0, places=6)
 
+    def test_onset_fit_records_the_window_it_realised(self) -> None:
+        coupling = np.linspace(2.01, 2.4, 80)
+        order = 0.8 * np.sqrt(coupling - 2.0)
+        selected = (order >= 0.1) & (order <= 0.4)
+
+        fit = fit_onset_exponent(coupling, order, critical_coupling=2.0)
+
+        self.assertEqual(fit.samples, int(selected.sum()))
+        self.assertAlmostEqual(fit.order_min, float(order[selected].min()))
+        self.assertAlmostEqual(fit.order_max, float(order[selected].max()))
+        self.assertAlmostEqual(fit.excess_min, float(coupling[selected].min()) - 2.0)
+        self.assertAlmostEqual(fit.excess_max, float(coupling[selected].max()) - 2.0)
+
+    def test_onset_fit_flags_a_shift_returned_at_its_lower_bound(self) -> None:
+        coupling = np.linspace(2.01, 2.6, 120)
+
+        at_threshold = fit_onset_exponent(coupling, 0.8 * np.sqrt(coupling - 2.0))
+        past_threshold = fit_onset_exponent(
+            coupling, 0.8 * np.sqrt(np.maximum(coupling - 2.2, 0.0))
+        )
+
+        self.assertTrue(at_threshold.onset_pinned)
+        self.assertFalse(past_threshold.onset_pinned)
+
 
 if __name__ == "__main__":
     unittest.main()

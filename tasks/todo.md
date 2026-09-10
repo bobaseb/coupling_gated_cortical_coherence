@@ -207,7 +207,7 @@ $K_c = 2D$), or the unused macros are removed. Both are defensible; a silent
 
 ### B1 — State the onset estimator's stationary-branch reference
 
-- [ ] `supplementary.tex:469` says "the slow ramps recover the square-root
+- [x] `supplementary.tex:469` says "the slow ramps recover the square-root
       foot", comparing $\beta_{\rm eff}$ against 1/2. Applying
       `fit_onset_exponent` — the paper's own estimator, window $0.1 \le r \le
       0.4$, `K0` bounded below by 2 — to the **exact stationary branch** on each
@@ -229,7 +229,7 @@ from the estimator bias, which at present they cannot.
 
 ### B2 — Report the fit window each onset exponent was measured over
 
-- [ ] The four $\beta_{\rm eff}$ values are presented as one quantity at four
+- [x] The four $\beta_{\rm eff}$ values are presented as one quantity at four
       speeds (`main.tex:166`, `supplementary.tex:469`). They are not. For
       v = 0.1 the ensemble mean never exceeds $r = 0.152$, so the nominal window
       $r \in [0.1, 0.4]$ truncates to $[0.100, 0.151]$ at $K - K_c \in [0.32,
@@ -252,7 +252,7 @@ alone.)*
 
 ### B3 — Withdraw or qualify the $\sqrt{\log N}$ agreement
 
-- [ ] `supplementary.tex:464` reports delays 0.0619, 0.1947, 0.2341 at
+- [x] `supplementary.tex:464` reports delays 0.0619, 0.1947, 0.2341 at
       $N = 500, 2000, 8000$ and calls them "qualitatively agreeing with the
       predicted $\sqrt{\log N}$ dependence". Dividing through:
       `delay / sqrt(log N)` = 0.0248, 0.0706, 0.0781 — a factor of 2.8 spread,
@@ -271,14 +271,14 @@ the control demonstrates the protocol hazard it was not designed to test.
 
 ### B4 — Report the spatial sweep in lattice units and name the plateau
 
-- [ ] `supplementary.tex:427` reports a critical decay length of 0.0140 mm and
+- [x] `supplementary.tex:427` reports a critical decay length of 0.0140 mm and
       says "its boundary lies about sevenfold below the band's 0.1 mm lower
       limit". Grid spacing is $2.0/128 = 0.015625$ mm, so 0.0140 mm is **0.90
       lattice spacings**, and every sampled point in the transition region
       (0.0078–0.0147 mm) is below one cell. The boundary is set by the choice
       `side=128, extent=2.0` and would halve on a 256² sheet, so the sevenfold
       margin has no resolution-independent content.
-- [ ] The same summary shows steady order **0.9427 to four decimals at every
+- [x] The same summary shows steady order **0.9427 to four decimals at every
       $\lambda \ge 0.1$ mm out to $\lambda = 8$ mm** — four times the sheet
       extent, i.e. effectively all-to-all coupling. The empirical band sits deep
       in a saturated plateau, which is the actual finding and is not stated.
@@ -293,7 +293,7 @@ unchanged and is what matters.
 
 ### B5 — Report the frustration crossing as its bracket
 
-- [ ] `main.tex:183` gives an operational crossing at $K_{\rm eff}/D$ between
+- [x] `main.tex:183` gives an operational crossing at $K_{\rm eff}/D$ between
       1.8994 and 1.9387, five significant figures. The saved bracket is
       $[1.857, 2.110]$ with order 0.165 → 0.314 across it, from a geometric
       $\varepsilon$ grid of ratio 1.136; the point estimate is a straight-line
@@ -311,7 +311,7 @@ never joined.
 
 ### B6 — Expose the limitation of the matched-random plasticity control
 
-- [ ] `main.tex:196` rests the specificity of the descent on a random arm "of
+- [x] `main.tex:196` rests the specificity of the descent on a random arm "of
       the same Frobenius norm", concluding that the descent belongs to the
       gradient "and not to motion of a kernel at fixed resource". The saved
       summary shows the arms are matched on the *per-step* direction norm only:
@@ -322,7 +322,7 @@ never joined.
       concentrating mass onto fewer edges — is a channel the random arm barely
       enters, so the control does not separate the gradient direction from
       comparable cumulative deformation.
-- [ ] The learning rate 0.2 was selected by a one-seed sweep on seed 20260906,
+- [x] The learning rate 0.2 was selected by a one-seed sweep on seed 20260906,
       which is also one of the three reported seeds: its `tail_dissipation`,
       1115.4313857261145, appears identically in `sweep.json` and
       `summary.json`. Disclosed in the supplement as a one-seed sweep; the
@@ -577,3 +577,11 @@ C1–C4 and D1–D2 above; coverage is in "Verified correct" above. The audit's
 one-line summary: the numbers are right and three of them are assigned to the
 wrong cause, three are compared against the wrong reference, one control does not
 control for what it is cited for, and one hand-entered numeral is wrong.
+
+### 2026-09-10 — B-items (B1-B6)
+Completed B-items without re-running sweeps, emitting derived macros from existing saved artifacts.
+- B1 & B2 & B3: Extracted onset estimator stationary reference (`adiabatic_onset_exponent`), onset bounds, sample counts, and `delay / sqrt(log N)` logic in `dynamic_ramp_report.py`.
+- B4: Extracted `critical_decay_mm` in lattice units (`spatialCriticalDecayCells`) and empirical plateau range in `simulation_tex.py`.
+- B5: Emitted `threshold_bracket` directly as `frustrationBracketMin`/`Max` with grid ratio in `simulation_tex.py`.
+- B6: Emitted the matched-random arm's `kernel_norm_growth` (`plasticityRandomNormGrowthMin`/`Max`).
+Modified `main.tex` and `supplementary.tex` to state findings using these generated macros. Built PDFs and refreshed the arXiv submission cleanly.

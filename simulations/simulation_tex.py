@@ -6,11 +6,12 @@ import argparse
 import json
 from pathlib import Path
 from typing import cast
+from typing import Any
 
 import numpy as np
 
-from dynamic_ramp_analysis import fit_power_law, replica_escape_couplings
-from dynamic_ramp_report import SPEEDS, _load_leg, _metrics
+from dynamic_ramp_analysis import fit_power_law
+from dynamic_ramp_report import SPEEDS, _load_leg, _metrics, _size_metrics
 from empirical_collapse import tangent_separation
 from propagation_of_chaos import Summary, write_tex_macros
 
@@ -28,16 +29,12 @@ def _read_json(path: Path) -> JsonObject:
     return cast(JsonObject, json.loads(path.read_text(encoding="utf-8")))
 
 
-def _ramp_n_delays() -> list[float]:
-    paths = [
-        FIGURES / "dynamic_ramp_N500_v1e-02.npz",
-        FIGURES / "dynamic_ramp_replicas_v1e-02.npz",
-        FIGURES / "dynamic_ramp_N8000_v1e-02.npz",
-    ]
-    legs = [_load_leg(path) for path in paths]
+def _ramp_size_macros() -> list[str]:
+    sizes = _size_metrics()
     return [
-        float(np.nanmean(replica_escape_couplings(leg.coupling, leg.order_replicas)) - 2.0)
-        for leg in legs
+        *_indexed_macros("rampNDelay", [item.delay_mean for item in sizes], 4),
+        *_indexed_macros("rampNScaledDelay", [item.scaled_delay for item in sizes], 4),
+        *_indexed_macros("rampNPrecriticalMax", [item.precritical_order_max for item in sizes], 3),
     ]
 
 
@@ -49,27 +46,56 @@ def _indexed_macros(prefix: str, values: list[float], precision: int) -> list[st
     ]
 
 
+def _ramp_onset_macros(metrics: list[Any]) -> list[str]:
+    res = []
+    words = ["One", "Two", "Three", "Four"]
+    for i in range(4):
+        val = "true" if metrics[i].onset.onset_pinned else "false"
+        res.append(_macro(f"rampOnsetPinned{words[i]}", val))
+
+    res.extend(_indexed_macros("rampOnset", [item.onset.exponent for item in metrics], 3))
+    res.extend(_indexed_macros("rampOnsetReference", [item.onset_reference for item in metrics], 3))
+    res.extend(_indexed_macros("rampOnsetOrderMin", [item.onset.order_min for item in metrics], 3))
+    res.extend(_indexed_macros("rampOnsetOrderMax", [item.onset.order_max for item in metrics], 3))
+    res.extend(
+        _indexed_macros("rampOnsetExcessMin", [item.onset.excess_min for item in metrics], 2)
+    )
+    res.extend(
+        _indexed_macros("rampOnsetExcessMax", [item.onset.excess_max for item in metrics], 2)
+    )
+    res.extend(_indexed_macros("rampOnsetSamples", [item.onset.samples for item in metrics], 0))
+    return res
+
+
 def _ramp_macros() -> list[str]:
-    legs = [_load_leg(FIGURES / f"dynamic_ramp_replicas_v{speed:.0e}.npz") for speed in SPEEDS]
-    metrics = [_metrics(leg) for leg in legs]
+    legs = []
+    for speed in SPEEDS:
+        legs.append(_load_leg(FIGURES / f"dynamic_ramp_replicas_v{speed:.0e}.npz"))
+
+    metrics = []
+    for leg in legs:
+        metrics.append(_metrics(leg))
+
     uncensored = [item for item in metrics if item.escaped == 32]
     delay_fit = fit_power_law(
         np.asarray([item.speed for item in uncensored]),
         np.asarray([item.delay_mean for item in uncensored]),
     )
     floor = metrics[-1].collapse_deviation
-    return [
+
+    res = [
         _macro("rampFastEscaped", metrics[0].escaped),
         _macro("rampReplicas", 32),
         _macro("rampDelaySlowOne", f"{metrics[1].delay_mean:.4f}"),
         _macro("rampDelaySlowTwo", f"{metrics[2].delay_mean:.4f}"),
         _macro("rampDelaySlowThree", f"{metrics[3].delay_mean:.4f}"),
         _macro("rampDelayExponent", f"{delay_fit.exponent:.3f}"),
-        *_indexed_macros("rampNDelay", _ramp_n_delays(), 4),
-        *_indexed_macros("rampOnset", [item.onset_exponent for item in metrics], 3),
-        *_indexed_macros("rampCollapse", [item.collapse_deviation for item in metrics], 5),
-        _macro("rampCollapseThreshold", f"{2.0 * floor:.5f}"),
     ]
+    res.extend(_ramp_size_macros())
+    res.extend(_ramp_onset_macros(metrics))
+    res.extend(_indexed_macros("rampCollapse", [item.collapse_deviation for item in metrics], 5))
+    res.append(_macro("rampCollapseThreshold", f"{2.0 * floor:.5f}"))
+    return res
 
 
 def _spatial_macros() -> list[str]:
@@ -77,10 +103,21 @@ def _spatial_macros() -> list[str]:
     decays = cast(list[float], data["decay_mm"])
     orders = cast(list[float], data["steady_order"])
     defects = cast(list[float], data["steady_defect_density"])
+    config = cast(JsonObject, data["config"])
+    side = cast(int, config["side"])
+    extent_mm = cast(float, config["extent_mm"])
+
     indices = [decays.index(value) for value in (0.1, 0.2, 0.3)]
     mantissa, exponent = f"{max(defects[position] for position in indices):.1e}".split("e")
+
+    critical_decay_mm = cast(float, data["critical_decay_mm"])
+    critical_decay_cells = critical_decay_mm * side / extent_mm
+    plateau_max_mm = decays[-1]
+
     return [
-        _macro("spatialCriticalDecay", f"{cast(float, data['critical_decay_mm']):.4f}"),
+        _macro("spatialCriticalDecay", f"{critical_decay_mm:.4f}"),
+        _macro("spatialCriticalDecayCells", f"{critical_decay_cells:.2f}"),
+        _macro("spatialPlateauMax", f"{plateau_max_mm:.1f}"),
         *[
             _macro(f"spatialOrder{('One', 'Two', 'Three')[index]}", f"{orders[position]:.4f}")
             for index, position in enumerate(indices)
@@ -111,6 +148,12 @@ def _frustration_macros() -> list[str]:
         values = cast(list[float], data[key])
         for suffix, value in zip(("Min", "Max"), values, strict=True):
             lines.append(_macro(f"frustration{prefix}{suffix}", f"{value:.4f}"))
+
+    bracket = cast(list[float], data["threshold_bracket"])
+    lines.append(_macro("frustrationBracketMin", f"{bracket[0]*500:.3f}"))
+    lines.append(_macro("frustrationBracketMax", f"{bracket[1]*500:.3f}"))
+    lines.append(_macro("frustrationGridRatio", f"{bracket[1]/bracket[0]:.3f}"))
+
     for suffix in ("min", "max"):
         values = cast(list[float], data[f"conditional_field_{suffix}"])
         for word, value in zip(("One", "Two", "Three"), values, strict=True):
@@ -130,6 +173,7 @@ _PLASTICITY_RANGES = (
     ("gradient", "final_template_correlation", "Correlation"),
     ("random", "descent_fraction", "RandomDescent"),
     ("random", "tail_alignment_ratio", "RandomRatio"),
+    ("random", "kernel_norm_growth", "RandomNormGrowth"),
     ("frozen", "tail_dissipation", "FrozenDissipation"),
     ("frozen", "permutation_percentile", "FrozenPercentile"),
 )

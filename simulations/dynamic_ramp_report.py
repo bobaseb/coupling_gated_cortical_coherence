@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -13,6 +14,7 @@ from numpy.typing import NDArray
 
 from bifurcation import bessel_ratio, coherent_r
 from dynamic_ramp_analysis import (
+    OnsetFit,
     collapse_deviation,
     fit_onset_exponent,
     fit_power_law,
@@ -46,7 +48,36 @@ class LegMetrics:
     delay_mean: float
     delay_sd: float
     collapse_deviation: float
-    onset_exponent: float
+    onset: OnsetFit
+    onset_reference: float
+
+
+@dataclass(frozen=True)
+class SizeMetrics:
+    """One leg of the fixed-speed population-size control."""
+
+    n_oscillators: int
+    delay_mean: float
+    delay_error: float
+    precritical_order_max: float
+
+    @property
+    def scaled_delay(self) -> float:
+        """Delay divided by the predicted ``sqrt(log N)`` dependence."""
+        return self.delay_mean / math.sqrt(math.log(self.n_oscillators))
+
+
+def adiabatic_onset_exponent(coupling: FloatArray) -> float:
+    """Return what the onset estimator reports for the exact stationary branch.
+
+    The estimator's window runs well past threshold, so it recovers something
+    short of the asymptotic 1/2 even on the branch whose exponent is exactly
+    1/2. That value, sampled on a leg's own coupling grid, is the reference a
+    ramped exponent measured on that grid has to be read against; the residual
+    bias is a property of the window rather than of the drive.
+    """
+    branch = np.array([coherent_r(float(value)) for value in coupling])
+    return fit_onset_exponent(coupling, branch).exponent
 
 
 def _load_leg(path: Path) -> Leg:
@@ -80,14 +111,14 @@ def _metrics(leg: Leg) -> LegMetrics:
         leg.concentration_replicas[postcritical].ravel(),
         leg.order_replicas[postcritical].ravel(),
     )
-    onset = fit_onset_exponent(leg.coupling, leg.order_mean)
     return LegMetrics(
         speed=leg.speed,
         escaped=int(finite.size),
         delay_mean=float(np.mean(finite) - 2.0),
         delay_sd=float(np.std(finite, ddof=1)) if finite.size > 1 else float("nan"),
         collapse_deviation=deviation,
-        onset_exponent=onset.exponent,
+        onset=fit_onset_exponent(leg.coupling, leg.order_mean),
+        onset_reference=adiabatic_onset_exponent(leg.coupling),
     )
 
 
@@ -127,20 +158,30 @@ def _delay_arrays(metrics: list[LegMetrics]) -> tuple[FloatArray, FloatArray, Fl
     return speeds, delays, errors
 
 
-def _n_control_metrics() -> tuple[FloatArray, FloatArray, FloatArray]:
+def _size_leg_metrics(leg: Leg) -> SizeMetrics:
+    escape = replica_escape_couplings(leg.coupling, leg.order_replicas)
+    return SizeMetrics(
+        n_oscillators=leg.n_oscillators,
+        delay_mean=float(np.nanmean(escape) - 2.0),
+        delay_error=float(np.nanstd(escape, ddof=1) / np.sqrt(np.isfinite(escape).sum())),
+        precritical_order_max=float(leg.order_replicas[leg.coupling < 2.0].max()),
+    )
+
+
+def _size_metrics() -> list[SizeMetrics]:
+    """Metrics for the three population sizes run at the same ramp speed.
+
+    ``precritical_order_max`` is the largest order any replica reaches before
+    threshold. The escape level is a fixed absolute number, so where that
+    maximum approaches it the measured delay is set by the critical
+    fluctuation floor rather than by the ramp.
+    """
     paths = (
         FIGURE_DIR / "dynamic_ramp_N500_v1e-02.npz",
         _speed_path(0.01),
         FIGURE_DIR / "dynamic_ramp_N8000_v1e-02.npz",
     )
-    legs = [_load_leg(path) for path in paths]
-    sizes = np.array([leg.n_oscillators for leg in legs], dtype=float)
-    escapes = [replica_escape_couplings(leg.coupling, leg.order_replicas) for leg in legs]
-    delays = np.array([np.nanmean(values) - 2.0 for values in escapes])
-    errors = np.array(
-        [np.nanstd(values, ddof=1) / np.sqrt(np.isfinite(values).sum()) for values in escapes]
-    )
-    return sizes, delays, errors
+    return [_size_leg_metrics(_load_leg(path)) for path in paths]
 
 
 def _plot_delay_scaling(metrics: list[LegMetrics]) -> None:
@@ -153,8 +194,14 @@ def _plot_delay_scaling(metrics: list[LegMetrics]) -> None:
     axes[0].plot(grid, np.sqrt(2.0 * grid * np.log(2000)), ls="--", label=r"$\sqrt{2v\ln N}$")
     axes[0].set(xscale="log", yscale="log", xlabel=r"ramp speed $v$", ylabel=r"delay $\Delta K$")
     axes[0].legend(fontsize=8)
-    sizes, n_delays, n_errors = _n_control_metrics()
-    axes[1].errorbar(np.sqrt(np.log(sizes)), n_delays, yerr=n_errors, fmt="o-", capsize=3)
+    sizes = _size_metrics()
+    axes[1].errorbar(
+        [math.sqrt(math.log(item.n_oscillators)) for item in sizes],
+        [item.delay_mean for item in sizes],
+        yerr=[item.delay_error for item in sizes],
+        fmt="o-",
+        capsize=3,
+    )
     axes[1].set(xlabel=r"$\sqrt{\ln N}$", ylabel=r"delay $\Delta K$ at $v=10^{-2}$")
     for axis in axes:
         axis.grid(alpha=0.25)
@@ -181,10 +228,12 @@ def _plot_collapse(legs: list[Leg], metrics: list[LegMetrics]) -> None:
 
 def _plot_onset(metrics: list[LegMetrics]) -> None:
     speeds = np.array([item.speed for item in metrics])
-    exponents = np.array([item.onset_exponent for item in metrics])
+    exponents = np.array([item.onset.exponent for item in metrics])
+    references = np.array([item.onset_reference for item in metrics])
     fig, ax = plt.subplots(figsize=(6.6, 4.4))
     ax.plot(speeds, exponents, "o-", lw=1.7)
-    ax.axhline(0.5, color="green", ls="--", label=r"square-root $\beta=1/2$")
+    ax.plot(speeds, references, "s--", color="green", lw=1.3, label="stationary branch, same grid")
+    ax.axhline(0.5, color="0.5", ls="--", label=r"asymptotic $\beta=1/2$")
     ax.axhline(1.0, color="red", ls=":", label=r"linear $\beta=1$")
     ax.set(xscale="log", xlabel=r"ramp speed $v$", ylabel=r"effective onset exponent $\beta$")
     ax.legend(fontsize=8)
@@ -200,7 +249,7 @@ def _write_report(metrics: list[LegMetrics]) -> None:
     bracketed = any(item.collapse_deviation >= threshold for item in metrics)
     rows = "\n".join(
         f"| {item.speed:g} | {item.escaped}/32 | {item.delay_mean:.4f} | "
-        f"{item.delay_sd:.4f} | {item.collapse_deviation:.5f} | {item.onset_exponent:.3f} |"
+        f"{item.delay_sd:.4f} | {item.collapse_deviation:.5f} | {item.onset.exponent:.3f} |"
         for item in metrics
     )
     report = f"""# Dynamic-ramp numerical report

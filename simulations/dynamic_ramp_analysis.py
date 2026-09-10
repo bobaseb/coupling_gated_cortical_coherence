@@ -17,6 +17,9 @@ from bifurcation import bessel_ratio
 
 FloatArray = NDArray[np.float64]
 
+# curve_fit returns a parameter at a box bound to within rounding, not exactly.
+_BOUND_TOLERANCE = 1e-8
+
 
 @dataclass(frozen=True)
 class PowerLawFit:
@@ -28,11 +31,23 @@ class PowerLawFit:
 
 @dataclass(frozen=True)
 class OnsetFit:
-    """Shifted-power fit on the early macroscopic foot."""
+    """Shifted-power fit on the early macroscopic foot, with the window it realised.
+
+    The window is declared as an order range, so what a trajectory realises is
+    whichever part of that range it reaches. Two fits are comparable only if
+    they realised comparable windows, which is why the realised range, the
+    coupling excess it sits at and the sample count travel with the exponent.
+    """
 
     amplitude: float
     onset_coupling: float
     exponent: float
+    order_min: float
+    order_max: float
+    excess_min: float
+    excess_max: float
+    samples: int
+    onset_pinned: bool
 
 
 def fit_power_law(x: FloatArray, y: FloatArray) -> PowerLawFit:
@@ -110,4 +125,15 @@ def fit_onset_exponent(
         bounds=([0.0, critical_coupling, 0.1], [10.0, upper_onset, 2.0]),
         maxfev=50_000,
     )
-    return OnsetFit(*(float(value) for value in parameters))
+    amplitude, onset, beta = (float(value) for value in parameters)
+    return OnsetFit(
+        amplitude=amplitude,
+        onset_coupling=onset,
+        exponent=beta,
+        order_min=float(y.min()),
+        order_max=float(y.max()),
+        excess_min=float(x.min()) - critical_coupling,
+        excess_max=float(x.max()) - critical_coupling,
+        samples=int(x.size),
+        onset_pinned=onset - critical_coupling <= _BOUND_TOLERANCE,
+    )
