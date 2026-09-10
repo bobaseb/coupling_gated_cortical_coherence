@@ -1447,8 +1447,12 @@ $\spatialOrderThree$, with winding-defect density at most
 $\spatialDefectMaximum$. So this sweep shows no fragmentation in the empirical
 band---which sits inside a plateau where steady order spans only
 $\spatialPlateauSpread$ out to the longest range sampled. The boundary itself
-is $\spatialCriticalDecayCells$ lattice spacings, so the grid does not resolve
-it.
+is $\spatialCriticalDecayCells$ lattice spacings, below that grid's own
+resolution; halving the spacing---a $\spatialRefinedSide\times
+\spatialRefinedSide$ sheet over the same 2.0~mm---leaves it at
+$\spatialRefinedCriticalDecay$~mm, $\spatialRefinedBoundaryRatio$ times its
+coarse value and $\spatialRefinedCriticalDecayCells$ spacings on the finer
+sheet. So the boundary is a physical length, not a lattice artifact.
 
 \emph{Frustration.} A row-balanced Dale-law network (no self-edges,
 Erd\H{o}s--R\'enyi edge probability $0.2$, $80/20$ excitatory/inhibitory
@@ -1460,9 +1464,10 @@ separately specified weak-synapse regime, adding a uniform per-pair modulatory
 term $\epsilon$ (contributing mean-field strength $\Keff=N\epsilon$) produces
 an operational coherence crossing at
 $\Keff/D\in[\frustrationCouplingMin,\frustrationCouplingMax]$ across seeds.
-The $\epsilon$ grid is geometric with ratio $\frustrationGridRatio$, and the
-step those values interpolate across spans
-$[\frustrationBracketMin,\frustrationBracketMax]$, which contains $\Kc/D=2$.
+The $\epsilon$ grid is geometric with ratio $\frustrationGridRatio$, refined
+linearly to steps of $\frustrationRefinementStep$ inside the step those values
+interpolate across; the refined bracket
+$[\frustrationBracketMin,\frustrationBracketMax]$ still contains $\Kc/D=2$.
 
 \scope
 Each is one finite parameter regime. Fixing total coupling while changing

@@ -14,6 +14,8 @@ from geometric_frustration import (
     threshold,
     run,
     epsilon_grid,
+    refinement_grid,
+    REFINEMENT_POINTS,
 )
 
 
@@ -76,6 +78,40 @@ class FrustrationTest(unittest.TestCase):
         self.assertEqual(values[0], 0)
         self.assertTrue(np.all(np.diff(values) > 0))
         self.assertGreater(values[-1], 2 * config.diffusion / config.n)
+
+    def test_refinement_subdivides_the_bracket_without_repeating_its_ends(self) -> None:
+        grid = refinement_grid((0.002, 0.004), points=3)
+
+        np.testing.assert_allclose(grid, [0.0025, 0.003, 0.0035])
+        with self.assertRaisesRegex(ValueError, "increasing"):
+            refinement_grid((0.004, 0.004))
+
+    def test_refinement_step_follows_the_bracket_rather_than_a_fixed_scale(self) -> None:
+        wide = np.diff(refinement_grid((0.002, 0.004))).mean()
+        narrow = np.diff(refinement_grid((0.002, 0.0021))).mean()
+
+        self.assertAlmostEqual(wide / narrow, 20.0)
+
+    def test_sweep_refines_the_crossing_step_without_re_running_the_coarse_legs(self) -> None:
+        config = Config(n=64, steps=600, sample_every=10, probability=0.5, positive_sum=1)
+
+        with TemporaryDirectory() as directory:
+            output = Path(directory)
+            run(config, output)
+            summary = json.loads((output / "summary.json").read_text())
+            coarse = np.asarray(summary["coarse_epsilon"])
+            merged = np.asarray(summary["epsilon"])
+            names = sorted(path.name for path in output.glob("leg_*.npz"))
+
+        self.assertEqual(names[: coarse.size], [f"leg_{index:02d}.npz" for index in range(20)])
+        self.assertEqual(len(names), coarse.size + REFINEMENT_POINTS)
+        np.testing.assert_array_equal(np.sort(merged), merged)
+        added = np.setdiff1d(merged, coarse)
+        self.assertEqual(added.size, REFINEMENT_POINTS)
+        lower, upper = summary["coarse_bracket"]
+        self.assertTrue(np.all((added > lower) & (added < upper)))
+        self.assertGreaterEqual(summary["threshold_bracket"][0], lower)
+        self.assertLessEqual(summary["threshold_bracket"][1], upper)
 
     def test_rate_calibration_is_explicit_and_inverse(self) -> None:
         self.assertAlmostEqual(field_required(2, 0.2, rate=10), field_required(2, 0.2) / 10)

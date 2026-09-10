@@ -389,7 +389,7 @@ be reported as one for the first time.
 
 ### C3 — Grid-refinement control for the spatial sweep
 
-- [ ] B4 establishes that the reported critical decay length is 0.90 lattice
+- [x] B4 establishes that the reported critical decay length is 0.90 lattice
       spacings. Whether that is a lattice artifact or a coincidence is decidable
       by running the transition region at `side = 256, extent = 2.0` (halved
       spacing) and asking whether the boundary in millimetres halves.
@@ -404,7 +404,7 @@ a 256² sheet is four times the work per step.
 
 ### C4 — Refine the frustration crossing grid
 
-- [ ] B5 establishes that the crossing bracket $[1.857, 2.110]$ contains $K_c/D
+- [x] B5 establishes that the crossing bracket $[1.857, 2.110]$ contains $K_c/D
       = 2$. A linear refinement of `epsilon_grid` between those two points on the
       three existing seeds would either separate the crossing from 2 or show it
       is not separable at this $N$.
@@ -695,3 +695,90 @@ data do not support and replaces it with a bound; C2 removes the window as an
 explanation for the growth-rate shortfall without establishing that finite size
 is the whole of what remains, because the sweep runs at the production step.
 C3, C4, D1 and D2 stay open.
+
+### 2026-09-10 — C-items (C3, C4)
+
+**C3.** `transition_band` reads the unresolved part of a saved sweep — the
+lengths up to the first sustained crossing, plus the two above it that make the
+"stays ordered" half of the criterion mean anything — and `refined_decay_lengths`
+samples it twice on the finer sheet: once at the same millimetre values, once at
+the millimetre values carrying the same lattice-spacing counts. That is the whole
+design: a boundary fixed in millimetres falls in the first set and one fixed in
+cells falls in the second, so the two hypotheses are two runs rather than two
+readings of one run. The two sets are disjoint and span 0.50 to 6.62 spacings
+contiguously. Red test first, on the spacing ratio rather than on a literal half.
+
+The refinement is a $256^2$ sheet over the same 2.0 mm, everything else
+identical to production, 22 lengths, 1.4 h across four cores.
+
+| | side 128 | side 256 |
+|---|---|---|
+| boundary (mm) | 0.014026 | 0.014126 |
+| boundary (spacings) | 0.90 | 1.81 |
+
+**The boundary does not move with the spacing.** It is 1.01 times its coarse
+value in millimetres and twice it in cells, so it is a property of the dynamics
+at this coupling, diffusion and frequency spread, not of the discretisation —
+and the finer sheet resolves it, where the coarse sheet put it below its own
+spacing. Every length in the fixed-cell-count set (0.0039 to 0.0073 mm, 0.50 to
+0.94 spacings) is incoherent on the refined sheet, so reproducing the coarse
+sheet's cell counts does not reproduce its boundary.
+
+The first assembly of this control put the boundary on one sample above the
+criterion: the band as B4 defines it ends at the first sustained crossing, and
+the coarse sheet's own coherent side was outside it. A crossing whose "all larger
+sampled lengths stay ordered" clause rests on a single length is a clause no
+rerun tests, so the band carries two lengths past the crossing and the coherent
+side is now 0.269, 0.899, 0.909 and 0.940 across four of them.
+
+This reverses the reading B4 left in place. B4 withdrew the sevenfold margin
+because the boundary sat below one spacing; the ground for that was that an
+unresolved boundary could be a lattice artifact, and it is not one. Both
+documents now say the boundary is physical and resolved on the finer sheet. The
+plateau argument B4 introduced is untouched and remains the stronger statement
+about the empirical band.
+
+**C4.** `refinement_grid` subdivides the step a crossing was found in, excluding
+the two ends the sweep has already integrated, with the step read off the bracket
+rather than fixed. `run` continues leg indices past the coarse grid, so all 20
+cached coarse legs per seed load unchanged and keep the noise streams they were
+saved with; nine legs per seed are new. The summary carries the merged grid and,
+separately, the coarse grid the ratio is read from and the coarse bracket that
+was refined. `aggregate` refuses to average across seeds that refined different
+grids.
+
+Nine interior points give steps of 0.025 in $K_{\mathrm{eff}}/D$, a tenth of the
+geometric step $[1.857, 2.110]$:
+
+| seed | 20261905 | 20262905 | 20263905 |
+|---|---|---|---|
+| refined bracket | [1.983, 2.009] | [1.958, 1.983] | [1.958, 1.983] |
+| interpolated crossing | 1.987 | 1.962 | 1.973 |
+
+**The refinement does not separate the crossing from the threshold.** The union
+of the three seeds' brackets is $[1.958, 2.009]$ and contains $K_c/D = 2$. All
+three interpolated crossings fall below 2 and two of the three brackets do, but
+the third contains it and the grid does not resolve the difference at $N=500$.
+This is the outcome C4 named as the more interesting one and it is reported as
+a result, not as a failure of the run. The conditional field values move with
+the sharpened crossing (0.586--0.593 mV/mm at 0.1 mm against 0.567--0.579
+before) and stay below the 1--5 mV/mm comparison band.
+
+**Artifacts.** `figures/spatial_kernel_refined/` (22 legs, summary, sweep and
+phase-map figures, and its own report); `leg_20` through `leg_28` in each of the
+three `weak_seed*` directories; `coarse_epsilon`, `coarse_bracket` and
+`refinement_step` in the frustration summaries. `\spatialRefinedSide`,
+`\spatialRefinedCriticalDecay`, `\spatialRefinedCriticalDecayCells`,
+`\spatialRefinedBoundaryRatio`, `\frustrationCoarseMin`, `\frustrationCoarseMax`
+and `\frustrationRefinementStep` are new macros.
+
+**Gates.** 119/119 tests, `ruff`, `ruff format`, `mypy`, `bandit`, `vulture`,
+`xenon`, `tach`, `check_prose`, `check_tableS1`, `check_figures`,
+`check_pdf_freshness`, `check_arxiv_freshness`, `check_leaves`, and the
+macro-drift test.
+
+**Scope.** Neither item changes a conclusion. C3 turns a number the manuscript
+was reporting as possibly a discretisation artifact into a physical length, and
+C4 sharpens a bracket tenfold without separating it from the mean-field
+threshold. Both sheets in C3 run one seed, so seed dependence at the boundary is
+still open. D1 and D2 stay open.

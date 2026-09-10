@@ -119,6 +119,28 @@ def _first_sustained_index(values: list[float], threshold: float) -> int:
     return index
 
 
+def _spatial_refinement_macros(critical_decay_mm: float) -> list[str]:
+    """Emit what the halved-spacing rerun does to the boundary.
+
+    The boundary is a property of the discretisation exactly to the extent that
+    it moves with the spacing, so the ratio of the two boundaries is the result
+    and the two lengths are what it is read from.
+    """
+    data = _read_json(FIGURES / "spatial_kernel_refined" / "spatial_kernel_summary.json")
+    config = cast(JsonObject, data["config"])
+    refined_mm = data["critical_decay_mm"]
+    if refined_mm is None:
+        raise ValueError("the refined sweep does not bracket a crossing; widen its band")
+    refined_mm = cast(float, refined_mm)
+    spacing_mm = cast(float, config["extent_mm"]) / cast(int, config["side"])
+    return [
+        _macro("spatialRefinedSide", cast(int, config["side"])),
+        _macro("spatialRefinedCriticalDecay", f"{refined_mm:.5f}"),
+        _macro("spatialRefinedCriticalDecayCells", f"{refined_mm / spacing_mm:.2f}"),
+        _macro("spatialRefinedBoundaryRatio", f"{refined_mm / critical_decay_mm:.2f}"),
+    ]
+
+
 def _spatial_macros() -> list[str]:
     data = _read_json(FIGURES / "spatial_kernel" / "spatial_kernel_summary.json")
     decays = cast(list[float], data["decay_mm"])
@@ -146,6 +168,7 @@ def _spatial_macros() -> list[str]:
             for index, position in enumerate(indices)
         ],
         _macro("spatialDefectMaximum", rf"{mantissa}\times10^{{{int(exponent)}}}"),
+        *_spatial_refinement_macros(critical_decay_mm),
     ]
 
 
@@ -209,7 +232,12 @@ def _frustration_macros() -> list[str]:
     bracket = cast(list[float], data["threshold_bracket"])
     lines.append(_macro("frustrationBracketMin", f"{_effective_coupling(bracket[0], config):.3f}"))
     lines.append(_macro("frustrationBracketMax", f"{_effective_coupling(bracket[1], config):.3f}"))
-    ratio = _geometric_grid_ratio(cast(list[float], data["epsilon"]))
+    coarse = cast(list[float], data["coarse_bracket"])
+    lines.append(_macro("frustrationCoarseMin", f"{_effective_coupling(coarse[0], config):.3f}"))
+    lines.append(_macro("frustrationCoarseMax", f"{_effective_coupling(coarse[1], config):.3f}"))
+    step = _effective_coupling(cast(float, data["refinement_step"]), config)
+    lines.append(_macro("frustrationRefinementStep", f"{step:.3f}"))
+    ratio = _geometric_grid_ratio(cast(list[float], data["coarse_epsilon"]))
     lines.append(_macro("frustrationGridRatio", f"{ratio:.3f}"))
 
     for suffix in ("min", "max"):

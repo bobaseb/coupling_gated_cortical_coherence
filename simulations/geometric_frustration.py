@@ -22,6 +22,9 @@ from fermi_estimate_check import DEFAULTS, compute_k
 Array = NDArray[np.float64]
 ROOT = Path(__file__).resolve().parent / "figures" / "geometric_frustration"
 
+# Interior couplings added inside the coarse step that brackets the crossing.
+REFINEMENT_POINTS = 9
+
 
 @dataclass(frozen=True)
 class Config:
@@ -128,6 +131,51 @@ def epsilon_grid(config: Config) -> Array:
     return np.asarray(np.r_[0.0, np.geomspace(0.4 * config.diffusion, upper, 19) / config.n])
 
 
+def refinement_grid(bracket: tuple[float, float], points: int = REFINEMENT_POINTS) -> Array:
+    """Return equally spaced interior couplings of the step a crossing was found in.
+
+    The two ends are grid values the sweep has already integrated, so they are
+    excluded; the step is read off the bracket rather than fixed, so a narrower
+    bracket is refined more finely by the same call.
+    """
+    if bracket[1] <= bracket[0]:
+        raise ValueError("Refinement bracket must be increasing")
+    return np.asarray(np.linspace(bracket[0], bracket[1], points + 2)[1:-1])
+
+
+def _steady(config: Config, leg: dict[str, Array]) -> float:
+    return float(leg["order"][leg["time"] >= config.steps * config.dt / 2].mean())
+
+
+def _refine(
+    config: Config,
+    matrix: Array,
+    epsilon: Array,
+    orders: Array,
+    bracket: tuple[float, float],
+    output: Path,
+) -> tuple[Array, Array, list[dict[str, Array]]]:
+    """Integrate inside the coarse crossing step and return the merged sweep.
+
+    Leg indices continue past the coarse grid, so every cached coarse run keeps
+    the filename and the noise stream it was saved with and is not re-integrated.
+    """
+    refined = refinement_grid(bracket)
+    legs = []
+    for index, value in enumerate(refined):
+        leg = _leg(config, matrix, float(value), epsilon.size + index, output)
+        legs.append(leg)
+        print(
+            f"refinement {index + 1}/{refined.size} epsilon={value:.6g} "
+            f"steady r={_steady(config, leg):.5f}",
+            flush=True,
+        )
+    steady = np.asarray([_steady(config, leg) for leg in legs])
+    merged = np.concatenate((epsilon, refined))
+    order = np.argsort(merged)
+    return merged[order], np.concatenate((orders, steady))[order], legs
+
+
 def run(config: Config, output: Path) -> None:
     output.mkdir(parents=True, exist_ok=True)
     matrix = balanced_network(config.n, config.probability, config.positive_sum, config.seed)
@@ -135,24 +183,28 @@ def run(config: Config, output: Path) -> None:
     print(
         f"Row sums: min={rows.min():.3g}, mean={rows.mean():.3g}, max={rows.max():.3g}", flush=True
     )
-    epsilon = epsilon_grid(config)
+    coarse = epsilon_grid(config)
     legs = []
-    for index, value in enumerate(epsilon):
+    for index, value in enumerate(coarse):
         leg = _leg(config, matrix, float(value), index, output)
-        steady = float(leg["order"][leg["time"] >= config.steps * config.dt / 2].mean())
-        print(f"{index + 1}/20 epsilon={value:.6g} steady r={steady:.5f}", flush=True)
+        steady = _steady(config, leg)
+        print(f"{index + 1}/{coarse.size} epsilon={value:.6g} steady r={steady:.5f}", flush=True)
         if index == 0 and steady > 2 / np.sqrt(config.n):
             _failed_baseline(config, matrix, leg, output)
             raise ValueError("Baseline exceeds twice the finite-size floor; stop before sweep")
         legs.append(leg)
-    orders = np.array(
-        [leg["order"][leg["time"] >= config.steps * config.dt / 2].mean() for leg in legs]
+    coarse_orders = np.array([_steady(config, leg) for leg in legs])
+    _, coarse_lower, coarse_upper = threshold(coarse, coarse_orders)
+    epsilon, orders, refined_legs = _refine(
+        config, matrix, coarse, coarse_orders, (coarse_lower, coarse_upper), output
     )
     critical, lower, upper = threshold(epsilon, orders)
     summary: dict[str, Any] = {
         "config": asdict(config),
         "epsilon": epsilon.tolist(),
         "steady_order": orders.tolist(),
+        "coarse_epsilon": coarse.tolist(),
+        "coarse_bracket": [coarse_lower, coarse_upper],
         "critical_epsilon": critical,
         "threshold_bracket": [lower, upper],
         "effective_coupling": critical * config.n,
@@ -162,7 +214,7 @@ def run(config: Config, output: Path) -> None:
             field_required(critical * config.n, lam) for lam in (0.1, 0.2, 0.3)
         ],
         "row_sum_min_mean_max": [float(rows.min()), float(rows.mean()), float(rows.max())],
-        "runtime_seconds": sum(float(leg["runtime_seconds"]) for leg in legs),
+        "runtime_seconds": sum(float(leg["runtime_seconds"]) for leg in legs + refined_legs),
         "calibration_limit": (
             "N*shift*f is dimensionless; identifying it with inverse-time K "
             "requires an unspecified rate calibration."

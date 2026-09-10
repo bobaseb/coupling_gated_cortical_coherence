@@ -80,6 +80,40 @@ alone.
 
 ---
 
+## 2026-09-10 — Audit remediation, part C concluded: two grids refined
+
+Two reruns of existing sweeps at finer resolution. Each was run to decide a
+question the coarser grid had left open, and one of them reverses a reading made
+the same day.
+
+Claims that were made and are no longer made:
+
+- That the spatial sweep's boundary carries no resolution-independent content.
+  It was withdrawn earlier today on the ground that it sits below one lattice
+  spacing on the sheet that measured it, and therefore might be an artifact of
+  the discretisation. Halving the spacing — a 256x256 sheet over the same 2.0 mm,
+  everything else identical — leaves the boundary at 1.01 times its value in
+  millimetres and twice its value in cells, where a discretisation artifact would
+  have halved in millimetres. Reproducing the coarse sheet's lattice-spacing
+  counts does not reproduce its boundary: every length in that set is incoherent
+  on the finer sheet. The boundary is a physical length at this coupling,
+  diffusion and frequency spread, and the finer sheet resolves it. The plateau
+  statement that replaced the withdrawn margin is unaffected and remains the
+  stronger claim about the empirical band.
+- That the frustration crossing is located only to one step of a geometric grid
+  of ratio 1.136. That step is now subdivided linearly into tenths and rerun on
+  the same three seeds. The bracket the three seeds jointly support is
+  [1.958, 2.009] in K_eff/D, and it still contains the model's own mean-field
+  threshold K_c/D = 2. A tenfold finer grid does not separate the crossing from
+  the threshold at N = 500, which is the result and not a failure of the run.
+
+Also changed, without a claim moving: the refined spatial band carries two
+lengths past the crossing. The criterion asks for a crossing above which every
+larger sampled length stays coherent, and the band as it was first defined
+ended at the crossing itself, leaving that clause resting on a single sample.
+
+---
+
 ## 2026-09-09 — Audit remediation, part A: what the numbers were said to mean
 
 Seven corrections to statements that were transcribed correctly and read wrongly.

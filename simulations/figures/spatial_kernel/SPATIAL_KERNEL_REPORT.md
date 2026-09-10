@@ -21,6 +21,13 @@ The empirical controls are coherent in this parameter regime: r = 0.9424,
 2.5e-6. Thus fragmentation was not observed in the empirical band; the sampled
 operational boundary is about sevenfold below its lower edge.
 
+The operational boundary is below this grid's own spacing, so this sweep alone
+does not say whether it is a physical length or an artifact of the
+discretisation. The refinement control in `../spatial_kernel_refined/` reruns
+the transition band and the lengths above it at half the spacing and finds the
+boundary unmoved in millimetres (0.014126 mm, 1.81 spacings there), so it is
+physical.
+
 The result does not resolve seed dependence, infer a statistically sharp
 critical point, exclude longer-lived metastability, validate the Fermi estimate,
 or establish that cortex follows this model.

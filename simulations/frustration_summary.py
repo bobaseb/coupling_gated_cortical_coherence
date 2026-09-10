@@ -20,12 +20,34 @@ def read_json(path: Path) -> Any:
     return json.loads(path.read_text())
 
 
+def _added_points(summary: dict[str, Any]) -> Any:
+    """Return the couplings the refinement added inside the coarse crossing step."""
+    return np.setdiff1d(np.asarray(summary["epsilon"]), np.asarray(summary["coarse_epsilon"]))
+
+
+def _shared_grid(summaries: list[dict[str, Any]]) -> Any:
+    """Return the coupling grid every seed ran, refusing to average across different ones."""
+    grids = [item["epsilon"] for item in summaries]
+    if any(grid != grids[0] for grid in grids[1:]):
+        raise ValueError("Seeds refined different coupling grids; means are not pointwise")
+    return grids[0]
+
+
+def _union_bracket(summaries: list[dict[str, Any]], key: str) -> list[float]:
+    """Return the widest interval the seeds' own brackets jointly support."""
+    return [
+        min(item[key][0] for item in summaries),
+        max(item[key][1] for item in summaries),
+    ]
+
+
 def aggregate(output: Path) -> dict[str, Any]:
     """Aggregate every declared seed, without selecting a favorable trajectory."""
     summaries = [
         read_json(output / f"weak_seed{seed}" / "summary.json")
         for seed in (20261905, 20262905, 20263905)
     ]
+    _shared_grid(summaries)
     orders = np.array([item["steady_order"] for item in summaries])
     fields = np.array([item["conditional_field_mV_mm"] for item in summaries])
     coupling = np.array([item["effective_coupling"] for item in summaries])
@@ -42,10 +64,9 @@ def aggregate(output: Path) -> dict[str, Any]:
             "conditional_field_max": fields.max(axis=0).tolist(),
             "conditional_field_mV_mm": fields.mean(axis=0).tolist(),
             "critical_epsilon": float(coupling.mean() / 500),
-            "threshold_bracket": [
-                min(item["threshold_bracket"][0] for item in summaries),
-                max(item["threshold_bracket"][1] for item in summaries),
-            ],
+            "threshold_bracket": _union_bracket(summaries, "threshold_bracket"),
+            "coarse_bracket": _union_bracket(summaries, "coarse_bracket"),
+            "refinement_step": float(np.diff(_added_points(summaries[0])).mean()),
             "runtime_seconds": sum(item["runtime_seconds"] for item in summaries),
             "seeds": [item["config"]["seed"] for item in summaries],
             "scope": (
@@ -113,7 +134,8 @@ def write_report(
         "# S5: strength, finite-size and rescue controls",
         "",
         "Design fixed in tasks/s5_followup.md before these sweeps. All three seeds retained.",
-        "N=500 rescue: g=1, p=0.2, D=1, omega=0, dt=0.01, T=100; 20 epsilon values.",
+        "N=500 rescue: g=1, p=0.2, D=1, omega=0, dt=0.01, T=100; 20 geometric epsilon",
+        "values, plus a linear refinement inside the step that brackets the crossing.",
         "Each row has positive sum g and negative sum -g, with 80/20 Dale columns.",
         "The original g=4 failed baseline is retained; g=1 is a different regime.",
         "At g=1 the positive-only mean-field reference is also subcritical. Thus this",
@@ -129,7 +151,8 @@ def write_report(
         f"Rescue baseline seed range: {result['baseline_range']} (floor 1/sqrt(500)).",
         f"epsilon crossing seed range: {result['epsilon_range']}.",
         f"K_eff/D crossing seed range: {result['coupling_range']} (reference 2).",
-        f"Union of sampled epsilon brackets: {result['threshold_bracket']}.",
+        f"Union of refined epsilon brackets: {result['threshold_bracket']}.",
+        f"Coarse geometric step they refine: {result['coarse_bracket']}.",
         "Crossing means second-half r=0.2 with all larger samples above it.",
         "Ranges across three seeds and sampled brackets are not confidence intervals.",
         "",

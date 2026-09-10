@@ -10,7 +10,10 @@ from spatial_kernel import (
     defect_winding,
     empirical_lambda_grid_units,
     estimate_critical_decay,
+    refined_decay_lengths,
     simulate_spatial,
+    spacing_mm,
+    transition_band,
 )
 
 
@@ -67,6 +70,39 @@ class SpatialKernelTest(unittest.TestCase):
 
         self.assertIsNotNone(critical)
         self.assertAlmostEqual(cast(float, critical), 0.032)
+
+    def test_transition_band_keeps_samples_past_the_first_sustained_crossing(self) -> None:
+        decay = np.array([0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07])
+        order = np.array([0.1, 0.3, 0.15, 0.4, 0.5, 0.6, 0.7])
+
+        np.testing.assert_allclose(
+            transition_band(decay, order, threshold=0.2, follow=0), [0.01, 0.02, 0.03, 0.04]
+        )
+        np.testing.assert_allclose(
+            transition_band(decay, order, threshold=0.2), [0.01, 0.02, 0.03, 0.04, 0.05, 0.06]
+        )
+
+    def test_refined_lengths_sample_both_a_fixed_length_and_a_fixed_cell_count(self) -> None:
+        base = SpatialConfig(side=128, extent_mm=2.0)
+        refined = SpatialConfig(side=256, extent_mm=2.0)
+        band = np.array([0.0085, 0.0140, 0.0147])
+
+        lengths = refined_decay_lengths(band, base, refined)
+
+        refined_cells = lengths / spacing_mm(refined)
+        base_cells = band / spacing_mm(base)
+        for cells in base_cells:
+            self.assertTrue(np.any(np.isclose(refined_cells, cells)), f"{cells} cells unsampled")
+            self.assertTrue(np.any(np.isclose(lengths, cells * spacing_mm(base))))
+        self.assertEqual(lengths.size, 2 * band.size)
+
+    def test_refined_lengths_follow_the_spacing_ratio_rather_than_a_literal_half(self) -> None:
+        base = SpatialConfig(side=128, extent_mm=2.0)
+        band = np.array([0.012])
+
+        quartered = refined_decay_lengths(band, base, SpatialConfig(side=512, extent_mm=2.0))
+
+        np.testing.assert_allclose(np.sort(quartered), [0.003, 0.012])
 
     def test_smoke_simulation_is_reproducible_and_stores_only_summaries(self) -> None:
         config = SpatialConfig(

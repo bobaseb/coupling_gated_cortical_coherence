@@ -11,7 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import time
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import cast
 
@@ -24,6 +24,9 @@ from fermi_estimate_check import FERMI_LAM_MAX, FERMI_LAM_MIN
 
 FloatArray = NDArray[np.float64]
 IntArray = NDArray[np.int64]
+
+PRODUCTION_OUTPUT = Path("figures/spatial_kernel")
+REFINED_OUTPUT = Path("figures/spatial_kernel_refined")
 
 
 @dataclass(frozen=True)
@@ -203,6 +206,46 @@ def estimate_critical_decay(
     return None
 
 
+def spacing_mm(config: SpatialConfig) -> float:
+    """Return the physical width of one lattice cell."""
+    return config.extent_mm / config.side
+
+
+def transition_band(
+    decay_mm: FloatArray, steady_order: FloatArray, threshold: float, follow: int = 2
+) -> FloatArray:
+    """Return the sampled lengths up to the first sustained crossing, and ``follow`` past it.
+
+    Below the band every sampled length is incoherent, so the band is the only
+    part of a sweep that a change of resolution can move. The lengths past the
+    crossing are what make the sustained half of the criterion mean anything: a
+    boundary whose coherent side is one sample is a boundary no rerun tests.
+    """
+    order = np.argsort(decay_mm)
+    lengths = decay_mm[order]
+    values = steady_order[order]
+    index = lengths.size - 1
+    while index > 0 and values[index - 1] > threshold:
+        index -= 1
+    return lengths[: index + 1 + follow]
+
+
+def refined_decay_lengths(
+    band: FloatArray, base: SpatialConfig, refined: SpatialConfig
+) -> FloatArray:
+    """Sample the band twice, once for each thing the boundary could be.
+
+    A boundary that belongs to the dynamics sits at a fixed physical length and
+    is unmoved by the finer sheet, so the refined sweep must sample ``band``
+    itself. A boundary that belongs to the discretisation sits at a fixed number
+    of lattice spacings, which on the finer sheet is a shorter physical length —
+    the same cell counts scaled by the ratio of the two spacings. Running both
+    makes the two answers two runs rather than two readings of one run.
+    """
+    ratio = spacing_mm(refined) / spacing_mm(base)
+    return np.unique(np.concatenate((band, band * ratio)))
+
+
 def _save_run(path: Path, config: SpatialConfig, result: SpatialResult) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(
@@ -331,26 +374,58 @@ def _plot_outputs(
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--smoke", action="store_true", help="run a reduced deterministic sweep")
-    parser.add_argument("--output", type=Path, default=Path("figures/spatial_kernel"))
+    parser.add_argument(
+        "--refine",
+        action="store_true",
+        help="rerun the transition band on a sheet of halved spacing",
+    )
+    parser.add_argument(
+        "--coarse",
+        type=Path,
+        default=PRODUCTION_OUTPUT,
+        help="sweep whose transition band the refinement reruns",
+    )
+    parser.add_argument("--output", type=Path, default=None)
     return parser.parse_args()
 
 
+def _saved_band(coarse: Path) -> FloatArray:
+    """Read the transition band out of a completed sweep's saved summary."""
+    data = json.loads((coarse / "spatial_kernel_summary.json").read_text(encoding="utf-8"))
+    return transition_band(
+        np.asarray(data["decay_mm"]),
+        np.asarray(data["steady_order"]),
+        float(data["order_threshold"]),
+    )
+
+
+def _plan(args: argparse.Namespace) -> tuple[SpatialConfig, FloatArray, Path]:
+    """Choose the configuration, the lengths, and where the run is saved."""
+    base = (
+        SpatialConfig(side=24, steps=100, sample_every=20, dt=0.02)
+        if args.smoke
+        else SpatialConfig()
+    )
+    if not args.refine:
+        lengths = np.array([0.05, 0.2, 2.0]) if args.smoke else production_decay_lengths()
+        return base, lengths, args.output or PRODUCTION_OUTPUT
+    refined = replace(base, side=2 * base.side)
+    band = np.array([0.05, 0.2]) if args.smoke else _saved_band(args.coarse)
+    return refined, refined_decay_lengths(band, base, refined), args.output or REFINED_OUTPUT
+
+
 def main() -> None:
-    """Run the reduced or production sweep and print the operational result."""
+    """Run the reduced, production, or refined sweep and print the operational result."""
     args = _parse_args()
-    if args.smoke:
-        config = SpatialConfig(side=24, steps=100, sample_every=20, dt=0.02)
-        lengths = np.array([0.05, 0.2, 2.0])
-    else:
-        config = SpatialConfig()
-        lengths = production_decay_lengths()
-    summary = run_sweep(config, lengths, args.output)
+    config, lengths, output = _plan(args)
+    summary = run_sweep(config, lengths, output)
     critical = (
         "not bracketed"
         if summary.critical_decay_mm is None
-        else f"{summary.critical_decay_mm:.4f} mm"
+        else f"{summary.critical_decay_mm:.6f} mm "
+        f"({summary.critical_decay_mm / spacing_mm(config):.2f} lattice spacings)"
     )
-    print(f"operational critical decay length: {critical}")
+    print(f"operational critical decay length at side {config.side}: {critical}")
     print("scope: finite-N heuristic evidence; no theorem or biological measurement")
 
 
