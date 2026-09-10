@@ -32,7 +32,9 @@ number is worth exactly as much as the discipline below.
 ## 2. Non-vacuity: a class with no instance is as bad as an inconsistent axiom
 
 Every class or structure carrying physical content must be inhabited by a witness
-in `Examples.lean`, and the witness must be checked non-degenerate.
+under `Examples/`, and the witness must be checked non-degenerate. The witnesses
+sit in one file per phase; `Examples.lean` is their index and says which file
+holds which section.
 
 * Before claiming a theorem "holds", check that the structures in its hypotheses
   have instances. `DiscreteThermodynamics` and `ReflexiveBoundary` both went
@@ -41,7 +43,8 @@ in `Examples.lean`, and the witness must be checked non-degenerate.
 * A witness that discharges its obligation trivially (a constant field, `KL = 0`,
   `rfl`) proves inhabitability and nothing more. Prefer one that exercises the
   obligation — and where the trivial one is all that is available, prove *why*, as
-  `contracting_implies_const` does for the 0/1 metric in `Examples.lean` §10. That
+  `contracting_implies_const` does for the 0/1 metric in `Examples/Phase6.lean`
+  §10. That
   theorem is also the model for what to do next: it stood as the recorded reason
   the Self's witness was empty until the metric was replaced by one built from the
   measures, and it is kept, demoted to a local instance, as the record of why.
@@ -111,7 +114,17 @@ grep -rn "sorry" PhysicsOfConsciousness/    # must be empty
 ## 7. Imports and file layout
 
 Files are phase-ordered and the import graph is a DAG; check it before moving a
-declaration. `Examples.lean` is the sink and imports everything it witnesses.
+declaration. `Examples.lean` is the sink: it imports the per-phase witness files
+under `Examples/`, each of which imports the phases it witnesses, so the root
+aggregator reaches them all through it and lists none of them itself.
+
+The witness files form a DAG of their own, because a witness may need another
+witness's substrate. Two files exist only to be that substrate —
+`Examples/Bit.lean` (the one-bit eraser, §1) and `Examples/Cortex.lean` (the
+three-site cortex, §4) — and a witness that stands on one imports it. The
+dependency is often invisible to a reader: `Examples/Phase1.lean` §19 needs
+`Examples/Bit.lean` for the `Thermodynamics Bool` *instance* and never names a
+declaration from it.
 
 A declaration belongs in the earliest file that can state it — that is why
 `IsRegularTriangulation` lives beside `TriangulatedManifold` rather than in the

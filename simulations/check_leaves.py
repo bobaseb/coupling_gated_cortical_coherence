@@ -2,15 +2,16 @@
 """Gate: detect modules whose theorems are consumed by nothing outside themselves.
 
 C1's defect — a module that is imported but none of whose theorems are referenced
-anywhere outside itself, ``Examples.lean`` and the root aggregator — is the exact
+anywhere outside itself, the witnesses and the root aggregator — is the exact
 shape that made ``Phase8_SelfConsistency`` a leaf in the edge graph. The build
 certifies that every module compiles, not that any module's results feed into
 another.
 
 This script checks, for each phase module, whether any of its public declarations
 appear in a *non-trivial consumer* (any Lean file except the module itself,
-``PhysicsOfConsciousness.lean``, and ``Examples.lean``). A module with zero such
-references is a leaf — its types are imported; its theorems are dead.
+``PhysicsOfConsciousness.lean``, and the witnesses — ``Examples.lean`` and the
+per-phase files under ``Examples/``). A module with zero such references is a
+leaf — its types are imported; its theorems are dead.
 
 **Comments are stripped before searching.** A name that appears only in a
 docstring is exactly the state C1 was in: discussed in prose, unused in code.
@@ -40,19 +41,22 @@ LEAN_DIR = REPO / "PhysicsOfConsciousness"
 #   Chain.lean — top composition module, no consumer by design.
 #   PhysicsOfConsciousness.lean — root aggregator, no content.
 #   Axioms.lean — empty of theorems.
-#   Examples.lean — witness sink, its own declarations are not intended for use.
 NOT_CHECKED = {
     "Chain.lean",
     "PhysicsOfConsciousness.lean",
     "Axioms.lean",
-    "Examples.lean",
 }
 # Consumers that do not count as real consumption:
 #   PhysicsOfConsciousness.lean — just re-exports, no content.
-#   Examples.lean — imports everything as a witness; consumption there is not
-#     usage but presence.  Treating it as a consumer would make every module
+#   The witnesses — they import everything they inhabit, so consumption there is
+#     not usage but presence. Treating one as a consumer would make every module
 #     look non-leaf and defeat the check.
-NOT_CONSUMERS = {"PhysicsOfConsciousness.lean", "Examples.lean"}
+NOT_CONSUMERS = {"PhysicsOfConsciousness.lean"}
+# The witnesses are ``Examples.lean``, which is now an index, and the per-phase
+# files under ``Examples/`` that carry the witnesses themselves. Both halves are
+# recognised by *path* rather than by name: a name-based exemption silently stops
+# covering a witness the moment one is added in a directory.
+WITNESS_DIR = "Examples"
 
 # The recorded baseline. Each entry is a module that is a leaf *and is known to
 # be one*, with the reason it is tolerated. Adding to this dict is a decision;
@@ -100,6 +104,12 @@ BLOCK_COMMENT_RE = re.compile(r"/-.*?-/", re.DOTALL)
 LINE_COMMENT_RE = re.compile(r"--.*$", re.MULTILINE)
 
 
+def is_witness(path: Path) -> bool:
+    """True for the witness index and for every per-phase file under it."""
+    relative = path.relative_to(LEAN_DIR)
+    return relative.name == f"{WITNESS_DIR}.lean" or relative.parts[0] == WITNESS_DIR
+
+
 def strip_comments(text: str) -> str:
     """Remove Lean block and line comments, so prose never counts as usage."""
     return LINE_COMMENT_RE.sub("", BLOCK_COMMENT_RE.sub("", text))
@@ -126,7 +136,7 @@ def module_has_consumer(mod_path: Path, consumer_dir: Path) -> bool:
     for consumer in consumer_dir.rglob("*.lean"):
         if consumer.resolve() == mod_path.resolve():
             continue
-        if consumer.name in NOT_CONSUMERS:
+        if consumer.name in NOT_CONSUMERS or is_witness(consumer):
             continue
         content = strip_comments(consumer.read_text(encoding="utf-8"))
         for d in decls:
@@ -141,7 +151,9 @@ def find_leaves() -> list[Path]:
     return [
         mod
         for mod in sorted(LEAN_DIR.rglob("*.lean"))
-        if mod.name not in NOT_CHECKED and not module_has_consumer(mod, LEAN_DIR)
+        if mod.name not in NOT_CHECKED
+        and not is_witness(mod)
+        and not module_has_consumer(mod, LEAN_DIR)
     ]
 
 
@@ -161,7 +173,7 @@ def classify(leaves: list[Path]) -> tuple[list[Path], list[str]]:
 def report_unrecorded(unrecorded: list[Path]) -> None:
     print(
         f"check_leaves: {len(unrecorded)} module(s) have zero declarations "
-        "consumed\n  outside themselves, Examples.lean, and the root "
+        "consumed\n  outside themselves, the Examples/ witnesses, and the root "
         "aggregator.\n"
     )
     for mod in unrecorded:
@@ -169,7 +181,7 @@ def report_unrecorded(unrecorded: list[Path]) -> None:
     print(
         "\n"
         "A module whose declarations are referenced by nothing outside\n"
-        "itself and Examples.lean is a leaf in the edge graph.\n"
+        "itself and the Examples/ witnesses is a leaf in the edge graph.\n"
         "Its types are imported; its theorems are not. That is how C1's\n"
         "defect arose in Phase8_SelfConsistency. Wire a consumer, or record\n"
         "the module in ALLOWED_LEAVES with the reason it stays dangling.\n"

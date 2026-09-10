@@ -545,6 +545,41 @@ scheduled*.
 
 ### E2 — Split `Examples.lean`
 
+**Done 2026-09-10.** Ten files under `PhysicsOfConsciousness/Examples/`, one per
+phase plus two shared substrates, and `Examples.lean` keeps the coverage
+docstring and becomes their index — including the map from each section number
+to the file that now holds it, because the section numbers are what the
+supplement cites and they are unchanged. `lake build` is green: every witness
+still elaborates. No code line was lost, which is checkable — the split is a
+slice of contiguous line ranges, and the only lines the new tree adds are
+headers, imports and `end` markers.
+
+**The substrates are the part the plan did not predict.** Three files' witnesses
+stand on the three-site cortex of §4 and two on the one-bit eraser of §1, so
+those two sections are files of their own (`Examples/Cortex.lean`,
+`Examples/Bit.lean`) and the witnesses that need them import them. §19's
+dependence on §1 is invisible to any reading of the text: it needs the
+`Thermodynamics Bool` *instance* and names no declaration from it. It surfaced
+as a `failed to synthesize` on the first build, which is the only way it could
+have surfaced. `section TrioDynamics` also spanned §17 and §17.1, which sit in
+different files now; it holds nothing but a redundant `open`, so §17 closes it
+and §17.1's own `section TrioCover` carries the rest.
+
+**`check_leaves.py` now recognises the witnesses by path**, not by the name
+`Examples.lean`: `Examples.lean` plus everything under `Examples/` is neither
+checked for consumers nor counted as one. A name-based exemption would have
+silently stopped covering the witnesses the moment they moved into a directory —
+and worse than silently, since counting a witness file as a consumer makes every
+phase module look non-leaf and defeats the gate.
+
+**The publication cites the witnesses, not a file.** The supplement already
+spelled the citation both ways — `\texttt{Examples.lean}~\S11` in the prose and
+`\texttt{Examples}~\S18` in Table S1 — and every site is now the second form.
+That is the form that stays true through a layout change, which is the point:
+a reader is pointed at §11, and the index says which file §11 is in. Same in
+`docs/primer.tex`. Both PDFs were rebuilt and `arxiv_submit/` repacked in the
+same commit.
+
 4,976 lines, thirty per cent of the 16,777-line development, and it is the sink
 that imports every phase, so the witness for a given phase is findable only by
 search. Per-phase files under `Examples/` would fix that.
@@ -1132,3 +1167,48 @@ structure scored against it — not the limits of the pairing.
 
 **Gates.** 124/124 tests and every hook. The merged arXiv document compiles from
 the unpacked tarball at 45 pages.
+
+### 2026-09-10 — E-items (E1--E4)
+
+Repository infrastructure, in four commits. No number, figure, proof or claim
+changes, and no production sweep was rerun.
+
+**E4** moved `paper_assessment.md` to `tasks/`. Nothing in the tree referenced
+it, so nothing else had to change.
+
+**E3** hoisted the frustration report out of the sweep, and not in the shape the
+item sketched: returning the legs to `main()` would have kept the import, since
+`main()` is in the sweep module. `geometric_frustration.py` now writes
+`summary.json`, the legs and the noise control and returns the summary;
+`geometric_frustration_report.py` has its own `--output` entry point, dispatches
+on the run's own status and integrates nothing. The gain is not the layer label:
+a finished run's figures and readout were previously reachable only by rerunning
+the sweep, because the legs the plots need lived in memory. All six tracked run
+directories now rebuild their `FRUSTRATION_REPORT.md` byte-for-byte from saved
+files, and a new test asserts it for each.
+
+**E1** added `.github/workflows/ci.yml`: a Python job (`uv sync`, `pytest`,
+`pre-commit run --all-files`) and a Lean job (elan, Mathlib cache, `lake build`)
+on an x86 runner. The `pdflatex` stage the item left conditional was declined,
+with the reason in the workflow header. What could be verified here was: the
+whole hook set exits 0 on this tree by the same invocation the workflow uses,
+and the pinned Mathlib revision is an ancestor of `mathlib4` master, so the cache
+the Lean job fetches exists. The runner setup is first exercised by the first
+push.
+
+**E2** split `Examples.lean` into ten files under `Examples/` and taught
+`check_leaves.py` to recognise witnesses by path. Two shared substrates came out
+of it, and one dependency that only a build could find. The publication's
+citations of the witnesses were normalised onto the form Table S1 already used.
+
+**Artifacts.** `.github/workflows/ci.yml`; `simulations/geometric_frustration.py`,
+`geometric_frustration_report.py`, `frustration_diagnostics.py`, `tach.toml`,
+`test_geometric_frustration.py`, `test_geometric_frustration_report.py`;
+`simulations/check_leaves.py`; ten new `PhysicsOfConsciousness/Examples/*.lean`;
+`PhysicsOfConsciousness/Examples.lean`; `PhysicsOfConsciousness/AGENTS.md`;
+`README.md`; `simulations/README.md`; `supplementary.tex`; `docs/primer.tex`;
+`supplementary.pdf`; `docs/primer.pdf`; `arxiv_submit/`;
+`tasks/paper_assessment.md`.
+
+**Gates.** 125/125 tests and every hook, `lake build` green, and the merged arXiv
+document compiles from the unpacked tarball at 45 pages.

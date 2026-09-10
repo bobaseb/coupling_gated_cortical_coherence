@@ -272,7 +272,7 @@ substrate appear in the definitions but are consumed by no theorem.
 \lean
 \id{pointwise\_vacuum\_of\_global\_min} and
 \id{spontaneous\_symmetry\_breaking} in \id{Phase1\_Primitives.lean}. The
-witness in \id{Examples.lean}~\S11 instantiates the $\Z_2$ action
+witness in \id{Examples}~\S11 instantiates the $\Z_2$ action
 $v\mapsto\pm v$ on the double well, proves the vacuum manifold degenerate, and
 proves the two minima exchanged by the symmetry. Unusually, its minimization
 hypothesis is \emph{proved} rather than assumed---everywhere else in the
@@ -342,7 +342,7 @@ independent physical premise for that reason.
 \id{exists\_notMem\_of\_no\_common\_preconnected} and
 \id{exists\_notMem\_of\_connectedComponentIn} (\id{Phase1\_Primitives.lean}\ \S3),
 built on Mathlib's \id{IsPreconnected.subset\_connectedComponentIn}. The
-witness (\id{Examples.lean}~\S11.1) does not merely note that the double well
+witness (\id{Examples}~\S11.1) does not merely note that the double well
 has two minima---it \emph{computes} the vacuum manifold, \id{wellVacuum\_eq}
 proving $\mathrm{DynamicalVacuum}\,V=\{-1,1\}$ exactly. That matters: a larger
 vacuum set might have been connected, and the theorem would not apply.
@@ -392,7 +392,7 @@ witnesses---it misses $0$ yet is injective.
 \lean
 \id{shannon\_entropy\_eq\_log\_card\_iff} and \id{absorb\_not\_injective} in
 \id{Phase1\_PhaseSpaceCapacity.lean}; the infinite-space refutation is recorded
-at \id{Examples.lean}~\S19.
+at \id{Examples}~\S19.
 
 \section{Landauer's principle}
 \label{sec:landauer}
@@ -440,8 +440,7 @@ unbiased bit is the special case giving $k_BT\ln2$.
 The step from ``the state space contracted'' to ``heat was dissipated''
 requires the thermodynamic postulate $\Delta Q = T\Delta S_{\text{bath}}$.
 That is carried as a class field, \id{StatisticalMechanics.heat\_eq}, not
-proved---and \id{Examples.lean} exhibits a one-bit erasure system with an
-explicit bath discharging it, so the postulate is demonstrably satisfiable
+proved---and \id{Examples}~\S1 exhibits a one-bit erasure system with an explicit bath discharging it, so the postulate is demonstrably satisfiable
 rather than merely asserted. Identifying such a register with a biological
 boundary is a further modelling step, and it is exactly what E23 carries.
 
@@ -565,7 +564,7 @@ learn---further from it than from almost every relabelling of the nodes.
 
 \lean
 \id{Phase3\_PredictiveThermodynamics.lean}. The class is inhabited twice over
-one correlated two-bit law (\id{Examples.lean}~\S18)---a frozen signal
+one correlated two-bit law (\id{Examples}~\S18)---a frozen signal
 permitted to dissipate nothing, and a scrambled one forced to dissipate its
 entire memory---so the theorems about it are not vacuous.
 
@@ -694,10 +693,10 @@ modelling question.
 \id{Phase8\_ContinuousField.lean}: \id{kernelCLM}, \id{continuumDriftCLM},
 the Hilbert-space adjoint, and
 \id{structural\_resonance\_decreases\_sigmaContinuum}, with an atomless witness
-on the unit interval (\id{Examples.lean}~\S20). The symmetric-kernel result is
+on the unit interval (\id{Examples}~\S20). The symmetric-kernel result is
 \id{phase\_locked\_minimizes\_entropy\_of\_symm}, its mean-matching step
 \id{total\_drift\_eq\_of\_symm}, and its necessity counterexample
-\id{Examples.lean}~\S16.
+\id{Examples}~\S16.
 
 %======================================================================
 \part*{Part VI. The Kuramoto model: dynamics}
@@ -825,7 +824,7 @@ this file does not treat.
 \id{Phase4\_RotatingFrame.lean}: \id{kuramoto\_potential\_unbounded\_below},
 \id{is\_kuramoto\_trajectory\_rotate}, \id{dynamic\_potential\_descent},
 \id{rotating\_frame\_chain}. Run end to end on a two-oscillator system in
-\id{Examples.lean}~\S7.
+\id{Examples}~\S7.
 
 \section{Do the trajectories exist? Picard--Lindel\"of, globally}
 
@@ -948,7 +947,7 @@ The two hypotheses are on the \emph{initial data} and neither can be removed:
 splay and twisted configurations are equilibria too, so ``every trajectory
 reaches the phase-locked state'' is simply false. What is proved is the
 arc-condition version. It is witnessed on three sites
-(\id{Examples.lean}~\S17), where no closed-form solution exists---the
+(\id{Examples}~\S17), where no closed-form solution exists---the
 trajectory is produced by the existence theorem and its limit by the
 convergence theorem, the whole numerical content of checking the hypotheses
 being $\cos\tfrac12>\tfrac34$.
@@ -1141,7 +1140,7 @@ rather than cosmetic. The predicate compares the kernel's double average
 against $2D$; on a substrate of total mass $m$ that average carries a factor
 $m^2$, so without normalization the comparison tracks the substrate's
 \emph{size} rather than its coupling and can be satisfied by any kernel at all.
-\id{Examples.lean}~\S9 exhibits a system a factor of two below threshold whose
+\id{Examples}~\S9 exhibits a system a factor of two below threshold whose
 unnormalized double integral nonetheless clears $2D$. Reduction of a
 heterogeneous spatial kernel to a scalar $K$ is a further modelling step, and
 the threshold does not automatically transfer to every spatial or signed
@@ -2080,7 +2079,7 @@ class as the overlap-agreement obligation of Part XI.
 
 \lean
 \id{Phase6\_ReflexiveTopology.lean}, with the three-site witness in
-\id{Examples.lean}~\S10 exercising every clause---including
+\id{Examples}~\S10 exercising every clause---including
 \id{cortexBlind\_self\_ne} (the baseline is \emph{not} a fixed point of the
 blinded map) and \id{cortexBlind\_not\_determined} (two distinct states with
 identical blinded readings).
@@ -2243,8 +2242,7 @@ three---\id{propext}, \id{Classical.choice} and \id{Quot.sound}.
 
 \what
 A conditional theorem about an \emph{uninhabited} class is vacuously true and
-worthless. So every class carrying a physical postulate gets an explicit
-witness in \id{Examples.lean}: a one-bit erasure system with a genuine bath
+worthless. So every class carrying a physical postulate gets an explicit witness under \id{Examples/}: a one-bit erasure system with a genuine bath
 reproducing $\Delta Q=k_BT\ln2$; a perfectly resonant system discharging the KL
 bound; a scalar field on a one-point spacetime discharging the action
 principles; and---the most demanding case---a thermodynamic cover over a
@@ -2940,9 +2938,7 @@ identifiers is Table~S1; the soundness argument, the fold-and-cross proof, the
 compatibility-observable specification and the full EEG methods are separate
 sections there.
 \item[The Lean development.] \texttt{PhysicsOfConsciousness/}, organized by
-phase. \texttt{Chain.lean} is the composition; \texttt{Examples.lean} carries
-every witness and every fencing counterexample, and is the most useful file for
-seeing what the hypotheses actually demand.
+phase. \texttt{Chain.lean} is the composition; \texttt{Examples/} carries every witness and every fencing counterexample, one file per phase, and is the most useful place to see what the hypotheses actually demand.
 \item[Simulations.] \texttt{simulations/}, with saved compact summaries and the
 generator that turns them into the numerical macros used by the manuscript,
 the Supplemental Material and this primer.

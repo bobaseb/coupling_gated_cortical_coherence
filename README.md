@@ -69,12 +69,12 @@ To ensure our derivations are mathematically rigorous and avoid "math theatre," 
 | 🔹 **Phase 9** | `Phase9_EMIdentification.lean` | ✅ Verified |
 | ⛓️ **Composition** | `Chain.lean` | ✅ Verified |
 
-The table names one representative module per phase; the development is 27
+The table names one representative module per phase; the development is 37
 modules in total, and `Chain.lean` is the one that matters most — it imports all
 nine phases and states the single conditional theorem, with the eight
-connecting hypotheses as explicit arguments. `Examples.lean` carries the toy
-witness that satisfies all eight at once, which is what makes the conjunction
-non-empty rather than vacuous.
+connecting hypotheses as explicit arguments. It also discharges all eight at
+once, on the three-site cortex the witnesses under `Examples/` build, which is
+what makes the conjunction non-empty rather than vacuous.
 
 ### 🚀 Building the Proofs
 

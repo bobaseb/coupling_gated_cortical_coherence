@@ -40,7 +40,7 @@ root) and can each be run directly from this directory:
 | `check_prose.py` | The publication is not a changelog: no sentence in `main.tex` or `supplementary.tex` may ask the reader to remember a draft they have never seen. Fails the commit. |
 | `check_hedging.py` | Reports disclaimer and reader-instruction density. Advisory — it always passes, because whether a hedge earns its place is a judgement about its paragraph. |
 | `check_tableS1.py` | Supplement Table S1's status column still matches `Chain.lean`. |
-| `check_leaves.py` | Every Lean phase module has at least one theorem consumed outside itself and `Examples.lean`. |
+| `check_leaves.py` | Every Lean phase module has at least one theorem consumed outside itself and the `Examples/` witnesses. |
 | `check_pdf_freshness.py` | The tracked PDFs are no older than the sources they are built from, since `README.md` and `index.html` link them directly. |
 
 The Python quality gates — `ruff`, `mypy`, `bandit`, `vulture`, `xenon`, `tach`
