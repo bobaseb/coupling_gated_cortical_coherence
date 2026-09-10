@@ -2428,8 +2428,10 @@ from the same cortical regime, in inverse-time units, separating phase
 diffusion from quenched frequency spread and from observation noise. Without
 this, ``$K>2D$'' is not an evaluable statement about cortex.
 \item \textbf{Geometry calibrated to coupling.} A diffusion-MRI observable or
-astrocytic signal indicates extracellular geometry; its mapping to effective
-coupling must be established separately, with its own uncertainty.
+astrocytic signal indicates the extracellular volume fraction $\alpha$; its mapping
+to effective coupling must be established separately, with its own uncertainty.
+The conductivity argument below supplies the expected sign of that mapping and
+nothing more.
 \item \textbf{Adequate spatial resolution.} At least 100 spatial samples per
 estimate, $r$ by resultant length and $a$ by unweighted log-density regression.
 With fewer sites, pooling over time changes the estimand---and must be stated
@@ -2566,7 +2568,20 @@ cortex. That bounds \emph{applied} rather than endogenous fields, but it
 constrains how much causal work a field of that magnitude can do---and is the
 reason the framework does not claim the field drives spiking. Changes in phase
 organization under propofol \citep{bastos2021} likewise do not measure a
-crossing of the model's coupling threshold. Neither the monotonic relation
+crossing of the model's coupling threshold.
+
+Extracellular geometry reaches the coupling through the field amplitude and not
+through a further mechanism. The extracellular space occupies a volume fraction
+$\alpha\approx0.2$ of cortical tissue at a diffusion tortuosity $\lambda\approx1.6$
+\citep{sykova2008}, and natural sleep raises $\alpha$ from roughly $0.14$ to $0.23$
+\citep{xie2013}. Cortical tissue conducts approximately resistively below
+$10$~kHz, at $0.3$--$0.6$~S/m, an order of magnitude set by the conductivity of
+saline diluted into that volume fraction \citep{barbour2017}. At a fixed
+transmembrane current density, then, a larger $\alpha$ means a smaller
+extracellular field: the space contracts on awakening and $K$ should rise. That
+is an effective-medium argument, so it fixes a sign and not a magnitude, and it
+says nothing about how a heterogeneous field aggregates into a single $K$.
+Neither the monotonic relation
 between extracellular geometry and coupling, nor its role in human sleep
 inertia, follows from the cited physiology; the model requires both to be
 measured.
