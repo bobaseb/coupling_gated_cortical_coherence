@@ -32,8 +32,10 @@ against.
 already in the repository. B-items add a derived quantity to an existing report
 script and read it from a saved summary — no production sweep reruns. C-items
 need a rerun of an existing sweep at new parameters. D-items need a new design.
-R-items are the carried-forward research programme and sit after D because they
-are unbounded, not because they rank below it. P-items are submission mechanics
+E-items are repository infrastructure: they change no number, proof or claim,
+and sit after D because none of them blocks the manuscript. R-items are the
+carried-forward research programme and sit after E because they are unbounded,
+not because they rank below it. P-items are submission mechanics
 and are last only because two of the three are blocked on someone else; the
 third is now gated on A1 and A2.
 
@@ -462,6 +464,74 @@ second while the evidence supports the first for one adversarial pairing.
 
 ---
 
+## E — Repository infrastructure
+
+Added 2026-09-10 from a structural review of the repository layout. None of
+these changes a number, a proof or a claim; they are recorded here so that the
+reasoning does not have to be redone. The review's conclusion on the two
+refactors that prompted it was **not to do them**: the Lean development's flat,
+phase-ordered `PhysicsOfConsciousness/` is the Mathlib convention and its DAG is
+already enforced by `check_leaves.py` and by `PhysicsOfConsciousness/AGENTS.md`
+section 7, and moving `simulations/` itself would touch twelve `pre-commit`
+hooks, `\graphicspath`, seven `\input` paths, ten path sites in
+`prepare_arxiv.sh`, three gate scripts and the `BUILD_MANIFEST` digests, in
+exchange for a shorter `ls`. What the review did find is below.
+
+### E1 — Continuous integration, off this machine
+
+There is no `.github/`. All twelve gates run only under `pre-commit`, on one
+machine, and `git commit -n` skips every one of them. Nothing verifies
+`lake build`, `uv run pytest` or `pre-commit run --all-files` anywhere else, so
+"reproducible" presently means "reproducible on this Pi" — which is the one
+claim the repository cannot check.
+
+Stage it: the Python gates and the test suite first, since they need only `uv`
+and a checkout; `lake build` second, with `lake exe cache get` on an x86 runner,
+where the Mathlib cache exists; a `pdflatex` compile last and only if the PDF
+gates are worth the TeX Live install. Note that the checkout is not small — 248
+tracked `.npz` — so pin a shallow clone.
+
+This is the item that Docker was the wrong answer to; see *Recorded, not
+scheduled*.
+
+### E2 — Split `Examples.lean`
+
+4,976 lines, thirty per cent of the 16,777-line development, and it is the sink
+that imports every phase, so the witness for a given phase is findable only by
+search. Per-phase files under `Examples/` would fix that.
+
+It is a Lean-semantics change and not a file move: instance visibility and
+`open` scopes decide whether each witness still elaborates, `check_leaves.py`
+special-cases the name `Examples.lean` and would need to learn the new shape,
+and verifying the result needs a full `lake build` against an 8.4 GB `.lake`.
+Do it as its own change or not at all — it must not be folded into a tidy-up,
+because a witness that stops elaborating is a soundness-relevant regression
+(`PhysicsOfConsciousness/AGENTS.md` section 2) and a tidy-up is not read as
+though it could cause one.
+
+### E3 — Hoist the in-run report calls out of `geometric_frustration`
+
+`geometric_frustration.py` imports `geometric_frustration_report` inside two
+function bodies (lines 224 and 253) and calls it, so the sweep writes its own
+report as it finishes. That is the one layer inversion in the package, and it is
+recorded rather than hidden: `tach.toml` places `geometric_frustration_report`
+in the `simulation` layer instead of `report`, with a comment saying why. Every
+other report module reads artifacts a finished run left behind.
+
+The clean form returns the summary and legs to `main()` and lets `main()` call
+the report writer; the module then moves to the `report` layer and the exception
+in `tach.toml` goes. It changes signatures that `test_geometric_frustration.py`
+calls directly, so it is a real refactor with test updates, not a config edit.
+Deferred because the sweep behind it is expensive to re-run for reassurance.
+
+### E4 — `paper_assessment.md` is at the repository root
+
+Nothing links it — no `.md`, `.tex`, `.html`, `.py` or `.sh` file in the tree
+mentions it. The root is otherwise manuscript sources, Lean scaffolding and the
+three tracked deliverables that `README.md` and `index.html` link. `tasks/` is
+its place. Trivial, and deferred only because it is cosmetic and moving a file
+someone opens by habit is not worth doing as a side effect of something else.
+
 ## R — Carried forward unchanged
 
 R1–R6 are reproduced from the archived ledger without change of content; consult
@@ -521,6 +591,14 @@ Carried from the archived ledger; unchanged by the audit.
 - The `.venv` console scripts embed an absolute interpreter path; after moving or
   renaming the checkout run `uv sync --reinstall` in `simulations/` before
   trusting a green pre-commit run.
+- **Docker was assessed on 2026-09-10 and declined for development.** The Python
+  half is already reproducible from `uv.lock` and `.python-version`; the barrier
+  a container would address is the Lean half, and there it is a bad trade on this
+  machine — an image means either a second multi-gigabyte `.lake` or a bind mount
+  that defeats the isolation, and Mathlib's prebuilt cache is per toolchain and
+  per platform, so an aarch64 image risks a full Mathlib build. Development stays
+  native under `uv`. If a container is ever wanted it is a reproduction artifact
+  built by E1, not a development environment.
 
 ## Verified correct by the 2026-09-09 audit
 
@@ -782,3 +860,57 @@ was reporting as possibly a discretisation artifact into a physical length, and
 C4 sharpens a bracket tenfold without separating it from the mean-field
 threshold. Both sheets in C3 run one seed, so seed dependence at the boundary is
 still open. D1 and D2 stay open.
+
+
+### 2026-09-10 — repository structure review
+
+Prompted by a question about whether the folder layout should be tidier and
+whether `simulations/` or the Lean development should be refactored. The answer
+to both refactors was no, for the reasons recorded at the head of section E. The
+review found four things that were worth doing and were done, and four that were
+not done and are E1--E4.
+
+**`tach` now enforces something.** It was reporting `✅ All modules validated!`
+directly after `[WARN] No first-party imports were found` — a single `<root>`
+module with every file inside it has no edges to check. `tach.toml` now declares
+each file as its own module across six layers, so the boundaries are enforced
+without a directory tree to carry them, and `exact = true` fails a commit on an
+import no rule permits *and* on a rule no import uses. The two rules that
+motivate the ordering — no gate imports a simulation, nothing imports
+`simulation_tex` — were each verified by inserting a violating import and
+confirming the failure. On its first real run it found the `geometric_frustration`
+inversion that is now E3; that inversion is recorded in `tach.toml`'s layer
+comment rather than hidden by widening a rule.
+
+**Output paths are anchored on the module file.** Sixteen sites across six
+modules defaulted to a working-directory-relative `figures/...` while three other
+modules already anchored on `__file__`. The failure mode is silent: a sweep
+started from anywhere else writes a fresh empty tree beside itself and the
+report generator that reads the real one afterwards finds nothing. Verified by
+importing all six with the working directory set elsewhere.
+
+**Two implicit policies are now written down** in `simulations/README.md`: every
+artifact under `figures/` is tracked, so `git status` is the record of whether a
+sweep finished; and output paths are addressed from the module file. Its test
+count was stale at 80 and is now 119.
+
+**Four stale build artifacts untracked.** `main.bbl` and `supplementary.bbl` were
+zero bytes and the two `.blg` files were logs of a BibTeX run that produced
+nothing. `references.tex` is an inline `thebibliography` and no script, gate or
+source file referenced any of them; `.gitignore` covered `*.aux`, `*.log` and
+`*.out` but not these.
+
+**Artifacts.** `simulations/tach.toml` (rewritten); `FIGURES` constants in
+`dynamic_ramp.py`, `dynamic_ramp_report.py`, `dynamical_selection.py`,
+`propagation_of_chaos.py`, `spatial_kernel.py` and `empirical_collapse.py`;
+`simulations/README.md`; `.gitignore`; section E and this record.
+
+**Gates.** 119/119 tests, `ruff`, `ruff format`, `mypy`, `bandit`, `vulture`,
+`xenon`, `tach`, `check_prose`, `check_tableS1`, `check_figures`,
+`check_pdf_freshness`, `check_leaves`. `check_arxiv_freshness` was failing before
+this pass began, on `main.tex` and `references.tex` changes this pass did not
+make; `./prepare_arxiv.sh` was rerun and it compiled cleanly from the unpacked
+tarball at 44 pages.
+
+**Scope.** No number, figure, proof or claim changes. No production sweep was
+rerun and none needed to be.
