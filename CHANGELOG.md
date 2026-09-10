@@ -20,18 +20,66 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
-## 2026-09-10 — Audit remediation, parts B and C: generated limits and sweeps
+## 2026-09-10 — Audit remediation, parts B and C: the reference and the cause
 
-Nine corrections drawn from re-running the exact stationary-branch comparison, refitting the growth window, or reading existing compact artifacts without reproducing them.
+Eight corrections. Six read a derived quantity out of an artifact the repository
+already had; two reran a sweep. As in part A, what moves is the reference a
+number is measured against or the cause it is assigned to.
 
 Claims that were made and are no longer made:
 
-- That the onset estimator recovers an adiabatic reference exponent of 1/2. The estimator exhibits systematic downward bias from window curvature; the computed reference exponent is ~0.44. The measured exponents are now compared against that reference.
-- That the $N$-dependence of the threshold delay agrees with the $\sqrt{\log N}$ prediction. The measured variance across three $N$ values is dominated by a fixed escape level meeting a size-dependent fluctuation floor. The claim is weakened to a statement of monotonicity.
-- That the reported critical spatial decay length (0.0140 mm) lies sevenfold below the empirical coherent band. Grid spacing on the 128x128 sheet is 0.0156 mm, meaning the transition region consists of length scales below one cell. 
-- That the steady mean order gap at $K=2.8$ was a finite-size discrepancy. A half-step $\Delta t$ control assigns the bulk of the gap to Euler--Maruyama bias.
-- That the early-growth slope was 0.432, fitted to a fixed interval that overlapped the nonlinear saturation cap and the finite-size noise floor. A dynamically bounded fit (restricting to $2/\sqrt{N}$ and half the static branch order) yields a slope of 0.415, establishing a robust finite-size residual rather than an artifact of fitting outside the linear regime.
- 
+- That the onset estimator's target is the asymptotic exponent 1/2. The declared
+  fit window reaches far enough past threshold that the estimator returns about
+  0.44 on the exact stationary branch, whose exponent is 1/2 by construction.
+  The measured exponents are now read against that generated reference, so the
+  ramp effect and the window bias can be separated.
+- That the four onset exponents are one quantity measured at four speeds. Each
+  leg realises a different part of the declared window, and at the fastest ramp
+  the ensemble mean never reaches the window at all, so the number returned
+  there is a local log-slope rather than an onset exponent. Both documents now
+  report the realised order range, coupling range and sample count per leg.
+- That the shift parameter returning at its lower bound distinguishes the
+  fastest fit. It is returned at the bound on every leg, and the count is
+  generated rather than asserted.
+- That the threshold delay's dependence on population size agrees with the
+  predicted square-root-of-log law. Divided through, the three sizes do not
+  collapse onto a constant; the spread is dominated by a fixed absolute escape
+  criterion meeting a size-dependent critical fluctuation floor. Only
+  monotonicity is claimed, and the control is reported as a demonstration of the
+  measurement hazard the protocol warns about.
+- That the spatial sweep's critical decay length lies about sevenfold below the
+  empirical band. It is 0.90 lattice spacings on the sheet it was measured on,
+  and the criterion is crossed entirely below one cell, so the boundary carries
+  no resolution-independent content. What the sweep does show is now stated: the
+  empirical band sits inside a plateau that runs out to four times the sheet's
+  extent.
+- That the frustration crossing is located to five significant figures. It is
+  interpolated across one step of a geometric grid of ratio 1.136; the bracket
+  that step spans contains the model's own mean-field threshold, so the run does
+  not separate the crossing from the threshold. The quoted precision is cut to
+  what the grid supports, and the fluctuation-amplification result in the same
+  run is joined to it rather than left in an adjacent paragraph.
+- That the matched-norm random arm controls for motion of a kernel at fixed
+  resource. The arms are matched on the per-step direction norm, and successive
+  isotropic steps cancel, so the random arm ends an order of magnitude less
+  deformed and barely enters the sparsification channel the descent is explained
+  by. The control's scope is stated, and the overlap between the reported seeds
+  and the seed the learning rate was tuned on is disclosed.
+- That the steady-order gap at K = 2.8 is a finite-size discrepancy. A
+  step-size series at fixed duration assigns the bulk of it to Euler--Maruyama
+  bias. The series has not converged at the finest step run, so the residual
+  there bounds the finite-size part rather than measuring it, and it is reported
+  as a bound.
+
+Also changed, without a claim moving: the early-growth fit window is now defined
+relative to the finite-size floor below and the static coherent branch above,
+rather than as a fixed interval that opened on the noise floor and closed inside
+the nonlinear regime. The refit leaves the slope short of 1/2. Because the sweep
+still runs at the production step, the residual is not attributed to finite size
+alone.
+
+---
+
 ## 2026-09-09 — Audit remediation, part A: what the numbers were said to mean
 
 Seven corrections to statements that were transcribed correctly and read wrongly.

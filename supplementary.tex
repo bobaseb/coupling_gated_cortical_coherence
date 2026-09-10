@@ -113,9 +113,22 @@ replicas of 1,000 identical-frequency oscillators were integrated at fixed
 coupling.  Their steady order was \selectionSubOrder{} below threshold,
 \selectionCriticalOrder{} at threshold and \selectionSuperOrder{} above
 threshold.  The last value lies \selectionStaticResidual{} from the stationary
-coherent value \selectionTheoryOrder.  Early-growth fits (regressed over the window spanning $\selectionWindowLowerBase$ to $\selectionWindowUpperBase$, defined respectively as $2/\sqrt{N}$ and half the static order) gave
-$\lambda=\selectionRateSlope K\selectionRateIntercept$, against the infinite-$N$
-linearization $\lambda=0.5K-1$.  The restricted window leaves the empirical exponent far from the asymptotic $1/2$, establishing a robust finite-size residual rather than an artifact of fitting outside the linear regime. This exhibits finite sampled escape toward the
+coherent value \selectionTheoryOrder.  Refining the integration step by a factor
+of \selectionDtRefinement{} at the same coupling, duration and tail sampling
+moves that steady order to \selectionSuperOrderDtFine, so most of the gap is
+Euler--Maruyama bias.  The last refinement still moves it by
+\selectionDtLastChange, so the remaining \selectionStaticResidualDtFine{}
+bounds the finite-$N$ part rather than measuring it.
+
+Early-growth fits are regressed over a window whose bounds follow the trace: it
+opens at $2/\sqrt{N}=\selectionWindowLower$, clear of the finite-size floor,
+and closes at half the static branch order, which runs from
+\selectionWindowUpperMin{} to \selectionWindowUpperMax{} across the swept
+couplings.  The fits give $\lambda=\selectionRateSlope K\selectionRateIntercept$,
+against the infinite-$N$ linearization $\lambda=0.5K-1$.  The shortfall from
+$1/2$ is therefore not a property of the fit window; the sweep integrates at the
+step whose bias the control above measures, so finite $N$ and the integrator
+both contribute to what remains.  This exhibits finite sampled escape toward the
 coherent branch; it proves no stability or dynamical-selection theorem.
 
 Second, 1,000 ensembles were swept from $N=\chaosNMin$ to $N=\chaosNMax$ at
@@ -170,7 +183,11 @@ A uniform per-pair term $\epsilon$ adds mean-field strength
 $K_{\mathrm{eff}}=N\epsilon$.  The operational crossing, defined by second-half
 mean $r=0.2$ with all larger sampled couplings above it, occurs at
 $K_{\mathrm{eff}}/D\in[\frustrationCouplingMin,\frustrationCouplingMax]$
-across the three seeds (Fig.~\ref{fig:frustration-rescue}).  This range describes
+across the three seeds (Fig.~\ref{fig:frustration-rescue}).  Each value
+interpolates across one step of a geometric $\epsilon$ grid of ratio
+$\frustrationGridRatio$, so the crossing is located no more finely than the
+bracket $[\frustrationBracketMin,\frustrationBracketMax]$ that step spans, and
+that bracket contains $K_c/D=2$.  This range describes
 finite-run variability, not a confidence interval or an infinite-size critical
 point.  Equal-duration half-step controls probe numerical sensitivity near the
 transition; they do not establish convergence of the integrator.
@@ -424,7 +441,7 @@ The third candidate must be declined for a further reason. Under $\gamma=D$ the 
 
 \subsection{Finite-sheet spatial-decay control}
 
-A finite stochastic control asks whether fixing total coupling while shortening its spatial reach fragments the phase field. On a periodic $128\times128$ sheet spanning 2.0~mm, an exponential kernel was row-normalised to total coupling $K_0=8$ at every decay length; the dynamics used thermodynamic diffusion $0.5$~rad$^2$/s, quenched Gaussian frequency spread $1.5$~rad/s, and 20,000 Euler--Maruyama steps per length. With steady $r>0.2$ as the declared operational coherence criterion, the smallest interpolated decay length above which every larger sampled length remained coherent was \spatialCriticalDecay~mm (\spatialCriticalDecayCells~lattice spacings). The transition-local trajectories were metastable and non-monotone, so that number is an operational boundary rather than a critical-point estimate with statistical precision. At the empirical controls 0.1, 0.2 and 0.3~mm, steady $r$ was respectively \spatialOrderOne, \spatialOrderTwo{} and \spatialOrderThree, and winding-defect density was at most $\spatialDefectMaximum$; this coherence level is indistinguishable from the global-coupling limit out to the sweep's maximum \spatialPlateauMax~mm. Thus this finite, single-seed parameter sweep does not show fragmentation in the empirical decay-length band. It neither measures cortex nor proves a transition, and it leaves seed dependence and the near-boundary metastability unresolved.
+A finite stochastic control asks whether fixing total coupling while shortening its spatial reach fragments the phase field. On a periodic $128\times128$ sheet spanning 2.0~mm, an exponential kernel was row-normalised to total coupling $K_0=8$ at every decay length; the dynamics used thermodynamic diffusion $0.5$~rad$^2$/s, quenched Gaussian frequency spread $1.5$~rad/s, and 20,000 Euler--Maruyama steps per length. With steady $r>0.2$ as the declared operational coherence criterion, the smallest interpolated decay length above which every larger sampled length remained coherent was \spatialCriticalDecay~mm. On this grid that is \spatialCriticalDecayCells~lattice spacings, and the shortest sampled length from which coherence is sustained is \spatialResolvedDecayCells~spacings; the sheet therefore does not resolve the lengths at which the criterion is crossed, and the boundary is a property of the discretisation as much as of the dynamics. The transition-local trajectories were metastable and non-monotone, so that number is an operational boundary rather than a critical-point estimate with statistical precision. At the empirical controls 0.1, 0.2 and 0.3~mm, steady $r$ was respectively \spatialOrderOne, \spatialOrderTwo{} and \spatialOrderThree, and winding-defect density was at most $\spatialDefectMaximum$. From 0.1~mm out to the sweep's longest range \spatialPlateauMax~mm, which is \spatialPlateauExtentRatio times the sheet's extent, steady order spans only \spatialPlateauSpread, so the empirical band sits inside a saturated plateau rather than near a boundary. Thus this finite, single-seed parameter sweep does not show fragmentation in the empirical decay-length band. It neither measures cortex nor proves a transition, and it leaves seed dependence and the near-boundary metastability unresolved.
 
 \begin{figure}[ht]
 \centering
@@ -464,7 +481,7 @@ resolution.  At fixed $v=10^{-2}$ the delay is monotonic in $N$, increasing
 from $\rampNDelayOne$ through $\rampNDelayTwo$ to $\rampNDelayThree$ as $N$ increases from $500$ through
 $2000$ to $8000$. The corresponding ratios $\Delta K / \sqrt{\ln N}$ are $\rampNScaledDelayOne$, $\rampNScaledDelayTwo$ and $\rampNScaledDelayThree$, which do not collapse to a size-independent constant. At $N=500$, individual replicas reach $r=\rampNPrecriticalMaxOne$ before $K_c$, while at $N=8000$ they reach only $\rampNPrecriticalMaxThree$; the absolute criterion $r \geq 0.2$ therefore fires almost immediately at the smallest size. The control demonstrates the protocol hazard warned of in the main text's measurement protocol: a fixed absolute criterion meeting a size-dependent critical fluctuation floor.
 
-The early-foot fit $r=A(K-K_0)^{\beta_{\rm eff}}$ seeks to recover the exponent from the nominal window $0.1\leq r\leq0.4$. To separate the effect of the drive from the downward bias of fitting outside the asymptotic regime, exponents must be read against fits to the exact stationary branch sampled on the same grids ($\beta_{\rm eff}=\rampOnsetReferenceOne,\rampOnsetReferenceTwo,\rampOnsetReferenceThree,\rampOnsetReferenceFour$ from fastest to slowest). The three slower ramps yield $\beta_{\rm eff}=\rampOnsetTwo,\rampOnsetThree,\rampOnsetFour$, recovered from $K-K_c \in [\rampOnsetExcessMinTwo, \rampOnsetExcessMaxTwo]$ to $[\rampOnsetExcessMinFour, \rampOnsetExcessMaxFour]$ ($\rampOnsetSamplesTwo$ to $\rampOnsetSamplesFour$ samples per fit). The slowest leg therefore matches the adiabatic reference. At the fastest ramp $v=10^{-1}$, the ensemble mean never reaches the fit window within the simulated interval, truncating the realised range to $r \in [\rampOnsetOrderMinOne, \rampOnsetOrderMaxOne]$ at $K-K_c \in [\rampOnsetExcessMinOne, \rampOnsetExcessMaxOne]$ with $K_0$ pinned at its bound. The fast-ramp number $\beta_{\rm eff}=\rampOnsetOne$ is the local log-slope of a strongly delayed trajectory rather than an onset exponent.  A mapping from these dimensionless rates to human recovery times requires an independently calibrated phase diffusion and coupling trajectory. The independently
+The early-foot fit $r=A(K-K_0)^{\beta_{\rm eff}}$ is declared over the order window $0.1\leq r\leq0.4$. Its exponents are read against the same estimator applied to the exact stationary branch on each leg's own coupling grid, which returns $\beta_{\rm eff}=\rampOnsetReferenceOne,\rampOnsetReferenceTwo,\rampOnsetReferenceThree,\rampOnsetReferenceFour$ from fastest to slowest: the window reaches far enough past threshold that the estimator falls short of $1/2$ even on a branch whose exponent is exactly $1/2$, and that shortfall belongs to the window rather than to the drive. Against that reference the drive still dominates at $v=10^{-2}$, where $\beta_{\rm eff}=\rampOnsetTwo$ stands well above the adiabatic value; the two slower legs return $\rampOnsetThree$ and $\rampOnsetFour$, which fall on either side of their references rather than approaching them from one direction. The legs realise different windows and are comparable only so far as those agree: $K-K_c\in[\rampOnsetExcessMinTwo,\rampOnsetExcessMaxTwo]$, $[\rampOnsetExcessMinThree,\rampOnsetExcessMaxThree]$ and $[\rampOnsetExcessMinFour,\rampOnsetExcessMaxFour]$ over $\rampOnsetSamplesTwo$, $\rampOnsetSamplesThree$ and $\rampOnsetSamplesFour$ samples. At the fastest ramp $v=10^{-1}$ the ensemble mean never reaches the declared window within the simulated interval: the fit truncates to $r\in[\rampOnsetOrderMinOne,\rampOnsetOrderMaxOne]$ at $K-K_c\in[\rampOnsetExcessMinOne,\rampOnsetExcessMaxOne]$ over $\rampOnsetSamplesOne$ samples, so $\beta_{\rm eff}=\rampOnsetOne$ is the local log-slope of a strongly delayed trajectory rather than an onset exponent. The shift $K_0$ is returned at its lower bound on $\rampOnsetPinnedCount$ of the $\rampLegCount$ legs, so pinning describes the estimator on this family of traces and does not single out the fastest fit.  A mapping from these dimensionless rates to human recovery times requires an independently calibrated phase diffusion and coupling trajectory. The independently
 estimated $(a,r)$ traces remain close to $I_1(a)/I_0(a)$ even where the
 trajectory lags the stationary branch.  Post-critical RMS deviations are
 $\rampCollapseOne,\rampCollapseTwo,\rampCollapseThree,\rampCollapseFour$; using the slowest run as the finite-$N$

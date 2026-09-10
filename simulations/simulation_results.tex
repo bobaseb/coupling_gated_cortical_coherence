@@ -17,10 +17,8 @@
 \newcommand{\rampNPrecriticalMaxOne}{0.436}
 \newcommand{\rampNPrecriticalMaxTwo}{0.223}
 \newcommand{\rampNPrecriticalMaxThree}{0.106}
-\newcommand{\rampOnsetPinnedOne}{true}
-\newcommand{\rampOnsetPinnedTwo}{true}
-\newcommand{\rampOnsetPinnedThree}{true}
-\newcommand{\rampOnsetPinnedFour}{true}
+\newcommand{\rampLegCount}{4}
+\newcommand{\rampOnsetPinnedCount}{4}
 \newcommand{\rampOnsetOne}{0.964}
 \newcommand{\rampOnsetTwo}{0.898}
 \newcommand{\rampOnsetThree}{0.471}
@@ -58,7 +56,10 @@
 % S2: spatial kernel
 \newcommand{\spatialCriticalDecay}{0.0140}
 \newcommand{\spatialCriticalDecayCells}{0.90}
+\newcommand{\spatialResolvedDecayCells}{0.94}
 \newcommand{\spatialPlateauMax}{8.0}
+\newcommand{\spatialPlateauSpread}{0.00038}
+\newcommand{\spatialPlateauExtentRatio}{4.0}
 \newcommand{\spatialOrderOne}{0.9424}
 \newcommand{\spatialOrderTwo}{0.9427}
 \newcommand{\spatialOrderThree}{0.9427}
@@ -70,12 +71,15 @@
 \newcommand{\selectionSuperOrder}{0.67735}
 \newcommand{\selectionTheoryOrder}{0.68270}
 \newcommand{\selectionStaticResidual}{-0.00535}
-\newcommand{\selectionSuperOrderDtHalf}{0.68021}
-\newcommand{\selectionStaticResidualDtHalf}{-0.00250}
+\newcommand{\selectionDtRefinement}{4}
+\newcommand{\selectionSuperOrderDtFine}{0.68168}
+\newcommand{\selectionStaticResidualDtFine}{-0.00102}
+\newcommand{\selectionDtLastChange}{0.00147}
 \newcommand{\selectionRateSlope}{0.41505}
 \newcommand{\selectionRateIntercept}{-0.78619}
-\newcommand{\selectionWindowLowerBase}{0.06325}
-\newcommand{\selectionWindowUpperBase}{0.20669}
+\newcommand{\selectionWindowLower}{0.06325}
+\newcommand{\selectionWindowUpperMin}{0.20669}
+\newcommand{\selectionWindowUpperMax}{0.37050}
 
 % S4: propagation of chaos
 \newcommand{\chaosNMin}{10}
@@ -101,8 +105,8 @@
 % S5: conditional frustration rescue
 \newcommand{\frustrationBaselineMin}{0.0508}
 \newcommand{\frustrationBaselineMax}{0.0574}
-\newcommand{\frustrationCouplingMin}{1.8994}
-\newcommand{\frustrationCouplingMax}{1.9387}
+\newcommand{\frustrationCouplingMin}{1.90}
+\newcommand{\frustrationCouplingMax}{1.94}
 \newcommand{\frustrationBracketMin}{1.857}
 \newcommand{\frustrationBracketMax}{2.110}
 \newcommand{\frustrationGridRatio}{1.136}

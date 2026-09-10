@@ -578,10 +578,120 @@ one-line summary: the numbers are right and three of them are assigned to the
 wrong cause, three are compared against the wrong reference, one control does not
 control for what it is cited for, and one hand-entered numeral is wrong.
 
-### 2026-09-10 — B-items (B1-B6)
-Completed B-items without re-running sweeps, emitting derived macros from existing saved artifacts.
-- B1 & B2 & B3: Extracted onset estimator stationary reference (`adiabatic_onset_exponent`), onset bounds, sample counts, and `delay / sqrt(log N)` logic in `dynamic_ramp_report.py`.
-- B4: Extracted `critical_decay_mm` in lattice units (`spatialCriticalDecayCells`) and empirical plateau range in `simulation_tex.py`.
-- B5: Emitted `threshold_bracket` directly as `frustrationBracketMin`/`Max` with grid ratio in `simulation_tex.py`.
-- B6: Emitted the matched-random arm's `kernel_norm_growth` (`plasticityRandomNormGrowthMin`/`Max`).
-Modified `main.tex` and `supplementary.tex` to state findings using these generated macros. Built PDFs and refreshed the arXiv submission cleanly.
+### 2026-09-10 — B-items (B1--B6)
+
+Six derived quantities read out of saved artifacts; no sweep rerun.
+
+- **B1.** `adiabatic_onset_exponent` in `dynamic_ramp_report.py` runs
+  `fit_onset_exponent` on `bifurcation.coherent_r` sampled on each leg's own
+  coupling grid. It returns 0.443 on the three faster grids and 0.448 on the
+  slowest, reproducing the audit. Emitted as `\rampOnsetReference*`; the
+  supplement reads the measured exponents against it and not against 1/2.
+- **B2.** `OnsetFit` carries the window it realised — order range, coupling
+  excess, sample count, and whether the shift returned at its lower bound.
+  Emitted per leg. The shift is pinned on all four legs, so it is reported as a
+  count over legs (`\rampOnsetPinnedCount` of `\rampLegCount`) rather than as a
+  property of the fastest fit, which is what the first pass at this item said.
+- **B3.** `SizeMetrics.scaled_delay` and `precritical_order_max`. The ratios do
+  not collapse; at N = 500 replicas reach 0.436 before threshold against 0.106
+  at N = 8000. The supplement claims monotonicity only and names the protocol
+  hazard.
+- **B4.** Decay lengths in lattice spacings beside millimetres, plus the plateau
+  the empirical band sits in. The criterion is crossed between 0.90 and 0.94
+  spacings — entirely below one cell — and steady order spans 0.00038 from the
+  band's lower limit out to four times the sheet extent. The sevenfold margin is
+  gone from `supplementary.tex` and from `docs/primer.tex`.
+- **B5.** The bracket is converted with the run's own N and D rather than a
+  literal, and the grid ratio is read from the epsilon grid rather than from the
+  bracket, which agree only while the bracket is one grid step wide. The
+  interpolant's precision is cut to two decimals. Both documents state that the
+  bracket contains K_c/D = 2, so the run does not separate the crossing from the
+  threshold; the fluctuation-amplification result is joined to it in the same
+  sentence rather than left in an adjacent paragraph.
+- **B6.** The random arm's `kernel_norm_growth` is emitted and reported beside
+  the gradient arm's. The main text states what the control does not rule out,
+  and discloses that the learning-rate sweep ran on one of the three reported
+  seeds.
+
+**Scope.** B5 reports the crossing as a bracket; C4 is what would resolve it.
+B4 establishes that the boundary is unresolved; C3 is what would decide whether
+it is a lattice artifact. B6 scopes the control; D1 is what would close it.
+
+**Gates.** 111/111 tests, `ruff`, `ruff format`, `mypy`, `bandit`, `vulture`,
+`xenon`, `tach`, `check_prose`, `check_tableS1`, `check_figures`,
+`check_pdf_freshness`, `check_arxiv_freshness`, `check_leaves`, and the
+macro-drift test in `test_simulation_tex.py`.
+
+### 2026-09-10 — C-items (C1, C2)
+
+**C1.** `dt_control_configs` refines the production step at fixed physical
+duration and fixed tail sampling, so the only thing that changes across the
+series is the step. The production step opens the series and is not re-run: the
+regime sweep has already integrated it at that coupling. Red test first
+(`test_dt_control_refines_the_base_step_at_fixed_duration`, which fails against
+a control whose step list and step count are literals rather than derived from
+`base.dt`). Full sweep rerun; the regime and growth legs reproduce bit-for-bit
+because every config seeds its own generator.
+
+The series at K = 2.8, D = 1, N = 1000, 500 replicas, tail-quarter mean:
+
+| dt | 0.01 | 0.005 | 0.0025 | static |
+|---|---|---|---|---|
+| steady $r$ | 0.677352 | 0.680206 | 0.681681 | 0.682705 |
+| residual | -0.00535 | -0.00250 | -0.00102 | --- |
+
+The residual is monotone in dt and 81% of it is gone by dt = 0.0025, so the
+bulk of the published gap is Euler--Maruyama bias, as the audit found. What the
+series does **not** do is measure the finite-size part: the last refinement moves
+the steady order by 0.00147, which is larger than the 0.00102 it leaves, so the
+series has not converged and the remainder is consistent with zero. Both
+documents report -0.00102 as a bound on the finite-$N$ part and say that it is a
+bound. This is the one place where the first pass at C1 overstated: a two-point
+series was read as a decomposition.
+
+The audit's independent 64-replica series reached 0.68103 at dt = 0.0025; at 500
+replicas the same step gives 0.68168. The two agree on the attribution and not on
+the fourth decimal, which is what 64 against 500 replicas predicts.
+
+**Artifacts.** `selection_dt_control_dt0.005.npz`,
+`selection_dt_control_dt0.0025.npz`, and `dt_control_dt` / `dt_control_order` /
+`dt_control_coupling` in the summary. `selection_dt_control_dt0.01.npz` is
+deleted: the production step opens the series, and the supercritical regime leg
+already is that run, bit-for-bit.
+
+**C2.** `estimate_growth_rate` takes bounds instead of a transient and a cap:
+the window opens at twice the finite-size floor and closes at half the static
+branch order, so it follows the trace rather than a fixed interval. The value
+mask is restricted to its first contiguous block, which is what the discarded
+transient argument was protecting against — a saturated trace that fluctuates
+back into the band would otherwise contribute samples from the wrong regime.
+The upper bound moves with the coupling, so the supplement reports the range it
+takes across the sweep rather than one leg's window.
+
+The window at N = 1000 opens at $2/\sqrt{N} = 0.06325$ and closes at half the
+static branch order, which runs from 0.20669 at K = 2.2 to 0.37050 at K = 3.1 --
+one bound per leg, not one window for the sweep, and the supplement reports the
+range rather than the first leg's value. The refit gives
+$\lambda = 0.41505\,K - 0.78619$ against the infinite-$N$ linearization
+$0.5K - 1$: the slope moves away from 1/2, not toward it.
+
+Per C2's completion criterion that makes the shortfall a real residual rather
+than a window artifact. It does not make it a pure finite-$N$ statement, because
+the sweep integrates at the production step whose bias C1 has just measured, and
+both documents say so rather than claiming finite size alone.
+
+The first-contiguous-block restriction is a guard, not a correction: it leaves
+the slope unchanged to $10^{-15}$ on this data, because none of the ten traces
+re-enters the window after saturating. It is there because the value-only mask
+that replaced the transient argument had nothing stopping one that did.
+
+**Gates.** 113/113 tests, `ruff`, `ruff format`, `mypy`, `bandit`, `vulture`,
+`xenon`, `tach`, `check_prose`, `check_tableS1`, `check_figures`,
+`check_pdf_freshness`, `check_arxiv_freshness`, `check_leaves`, and the
+macro-drift test.
+
+**Scope.** Neither item changes a conclusion. C1 removes a finite-size claim the
+data do not support and replaces it with a bound; C2 removes the window as an
+explanation for the growth-rate shortfall without establishing that finite size
+is the whole of what remains, because the sweep runs at the production step.
+C3, C4, D1 and D2 stay open.

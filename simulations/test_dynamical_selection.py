@@ -1,11 +1,15 @@
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import numpy as np
 
 from dynamical_selection import (
     SelectionConfig,
+    dt_control_configs,
     estimate_growth_rate,
     mean_field_drift,
+    run_experiment,
     simulate_selection,
     theoretical_growth_rate,
 )
@@ -80,25 +84,42 @@ class DynamicalSelectionTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "positive"):
             simulate_selection(config)
 
-    def test_run_experiment_produces_dt_control(self) -> None:
-        from dynamical_selection import run_experiment
-        import tempfile
-        from pathlib import Path
+    def test_growth_window_excludes_a_later_re_entry(self) -> None:
+        time = np.linspace(0.0, 10.0, 11)
+        order = np.array([0.02, 0.05, 0.10, 0.20, 0.40, 0.60, 0.40, 0.20, 0.10, 0.20, 0.40])
 
+        fit = estimate_growth_rate(time, order, lower_bound=0.03, upper_bound=0.5)
+
+        self.assertEqual(fit.sample_count, 4)
+
+    def test_dt_control_refines_the_base_step_at_fixed_duration(self) -> None:
+        base = SelectionConfig(dt=0.02, steps=300, sample_every=5)
+
+        configs = dt_control_configs(base, coupling=2.8)
+
+        self.assertEqual([config.dt for config in configs], [0.01, 0.005])
+        for config in configs:
+            self.assertEqual(config.coupling, 2.8)
+            self.assertAlmostEqual(config.steps * config.dt, base.steps * base.dt)
+            self.assertAlmostEqual(config.sample_every * config.dt, base.sample_every * base.dt)
+
+    def test_dt_control_series_opens_at_the_production_step(self) -> None:
         base = SelectionConfig(
-            n_oscillators=1024, n_replicas=4, dt=0.02, steps=300, sample_every=5, seed=42
+            n_oscillators=1024, n_replicas=8, dt=0.02, steps=400, sample_every=5, seed=42
         )
         regimes = np.array([1.6, 2.0, 2.8])
-        growth = np.array([2.1, 2.2])
+        growth = np.array([2.8, 3.0])
 
-        with tempfile.TemporaryDirectory() as td:
-            output = Path(td)
-            summary = run_experiment(base, regimes, growth, output)
+        with TemporaryDirectory() as directory:
+            summary = run_experiment(base, regimes, growth, Path(directory))
+            saved = sorted(path.name for path in Path(directory).glob("selection_dt_control*.npz"))
 
         self.assertEqual(summary.dt_control_coupling, 2.8)
-        self.assertEqual(summary.dt_control_dt, [0.01, 0.005])
-        self.assertEqual(len(summary.dt_control_order), 2)
-        self.assertIsInstance(summary.dt_control_order[0], float)
+        self.assertEqual(summary.dt_control_dt, [0.02, 0.01, 0.005])
+        self.assertEqual(summary.dt_control_order[0], summary.regime_final_order[2])
+        self.assertEqual(
+            saved, ["selection_dt_control_dt0.005.npz", "selection_dt_control_dt0.01.npz"]
+        )
 
 
 if __name__ == "__main__":

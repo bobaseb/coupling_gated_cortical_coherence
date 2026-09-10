@@ -11,7 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import time
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import cast
 
@@ -23,6 +23,15 @@ from bifurcation import coherent_r
 
 
 FloatArray = NDArray[np.float64]
+
+# Growth-fit window, stated relative to the two scales that bound it: the
+# finite-size floor 1/sqrt(N) below and the static coherent branch above.
+_FLOOR_MULTIPLE = 2.0
+_SATURATION_FRACTION = 0.5
+
+# Step-size control: the production step, then the same duration at these
+# refinements of it.
+_DT_REFINEMENTS = (2, 4)
 
 
 @dataclass(frozen=True)
@@ -153,14 +162,32 @@ def theoretical_growth_rate(coupling: FloatArray, diffusion: float) -> FloatArra
     return (coupling - 2.0 * diffusion) / 2.0
 
 
+def _first_contiguous_block(mask: NDArray[np.bool_]) -> NDArray[np.bool_]:
+    """Keep the first run of ``True`` and drop any later re-entry.
+
+    The window is a band of order values, and a trajectory that saturates and
+    then fluctuates can cross back into it. Only the first crossing is early
+    growth; a later one would contribute samples from the saturated regime to a
+    fit that is defined on the exponential one.
+    """
+    indices = np.flatnonzero(mask)
+    if indices.size == 0:
+        return mask
+    gaps = np.flatnonzero(np.diff(indices) > 1)
+    stop = int(gaps[0]) + 1 if gaps.size else indices.size
+    block = np.zeros_like(mask)
+    block[indices[:stop]] = True
+    return block
+
+
 def estimate_growth_rate(
     time_values: FloatArray,
     order: FloatArray,
     lower_bound: float,
     upper_bound: float,
 ) -> GrowthFit:
-    """Fit log order strictly between ``lower_bound`` and ``upper_bound``."""
-    mask = (order > lower_bound) & (order < upper_bound)
+    """Fit log order over the first excursion between the two declared bounds."""
+    mask = _first_contiguous_block((order > lower_bound) & (order < upper_bound))
     if np.count_nonzero(mask) < 3:
         raise ValueError("at least three samples are required in the growth-fit window")
     x_values = time_values[mask]
@@ -198,11 +225,11 @@ def _fit_growth_sweep(
 ) -> tuple[FloatArray, FloatArray, float, float, list[float], list[float]]:
     fits = []
     for config, result in zip(configs, results, strict=True):
-        static_r = coherent_r(config.coupling, config.diffusion)
-        # e.g., 2.0 * floor is safe, let's use 2.0 * finite_size_floor to low-end
-        # relative bounds
-        lower_bound = 2.0 * result.finite_size_floor
-        upper_bound = 0.5 * static_r
+        # Both bounds are relative, so the window follows the trace rather than
+        # a fixed interval: it opens clear of the finite-size floor and closes
+        # short of the branch the growth saturates onto.
+        lower_bound = _FLOOR_MULTIPLE * result.finite_size_floor
+        upper_bound = _SATURATION_FRACTION * coherent_r(config.coupling, config.diffusion)
         fits.append(estimate_growth_rate(result.time, result.order_mean, lower_bound, upper_bound))
 
     rates = np.asarray([fit.rate for fit in fits])
@@ -271,6 +298,27 @@ def _plot_experiment(
     plt.close(growth)
 
 
+def dt_control_configs(base: SelectionConfig, coupling: float) -> list[SelectionConfig]:
+    """Refine the integration step at fixed duration and fixed sampling density.
+
+    The control asks what the reported steady order does as the step shrinks,
+    so everything else about the run is held fixed: the same coupling, the same
+    physical duration and the same number of samples in the tail the steady
+    order averages over. The production step itself opens the series and is not
+    repeated here, because the regime sweep has already run it.
+    """
+    return [
+        replace(
+            base,
+            coupling=coupling,
+            dt=base.dt / factor,
+            steps=base.steps * factor,
+            sample_every=base.sample_every * factor,
+        )
+        for factor in _DT_REFINEMENTS
+    ]
+
+
 def run_experiment(
     base: SelectionConfig,
     regime_couplings: FloatArray,
@@ -289,23 +337,15 @@ def run_experiment(
     regime_results = _run_configs(regime_configs)
     growth_results = _run_configs(growth_configs)
 
-    # dt control at largest regime coupling
-    dt_control_coupling = float(np.max(regime_couplings))
-    dt_configs = []
-    for dt in (0.01, 0.005):
-        dt_configs.append(
-            SelectionConfig(
-                **{
-                    **asdict(base),
-                    "coupling": dt_control_coupling,
-                    "dt": dt,
-                    "steps": int(base.steps * (0.01 / dt)),
-                    "sample_every": int(base.sample_every * (0.01 / dt)),
-                }
-            )
-        )
+    dt_index = int(np.argmax(regime_couplings))
+    dt_control_coupling = float(regime_couplings[dt_index])
+    dt_configs = dt_control_configs(base, dt_control_coupling)
     dt_results = _run_configs(dt_configs)
-    dt_orders = [float(_steady_order(result)) for result in dt_results]
+    dt_steps = [base.dt, *(config.dt for config in dt_configs)]
+    dt_orders = [
+        float(_steady_order(regime_results[dt_index])),
+        *(float(_steady_order(result)) for result in dt_results),
+    ]
 
     rates, fit_quality, slope, intercept, lower_bounds, upper_bounds = _fit_growth_sweep(
         growth_configs, growth_results
@@ -326,7 +366,7 @@ def run_experiment(
         rate_slope=slope,
         rate_intercept=intercept,
         dt_control_coupling=dt_control_coupling,
-        dt_control_dt=[0.01, 0.005],
+        dt_control_dt=dt_steps,
         dt_control_order=dt_orders,
         runtime_seconds=float(
             sum(result.runtime_seconds for result in regime_results + growth_results + dt_results)

@@ -6,12 +6,11 @@ import argparse
 import json
 from pathlib import Path
 from typing import cast
-from typing import Any
 
 import numpy as np
 
 from dynamic_ramp_analysis import fit_power_law
-from dynamic_ramp_report import SPEEDS, _load_leg, _metrics, _size_metrics
+from dynamic_ramp_report import SPEEDS, LegMetrics, _load_leg, _metrics, _size_metrics
 from empirical_collapse import tangent_separation
 from propagation_of_chaos import Summary, write_tex_macros
 
@@ -20,6 +19,9 @@ JsonObject = dict[str, object]
 ROOT = Path(__file__).resolve().parent
 FIGURES = ROOT / "figures"
 
+# The spatial sweep's declared operational coherence gate.
+_COHERENCE_CRITERION = 0.2
+
 
 def _macro(name: str, value: object) -> str:
     return f"\\newcommand{{\\{name}}}{{{value}}}"
@@ -27,6 +29,21 @@ def _macro(name: str, value: object) -> str:
 
 def _read_json(path: Path) -> JsonObject:
     return cast(JsonObject, json.loads(path.read_text(encoding="utf-8")))
+
+
+def _effective_coupling(epsilon: float, config: JsonObject) -> float:
+    """Convert a per-pair term to the mean-field ratio ``K_eff/D = N*eps/D``."""
+    return epsilon * cast(int, config["n"]) / cast(float, config["diffusion"])
+
+
+def _geometric_grid_ratio(values: list[float]) -> float:
+    """Return the common ratio of a geometric grid, ignoring a leading zero.
+
+    Taken from the grid itself rather than from the bracket it produced: the two
+    agree only while the bracket happens to be a single grid step wide.
+    """
+    positive = [value for value in values if value > 0.0]
+    return float(np.median([later / earlier for earlier, later in zip(positive, positive[1:])]))
 
 
 def _ramp_size_macros() -> list[str]:
@@ -46,56 +63,60 @@ def _indexed_macros(prefix: str, values: list[float], precision: int) -> list[st
     ]
 
 
-def _ramp_onset_macros(metrics: list[Any]) -> list[str]:
-    res = []
-    words = ["One", "Two", "Three", "Four"]
-    for i in range(4):
-        val = "true" if metrics[i].onset.onset_pinned else "false"
-        res.append(_macro(f"rampOnsetPinned{words[i]}", val))
+def _ramp_onset_macros(metrics: list[LegMetrics]) -> list[str]:
+    """Emit each leg's exponent with the reference and window it was read from.
 
-    res.extend(_indexed_macros("rampOnset", [item.onset.exponent for item in metrics], 3))
-    res.extend(_indexed_macros("rampOnsetReference", [item.onset_reference for item in metrics], 3))
-    res.extend(_indexed_macros("rampOnsetOrderMin", [item.onset.order_min for item in metrics], 3))
-    res.extend(_indexed_macros("rampOnsetOrderMax", [item.onset.order_max for item in metrics], 3))
-    res.extend(
-        _indexed_macros("rampOnsetExcessMin", [item.onset.excess_min for item in metrics], 2)
-    )
-    res.extend(
-        _indexed_macros("rampOnsetExcessMax", [item.onset.excess_max for item in metrics], 2)
-    )
-    res.extend(_indexed_macros("rampOnsetSamples", [item.onset.samples for item in metrics], 0))
-    return res
+    The shift ``K0`` returning at its lower bound is a property of the fit, not
+    of one leg, so it is emitted as a count over the legs rather than per leg:
+    a reader needs to know whether pinning separates the fast fit from the rest.
+    """
+    return [
+        _macro("rampLegCount", len(metrics)),
+        _macro("rampOnsetPinnedCount", sum(item.onset.onset_pinned for item in metrics)),
+        *_indexed_macros("rampOnset", [item.onset.exponent for item in metrics], 3),
+        *_indexed_macros("rampOnsetReference", [item.onset_reference for item in metrics], 3),
+        *_indexed_macros("rampOnsetOrderMin", [item.onset.order_min for item in metrics], 3),
+        *_indexed_macros("rampOnsetOrderMax", [item.onset.order_max for item in metrics], 3),
+        *_indexed_macros("rampOnsetExcessMin", [item.onset.excess_min for item in metrics], 2),
+        *_indexed_macros("rampOnsetExcessMax", [item.onset.excess_max for item in metrics], 2),
+        *_indexed_macros("rampOnsetSamples", [float(item.onset.samples) for item in metrics], 0),
+    ]
 
 
 def _ramp_macros() -> list[str]:
-    legs = []
-    for speed in SPEEDS:
-        legs.append(_load_leg(FIGURES / f"dynamic_ramp_replicas_v{speed:.0e}.npz"))
-
-    metrics = []
-    for leg in legs:
-        metrics.append(_metrics(leg))
-
+    legs = [_load_leg(FIGURES / f"dynamic_ramp_replicas_v{speed:.0e}.npz") for speed in SPEEDS]
+    metrics = [_metrics(leg) for leg in legs]
     uncensored = [item for item in metrics if item.escaped == 32]
     delay_fit = fit_power_law(
         np.asarray([item.speed for item in uncensored]),
         np.asarray([item.delay_mean for item in uncensored]),
     )
     floor = metrics[-1].collapse_deviation
-
-    res = [
+    return [
         _macro("rampFastEscaped", metrics[0].escaped),
         _macro("rampReplicas", 32),
         _macro("rampDelaySlowOne", f"{metrics[1].delay_mean:.4f}"),
         _macro("rampDelaySlowTwo", f"{metrics[2].delay_mean:.4f}"),
         _macro("rampDelaySlowThree", f"{metrics[3].delay_mean:.4f}"),
         _macro("rampDelayExponent", f"{delay_fit.exponent:.3f}"),
+        *_ramp_size_macros(),
+        *_ramp_onset_macros(metrics),
+        *_indexed_macros("rampCollapse", [item.collapse_deviation for item in metrics], 5),
+        _macro("rampCollapseThreshold", f"{2.0 * floor:.5f}"),
     ]
-    res.extend(_ramp_size_macros())
-    res.extend(_ramp_onset_macros(metrics))
-    res.extend(_indexed_macros("rampCollapse", [item.collapse_deviation for item in metrics], 5))
-    res.append(_macro("rampCollapseThreshold", f"{2.0 * floor:.5f}"))
-    return res
+
+
+def _first_sustained_index(values: list[float], threshold: float) -> int:
+    """Return the first index from which every later value stays above ``threshold``.
+
+    This is the criterion the sweep's own boundary estimate is built on, so an
+    isolated early excursion above the threshold does not open the coherent
+    range.
+    """
+    index = len(values) - 1
+    while index > 0 and values[index - 1] > threshold:
+        index -= 1
+    return index
 
 
 def _spatial_macros() -> list[str]:
@@ -104,20 +125,22 @@ def _spatial_macros() -> list[str]:
     orders = cast(list[float], data["steady_order"])
     defects = cast(list[float], data["steady_defect_density"])
     config = cast(JsonObject, data["config"])
-    side = cast(int, config["side"])
-    extent_mm = cast(float, config["extent_mm"])
+    spacing_mm = cast(float, config["extent_mm"]) / cast(int, config["side"])
 
     indices = [decays.index(value) for value in (0.1, 0.2, 0.3)]
     mantissa, exponent = f"{max(defects[position] for position in indices):.1e}".split("e")
 
     critical_decay_mm = cast(float, data["critical_decay_mm"])
-    critical_decay_cells = critical_decay_mm * side / extent_mm
-    plateau_max_mm = decays[-1]
+    resolved_mm = decays[_first_sustained_index(orders, _COHERENCE_CRITERION)]
+    plateau = orders[indices[0] :]
 
     return [
         _macro("spatialCriticalDecay", f"{critical_decay_mm:.4f}"),
-        _macro("spatialCriticalDecayCells", f"{critical_decay_cells:.2f}"),
-        _macro("spatialPlateauMax", f"{plateau_max_mm:.1f}"),
+        _macro("spatialCriticalDecayCells", f"{critical_decay_mm / spacing_mm:.2f}"),
+        _macro("spatialResolvedDecayCells", f"{resolved_mm / spacing_mm:.2f}"),
+        _macro("spatialPlateauMax", f"{decays[-1]:.1f}"),
+        _macro("spatialPlateauSpread", f"{max(plateau) - min(plateau):.5f}"),
+        _macro("spatialPlateauExtentRatio", f"{decays[-1] / cast(float, config['extent_mm']):.1f}"),
         *[
             _macro(f"spatialOrder{('One', 'Two', 'Three')[index]}", f"{orders[position]:.4f}")
             for index, position in enumerate(indices)
@@ -136,36 +159,58 @@ def _selection_macros() -> list[str]:
         _macro("selectionSuperOrder", f"{orders[2]:.5f}"),
         _macro("selectionTheoryOrder", f"{theory[2]:.5f}"),
         _macro("selectionStaticResidual", f"{orders[2] - theory[2]:.5f}"),
-        _macro(
-            "selectionSuperOrderDtHalf", f"{cast(list[float], data['dt_control_order'])[1]:.5f}"
-        ),
-        _macro(
-            "selectionStaticResidualDtHalf",
-            f"{cast(list[float], data['dt_control_order'])[1] - theory[2]:.5f}",
-        ),
+        *_selection_step_macros(data, theory[2]),
         _macro("selectionRateSlope", f"{cast(float, data['rate_fit_slope']):.5f}"),
         _macro("selectionRateIntercept", f"{cast(float, data['rate_fit_intercept']):.5f}"),
-        _macro(
-            "selectionWindowLowerBase", f"{cast(list[float], data['growth_window_lower'])[0]:.5f}"
-        ),
-        _macro(
-            "selectionWindowUpperBase", f"{cast(list[float], data['growth_window_upper'])[0]:.5f}"
-        ),
+        *_selection_window_macros(data),
+    ]
+
+
+def _selection_step_macros(data: JsonObject, static_order: float) -> list[str]:
+    """Emit the step-size series and what its last refinement still moves.
+
+    ``selectionDtLastChange`` is what separates a bound from a measurement: the
+    residual at the finest step is the finite-size part only to the extent that
+    halving the step again would not move it.
+    """
+    steps = cast(list[float], data["dt_control_dt"])
+    series = cast(list[float], data["dt_control_order"])
+    return [
+        _macro("selectionDtRefinement", f"{round(steps[0] / steps[-1])}"),
+        _macro("selectionSuperOrderDtFine", f"{series[-1]:.5f}"),
+        _macro("selectionStaticResidualDtFine", f"{series[-1] - static_order:.5f}"),
+        _macro("selectionDtLastChange", f"{series[-1] - series[-2]:.5f}"),
+    ]
+
+
+def _selection_window_macros(data: JsonObject) -> list[str]:
+    """Emit the growth-fit window, whose upper bound moves with the coupling."""
+    lower = cast(list[float], data["growth_window_lower"])
+    upper = cast(list[float], data["growth_window_upper"])
+    return [
+        _macro("selectionWindowLower", f"{lower[0]:.5f}"),
+        _macro("selectionWindowUpperMin", f"{min(upper):.5f}"),
+        _macro("selectionWindowUpperMax", f"{max(upper):.5f}"),
     ]
 
 
 def _frustration_macros() -> list[str]:
     data = _read_json(FIGURES / "geometric_frustration" / "followup_summary.json")
     lines = []
-    for key, prefix in (("baseline_range", "Baseline"), ("coupling_range", "Coupling")):
+    for key, prefix, precision in (
+        ("baseline_range", "Baseline", 4),
+        ("coupling_range", "Coupling", 2),
+    ):
         values = cast(list[float], data[key])
         for suffix, value in zip(("Min", "Max"), values, strict=True):
-            lines.append(_macro(f"frustration{prefix}{suffix}", f"{value:.4f}"))
+            lines.append(_macro(f"frustration{prefix}{suffix}", f"{value:.{precision}f}"))
 
+    config = cast(JsonObject, data["config"])
     bracket = cast(list[float], data["threshold_bracket"])
-    lines.append(_macro("frustrationBracketMin", f"{bracket[0]*500:.3f}"))
-    lines.append(_macro("frustrationBracketMax", f"{bracket[1]*500:.3f}"))
-    lines.append(_macro("frustrationGridRatio", f"{bracket[1]/bracket[0]:.3f}"))
+    lines.append(_macro("frustrationBracketMin", f"{_effective_coupling(bracket[0], config):.3f}"))
+    lines.append(_macro("frustrationBracketMax", f"{_effective_coupling(bracket[1], config):.3f}"))
+    ratio = _geometric_grid_ratio(cast(list[float], data["epsilon"]))
+    lines.append(_macro("frustrationGridRatio", f"{ratio:.3f}"))
 
     for suffix in ("min", "max"):
         values = cast(list[float], data[f"conditional_field_{suffix}"])

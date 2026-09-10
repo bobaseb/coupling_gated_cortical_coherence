@@ -1445,7 +1445,10 @@ coherent was $\spatialCriticalDecay$~mm. At the empirical controls $0.1$,
 $0.2$ and $0.3$~mm, steady order was $\spatialOrderOne$, $\spatialOrderTwo$ and
 $\spatialOrderThree$, with winding-defect density at most
 $\spatialDefectMaximum$. So this sweep shows no fragmentation in the empirical
-band---its boundary sits about sevenfold below the band's lower limit.
+band---which sits inside a plateau where steady order spans only
+$\spatialPlateauSpread$ out to the longest range sampled. The boundary itself
+is $\spatialCriticalDecayCells$ lattice spacings, so the grid does not resolve
+it.
 
 \emph{Frustration.} A row-balanced Dale-law network (no self-edges,
 Erd\H{o}s--R\'enyi edge probability $0.2$, $80/20$ excitatory/inhibitory
@@ -1457,6 +1460,9 @@ separately specified weak-synapse regime, adding a uniform per-pair modulatory
 term $\epsilon$ (contributing mean-field strength $\Keff=N\epsilon$) produces
 an operational coherence crossing at
 $\Keff/D\in[\frustrationCouplingMin,\frustrationCouplingMax]$ across seeds.
+The $\epsilon$ grid is geometric with ratio $\frustrationGridRatio$, and the
+step those values interpolate across spans
+$[\frustrationBracketMin,\frustrationBracketMax]$, which contains $\Kc/D=2$.
 
 \scope
 Each is one finite parameter regime. Fixing total coupling while changing

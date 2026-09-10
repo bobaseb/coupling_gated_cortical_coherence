@@ -2,7 +2,12 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from simulation_tex import generate_simulation_tex
+from simulation_tex import (
+    _effective_coupling,
+    _first_sustained_index,
+    _geometric_grid_ratio,
+    generate_simulation_tex,
+)
 
 
 class SimulationTexTest(unittest.TestCase):
@@ -25,6 +30,14 @@ class SimulationTexTest(unittest.TestCase):
         self.assertIn(r"\newcommand{\collapseTanhDeviation}{0.0030}", content)
         self.assertIn(r"\newcommand{\collapseProbeSeparation}{0.154}", content)
         self.assertIn(r"\newcommand{\collapseTargetConcentration}{1.56}", content)
+        self.assertIn(r"\newcommand{\frustrationBracketMin}{1.857}", content)
+        self.assertIn(r"\newcommand{\frustrationGridRatio}{1.136}", content)
+        self.assertIn(r"\newcommand{\rampOnsetPinnedCount}{4}", content)
+        self.assertIn(r"\newcommand{\rampLegCount}{4}", content)
+        self.assertIn(r"\newcommand{\spatialCriticalDecayCells}{0.90}", content)
+        self.assertIn(r"\newcommand{\spatialResolvedDecayCells}{0.94}", content)
+        self.assertIn(r"\newcommand{\spatialPlateauExtentRatio}{4.0}", content)
+        self.assertNotIn(r"\rampOnsetPinnedOne", content)
 
     def test_committed_macros_match_saved_results(self) -> None:
         with TemporaryDirectory() as directory:
@@ -34,6 +47,17 @@ class SimulationTexTest(unittest.TestCase):
 
         committed = Path(__file__).with_name("simulation_results.tex").read_text(encoding="utf-8")
         self.assertEqual(committed, expected)
+
+
+class DerivedQuantityTest(unittest.TestCase):
+    def test_effective_coupling_uses_the_run_own_size_and_diffusion(self) -> None:
+        self.assertAlmostEqual(_effective_coupling(0.008, {"n": 250, "diffusion": 2.0}), 1.0)
+
+    def test_grid_ratio_reads_the_grid_rather_than_the_bracket(self) -> None:
+        self.assertAlmostEqual(_geometric_grid_ratio([0.0, 1.0, 2.0, 4.0, 8.0]), 2.0)
+
+    def test_first_sustained_index_ignores_an_earlier_isolated_crossing(self) -> None:
+        self.assertEqual(_first_sustained_index([0.05, 0.30, 0.10, 0.40, 0.90], 0.2), 3)
 
 
 if __name__ == "__main__":
