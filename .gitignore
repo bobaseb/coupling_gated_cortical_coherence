@@ -10,6 +10,11 @@ __pycache__/
 *.aux
 *.log
 *.out
+# No BibTeX runs here: references.tex is an inline `thebibliography`, so a
+# .bbl/.blg pair on disk is a leftover from a toolchain this project no longer
+# uses, not a build input.
+*.bbl
+*.blg
 *.pdf
 # ...but PDFs the README or the project website (index.html) link to directly
 # are deliverables and must be tracked.
