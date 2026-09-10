@@ -13,12 +13,7 @@
 #   publication  the generated TeX macros
 #   report       reads artifacts a finished run left behind
 #   analysis     estimators over saved data
-#   simulation   integrates dynamics, writes .npz and summaries -- and the
-#                report a run emits as it finishes, which is why
-#                `geometric_frustration_report` sits here and not in `report`:
-#                its sweep calls it, so it runs inside the run rather than over
-#                its output. `frustration_summary` reads the same artifacts
-#                afterwards and is in `report` accordingly.
+#   simulation   integrates dynamics, writes .npz and summaries
 #   theory       closed-form results and declared parameters; integrates nothing
 #   gate         reads the repository's own documents; touches no science
 #
@@ -58,8 +53,13 @@ path = "structural_resonance_report"
 layer = "report"
 
 [[modules]]
+path = "geometric_frustration_report"
+layer = "report"
+
+[[modules]]
 path = "frustration_summary"
 layer = "report"
+depends_on = ["geometric_frustration_report"]
 
 # -- analysis ---------------------------------------------------------------
 [[modules]]
@@ -81,11 +81,6 @@ layer = "simulation"
 
 [[modules]]
 path = "geometric_frustration"
-layer = "simulation"
-depends_on = ["geometric_frustration_report"]
-
-[[modules]]
-path = "geometric_frustration_report"
 layer = "simulation"
 
 [[modules]]

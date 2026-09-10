@@ -7,6 +7,7 @@ import numpy as np
 
 from geometric_frustration import (
     Config,
+    FAILED_BASELINE,
     balanced_network,
     drift,
     field_required,
@@ -62,10 +63,12 @@ class FrustrationTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "Baseline exceeds"):
                 run(Config(n=100, steps=2000, probability=0.5), output)
             summary = json.loads((output / "summary.json").read_text())
+            self.assertEqual(summary["status"], FAILED_BASELINE)
             self.assertIsNone(summary["critical_epsilon"])
             self.assertEqual(len(list(output.glob("leg_*.npz"))), 1)
             self.assertLess(summary["noise_control_order"], 2 * summary["finite_size_floor"])
-            self.assertTrue((output / "baseline.png").exists())
+            self.assertTrue((output / "noise_control.npz").exists())
+            self.assertEqual(list(output.glob("*.png")), [])
 
     def test_invalid_configuration_is_rejected(self) -> None:
         with self.assertRaisesRegex(ValueError, "positive"):
@@ -97,11 +100,15 @@ class FrustrationTest(unittest.TestCase):
 
         with TemporaryDirectory() as directory:
             output = Path(directory)
-            run(config, output)
+            returned = run(config, output)
             summary = json.loads((output / "summary.json").read_text())
             coarse = np.asarray(summary["coarse_epsilon"])
             merged = np.asarray(summary["epsilon"])
             names = sorted(path.name for path in output.glob("leg_*.npz"))
+            figures = list(output.glob("*.png"))
+
+        self.assertEqual(json.loads(json.dumps(returned)), summary)
+        self.assertEqual(figures, [])
 
         self.assertEqual(names[: coarse.size], [f"leg_{index:02d}.npz" for index in range(20)])
         self.assertEqual(len(names), coarse.size + REFINEMENT_POINTS)

@@ -1,7 +1,15 @@
-"""Figures and conditional physical readout from saved S5 summaries."""
+"""Figures and conditional physical readout from the saved S5 artifacts.
+
+Run `geometric_frustration.py` first; it writes `summary.json`, the legs and,
+on a failed baseline gate, the noise control. This module reads those files and
+integrates nothing, so a lost figure costs a second of plotting rather than the
+sweep that produced the data.
+"""
 
 from __future__ import annotations
 
+import argparse
+import json
 from pathlib import Path
 from typing import Any
 
@@ -13,15 +21,20 @@ import numpy as np
 from numpy.typing import NDArray
 
 from fermi_estimate_check import FERMI_FIELD_MIN, FERMI_FIELD_MAX
+from geometric_frustration import FAILED_BASELINE, LEG_KEYS, ROOT
 
 
 def report(
-    summary: dict[str, Any], legs: list[dict[str, NDArray[np.float64]]], output: Path
+    summary: dict[str, Any],
+    baseline: dict[str, NDArray[np.float64]],
+    strongest: dict[str, NDArray[np.float64]],
+    output: Path,
 ) -> None:
+    """Plot the two legs the sweep is read from: zero field and its largest coupling."""
     config = summary["config"]
     floor = 1 / np.sqrt(config["n"])
     fig, ax = plt.subplots(figsize=(7, 3))
-    ax.plot(legs[0]["time"], legs[0]["order"])
+    ax.plot(baseline["time"], baseline["order"])
     ax.axhline(floor, color="black", ls="--", label=r"$1/\sqrt{N}$")
     ax.set(
         xlabel="Time (simulation units)",
@@ -35,7 +48,7 @@ def report(
     _transition(summary, output)
     fig, axes = plt.subplots(1, 2, subplot_kw={"projection": "polar"}, figsize=(7, 3.5))
     for ax, leg, title in zip(
-        axes, (legs[0], legs[-1]), ("Zero field", "Largest uniform coupling"), strict=True
+        axes, (baseline, strongest), ("Zero field", "Largest uniform coupling"), strict=True
     ):
         ax.hist(leg["final_phases"], bins=np.linspace(-np.pi, np.pi, 25), density=True)
         ax.set_title(title)
@@ -172,3 +185,35 @@ def failed_baseline_report(
         "",
     ]
     (output / "FRUSTRATION_REPORT.md").write_text("\n".join(lines))
+
+
+def _saved(path: Path) -> dict[str, NDArray[np.float64]]:
+    """Read one saved trajectory back; the arrays are what the sweep decimated."""
+    with np.load(path, allow_pickle=False) as saved:
+        return {key: saved[key] for key in LEG_KEYS}
+
+
+def rebuild(source: Path, output: Path) -> None:
+    """Rebuild a finished run's figures and readout, dispatching on its own status."""
+    summary: dict[str, Any] = json.loads((source / "summary.json").read_text())
+    baseline = _saved(source / "leg_00.npz")
+    if summary.get("status") == FAILED_BASELINE:
+        failed_baseline_report(summary, baseline, _saved(source / "noise_control.npz"), output)
+        return
+    # The largest coupling the sweep sampled is the last leg of the coarse grid,
+    # the refinement having subdivided a step below it. A summary written before
+    # the refinement existed carries only `epsilon`, which was that grid.
+    coarse = summary.get("coarse_epsilon", summary["epsilon"])
+    strongest = _saved(source / f"leg_{len(coarse) - 1:02d}.npz")
+    report(summary, baseline, strongest, output)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, default=ROOT)
+    args = parser.parse_args()
+    rebuild(args.output, args.output)
+
+
+if __name__ == "__main__":
+    main()

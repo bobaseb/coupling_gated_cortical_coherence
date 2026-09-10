@@ -3,6 +3,12 @@
 The field conversion follows the repository Fermi arithmetic conditionally: its
 N*shift*f is dimensionless, so a physical inverse-time calibration is missing.
 Run with OPENBLAS_NUM_THREADS=1 to avoid threading overhead for small matrices.
+
+This module writes artifacts and nothing else: `summary.json`, one `.npz` per
+leg and, when the baseline gate fails, the matched noise control. The figures
+and the readout are built from those files afterwards by
+`geometric_frustration_report.py`, which is a second command over a finished
+run and never integrates anything itself.
 """
 
 from __future__ import annotations
@@ -24,6 +30,13 @@ ROOT = Path(__file__).resolve().parent / "figures" / "geometric_frustration"
 
 # Interior couplings added inside the coarse step that brackets the crossing.
 REFINEMENT_POINTS = 9
+
+# The arrays every saved leg carries, and what a run writes instead of a sweep
+# when its zero-field baseline is already ordered. Both are read back by
+# `geometric_frustration_report.py`, so they are named here rather than spelled
+# twice.
+LEG_KEYS = ("time", "order", "final_phases", "runtime_seconds")
+FAILED_BASELINE = "baseline_failed_sweep_not_run"
 
 
 @dataclass(frozen=True)
@@ -119,7 +132,7 @@ def _leg(
         with np.load(path, allow_pickle=False) as saved:
             if str(saved["metadata"]) != metadata:
                 raise ValueError(f"Cached configuration mismatch: {path}")
-            return {key: saved[key] for key in ("time", "order", "final_phases", "runtime_seconds")}
+            return {key: saved[key] for key in LEG_KEYS}
     result = simulate(config, matrix, epsilon, config.seed + index + 1)
     np.savez_compressed(path, **result, metadata=np.array(metadata), allow_pickle=False)
     return result
@@ -176,7 +189,7 @@ def _refine(
     return merged[order], np.concatenate((orders, steady))[order], legs
 
 
-def run(config: Config, output: Path) -> None:
+def run(config: Config, output: Path) -> dict[str, Any]:
     output.mkdir(parents=True, exist_ok=True)
     matrix = balanced_network(config.n, config.probability, config.positive_sum, config.seed)
     rows = matrix.sum(axis=1)
@@ -191,7 +204,11 @@ def run(config: Config, output: Path) -> None:
         print(f"{index + 1}/{coarse.size} epsilon={value:.6g} steady r={steady:.5f}", flush=True)
         if index == 0 and steady > 2 / np.sqrt(config.n):
             _failed_baseline(config, matrix, leg, output)
-            raise ValueError("Baseline exceeds twice the finite-size floor; stop before sweep")
+            raise ValueError(
+                "Baseline exceeds twice the finite-size floor; stop before sweep. "
+                "The failed baseline and its noise control are saved; "
+                "geometric_frustration_report.py plots them."
+            )
         legs.append(leg)
     coarse_orders = np.array([_steady(config, leg) for leg in legs])
     _, coarse_lower, coarse_upper = threshold(coarse, coarse_orders)
@@ -221,9 +238,7 @@ def run(config: Config, output: Path) -> None:
         ),
     }
     (output / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
-    from geometric_frustration_report import report
-
-    report(summary, legs, output)
+    return summary
 
 
 def _failed_baseline(config: Config, matrix: Array, leg: dict[str, Array], output: Path) -> None:
@@ -238,7 +253,7 @@ def _failed_baseline(config: Config, matrix: Array, leg: dict[str, Array], outpu
     tail = leg["time"] >= config.steps * config.dt / 2
     rows = matrix.sum(axis=1)
     summary = {
-        "status": "baseline_failed_sweep_not_run",
+        "status": FAILED_BASELINE,
         "config": asdict(config),
         "baseline_order": float(leg["order"][tail].mean()),
         "noise_control_order": float(control["order"][tail].mean()),
@@ -250,9 +265,6 @@ def _failed_baseline(config: Config, matrix: Array, leg: dict[str, Array], outpu
         "conditional_field_mV_mm": None,
     }
     (output / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
-    from geometric_frustration_report import failed_baseline_report
-
-    failed_baseline_report(summary, leg, control, output)
 
 
 def main() -> None:
@@ -267,7 +279,12 @@ def main() -> None:
         config = Config(
             n=100, steps=2000, probability=0.5, positive_sum=args.strength, seed=args.seed
         )
-    run(config, args.output)
+    summary = run(config, args.output)
+    print(
+        f"wrote {args.output}/summary.json and {len(summary['epsilon'])} legs; "
+        f"geometric_frustration_report.py --output {args.output} builds the figures",
+        flush=True,
+    )
 
 
 if __name__ == "__main__":

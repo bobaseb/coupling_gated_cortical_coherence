@@ -531,6 +531,22 @@ though it could cause one.
 
 ### E3 — Hoist the in-run report calls out of `geometric_frustration`
 
+**Done 2026-09-10, and not in the shape sketched below.** Passing the summary
+and the in-memory legs out to `main()` would have left the import where it is:
+`main()` lives in the sweep module, so a report call there is still a simulation
+reaching a report, and the `tach.toml` exception would have had to stay. The
+sweep now writes `summary.json`, the legs and — on a failed gate — the noise
+control, and returns the summary; `geometric_frustration_report.py` carries its
+own `--output` entry point, reads those files, dispatches on the run's own
+status and integrates nothing. It is the pattern `dynamic_ramp` and
+`structural_resonance` already use, at the cost of a second command.
+
+What this buys beyond the layer label: the figures and the readout of a finished
+run were previously reachable only by rerunning the sweep, because the legs the
+plots need existed only in memory. All six tracked run directories now
+regenerate their `FRUSTRATION_REPORT.md` byte-for-byte from their saved files,
+and `test_geometric_frustration_report.py` asserts it.
+
 `geometric_frustration.py` imports `geometric_frustration_report` inside two
 function bodies (lines 224 and 253) and calls it, so the sweep writes its own
 report as it finishes. That is the one layer inversion in the package, and it is

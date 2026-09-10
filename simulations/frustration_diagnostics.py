@@ -82,7 +82,13 @@ def main() -> None:
         timestep_controls(ROOT / "timestep")
     else:
         for seed in SEEDS:
-            run(Config(positive_sum=1, seed=seed), ROOT / f"weak_seed{seed}")
+            output = ROOT / f"weak_seed{seed}"
+            run(Config(positive_sum=1, seed=seed), output)
+            print(
+                f"wrote {output}; "
+                f"geometric_frustration_report.py --output {output} builds the figures",
+                flush=True,
+            )
 
 
 if __name__ == "__main__":

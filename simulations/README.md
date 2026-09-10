@@ -26,7 +26,7 @@ uv sync --group dev
 uv run pytest
 ```
 
-119 tests, no production sweep among them; they exercise the estimators,
+125 tests, no production sweep among them; they exercise the estimators,
 analysis and report generators on small fixtures and run in about a minute and a
 half.
 
@@ -78,6 +78,15 @@ macros, so a summary without the run behind it would leave a quoted number with
 nothing to recompute it from. The cost is a repository that grows by the size of
 each sweep; that is the trade this project makes deliberately, and it is why the
 EEG cache above is the one output that is *not* tracked.
+
+Where a sweep has a matching report module — `dynamic_ramp`,
+`structural_resonance`, `geometric_frustration` — the sweep writes only data,
+and the figures and the `REPORT.md` are built afterwards from the saved
+`.npz` and `summary.json` by a second command that integrates nothing. A lost or
+restyled figure then costs a second of plotting rather than the sweep behind it.
+`tach.toml` enforces the direction: `report` sits above `simulation`, so a
+report reads a sweep's paths and constants and a sweep cannot call a report.
+The remaining runs carry no report module and plot inline as they finish.
 
 The practical consequence is that `git status` is the record of whether a sweep
 finished. A run that leaves untracked files under `figures/` is a run whose
