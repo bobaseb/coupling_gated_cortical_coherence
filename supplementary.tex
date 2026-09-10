@@ -425,6 +425,26 @@ gradient arm is read against the frozen arm and not against the null median; the
 permuted arm, at the gradient arm's deformation, reaches
 $\plasticityPermutedPercentileMin$ to $\plasticityPermutedPercentileMax$.
 
+A second partition of the same nodes settles what the loss of within-cluster
+coupling is a loss against. The frequency partition is the structure the
+environment carries; an interleaved partition of the same three group sizes,
+built so that each group draws equally from all three clusters, carries no
+frequency information, and a kernel with only frequency structure is neutral
+under it up to a correction of order $1/N$. Neither partition enters the update.
+The gradient arm's interleaved ratio runs from $\plasticityCrossedRatioMin$ to
+$\plasticityCrossedRatioMax$ across the three seeds, on both sides of the
+no-preference line, where its frequency ratio is $\plasticityRatioMin$ to
+$\plasticityRatioMax$ on all three. The interleaved partition is one member of
+a family, so the calibrated form of the same reading is to score the frequency
+partition against $2000$ relabellings of itself, each keeping the group sizes
+and losing the correspondence with frequency: at most a fraction
+$\plasticityBlindPercentileMax$ of them give a lower ratio than the frequency
+partition does, on every seed, against $\plasticityFrozenBlindPercentileMin$ to
+$\plasticityFrozenBlindPercentileMax$ for the frozen arm's untouched kernel.
+Concentrating a fixed resource onto few edges makes any such ratio fluctuate
+widely, which is why the interleaved value alone is uninformative and the
+percentile against the family is not.
+
 Two readouts are reported and not relied on. The initial-minus-final Frobenius
 distance to the template lies in
 $[\plasticityReductionMin,\plasticityReductionMax]$, but the kernel norm grows
@@ -440,7 +460,13 @@ dominates a block-mean contrast that the within-over-between ratio resolves.
 Minimizing squared drift under a conserved mean drift equalizes drift across
 nodes, which rewards coupling between clusters of unlike frequency, whereas the
 template rewards coupling within clusters of like frequency. The disagreement is
-a property of this pairing of objective and template. The squared-drift
+a property of this pairing of objective and template. The blind-partition
+reading is what separates that from the weaker statement it would otherwise be
+confused with: the descent does not degrade whatever partition a reader scores
+it against, but locates the one partition the environment carries and moves
+against it. Which structure a different objective would move against, or whether
+any objective of this family aligns with an environment, is not settled by one
+pairing and is not claimed. The squared-drift
 objective includes the drive and fluctuating relative drift; it is not a
 thermodynamic entropy-production estimate, which would require
 probability-current information.

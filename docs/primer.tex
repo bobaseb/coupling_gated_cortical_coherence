@@ -1540,6 +1540,12 @@ node relabellings the final kernel is further from the true template than from a
 fraction $\plasticityPercentileMin$ to $\plasticityPercentileMax$ of them,
 where the permuted arm reaches $\plasticityPermutedPercentileMin$ to
 $\plasticityPermutedPercentileMax$.
+\item Scored against $2000$ partitions of the same group sizes drawn blind to
+frequency, at most a fraction $\plasticityBlindPercentileMax$ give a lower
+within-over-between ratio than the frequency partition does, against
+$\plasticityFrozenBlindPercentileMin$ to $\plasticityFrozenBlindPercentileMax$
+for the frozen arm. \textbf{So the descent moves against the structure the
+environment carries, rather than against block structure of any kind.}
 \end{itemize}
 
 \noindent

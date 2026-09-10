@@ -20,6 +20,37 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-10 — Audit remediation, part D concluded: what the descent moves against
+
+A second partition of the same nodes, and the family it belongs to. The
+plasticity result reported one pairing in which the template is literally the
+frequency-cluster indicator and the objective provably anti-aligns with it, and
+generalised from it. Two readings now separate the two things that pairing
+confounds: an interleaved partition of the same group sizes, balanced against
+the frequency clusters so that it carries no frequency information, and the
+frequency partition's within-over-between ratio scored against 2000 relabellings
+of itself. Both are diagnostics on saved kernels; neither enters the update.
+
+Claims that were made and are no longer made:
+
+- That the descent moves away from the environmental structure, full stop. It
+  moves away from the partition the environment carries, and against partitions
+  drawn blind to frequency the loss does not appear: at most 0.0495 of 2000
+  blind relabellings give a lower ratio than the frequency partition does, on
+  every seed, where the frozen arm's untouched kernel gives 0.0755 to 0.3480.
+  The distinction is the one worth having — the descent is opposed to the
+  environment's own structure rather than indifferent to structure — and it was
+  asserted before it was measured.
+- That descending the functional does not produce representational learning,
+  without qualification. The abstract now attaches the claim to this pairing of
+  objective and template, which is what the evidence covers.
+
+Also recorded: a single alternative template is uninformative on its own here.
+The gradient arm's interleaved ratio runs 0.807 to 3.022 across three seeds,
+because concentrating a fixed resource onto few edges makes any ratio of block
+means fluctuate widely; that value sits inside the blind family and is reported
+with it rather than on its own.
+
 ## 2026-09-10 — Audit remediation, part D: a control matched on deformation
 
 One new control arm. The plasticity run's specificity claim rested on a random

@@ -18,22 +18,31 @@ template the final kernel sits closer to than it does to the true one. Kernel no
 growth is the final over the initial Frobenius norm, and measures how far
 clip-and-rescale has concentrated the fixed resource onto fewer edges.
 
-| Run | Tail r | Tail dissipation | Descent fraction | Plateau change | Norm growth | Within/between | Permutation percentile |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| 20260906_gradient | 0.91775 | 1115.431 | 0.6791 | 0.0071 | 13.836 | 0.4156 | 1.0000 |
-| 20260906_random | 0.98107 | 1387.586 | -0.0173 | 0.0027 | 1.306 | 0.9997 | 0.5620 |
-| 20260906_permuted | 0.91841 | 1460.813 | -0.2047 | 0.0098 | 12.805 | 0.7290 | 0.8410 |
-| 20260906_frozen | 0.98151 | 1380.819 | 0.0000 | 0.0015 | 1.000 | 0.9824 | 0.9110 |
-| 20261906_gradient | 0.92215 | 1110.566 | 0.6914 | -0.0002 | 12.409 | 0.6135 | 0.9750 |
-| 20261906_random | 0.98133 | 1385.984 | -0.0138 | -0.0007 | 1.288 | 0.9965 | 0.3175 |
-| 20261906_permuted | 0.91891 | 1510.234 | -0.3319 | 0.0126 | 16.330 | 1.2935 | 0.2680 |
-| 20261906_frozen | 0.98187 | 1380.606 | 0.0000 | -0.0008 | 1.000 | 0.9948 | 0.6435 |
-| 20262906_gradient | 0.91671 | 1116.628 | 0.6773 | -0.0015 | 14.696 | 0.3507 | 0.9510 |
-| 20262906_random | 0.98101 | 1386.381 | -0.0103 | -0.0004 | 1.305 | 0.9985 | 0.2840 |
-| 20262906_permuted | 0.91887 | 1445.400 | -0.1607 | 0.0020 | 11.418 | 0.7645 | 0.7630 |
-| 20262906_frozen | 0.98153 | 1382.345 | 0.0000 | 0.0001 | 1.000 | 0.9912 | 0.7685 |
+Two partitions are scored on the same kernels. Within/between is the frequency
+partition, which is the structure the environment carries. Interleaved is a
+partition of the same group sizes balanced against it, carrying no frequency
+information. The blind percentile reads the frequency partition's ratio against
+the whole family of such partitions: it is the share of frequency-blind
+relabellings whose ratio is lower still, so a value near zero says the loss of
+within-cluster coupling belongs to the frequency partition rather than to block
+structure at large. Neither partition enters the update.
 
-Summed integration runtime: 98.73 s.
+| Run | Tail r | Tail dissipation | Descent fraction | Plateau change | Norm growth | Within/between | Interleaved | Blind percentile | Permutation percentile |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 20260906_gradient | 0.91775 | 1115.431 | 0.6791 | 0.0071 | 13.836 | 0.4156 | 0.8071 | 0.0000 | 1.0000 |
+| 20260906_random | 0.98107 | 1387.586 | -0.0173 | 0.0027 | 1.306 | 0.9997 | 1.0029 | 0.4305 | 0.5620 |
+| 20260906_permuted | 0.91841 | 1460.813 | -0.2047 | 0.0098 | 12.805 | 0.7290 | 0.6155 | 0.1475 | 0.8410 |
+| 20260906_frozen | 0.98151 | 1380.819 | 0.0000 | 0.0015 | 1.000 | 0.9824 | 0.9997 | 0.0755 | 0.9110 |
+| 20261906_gradient | 0.92215 | 1110.566 | 0.6914 | -0.0002 | 12.409 | 0.6135 | 1.6404 | 0.0245 | 0.9750 |
+| 20261906_random | 0.98133 | 1385.984 | -0.0138 | -0.0007 | 1.288 | 0.9965 | 0.9968 | 0.6645 | 0.3175 |
+| 20261906_permuted | 0.91891 | 1510.234 | -0.3319 | 0.0126 | 16.330 | 1.2935 | 0.6984 | 0.7250 | 0.2680 |
+| 20261906_frozen | 0.98187 | 1380.606 | 0.0000 | -0.0008 | 1.000 | 0.9948 | 0.9853 | 0.3480 | 0.6435 |
+| 20262906_gradient | 0.91671 | 1116.628 | 0.6773 | -0.0015 | 14.696 | 0.3507 | 3.0223 | 0.0495 | 0.9510 |
+| 20262906_random | 0.98101 | 1386.381 | -0.0103 | -0.0004 | 1.305 | 0.9985 | 1.0093 | 0.7270 | 0.2840 |
+| 20262906_permuted | 0.91887 | 1445.400 | -0.1607 | 0.0020 | 11.418 | 0.7645 | 1.0958 | 0.2360 | 0.7630 |
+| 20262906_frozen | 0.98153 | 1382.345 | 0.0000 | 0.0001 | 1.000 | 0.9912 | 0.9957 | 0.2425 | 0.7685 |
+
+Summed integration runtime: 100.26 s.
 
 Learning-rate selection, one seed, gradient arm:
 
@@ -57,6 +66,12 @@ gradient rather than to motion of the kernel at fixed total resource.
 Within-cluster coupling falls relative to between-cluster coupling, and the final
 kernel is further from the true template than from nearly every node relabelling:
 this run does not exhibit structural resonance.
+
+Only the gradient arm's frequency partition is unusual against frequency-blind
+partitions of the same group sizes. Its interleaved ratio and those of the
+control arms sit inside the blind family, so the descent moves against the
+structure the environment carries rather than dissolving block structure of any
+kind: it is opposed to that structure, not indifferent to structure.
 
 The two controls separate two things that the matched-norm random arm alone
 confounds. Fresh isotropic steps cancel, so that arm ends far less deformed than

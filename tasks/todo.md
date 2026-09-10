@@ -466,7 +466,7 @@ random arm.
 
 ### D2 — Scope the generality of the plasticity negative result
 
-- [ ] The abstract's "away from the structure it is asked to learn" and
+- [x] The abstract's "away from the structure it is asked to learn" and
       §4.3's "Descending a squared-drift functional does not produce
       representational learning" generalise from one pairing in which the
       template is literally the frequency-cluster indicator and the objective
@@ -1020,3 +1020,67 @@ template.
 `xenon`, `tach`, `check_prose`, `check_hedging`, `check_tableS1`,
 `check_figures`, `check_pdf_freshness`, `check_arxiv_freshness`, `check_leaves`.
 The merged arXiv document compiles from the unpacked tarball at 44 pages.
+
+### 2026-09-10 — D2 (the generality of the plasticity negative result)
+
+**Both branches, not either.** The item offered a choice: qualify the abstract,
+or run a second template. The second was run and the first done anyway, because
+the run answers a different question than the qualification does. The run settles
+whether the descent is indifferent to structure or opposed to the environment's
+own; the qualification is about other objectives and other environments, which no
+run in this repository reaches.
+
+**The second template, and why it is not enough alone.** `interleaved_labels`
+partitions the nodes as `i % 3` against the frequency clusters' contiguous
+`i * 3 // n`, so each interleaved group draws equally from all three clusters and
+the partition carries no frequency information; a kernel with only frequency
+structure scores 0.9375 under it at N = 99, an O(1/N) leak that the test pins.
+The gradient arm's interleaved ratio came back 0.807, 1.640, 3.022 across the
+three seeds — wildly scattered, and on its own it supports nothing. A probe over
+200 frequency-blind partitions on the same three kernels explained why: the ratio
+of block means has a 5--95% spread of roughly [0.42, 2.1] once the kernel is
+concentrated onto few edges. One alternative template is one draw from that.
+
+**The calibrated reading.** `partition_percentile` scores the frequency
+partition's ratio against `permutations` relabellings of itself, each keeping the
+group sizes and losing the correspondence with frequency. Gradient arm: 0.0000,
+0.0245, 0.0495 — the frequency partition is in the bottom twentieth on every
+seed. Frozen: 0.0755, 0.3480, 0.2425. Random: 0.4305, 0.6645, 0.7270. Permuted:
+0.1475, 0.7250, 0.2360. Under exchangeability the six control values are
+consistent with uniform; three gradient values all below 0.05 are not.
+
+**Red test first.** `test_interleaved_labels_carry_no_frequency_information`
+pins the balance, the group sizes, the exact neutrality of a uniform kernel and
+the O(1/N) leak; `test_partition_percentile_brackets_the_frequency_partition`
+pins the null at both ends; `test_metrics_score_both_templates_on_the_same_kernel`
+pins that the second partition is a readout and never an input. 124/124 tests
+pass, from 121.
+
+**Run.** Two full production sweeps, 2m37s and 2m39s. The first added the
+interleaved diagnostic, the second replaced the crossed-template permutation
+percentile with the blind-partition null. All twelve runs reproduced
+bit-identically both times: neither readout consumes randomness from the
+dynamics streams, and the null draws from `seed + 5`.
+
+**Manuscript.** The abstract carries the pairing qualification and the
+blind-partition result; the introduction adds the blind reading to the list of
+references the loss is measured against; §4.3 and the supplement report both
+partitions, with the supplement stating plainly that a single alternative
+template is uninformative here and why. The supplement also says what is not
+claimed: which structure a different objective would move against is not settled
+by one pairing.
+
+**Artifacts.** `structural_resonance.py` (`cluster_labels`, `interleaved_labels`,
+`gram`, `partition_percentile`, a crossed diagnostic series, two metrics);
+`structural_resonance_report.py` (two columns and the reading);
+`simulation_tex.py` (three macro pairs); `test_structural_resonance.py` (three
+new tests); twelve `.npz`; `summary.json`; `REPORT.md`; `simulation_results.tex`;
+`main.tex`; `supplementary.tex`; `docs/primer.tex`; `CHANGELOG.md`; all three
+PDFs; `arxiv_submit/`.
+
+**Scope.** The negative result still rests on one objective and one environment.
+What the run removes is the weaker reading of it — that the descent degrades any
+structure scored against it — not the limits of the pairing.
+
+**Gates.** 124/124 tests and every hook. The merged arXiv document compiles from
+the unpacked tarball at 45 pages.

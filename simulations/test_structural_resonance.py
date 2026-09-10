@@ -11,6 +11,8 @@ from structural_resonance import (
     descent_fractions,
     drift,
     environment,
+    interleaved_labels,
+    partition_percentile,
     metrics,
     permutation_percentile,
     project,
@@ -113,6 +115,45 @@ class StructuralResonanceTest(unittest.TestCase):
         self.assertAlmostEqual(alignment_ratio(block, labels), alignment_ratio(3.0 * block, labels))
         self.assertAlmostEqual(alignment_ratio(block, labels), 2.0)
         self.assertAlmostEqual(alignment_ratio(np.ones((12, 12)), labels), 1.0)
+
+    def test_interleaved_labels_carry_no_frequency_information(self) -> None:
+        """The second template's partition must be balanced against the frequency clusters."""
+        world = environment(99, 99.0, 11)
+        crossed = interleaved_labels(99)
+        counts = np.zeros((3, 3), dtype=int)
+        for cluster, group in zip(world.labels, crossed, strict=True):
+            counts[cluster, group] += 1
+        self.assertLessEqual(int(counts.max() - counts.min()), 1)
+        np.testing.assert_array_equal(np.bincount(crossed), np.bincount(world.labels))
+        uniform = np.ones((99, 99))
+        np.fill_diagonal(uniform, 0.0)
+        self.assertAlmostEqual(alignment_ratio(uniform, crossed), 1.0)
+        self.assertLess(abs(alignment_ratio(world.target, crossed) - 1.0), 3 / 99 * 3)
+
+    def test_metrics_score_both_templates_on_the_same_kernel(self) -> None:
+        """D2: the crossed partition is a second readout, never an input to the update."""
+        config = Config(n=12, steps=200, permutations=50)
+        result = simulate(config, "gradient")
+        scored = metrics(result, config)
+        crossed = interleaved_labels(config.n)
+        self.assertAlmostEqual(
+            float(result["crossed_alignment_ratio"][0]),
+            alignment_ratio(result["coupling_initial"], crossed),
+        )
+        self.assertNotAlmostEqual(
+            scored["tail_crossed_alignment_ratio"], scored["tail_alignment_ratio"]
+        )
+        self.assertIn("blind_partition_percentile", scored)
+
+    def test_partition_percentile_brackets_the_frequency_partition(self) -> None:
+        """D2: a blind relabelling keeps the group sizes and loses the frequency."""
+        labels = np.arange(12) * 3 // 12
+        aligned = project((labels[:, None] == labels[None, :]).astype(float) + 0.5, 48.0)
+        self.assertGreater(partition_percentile(aligned, labels, 200, 3), 0.99)
+        opposed = project(1.5 - (labels[:, None] == labels[None, :]).astype(float), 48.0)
+        self.assertLess(partition_percentile(opposed, labels, 200, 3), 0.01)
+        uniform = project(np.ones((12, 12)), 48.0)
+        self.assertEqual(partition_percentile(uniform, labels, 200, 3), 0.0)
 
     def test_permutation_percentile_brackets_alignment(self) -> None:
         labels = np.arange(12) * 3 // 12

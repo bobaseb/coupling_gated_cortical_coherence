@@ -24,15 +24,18 @@ def read_records(root: Path, name: str = "summary.json") -> list[dict[str, Any]]
 def table(records: list[dict[str, Any]]) -> list[str]:
     header = (
         "| Run | Tail r | Tail dissipation | Descent fraction | Plateau change | "
-        "Norm growth | Within/between | Permutation percentile |"
+        "Norm growth | Within/between | Interleaved | Blind percentile | "
+        "Permutation percentile |"
     )
-    lines = [header, "|---|---:|---:|---:|---:|---:|---:|---:|"]
+    lines = [header, "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|"]
     for row in records:
         lines.append(
             f"| {row['name']} | {row['tail_order']:.5f} | {row['tail_dissipation']:.3f} | "
             f"{row['descent_fraction']:.4f} | {row['plateau_relative_change']:.4f} | "
-            f"{row['kernel_norm_growth']:.3f} | "
-            f"{row['tail_alignment_ratio']:.4f} | {row['permutation_percentile']:.4f} |"
+            f"{row['kernel_norm_growth']:.3f} | {row['tail_alignment_ratio']:.4f} | "
+            f"{row['tail_crossed_alignment_ratio']:.4f} | "
+            f"{row['blind_partition_percentile']:.4f} | "
+            f"{row['permutation_percentile']:.4f} |"
         )
     return lines
 
@@ -73,6 +76,15 @@ def render_report(root: Path, output: Path) -> None:
         "growth is the final over the initial Frobenius norm, and measures how far",
         "clip-and-rescale has concentrated the fixed resource onto fewer edges.",
         "",
+        "Two partitions are scored on the same kernels. Within/between is the frequency",
+        "partition, which is the structure the environment carries. Interleaved is a",
+        "partition of the same group sizes balanced against it, carrying no frequency",
+        "information. The blind percentile reads the frequency partition's ratio against",
+        "the whole family of such partitions: it is the share of frequency-blind",
+        "relabellings whose ratio is lower still, so a value near zero says the loss of",
+        "within-cluster coupling belongs to the frequency partition rather than to block",
+        "structure at large. Neither partition enters the update.",
+        "",
         *table(records),
         "",
         f"Summed integration runtime: {sum(row['runtime_seconds'] for row in records):.2f} s.",
@@ -92,6 +104,12 @@ def render_report(root: Path, output: Path) -> None:
         "Within-cluster coupling falls relative to between-cluster coupling, and the final",
         "kernel is further from the true template than from nearly every node relabelling:",
         "this run does not exhibit structural resonance.",
+        "",
+        "Only the gradient arm's frequency partition is unusual against frequency-blind",
+        "partitions of the same group sizes. Its interleaved ratio and those of the",
+        "control arms sit inside the blind family, so the descent moves against the",
+        "structure the environment carries rather than dissolving block structure of any",
+        "kind: it is opposed to that structure, not indifferent to structure.",
         "",
         "The two controls separate two things that the matched-norm random arm alone",
         "confounds. Fresh isotropic steps cancel, so that arm ends far less deformed than",

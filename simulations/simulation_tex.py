@@ -254,6 +254,8 @@ _PLASTICITY_RANGES = (
     ("gradient", "initial_alignment_ratio", "RatioInitial"),
     ("gradient", "tail_alignment_ratio", "Ratio"),
     ("gradient", "permutation_percentile", "Percentile"),
+    ("gradient", "tail_crossed_alignment_ratio", "CrossedRatio"),
+    ("gradient", "blind_partition_percentile", "BlindPercentile"),
     ("gradient", "kernel_norm_growth", "NormGrowth"),
     ("gradient", "true_distance_reduction", "Reduction"),
     ("gradient", "final_template_correlation", "Correlation"),
@@ -267,6 +269,7 @@ _PLASTICITY_RANGES = (
     ("permuted", "permutation_percentile", "PermutedPercentile"),
     ("frozen", "tail_dissipation", "FrozenDissipation"),
     ("frozen", "permutation_percentile", "FrozenPercentile"),
+    ("frozen", "blind_partition_percentile", "FrozenBlindPercentile"),
 )
 
 

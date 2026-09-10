@@ -19,6 +19,15 @@ Frobenius distance to a template confounds alignment with kernel norm, which a
 fixed resource total does not hold constant. The reported alignment statistics
 are the within-over-between cluster coupling ratio and the off-diagonal
 correlation with the template; both are invariant under rescaling the kernel.
+
+Two partitions are scored on the same kernels. The first is by frequency
+cluster, which is the structure the environment carries. The second interleaves
+the nodes into groups of the same sizes balanced against the first, so it
+carries no frequency information at all, and the frequency partition's ratio is
+also read against the whole family of such frequency-blind partitions. Together
+they separate a descent that moves against the environment's own structure from
+one that dissolves block structure of any kind. Neither partition enters the
+update.
 """
 
 from __future__ import annotations
@@ -44,6 +53,7 @@ DIAGNOSTIC_NAMES = (
     "shuffled_distance",
     "mean_drift",
     "alignment_ratio",
+    "crossed_alignment_ratio",
     "template_correlation",
 )
 
@@ -71,6 +81,7 @@ class Environment:
     shuffled: Array
     permutation: NDArray[np.int64]
     labels: NDArray[np.int64]
+    crossed: NDArray[np.int64]
 
 
 def validate(config: Config, mode: str) -> None:
@@ -98,13 +109,36 @@ def project(coupling: Array, total: float) -> Array:
     return result * (total / mass)
 
 
+def cluster_labels(n: int) -> NDArray[np.int64]:
+    """The contiguous three-way frequency partition the environment is built on."""
+    return cast(NDArray[np.int64], np.arange(n) * 3 // n)
+
+
+def interleaved_labels(n: int) -> NDArray[np.int64]:
+    """A three-group partition balanced against the contiguous frequency clusters.
+
+    Frequency cluster `i * 3 // n` is contiguous and this one is `i % 3`, so each
+    interleaved group draws equally from each cluster and the partition carries
+    no frequency information while keeping the same group sizes.
+    """
+    return cast(NDArray[np.int64], np.arange(n) % 3)
+
+
+def gram(labels: NDArray[np.int64], total: float) -> Array:
+    """The one-hot covariance template of a partition, at the coupling resource."""
+    return project((labels[:, None] == labels[None, :]).astype(float), total)
+
+
 def environment(n: int, total: float, seed: int) -> Environment:
-    """One-hot cluster covariance template, with a matched label-shuffle control."""
-    labels = np.arange(n) * 3 // n
+    """One-hot cluster covariance template, with a shuffle and a crossed control."""
+    labels = cluster_labels(n)
     omega = np.asarray([0.5, 1.0, 1.5])[labels]
-    target = project((labels[:, None] == labels[None, :]).astype(float), total)
+    target = gram(labels, total)
+    crossed = interleaved_labels(n)
     permutation = np.random.default_rng(seed + 1).permutation(n)
-    return Environment(omega, target, target[np.ix_(permutation, permutation)], permutation, labels)
+    return Environment(
+        omega, target, target[np.ix_(permutation, permutation)], permutation, labels, crossed
+    )
 
 
 def drift(theta: Array, coupling: Array, omega: Array) -> Array:
@@ -163,6 +197,22 @@ def permutation_percentile(coupling: Array, target: Array, count: int, seed: int
     return float(np.mean([np.linalg.norm(coupling - target[np.ix_(p, p)]) < true for p in draws]))
 
 
+def partition_percentile(
+    coupling: Array, labels: NDArray[np.int64], count: int, seed: int
+) -> float:
+    """Share of frequency-blind partitions whose ratio falls below the true partition's.
+
+    The draws are relabellings of `labels`, so every one keeps the group sizes and
+    loses the correspondence with frequency. A value near zero says the descent's
+    loss of within-cluster coupling belongs to the frequency partition and not to
+    block structure at large.
+    """
+    rng = np.random.default_rng(seed)
+    true = alignment_ratio(coupling, labels)
+    draws = (labels[rng.permutation(len(labels))] for _ in range(count))
+    return float(np.mean([alignment_ratio(coupling, draw) < true for draw in draws]))
+
+
 def diagnostics(theta: Array, coupling: Array, world: Environment, diffusion: float) -> list[float]:
     velocity = drift(theta, coupling, world.omega)
     return [
@@ -172,6 +222,7 @@ def diagnostics(theta: Array, coupling: Array, world: Environment, diffusion: fl
         float(np.linalg.norm(coupling - world.shuffled)),
         float(velocity.mean()),
         alignment_ratio(coupling, world.labels),
+        alignment_ratio(coupling, world.crossed),
         template_correlation(coupling, world.target),
     ]
 
@@ -245,10 +296,17 @@ def metrics(result: dict[str, Array], config: Config) -> dict[str, float | bool]
         "specificity_advantage": reductions[0] - reductions[1],
         "initial_alignment_ratio": float(result["alignment_ratio"][0]),
         "tail_alignment_ratio": float(result["alignment_ratio"][tail].mean()),
+        "tail_crossed_alignment_ratio": float(result["crossed_alignment_ratio"][tail].mean()),
         "initial_template_correlation": float(result["template_correlation"][0]),
         "final_template_correlation": float(result["template_correlation"][-1]),
         "permutation_percentile": permutation_percentile(
             result["coupling_final"], result["target"], config.permutations, config.seed + 3
+        ),
+        "blind_partition_percentile": partition_percentile(
+            result["coupling_final"],
+            cluster_labels(config.n),
+            config.permutations,
+            config.seed + 5,
         ),
         "kernel_norm_growth": float(
             np.linalg.norm(result["coupling_final"]) / np.linalg.norm(result["coupling_initial"])
