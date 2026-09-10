@@ -113,9 +113,9 @@ replicas of 1,000 identical-frequency oscillators were integrated at fixed
 coupling.  Their steady order was \selectionSubOrder{} below threshold,
 \selectionCriticalOrder{} at threshold and \selectionSuperOrder{} above
 threshold.  The last value lies \selectionStaticResidual{} from the stationary
-coherent value \selectionTheoryOrder.  Early-growth fits gave
+coherent value \selectionTheoryOrder.  Early-growth fits (regressed over the window spanning $\selectionWindowLowerBase$ to $\selectionWindowUpperBase$, defined respectively as $2/\sqrt{N}$ and half the static order) gave
 $\lambda=\selectionRateSlope K\selectionRateIntercept$, against the infinite-$N$
-linearization $\lambda=0.5K-1$.  This exhibits finite sampled escape toward the
+linearization $\lambda=0.5K-1$.  The restricted window leaves the empirical exponent far from the asymptotic $1/2$, establishing a robust finite-size residual rather than an artifact of fitting outside the linear regime. This exhibits finite sampled escape toward the
 coherent branch; it proves no stability or dynamical-selection theorem.
 
 Second, 1,000 ensembles were swept from $N=\chaosNMin$ to $N=\chaosNMax$ at

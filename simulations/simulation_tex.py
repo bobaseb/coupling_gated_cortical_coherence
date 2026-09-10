@@ -136,8 +136,21 @@ def _selection_macros() -> list[str]:
         _macro("selectionSuperOrder", f"{orders[2]:.5f}"),
         _macro("selectionTheoryOrder", f"{theory[2]:.5f}"),
         _macro("selectionStaticResidual", f"{orders[2] - theory[2]:.5f}"),
+        _macro(
+            "selectionSuperOrderDtHalf", f"{cast(list[float], data['dt_control_order'])[1]:.5f}"
+        ),
+        _macro(
+            "selectionStaticResidualDtHalf",
+            f"{cast(list[float], data['dt_control_order'])[1] - theory[2]:.5f}",
+        ),
         _macro("selectionRateSlope", f"{cast(float, data['rate_fit_slope']):.5f}"),
         _macro("selectionRateIntercept", f"{cast(float, data['rate_fit_intercept']):.5f}"),
+        _macro(
+            "selectionWindowLowerBase", f"{cast(list[float], data['growth_window_lower'])[0]:.5f}"
+        ),
+        _macro(
+            "selectionWindowUpperBase", f"{cast(list[float], data['growth_window_upper'])[0]:.5f}"
+        ),
     ]
 
 

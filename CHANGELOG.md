@@ -20,6 +20,18 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-10 — Audit remediation, parts B and C: generated limits and sweeps
+
+Nine corrections drawn from re-running the exact stationary-branch comparison, refitting the growth window, or reading existing compact artifacts without reproducing them.
+
+Claims that were made and are no longer made:
+
+- That the onset estimator recovers an adiabatic reference exponent of 1/2. The estimator exhibits systematic downward bias from window curvature; the computed reference exponent is ~0.44. The measured exponents are now compared against that reference.
+- That the $N$-dependence of the threshold delay agrees with the $\sqrt{\log N}$ prediction. The measured variance across three $N$ values is dominated by a fixed escape level meeting a size-dependent fluctuation floor. The claim is weakened to a statement of monotonicity.
+- That the reported critical spatial decay length (0.0140 mm) lies sevenfold below the empirical coherent band. Grid spacing on the 128x128 sheet is 0.0156 mm, meaning the transition region consists of length scales below one cell. 
+- That the steady mean order gap at $K=2.8$ was a finite-size discrepancy. A half-step $\Delta t$ control assigns the bulk of the gap to Euler--Maruyama bias.
+- That the early-growth slope was 0.432, fitted to a fixed interval that overlapped the nonlinear saturation cap and the finite-size noise floor. A dynamically bounded fit (restricting to $2/\sqrt{N}$ and half the static branch order) yields a slope of 0.415, establishing a robust finite-size residual rather than an artifact of fitting outside the linear regime.
+ 
 ## 2026-09-09 — Audit remediation, part A: what the numbers were said to mean
 
 Seven corrections to statements that were transcribed correctly and read wrongly.

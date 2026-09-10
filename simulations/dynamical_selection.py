@@ -63,6 +63,8 @@ class GrowthFit:
     intercept: float
     r_squared: float
     sample_count: int
+    lower_bound: float
+    upper_bound: float
 
 
 @dataclass(frozen=True)
@@ -75,8 +77,13 @@ class ExperimentSummary:
     growth_coupling: FloatArray
     growth_rate: FloatArray
     growth_r_squared: FloatArray
+    growth_window_lower: list[float]
+    growth_window_upper: list[float]
     rate_slope: float
     rate_intercept: float
+    dt_control_coupling: float
+    dt_control_dt: list[float]
+    dt_control_order: list[float]
     runtime_seconds: float
 
 
@@ -149,11 +156,11 @@ def theoretical_growth_rate(coupling: FloatArray, diffusion: float) -> FloatArra
 def estimate_growth_rate(
     time_values: FloatArray,
     order: FloatArray,
-    transient: float,
-    saturation_cap: float,
+    lower_bound: float,
+    upper_bound: float,
 ) -> GrowthFit:
-    """Fit log order after ``transient`` and strictly below ``saturation_cap``."""
-    mask = (time_values >= transient) & (order > 0.0) & (order < saturation_cap)
+    """Fit log order strictly between ``lower_bound`` and ``upper_bound``."""
+    mask = (order > lower_bound) & (order < upper_bound)
     if np.count_nonzero(mask) < 3:
         raise ValueError("at least three samples are required in the growth-fit window")
     x_values = time_values[mask]
@@ -163,7 +170,9 @@ def estimate_growth_rate(
     residual_sum = float(np.sum((y_values - fitted) ** 2))
     total_sum = float(np.sum((y_values - np.mean(y_values)) ** 2))
     r_squared = 1.0 if total_sum == 0.0 else 1.0 - residual_sum / total_sum
-    return GrowthFit(float(slope), float(intercept), r_squared, int(x_values.size))
+    return GrowthFit(
+        float(slope), float(intercept), r_squared, int(x_values.size), lower_bound, upper_bound
+    )
 
 
 def _steady_order(result: SelectionResult) -> float:
@@ -186,15 +195,22 @@ def _run_configs(configs: list[SelectionConfig]) -> list[SelectionResult]:
 
 def _fit_growth_sweep(
     configs: list[SelectionConfig], results: list[SelectionResult]
-) -> tuple[FloatArray, FloatArray, float, float]:
-    fits = [
-        estimate_growth_rate(result.time, result.order_mean, transient=1.0, saturation_cap=0.3)
-        for result in results
-    ]
+) -> tuple[FloatArray, FloatArray, float, float, list[float], list[float]]:
+    fits = []
+    for config, result in zip(configs, results, strict=True):
+        static_r = coherent_r(config.coupling, config.diffusion)
+        # e.g., 2.0 * floor is safe, let's use 2.0 * finite_size_floor to low-end
+        # relative bounds
+        lower_bound = 2.0 * result.finite_size_floor
+        upper_bound = 0.5 * static_r
+        fits.append(estimate_growth_rate(result.time, result.order_mean, lower_bound, upper_bound))
+
     rates = np.asarray([fit.rate for fit in fits])
     r_squared = np.asarray([fit.r_squared for fit in fits])
+    lower_bounds = [fit.lower_bound for fit in fits]
+    upper_bounds = [fit.upper_bound for fit in fits]
     slope, intercept = np.polyfit(np.asarray([config.coupling for config in configs]), rates, 1)
-    return rates, r_squared, float(slope), float(intercept)
+    return rates, r_squared, float(slope), float(intercept), lower_bounds, upper_bounds
 
 
 def _save_run(path: Path, config: SelectionConfig, result: SelectionResult) -> None:
@@ -272,7 +288,28 @@ def run_experiment(
     ]
     regime_results = _run_configs(regime_configs)
     growth_results = _run_configs(growth_configs)
-    rates, fit_quality, slope, intercept = _fit_growth_sweep(growth_configs, growth_results)
+
+    # dt control at largest regime coupling
+    dt_control_coupling = float(np.max(regime_couplings))
+    dt_configs = []
+    for dt in (0.01, 0.005):
+        dt_configs.append(
+            SelectionConfig(
+                **{
+                    **asdict(base),
+                    "coupling": dt_control_coupling,
+                    "dt": dt,
+                    "steps": int(base.steps * (0.01 / dt)),
+                    "sample_every": int(base.sample_every * (0.01 / dt)),
+                }
+            )
+        )
+    dt_results = _run_configs(dt_configs)
+    dt_orders = [float(_steady_order(result)) for result in dt_results]
+
+    rates, fit_quality, slope, intercept, lower_bounds, upper_bounds = _fit_growth_sweep(
+        growth_configs, growth_results
+    )
     regime_final = np.asarray([_steady_order(result) for result in regime_results])
     regime_theory = np.asarray(
         [coherent_r(config.coupling, config.diffusion) for config in regime_configs]
@@ -284,16 +321,23 @@ def run_experiment(
         growth_coupling=growth_couplings,
         growth_rate=rates,
         growth_r_squared=fit_quality,
+        growth_window_lower=lower_bounds,
+        growth_window_upper=upper_bounds,
         rate_slope=slope,
         rate_intercept=intercept,
+        dt_control_coupling=dt_control_coupling,
+        dt_control_dt=[0.01, 0.005],
+        dt_control_order=dt_orders,
         runtime_seconds=float(
-            sum(result.runtime_seconds for result in regime_results + growth_results)
+            sum(result.runtime_seconds for result in regime_results + growth_results + dt_results)
         ),
     )
     for label, config, result in zip(
         ("subcritical", "critical", "supercritical"), regime_configs, regime_results, strict=True
     ):
         _save_run(output / f"selection_{label}.npz", config, result)
+    for dt_config, result in zip(dt_configs, dt_results, strict=True):
+        _save_run(output / f"selection_dt_control_dt{dt_config.dt:g}.npz", dt_config, result)
     _save_summary(output, base, summary)
     _plot_experiment(output, regime_configs, regime_results, summary)
     return summary
@@ -308,10 +352,15 @@ def _save_summary(output: Path, config: SelectionConfig, summary: ExperimentSumm
         "growth_coupling": summary.growth_coupling.tolist(),
         "growth_rate": summary.growth_rate.tolist(),
         "growth_r_squared": summary.growth_r_squared.tolist(),
+        "growth_window_lower": summary.growth_window_lower,
+        "growth_window_upper": summary.growth_window_upper,
         "rate_fit_slope": summary.rate_slope,
         "rate_fit_intercept": summary.rate_intercept,
         "predicted_slope": 0.5,
         "predicted_intercept": -config.diffusion,
+        "dt_control_coupling": summary.dt_control_coupling,
+        "dt_control_dt": summary.dt_control_dt,
+        "dt_control_order": summary.dt_control_order,
         "runtime_seconds": summary.runtime_seconds,
         "scope": "finite-N heuristic evidence; no dynamical-selection theorem",
     }

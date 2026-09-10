@@ -341,7 +341,7 @@ would close the gap properly.
 
 ### C1 — Attribute the dynamical-selection residual correctly
 
-- [ ] `main.tex:177` reports that at $K = 2.8$ the steady mean order is 0.67735
+- [x] `main.tex:177` reports that at $K = 2.8$ the steady mean order is 0.67735
       against a static 0.68270 and calls the gap a **finite-size** discrepancy.
       An independent step-size series on the same system (`K=2.8, D=1, N=1000`,
       64 replicas, tail-quarter mean) gives:
@@ -354,7 +354,7 @@ would close the gap properly.
       monotone in dt and about 70% of it is gone by dt = 0.0025. Roughly
       $-0.004$ of the reported $-0.0054$ is Euler–Maruyama bias and only about
       $-0.0016$ is attributable to $N$.
-- [ ] `dynamical_selection.py`, `dynamic_ramp.py` and `propagation_of_chaos.py`
+- [x] `dynamical_selection.py`, `dynamic_ramp.py` and `propagation_of_chaos.py`
       all run at a fixed dt = 0.01 with no step-size control. Only
       `geometric_frustration` has a half-step check.
 
@@ -372,7 +372,7 @@ removing a finite-size claim the data do not support.
 
 ### C2 — Refit the growth rate outside the fluctuation floor
 
-- [ ] `estimate_growth_rate` fits $\log \bar r$ from `transient = 1.0` up to
+- [x] `estimate_growth_rate` fits $\log \bar r$ from `transient = 1.0` up to
       `saturation_cap = 0.3`. At $N = 1000$ the noise floor is $\approx 0.028$
       and the fit window opens while the trace is still on it, which biases the
       slope down; the cap at 0.3 truncates inside the nonlinear regime at larger

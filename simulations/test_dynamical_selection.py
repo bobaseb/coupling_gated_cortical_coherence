@@ -60,7 +60,7 @@ class DynamicalSelectionTest(unittest.TestCase):
         time = np.linspace(0.0, 8.0, 161)
         order = 0.025 * np.exp(0.18 * time)
 
-        fit = estimate_growth_rate(time, order, transient=1.0, saturation_cap=0.3)
+        fit = estimate_growth_rate(time, order, lower_bound=0.0, upper_bound=0.3)
 
         self.assertAlmostEqual(fit.rate, 0.18, places=12)
         self.assertAlmostEqual(fit.intercept, np.log(0.025), places=12)
@@ -72,13 +72,33 @@ class DynamicalSelectionTest(unittest.TestCase):
         order = np.array([0.02, 0.03, 0.4])
 
         with self.assertRaisesRegex(ValueError, "at least three"):
-            estimate_growth_rate(time, order, transient=0.5, saturation_cap=0.3)
+            estimate_growth_rate(time, order, lower_bound=0.01, upper_bound=0.3)
 
     def test_invalid_configuration_is_rejected(self) -> None:
         config = SelectionConfig(dt=0.0)
 
         with self.assertRaisesRegex(ValueError, "positive"):
             simulate_selection(config)
+
+    def test_run_experiment_produces_dt_control(self) -> None:
+        from dynamical_selection import run_experiment
+        import tempfile
+        from pathlib import Path
+
+        base = SelectionConfig(
+            n_oscillators=1024, n_replicas=4, dt=0.02, steps=300, sample_every=5, seed=42
+        )
+        regimes = np.array([1.6, 2.0, 2.8])
+        growth = np.array([2.1, 2.2])
+
+        with tempfile.TemporaryDirectory() as td:
+            output = Path(td)
+            summary = run_experiment(base, regimes, growth, output)
+
+        self.assertEqual(summary.dt_control_coupling, 2.8)
+        self.assertEqual(summary.dt_control_dt, [0.01, 0.005])
+        self.assertEqual(len(summary.dt_control_order), 2)
+        self.assertIsInstance(summary.dt_control_order[0], float)
 
 
 if __name__ == "__main__":
