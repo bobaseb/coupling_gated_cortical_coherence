@@ -546,6 +546,9 @@ Deferred because the sweep behind it is expensive to re-run for reassurance.
 
 ### E4 — `paper_assessment.md` is at the repository root
 
+**Done 2026-09-10.** Moved to `tasks/paper_assessment.md` with `git mv`; no
+reference anywhere in the tree needed updating, because there was none.
+
 Nothing links it — no `.md`, `.tex`, `.html`, `.py` or `.sh` file in the tree
 mentions it. The root is otherwise manuscript sources, Lean scaffolding and the
 three tracked deliverables that `README.md` and `index.html` link. `tasks/` is
