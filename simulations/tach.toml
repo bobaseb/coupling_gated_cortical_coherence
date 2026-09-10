@@ -1,6 +1,163 @@
+# Architecture boundaries for the simulation package (AGENTS.md section 2).
+#
+# Every module here is a single file in this directory, so the boundaries are
+# declared rather than implied by a directory tree: the layout stays flat and
+# the layering is still enforced. `exact = true` means an import that no rule
+# below permits fails the commit, and so does a rule that no import uses -- the
+# file cannot drift from the code in either direction.
+#
+# The layers run top to bottom; a module may import any layer below its own
+# without declaring it, and a same-layer import must be declared explicitly in
+# that module's `depends_on`.
+#
+#   publication  the generated TeX macros
+#   report       reads artifacts a finished run left behind
+#   analysis     estimators over saved data
+#   simulation   integrates dynamics, writes .npz and summaries -- and the
+#                report a run emits as it finishes, which is why
+#                `geometric_frustration_report` sits here and not in `report`:
+#                its sweep calls it, so it runs inside the run rather than over
+#                its output. `frustration_summary` reads the same artifacts
+#                afterwards and is in `report` accordingly.
+#   theory       closed-form results and declared parameters; integrates nothing
+#   gate         reads the repository's own documents; touches no science
+#
+# Two rules are the point of the ordering, and both restate a rule already
+# written in prose:
+#
+#   * `gate` is the bottom layer, so no gate can import a simulation. A gate
+#     runs on every commit; one that reached a sweep module would put an
+#     integration in the commit path.
+#   * `publication` is the top layer and nothing imports it, so the macro
+#     generator is a sink. Regenerating publication macros must never rerun a
+#     production sweep (AGENTS.md section 3) -- the imports it does hold are
+#     pure helpers, and every sweep module guards its entry point with
+#     `__main__`.
+
 exact = true
 forbid_circular_dependencies = true
+source_roots = ["."]
+
+# Tests import the modules they exercise, which is not an architectural edge.
+exclude = ["test_.*\\.py", ".*__pycache__.*", "\\.venv"]
+
+layers = ["publication", "report", "analysis", "simulation", "theory", "gate"]
+
+# -- publication ------------------------------------------------------------
+[[modules]]
+path = "simulation_tex"
+layer = "publication"
+
+# -- report -----------------------------------------------------------------
+[[modules]]
+path = "dynamic_ramp_report"
+layer = "report"
 
 [[modules]]
-path = "<root>"
-depends_on = []
+path = "structural_resonance_report"
+layer = "report"
+
+[[modules]]
+path = "frustration_summary"
+layer = "report"
+
+# -- analysis ---------------------------------------------------------------
+[[modules]]
+path = "dynamic_ramp_analysis"
+layer = "analysis"
+
+[[modules]]
+path = "empirical_collapse"
+layer = "analysis"
+
+# -- simulation -------------------------------------------------------------
+[[modules]]
+path = "dynamic_ramp"
+layer = "simulation"
+
+[[modules]]
+path = "dynamical_selection"
+layer = "simulation"
+
+[[modules]]
+path = "geometric_frustration"
+layer = "simulation"
+depends_on = ["geometric_frustration_report"]
+
+[[modules]]
+path = "geometric_frustration_report"
+layer = "simulation"
+
+[[modules]]
+path = "frustration_diagnostics"
+layer = "simulation"
+depends_on = ["geometric_frustration"]
+
+[[modules]]
+path = "spatial_kernel"
+layer = "simulation"
+
+[[modules]]
+path = "structural_resonance"
+layer = "simulation"
+
+[[modules]]
+path = "propagation_of_chaos"
+layer = "simulation"
+
+[[modules]]
+path = "kuramoto"
+layer = "simulation"
+
+[[modules]]
+path = "mesh_refinement"
+layer = "simulation"
+
+[[modules]]
+path = "hardware_comparison"
+layer = "simulation"
+
+[[modules]]
+path = "fokker_planck_von_mises"
+layer = "simulation"
+
+# -- theory -----------------------------------------------------------------
+[[modules]]
+path = "bifurcation"
+layer = "theory"
+
+[[modules]]
+path = "fermi_estimate_check"
+layer = "theory"
+
+# -- gate -------------------------------------------------------------------
+[[modules]]
+path = "check_prose"
+layer = "gate"
+
+[[modules]]
+path = "check_hedging"
+layer = "gate"
+depends_on = ["check_prose"]
+
+[[modules]]
+path = "check_pdf_freshness"
+layer = "gate"
+
+[[modules]]
+path = "check_figures"
+layer = "gate"
+depends_on = ["check_pdf_freshness"]
+
+[[modules]]
+path = "check_arxiv_freshness"
+layer = "gate"
+depends_on = ["check_pdf_freshness"]
+
+[[modules]]
+path = "check_tableS1"
+layer = "gate"
+
+[[modules]]
+path = "check_leaves"
+layer = "gate"

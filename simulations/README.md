@@ -46,6 +46,22 @@ The Python quality gates — `ruff`, `mypy`, `bandit`, `vulture`, `xenon`, `tach
 — are configured in `pyproject.toml` and `tach.toml` and also run under
 `pre-commit`.
 
+`tach.toml` declares each file here as a module and sorts them into six layers,
+so the architecture is enforced without a directory tree to carry it. Two of the
+layer rules are the reason it exists, and each restates a rule this repository
+already had in prose:
+
+* **No gate imports a simulation.** `gate` is the bottom layer. A gate runs on
+  every commit, and one that reached a sweep module would put an integration in
+  the commit path.
+* **Nothing imports `simulation_tex`.** It is the top layer, so the macro
+  generator is a sink: regenerating publication macros never reruns a production
+  sweep (`AGENTS.md` section 3).
+
+`exact = true`, so an import no rule permits fails the commit and so does a rule
+no import uses — the file cannot drift from the code in either direction.
+
+
 ## Data
 
 The exploratory EEG analysis uses OpenNeuro dataset
