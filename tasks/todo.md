@@ -21,23 +21,36 @@ cause, three are compared against the wrong reference, one control does not
 control for the thing it is cited for, and one hand-computed numeral is simply
 wrong.
 
-None of these overturns a headline claim. Every one of them is a place where a
-referee who recomputes will find the manuscript saying more than the artifact
-supports, which is precisely the failure mode the whole project is organised
-against.
+None of the September 9 findings overturns a headline claim. Every one is a
+place where a referee who recomputes will find the manuscript saying more than
+the artifact supports, which is precisely the failure mode the whole project
+is organised against.
+
+**Follow-up audit, 2026-09-10.** The current priorities are F1–F6 below.
+F1 changes that assessment for the plasticity headline: sampling immediately
+after updates shows descent that the mean over all integration steps does not.
+F2–F4 are narrow wording corrections. F5 and F6 are optional, bounded studies
+that could change a central conclusion. Their inclusion records recommendations;
+none has been implemented or completed by this update.
 
 ## How this ledger is ordered
 
-**By effort, ascending.** A-items are prose or reference edits against numbers
-already in the repository. B-items add a derived quantity to an existing report
-script and read it from a saved summary — no production sweep reruns. C-items
+**Current priority:** correct F1, batch the small F2–F4 wording fixes, then
+consider F5 before F6 if further simulations are wanted. F1–F4 do not depend on
+running either optional study. The 80/20 constraint is to correct unsupported
+claims and retain supported results, without expanding into incremental sweeps.
+
+**The preceding pass is ordered by effort, ascending.** A-items are prose or
+reference edits against numbers already in the repository. B-items add a
+derived quantity to an existing report script and read it from a saved summary
+— no production sweep reruns. C-items
 need a rerun of an existing sweep at new parameters. D-items need a new design.
 E-items are repository infrastructure: they change no number, proof or claim,
 and sit after D because none of them blocks the manuscript. R-items are the
 carried-forward research programme and sit after E because they are unbounded,
 not because they rank below it. P-items are submission mechanics
 and are last only because two of the three are blocked on someone else; the
-third is now gated on A1 and A2.
+third is now gated on A1, A2 and F1–F4.
 
 Take one item at a time. A- and B-items may be batched into one commit each if
 they touch the same file; do not start a C-item while an A- or B-item is open.
@@ -60,11 +73,207 @@ they touch the same file; do not start a C-item while an A- or B-item is open.
 5. Five pre-commit hooks judge the whole tree whenever any Python file is
    staged. A B-item that adds an unannotated helper blocks every later Python
    commit, not only its own.
-6. **A correction is not a retraction of the result.** In every case below the
-   direction of the published finding survives; what changes is the reference it
-   is measured against or the cause it is assigned to. Do not weaken a
-   conclusion further than the evidence requires, and do not strengthen one
-   because a correction turned out to be small.
+6. **Correct only what the evidence requires.** Retain supported findings and
+   distinguish a wrong interpretation from a wrong numerical implementation.
+   F1 is a substantive exception to the preceding pass's conclusion that every
+   headline survives: sustained plasticity descent is not supported by the
+   production replay. Do not weaken other conclusions by association or
+   strengthen one because a correction turned out to be small.
+
+---
+
+## F — Follow-up audit and consequential simulations (2026-09-10)
+
+**Scope and evidence.** The audit read the simulation implementations, saved
+artifacts and manuscript claims. Forty-nine targeted tests, the
+`simulation_results.tex` drift check, and direct numerical equation checks
+passed. In-memory replays reproduced all twelve production plasticity final
+kernels exactly. The audit changed no repository files; the new diagnostic
+numbers below were printed during the audit and are not committed simulation
+summaries. If any enters the publication, first preserve its compact source
+summary, generator and drift test under AGENTS.md §3.
+
+F1–F4 are necessary corrections. F5–F6 are optional studies whose outcomes could
+change the argument, with completion defined by answering the stated question
+either way. Existing A–E completion records remain historical records; they
+must not be used to dismiss these follow-up findings.
+
+### F1 — Correct the plasticity sampling and claim of sustained descent
+
+- [ ] Distinguish the immediate post-update objective from its mean throughout
+      the intervals between updates, and correct the claims that depend on
+      sustained reduction.
+
+**Evidence.** In `structural_resonance.simulate`, `update_every` and
+`sample_every` are both 50. Diagnostics run after the coupling update, so
+`metrics.tail_dissipation` averages only the instant at which the update has
+just acted. Recording the drift objective at every integration step in an
+otherwise unchanged replay gives the following second-half means:
+
+| Seed | Gradient: reported post-update mean | Gradient: mean over all steps | Frozen: mean over all steps |
+|---|---:|---:|---:|
+| 20260906 | 1115.4 | 1429.1 | 1381.9 |
+| 20261906 | 1110.6 | 1398.7 | 1380.8 |
+| 20262906 | 1116.6 | 1422.3 | 1383.7 |
+
+The all-step diagnostic covers t in [200, 400) at dt = 0.01; the saved
+post-update readout includes the final t = 400 sample. All twelve final kernels
+match the saved production kernels bit-for-bit. The reported 67.7–69.1%
+headroom removal belongs to the post-update readout. On every seed the mean
+over all steps exceeds the frozen baseline.
+
+**Completion.** The abstract, introduction, plasticity argument and figure
+caption in `main.tex`, the corresponding supplement and run report, and the
+primer wherever it repeats the claim, consistently name the measured quantity.
+Retain the observed coherence and loss of alignment and the fixed-phase
+mathematics. Remove the inference that these runs exhibit sustained objective
+minimization, including the claim that they thereby establish the antecedent of
+the strong counterexample. Keep squared drift distinct from thermodynamic
+entropy production. A prose correction can retain the saved post-update
+numbers if they are identified accurately.
+
+If the reporting code is extended to measure the mean over complete update
+intervals, write a regression test first that distinguishes it from samples
+taken only after an update. Preserve the dynamics, record both readouts, and
+save compact summaries of the replay separately from macro generation. The
+saved decimated objective alone cannot reconstruct the omitted intervals.
+F5 is the separate question of whether a different declared regime supplies
+the stronger counterexample; it is not a prerequisite for correcting F1.
+
+### F2 — Describe the plasticity controls' actual matching
+
+- [ ] Replace claims of equal step size, cumulative deformation and coherence
+      with the matching implemented and the comparable ranges observed.
+
+**Evidence.** `structural_resonance.step_direction` computes the gradient from
+each arm's own evolving phases and couplings. The random direction is scaled to
+that local gradient; the permuted arm relabels its own gradient. Neither is fed
+the contemporaneous step from the gradient arm. In the production replays,
+mean direction norms were about 43 for the gradient arm and 35 for the random
+arm. The gradient and permuted arms' final norm-growth and order ranges
+overlap; they are not equal by construction.
+
+**Completion.** Correct the abstract and control descriptions in `main.tex`,
+the sentence beginning “The comparison the two controls jointly support” in
+`supplementary.tex`, and corresponding report/docstring descriptions. State
+local gradient normalization and empirical overlap of the reported ranges.
+Retain the controls and their observed results. This is a wording correction;
+it does not require another control arm or a redesigned matching procedure.
+
+### F3 — Remove the exclusion of growth-fit window bias
+
+- [ ] Correct the supplement's statement that the shortfall of the growth-rate
+      slope from 1/2 “is therefore not a property of the fit window”.
+
+**Evidence.** C2's relative bounds do not establish an unbiased estimator.
+A deterministic mean-field Fourier diagnostic, with no finite population or
+Euler–Maruyama integration, returned a slope of 0.466531 using the declared
+upper bound of half the stationary branch. Halving that bound returned
+0.489995. The 0.466531 result agreed between 30 modes with DOP853 and 15 modes
+with Radau. The diagnostic used D = 1, the production coupling grid 2.2–3.1,
+samples every 0.05 over t in [0, 10], lower bound 2/sqrt(1000), and initial
+first Fourier moment sqrt(pi)/(2 sqrt(1000)), with higher moments zero.
+
+**Completion.** Preserve the measured production slope and the qualitative
+escape result. State that the finite fit window can contribute to the residual;
+the stationary-order step-size control does not apportion bias in this growth
+estimator. Do not assign the whole remaining discrepancy to finite N or the
+integrator. Removing the unsupported exclusion is sufficient; no production
+rerun or new published diagnostic numeral is required.
+
+### F4 — Scope the spatial refinement to the comparison actually made
+
+- [ ] Replace the claim that the boundary is independent of discretization and
+      resolved on the finer sheet with the observed stability of the operational
+      crossing under this one refinement.
+
+**Evidence.** The interpolated crossing changes by a factor of about 1.01
+between the 128² and 256² sheets. At the same nearby decay length,
+0.014670795479089165 mm, the saved steady order changes from 0.617556 to
+0.268704. Agreement of the threshold interpolants is not convergence of the
+near-boundary dynamics; the refined crossing is only about 1.81 cells wide.
+
+**Completion.** In the “Finite-sheet spatial-decay control” subsection of
+`supplementary.tex` and any repeated interpretation, say that the operational
+crossing was nearly unchanged under this one refinement. Keep the reported
+crossings, the metastability qualification and the finding of coherence in the
+sampled empirical band. No additional spatial resolution is needed to make this
+wording correction.
+
+### F5 — Bounded study: sustained objective reduction with loss of alignment
+
+- [ ] Optional, first study to consider: determine whether a declared
+      plasticity regime exhibits sustained objective reduction, coherence and
+      anti-alignment together.
+
+**Why this could change the paper.** A positive result would supply the missing
+antecedent of the strong plasticity counterexample exposed by F1. A negative
+result would support keeping the corrected, narrower account. This study is
+about the squared-drift objective and this objective/template pairing; it
+does not establish a result for thermodynamic entropy production.
+
+**Design before execution.** Specify a small finite set of learning rates and
+physical update intervals, the resource budget and duration, and quantitative
+criteria for sustained improvement against the frozen arm, maintained
+coherence and loss of alignment. Use the objective throughout complete update
+intervals. Declare tuning and held-out seeds separately; do not select a rate
+on its favorable alignment outcome. Confirm any candidate coexistence on the
+held-out seeds and at a smaller integration step while keeping physical
+duration and update cadence fixed. Describe any additional controls according
+to what they actually match, as in F2.
+
+**Completion and stop rule.** Write the estimator tests first, run a reduced
+check, then execute the declared design and report every outcome. Preserve
+compact summaries and generate any publication numbers from them. Stop after
+the declared design and confirmation checks; do not expand the grid or keep
+tuning to rescue the headline. Failure to find coexistence in that design
+is not a proof that no such regime exists. Completing the study means reporting
+its answer and adjusting the claim accordingly, not obtaining a positive result.
+
+### F6 — Bounded study: recovery-mechanism discrimination under common observation
+
+- [ ] Optional, after F5 if a substantive addition is wanted: test whether the
+      proposed measurements can identify the mechanism generating recovery.
+
+**Why this could change the paper.** The stationary self-consistency equation
+depends on K/D. Increasing coupling and decreasing phase diffusion can
+therefore give the same stationary concentration and coherence. A model-recovery
+study could show which temporal information or independent parameter measurements distinguish
+them, or demonstrate precisely which additional measurement the proposed
+protocol needs. This develops R4/R5 without claiming to complete their
+empirical programme.
+
+**Design before execution.** Declare the candidate families: increasing
+coupling, decreasing phase diffusion, and a simple shared-drive alternative.
+Specify parameter ranges, observations available to the analysis, fitting
+procedures and success criteria before inspecting outcomes. Examine analytic
+equivalences first and use ideal observations for a small feasibility study.
+If distinguishability survives, apply the same observation noise, filtering,
+pooling and estimators to data from each mechanism, and measure recovery of the
+generating model on held-out simulations. The inference must not receive
+unobserved true K, D or model labels; independent parameter estimates count
+only when the measurement protocol supplies them.
+
+**Completion and stop rule.** Report model recovery and confusion across the
+declared cases, including failures. If the mechanisms are indistinguishable
+under ideal observations, record the ambiguity and the additional observable
+needed, and stop before adding observation complications. Retain a successful
+protocol only within the tested observation assumptions. Neither outcome
+identifies the coupling as electromagnetic; that requires independent physical
+measurements. Do not turn a failed pilot into an open-ended search over models.
+
+**Method reference, verified online during the review:** Robert C. Wilson and
+Anne G. E. Collins (2019), “Ten simple rules for the computational modeling of
+behavioral data”, *eLife* 8:e49547,
+[doi:10.7554/eLife.49547](https://elifesciences.org/articles/49547).
+
+**Not scheduled under the 80/20 constraint.** Further spatial resolutions,
+frustration grids, population-size sweeps or alternative templates would mostly
+refine existing illustrations. Skip them unless a specific result shows they
+are necessary to decide a central claim. Keep the supported finite-run findings
+and existing scope qualifications; do not broaden the corrections into a
+simulation redesign. F5 and F6 are optional additions, not submission blockers
+once F1–F4 have been addressed.
 
 ---
 
@@ -522,11 +731,14 @@ against the whole tree here and exits 0, and the venv-relative invocation the
 workflow uses is the one that was run. The pinned Mathlib revision was checked
 to be an ancestor of `mathlib4` master, so the prebuilt cache the Lean job
 fetches exists for it. The runner setup itself — `astral-sh/setup-uv`, the elan
-install, `lake exe cache get` — cannot be exercised from here, and
+install, `lake exe cache get` — could not be exercised from here, and
 `lake exe cache get` must not be run on this machine: the local `.lake` was
-built from source for aarch64, and Mathlib's cache is per platform. The first
-push is the first real run of both jobs, and the README badge reports whatever
-that run says.
+built from source for aarch64, and Mathlib's cache is per platform.
+
+**The first run passed, both jobs, on the first push.** The Python job takes 1m
+37s; `lake build` takes 35m 36s, of which nearly all is the Mathlib cache
+fetch — well inside the 90-minute timeout, but it is the reason the two jobs are
+independent rather than staged, since a Python failure should not wait on it.
 
 There is no `.github/`. All twelve gates run only under `pre-commit`, on one
 machine, and `git commit -n` skips every one of them. Nothing verifies
@@ -671,7 +883,7 @@ because they rank below the A–D items.
 - [ ] Add or confirm the journal-required data-availability statement and the
       supplemental-material description. *Blocked on a journal choice.*
 - [ ] Final read of every cited reference and every generated numerical macro
-      after the last prose edit. **A1 and A2 are now prerequisites**, and this
+      after the last prose edit. **A1, A2 and F1–F4 are prerequisites**, and this
       item is no longer a formality: the audit found one wrong numeral and two
       unresolvable citations by doing exactly this read. Do not submit while any
       source/PDF, estimator or public-description inconsistency remains.
@@ -1211,4 +1423,14 @@ citations of the witnesses were normalised onto the form Table S1 already used.
 `tasks/paper_assessment.md`.
 
 **Gates.** 125/125 tests and every hook, `lake build` green, and the merged arXiv
-document compiles from the unpacked tarball at 45 pages.
+document compiles from the unpacked tarball at 45 pages. Both CI jobs then passed
+off this machine on the first push, which is the E1 claim actually being checked
+rather than asserted.
+
+**One thing the push found that was not an E-item.** `git push` was rejected:
+the `GITHUB_TOKEN` this machine authenticates with is a classic PAT scoped
+`repo` only, and GitHub refuses any push that touches `.github/workflows/`
+without `workflow` scope. `gh auth refresh` cannot fix a token supplied through
+an environment variable. The remote is now `git@github.com:` over SSH with a new
+ed25519 key on this machine, which is not subject to that check at all and needs
+no scope decision the next time a workflow file changes.
