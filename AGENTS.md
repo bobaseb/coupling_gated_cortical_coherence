@@ -101,3 +101,39 @@ The preprint notice in `arxiv_assets/neurips_2026.sty` reads "Preprint." and not
 the upstream "Preprint. Under review.": posting to arXiv is not a submission to
 anywhere, and the footer of page 1 is not the place to imply one. Local
 modifications to that vendored style are listed in its header comment.
+
+## 8. "No Axioms" Is a Claim, So It Is a Gate
+
+Table S1 says the development declares **no axioms** — that `#print axioms` on
+any result reports only `propext`, `Classical.choice` and `Quot.sound` — and
+the Kuramoto section says the same of every declaration in
+`Phase8_CriticalExponent.lean`. Until
+`Audit.lean`, nothing checked either sentence, and `lake build` structurally
+cannot: a `sorry` is a *warning* and the build exits 0, a fresh `axiom` is a
+legal declaration, and a class field promoted back into a standalone postulate
+compiles exactly as well as the shape §5 of `Axioms.lean` forbids. That section
+records three postulates removed for being **refutable**, so this is a failure
+mode with a history in this repository rather than a hypothetical one.
+
+- **The gate:** `Audit.lean`, a default `lake` target, therefore part of
+  `lake build` and of the CI Lean job. It walks every declaration the library
+  adds to the environment — not a hand-kept list of headline theorems, because
+  a list stops covering the next theorem someone writes — collects the axioms
+  of each, and throws if anything outside the permitted three appears.
+  `sorryAx` is collected like any other axiom, so this is also the only gate
+  that fails on a `sorry` in a real declaration. On a passing run it logs the
+  footprint it verified: an audit whose output is silence cannot be told from
+  an audit that did not run.
+- **The local half:** `simulations/check_sorry.py`, as `check-sorry`. The audit
+  runs only where Lean runs, which is CI. This is the textual check, in the two
+  seconds before the commit, and it additionally sees `example ... := sorry` —
+  an `example` adds no constant to the environment, so no sweep will ever find
+  it. Comments are stripped first, on the same principle as `check_leaves.py`:
+  `Axioms.lean` §5 discusses removed postulates in prose, and a gate that read
+  prose would fail on the record of its own success.
+- **Widening the permitted set is a manuscript edit.** `Audit.permitted` is the
+  executable form of a published sentence. A fourth entry makes Table S1 false,
+  so it belongs in the same commit as the `supplementary.tex` change that says
+  what the new axiom is and why it is irreducible — and, per §5 of
+  `Axioms.lean`, a physical postulate that mentions a class field must be a
+  field of that class rather than a standalone axiom at all.

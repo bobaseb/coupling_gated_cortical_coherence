@@ -62,7 +62,7 @@ jobs:
           key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
 
       # The whole local gate set at once, which is the thing nothing else
-      # verifies. Two of the twelve hooks report nothing here, by their own
+      # verifies. Two of the fifteen hooks report nothing here, by their own
       # design rather than by accident: `check-pdf-freshness` reads the staged
       # diff, of which a checkout has none, and `check-arxiv-freshness` passes
       # when `arxiv_submit/` is absent, which is its documented escape hatch.
@@ -91,5 +91,14 @@ jobs:
       - name: Fetch the Mathlib build cache
         run: lake exe cache get
 
-      - name: Build
+      # `lake build` builds both default targets: the library, and `Audit`,
+      # which sweeps every declaration the library adds to the environment and
+      # fails if any of them rests on an axiom outside `propext`,
+      # `Classical.choice` and `Quot.sound`. That sweep is the executable form
+      # of the claim Table S1 makes in prose, and it is also the only thing
+      # here that fails on a `sorry` -- the build itself prints
+      # `declaration uses 'sorry'` as a warning and exits 0. On a passing run
+      # the audit logs the footprint it verified, so the log carries the
+      # evidence rather than only the absence of a failure.
+      - name: Build, and audit the axiom footprint
         run: lake build

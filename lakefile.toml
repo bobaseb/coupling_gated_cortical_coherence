@@ -1,9 +1,16 @@
 name = "PhysicsOfConsciousness"
 version = "0.1.0"
-defaultTargets = ["physicsofconsciousness"]
+defaultTargets = ["physicsofconsciousness", "Audit"]
 
 [[lean_lib]]
 name = "PhysicsOfConsciousness"
+
+# The axiom audit (`Audit.lean`). A default target, so `lake build` runs it:
+# it is the executable form of the manuscript's "the development declares no
+# axioms", and a gate nothing builds is not a gate. Kept out of the library
+# because it imports the root aggregator, which cannot then import it.
+[[lean_lib]]
+name = "Audit"
 
 [[lean_exe]]
 name = "physicsofconsciousness"

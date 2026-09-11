@@ -68,6 +68,7 @@ To ensure our derivations are mathematically rigorous and avoid "math theatre," 
 | 🔹 **Phase 8** | `Phase8_ContinuousField.lean` | ✅ Verified |
 | 🔹 **Phase 9** | `Phase9_EMIdentification.lean` | ✅ Verified |
 | ⛓️ **Composition** | `Chain.lean` | ✅ Verified |
+| 🔍 **Axiom audit** | `Audit.lean` | ✅ Enforced |
 
 The table names one representative module per phase; the development is 37
 modules in total, and `Chain.lean` is the one that matters most — it imports all
@@ -75,6 +76,14 @@ nine phases and states the single conditional theorem, with the eight
 connecting hypotheses as explicit arguments. It also discharges all eight at
 once, on the three-site cortex the witnesses under `Examples/` build, which is
 what makes the conjunction non-empty rather than vacuous.
+
+`Audit.lean` is not a phase. It is a default `lake` target that walks every one
+of the 2072 declarations the library adds to the environment and fails the
+build if any of them depends on an axiom other than `propext`,
+`Classical.choice` and `Quot.sound` — `sorryAx` included, which is the case
+`lake build` reports as a warning and passes. The development declares no
+axioms of its own, and this is the check of that claim rather than the
+assertion of it.
 
 ### 🚀 Building the Proofs
 
@@ -112,9 +121,11 @@ the data policy.
 Both halves are checked on someone else's computer as well as the author's.
 [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs the test suite and
 the whole `pre-commit` gate set on every push, and `lake build` against
-Mathlib's prebuilt cache on an x86 runner. The twelve gates are otherwise
+Mathlib's prebuilt cache on an x86 runner. The fifteen gates are otherwise
 enforced on one machine only, where `git commit -n` can skip every one of
-them.
+them. The Lean build additionally runs `Audit.lean`, which sweeps every
+declaration in the library and fails if any of them rests on an axiom beyond
+`propext`, `Classical.choice` and `Quot.sound`.
 
 ## 📝 Manuscript
 

@@ -116,3 +116,16 @@ repos:
         language: system
         files: \.lean$
         pass_filenames: false
+
+      # `sorry` detector. `lake build` prints `declaration uses 'sorry'` as a
+      # warning and exits 0, so the one thing that would falsify "machine-
+      # checked" is the one thing the build does not gate. `Audit.lean` rejects
+      # `sorryAx` for real, but it runs only in the Lean CI job; this is the
+      # same check in the two seconds before the commit, and it additionally
+      # sees `example ... := sorry`, which adds no constant for a sweep to find.
+      - id: check-sorry
+        name: no sorry in lean source
+        entry: bash -c 'cd simulations && uv run python check_sorry.py'
+        language: system
+        files: \.lean$
+        pass_filenames: false
