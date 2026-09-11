@@ -85,9 +85,11 @@ lemma inc_is_measurable_embedding {U V : Opens X} (hUV : V ≤ U) :
     rw [h_eq]
     exact h_preimage
 
--- The presheaf of probability densities over X.
--- Each local section s ∈ F(U) represents the finite measure (unnormalized probability) 
--- derived from the local structural resonance within the subsystem U.
+/-- The presheaf of finite spatial measures over `X`.
+
+Each local section is an unnormalised finite measure on its open set.  It models
+a spatial mass profile; it is not a presheaf of normalized probability laws over
+an independent content variable. -/
 noncomputable def probabilityPresheaf_pre : (Opens X)ᵒᵖ ⥤ Type _ where
   obj U := FiniteMeasure (↥U.unop)
   -- The restriction map simply restricts the measure's domain to the smaller open subset

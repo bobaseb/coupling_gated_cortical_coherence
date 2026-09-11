@@ -39,7 +39,7 @@ Nine nodes; the eight arrows between them are the assumptions, not results:
 8. **Unity** — compatible local states glue to a unique global section.
 9. **Self** — that section is the unique fixed point of a self-prediction map.
 
-Table 1 of the manuscript classifies the eight connecting hypotheses: one independent physical premise, three formalization gaps, two modelling assumptions and two physical commitments. A common toy witness satisfies all eight, so their conjunction is not empty; that is consistency, not cortex.
+Table 1 of the manuscript classifies the eight connecting hypotheses: one independent physical premise, three bridge assumptions, two modelling assumptions and two physical commitments. A common toy witness satisfies all eight, so their conjunction is not empty; that is consistency, not cortex.
 
 ## 🧪 What the simulations show
 

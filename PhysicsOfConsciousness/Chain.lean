@@ -59,11 +59,12 @@ Two consequences, and they are the point:
 Each named hypothesis carries a docstring saying what it asserts physically, what
 would discharge it, and which of three kinds it is:
 
-* **Formalization gap** — true, provable, nobody has done it in Lean;
+* **Bridge assumption** — a substantive connection between independently
+  specified objects; it requires a model and is not asserted to be a theorem;
 * **Modelling assumption** — an idealisation the framework adopts knowingly;
 * **Physical commitment** — could simply be false of cortex.
 
-The three are not equally serious and the manuscript used to blur the first two.
+The three are not equally serious and the manuscript names their distinct roles.
 
 ## What is deliberately *not* here
 
@@ -324,12 +325,12 @@ the node predicates above, so that discharging one is a statement about the two
 links it joins rather than about an opaque symbol.
 
 The kinds, tallied: **one independent physical premise** (`E12`), **three
-formalization gaps** (`E23`, `E34`, `E78`), **two modelling assumptions**
+bridge assumptions** (`E23`, `E34`, `E78`), **two modelling assumptions**
 (`E45`, `E89`) and **two physical commitments** (`E56`, `E67`). There were nine
 until `supercritical_of_coherent` discharged the n7 → n9 edge.
 -/
 
-/-- **n1 and n2 are independent physical premises, not a formalization gap.**
+/-- **n1 and n2 are independent physical premises, not a bridge assumption.**
 
 `Capacity sys` is a theorem with no hypotheses, so `E12` is logically equivalent
 to its own conclusion: assuming it is assuming n2 outright. That is not a defect
@@ -346,7 +347,7 @@ that it skips n2 entirely. -/
 def E12 (sys : Type*) [Fintype sys] {Y V : Type*} (vac : Set V) (phi : Y → V) : Prop :=
   Capacity sys → LeavesVacuum vac phi
 
-/-- **n2 → n3. Formalization gap.**
+/-- **n2 → n3. Bridge assumption.**
 
 Asserts that the defect forced by n2 is a region whose phase space is the finite
 register `sys` and whose update cannot reach every state. Both halves are
@@ -363,7 +364,7 @@ def E23 {Y V : Type*} (vac : Set V) (phi : Y → V)
     {sys : Type*} (t : sys → sys) : Prop :=
   LeavesVacuum vac phi → ¬ Function.Surjective t
 
-/-- **n3 → n4. Formalization gap.**
+/-- **n3 → n4. Bridge assumption.**
 
 Asserts that a register that dissipates carries a `PredictiveDissipation`
 structure *of that register*: a joint law over state and signal, a Markov signal
@@ -429,7 +430,7 @@ field's own noise.
 
 **This is the one that could simply be false**, and the manuscript says so: the
 kernel might be realized by synaptic connectivity, by gap junctions, or by
-nothing with a mean-field description at all. It is not a formalization gap —
+nothing with a mean-field description at all. It is not a bridge assumption —
 there is no Lean statement that would settle it — and it is not a modelling
 idealisation, because the framework's empirical content lives here.
 
@@ -463,7 +464,7 @@ not merely hard but unavailable (`not_contractingWith_resonanceRate`). -/
 def E67 (L K D : ℝ) : Prop :=
   FieldRealizes L K D → critical_coupling D < K
 
-/-- **n7 → n8. Formalization gap.**
+/-- **n7 → n8. Bridge assumption.**
 
 Asserts that a coherent order parameter drives a `ThermodynamicCover` — a
 separate argument of `chain`, not something this edge produces — to an
@@ -563,7 +564,7 @@ development, and this theorem is where they are put together.
 **How to read the count.** `#check @chain` lists the arguments. Eight of them are
 propositions named `E..`; each is an implication between two node predicates, so
 none of them can be discharged by a definitional unfolding. One is an independent
-physical premise, three are formalization gaps, two are modelling assumptions and
+physical premise, three are bridge assumptions, two are modelling assumptions and
 two are physical commitments.
 
 **The last step runs through n7.** `self_of_coherent_order_parameter` takes the
