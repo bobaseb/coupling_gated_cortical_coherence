@@ -1,0 +1,68 @@
+{
+  "bands": {
+    "alpha": 7.794158769637291e-05,
+    "beta": 0.0001365837905194858,
+    "broad": 6.459230559119645e-06,
+    "gamma": 3.32036407444678e-05,
+    "theta": -0.001843656508263775
+  },
+  "configuration": {
+    "acquisition": "rest",
+    "duration_seconds": 20.0,
+    "montage": "adjacent bipolar pairs",
+    "padding_seconds": 3.0,
+    "pooling_window_ms": 100,
+    "run": 1,
+    "subject": "1016",
+    "task": "sed"
+  },
+  "cross_subject": {
+    "a_max": 0.1423733167460405,
+    "a_mean": 0.10387355480383013,
+    "a_min": 0.08712361872115611,
+    "count": 8,
+    "r_max": 0.06953006745146297,
+    "r_mean": 0.051569621068989505,
+    "r_min": 0.04337315142740042,
+    "residual_abs_max": 0.03643698469860618,
+    "residual_mean": -0.00019001159714936974,
+    "residual_rmse": 0.0026508246429168725
+  },
+  "dataset": "OpenNeuro ds005620",
+  "small_sample_calibration": {
+    "a_mean": 1.345852942303514,
+    "concentration": 2.0,
+    "replicas": 500,
+    "residual_mean": 0.14552697171917342,
+    "residual_sd": 0.027720393475080804,
+    "samples": 100
+  },
+  "source": "empirical_collapse_summary.py",
+  "window_sensitivity": [
+    {
+      "mean_residual": -0.026546188904883004,
+      "pooled_samples": 1525,
+      "window_ms": 5
+    },
+    {
+      "mean_residual": -0.008258591025825357,
+      "pooled_samples": 3050,
+      "window_ms": 10
+    },
+    {
+      "mean_residual": 0.0013178513337134246,
+      "pooled_samples": 6100,
+      "window_ms": 20
+    },
+    {
+      "mean_residual": -0.0022598932288307545,
+      "pooled_samples": 15250,
+      "window_ms": 50
+    },
+    {
+      "mean_residual": 6.459230559119645e-06,
+      "pooled_samples": 30500,
+      "window_ms": 100
+    }
+  ]
+}

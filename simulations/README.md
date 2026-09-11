@@ -69,6 +69,12 @@ The exploratory EEG analysis uses OpenNeuro dataset
 `cache_ds005620/`, which is git-ignored: this repository carries the analysis,
 not the raw human recordings, and does not redistribute them.
 
+To refresh the compact EEG result artifact after intentionally rerunning that
+analysis, run `uv run python empirical_collapse_summary.py`. It writes
+`figures/empirical_collapse_summary.json`; `uv run python simulation_tex.py`
+then reads that saved artifact to update the manuscript macros. The macro
+generator never downloads recordings or reruns the analysis.
+
 ## Outputs
 
 Everything a run writes under `figures/` is tracked — the `.npz` checkpoints as

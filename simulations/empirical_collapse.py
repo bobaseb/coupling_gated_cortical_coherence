@@ -45,6 +45,7 @@ BANDS: dict[str, list[float]] = {
     "theta": [4.0, 8.0],
     "alpha": [8.0, 12.0],
     "beta": [13.0, 30.0],
+    "gamma": [30.0, 40.0],
     "broad": [4.0, 40.0],
 }
 
@@ -279,6 +280,7 @@ def extract_phase_bipolar(
     fs: float,
     low: float = BAND_LOW,
     high: float = BAND_HIGH,
+    pad_seconds: float = 0.0,
 ) -> np.ndarray:
     """Bandpass + Hilbert on bipolar pairs (adjacent-channel difference).
 
@@ -286,19 +288,23 @@ def extract_phase_bipolar(
     ordering).  The difference signal kills the common reference and localises
     phase to nearby neural sources.
 
-    Returns phase array of shape (n_pairs, n_samples).
+    Applies the same post-filter trim as the other montage paths. Returns phase
+    array of shape (n_pairs, n_samples - 2 * pad_seconds * fs).
     """
     sos = design_bandpass(low, high, fs)
     eeg = data[:62]  # scalp only
     # 61 adjacent pairs: ch0-ch1, ch1-ch2, ..., ch60-ch61
     n_pairs = 61
-    phase = np.empty((n_pairs, data.shape[1]))
+    n_pad = int(pad_seconds * fs) if pad_seconds > 0 else 0
+    n_out = data.shape[1] - 2 * n_pad
+    phase = np.empty((n_pairs, n_out))
     phase[:] = np.nan
 
     for i in tqdm(range(n_pairs), desc="Bipolar phase"):
         diff = eeg[i] - eeg[i + 1]
         filtered = sosfiltfilt(sos, diff)
-        phase[i] = np.angle(hilbert(filtered))
+        analytic = hilbert(filtered)
+        phase[i] = np.angle(analytic[n_pad : data.shape[1] - n_pad] if n_pad > 0 else analytic)
 
     return phase
 
@@ -750,7 +756,7 @@ def run_montage_comparison(
 
     # Bipolar
     print("  Bipolar pairs...", flush=True)
-    a_bip, r_bip = compute_ar_trace(extract_phase_bipolar(data, fs))
+    a_bip, r_bip = compute_ar_trace(extract_phase_bipolar(data, fs, pad_seconds=PAD_SECONDS))
     raw_traces["bipolar"] = (a_bip, r_bip)
     cis["bipolar"] = bootstrap_ar(a_bip, r_bip)
     print(
@@ -760,7 +766,7 @@ def run_montage_comparison(
 
     # CAR phase
     print("  Circular-mean subtraction...", flush=True)
-    a_car, r_car = compute_ar_trace(extract_phase_car(data, fs))
+    a_car, r_car = compute_ar_trace(extract_phase_car(data, fs, pad_seconds=PAD_SECONDS))
     raw_traces["car"] = (a_car, r_car)
     cis["car"] = bootstrap_ar(a_car, r_car)
     print(
@@ -893,11 +899,11 @@ def run_band_comparison(
 ) -> None:
     """Compare (a, r) across frequency bands for one block.
 
-    Runs the full pipeline on theta (4-8), alpha (8-12), beta (13-30),
-    and broad (4-40) bands using the same data.
+    Runs the full pipeline on theta (4-8), alpha (8-12), beta (13-30), gamma
+    (30-40), and broad (4-40) bands using the same data.
     """
     if bands is None:
-        bands = ["theta", "alpha", "beta", "broad"]
+        bands = ["theta", "alpha", "beta", "gamma", "broad"]
 
     print("─" * 60)
     print(f"Band comparison: {task}_{acq} run-{run}, {max_seconds}s")
@@ -1443,7 +1449,7 @@ def main() -> None:
         )
     elif action == "windows":
         data, fs = read_brainvision("sed", "rest", 1, 20.0, pad_seconds=PAD_SECONDS)
-        phase = extract_phase_bipolar(data, fs)
+        phase = extract_phase_bipolar(data, fs, pad_seconds=PAD_SECONDS)
         rows = compute_window_sensitivity(phase, fs)
         make_window_sensitivity_figure(rows)
         for row in rows:

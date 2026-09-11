@@ -359,6 +359,42 @@ def _collapse_macros() -> list[str]:
     ]
 
 
+def _eeg_macros() -> list[str]:
+    """Emit exploratory EEG values from its compact, separately generated summary."""
+    data = _read_json(FIGURES / "empirical_collapse_summary.json")
+    cross = cast(JsonObject, data["cross_subject"])
+    calibration = cast(JsonObject, data["small_sample_calibration"])
+    bands = cast(JsonObject, data["bands"])
+    windows = cast(list[JsonObject], data["window_sensitivity"])
+    pooled_samples = next(
+        cast(int, row["pooled_samples"]) for row in windows if cast(int, row["window_ms"]) == 100
+    )
+    return [
+        _macro("eegCrossSubjectCount", cross["count"]),
+        _macro("eegAMean", f"{cast(float, cross['a_mean']):.3f}"),
+        _macro("eegAMin", f"{cast(float, cross['a_min']):.3f}"),
+        _macro("eegAMax", f"{cast(float, cross['a_max']):.3f}"),
+        _macro("eegRMean", f"{cast(float, cross['r_mean']):.3f}"),
+        _macro("eegResidualMean", f"{cast(float, cross['residual_mean']):+.4f}"),
+        _macro("eegResidualRmse", f"{cast(float, cross['residual_rmse']):.4f}"),
+        _macro("eegResidualMax", f"{cast(float, cross['residual_abs_max']):.4f}"),
+        _macro("eegPooledSamples", pooled_samples),
+        _macro("eegCalibrationSmallSamples", calibration["samples"]),
+        _macro("eegCalibrationReplicas", calibration["replicas"]),
+        _macro("eegCalibrationConcentration", f"{cast(float, calibration['concentration']):.1f}"),
+        _macro("eegCalibrationAMean", f"{cast(float, calibration['a_mean']):.3f}"),
+        _macro("eegCalibrationResidualMean", f"{cast(float, calibration['residual_mean']):+.3f}"),
+        _macro("eegCalibrationResidualSd", f"{cast(float, calibration['residual_sd']):.3f}"),
+        *[
+            _macro(
+                f"eegBand{band.title()}",
+                f"{cast(float, bands[band]):+.4f}",
+            )
+            for band in ("theta", "alpha", "beta", "gamma", "broad")
+        ],
+    ]
+
+
 def _plasticity_study_rows(tuning: list[dict[str, Any]]) -> str:
     return "\n".join(
         f"{row['learning_rate']:g} & {row['update_interval']:g} & "
@@ -493,6 +529,7 @@ def generate_simulation_tex(output: Path) -> None:
         "",
         "% Empirical (a, r) collapse: what the observed range discriminates",
         *_collapse_macros(),
+        *_eeg_macros(),
         "",
         "% F5/F6: bounded follow-up studies",
         *_followup_macros(),

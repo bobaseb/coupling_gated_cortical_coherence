@@ -3,9 +3,13 @@ import unittest
 import numpy as np
 
 from empirical_collapse import (
+    BANDS,
     OBSERVED_CONCENTRATION_RANGE,
     bessel_ratio,
     compute_window_sensitivity,
+    extract_phase,
+    extract_phase_bipolar,
+    extract_phase_car,
     tangent_separation,
 )
 
@@ -19,6 +23,23 @@ class WindowSensitivityTest(unittest.TestCase):
         self.assertEqual([row.window_ms for row in rows], [5, 20, 100])
         self.assertTrue(all(row.pooled_samples >= 100 for row in rows))
         self.assertTrue(all(np.isfinite(row.mean_residual) for row in rows))
+
+
+class MontagePaddingTest(unittest.TestCase):
+    def test_all_montages_discard_the_same_filter_padding(self) -> None:
+        rng = np.random.default_rng(7)
+        fs = 200.0
+        padding = 0.25
+        data = rng.normal(size=(65, 800))
+
+        raw = extract_phase(data, fs, pad_seconds=padding)
+        bipolar = extract_phase_bipolar(data, fs, pad_seconds=padding)
+        car = extract_phase_car(data, fs, pad_seconds=padding)
+
+        expected_samples = data.shape[1] - 2 * int(fs * padding)
+        self.assertEqual(raw.shape[1], expected_samples)
+        self.assertEqual(bipolar.shape[1], expected_samples)
+        self.assertEqual(car.shape[1], expected_samples)
 
 
 class TangentSeparationTest(unittest.TestCase):
@@ -47,6 +68,11 @@ class TangentSeparationTest(unittest.TestCase):
             places=6,
         )
         self.assertGreater(separation.target_concentration, 1.5)
+
+
+class AnalysisConfigurationTest(unittest.TestCase):
+    def test_named_narrowband_set_includes_the_reported_gamma_band(self) -> None:
+        self.assertEqual(BANDS["gamma"], [30.0, 40.0])
 
 
 if __name__ == "__main__":

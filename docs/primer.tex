@@ -78,37 +78,35 @@ from the manuscript or the Supplemental Material, those are authoritative.
 %======================================================================
 \section{What the argument is, and where the mathematics sits}
 
-The manuscript makes three separable claims, and it is worth having them apart
-before any mathematics arrives, because almost every scope caveat in this
-primer is a statement about which of the three a given theorem touches.
+The manuscript follows three requirements of its proposed account:
+coherence, compatibility and self-representation. Coupling can sustain
+collective timing; compatible local descriptions can form one global state;
+and an encoding within that state can reconstruct it. The second and third
+requirements need objects and assumptions beyond the phase model.
 
-\begin{enumerate}[leftmargin=*]
-\item \textbf{A physical hypothesis.} Cortical regions are coupled partly
-through the endogenous extracellular electromagnetic field; that coupling is
-slowly gated; and recovery of coherence after awakening is driven by the
-coupling parameter drifting up through a synchronization threshold. This is
-testable with current methods, and most of the manuscript is about testing it.
-\item \textbf{A formal composition.} Nine mathematical results---finite
-information capacity, a symmetry-breaking boundary, Landauer's heat cost, a
-predictive-dissipation bound, a continuum coupling limit, a physical field
-realizing it, a unique coherent order parameter, a unique glued global section,
-and a unique reflexive fixed point---are chained into a single conditional
-theorem, machine-checked in Lean~4. The chain consumes \emph{eight}
-implications between those nine nodes, and no theorem in the development
-supplies them. Naming them is the point of the exercise.
-\item \textbf{An interpretive commitment.} The unique glued global section is
-identified with the unity of a conscious episode, and the fixed point of the
-self-prediction map on it with a minimal self. This is argued for, not proved,
-and the manuscript says so.
-\end{enumerate}
+The physical hypothesis concerns extracellular geometry and recovery after
+awakening. Its stationary prediction is constrained by finite ramp speed and
+by nonidentifiability: increased coupling, decreased diffusion and a matched
+common drive can produce identical stationary phase distributions. The test
+therefore needs phase dynamics and evidence distinguishing the interaction
+mechanism, as well as a concentration--coherence relation.
 
-The three can fail independently. The cortical hypothesis can be wrong while
-the composition stands; the composition can stand while the identification is
-wrong. Keeping them separate is what makes each assessable, and it is also why
-this primer repeatedly ends a section by saying what a result does \emph{not}
-establish. Those are not disclaimers bolted on afterwards---in this framework
-they are load-bearing, because the whole methodological claim is that
-formalization makes an argument's assumptions impossible to lose.
+The representational argument asks what coherent activity carries.
+Equal phases can coexist with incompatible spatial profiles. A plasticity
+control preserves coherence while losing alignment with a specified template;
+that alignment statistic is distinct from overlap compatibility. The self
+proposal then asks whether the state assembled from local descriptions
+accurately represents itself. Identifying the relevant cover and encoding
+requires independent evidence. Uniqueness within a specified cover and map
+does not choose a subject.
+
+Thermodynamic results constrain a possible implementation of these
+requirements. Finite capacity and a symmetry-breaking boundary are independent
+starting objects, and their links to erasure, predictive memory and a
+continuum coupling require assumptions. Lean~4 checks one composition under
+eight connecting hypotheses and supplied structures. Its conclusion and the
+identification of that conclusion with experience have different statuses:
+the first is conditional mathematics, the second a philosophical commitment.
 
 \subsection{The nine nodes and the eight gaps}
 
@@ -139,12 +137,12 @@ manuscript classifies each one by kind:
 Edge & Kind & What it asks for \\
 \hline
 E12 & independent physical premise & a finite-capacity system realizes a field leaving its vacuum manifold \\
-E23 & formalization gap & the boundary is a finite register whose update strands states \\
-E34 & formalization gap & erasure supplies predictive structure at the same thermal scale \\
+E23 & bridge assumption & the boundary is a finite register whose update strands states \\
+E34 & bridge assumption & erasure supplies predictive structure at the same thermal scale \\
 E45 & modelling assumption & the dissipation bound places couplings in a convergent regime \\
 E56 & physical commitment & the limiting coupling is realized by a specified physical field \\
 E67 & physical commitment & that field operates above the synchronization threshold \\
-E78 & formalization gap & coherence drives a \emph{given} cover to its relaxed equilibrium \\
+E78 & bridge assumption & coherence drives a \emph{given} cover to its relaxed equilibrium \\
 E89 & modelling assumption & a contracting map fixes the section glued on that cover \\
 \hline
 \end{tabular}
@@ -153,8 +151,9 @@ E89 & modelling assumption & a contracting map fixes the section glued on that c
 \noindent
 Two features of that table matter. First, the two \emph{physical commitments}
 (E56, E67) are the empirically testable core, and they are bracketed by
-formalization gaps on either side---so the chain's empirical content sits
-between links of a different kind. Second, E12 is drawn as a premise rather
+bridge assumptions on either side. These links connect distinct kinds of
+object; their ordering records the formal composition rather than a necessary
+physical sequence. Second, E12 is drawn as a premise rather
 than a gap because n1 and n2 are independent roots: finite capacity does not
 imply a symmetry-breaking boundary, and the composition merely accepts an
 implication between them.
@@ -168,12 +167,10 @@ headings---\textbf{What it is}, \textbf{Why the framework needs it},
 \textbf{In Lean} note where a formal identifier carries the claim. You can
 read any subsection on its own; forward references are marked.
 
-Part XIV, on formal methodology, is the one part with no physics in it. It is
-included because the manuscript's fourth contribution is a claim about
-\emph{method}---that a machine-checked composition makes an assumption list
-non-negotiable---and that claim rests on a specific technical point about how
-physical postulates are encoded. Readers who want the physics only may skip it;
-readers who want to know why the development declares no axioms should not.
+The part on formal methodology explains how physical postulates enter the
+conditional composition as assumptions on specified objects. This is the
+technical basis for keeping the manuscript's physical hypotheses distinct from
+its mathematical conclusions.
 
 \section{Notation}
 
@@ -1844,14 +1841,11 @@ global section; and given a contracting self-prediction map, Banach's theorem
 (Part XII) gives exactly one fixed point.
 
 \scope
-The manuscript states the limit of this exactly, because a stronger reading is
-available and is not theirs. \textbf{Uniqueness is relative to a cover and a
-map.} Choosing them---which regions, which overlaps, which encoding region,
-and hence where the subject ends---is supplied by neither theorem; that is what
-E78 and E89 carry. What the construction removes is the need for an additional
-principle to select among the experiences a \emph{fixed} cover and map would
-otherwise admit. It does not remove the need to say which cover and map a given
-subject has.
+\textbf{Uniqueness is relative to a cover and a map.} Choosing the regions,
+overlaps and encoding region remains part of identifying a candidate subject.
+E78 and E89 connect supplied objects; they do not select those objects from
+neural data. The theorems settle extension and fixed-point uniqueness within a
+construction, leaving selection between constructions to a biological model.
 
 %======================================================================
 \part*{Part XII. Topological obstructions in the phase field}
@@ -2288,8 +2282,11 @@ witness.
 \statement
 \id{Chain.lean}'s theorem \id{chain} takes the eight named hypotheses E12--E89,
 together with a \id{ThermodynamicCover} and a \id{ReflexiveBoundary} whose class
-fields carry physical content of their own, and concludes \id{UnifiedSelf}: that the particular section glued by a
+fields specify the local data and encoding, and concludes \id{UnifiedSelf}: that the particular section glued by a
 thermodynamic cover \emph{is} the unique fixed point of self-prediction.
+The cover includes compatibility. The separate restriction-resonance predicate
+identifies encoding with restriction to the avatar region; the chain theorem
+does not consume that predicate.
 \id{chain\_hypotheses\_jointly\_satisfiable} discharges all eight at once on a
 witness assembled from a double well, a register, a uniform-grid mesh and a
 three-site cortex, which remain distinct toy systems rather than one mechanism.
@@ -2650,9 +2647,9 @@ not assumed experimentally available.
 %======================================================================
 
 The composition terminates in a mathematical object, and the manuscript takes a
-position on what that object is. This part states the position, the three
-arguments for it, its costs, and the missing observable that currently keeps it
-from being tested.
+position on what that object is. This part states the position, its motivations,
+the choices of cover and self-encoding it requires, and the measurements needed
+to test it.
 
 \section{The commitment}
 
@@ -2668,29 +2665,33 @@ section is the formal correlate of a minimal self---a state that is what it
 takes itself to be.
 \end{description}
 
-\section{Three arguments, and what kind of arguments they are}
+\section{Motivations and the choices they require}
 
-\begin{enumerate}[leftmargin=*]
-\item \textbf{Compatibility rather than agreement.} Phases can agree everywhere
-while local probabilistic descriptions remain incompatible on their overlaps,
-and Section~\ref{sec:compat} exhibits that configuration \emph{inside the
-formalization}, not merely as an illustration. If unity is a matter of local
-contents being about one world rather than merely co-timed, compatibility is
-the property to look for.
-\item \textbf{Uniqueness as consequence, not principle.} As
-Part XI noted, uniqueness arrives twice from the construction rather than from
-a separate exclusion postulate---though only relative to a given cover and map.
-This is \emph{a structural argument, not evidence}.
-\item \textbf{The self as condition rather than addition.} The predictive map
-restricts a global state to a region encoding it and reads that encoding back
-out, so a fixed point is a state whose self-model is accurate about the state
-it models. That condition is \emph{available at all} only because the state
-modelled is a single glued object: a system whose local descriptions do not
-cohere has no such state for a self-model to be about. Unity and selfhood are
-one construction read at two levels---which is why the chain's conclusion
-requires the fixed point to \emph{be} the glued section, rather than some
-unrelated section.
-\end{enumerate}
+Compatibility gives a precise way for distinct local descriptions to contribute
+to one global state. Only shared domains must agree. A content model must
+therefore distinguish inconsistent descriptions from consistent descriptions
+of an uncertain situation or a conflict between judgments. Spatial mass
+profiles provide the formal example; extending it to decoded perceptual
+contents requires a suitable model of global extension.
+
+The reflexive map adds an internal representation of that same state. Under
+restriction-resonance, it restricts the global state to an encoding region and
+reads the encoding back out. A fixed point is accurately reconstructed at the
+level of its modelled variables. Exact reconstruction is an idealization, and
+the manuscript leaves an approximation appropriate to changing neural states
+as a research question.
+
+Both constructions require independent choices. Local descriptions must carry
+content attributable to their domains, and the encoding and readout must have
+a demonstrated relation to the global state across a specified range of
+states. Contraction and a fixed point alone would also hold for a constant
+readout returning a predetermined state. Their psychological significance
+depends on the proposed encoding relation.
+
+The full identification proposes that unity and reflexivity occur together in
+conscious episodes. Gluing itself supplies no necessity for reflexivity.
+Unified experience without the specified self-encoding would challenge that
+requirement while leaving the compatibility clause assessable separately.
 
 \section{The costs}
 
@@ -2716,19 +2717,18 @@ while the identification stands, or succeed while it is wrong.
 \section{What would count against it, and the observable that is missing}
 
 \statement
-The commitment predicts that the two clauses and the presence of a unified
-conscious episode go together. So \emph{dissociation} would tell against it: a
-state in which local cortical descriptions are demonstrably compatible and the
-field supercritical, while the subject reports no unified experience---or
-unified reported experience where compatibility demonstrably fails. Anaesthetic
-emergence, dreaming and dissociative states are the places to look, because
-they separate coherence from report in ways ordinary waking does not.
+A full test must evaluate coupling, compatibility and the proposed
+self-encoding separately, alongside an independent experience endpoint. A
+state satisfying all the conditions with evidence against a unified episode
+would challenge sufficiency. Unified experience with incompatible local
+descriptions would challenge the unity clause; unified experience without the
+specified self-encoding would challenge the reflexive requirement. Absence of
+report alone cannot establish absence of experience.
 
-\textbf{Such tests cannot presently be run}, because coherence has an
-observable---the resultant length---and \emph{compatibility does not}. The
-supplement therefore specifies what one would have to satisfy. It is a
-specification, not a result: nothing is implemented, and the construction is
-left to separate work.
+The compatibility observable is specified but not implemented, and the neural
+self-encoding has yet to be identified. The supplement details what a
+compatibility measurement needs; the manuscript explains how that measurement
+would enter a dissociation test.
 
 \subsection{Three components}
 
@@ -2866,7 +2866,7 @@ Atomless / sited separation & Continuum observable ignores finite sites & Theore
 No-axioms methodology (\S\ref{sec:soundness}) & Postulates as instance obligations & Methodological; three refutations recorded \\
 Chain theorem & Eight hypotheses $\Rightarrow$ \id{UnifiedSelf} & Conditional theorem; jointly satisfiable \\
 $(a,r)$ collapse (\S\ref{sec:collapse}) & Parameter-free distributional test & Compatible with EEG; range too narrow to discriminate \\
-Sleep-inertia shape & The discriminating prediction & \textbf{Untested} \\
+Sleep-inertia recovery & Conditional prediction requiring dynamics and mechanism identification & \textbf{Untested} \\
 Rate calibration $\gamma$ (\S\ref{sec:gamma}) & Converts field estimate to coupling & \textbf{Not derivable}; the sharpest open limitation \\
 Compatibility observable & Needed for dissociation tests & \textbf{Specified, not implemented} \\
 Unity / selfhood identification & What the object is taken to be & \textbf{Philosophical commitment}, argued not proved \\
@@ -2960,10 +2960,11 @@ wraps around a loop; non-zero winding obstructs a global real-valued lift.
 \section{Where to look next}
 
 \begin{description}[leftmargin=*,style=nextline]
-\item[The manuscript.] \texttt{main.tex} / \texttt{main.pdf}. Section~2 for the
-model, Section~3 for the prediction and protocol, Section~4 for the
-simulations, Section~5 for the composition and its table of eight edges,
-Section~6 for the interpretive commitment.
+\item[The manuscript.] \texttt{main.tex} / \texttt{main.pdf}. The coherence
+section gives the physical model; the awakening section develops identifiability,
+finite ramps and the protocol; the compatibility section connects gluing to the
+plasticity control; the self-representation section develops the philosophical
+commitment; and the thermodynamic section gives the conditional composition.
 \item[Supplemental Material.] \texttt{supplementary.tex} /
 \texttt{supplementary.pdf}. The claim-by-claim map from statements to Lean
 identifiers is Table~S1; the soundness argument, the fold-and-cross proof, the

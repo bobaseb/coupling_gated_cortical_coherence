@@ -43,6 +43,8 @@ class SimulationTexTest(unittest.TestCase):
         self.assertIn(r"\newcommand{\collapseTanhDeviation}{0.0030}", content)
         self.assertIn(r"\newcommand{\collapseProbeSeparation}{0.154}", content)
         self.assertIn(r"\newcommand{\collapseTargetConcentration}{1.56}", content)
+        self.assertIn(r"\newcommand{\eegCrossSubjectCount}{8}", content)
+        self.assertIn(r"\newcommand{\eegCalibrationSmallSamples}{100}", content)
         self.assertIn(r"\newcommand{\frustrationBracketMin}{1.958}", content)
         self.assertIn(r"\newcommand{\frustrationCoarseMin}{1.857}", content)
         self.assertIn(r"\newcommand{\frustrationRefinementStep}{0.025}", content)
