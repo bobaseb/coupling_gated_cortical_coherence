@@ -5,15 +5,18 @@ partial derivative includes both endpoints. Clip/rescale is a resource
 retraction, not an orthogonal projection or a monotonic-descent guarantee.
 
 Four arms share one phase-noise stream per seed. The gradient arm descends the
-objective; the random arm takes a symmetric step of the same Frobenius norm in a
-direction unrelated to it; the permuted arm takes the gradient step itself under
-a random node relabelling; the frozen arm holds the kernel fixed. The random arm
-separates the gradient's effect from the effect of moving a kernel of that step
-size under a fixed total resource at all. Its successive isotropic steps cancel,
-so it ends an order of magnitude less deformed than the gradient arm and cannot
-separate the gradient direction from comparable cumulative deformation; the
-permuted arm can, since a relabelling is an isometry that leaves the step's entry
-multiset alone and changes only which edges receive them.
+objective; the random arm takes a symmetric step at the Frobenius norm of its own
+gradient in a direction unrelated to it; the permuted arm takes its own gradient
+step under a random node relabelling; the frozen arm holds the kernel fixed.
+Every direction is computed from the arm's own phases and couplings, so the
+controls are set up by the gradient arm's rule and not handed its step: the sizes
+that rule produces are comparable rather than equal once the kernels diverge. The
+random arm separates the gradient's effect from the effect of moving a kernel of
+that step size under a fixed total resource at all. Its successive isotropic
+steps cancel, so it ends an order of magnitude less deformed than the gradient
+arm and cannot separate the gradient direction from comparable cumulative
+deformation; the permuted arm can, since a relabelling is an isometry that leaves
+its own step's entry multiset alone and changes only which edges receive them.
 
 Frobenius distance to a template confounds alignment with kernel norm, which a
 fixed resource total does not hold constant. The reported alignment statistics
@@ -155,10 +158,11 @@ def step_direction(
 ) -> Array:
     """The gradient, a node relabelling of it, or a random matrix of its norm.
 
-    A relabelling preserves the Frobenius norm and the multiset of entries, so
-    the permuted arm takes a step of the gradient's size *and* of its shape,
-    acting on edges the gradient did not select. The random arm preserves the
-    size alone, and its fresh draws cancel across updates.
+    The gradient is this arm's own, read off the phases and couplings passed in;
+    no arm sees another's step. A relabelling preserves the Frobenius norm and
+    the multiset of entries, so the permuted arm takes a step of that gradient's
+    size *and* of its shape, acting on edges it did not select. The random arm
+    preserves the size alone, and its fresh draws cancel across updates.
     """
     gradient = symmetric_gradient(theta, drift(theta, coupling, omega))
     if mode == "gradient":

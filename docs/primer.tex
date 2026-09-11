@@ -1452,7 +1452,11 @@ resolution; halving the spacing---a $\spatialRefinedSide\times
 \spatialRefinedSide$ sheet over the same 2.0~mm---leaves it at
 $\spatialRefinedCriticalDecay$~mm, $\spatialRefinedBoundaryRatio$ times its
 coarse value and $\spatialRefinedCriticalDecayCells$ spacings on the finer
-sheet. So the boundary is a physical length, not a lattice artifact.
+sheet. So the operational crossing barely moves under this one refinement---
+which is agreement between two interpolated thresholds, not convergence of the
+sheet near them: at $\spatialSharedCoherentDecay$~mm, the shortest length from
+which both sheets stay coherent, steady order is $\spatialSharedCoarseOrder$ on
+the coarse sheet and $\spatialSharedRefinedOrder$ on the finer one.
 
 \emph{Frustration.} A row-balanced Dale-law network (no self-edges,
 Erd\H{o}s--R\'enyi edge probability $0.2$, $80/20$ excitatory/inhibitory
@@ -1498,8 +1502,11 @@ objective of Section~\ref{sec:sigma}. Couplings stay non-negative, hollow, and
 normalized to fixed total resource. The symmetric-edge derivative of
 $\tfrac12\sum_i v_i^2$ is $(v_i-v_j)\sin(\theta_j-\theta_i)$, so both endpoints
 of an edge contribute. Each seed runs four arms on one phase-noise stream: the
-gradient step, a symmetric random step of the same Frobenius norm, that same
-gradient step delivered to randomly relabelled nodes, and a frozen kernel.
+gradient step, a symmetric random step at the Frobenius norm of that arm's own
+gradient, that arm's own gradient step delivered to randomly relabelled nodes,
+and a frozen kernel. Each arm computes its direction from its own phases and
+couplings, so the controls follow the gradient arm's recipe rather than
+receiving its step.
 
 The first thing to measure is how much of the objective the update removes.
 Diagnostics are sampled at the update cadence, at the instant each update has
@@ -1514,16 +1521,16 @@ seeds:
 $\plasticityFrozenDissipationMax$; the gradient arm reaches
 $\plasticityDissipationMin$ to $\plasticityDissipationMax$, removing
 $\plasticityDescentMin$ to $\plasticityDescentMax$ of the headroom between the
-two. \textbf{So the update really does lower the objective where it acts.} The matched random
+two. \textbf{So the update really does lower the objective where it acts.} The random
 arm removes $\plasticityRandomDescentMin$ to $\plasticityRandomDescentMax$,
 so this belongs to the gradient direction and not to displacing a kernel at
-fixed resource. A matched step size is not a matched deformation, though:
+fixed resource. A step size set the same way is not a matched deformation, though:
 isotropic steps cancel across updates, leaving that arm at a kernel norm growth
 of $\plasticityRandomNormGrowthMin$ to $\plasticityRandomNormGrowthMax$ where
 the gradient arm reaches $\plasticityNormGrowthMin$ to
 $\plasticityNormGrowthMax$. The permuted arm closes that gap: a relabelling
-moves the gradient's own entries onto edges it did not choose, so the arm
-deforms the kernel to $\plasticityPermutedNormGrowthMin$ to
+moves an arm's own gradient entries onto edges that gradient did not choose, so
+the arm deforms the kernel to $\plasticityPermutedNormGrowthMin$ to
 $\plasticityPermutedNormGrowthMax$ and holds order at
 $\plasticityPermutedOrderMin$ to $\plasticityPermutedOrderMax$ while
 \emph{raising} the objective by $\plasticityPermutedDescentMin$ to
@@ -1534,7 +1541,7 @@ $\plasticityOrderMax$. \textbf{So coherence is maintained throughout.}
 measure unchanged by rescaling the kernel---falls from
 $\plasticityRatioInitialMin$--$\plasticityRatioInitialMax$ to
 $\plasticityRatioMin$--$\plasticityRatioMax$, while the random arm leaves it at
-$\plasticityRandomRatioMin$--$\plasticityRandomRatioMax$ and the equally
+$\plasticityRandomRatioMin$--$\plasticityRandomRatioMax$ and the comparably
 deformed permuted arm leaves it at $\plasticityPermutedRatioMin$ to
 $\plasticityPermutedRatioMax$, above the gradient arm's range and containing
 unity. Against $2000$

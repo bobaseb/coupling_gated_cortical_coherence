@@ -26,19 +26,20 @@ place where a referee who recomputes will find the manuscript saying more than
 the artifact supports, which is precisely the failure mode the whole project
 is organised against.
 
-**Follow-up audit, 2026-09-10.** The current priorities are F1–F6 below.
+**Follow-up audit, 2026-09-10; closed 2026-09-11.** F1–F6 below are all done.
 F1 changes that assessment for the plasticity headline: sampling immediately
 after updates shows descent that the mean over all integration steps does not.
-F2–F4 are narrow wording corrections. F5 and F6 are optional, bounded studies
-that could change a central conclusion. Their inclusion records recommendations;
-none has been implemented or completed by this update.
+F2–F4 are narrow wording corrections. F5 and F6 were optional, bounded studies
+that could have changed a central conclusion; both ran and both reported
+negative answers, which the publication now carries.
 
 ## How this ledger is ordered
 
-**Current priority:** correct F1, batch the small F2–F4 wording fixes, then
-consider F5 before F6 if further simulations are wanted. F1–F4 do not depend on
-running either optional study. The 80/20 constraint is to correct unsupported
-claims and retain supported results, without expanding into incremental sweeps.
+**Current priority:** the third P-item, the final read of every citation and
+every generated macro. Its prerequisites A1, A2 and F1–F4 are now all closed,
+and the other two P-items are blocked on someone else. The 80/20 constraint
+remains to correct unsupported claims and retain supported results, without
+expanding into incremental sweeps.
 
 **The preceding pass is ordered by effort, ascending.** A-items are prose or
 reference edits against numbers already in the repository. B-items add a
@@ -50,7 +51,7 @@ and sit after D because none of them blocks the manuscript. R-items are the
 carried-forward research programme and sit after E because they are unbounded,
 not because they rank below it. P-items are submission mechanics
 and are last only because two of the three are blocked on someone else; the
-third is now gated on A1, A2 and F1–F4.
+third was gated on A1, A2 and F1–F4, which are now closed.
 
 Take one item at a time. A- and B-items may be batched into one commit each if
 they touch the same file; do not start a C-item while an A- or B-item is open.
@@ -142,7 +143,7 @@ the stronger counterexample; it is not a prerequisite for correcting F1.
 
 ### F2 — Describe the plasticity controls' actual matching
 
-- [ ] Replace claims of equal step size, cumulative deformation and coherence
+- [x] Replace claims of equal step size, cumulative deformation and coherence
       with the matching implemented and the comparable ranges observed.
 
 **Evidence.** `structural_resonance.step_direction` computes the gradient from
@@ -162,7 +163,7 @@ it does not require another control arm or a redesigned matching procedure.
 
 ### F3 — Remove the exclusion of growth-fit window bias
 
-- [ ] Correct the supplement's statement that the shortfall of the growth-rate
+- [x] Correct the supplement's statement that the shortfall of the growth-rate
       slope from 1/2 “is therefore not a property of the fit window”.
 
 **Evidence.** C2's relative bounds do not establish an unbiased estimator.
@@ -183,7 +184,7 @@ rerun or new published diagnostic numeral is required.
 
 ### F4 — Scope the spatial refinement to the comparison actually made
 
-- [ ] Replace the claim that the boundary is independent of discretization and
+- [x] Replace the claim that the boundary is independent of discretization and
       resolved on the finer sheet with the observed stability of the operational
       crossing under this one refinement.
 
@@ -883,8 +884,8 @@ because they rank below the A–D items.
 - [ ] Add or confirm the journal-required data-availability statement and the
       supplemental-material description. *Blocked on a journal choice.*
 - [ ] Final read of every cited reference and every generated numerical macro
-      after the last prose edit. **A1, A2 and F1–F4 are prerequisites**, and this
-      item is no longer a formality: the audit found one wrong numeral and two
+      after the last prose edit. **A1, A2 and F1–F4 were prerequisites and are
+      closed**, so this item is now the open one; it is no longer a formality: the audit found one wrong numeral and two
       unresolvable citations by doing exactly this read. Do not submit while any
       source/PDF, estimator or public-description inconsistency remains.
 
@@ -1434,6 +1435,55 @@ without `workflow` scope. `gh auth refresh` cannot fix a token supplied through
 an environment variable. The remote is now `git@github.com:` over SSH with a new
 ed25519 key on this machine, which is not subject to that check at all and needs
 no scope decision the next time a workflow file changes.
+
+### 2026-09-11 — F-items (F2, F3, F4)
+
+The audit's three remaining wording corrections, batched into one commit as the
+ledger's ordering asks. All of F1--F6 is now closed; nothing was rerun and no
+production numeral changed.
+
+**F2.** `step_direction` is called with the calling arm's own phases and
+couplings, so the random arm is scaled to its own gradient and the permuted arm
+relabels its own gradient; neither is handed the gradient arm's step. A replay
+of the three production seeds recording direction norms confirms the audit's
+figures: mean direction norm about 43 on the gradient arm against about 35 on
+the random arm, a ratio of 0.81 on every seed. The manuscript, supplement,
+primer, `structural_resonance.py` docstrings and the run report now say that the
+controls follow the gradient arm's rule rather than being equated to it, and
+rest the comparison on the overlap of the permuted and gradient arms' reported
+norm-growth and order ranges. Those ranges were already published; no macro
+changed.
+
+**F3.** The supplement's exclusion of fit-window bias is gone from both
+publication files. The window's upper bound is half the stationary branch order
+rather than the extent of the linear regime, so it can contribute to the
+shortfall; the step refinement is a control on stationary order and apportions
+no bias in this growth estimator. Both files now name the window, finite size
+and the integrator together and say the sweep separates none of them. The
+primer does not carry the claim.
+
+**F4.** The supplement and primer no longer call the boundary a property of the
+dynamics rather than the discretisation, nor say the finer sheet resolves it.
+What replaces it is the observed stability of the operational crossing under
+this one refinement, with the reason that is not convergence stated beside it:
+three new macros, generated from the two saved sweep summaries through
+`simulation_tex.py`, report the shortest length from which both sheets stay
+coherent and each sheet's steady order there — 0.01467 mm, 0.6176 against
+0.2687. `_shared_coherent_length` and its two unit tests were written before
+the generator emitted them.
+
+**Also done.** F1 asked for the readout correction in the run report as well as
+the publication, and that one site had been missed; `REPORT.md` now names the
+post-update readout, regenerated from the saved summaries.
+
+**Artifacts.** `main.tex`, `supplementary.tex`, `docs/primer.tex` and the three
+rebuilt PDFs; `simulations/simulation_tex.py`, `simulation_results.tex`,
+`test_simulation_tex.py`; `structural_resonance.py`,
+`structural_resonance_report.py` and `figures/structural_resonance/REPORT.md`;
+`CHANGELOG.md`; `arxiv_submit/`.
+
+**Gates.** 140/140 tests, every hook green, and the merged arXiv document
+compiles from the unpacked tarball at 48 pages.
 
 ### 2026-09-10 — F-items (F1, F5, F6)
 

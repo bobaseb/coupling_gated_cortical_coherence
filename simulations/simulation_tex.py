@@ -119,12 +119,37 @@ def _first_sustained_index(values: list[float], threshold: float) -> int:
     return index
 
 
-def _spatial_refinement_macros(critical_decay_mm: float) -> list[str]:
-    """Emit what the halved-spacing rerun does to the boundary.
+def _shared_coherent_length(
+    coarse_decays: list[float],
+    coarse_orders: list[float],
+    refined_decays: list[float],
+    refined_orders: list[float],
+) -> float:
+    """The shortest sampled length from which both sheets stay above the coherence gate.
 
-    The boundary is a property of the discretisation exactly to the extent that
-    it moves with the spacing, so the ratio of the two boundaries is the result
-    and the two lengths are what it is read from.
+    Two threshold interpolants agreeing says nothing about the trajectories the
+    interpolation runs between, so this is the length at which the sheets can be
+    compared on a steady order both of them call coherent.
+    """
+    length = max(
+        decays[_first_sustained_index(orders, _COHERENCE_CRITERION)]
+        for decays, orders in ((coarse_decays, coarse_orders), (refined_decays, refined_orders))
+    )
+    if length not in coarse_decays or length not in refined_decays:
+        raise ValueError("the sheets' coherent ranges open at no commonly sampled length")
+    return length
+
+
+def _spatial_refinement_macros(
+    critical_decay_mm: float, coarse_decays: list[float], coarse_orders: list[float]
+) -> list[str]:
+    """Emit what the halved-spacing rerun does to the boundary and to the sheet near it.
+
+    The boundary moves with the spacing exactly to the extent that it is a
+    property of the discretisation, so the ratio of the two boundaries is the
+    result and the two lengths are what it is read from. The near-boundary
+    steady orders are reported beside it because a stable interpolated crossing
+    is not a converged trajectory on either side of it.
     """
     data = _read_json(FIGURES / "spatial_kernel_refined" / "spatial_kernel_summary.json")
     config = cast(JsonObject, data["config"])
@@ -133,11 +158,21 @@ def _spatial_refinement_macros(critical_decay_mm: float) -> list[str]:
         raise ValueError("the refined sweep does not bracket a crossing; widen its band")
     refined_mm = cast(float, refined_mm)
     spacing_mm = cast(float, config["extent_mm"]) / cast(int, config["side"])
+    refined_decays = cast(list[float], data["decay_mm"])
+    refined_orders = cast(list[float], data["steady_order"])
+    shared_mm = _shared_coherent_length(
+        coarse_decays, coarse_orders, refined_decays, refined_orders
+    )
+    coarse_order = coarse_orders[coarse_decays.index(shared_mm)]
+    refined_order = refined_orders[refined_decays.index(shared_mm)]
     return [
         _macro("spatialRefinedSide", cast(int, config["side"])),
         _macro("spatialRefinedCriticalDecay", f"{refined_mm:.5f}"),
         _macro("spatialRefinedCriticalDecayCells", f"{refined_mm / spacing_mm:.2f}"),
         _macro("spatialRefinedBoundaryRatio", f"{refined_mm / critical_decay_mm:.2f}"),
+        _macro("spatialSharedCoherentDecay", f"{shared_mm:.5f}"),
+        _macro("spatialSharedCoarseOrder", f"{coarse_order:.4f}"),
+        _macro("spatialSharedRefinedOrder", f"{refined_order:.4f}"),
     ]
 
 
@@ -168,7 +203,7 @@ def _spatial_macros() -> list[str]:
             for index, position in enumerate(indices)
         ],
         _macro("spatialDefectMaximum", rf"{mantissa}\times10^{{{int(exponent)}}}"),
-        *_spatial_refinement_macros(critical_decay_mm),
+        *_spatial_refinement_macros(critical_decay_mm, decays, orders),
     ]
 
 

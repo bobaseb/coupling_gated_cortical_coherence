@@ -20,6 +20,47 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-11 — Audit remediation, part F concluded: three claims of more than was measured
+
+The follow-up audit's remaining wording corrections. Each is a place where a
+correctly computed number was described as settling more than it settles: two
+controls said to be matched by construction, a fit whose window was excluded as
+a source of bias, and a grid refinement read as convergence.
+
+Claims that were made and are no longer made:
+
+- That the plasticity controls share the gradient arm's step size, and that the
+  permuted arm reproduces its cumulative deformation. Every arm computes its
+  direction from its own phases and couplings: the random arm is scaled to its
+  own gradient and the permuted arm relabels its own gradient, so no control
+  receives the gradient arm's contemporaneous step. The step sizes the shared
+  rule produces are comparable, not equal — in the production replays the mean
+  direction norm is about 43 on the gradient arm against about 35 on the random
+  arm — and what supports the comparison is the observed overlap of the
+  permuted and gradient arms' norm-growth and order ranges, which the work
+  already reported, rather than an equality imposed by construction.
+- That the growth-rate slope's shortfall from 1/2 "is therefore not a property
+  of the fit window". The window's upper bound is half the stationary branch
+  order rather than the extent of the linear regime, and a deterministic
+  mean-field Fourier diagnostic with no finite population and no
+  Euler--Maruyama integration returns 0.466531 under that bound against
+  0.489995 under half of it. The step-size control apportions bias in the
+  stationary order, not in this growth estimator; the window, finite size and
+  the integrator all contribute and the sweep separates none of them.
+- That the spatial-decay boundary is a property of the dynamics rather than of
+  the discretisation, and that the finer sheet resolves it. What the one
+  refinement shows is that the operational crossing barely moves: 1.01 times
+  its coarse value, still only 1.81 cells wide. Two threshold interpolants
+  agreeing is not convergence of the sheet near them — at 0.01467 mm, the
+  shortest length from which both sheets stay coherent, steady order is 0.6176
+  on the 128² sheet against 0.2687 on the 256² one.
+
+What is unchanged: the two controls and every result read off them, the measured
+production growth slope and the qualitative escape result, both reported spatial
+crossings, the metastability qualification and the finding of coherence in the
+sampled empirical band. Nothing was rerun; the two near-boundary steady orders
+are new macros generated from the saved sweep summaries.
+
 ## 2026-09-10 — Audit remediation, part F: what the plasticity readout measures
 
 Two bounded studies declared before execution in `tasks/f5_f6_design.md`, and

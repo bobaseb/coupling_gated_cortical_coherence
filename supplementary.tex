@@ -125,10 +125,13 @@ opens at $2/\sqrt{N}=\selectionWindowLower$, clear of the finite-size floor,
 and closes at half the static branch order, which runs from
 \selectionWindowUpperMin{} to \selectionWindowUpperMax{} across the swept
 couplings.  The fits give $\lambda=\selectionRateSlope K\selectionRateIntercept$,
-against the infinite-$N$ linearization $\lambda=0.5K-1$.  The shortfall from
-$1/2$ is therefore not a property of the fit window; the sweep integrates at the
-step whose bias the control above measures, so finite $N$ and the integrator
-both contribute to what remains.  This exhibits finite sampled escape toward the
+against the infinite-$N$ linearization $\lambda=0.5K-1$.  That upper bound is
+set from the stationary branch rather than from the linear regime the fit
+assumes, so the finite window can itself contribute to the shortfall from
+$1/2$: the step refinement above is a control on stationary order and
+apportions no bias in this growth estimator.  The sweep also integrates at the
+step whose stationary bias that control measures, and carries finite $N$; this
+measurement separates none of the three.  This exhibits finite sampled escape toward the
 coherent branch; it proves no stability or dynamical-selection theorem.
 
 Second, 1,000 ensembles were swept from $N=\chaosNMin$ to $N=\chaosNMax$ at
@@ -350,9 +353,13 @@ $\frac12\sum_i v_i^2$ is $(v_i-v_j)\sin(\theta_j-\theta_i)$; each update clips
 negative weights, hollows the diagonal and restores the total resource.
 This constrained update does not guarantee monotonic descent during joint noisy dynamics.
 Each seed runs four arms on a single phase-noise stream: the gradient step, a
-symmetric hollow random step rescaled to the gradient's Frobenius norm, that
-same gradient step composed with a random node relabelling drawn afresh at every
-update, and a frozen kernel. At zero learning rate all four arms reproduce one
+symmetric hollow random step rescaled to the Frobenius norm of that arm's own
+gradient, that arm's own gradient step composed with a random node relabelling
+drawn afresh at every update, and a frozen kernel. Each direction is computed
+from the arm's own phases and couplings, so the controls follow the gradient
+arm's recipe and no control receives its contemporaneous step; the step sizes
+the recipe produces are comparable rather than identical, since the arms'
+kernels diverge. At zero learning rate all four arms reproduce one
 trajectory, which is the contract the shared stream is tested against.
 
 The nonzero grand-mean frequency drives the collective coordinate, since
@@ -369,7 +376,7 @@ $\plasticityFrozenDissipationMin$ to $\plasticityFrozenDissipationMax$; the
 gradient arm's second-half mean is $\plasticityDissipationMin$ to
 $\plasticityDissipationMax$, removing a fraction $\plasticityDescentMin$ to
 $\plasticityDescentMax$ of the headroom between the frozen arm and that floor.
-The matched random arm removes $\plasticityRandomDescentMin$ to
+The random arm removes $\plasticityRandomDescentMin$ to
 $\plasticityRandomDescentMax$ of it, so the reduction is specific to the gradient
 direction and not to displacing a kernel of that step size at fixed resource.
 What that readout measures is the objective the update leaves behind it at the
@@ -380,26 +387,27 @@ minimization would need.
 The alignment statistics below are read from the kernel, which is constant
 between updates, so sampling them at the update cadence weights them exactly.
 
-A matched step size is not a matched deformation. Fresh isotropic steps cancel
-across updates, so the random arm ends at a cumulative kernel norm growth of
+A step size set the same way is not a matched deformation. Fresh isotropic
+steps cancel across updates, so the random arm ends at a cumulative kernel norm growth of
 $\plasticityRandomNormGrowthMin$ to $\plasticityRandomNormGrowthMax$ against the
 gradient arm's $\plasticityNormGrowthMin$ to $\plasticityNormGrowthMax$, and
 hardly enters the channel by which clipping and rescaling concentrate a fixed
-resource onto fewer edges. The permuted arm is matched on that channel instead.
+resource onto fewer edges. The permuted arm enters that channel instead.
 A node relabelling is an isometry of the matrix and a bijection of the edges, so
-it preserves the step's Frobenius norm and the whole multiset of its entries and
-changes only which edges receive them; the arm therefore takes a step of the
-gradient's size and of its shape, uncorrelated with the frequency clusters by
-construction. It reaches a norm growth of $\plasticityPermutedNormGrowthMin$ to
+it preserves the Frobenius norm of the arm's own gradient and the whole multiset
+of its entries and changes only which edges receive them; the arm therefore
+takes a step of that gradient's size and of its shape, uncorrelated with the
+frequency clusters by construction. It reaches a norm growth of $\plasticityPermutedNormGrowthMin$ to
 $\plasticityPermutedNormGrowthMax$, a range bracketing the gradient arm's, and a
 second-half mean order of $\plasticityPermutedOrderMin$ to
 $\plasticityPermutedOrderMax$, which lies inside the gradient arm's range. Its
 descent fraction is
 $\plasticityPermutedDescentMin$ to $\plasticityPermutedDescentMax$: a step of
-the gradient's magnitude delivered to the wrong edges raises the post-update
-objective. The
-comparison the two controls jointly support is therefore between arms of equal
-step size, equal cumulative deformation and equal coherence.
+a gradient's own magnitude delivered to the wrong edges raises the post-update
+objective. What the two controls jointly support is therefore a comparison
+between arms whose step sizes are set by the same rule and whose observed
+deformation and coherence ranges overlap, not between arms equated by
+construction.
 
 The learning rate is selected by a sweep from $\plasticitySweepLowRate$ to
 $\plasticitySweepHighRate$ on one seed, reported in the run's \texttt{REPORT.md}:
@@ -598,7 +606,7 @@ The third candidate must be declined for a further reason. Under $\gamma=D$ the 
 
 \subsection{Finite-sheet spatial-decay control}
 
-A finite stochastic control asks whether fixing total coupling while shortening its spatial reach fragments the phase field. On a periodic $128\times128$ sheet spanning 2.0~mm, an exponential kernel was row-normalised to total coupling $K_0=8$ at every decay length; the dynamics used thermodynamic diffusion $0.5$~rad$^2$/s, quenched Gaussian frequency spread $1.5$~rad/s, and 20,000 Euler--Maruyama steps per length. With steady $r>0.2$ as the declared operational coherence criterion, the smallest interpolated decay length above which every larger sampled length remained coherent was \spatialCriticalDecay~mm. On this grid that is \spatialCriticalDecayCells~lattice spacings, and the shortest sampled length from which coherence is sustained is \spatialResolvedDecayCells~spacings, so the sheet places the boundary below its own resolution. Rerunning the transition band and the lengths above it on a $\spatialRefinedSide\times\spatialRefinedSide$ sheet of the same extent --- half the spacing, so a given physical length spans twice as many cells --- leaves the boundary at \spatialRefinedCriticalDecay~mm, \spatialRefinedBoundaryRatio{} times its coarse value and \spatialRefinedCriticalDecayCells{} spacings on the finer grid. The boundary is fixed in millimetres rather than in cells: it is a property of the dynamics at this coupling, diffusion and frequency spread rather than of the discretisation, and the finer sheet resolves it. The transition-local trajectories are metastable and non-monotone on both sheets, so that number is an operational boundary rather than a critical-point estimate with statistical precision. At the empirical controls 0.1, 0.2 and 0.3~mm, steady $r$ was respectively \spatialOrderOne, \spatialOrderTwo{} and \spatialOrderThree, and winding-defect density was at most $\spatialDefectMaximum$. From 0.1~mm out to the sweep's longest range \spatialPlateauMax~mm, which is \spatialPlateauExtentRatio times the sheet's extent, steady order spans only \spatialPlateauSpread, so the empirical band sits inside a saturated plateau rather than near a boundary. Thus this finite, single-seed parameter sweep does not show fragmentation in the empirical decay-length band. It neither measures cortex nor proves a transition, and it leaves seed dependence and the near-boundary metastability unresolved.
+A finite stochastic control asks whether fixing total coupling while shortening its spatial reach fragments the phase field. On a periodic $128\times128$ sheet spanning 2.0~mm, an exponential kernel was row-normalised to total coupling $K_0=8$ at every decay length; the dynamics used thermodynamic diffusion $0.5$~rad$^2$/s, quenched Gaussian frequency spread $1.5$~rad/s, and 20,000 Euler--Maruyama steps per length. With steady $r>0.2$ as the declared operational coherence criterion, the smallest interpolated decay length above which every larger sampled length remained coherent was \spatialCriticalDecay~mm. On this grid that is \spatialCriticalDecayCells~lattice spacings, and the shortest sampled length from which coherence is sustained is \spatialResolvedDecayCells~spacings, so the sheet places the boundary below its own resolution. Rerunning the transition band and the lengths above it on a $\spatialRefinedSide\times\spatialRefinedSide$ sheet of the same extent --- half the spacing, so a given physical length spans twice as many cells --- leaves the boundary at \spatialRefinedCriticalDecay~mm, \spatialRefinedBoundaryRatio{} times its coarse value and \spatialRefinedCriticalDecayCells{} spacings on the finer grid. The operational crossing is thus nearly unchanged under this one refinement. Two threshold interpolants agreeing is not convergence of the dynamics they interpolate between: at \spatialSharedCoherentDecay~mm, the shortest sampled length from which both sheets stay coherent, steady order is \spatialSharedCoarseOrder{} on the coarse sheet against \spatialSharedRefinedOrder{} on the finer one, and the refined crossing is still only \spatialRefinedCriticalDecayCells{} cells wide. The transition-local trajectories are metastable and non-monotone on both sheets, so that number is an operational boundary rather than a critical-point estimate with statistical precision. At the empirical controls 0.1, 0.2 and 0.3~mm, steady $r$ was respectively \spatialOrderOne, \spatialOrderTwo{} and \spatialOrderThree, and winding-defect density was at most $\spatialDefectMaximum$. From 0.1~mm out to the sweep's longest range \spatialPlateauMax~mm, which is \spatialPlateauExtentRatio times the sheet's extent, steady order spans only \spatialPlateauSpread, so the empirical band sits inside a saturated plateau rather than near a boundary. Thus this finite, single-seed parameter sweep does not show fragmentation in the empirical decay-length band. It neither measures cortex nor proves a transition, and it leaves seed dependence and the near-boundary metastability unresolved.
 
 \begin{figure}[ht]
 \centering

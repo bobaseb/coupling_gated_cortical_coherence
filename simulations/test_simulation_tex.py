@@ -7,6 +7,7 @@ from simulation_tex import (
     _first_sustained_index,
     _geometric_grid_ratio,
     _scientific_upper_bound,
+    _shared_coherent_length,
     generate_simulation_tex,
 )
 
@@ -53,6 +54,9 @@ class SimulationTexTest(unittest.TestCase):
         self.assertIn(r"\newcommand{\spatialRefinedCriticalDecayCells}{1.81}", content)
         self.assertIn(r"\newcommand{\spatialRefinedBoundaryRatio}{1.01}", content)
         self.assertIn(r"\newcommand{\spatialPlateauExtentRatio}{4.0}", content)
+        self.assertIn(r"\newcommand{\spatialSharedCoherentDecay}{0.01467}", content)
+        self.assertIn(r"\newcommand{\spatialSharedCoarseOrder}{0.6176}", content)
+        self.assertIn(r"\newcommand{\spatialSharedRefinedOrder}{0.2687}", content)
         self.assertNotIn(r"\rampOnsetPinnedOne", content)
 
     def test_committed_macros_match_saved_results(self) -> None:
@@ -74,6 +78,20 @@ class DerivedQuantityTest(unittest.TestCase):
 
     def test_first_sustained_index_ignores_an_earlier_isolated_crossing(self) -> None:
         self.assertEqual(_first_sustained_index([0.05, 0.30, 0.10, 0.40, 0.90], 0.2), 3)
+
+    def test_shared_length_is_the_later_of_the_two_coherent_onsets(self) -> None:
+        # The coarse sheet is sustained-coherent from 2.0 and the refined one
+        # only from 3.0, so 3.0 is where a steady order both call coherent sits.
+        self.assertAlmostEqual(
+            _shared_coherent_length(
+                [1.0, 2.0, 3.0], [0.1, 0.9, 0.9], [1.0, 2.0, 3.0], [0.1, 0.1, 0.9]
+            ),
+            3.0,
+        )
+
+    def test_shared_length_rejects_an_onset_the_other_sheet_never_samples(self) -> None:
+        with self.assertRaises(ValueError):
+            _shared_coherent_length([1.0, 2.0], [0.1, 0.9], [1.0, 4.0], [0.1, 0.9])
 
     def test_scientific_bound_rounds_away_from_the_value_it_bounds(self) -> None:
         # The publication states these as "at most", so truncation would overclaim.
