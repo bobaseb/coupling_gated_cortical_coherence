@@ -359,14 +359,26 @@ The nonzero grand-mean frequency drives the collective coordinate, since
 symmetric interactions cancel in its mean drift. That cancellation fixes
 $\sum_i v_i$ across phase fields, so the objective cannot fall below
 $N\langle\omega\rangle^2/D=\plasticitySigmaFloor$ and the update can only
-equalize drift across nodes rather than remove it. The frozen arm sits at
+equalize drift across nodes rather than remove it.
+
+The objective is sampled at the update cadence, at the instant each update has
+just acted, so every objective mean in this subsection is a mean of that
+immediate post-update readout and not a time mean over the intervals between
+updates. On it the frozen arm sits at
 $\plasticityFrozenDissipationMin$ to $\plasticityFrozenDissipationMax$; the
 gradient arm's second-half mean is $\plasticityDissipationMin$ to
 $\plasticityDissipationMax$, removing a fraction $\plasticityDescentMin$ to
 $\plasticityDescentMax$ of the headroom between the frozen arm and that floor.
 The matched random arm removes $\plasticityRandomDescentMin$ to
-$\plasticityRandomDescentMax$ of it, so the descent is specific to the gradient
+$\plasticityRandomDescentMax$ of it, so the reduction is specific to the gradient
 direction and not to displacing a kernel of that step size at fixed resource.
+What that readout measures is the objective the update leaves behind it at the
+moment it acts. Whether the objective stays below the frozen arm through the
+interval that follows is a separate measurement, reported in
+Section~\ref{sec:plasticity-intervals}, and it is the one a claim of sustained
+minimization would need.
+The alignment statistics below are read from the kernel, which is constant
+between updates, so sampling them at the update cadence weights them exactly.
 
 A matched step size is not a matched deformation. Fresh isotropic steps cancel
 across updates, so the random arm ends at a cumulative kernel norm growth of
@@ -384,22 +396,23 @@ second-half mean order of $\plasticityPermutedOrderMin$ to
 $\plasticityPermutedOrderMax$, which lies inside the gradient arm's range. Its
 descent fraction is
 $\plasticityPermutedDescentMin$ to $\plasticityPermutedDescentMax$: a step of
-the gradient's magnitude delivered to the wrong edges raises the objective. The
+the gradient's magnitude delivered to the wrong edges raises the post-update
+objective. The
 comparison the two controls jointly support is therefore between arms of equal
 step size, equal cumulative deformation and equal coherence.
 
 The learning rate is selected by a sweep from $\plasticitySweepLowRate$ to
 $\plasticitySweepHighRate$ on one seed, reported in the run's \texttt{REPORT.md}:
-the objective's second-half mean falls from
+the post-update objective's second-half mean falls from
 $\plasticitySweepLowDissipation$ at the smallest rate to a minimum at
 $\plasticitySweepBestRate$ and rises again to
 $\plasticitySweepHighDissipation$ at the largest. Rates past the minimum lose
-descent while still meeting the plateau criterion, so the criterion does not by
-itself select a rate and no convergence in the rate is claimed.
+that reduction while still meeting the plateau criterion, so the criterion does
+not by itself select a rate and no convergence in the rate is claimed.
 
 Second-half mean order ranges from
-$\plasticityOrderMin$ to $\plasticityOrderMax$, so coherence survives the
-descent. All seeds meet the declared plateau criterion: the last-quarter mean
+$\plasticityOrderMin$ to $\plasticityOrderMax$, so coherence is maintained
+throughout. All seeds meet the declared plateau criterion: the last-quarter mean
 differs from the preceding quarter by at most $5\%$.
 The environmental template is the covariance of unit-variance latent signals
 shared within each frequency cluster, rescaled and hollowed to match the
@@ -454,7 +467,7 @@ rather than their norm; most of the distance growth is therefore concentration
 of mass onto fewer edges rather than loss of alignment, and the distance to the
 shuffled template grows with it. The off-diagonal correlation with the template
 ends at $\plasticityCorrelationMin$ to $\plasticityCorrelationMax$, close to its
-starting value: at the sparsity the descent produces, edge-level variance
+starting value: at the sparsity the update produces, edge-level variance
 dominates a block-mean contrast that the within-over-between ratio resolves.
 
 Minimizing squared drift under a conserved mean drift equalizes drift across
@@ -462,7 +475,7 @@ nodes, which rewards coupling between clusters of unlike frequency, whereas the
 template rewards coupling within clusters of like frequency. The disagreement is
 a property of this pairing of objective and template. The blind-partition
 reading is what separates that from the weaker statement it would otherwise be
-confused with: the descent does not degrade whatever partition a reader scores
+confused with: the update does not degrade whatever partition a reader scores
 it against, but locates the one partition the environment carries and moves
 against it. Which structure a different objective would move against, or whether
 any objective of this family aligns with an environment, is not settled by one
@@ -476,14 +489,94 @@ the $N\langle\omega\rangle^2/D$ floor; the order parameter against the
 $1/\sqrt{N}$ reference; the within-over-between coupling ratio against the
 no-preference line at unity; and the distances to the cluster template and to its
 node-label shuffle, which grow together as the kernel norm grows. Only the
-gradient arm descends the objective, and only it loses cluster alignment, the
-permuted arm holding the same deformation without either; these
+gradient arm lowers the post-update objective, and only it loses cluster
+alignment, the permuted arm holding the same deformation without either; these
 diagnostics provide no evidence of structural resonance or a thermodynamic
 entropy-production rate.
 
 These finite trajectories establish neither stationarity of the adaptive
 process nor noiseless phase locking, and do not discharge the E45 modelling
-assumption or extend the fixed-phase descent theorem.
+assumption or extend the fixed-phase descent theorem. What they exhibit is a
+reduction at the sampled instant together with a loss of alignment, and not a
+system that holds the objective below its frozen counterpart while it runs.
+
+\subsection{Sustained reduction over complete update intervals}
+\label{sec:plasticity-intervals}
+
+A reduction at the sampled instant and a reduction maintained between updates
+are different quantities, and the second is the one a claim that a coupling
+update minimizes the objective needs. A bounded study measures it, on a design
+fixed before the runs were made and recorded in the repository at
+\texttt{tasks/f5\_f6\_design.md}, whose digest the saved summary carries.
+
+The substrate is the one above: $N=100$, $D=0.1$, total coupling $400$,
+physical duration $400$, and the same initialization, frequencies, projection
+and objective. Only the learning rate and the physical interval between updates
+vary, over the product of rates $\{0.01, 0.05, 0.2\}$ and intervals
+$\{0.05, 0.5\}$ time units, each against a frozen arm on the same initial state
+and phase-noise stream. Objective and order are recorded at every integration
+step, on the state that drives that step, and averaged within complete update
+intervals; the terminal endpoint carries no duration and is excluded. The two
+assessment windows are the third and fourth quarters of the run.
+
+The criteria are declared in advance and conjunctive: each window's objective
+mean at least $5\%$ below the paired frozen arm, each window's mean order at
+least $0.8$, a second-half within-over-between coupling ratio at most $0.8$ and
+at least $0.1$ below the frozen arm's, and the final frequency partition at
+percentile at most $0.05$ among $2000$ size-preserving relabellings. Selection
+among the cases meeting the objective and coherence criteria is on the worst
+quarter's objective ratio alone and is never shown an alignment value; a
+selected case would then have to meet every criterion on three held-out seeds
+at two integration steps, at fixed physical duration and cadence.
+
+\begin{table}[htbp]
+\centering
+\caption{Every case of the declared grid, each against its paired frozen arm.
+The objective columns are complete-interval means over the third and fourth
+quarters divided by the frozen arm's; the order column is the smaller of the
+two windows' mean order; the last two are the second-half within-over-between
+coupling ratio and the percentile of the frequency partition among $2000$
+size-preserving relabellings of the final kernel. The criteria are both ratios
+at most $0.95$, order at least $0.8$, and the alignment conditions of the text,
+all together.}
+\label{tab:plasticity-study}
+\begin{tabular}{rrrrrrr}
+\hline
+Rate & Interval & Q3 ratio & Q4 ratio & Order & Within/between & Percentile \\ \hline
+\plasticityStudyRows \hline
+\end{tabular}
+\end{table}
+
+Of the $\plasticityStudyCaseCount$ cases of Table~\ref{tab:plasticity-study},
+$\plasticityStudyEligibleCount$ meet the objective and coherence criteria
+together, so the design selects no candidate and the held-out confirmation is
+not run. The smallest worst-quarter objective
+ratio falls at rate $\plasticityStudyBestRate$ and interval
+$\plasticityStudyBestInterval$, whose two windows sit
+$\plasticityStudyImprovementMin\%$ and $\plasticityStudyImprovementMax\%$ below
+the frozen arm against the $5\%$ the criterion asks for, at mean order
+$\plasticityStudyOrderMin$ to $\plasticityStudyOrderMax$, a within-over-between
+ratio of $\plasticityStudyAlignment$ and a blind-partition percentile of
+$\plasticityStudyPercentile$. Coherence and loss of alignment appear together
+across this grid; a sustained reduction of the declared size does not accompany
+them anywhere in it.
+
+The grid contains the rate and cadence of the preceding subsection's run, and
+in that case the two readouts separate: the post-update second-half mean is
+$\plasticityStudyProductionPostUpdate$ where the complete-interval mean is
+$\plasticityStudyProductionInterval$ against the frozen arm's
+$\plasticityStudyProductionFrozen$, a ratio of
+$\plasticityStudyProductionRatioMin$ in one window and
+$\plasticityStudyProductionRatioMax$ in the other. What the update takes off the
+objective at the instant it acts, the interval that follows returns.
+
+The stop rule belongs to the design: the grid is not widened and no second
+candidate is tried once the outcomes are in. The study reports that this
+bounded family does not supply a sustained reduction, coherence and loss of
+alignment together. That is not a proof that no declared regime supplies them,
+and it is a statement about this squared-drift objective rather than about
+thermodynamic entropy production.
+
 \section{The cortical field identification}
 
 The framework identifies its posited continuum coupling kernel with the endogenous electromagnetic field of mammalian cortex. This is a claim about biology, not a consequence of any theorem above it.
@@ -559,6 +652,56 @@ dynamical selection and does not discharge the adiabatic assumption.
 Exponential relaxation is one comparator, not the entire class of electrical models. Slow latent variables, observation filtering and finite-size effects can also generate delayed or sigmoidal traces. Comparisons should use common preprocessing and observation models, with onset criteria specified before inspecting outcomes. A linear apparent onset counts against the adiabatic branch interpretation only in a regime where its assumptions hold.
 
 The concentration--coherence relation tests the stationary-density model. Its failure over an informative concentration range constrains that model; its success does not identify the coupling medium. The ratio $a/r$ is a consequence of the same density ansatz and is unreliable near the fluctuation floor. A coupling--geometry association requires an independently validated geometry proxy and an independently defined recovery endpoint. Stationary absence of a fold does not rule out finite-rate hysteresis.
+
+\subsection{What successive stationary phase distributions cannot separate}
+\label{sec:recovery-mechanisms}
+
+The first item of the protocol asks for $K$ and $D$ in the same units because
+the stationary density does not carry them separately. In the
+identical-frequency rotating frame that density is von Mises with concentration
+$a=Kr/D$, so a window of equilibrated phases fixes the ratio $K/D$ and nothing
+beyond it. Three recovery mechanisms therefore agree on every stationary
+observable, window by window. Write $s\in[0,1]$ for a declared window
+coordinate, $q(s)$ for a schedule rising from $1.5$ to an endpoint $b$, and
+$r(q)$ for the coherent branch of the stationary self-consistency relation,
+which is zero for $q\leq2$. Increasing coupling is $K=q(s)$ at $D=1$;
+decreasing diffusion is $K=b$ at $D=b/q(s)$; and a common drive is oscillators
+with no coupling to each other, each relaxing towards a shared phase $\psi$
+under a prescribed $-h(s)\sin(\theta-\psi)$ at $D=1$ with $h(s)=q(s)\,r(q(s))$.
+The first two share $K/D=q(s)$; the third has stationary concentration $h/D$,
+which is that same number. Their stationary distributions coincide window for
+window, so no estimator reading only those distributions separates them. The
+third is one observationally matched drive and not a claim about every drive.
+
+An ideal feasibility check confirms that the coincidence is exact rather than
+merely close. Nine equally spaced windows, exact densities on a periodic grid
+of $4096$ points, endpoints $b\in\{2.6,3.2,4\}$ and orientations
+$\psi\in\{0,0.7\}$ give $\recoveryStudyCaseCount$ cases. Concentration is
+estimated by regression of log density on the cosine and sine of phase and
+coherence independently by circular integration; each family is then fitted for
+$b$ over the same range against the same predicted concentration curve, with the
+generating family, $K$, $D$ and true $b$ withheld from the fit. The three
+families return the same $b$ on every case, agreeing to within
+$\recoveryStudyFitSpread$ at squared errors of at most
+$\recoveryStudyMaxSquaredError$, and $\recoveryStudyUniqueCount$ of the
+$\recoveryStudyCaseCount$ cases identify a unique generator. No family meets the
+declared gate of unique recovery on $80\%$ of its cases, and the study stops
+there: observation noise, filtering and pooling applied to distributions that
+are already identical cannot separate them.
+
+The observable the protocol is missing is the physical clock. Coupling and
+diffusion scaled together leave every stationary density untouched and change
+the rate at which phase moves, so resolved increments carry what equilibrated
+windows discard: along an ideal continuous path the quadratic variation
+accumulates at rate $2D$, and conditional increment means constrain the drift.
+Separating an endogenous coupling from a common drive is not settled by the
+clock either, since in the mean-field description the two impose the same drift
+on each oscillator; that separation needs a measured drive or a controlled
+perturbation. Neither measurement is validated by this pilot, and neither would
+identify the coupling as electromagnetic. The model comparison of item 6 is
+accordingly a comparison of time courses under a declared observation model,
+and identifies the mechanism behind a recovery only to the extent that the
+observations reach past the stationary density.
 
 \section{Interpretive scope}
 

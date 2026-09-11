@@ -558,9 +558,10 @@ manuscript is emphatic about it.} The bound does \emph{not}:
 \item entail Bayesian inference or semantic content.
 \end{itemize}
 Section~\ref{sec:plasticity} reports a simulation making this concrete: a
-coupling update that removes most of a squared-drift objective maintains
-coherence while moving \emph{away} from the structure it is expected to
-learn---further from it than from almost every relabelling of the nodes.
+coupling update that removes most of a squared-drift objective at the instant
+it acts maintains coherence while moving \emph{away} from the structure it is
+expected to learn---further from it than from almost every relabelling of the
+nodes.
 
 \lean
 \id{Phase3\_PredictiveThermodynamics.lean}. The class is inhabited twice over
@@ -1500,8 +1501,10 @@ of an edge contribute. Each seed runs four arms on one phase-noise stream: the
 gradient step, a symmetric random step of the same Frobenius norm, that same
 gradient step delivered to randomly relabelled nodes, and a frozen kernel.
 
-Denying an implication means exhibiting its antecedent, so the first thing to
-measure is how much of the objective the update actually removes. Symmetric
+The first thing to measure is how much of the objective the update removes.
+Diagnostics are sampled at the update cadence, at the instant each update has
+just acted, so every objective figure below is a mean of that post-update
+readout rather than a time mean over the intervals between updates. Symmetric
 coupling cancels from the mean drift, which fixes $\sum_i v_i$ and so puts a
 floor of $N\langle\omega\rangle^2/D=\plasticitySigmaFloor$ under the objective:
 the update can equalize drift across nodes but never remove it. Across three
@@ -1511,7 +1514,7 @@ seeds:
 $\plasticityFrozenDissipationMax$; the gradient arm reaches
 $\plasticityDissipationMin$ to $\plasticityDissipationMax$, removing
 $\plasticityDescentMin$ to $\plasticityDescentMax$ of the headroom between the
-two. \textbf{So the objective really is being minimized.} The matched random
+two. \textbf{So the update really does lower the objective where it acts.} The matched random
 arm removes $\plasticityRandomDescentMin$ to $\plasticityRandomDescentMax$,
 so this belongs to the gradient direction and not to displacing a kernel at
 fixed resource. A matched step size is not a matched deformation, though:
@@ -1526,7 +1529,7 @@ $\plasticityPermutedOrderMin$ to $\plasticityPermutedOrderMax$ while
 \emph{raising} the objective by $\plasticityPermutedDescentMin$ to
 $\plasticityPermutedDescentMax$ of the headroom.
 \item Second-half mean order lies between $\plasticityOrderMin$ and
-$\plasticityOrderMax$. \textbf{So coherence survives the descent.}
+$\plasticityOrderMax$. \textbf{So coherence is maintained throughout.}
 \item The ratio of mean within-cluster to mean between-cluster coupling---a
 measure unchanged by rescaling the kernel---falls from
 $\plasticityRatioInitialMin$--$\plasticityRatioInitialMax$ to
@@ -1543,16 +1546,31 @@ $\plasticityPermutedPercentileMax$.
 frequency, at most a fraction $\plasticityBlindPercentileMax$ give a lower
 within-over-between ratio than the frequency partition does, against
 $\plasticityFrozenBlindPercentileMin$ to $\plasticityFrozenBlindPercentileMax$
-for the frozen arm. \textbf{So the descent moves against the structure the
+for the frozen arm. \textbf{So the update moves against the structure the
 environment carries, rather than against block structure of any kind.}
 \end{itemize}
 
 \noindent
-The objective descends by most of what is available to it, coherence is
-maintained, and within-cluster coupling falls to a fraction of between-cluster
-coupling. \textbf{Coherence is not a proxy for representational alignment in
-this regime, and descending a squared-drift functional does not produce
-representational learning.}
+Most of the available objective is removed at the sampled instants, coherence
+is maintained, and within-cluster coupling falls to a fraction of
+between-cluster coupling. \textbf{Coherence is not a proxy for representational
+alignment in this regime, and descending a squared-drift functional does not
+produce representational learning.}
+
+There is a further question underneath the first bullet, and it is the one an
+argument from dissipation to representation actually needs: does the objective
+\emph{stay} low between updates? Averaged over complete update intervals rather
+than at the update cadence, it does not. A run at this rate and cadence sits at
+$\plasticityStudyProductionRatioMin$ and $\plasticityStudyProductionRatioMax$ of
+its frozen arm over the two halves of its second half---what the update takes
+off at the instant it acts, the interval that follows returns. A bounded study, its grid and criteria declared
+before the runs, sweeps $\plasticityStudyCaseCount$ combinations of learning
+rate and update interval looking for one that holds a $5\%$ reduction while
+keeping coherence and losing alignment. None does; the best manages
+$\plasticityStudyImprovementMin\%$ to $\plasticityStudyImprovementMax\%$. So
+what this regime exhibits is a coupling update that loses environmental
+structure while staying coherent, and not one that sustains a lower objective.
+A bounded grid failing to find such a regime is not a proof that none exists.
 
 Nor is the direction of the failure accidental, and this is the part worth
 carrying away. Because symmetric coupling conserves the mean drift, minimizing
@@ -1578,8 +1596,8 @@ $\plasticityCorrelationMin$ to $\plasticityCorrelationMax$, near where it
 started: at this sparsity edge-level variance swamps a block-mean contrast. The
 learning rate $\plasticityLearningRate$ is chosen by a sweep from
 $\plasticitySweepLowRate$ to $\plasticitySweepHighRate$ as the rate at which
-the objective descends furthest---a declared selection, not a rate at which the
-update is known to converge. Resource constraints and evolving phases remove the
+that post-update readout falls furthest---a declared selection, not a rate at
+which the update is known to converge. Resource constraints and evolving phases remove the
 fixed-phase monotonicity guarantee of Section~\ref{sec:sigma}, so this is not a
 counterexample to that theorem but a demonstration of its scope. A plateau in
 the objective establishes neither stationarity of the adaptive process nor a
@@ -2445,7 +2463,14 @@ measurement---is where the content of the hypothesis lives.
 \item \textbf{Coupling and diffusion in the same units.} $K$ and $D$ estimated
 from the same cortical regime, in inverse-time units, separating phase
 diffusion from quenched frequency spread and from observation noise. Without
-this, ``$K>2D$'' is not an evaluable statement about cortex.
+this, ``$K>2D$'' is not an evaluable statement about cortex. Watching a
+sequence of equilibrated phase distributions will not do it: the stationary
+density is von Mises with concentration $Kr/D$, so it fixes the \emph{ratio}
+and nothing else, and a coupling increase, a diffusion decrease and a common
+drive of matched strength are then identical window for window. The estimate
+has to reach the phase increments, which still carry the rate, and telling an
+endogenous coupling from a common drive needs a measured drive or a controlled
+perturbation on top of that.
 \item \textbf{Geometry calibrated to coupling.} A diffusion-MRI observable or
 astrocytic signal indicates the extracellular volume fraction $\alpha$; its mapping
 to effective coupling must be established separately, with its own uncertainty.

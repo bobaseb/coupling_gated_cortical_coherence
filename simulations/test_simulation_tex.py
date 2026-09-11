@@ -6,6 +6,7 @@ from simulation_tex import (
     _effective_coupling,
     _first_sustained_index,
     _geometric_grid_ratio,
+    _scientific_upper_bound,
     generate_simulation_tex,
 )
 
@@ -24,6 +25,17 @@ class SimulationTexTest(unittest.TestCase):
         self.assertIn(r"\newcommand{\chaosBesselResidual}{0.00191}", content)
         self.assertIn(r"\newcommand{\frustrationCouplingMin}", content)
         self.assertIn(r"\newcommand{\plasticityOrderMin}{0.9167}", content)
+        self.assertIn(r"\newcommand{\plasticityStudyCaseCount}{6}", content)
+        self.assertIn(r"\newcommand{\plasticityStudyEligibleCount}{0}", content)
+        self.assertIn(r"\newcommand{\plasticityStudyProductionPostUpdate}{1118.95}", content)
+        self.assertIn(r"\newcommand{\plasticityStudyProductionInterval}{1383.87}", content)
+        self.assertIn(r"\newcommand{\plasticityStudyProductionFrozen}{1383.06}", content)
+        self.assertIn(r"\newcommand{\plasticityStudyProductionRatioMin}{0.998}", content)
+        self.assertIn(r"\newcommand{\plasticityStudyProductionRatioMax}{1.003}", content)
+        self.assertIn(r"\newcommand{\recoveryStudyCaseCount}{18}", content)
+        self.assertIn(r"\newcommand{\recoveryStudyUniqueCount}{0}", content)
+        self.assertIn(r"\newcommand{\recoveryStudyFitSpread}{8.9\times10^{-16}}", content)
+        self.assertIn(r"\newcommand{\recoveryStudyMaxSquaredError}{5.2\times10^{-14}}", content)
         self.assertIn(r"\newcommand{\plasticityDescentMin}{0.6773}", content)
         self.assertIn(r"\newcommand{\plasticityRandomDescentMax}{-0.0103}", content)
         self.assertIn(r"\newcommand{\collapseLinearDeviation}{0.0095}", content)
@@ -62,6 +74,13 @@ class DerivedQuantityTest(unittest.TestCase):
 
     def test_first_sustained_index_ignores_an_earlier_isolated_crossing(self) -> None:
         self.assertEqual(_first_sustained_index([0.05, 0.30, 0.10, 0.40, 0.90], 0.2), 3)
+
+    def test_scientific_bound_rounds_away_from_the_value_it_bounds(self) -> None:
+        # The publication states these as "at most", so truncation would overclaim.
+        self.assertEqual(_scientific_upper_bound(8.881784197001252e-16), r"8.9\times10^{-16}")
+        self.assertEqual(_scientific_upper_bound(5.1944999412767196e-14), r"5.2\times10^{-14}")
+        self.assertEqual(_scientific_upper_bound(1.001e-3), r"1.1\times10^{-3}")
+        self.assertEqual(_scientific_upper_bound(0.0), r"0")
 
 
 if __name__ == "__main__":

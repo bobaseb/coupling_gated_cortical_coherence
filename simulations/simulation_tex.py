@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import cast
+from typing import Any, cast
 
 import numpy as np
 
@@ -324,6 +324,102 @@ def _collapse_macros() -> list[str]:
     ]
 
 
+def _plasticity_study_rows(tuning: list[dict[str, Any]]) -> str:
+    return "\n".join(
+        f"{row['learning_rate']:g} & {row['update_interval']:g} & "
+        f"{row['quarter_objective_ratios'][0]:.4f} & "
+        f"{row['quarter_objective_ratios'][1]:.4f} & "
+        f"{min(row['quarter_order']):.3f} & {row['tail_alignment']:.3f} & "
+        f"{row['blind_partition_percentile']:.4f} \\\\"
+        for row in tuning
+    )
+
+
+def _scientific_upper_bound(value: float, digits: int = 1) -> str:
+    """Round a magnitude upward, so a macro quoted as ``at most`` is never overclaimed."""
+    if value <= 0.0:
+        return "0"
+    exponent = int(np.floor(np.log10(value)))
+    mantissa = np.ceil(value / 10.0**exponent * 10**digits) / 10**digits
+    if mantissa >= 10.0:
+        mantissa, exponent = mantissa / 10.0, exponent + 1
+    return f"{mantissa:.{digits}f}\\times10^{{{exponent}}}"
+
+
+def _production_study_row(tuning: list[dict[str, Any]]) -> dict[str, Any]:
+    """The grid cell run at the production plasticity rate and update cadence."""
+    production = cast(
+        list[JsonObject], _read_json(FIGURES / "structural_resonance" / "summary.json")
+    )
+    config = cast(dict[str, Any], production[0]["config"])
+    cadence = config["update_every"] * config["dt"]
+    matches = [
+        row
+        for row in tuning
+        if row["learning_rate"] == config["learning_rate"] and row["update_interval"] == cadence
+    ]
+    if len(matches) != 1:
+        raise ValueError("The F5 grid must contain the production rate and cadence exactly once")
+    return matches[0]
+
+
+def _plasticity_study_macros(plasticity: JsonObject) -> list[str]:
+    tuning = cast(list[dict[str, Any]], plasticity["tuning"])
+    best = min(tuning, key=lambda row: row["worst_objective_ratio"])
+    improvements = [100 * (1 - ratio) for ratio in best["quarter_objective_ratios"]]
+    matched = _production_study_row(tuning)
+    ratios = cast(list[float], matched["quarter_objective_ratios"])
+    return [
+        _macro("plasticityStudyCaseCount", len(tuning)),
+        _macro(
+            "plasticityStudyEligibleCount",
+            sum(row["objective_pass"] and row["coherence_pass"] for row in tuning),
+        ),
+        _macro("plasticityStudyBestRate", f"{best['learning_rate']:g}"),
+        _macro("plasticityStudyBestInterval", f"{best['update_interval']:g}"),
+        _macro("plasticityStudyImprovementMin", f"{min(improvements):.2f}"),
+        _macro("plasticityStudyImprovementMax", f"{max(improvements):.2f}"),
+        _macro("plasticityStudyOrderMin", f"{min(best['quarter_order']):.3f}"),
+        _macro("plasticityStudyOrderMax", f"{max(best['quarter_order']):.3f}"),
+        _macro("plasticityStudyAlignment", f"{best['tail_alignment']:.3f}"),
+        _macro("plasticityStudyPercentile", f"{best['blind_partition_percentile']:.3f}"),
+        _macro(
+            "plasticityStudyProductionPostUpdate", f"{matched['post_update_tail_objective']:.2f}"
+        ),
+        _macro(
+            "plasticityStudyProductionInterval",
+            f"{float(np.mean(matched['quarter_objective'])):.2f}",
+        ),
+        _macro(
+            "plasticityStudyProductionFrozen",
+            f"{float(np.mean(matched['quarter_frozen_objective'])):.2f}",
+        ),
+        _macro("plasticityStudyProductionRatioMin", f"{min(ratios):.3f}"),
+        _macro("plasticityStudyProductionRatioMax", f"{max(ratios):.3f}"),
+        _macro("plasticityStudyRows", _plasticity_study_rows(tuning)),
+    ]
+
+
+def _recovery_study_macros(recovery: JsonObject) -> list[str]:
+    cases = cast(list[dict[str, Any]], recovery["cases"])
+    families = cast(list[str], recovery["families"])
+    fitted = [[case["fits"][name]["endpoint_ratio"] for name in families] for case in cases]
+    errors = [case["fits"][name]["squared_error"] for case in cases for name in families]
+    return [
+        _macro("recoveryStudyCaseCount", sum(cast(list[int], recovery["case_counts"]))),
+        _macro("recoveryStudyUniqueCount", sum(cast(list[int], recovery["uniquely_correct"]))),
+        _macro("recoveryStudyFitSpread", _scientific_upper_bound(max(map(np.ptp, fitted)))),
+        _macro("recoveryStudyMaxSquaredError", _scientific_upper_bound(max(errors))),
+    ]
+
+
+def _followup_macros() -> list[str]:
+    return [
+        *_plasticity_study_macros(_read_json(FIGURES / "plasticity_study" / "summary.json")),
+        *_recovery_study_macros(_read_json(FIGURES / "recovery_mechanisms" / "summary.json")),
+    ]
+
+
 def generate_simulation_tex(output: Path) -> None:
     """Write all completed simulation macros from compact saved results."""
     chaos_summary = cast(
@@ -362,6 +458,9 @@ def generate_simulation_tex(output: Path) -> None:
         "",
         "% Empirical (a, r) collapse: what the observed range discriminates",
         *_collapse_macros(),
+        "",
+        "% F5/F6: bounded follow-up studies",
+        *_followup_macros(),
     ]
     output.write_text("\n".join(lines) + "\n", encoding="utf-8")
 

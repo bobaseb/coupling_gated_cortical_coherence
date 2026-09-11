@@ -100,7 +100,7 @@ must not be used to dismiss these follow-up findings.
 
 ### F1 — Correct the plasticity sampling and claim of sustained descent
 
-- [ ] Distinguish the immediate post-update objective from its mean throughout
+- [x] Distinguish the immediate post-update objective from its mean throughout
       the intervals between updates, and correct the claims that depend on
       sustained reduction.
 
@@ -202,7 +202,7 @@ wording correction.
 
 ### F5 — Bounded study: sustained objective reduction with loss of alignment
 
-- [ ] Optional, first study to consider: determine whether a declared
+- [x] Optional, first study to consider: determine whether a declared
       plasticity regime exhibits sustained objective reduction, coherence and
       anti-alignment together.
 
@@ -232,7 +232,7 @@ its answer and adjusting the claim accordingly, not obtaining a positive result.
 
 ### F6 — Bounded study: recovery-mechanism discrimination under common observation
 
-- [ ] Optional, after F5 if a substantive addition is wanted: test whether the
+- [x] Optional, after F5 if a substantive addition is wanted: test whether the
       proposed measurements can identify the mechanism generating recovery.
 
 **Why this could change the paper.** The stationary self-consistency equation
@@ -1434,3 +1434,65 @@ without `workflow` scope. `gh auth refresh` cannot fix a token supplied through
 an environment variable. The remote is now `git@github.com:` over SSH with a new
 ed25519 key on this machine, which is not subject to that check at all and needs
 no scope decision the next time a workflow file changes.
+
+### 2026-09-10 — F-items (F1, F5, F6)
+
+The two bounded studies of `tasks/f5_f6_design.md`, and the sampling correction
+they generalise. F2, F3 and F4 remain open: they are wording corrections to
+other subsections and nothing here touches them.
+
+**F5** ran the declared grid — rates 0.01, 0.05, 0.2 crossed with physical
+update intervals 0.05 and 0.5, on the substrate of the production plasticity
+run, each case against a frozen arm on its own initial state and phase-noise
+stream. The estimator records objective and order at every integration step, on
+the state driving that step, and averages within complete update intervals with
+the zero-duration terminal endpoint excluded; a regression test pins it against
+sampling only after updates, since that difference is the whole point of the
+measurement. None of the six cases met the declared 5% sustained reduction, so
+the design selected no candidate and the held-out confirmation did not run. The
+best worst-quarter ratio, at rate 0.05 and interval 0.05, reaches 1.22% and
+1.36%. Coherence and loss of alignment appear across the grid; the sustained
+reduction does not appear anywhere in it. Seven trajectories, 94 s.
+
+**F6** stopped at the analytic stage, as the design allowed. In the
+identical-frequency rotating frame the stationary density is von Mises with
+concentration `K*r/D`, so a coupling increase `K=q(s)`, a diffusion decrease
+`D=b/q(s)` and an uncoupled ensemble under a prescribed drive of amplitude
+`q(s)*r(q(s))` share every stationary density window for window. The ideal
+feasibility check confirms the coincidence is exact rather than close: over 18
+cases the three families return the same endpoint to within 8.9e-16 at squared
+errors of at most 5.2e-14, and no case identifies a unique generator. The 80%
+unique-recovery gate fails for every family, so no noise, filtering or pooling
+stage was added. The missing observable is the physical clock: increments carry
+`2D` in their quadratic variation, and separating an endogenous coupling from a
+common drive needs a measured drive or a controlled perturbation on top of that.
+
+**F1** is closed as the publication half of F5. The production run samples
+diagnostics at the update cadence, immediately after each update, so its
+reported objective means are that post-update readout; the manuscript, the
+supplement and the primer now name it wherever they report it, and the
+inference that these runs sustain a minimisation is gone. The saved production
+numerals are retained, none was recomputed and nothing was rerun. F5's grid
+contains the production rate and cadence, and that cell carries the contrast the
+publication now prints: a post-update second-half mean of 1118.95 against a
+complete-interval 1383.87, beside a frozen 1383.06.
+
+**Where the studies enter the publication.** A supplement subsection for each —
+"Sustained reduction over complete update intervals" with the full six-case
+table, and "What successive stationary phase distributions cannot separate"
+under the alternative-models section. In the article: the abstract, the third
+contribution, the plasticity subsection and the figure caption carry the
+readout correction and the F5 outcome, and protocol items 1 and 6 carry F6. The
+resonance figure dropped from 0.62 to 0.60 `\textheight` so the longer caption
+does not enlarge a float overflow the page already had.
+
+**Artifacts.** `simulations/plasticity_study.py`, `recovery_mechanisms.py`,
+`followup_report.py` and their tests; `structural_resonance.py` and
+`test_structural_resonance.py` for the interval estimator; `simulation_tex.py`,
+`simulation_results.tex`, `test_simulation_tex.py`; `tach.toml`;
+`simulations/figures/plasticity_study/`, `simulations/figures/recovery_mechanisms/`;
+`tasks/f5_f6_design.md`; `main.tex`, `supplementary.tex`, `docs/primer.tex` and
+the three rebuilt PDFs; `arxiv_submit/`.
+
+**Gates.** 138/138 tests, every hook green, and the merged arXiv document
+compiles from the unpacked tarball at 46 pages.

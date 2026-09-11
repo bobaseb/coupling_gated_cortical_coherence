@@ -20,6 +20,46 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-10 — Audit remediation, part F: what the plasticity readout measures
+
+Two bounded studies declared before execution in `tasks/f5_f6_design.md`, and
+the sampling correction the first of them generalises. In the plasticity run,
+diagnostics are sampled at the update cadence and the update acts first, so
+every objective mean the work reported was a mean of the instant after an
+update. Recording the objective at every integration step and averaging over
+complete update intervals gives a different number, and F5 ran a declared grid
+of six rate/cadence combinations to ask whether any regime holds the reduction.
+
+Claims that were made and are no longer made:
+
+- That these runs exhibit sustained minimisation of the squared-drift
+  objective. The reduction is a property of the sampled instant. At the
+  production rate and cadence the post-update second-half mean is 1118.95 where
+  the complete-interval mean is 1383.87 against a frozen arm's 1383.06 — ratios
+  of 0.998 and 1.003 in the two windows. What the update takes off, the interval
+  that follows returns.
+- That some declared plasticity regime is known to supply the antecedent of the
+  strong counterexample: sustained reduction, coherence and loss of alignment at
+  once. None of the six cases reaches the declared 5% sustained reduction; the
+  best manages 1.22% and 1.36%. Coherence and the loss of alignment do appear
+  across the grid, and the stop rule forbade widening it. A bounded grid that
+  does not find such a regime does not show that none exists.
+- That an awakening experiment could separate the recovery mechanisms from
+  coherence traces. It cannot. The stationary density is von Mises with
+  concentration K*r/D, so a coupling increase, a diffusion decrease and an
+  uncoupled ensemble under a matched common drive agree on every stationary
+  observable window for window — exactly, not approximately: over 18 ideal cases
+  the three families return the same endpoint to within 8.9e-16 and no case
+  identifies a unique generator. The protocol now says what is missing, which is
+  the physical clock the phase increments carry, plus a measured drive or a
+  controlled perturbation to separate endogenous coupling from common forcing.
+
+What is unchanged: the observed coherence, the loss of alignment against the
+frequency partition and against partitions drawn blind to it, the two controls
+and their results, the conservation-law argument that fixes the direction of the
+failure, and the fixed-phase descent theorem. The saved production numerals are
+retained and nothing was rerun to reach any of this.
+
 ## 2026-09-10 — Audit remediation, part D concluded: what the descent moves against
 
 A second partition of the same nodes, and the family it belongs to. The
