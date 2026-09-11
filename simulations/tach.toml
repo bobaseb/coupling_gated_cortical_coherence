@@ -61,6 +61,10 @@ path = "frustration_summary"
 layer = "report"
 depends_on = ["geometric_frustration_report"]
 
+[[modules]]
+path = "followup_report"
+layer = "report"
+
 # -- analysis ---------------------------------------------------------------
 [[modules]]
 path = "dynamic_ramp_analysis"
@@ -94,6 +98,15 @@ layer = "simulation"
 
 [[modules]]
 path = "structural_resonance"
+layer = "simulation"
+
+[[modules]]
+path = "plasticity_study"
+layer = "simulation"
+depends_on = ["structural_resonance"]
+
+[[modules]]
+path = "recovery_mechanisms"
 layer = "simulation"
 
 [[modules]]

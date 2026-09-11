@@ -227,8 +227,21 @@ def diagnostics(theta: Array, coupling: Array, world: Environment, diffusion: fl
     ]
 
 
+def complete_interval_means(values: Array, width: int) -> Array:
+    """Time means of equally spaced left-endpoint values; omit an incomplete interval."""
+    if width <= 0:
+        raise ValueError("An interval must contain a positive number of steps")
+    count = len(values) // width
+    return cast(Array, values[: count * width].reshape(count, width).mean(axis=1))
+
+
 def simulate(config: Config, mode: str) -> dict[str, Array]:
-    """Euler--Maruyama with endpoint-inclusive decimation and only final phase state."""
+    """Euler--Maruyama with endpoint diagnostics and complete-interval time means.
+
+    Interval objective/order use the state driving each step, hence include the
+    whole interval after an update, excluding the zero-duration final endpoint.
+    Alignment is constant between updates. These readouts consume no randomness.
+    """
     validate(config, mode)
     rng = np.random.default_rng(config.seed)
     steps = np.random.default_rng(config.seed + 2)
@@ -239,9 +252,16 @@ def simulate(config: Config, mode: str) -> dict[str, Array]:
     initial = coupling.copy()
     times, rows = [0.0], [diagnostics(theta, coupling, world, config.diffusion)]
     updates = 0
+    step_objective = np.empty(config.steps)
+    step_order = np.empty(config.steps)
+    interval_alignment = []
     scale = config.learning_rate * config.update_every * config.dt
     for step in range(1, config.steps + 1):
         velocity = drift(theta, coupling, world.omega)
+        step_objective[step - 1] = velocity @ velocity / config.diffusion
+        step_order[step - 1] = abs(np.mean(np.exp(1j * theta)))
+        if (step - 1) % config.update_every == 0:
+            interval_alignment.append(alignment_ratio(coupling, world.labels))
         theta += config.dt * velocity + np.sqrt(2 * config.diffusion * config.dt) * rng.normal(
             size=config.n
         )
@@ -265,6 +285,12 @@ def simulate(config: Config, mode: str) -> dict[str, Array]:
         shuffled=world.shuffled,
         permutation=world.permutation.astype(float),
         updates=np.asarray(float(updates)),
+        interval_time=np.arange(config.steps // config.update_every)
+        * config.update_every
+        * config.dt,
+        interval_objective=complete_interval_means(step_objective, config.update_every),
+        interval_order=complete_interval_means(step_order, config.update_every),
+        interval_alignment=np.asarray(interval_alignment)[: config.steps // config.update_every],
     )
     return result
 

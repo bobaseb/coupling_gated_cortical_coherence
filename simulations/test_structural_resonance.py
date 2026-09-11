@@ -8,6 +8,7 @@ import numpy as np
 from structural_resonance import (
     Config,
     alignment_ratio,
+    complete_interval_means,
     descent_fractions,
     drift,
     environment,
@@ -25,6 +26,26 @@ from structural_resonance import (
 
 
 class StructuralResonanceTest(unittest.TestCase):
+    def test_complete_intervals_exclude_partial_interval_and_terminal_endpoint(self) -> None:
+        values = np.array([1.0, 3.0, 5.0, 7.0, 100.0])
+        np.testing.assert_array_equal(complete_interval_means(values, 2), [2.0, 6.0])
+        with self.assertRaises(ValueError):
+            complete_interval_means(values, 0)
+
+    def test_interval_objective_includes_rebound_between_updates(self) -> None:
+        config = Config(n=12, steps=100, update_every=10, sample_every=1)
+        dense = simulate(config, "gradient")
+        # Existing endpoint diagnostics at every step supply a separate readout
+        # of the states used by the next step. The final state has no duration.
+        expected = dense["dissipation"][:-1].reshape(10, 10).mean(axis=1)
+        np.testing.assert_allclose(dense["interval_objective"], expected)
+        np.testing.assert_allclose(
+            dense["interval_order"], dense["order"][:-1].reshape(10, 10).mean(axis=1)
+        )
+        np.testing.assert_allclose(dense["interval_alignment"], dense["alignment_ratio"][:-1:10])
+        self.assertGreater(abs(float(expected.mean() - dense["dissipation"][10::10].mean())), 0.1)
+        np.testing.assert_allclose(dense["interval_time"], np.arange(10) * 0.1)
+
     def test_gradient_matches_symmetric_finite_difference(self) -> None:
         theta = np.array([0.2, 1.1, -0.7])
         omega = np.array([0.5, 1.0, 1.5])

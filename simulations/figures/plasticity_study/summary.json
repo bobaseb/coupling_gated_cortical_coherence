@@ -1,0 +1,299 @@
+{
+  "status": "complete",
+  "design_sha256": "8d25643b8585875e2e13dc623a14d552e7f8dfbaa598da468edf3342a06cfe49",
+  "tuning_seed": 20260910,
+  "held_out_seeds": [
+    20261910,
+    20262910,
+    20263910
+  ],
+  "tuning": [
+    {
+      "quarter_objective": [
+        1381.5095204302143,
+        1377.2231679546373
+      ],
+      "quarter_frozen_objective": [
+        1385.1432346398221,
+        1380.970256490825
+      ],
+      "quarter_objective_ratios": [
+        0.9973766509349101,
+        0.9972866261828771
+      ],
+      "quarter_order": [
+        0.9608258469664152,
+        0.9551656828094933
+      ],
+      "quarter_frozen_order": [
+        0.9815695807600813,
+        0.9816364686937142
+      ],
+      "worst_objective_ratio": 0.9973766509349101,
+      "objective_pass": false,
+      "coherence_pass": true,
+      "tail_alignment": 0.7449733288778161,
+      "frozen_alignment": 1.0140987988550842,
+      "blind_partition_percentile": 0.009,
+      "alignment_pass": true,
+      "post_update_tail_objective": 1378.7853404137818,
+      "config": {
+        "n": 100,
+        "steps": 40000,
+        "dt": 0.01,
+        "diffusion": 0.1,
+        "row_sum": 4.0,
+        "learning_rate": 0.01,
+        "update_every": 5,
+        "sample_every": 5,
+        "permutations": 2000,
+        "seed": 20260910
+      },
+      "seed": 20260910,
+      "learning_rate": 0.01,
+      "update_interval": 0.05,
+      "dt": 0.01,
+      "coexistence_pass": false
+    },
+    {
+      "quarter_objective": [
+        1381.2763530932564,
+        1376.742128349665
+      ],
+      "quarter_frozen_objective": [
+        1385.1432346398221,
+        1380.970256490825
+      ],
+      "quarter_objective_ratios": [
+        0.9972083164759699,
+        0.9969382916675527
+      ],
+      "quarter_order": [
+        0.9559986291232354,
+        0.9509530803770714
+      ],
+      "quarter_frozen_order": [
+        0.9815695807600813,
+        0.9816364686937142
+      ],
+      "worst_objective_ratio": 0.9972083164759699,
+      "objective_pass": false,
+      "coherence_pass": true,
+      "tail_alignment": 0.769524216983204,
+      "frozen_alignment": 1.0140987988550842,
+      "blind_partition_percentile": 0.0145,
+      "alignment_pass": true,
+      "post_update_tail_objective": 1364.100260643702,
+      "config": {
+        "n": 100,
+        "steps": 40000,
+        "dt": 0.01,
+        "diffusion": 0.1,
+        "row_sum": 4.0,
+        "learning_rate": 0.01,
+        "update_every": 50,
+        "sample_every": 50,
+        "permutations": 2000,
+        "seed": 20260910
+      },
+      "seed": 20260910,
+      "learning_rate": 0.01,
+      "update_interval": 0.5,
+      "dt": 0.01,
+      "coexistence_pass": false
+    },
+    {
+      "quarter_objective": [
+        1368.1832171190165,
+        1362.2255228234385
+      ],
+      "quarter_frozen_objective": [
+        1385.1432346398221,
+        1380.970256490825
+      ],
+      "quarter_objective_ratios": [
+        0.9877557662654175,
+        0.9864264030457697
+      ],
+      "quarter_order": [
+        0.878595311783933,
+        0.8503528139517764
+      ],
+      "quarter_frozen_order": [
+        0.9815695807600813,
+        0.9816364686937142
+      ],
+      "worst_objective_ratio": 0.9877557662654175,
+      "objective_pass": false,
+      "coherence_pass": true,
+      "tail_alignment": 0.4619288995053664,
+      "frozen_alignment": 1.0140987988550842,
+      "blind_partition_percentile": 0.006,
+      "alignment_pass": true,
+      "post_update_tail_objective": 1353.2009428523231,
+      "config": {
+        "n": 100,
+        "steps": 40000,
+        "dt": 0.01,
+        "diffusion": 0.1,
+        "row_sum": 4.0,
+        "learning_rate": 0.05,
+        "update_every": 5,
+        "sample_every": 5,
+        "permutations": 2000,
+        "seed": 20260910
+      },
+      "seed": 20260910,
+      "learning_rate": 0.05,
+      "update_interval": 0.05,
+      "dt": 0.01,
+      "coexistence_pass": false
+    },
+    {
+      "quarter_objective": [
+        1373.6893177470088,
+        1371.8568784319777
+      ],
+      "quarter_frozen_objective": [
+        1385.1432346398221,
+        1380.970256490825
+      ],
+      "quarter_objective_ratios": [
+        0.9917308790842907,
+        0.9934007426908634
+      ],
+      "quarter_order": [
+        0.9075516497906468,
+        0.9019236137849923
+      ],
+      "quarter_frozen_order": [
+        0.9815695807600813,
+        0.9816364686937142
+      ],
+      "worst_objective_ratio": 0.9934007426908634,
+      "objective_pass": false,
+      "coherence_pass": true,
+      "tail_alignment": 0.5479189281158683,
+      "frozen_alignment": 1.0140987988550842,
+      "blind_partition_percentile": 0.0765,
+      "alignment_pass": false,
+      "post_update_tail_objective": 1248.8625133886067,
+      "config": {
+        "n": 100,
+        "steps": 40000,
+        "dt": 0.01,
+        "diffusion": 0.1,
+        "row_sum": 4.0,
+        "learning_rate": 0.05,
+        "update_every": 50,
+        "sample_every": 50,
+        "permutations": 2000,
+        "seed": 20260910
+      },
+      "seed": 20260910,
+      "learning_rate": 0.05,
+      "update_interval": 0.5,
+      "dt": 0.01,
+      "coexistence_pass": false
+    },
+    {
+      "quarter_objective": [
+        1374.566599658841,
+        1399.6148578229365
+      ],
+      "quarter_frozen_objective": [
+        1385.1432346398221,
+        1380.970256490825
+      ],
+      "quarter_objective_ratios": [
+        0.9923642301269071,
+        1.0135010882707127
+      ],
+      "quarter_order": [
+        0.835545795971633,
+        0.8371672658579018
+      ],
+      "quarter_frozen_order": [
+        0.9815695807600813,
+        0.9816364686937142
+      ],
+      "worst_objective_ratio": 1.0135010882707127,
+      "objective_pass": false,
+      "coherence_pass": true,
+      "tail_alignment": 0.22274736325527422,
+      "frozen_alignment": 1.0140987988550842,
+      "blind_partition_percentile": 0.056,
+      "alignment_pass": false,
+      "post_update_tail_objective": 1296.8450862622176,
+      "config": {
+        "n": 100,
+        "steps": 40000,
+        "dt": 0.01,
+        "diffusion": 0.1,
+        "row_sum": 4.0,
+        "learning_rate": 0.2,
+        "update_every": 5,
+        "sample_every": 5,
+        "permutations": 2000,
+        "seed": 20260910
+      },
+      "seed": 20260910,
+      "learning_rate": 0.2,
+      "update_interval": 0.05,
+      "dt": 0.01,
+      "coexistence_pass": false
+    },
+    {
+      "quarter_objective": [
+        1382.4082031388225,
+        1385.3408870819344
+      ],
+      "quarter_frozen_objective": [
+        1385.1432346398221,
+        1380.970256490825
+      ],
+      "quarter_objective_ratios": [
+        0.9980254522185131,
+        1.0031648984259918
+      ],
+      "quarter_order": [
+        0.9246266439057416,
+        0.922708212277323
+      ],
+      "quarter_frozen_order": [
+        0.9815695807600813,
+        0.9816364686937142
+      ],
+      "worst_objective_ratio": 1.0031648984259918,
+      "objective_pass": false,
+      "coherence_pass": true,
+      "tail_alignment": 0.5824839964289807,
+      "frozen_alignment": 1.0140987988550842,
+      "blind_partition_percentile": 0.269,
+      "alignment_pass": false,
+      "post_update_tail_objective": 1118.953993812884,
+      "config": {
+        "n": 100,
+        "steps": 40000,
+        "dt": 0.01,
+        "diffusion": 0.1,
+        "row_sum": 4.0,
+        "learning_rate": 0.2,
+        "update_every": 50,
+        "sample_every": 50,
+        "permutations": 2000,
+        "seed": 20260910
+      },
+      "seed": 20260910,
+      "learning_rate": 0.2,
+      "update_interval": 0.5,
+      "dt": 0.01,
+      "coexistence_pass": false
+    }
+  ],
+  "selected_candidate": null,
+  "confirmation": [],
+  "confirmed": false,
+  "trajectory_count": 7,
+  "runtime_seconds": 93.78480027895421
+}
