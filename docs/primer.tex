@@ -9,6 +9,9 @@
 \usepackage{setspace}
 \usepackage[round]{natbib}
 \usepackage{xcolor}
+\usepackage{tikz}
+\usepackage[expansion=false]{microtype}
+\usepackage{seqsplit}
 \usepackage{hyperref}
 \hypersetup{colorlinks=true, linkcolor=black!60!blue, citecolor=black!60!blue,
             urlcolor=black!60!blue}
@@ -26,7 +29,9 @@
 \newcommand{\statement}{\par\smallskip\noindent\textbf{The statement.}\ }
 \newcommand{\scope}{\par\smallskip\noindent\textbf{What it does not give.}\ }
 \newcommand{\lean}[1]{\par\smallskip\noindent\textbf{In Lean.}\ #1}
-\newcommand{\id}[1]{\texttt{\small #1}}
+% Source identifiers may wrap, including long names without underscores.
+\newcommand{\id}[1]{{\small\ttfamily\seqsplit{#1}}}
+\setlength{\emergencystretch}{1.5em}
 \newcommand{\Kc}{K_{c}}
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\Z}{\mathbb{Z}}
@@ -47,18 +52,16 @@
 This primer explains, from the ground up, every piece of advanced mathematics
 and physics used in the manuscript \emph{Coupling-gated cortical coherence}
 and its Supplemental Material. It is written for readers with a
-background in cognitive neuroscience, psychology, machine learning or
-philosophy of mind who want to follow the argument without reading Lean~4 source
-or chasing down each cited result. Its parts cover topology and symmetry
-breaking, information theory and Landauer's principle, predictive
-thermodynamics, operator theory on Hilbert spaces, the deterministic and
-stochastic Kuramoto model, the mean-field synchronization transition and its
-critical exponent, finite-size and finite-rate corrections, discretization and
-continuum limits, sheaf theory, topological phase obstructions, metric fixed
-points, measure-theoretic comparisons of coupling architectures, the formal
-methodology of the Lean development, circular statistics and the EEG analysis,
-dimensional analysis, and the interpretive commitment the whole construction is
-asked to support. Each topic follows one rubric: what the object is,
+general interest in the mind who want to follow the argument without prior
+knowledge of the specialist vocabulary or reading Lean~4 source
+or chasing down each cited result. Its parts explain how boundaries can arise,
+why finite memory loses information, what forgetting costs in heat, how an
+agent changes its future inputs, how rhythms can align, and how local
+descriptions might assemble into one state that can represent itself.
+They then explain the computer-checked proofs, simulations,
+brain-recording analysis, physical calibration and proposed interpretation in
+terms of experience. Explanations begin with the underlying idea and concrete
+examples before introducing notation. Most topics follow one rubric: what the object is,
 why the framework needs it, what is actually proved, and what is not.
 No proof is reproduced in full; two are sketched because their structure is
 unusual. The aim is literacy, not mastery.
@@ -84,40 +87,70 @@ collective timing; compatible local descriptions can form one global state;
 and an encoding within that state can reconstruct it. The second and third
 requirements need objects and assumptions beyond the phase model.
 
+The cortex is the brain's outer neural sheet. Neurons communicate through
+electrical activity, including brief pulses called spikes; a population rhythm
+is repeated activity across a group of cells. EEG, or electroencephalography,
+records voltage differences at the scalp. The framework asks whether physical
+interactions can help these rhythms keep time together, and what more would
+be required for coordinated activity to carry one experienced situation.
+
 The physical hypothesis concerns extracellular geometry and recovery after
-awakening. Its stationary prediction is constrained by finite ramp speed and
-by nonidentifiability: increased coupling, decreased diffusion and a matched
-common drive can produce identical stationary phase distributions. The test
+awakening. Extracellular means outside cells: the hypothesis concerns how
+the spaces between cells affect their electrical interaction. Coupling means
+how strongly one rhythm changes another's timing. The prediction first asks
+what happens when that strength is held fixed long enough for the statistics
+to settle; this is its \emph{stationary} prediction. In recovery, coupling
+changes over time. Its rate of change is the \emph{ramp speed}, and a system
+needs time to respond to that change.
+
+There is also \emph{nonidentifiability}: different causes can give the same
+measured pattern. Stronger interaction, less random timing jitter (\emph{phase
+diffusion}), and a shared external influence (a \emph{common drive}) can produce
+identical settled distributions of timing around a cycle. The test
 therefore needs phase dynamics and evidence distinguishing the interaction
 mechanism, as well as a concentration--coherence relation.
 
 The representational argument asks what coherent activity carries.
-Equal phases can coexist with incompatible spatial profiles. A plasticity
-control preserves coherence while losing alignment with a specified template;
+Here a phase is a position within a repeating cycle, like a clock hand's angle.
+Equal phases can coexist with incompatible spatial profiles: two regions can
+keep time together while assigning different values to a shared location. A plasticity
+control---a simulation that lets connection strengths change---preserves
+coherence while losing alignment with a specified template, or target pattern;
 that alignment statistic is distinct from overlap compatibility. The self
 proposal then asks whether the state assembled from local descriptions
 accurately represents itself. Identifying the relevant cover and encoding
-requires independent evidence. Uniqueness within a specified cover and map
+requires independent evidence. A \emph{cover} is a collection of overlapping
+regions that together include the whole system; an encoding records its state,
+and a readout reconstructs a state from that record. Uniqueness within a specified cover and map
 does not choose a subject.
 
-Thermodynamic results constrain a possible implementation of these
+Thermodynamics studies energy, heat and the constraints on their conversion.
+Its results constrain a possible implementation of these
 requirements. Finite capacity and a symmetry-breaking boundary are independent
-starting objects, and their links to erasure, predictive memory and a
-continuum coupling require assumptions. Lean~4 checks one composition under
-eight connecting hypotheses and supplied structures. Its conclusion and the
-identification of that conclusion with experience have different statuses:
+starting objects, and their links to erasure, information and a continuum
+coupling require assumptions. Lean~4 checks two branches: one for passive
+predictive memory, and one for a specified process that acts on its environment.
+Each uses eight connecting hypotheses and supplied structures, and they share
+the passage from coarse-graining to the same fixed state. Their conclusion
+and its identification with experience have different statuses:
 the first is conditional mathematics, the second a philosophical commitment.
 
-\subsection{The nine nodes and the eight gaps}
+\subsection{Nine nodes, two thermodynamic branches}
 
-The composition runs, in order:
+The following table is a route map. A \emph{node} is a claim; an \emph{edge}
+is a proposed implication linking claims. A phase space is the collection of
+possible system states. An order parameter is a numerical summary of collective
+organization. A global section is one description assembled from compatible
+regional descriptions. A fixed point is a state a specified update leaves
+unchanged. These objects are developed with examples in the relevant parts.
+The branches share this route, with different thermodynamic content at n4:
 
 \begin{center}
-\begin{tabular}{@{}ll@{}}
+\begin{tabular}{@{}p{0.05\linewidth}p{0.89\linewidth}@{}}
 \textbf{n1} & a finite phase space has bounded information capacity \\
 \textbf{n2} & a broken symmetry forces a boundary, where the field leaves its vacuum manifold \\
 \textbf{n3} & the boundary erases, and erasure costs heat \\
-\textbf{n4} & that dissipation bounds nonpredictive memory \\
+\textbf{n4} & passive: dissipation bounds nonpredictive memory; active: the named process's joint entropy and actual heat obey a budget \\
 \textbf{n5} & discrete couplings coarse-grain to a continuum limit \\
 \textbf{n6} & a specified physical field realizes that limiting coupling \\
 \textbf{n7} & above threshold the field carries a unique coherent order parameter \\
@@ -128,18 +161,19 @@ The composition runs, in order:
 
 \noindent
 Each node is established or cited. Each \emph{arrow} between consecutive
-nodes is an assumption, labelled \textbf{E12} through \textbf{E89}, and the
-manuscript classifies each one by kind:
+nodes is an assumption. The passive branch labels them \textbf{E12} through
+\textbf{E89}; the active branch replaces E34 and E45 with \textbf{E34Active}
+and \textbf{E45Active}. Each branch therefore has eight connecting hypotheses:
 
 \begin{center}
-\begin{tabular}{@{}lll@{}}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.17\linewidth}>{\raggedright\arraybackslash}p{0.23\linewidth}>{\raggedright\arraybackslash}p{0.52\linewidth}@{}}
 \hline
 Edge & Kind & What it asks for \\
 \hline
 E12 & independent physical premise & a finite-capacity system realizes a field leaving its vacuum manifold \\
 E23 & bridge assumption & the boundary is a finite register whose update strands states \\
-E34 & bridge assumption & erasure supplies predictive structure at the same thermal scale \\
-E45 & modelling assumption & the dissipation bound places couplings in a convergent regime \\
+E34 / E34Active & bridge assumption & passive: predictive structure at the register's temperature and heat, with nonzero waste; active: physical transition assumptions and a heat allocation for the named process \\
+E45 / E45Active & modelling assumption & the branch's thermodynamic bound places the specified coupling energies in a convergent regime \\
 E56 & physical commitment & the limiting coupling is realized by a specified physical field \\
 E67 & physical commitment & that field operates above the synchronization threshold \\
 E78 & bridge assumption & coherence drives a \emph{given} cover to its relaxed equilibrium \\
@@ -158,14 +192,35 @@ than a gap because n1 and n2 are independent roots: finite capacity does not
 imply a symmetry-breaking boundary, and the composition merely accepts an
 implication between them.
 
+The active branch matters because acting can create a correlation with the
+future: a controller helps determine the signal it will receive. Its bound
+concerns the joint controller--world entropy and the actual heat of that
+process. It does not reinterpret this newly created correlation as passive
+memory waste. Sections~\ref{sec:agency} and~\ref{sec:agency-heat} explain the
+difference. Neither branch derives a learning rule or coupling convergence
+from a heat budget alone.
+
 \subsection{How to read this primer}
 
-Parts II--XVI are ordered roughly by the chain, then by the methodological and
-empirical material that surrounds it. Every subsection uses the same four
-headings---\textbf{What it is}, \textbf{Why the framework needs it},
-\textbf{The statement}, \textbf{What it does not give}---plus an
-\textbf{In Lean} note where a formal identifier carries the claim. You can
-read any subsection on its own; forward references are marked.
+The primer introduces vocabulary in the text, using ordinary examples before
+formal statements. The headings \textbf{What it is}, \textbf{Why the framework
+needs it}, \textbf{The statement} and \textbf{What it does not give} separate
+the idea, its purpose, the result and its limits. Worked walkthroughs sometimes
+need several steps between those headings. The notation table is a reference
+to return to, rather than a list of definitions to memorize first.
+
+\textbf{In Lean} notes locate the computer-checked results. Lean is software
+that checks whether a proof follows from its stated assumptions; Mathlib is
+its library of mathematical definitions and theorems. Names in typewriter font
+are searchable source identifiers, not additional concepts to learn. A
+\emph{hypothesis} is an assumption for a result; a \emph{theorem} is a proved
+consequence; a \emph{witness} is an example satisfying the assumptions; and a
+\emph{counterexample} shows why a proposed stronger statement fails.
+
+A structure or class is a record of named data and conditions. A field of
+that record is one entry, and an instance is an example meeting its conditions.
+To discharge a hypothesis means to supply its proof. The later formal-method
+part explains why packaging assumptions this way matters.
 
 The part on formal methodology explains how physical postulates enter the
 conditional composition as assumptions on specified objects. This is the
@@ -173,6 +228,54 @@ technical basis for keeping the manuscript's physical hypotheses distinct from
 its mathematical conclusions.
 
 \section{Notation}
+
+\subsection{How to read the symbols}
+
+A function or map is a rule assigning an output to each input: $f(x)=x^2$
+assigns $9$ to $3$. A scalar is a single number; a vector is an ordered list
+of numbers, pictured as an arrow when it has two or three components. A matrix
+is a rectangular table of numbers. A field assigns a value to each location,
+like a temperature map. A kernel $K(x,y)$ assigns an interaction strength to
+each \emph{pair} of locations. The substrate is the set of locations being
+modelled. A functional assigns a number to a whole function or field, such as
+its total energy.
+
+\begin{description}[leftmargin=*,style=nextline]
+\item[Sets and membership.] $x\in X$ means that $x$ belongs to the set $X$;
+$|X|$ counts its elements when it is finite. $U\subseteq X$ means every member
+of $U$ belongs to $X$. $U\cap V$ is their overlap; $U\cup V$ combines them.
+$\R$ denotes real numbers, $\Z$ integers, and $S^1$ a circle. An interval
+$[a,b]$ includes its endpoints; $(a,b)$ excludes them.
+\item[Sums and averages.] $\sum_i x_i$ means add the listed values.
+$N^{-1}\sum_i x_i$ divides their sum by their count. An expectation
+$\E[X]$, also written $\langle X\rangle$, is an average weighted by the
+probability of each outcome. Absolute value $|x|$ ignores a number's sign;
+for a vector, length is written $\|x\|$ (or $|x|$ for a complex number).
+\item[Integrals and measures.] $\int f(x)\,d\mu(x)$ is a weighted total over
+locations. The measure $\mu$ specifies the weights: it can count sites or
+measure lengths, areas or probabilities. When $\mu$ has total weight one,
+the integral is an average. A density tells how that weight is spread out;
+its integral over a region gives the weight in that region.
+\item[Change and limits.] $\Delta t$ is a time interval and $\Delta x$ the
+change during it. $dx/dt$, or $\dot x$, is instantaneous change per unit time.
+$\partial f/\partial x$ varies $x$ while holding the other inputs fixed.
+$x(t)\to L$ means the values approach $L$. $x\propto y$ means a constant
+multiple; $x\sim y$ means their ratio approaches one in the specified limit.
+$O(h^2)$ means an error bounded by a constant times $h^2$; $o(h^2)$ means
+an error whose ratio to $h^2$ tends to zero.
+\item[Exponentials and logarithms.] $e^x$ is the exponential function, and
+$\log x$ or $\ln x$ is its inverse: $\log(e^x)=x$. A logarithm converts
+multiplication into addition. A square root $\sqrt{x}$ is the nonnegative
+number whose square is $x$.
+\item[Angles and complex numbers.] A full turn is $2\pi$ radians, a half turn
+$\pi$. The coordinates of a unit arrow at angle $\theta$ are
+$(\cos\theta,\sin\theta)$. The compact notation
+$e^{\mathrm{i}\theta}=\cos\theta+\mathrm{i}\sin\theta$ packages those two
+coordinates; $\mathrm{i}^2=-1$. This imaginary unit is different from a
+subscript $i$ labelling an oscillator. No physical quantity is imaginary.
+\end{description}
+
+\subsection{Symbols used in the framework}
 
 \begin{center}
 \begin{longtable}{@{}p{0.16\linewidth}p{0.80\linewidth}@{}}
@@ -203,6 +306,11 @@ $V(\theta)$ & Kuramoto Lyapunov potential \\
 $\sigma$ & squared-drift functional (\emph{not}, in general, entropy production) \\
 $\Wdiss$ & dissipated work \\
 $I(X;Y)$ & mutual information \\
+$I(X;Y\mid Z)$ & conditional mutual information: dependence remaining when $Z$ is known \\
+$X_t$, $S_t$ & internal and environmental states in the agency model \\
+$A_t$, $O_{t+1}$ & action and subsequent observation \\
+$Q$, $\langle Q\rangle$ & heat into the reservoir along one path and its mean \\
+$\Sigma$ & dimensionless entropy production of the finite path model; distinct from the squared-drift functional $\sigma$ \\
 $D_{KL}(P\|Q)$ & Kullback--Leibler divergence \\
 $S$, $H$ & entropy (thermodynamic; Shannon) \\
 $k_B$, $T$ & Boltzmann constant; temperature \\
@@ -223,6 +331,12 @@ $\tau$ & time interval over which the contraction rate is evaluated \\
 \section{Spontaneous symmetry breaking}
 \label{sec:ssb}
 
+Think of a landscape with two equally deep valleys. The landscape does not
+prefer left to right, but a ball resting in one valley has picked a side.
+Energy gives the landscape its height; a minimum is a lowest point. A local
+minimum is lowest nearby, while a global minimum is lowest among all allowed
+states. This example assumes the ball can lose energy so that it settles.
+
 \what
 A physical system is described by an energy functional. A \emph{symmetry} of
 that functional is a transformation---a rotation, a reflection, a sign
@@ -241,7 +355,17 @@ law.
 The set of all lowest-energy states is the \emph{vacuum manifold}
 $\mathcal{V}$. For the double well it is the two-point set $\{-1,+1\}$. In
 richer models it can be a circle, a sphere, or a more complicated space, and
-its shape is what governs everything in the next section.
+its shape is what governs everything in the next section. ``Vacuum'' here
+means lowest energy, not empty space. A manifold is a space that locally looks
+like an ordinary line, plane or higher-dimensional coordinate space; the
+traditional phrase also covers the simple set of minima in this example.
+
+The spatial total depends on how locations are weighted. \emph{Almost
+everywhere} means except on a set of zero weight under the chosen measure.
+For ordinary length on a line, an isolated point has zero weight. A
+\emph{Dirac measure} instead puts all weight on one chosen point. In a
+two-point toy space, an energy average using that measure sees one point and
+ignores the other; minimizing the average need not minimize the ignored value.
 
 \why
 The framework's first move is that a conscious agent must be a
@@ -262,8 +386,11 @@ measure and at $0$ off it, so the pointwise version of the claim is false of
 the very field the theorem applies to.
 
 \scope
-No conserved quantity is constructed anywhere from this, and there is no
-Noether theorem in the development. The symmetry group and the metric on the
+No conserved quantity---one staying constant during motion---is constructed
+from this. Noether's theorem connects certain continuous symmetries to conserved
+quantities, but is not proved here. A symmetry group is a collection of
+transformations closed under combination and reversal; a metric measures
+distance. The symmetry group and the metric on the
 substrate appear in the definitions but are consumed by no theorem.
 
 \lean
@@ -278,6 +405,23 @@ compactness or direct-method argument is formalized.
 
 \section{Topological defects: the Kibble classification}
 \label{sec:kibble}
+
+\emph{Topology} studies what survives stretching and bending without tearing
+or joining. A connected space is in one piece; a connected component is one
+of its separate pieces. A continuous field has no abrupt jumps. If its value
+changes from $-1$ on one side of an interval to $+1$ on the other, it must
+pass through $0$. If only $-1$ and $+1$ are energy minima, somewhere between
+the sides the field must leave the set of minima. That intervening region is
+the simplest example of a \emph{defect}.
+
+To describe more complicated defects, imagine drawing a loop on the space of
+allowed minimum values. Can it shrink to a point while staying in that space?
+A loop around a circle cannot; a loop drawn inside a filled disk can.
+\emph{Homotopy} means continuous deformation. The symbols $\pi_1$ and $\pi_2$
+classify deformations of loops and spheres respectively; $\pi_0$ records
+connected components. ``Non-contractible'' or ``not null-homotopic'' means
+that the relevant loop or sphere cannot shrink to a point there. The defect
+names below use the usual three-dimensional spatial setting.
 
 \what
 Suppose a field takes values in the vacuum manifold $\mathcal{V}$ almost
@@ -299,16 +443,18 @@ $\pi_0(\mathcal{V})$ is just the set of connected components---the crudest
 possible topological invariant, and the only one the framework uses.
 
 \why
-A domain wall is a boundary. If a defect is forced, a bounded region is
-forced, and the framework's first requirement---a thing separate from its
-environment---is met by physics rather than by stipulation.
+A domain wall separates regions choosing different minima. This supplies a
+candidate physical boundary for the framework. A forced wall need not enclose
+a bounded region: a plane dividing space also separates two domains. Further
+physical assumptions are needed to identify it with an agent's boundary.
 
 \statement
 The result taken is the $\pi_0$ case, and it is startlingly cheap:
 
 \begin{quote}
-Let $\phi$ be a continuous field on a \emph{connected} substrate, taking
-values in a space $M$. If $\phi(x_1)$ and $\phi(x_2)$ lie in different
+Let $\phi$ be a continuous field on a \emph{connected} substrate, and let
+$M$ be the candidate set of allowed minimum values within its value space.
+If $\phi(x_1)$ and $\phi(x_2)$ lie in different
 connected components of $M$---equivalently, if no preconnected subset of $M$
 contains both---then $\phi$ takes some value outside $M$.
 \end{quote}
@@ -322,7 +468,9 @@ which is impossible. So it leaves $M$. That exit point is the wall.
 Note what is \emph{absent} from the hypotheses: no energy potential, no
 Lagrangian, no symmetry group, no dynamics. Only continuity and connectedness.
 
-There is a second, differently directed result, the \emph{extension
+An extension fills in values inside a region while retaining its prescribed
+boundary values. A contractible interior can be continuously shrunk to a
+point; a disk is an example. There is a second, differently directed result, the \emph{extension
 obstruction}: boundary data that is not null-homotopic admits no continuous
 extension over a contractible interior. This says a defect \emph{obstructs
 extension}; it does not say a defect must exist. The two directions are easy
@@ -331,9 +479,9 @@ to conflate and the development keeps them apart deliberately.
 \scope
 Higher defects ($\pi_1$ vortices, $\pi_2$ monopoles) are recorded as available
 and not taken; the argument uses domain walls alone. And the theorem forces a
-\emph{topological} boundary, not an information-processing register---joining
-those two is exactly the assumption E12 carries, and E12 is classified as an
-independent physical premise for that reason.
+\emph{topological} separation. A register is a physical store of distinguishable
+states. E12 supplies a field realizing the boundary premise; E23 identifies
+that boundary with a register whose update erases information.
 
 \lean
 \id{exists\_notMem\_of\_no\_common\_preconnected} and
@@ -355,6 +503,24 @@ forced wall at the origin.
 \addcontentsline{toc}{section}{Part III. Information, entropy, and the cost of forgetting}
 %======================================================================
 \section{Finite capacity}
+
+Suppose a device has four distinguishable states, labelled $00$, $01$, $10$
+and $11$. It can record the answers to two yes/no questions, or two bits.
+Three such questions have eight possible answer strings, so four states
+cannot distinguish them all. This is a counting limit before it is a claim
+about heat, neurons or computation.
+
+A probability distribution assigns each possible outcome a nonnegative
+weight, with all weights summing to one. A uniform distribution gives equal
+weight to every outcome. Entropy averages the surprise $-\log p$ of seeing
+an outcome of probability $p$: rare outcomes are more surprising. Using
+base-two logarithms measures entropy in \emph{bits}; natural logarithms give
+\emph{nats}. One unbiased yes/no answer carries one bit, or $\ln2$ nats.
+
+A map is \emph{injective} if distinct inputs always give distinct outputs:
+no records merge. It is \emph{surjective} if every possible output is reached:
+no state is missed. A \emph{bijection} has both properties. The pigeonhole
+principle says more objects than boxes forces at least two into one box.
 
 \what
 Shannon entropy $H(p)$ measures, in bits or nats, how much uncertainty a
@@ -393,6 +559,20 @@ at \id{Examples}~\S19.
 
 \section{Landauer's principle}
 \label{sec:landauer}
+
+An eraser resets either $0$ or $1$ to $0$. From the final register alone you
+cannot recover which value it held. A reversible operation, such as swapping
+$0$ and $1$, retains that distinction. \emph{Logical irreversibility} is this
+loss of distinguishability in the update rule. Physical reversibility asks
+whether the complete device and its surroundings retain the information.
+
+A heat bath is a large environment treated as staying at a fixed temperature.
+Heat is energy transferred through microscopic thermal motion; work is energy
+transferred through a controlled change, such as moving a piston. Dissipation
+is energy expenditure that is not recovered as useful work in the process.
+Thermodynamic entropy measures how many microscopic arrangements are compatible
+with a macroscopic description. The constant $k_B$ converts information in nats
+to entropy units, and absolute temperature $T$ is measured in kelvin.
 
 \what
 \citet{landauer1961} observed that logically irreversible operations have a
@@ -443,6 +623,12 @@ boundary is a further modelling step, and it is exactly what E23 carries.
 
 \subsection{The Norton--Shenker distinction}
 
+For example, a device can reset its visible bit while copying the old value
+into a hidden register. The visible operation merges two labels, but the
+complete outputs are still distinct. The heat accounting must include what
+happens to that hidden record. This is why the choice of physical state space
+matters to the principle.
+
 \what
 The standard objection to naive readings of Landauer's principle
 \citep{norton2005,shenker2000}: \emph{logical} irreversibility---a many-to-one
@@ -466,10 +652,26 @@ update, the entropy erased is zero, so the bound forces wasted memory to
 vanish.
 
 %======================================================================
-\part*{Part IV. Predictive thermodynamics}
-\addcontentsline{toc}{section}{Part IV. Predictive thermodynamics}
+\part*{Part IV. Memory, action and thermodynamics}
+\addcontentsline{toc}{section}{Part IV. Memory, action and thermodynamics}
 %======================================================================
 \section{Mutual information and the data processing inequality}
+
+Imagine $X$ is a stored weather reading and $Y$ is whether it is raining.
+If the reading always tells you the answer, it removes your uncertainty about
+$Y$. If the reading is unrelated to rain, it removes none. Mutual information
+measures this reduction on average; it concerns statistical dependence, not
+whether a message has meaning for a person.
+
+The \emph{joint law} $P_{XY}$ lists probabilities for pairs of outcomes.
+The \emph{marginals} $P_X$ and $P_Y$ describe each variable separately, obtained
+by adding over the other. Independence means the joint probabilities equal
+the products of those separate probabilities, written $P_X\otimes P_Y$.
+The Kullback--Leibler (KL) divergence $D_{KL}(P\|Q)$ averages
+$\log(P/Q)$ using probabilities from $P$. It is nonnegative, zero when the
+distributions agree, and can be infinite if $Q$ rules out an outcome that
+$P$ permits. It measures distributional discrepancy, but is not an ordinary
+distance: reversing $P$ and $Q$ can change its value.
 
 \what
 Mutual information $I(X;Y)$ measures how much knowing $X$ tells you about $Y$.
@@ -485,7 +687,7 @@ processing. If $X\to Y\to Z$ forms a Markov chain---$Z$ depends on $X$ only
 through $Y$---then $I(X;Z)\le I(X;Y)$.
 
 \why
-The framework needs to split what a system remembers into a part that predicts
+The passive branch splits what a system remembers into a part that predicts
 the future and a part that does not. The chain here is
 $X_t \to S_t \to S_{t+1}$: the system state $X_t$ at time $t$ was built from
 the environmental signal $S_t$, and the environment evolves by its own
@@ -499,11 +701,15 @@ most what it says about the present. The difference,
 is well-defined and non-negative.
 
 \scope
-The Markov structure encodes a \emph{no-back-action} assumption: the system
+Here the arrows describe conditional dependence, not a causal claim that the
+memory generates the signal. A Markov kernel is a rule assigning probabilities
+to the next state for each current state. The Markov structure encodes a \emph{no-back-action} assumption: the system
 does not act on its environment. This is not decoration. The development
 fences it with a counterexample---a Markov kernel on the pair that writes the
 system's state into the signal and thereby \emph{raises} mutual information,
-breaking the inequality.
+breaking the inequality. Acting systems are treated by the separate feedback
+identity in Section~\ref{sec:agency}; the passive assumption applies to the
+chosen variables and interval, rather than to every information-processing system.
 
 \lean
 Mathlib carries no mutual information, so it is defined from \id{klDiv} in
@@ -511,6 +717,13 @@ Mathlib carries no mutual information, so it is defined from \id{klDiv} in
 \id{predictiveInfo\_le\_mutualInfo}.
 
 \section{The Still--Sivak--Bell--Crooks bound}
+
+Suppose a memory records two independent unbiased bits of the present, but
+only one helps predict the next signal. It carries two bits of memory, one
+bit of prediction, and one nonpredictive bit. Under the physical assumptions
+of this bound, the last bit contributes a lower bound $k_BT\ln2$ on dissipated
+work. This is a constraint on an implementation's cost; it does not tell the
+system which bit to keep or how to learn.
 
 \what
 \citet{still2012} proved that nonpredictive memory is thermodynamically
@@ -523,11 +736,12 @@ it holds about the present that is useless for the future. Memory that fails
 to predict is paid for in heat.
 
 \why
-This is the framework's answer to a real gap. A dissipative structure that
-merely dissipates is not yet cognitive. The bound supplies a reason for
-structure to become predictive: under selection pressure to minimize
-dissipation, useless memory is a cost, so what survives is memory that
-predicts. The framework calls this \emph{structural resonance}.
+Under a specified selection or optimization process, a cost for wasted memory
+could favor its removal. The framework's proposed connection to predictive
+structure is called \emph{structural resonance}. The bound supplies a constraint
+that such a process would face; it does not supply the process. Retaining no
+information also meets a bound on memory waste, so useful prediction needs
+additional requirements.
 
 \statement
 The bound itself is a physical postulate---a class field,
@@ -535,7 +749,10 @@ The bound itself is a physical postulate---a class field,
 \emph{is} derived: the data processing inequality above; non-negativity
 $\Wdiss\ge0$ (which follows rather than being assumed); the statement that a
 given dissipation budget bounds wasted memory; and the statement that a
-quasi-static drive, dissipating nothing, leaves every retained bit predictive.
+reversible quasistatic drive, dissipating nothing, leaves every retained bit
+predictive. Quasistatic means changing the controls slowly enough to pass
+through equilibrated states; slow operation alone does not guarantee zero
+dissipation in an arbitrary driven system.
 
 A related exact result is also carried: the Kawai--Parrondo--Van den Broeck
 equality \citep{kawai2007},
@@ -544,6 +761,11 @@ equality \citep{kawai2007},
 \]
 from which \id{nonpredictive\_le\_arrow} follows: the irreversibility of the
 dynamics is at least the memory that fails to earn its keep.
+
+The angle brackets in that equality mean an average over repeated realizations.
+``Forward'' and ``reverse'' denote the distributions compared under a process
+and its appropriately reversed protocol. Their KL divergence quantifies how
+distinguishable the two directions are under the equality's assumptions.
 
 \scope
 \textbf{This is the single most over-read result in the framework, and the
@@ -554,6 +776,9 @@ manuscript is emphatic about it.} The bound does \emph{not}:
 \item require the internal representation to reproduce environmental geometry;
 \item entail Bayesian inference or semantic content.
 \end{itemize}
+Bayesian inference updates probabilities in light of observations; semantic
+content concerns what a representation is about. Neither is supplied just by
+a numerical information-cost bound.
 Section~\ref{sec:plasticity} reports a simulation making this concrete: a
 coupling update that removes most of a squared-drift objective at the instant
 it acts maintains coherence while moving \emph{away} from the structure it is
@@ -568,6 +793,11 @@ entire memory---so the theorems about it are not vacuous.
 
 \subsection{Deriving Still's bound from Landauer's}
 \label{sec:still-from-landauer}
+
+A \emph{bridge assumption} identifies quantities from two otherwise separate
+models. If wasted memory is no larger than erased entropy, a heat budget that
+pays for erasure also pays for that waste. Without this comparison, two
+inequalities mentioning information and heat need not concern the same system.
 
 \what
 Two thermodynamic charges have been introduced: Landauer charges a register
@@ -597,8 +827,264 @@ requires nonpredictive information to be bounded by erased entropy; the formal
 bridge derives the bound \emph{under} that identification and does not derive
 the identification. That is E34.
 
+\section{Agents act on their future inputs}
+\label{sec:agency}
+
+A weather recorder can observe rain without changing it. A controller connected
+to a lamp can change what it subsequently observes: if its internal bit says
+``on'' and its action turns the lamp on, the future lamp state carries
+information about the controller. This correlation can arise even when the
+controller and lamp were initially independent. It reflects the effect of
+action on the future, which the passive Markov assumption excludes.
+
+\what
+The agency model specifies four probability rules, called \emph{channels}.
+A \emph{policy} chooses an action from the current internal state; world
+dynamics responds to that action; an observation channel supplies a reading;
+and a memory update uses the reading and the sampled action. A policy here is
+a specified rule, not necessarily a learned rule or an optimal one.
+Writing $\sim$ for ``is sampled according to'', the channels are
+\begin{align*}
+ A_t&\sim\pi(\cdot\mid X_t),&
+ S_{t+1}&\sim K(\cdot\mid S_t,A_t),\\
+ O_{t+1}&\sim G(\cdot\mid S_{t+1}),&
+ X_{t+1}&\sim U(\cdot\mid X_t,A_t,O_{t+1}).
+\end{align*}
+Here $K$ is a transition-probability rule, rather than the coupling strength
+of the oscillator model. The same sampled action is supplied to the world
+and the memory update. These equations describe one perception--action update;
+they do not assert that the system returns to its starting state.
+
+\why
+When actions influence the signal, the difference
+$I(X_t;S_t)-I(X_t;S_{t+1})$ can be negative. Calling it a nonnegative memory
+waste would impose the wrong constraint. The information accounting must
+allow the controller to create correlations with the future.
+
+\statement
+\emph{Conditional mutual information} $I(X;Y\mid Z)$ measures the dependence
+between $X$ and $Y$ remaining when $Z$ is known, averaged over the possible
+values of $Z$. For the finite states considered here,
+\begin{align*}
+ I(X_t;S_t)-I(X_t;S_{t+1})
+ ={}& I(X_t;S_t\mid S_{t+1})\\
+    &-I(X_t;S_{t+1}\mid S_t).
+\end{align*}
+The first conditional term asks what memory says about the present signal
+beyond what the future signal tells us. The second asks what memory says about
+the future beyond what the present signal tells us. Each term is nonnegative;
+their difference can have either sign. The passive model makes the second
+term zero and recovers its memory-waste formula exactly.
+
+The comparison holds memory at its pre-action value $X_t$. The later internal
+state $X_{t+1}$ belongs to the memory-update channel, and is not substituted
+for $X_t$ halfway through the identity. Lean uses real subtraction for the
+signed difference, retaining negative values.
+
+\scope
+Conditional dependence alone does not identify a causal effect. That reading
+requires a causal model in which $S_t$ includes the environmental state needed
+by the declared dynamics; a partial observation need not suffice. The four
+channels specify how a candidate agent operates. They do not determine its
+goal, explain how its policy was learned, or identify its internal variables
+with neural content. An information identity also supplies no heat cost
+until the physical transitions and reservoir are specified.
+
+\lean{
+\id{Phase3\_Agency.lean} defines \id{Agency} and composes its channels.
+\id{Feedback.information\_balance} proves the signed identity, and
+\id{passive\_feedback\_zero} and \id{passive\_signedWaste} recover the passive
+case. The deterministic \id{writingAgent} writes its bit into an independent
+world bit, senses the result and updates memory; its signed difference is
+strictly negative.}
+
+\section{Heat and entropy when an agent acts}
+\label{sec:agency-heat}
+
+To determine the cost of changing a lamp, a model must describe physical
+transitions and their relation to a reservoir. The finite thermodynamic model
+takes one elementary part of the update: the internal state $x$ stays fixed
+while the world changes from $s$ to $s'$. The transition probabilities may
+depend on $x$, so back action is permitted throughout.
+
+\what
+Let $p(x,s)$ be the initial joint probability and $K_x(s'\mid s)$ the
+probability of the world transition. Adding over all possible starting world
+states gives the final law:
+\[
+ p'(x,s')=\sum_s p(x,s)K_x(s'\mid s).
+\]
+A \emph{path law} assigns probabilities to whole transition records, here
+the triples $(x,s,s')$. The model compares
+\begin{align*}
+ P_F(x,s,s')&=p(x,s)K_x(s'\mid s),\\
+ P_R(x,s,s')&=p'(x,s')K_x(s\mid s').
+\end{align*}
+The forward law starts at the initial distribution. The reverse benchmark
+starts at the final distribution and uses the same autonomous channel to
+make the return transition. Both laws have total probability one. Autonomous
+means that the transition rule is held fixed during this elementary update.
+
+\statement
+The KL divergence of these path laws is nonnegative. Expanding the logarithm
+of their ratio separates the joint entropy change from the transition ratios:
+\[
+ \Sigma=D_{KL}(P_F\|P_R)
+ =H(p')-H(p)+\sum_{x,s,s'}P_F(x,s,s')
+       \log\frac{K_x(s'\mid s)}{K_x(s\mid s')}\ge0.
+\]
+This is an identity derived from the specified probabilities. To interpret
+the last sum as reservoir entropy, a further physical assumption is needed:
+\emph{local detailed balance},
+\[
+ q(x,s,s')=k_BT\log\frac{K_x(s'\mid s)}{K_x(s\mid s')}.
+\]
+It relates the relative likelihood of a transition and its reverse to the
+heat $q$ entering a reservoir at temperature $T$. The mean heat
+$\langle Q\rangle$ is $q$ averaged over the forward paths. Under this
+assumption the balance becomes
+\[
+ \Sigma=H(p')-H(p)+\frac{\langle Q\rangle}{k_BT}\ge0.
+\]
+Here $H$ uses natural logarithms and $\Sigma$ is dimensionless. This capital
+$\Sigma$ belongs to the physical path model; it is distinct from the
+lowercase squared-drift functional $\sigma$ used in the plasticity study.
+
+\why
+A positive thermal scale and an upper heat budget $B$ yield the active node:
+\[
+ k_BT>0,\qquad
+ k_BT[H(p)-H(p')]\le\langle Q\rangle\le B.
+\]
+Thus the joint entropy reduction is at most $B/(k_BT)$. The reduction itself
+need not be positive: the system's joint entropy may increase. This constraint
+uses the same process's distributions and actual heat, allowing action without
+substituting a signed information difference into a passive work bound.
+
+\scope
+The theorem assumes finite state spaces, strictly positive initial masses and
+transition probabilities, and this autonomous reversal rule. Zero-probability
+transitions or time-dependent driving need corresponding support and reversal
+conditions. This elementary theorem covers one substep with the controller
+fixed. The composition below includes the memory-changing substep, with the
+world fixed in turn. Additional storage or control operations require their
+own dynamics and accounting.
+
+Work needs its own first-law relation. With $q$ positive into the reservoir
+and $w$ the work supplied to the joint system, that relation is
+$w=E(x,s')-E(x,s)+q$. Lean derives the corresponding average relation from
+this pathwise assumption. A mean heat bound alone does not identify work.
+
+\lean{
+\id{Phase3\_AgencyThermodynamics.lean} builds the normalized laws and proves
+\id{FiniteFeedbackStep.entropy\_balance}, \id{heat\_bound} and
+\id{mean\_first\_law}. \id{Phase3\_FiniteInformation.lean} relates finite
+probability sums to the same measure-theoretic KL divergence used for mutual
+information. \id{history\_toAgency} identifies the thermodynamic paths with
+the history generated by the explicit action channels. \id{Chain.ActiveBound}
+retains the process, heat observable, thermal scale and budget.}
+
+\subsection{The two substeps share one intermediate law}
+\label{sec:agency-cycle}
+
+Let $p_0(x,s)$ be the initial joint law. Actuation gives
+$p_1(x,t)=\sum_s p_0(x,s)K_x(t\mid s)$. During sensing, the world $t$ is
+fixed and memory changes from $x$ to $y$ through a channel $U_t(y\mid x)$.
+This substep must start at $p_1(x,t)$, written in world--memory order as
+$p_1^{\mathrm{swap}}(t,x)$. Its output, returned to memory--world order, is
+\[
+ p_2(y,t)=\sum_x p_1(x,t)U_t(y\mid x).
+\]
+Lean proves that this is the law produced by the composed perception--action
+channels. The second initial law is constructed from the first final law;
+an independently chosen distribution cannot replace it.
+
+At one common thermal scale $\theta=k_BT>0$, add the two substep balances:
+\[
+ \Sigma_A+\Sigma_M
+ =H(p_2)-H(p_0)+\frac{\langle Q_A\rangle+\langle Q_M\rangle}{\theta}\ge0.
+\]
+The intermediate entropy cancels because a coordinate exchange preserves
+joint entropy. Neither $p_1$ nor $p_2$ has to be an equilibrium distribution.
+If the total mean heat is at most $B$, the complete update therefore satisfies
+$H(p_0)-H(p_2)\le B/\theta$.
+
+Energy accounting uses one observable $E(x,s)$ for both substeps, evaluated
+in the appropriate coordinate order. Under each substep's first law, with
+heat positive into the bath and work positive into the system, the same
+intermediate expected energy cancels:
+\[
+ \langle W_A\rangle+\langle W_M\rangle
+ =\mathbb E_{p_2}E-\mathbb E_{p_0}E
+   +\langle Q_A\rangle+\langle Q_M\rangle.
+\]
+Strict positivity and local detailed balance carry the same roles as in the
+elementary theorem. Action and observation alias existing states; extra
+physical registers and time-dependent control need further accounting.
+The supplied upper heat budget does not identify its source in a register or
+establish the coupling-convergence assumption of the active chain.
+
+\lean{
+\id{FiniteFeedbackCycle} lives in \id{Phase3\_AgencyThermodynamics.lean}.
+\id{cycle\_law} identifies the output distribution; \id{entropy\_balance},
+\id{heat\_balance}, \id{mean\_first\_law} and \id{entropy\_budget} prove the
+complete update's balances and budget consequence.}
+
+\subsection{A reciprocal two-bit example}
+
+Consider an internal bit $x$ and a world bit $s$. In units $k_BT=1$, agreeing
+bits have interaction energy zero and disagreeing bits have energy $\log3$.
+Each elementary update redraws one bit, agreeing with the fixed other bit
+with probability $3/4$. The transition rule and heat are specified so that
+local detailed balance holds. This is a chosen theoretical model; no recording
+is needed to verify its conditional mathematical consequences.
+
+Start with two independent unbiased bits, giving probability $1/4$ to each
+pair. Actuation uses action $a=x$ to update $s$. Afterwards each agreeing
+pair has probability $3/8$ and each disagreeing pair $1/8$. Each bit remains
+unbiased individually, while the pair has become correlated. The signed
+passive information difference is negative because the future world now
+carries information about the initially independent controller.
+
+The actuation releases mean heat $(\log3)/4$, with entropy production
+$\log2-(\log3)/2>0$. Sensing then uses observation $o=s$ to redraw $x$ by
+the same thermal rule. Individual internal states can change while this joint
+distribution is preserved; sensing has zero mean heat and entropy production.
+The composed channels give the same final law as this two-substep calculation.
+
+The general composition also applies when memory starts biased. Under the
+same thermal channels, the intermediate law is then asymmetric and sensing
+changes the joint law, while actuation still releases positive heat. This
+example makes the coordinate swap observable: a second step initialized
+without it is incompatible even though all its probabilities are positive.
+The symmetric equilibrium law alone cannot detect that error.
+
+Both substeps obey the first law with zero external work: their total mean
+heat comes from the decrease in mean interaction energy. The action and
+observation are aliases of the existing bits, with no extra physical storage
+register in this model. Separate devices carrying those signals would require
+their own accounting. Relaxing an initially nonequilibrium distribution is
+not a continuing energy supply. The preference for agreement is specified by
+the interaction; the model does not learn which relation to prefer.
+
+\lean{
+\id{Examples/AgencyCycle.lean} specializes the general balances and budget to
+the reciprocal model and rejects a mismatched intermediate law and a zero
+total heat budget. \id{Examples/AgencyThermodynamics.lean} checks the actual transition law,
+nontrivial action and sensing, signed information, heat, entropy production,
+energy and work. \id{ThermalAgency.agent\_cycle\_law} checks the composed
+update and \id{cycle\_energy\_budget} checks its energy source.}
+
 \section{What does not follow: the free-energy reading}
 \label{sec:fep}
+
+An upper bound is a ceiling, not a target. If an error is at most $10$ and
+the ceiling falls to $3$, the error may still be $2$. Only a ceiling tending
+to zero forces a nonnegative error to zero. This elementary distinction is the
+issue here. In predictive modelling, \emph{variational free energy} is a
+quantity used to assess an approximate probabilistic explanation of observations;
+it is not automatically the same quantity as physical free energy, the
+thermodynamic work budget under specified conditions.
 
 \what
 A tempting inference, and one associated with free-energy formulations
@@ -637,6 +1123,19 @@ false---only that it does not follow from these premises.
 \section{The squared-drift functional and its gradient}
 \label{sec:sigma}
 
+Consider two sites with systematic phase velocities $1$ and $3$ in chosen
+units. Their squared velocities sum to $10$. If an interaction redistributes
+the velocities to $2$ and $2$, the sum falls to $8$, even though both sites
+still move. Squaring penalizes uneven motion. \emph{Drift} here means the
+systematic part of phase change; random jitter is treated separately. An
+\emph{objective} is the quantity an update rule tries to lower. Plasticity
+means changing the interaction strengths themselves.
+
+The continuum notation below replaces a list of sites by locations $x$ and
+$y$. The inner integral adds the influences on one site; the outer integral
+totals their squared effect across sites. $d\mu$ specifies the spatial
+weighting, so it plays the role of counting or averaging in a finite model.
+
 \what
 Fix the phases and ask how fast the system is being pushed around. Each site
 $x$ has a drift---the instantaneous velocity its phase is being driven at:
@@ -658,6 +1157,15 @@ to know whether descending it organizes the coupling usefully.
 
 \statement
 Functions of this shape have gradients computable by Hilbert-space methods. Let
+us unpack those words. A gradient points in the direction of steepest increase;
+moving in its negative direction is gradient descent. An inner product
+$\langle u,w\rangle$ generalizes the dot product of vectors and measures
+their alignment. A Hilbert space is a space of vectors or functions with such
+an inner product and no missing limits. An operator is a rule acting on these
+objects; linear means it respects addition and scaling, and bounded means it
+cannot amplify size without a fixed bound. The adjoint moves an operator
+from one side of an inner product to the other, as transposing a matrix does.
+Let
 $A$ be the bounded linear operator sending a kernel to its drift field, and
 $A^{*}$ its adjoint---the operator satisfying
 $\langle Au,w\rangle=\langle u,A^{*}w\rangle$ for all $u,w$. Then
@@ -701,12 +1209,66 @@ on the unit interval (\id{Examples}~\S20). The symmetric-kernel result is
 \addcontentsline{toc}{section}{Part VI. The Kuramoto model: dynamics}
 %======================================================================
 \section{The model}
+\label{sec:kuramoto-walkthrough}
+
+\subsection{Start with one clock hand}
+
+An \emph{oscillator} is something that repeats a cycle. Its phase says where
+it is within that cycle: at the peak, halfway to the next peak, and so on.
+Picture a clock hand going round a dial. The angle $\theta_i(t)$ labels the
+position of oscillator $i$ at time $t$; adding $2\pi$ describes the same
+position after one full turn. The phase model keeps this timing coordinate
+while leaving out the changing height, or \emph{amplitude}, of an oscillation.
+It therefore assumes that a meaningful repeating rhythm has already been
+identified. A neural population or recording channel is not automatically a
+single oscillator; that identification is part of modelling the data.
+
+An isolated, noiseless hand follows
+\[
+ \dot\theta_i=\omega_i,\qquad
+ \theta_i(t)=\theta_i(0)+\omega_i t.
+\]
+The first equation says its angular speed is constant; the second adds the
+angle travelled to its starting angle. The \emph{natural frequency}
+$\omega_i$ is the angular speed it would have without the other oscillators.
+An ordinary frequency $f$ in cycles per second corresponds to angular frequency
+$\omega=2\pi f$ in radians per second. Equal natural frequencies mean equal
+free-running speeds, not necessarily equal starting angles.
+
+\subsection{Let the hands influence one another}
+
+For uniform attractive coupling, the deterministic model is
+\[
+ \dot\theta_i=\omega_i+
+ \underbrace{\frac{K}{N}\sum_{j=1}^{N}
+ \sin(\theta_j-\theta_i)}_{\text{change in speed caused by the population}}.
+\]
+\emph{Deterministic} means an initial state and the rule determine the whole
+motion. The phase difference $\theta_j-\theta_i$ is the relative angle of
+hand $j$ as seen from hand $i$. For a small positive difference, $j$ is ahead,
+the sine is positive, and the interaction speeds $i$ up. If $j$ is slightly
+behind, the interaction slows $i$ down. Equal phases give zero correction.
+The sine makes this rule repeat every full turn, as a rule for angles must.
+Exactly opposite hands also give zero sine; the equation permits special
+balanced configurations as well as alignment.
+
+$K\ge0$ controls the strength of this attraction. Dividing by $N$ makes the
+sum an average: increasing the population does not automatically multiply the
+total coupling experienced by each oscillator. In a network, $K_{ij}$ replaces
+$K/N$ and specifies the strength from site $j$ to site $i$. Positive entries
+favor alignment; negative entries favor separation locally. The threshold
+derived later concerns uniform attractive coupling.
+
+A two-hand example makes the feedback explicit. Take identical frequencies,
+$N=2$, and relative phase $\delta=\theta_2-\theta_1$. Subtracting their
+equations gives $\dot\delta=-K\sin\delta$. A small positive separation
+therefore decreases, and a small negative separation increases toward zero.
+Their \emph{relative} timing converges even while both hands keep turning.
+
+\subsection{Add unpredictable timing jitter}
 
 \what
-The Kuramoto model is the standard minimal model of synchronization. $N$
-oscillators each carry a phase $\theta_i$ on the circle and an intrinsic
-frequency $\omega_i$; each is pulled towards the others by a sinusoidal
-coupling. The framework uses the \emph{noisy} version:
+The framework uses the noisy, or \emph{stochastic}, version of this rule:
 \begin{equation}
  d\theta_i=\Big[\omega_i+\sum_j K_{ij}(t)\sin(\theta_j-\theta_i)\Big]dt
  +\sqrt{2D}\,dW_i ,
@@ -718,16 +1280,107 @@ Here $W_i$ are independent Wiener processes (Brownian motions), so
 $\sqrt{2D}\,dW_i$ is white noise of strength set by the \emph{phase diffusion}
 $D>0$. The uniform mean-field convention is $K_{ij}=K/N$.
 
+A Wiener process models accumulated random increments. Over a time step
+$\Delta t$, its increment has mean zero and variance $\Delta t$; increments
+on disjoint time intervals are independent. Multiplication by $\sqrt{2D}$
+makes the random phase increment have variance $2D\Delta t$, or standard
+deviation $\sqrt{2D\Delta t}$. Variance is mean squared departure from the
+mean; standard deviation is its square root, in the original units. ``White
+noise'' describes the idealization of uncorrelated driving increments, not
+a literal differentiable random velocity.
+
+Read the stochastic differential equation (SDE) as: phase change equals
+systematic speed times elapsed time, plus a random increment. Larger $D$
+means more phase spreading. Independent $W_i$ means each oscillator gets its
+own jitter; a shared random drive would be a different model. With angles
+treated as dimensionless, both $K$ and $D$ have inverse-time units, so $K/D$
+is a dimensionless comparison of attraction with spreading.
+
+\subsection{Measure how aligned the hands are: the order parameter}
+
+A numerical summary of collective organization is called an \emph{order
+parameter}. ``Order'' here refers to alignment, not to a command or to the
+order in which events happen. Draw a unit arrow for each phase, add their
+horizontal and vertical components, and divide by the number of arrows:
+\[
+ C_N=\frac1N\sum_i\cos\theta_i,\qquad
+ S_N=\frac1N\sum_i\sin\theta_i,\qquad
+ r_N=\sqrt{C_N^2+S_N^2}.
+\]
+The complex notation $z_N=C_N+\mathrm{i}S_N=r_Ne^{\mathrm{i}\psi_N}$ packages
+this same average arrow. Its length $r_N$ measures alignment and its direction
+$\psi_N$ is the collective phase. When the average arrow is zero, its
+direction is undefined. The subscript $N$ reminds us this is a finite sample.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.85]
+\foreach \x/\title/\result in {0/{All four aligned}/{$r_N=1$},
+  5/{Three right, one left}/{$r_N=1/2$},
+  10/{Four directions}/{$r_N=0$}} {
+  \draw[gray!55] (\x,0) circle (1);
+  \node[font=\small,align=center] at (\x,1.5) {\title};
+  \node at (\x,-1.5) {\result};
+}
+\draw[->,very thick,blue!65!black] (0,0) -- (1,0);
+\node[font=\scriptsize] at (0,-0.45) {4 coincident arrows};
+\draw[->,very thick,blue!65!black] (5,0) -- (6,0);
+\draw[->,thick,blue!65!black] (5,0) -- (4,0);
+\node[font=\scriptsize] at (5.65,-0.35) {3};
+\node[font=\scriptsize] at (4.35,-0.35) {1};
+\foreach \angle in {0,90,180,270}
+  \draw[->,thick,blue!65!black] (10,0) -- ++(\angle:1);
+\end{tikzpicture}
+\caption{Three exact four-oscillator examples. Average the arrows, then take
+the length. In the middle, $(3-1)/4=1/2$. In the last, horizontal and vertical
+components each cancel. These are geometric examples, not simulation results.}
+\label{fig:primer-order}
+\end{figure}
+
 The \emph{order parameter} $r_N$ is the length of the average of the unit
 vectors $e^{i\theta_i}$. If all phases coincide the vectors add up and
 $r_N=1$; if they are spread uniformly they cancel and $r_N\approx0$. It is the
-canonical measure of collective coherence, and everything empirical in the
-framework is expressed through it.
+measure of phase coherence used in the framework's physical test. It contains
+no information about what the activity represents. Nor does $r_N=0$ prove an
+absence of all organization: two equal groups pointing in opposite directions
+also cancel. Random finite samples usually cancel only approximately.
+
+\emph{Phase locking} in general means phase differences stay constant; the
+hands maintain fixed offsets. Perfect \emph{in-phase} synchronization is the
+special case where all offsets vanish and $r_N=1$. Several formal results here
+use ``phase-locked'' for this stronger aligned condition. With independent
+noise, sustained statistical coherence need not mean exact locking of each
+individual pair.
+
+\subsection{Why an average arrow simplifies the interaction}
+
+For uniform coupling there is an exact finite-population identity:
+\[
+ \frac1N\sum_j\sin(\theta_j-\theta_i)
+ =S_N\cos\theta_i-C_N\sin\theta_i
+ =r_N\sin(\psi_N-\theta_i).
+\]
+It follows by expanding the sine of a difference. Thus each oscillator feels
+a pull toward the average direction, with strength $Kr_N$. When the arrows
+almost cancel, this pull is small even if individual interactions exist. A
+more aligned population produces a stronger collective pull, which can
+reinforce alignment. Diffusion opposes this concentration.
+
+This is the \emph{mean field}: the population's aggregate influence. Writing
+the finite sum this way is exact. Replacing its fluctuating average with a
+deterministic density for an infinite population is an additional limiting
+step, explained in Section~\ref{sec:chaos}.
 
 \why
 Because it is the simplest dynamics in which a genuine phase transition
 between incoherence and coherence occurs as a coupling parameter is raised---
 which is precisely the structure the coupling-gated recovery hypothesis needs.
+
+A phase transition is a qualitative change in the possible collective states
+as a control parameter crosses a threshold. In this phrase ``phase'' means
+a population regime; $\theta_i$ instead means position within an individual
+cycle. The sharp stationary transition belongs to the infinite-population
+description. Finite populations have fluctuating order on either side.
 
 \scope
 One modelling point is made repeatedly and is easy to miss. \emph{Frequency
@@ -736,11 +1389,17 @@ analyses often use a spread of natural frequencies $\omega_i$ as the
 disordering influence; the framework's stationary theory assumes
 \emph{identical} frequencies and gets its disorder from $D$. A frequency-spread
 width cannot be substituted for $D$ when applying that theory, and the
-simulations are run with diffusion rather than a quenched-frequency surrogate
+simulations are run with diffusion rather than a fixed-frequency-spread surrogate
 for exactly this reason.
 
 \section{The Lyapunov potential and gradient descent}
 \label{sec:lyapunov}
+
+The next several sections study deterministic motion: set $D=0$, hold the
+couplings fixed, and use symmetric interactions $A_{ij}=A_{ji}$. Symmetry here
+means the influence is reciprocal. It allows these interactions to come from
+one potential landscape. The noisy stationary theory resumes in Part VII.
+Random kicks need not move downhill at every instant.
 
 \what
 A \emph{Lyapunov function} is a quantity that never increases along a
@@ -772,8 +1431,10 @@ phase-locked states.
 
 \scope
 \textbf{Positivity is not a technical convenience.} A network of all-positive
-couplings is an unfrustrated ferromagnet with one minimum up to a global phase
-shift---exactly \emph{not} the near-degenerate landscape that a memory
+couplings favors all phase arrows aligning, like magnetic moments aligning in
+a ferromagnet. Its minimum is unique apart from rotating all phases together.
+It does not supply many competing states of almost equal energy (a
+\emph{near-degenerate landscape}) of the kind that a memory
 argument from geometric frustration would require. The development is careful
 about where positivity enters:
 
@@ -795,25 +1456,60 @@ rather than a hypothesis scattered through the development, it enters the chain
 at one node and not before it.
 
 \section{The rotating frame}
+\label{sec:rotating}
+
+Imagine filming runners moving around a circular track. A camera turning at
+their shared speed makes their positions appear still if they maintain fixed
+offsets. Their actual running has not stopped; the observer's coordinate system
+has changed. A \emph{rotating frame} is that moving coordinate system.
+
+If every oscillator has natural frequency $\Omega$, define its angle relative
+to the turning camera by
+\[
+ \phi_i(t)=\theta_i(t)-\Omega t.
+\]
+Then $d\phi_i=d\theta_i-\Omega\,dt$. The common natural-frequency term
+cancels, while $\phi_j-\phi_i=\theta_j-\theta_i$, so the coupling term is
+unchanged. The additive noise is unchanged too. The resulting noisy equation is
+\[
+ d\phi_i=\sum_jK_{ij}\sin(\phi_j-\phi_i)\,dt+\sqrt{2D}\,dW_i.
+\]
+For the average arrow, $z_N$ is multiplied by $e^{-\mathrm{i}\Omega t}$.
+Its direction turns, but its length $r_N$ stays the same. Thus phase differences
+and coherence can be studied without carrying the common rotation through
+every equation.
+
+Subtracting a common speed is distinct from \emph{centering} a snapshot on
+its measured mean phase. The first removes $\Omega t$; the second subtracts
+$\psi_N(t)$. A noisy finite population's mean direction can wander even in
+the frequency-rotating frame. Density comparisons may also center each
+snapshot to compare distribution shapes.
 
 \what
-With nonzero natural frequencies the potential $V$ acquires a term
+For deterministic equations on real, unwrapped phases, nonzero natural
+frequencies make the potential acquire a term
 $-\sum_i\omega_i\theta_i$, which is linear in the phases and hence
 \emph{unbounded below}: the potential has no minimum at all, and a
 minimum-attaining argument is not available. The standard repair is to change
 to a co-rotating coordinate frame, $\theta_i\mapsto\theta_i-\Omega t$, which
-subtracts the common rotation.
+subtracts the common rotation. Unwrapped angles count complete turns rather
+than resetting after each lap. A nonzero linear term can keep falling as that
+count increases. ``Unbounded below'' means no finite number bounds its values
+from below.
 
 \statement
 For \emph{identical} natural frequencies $\omega\equiv\Omega$, the reduction is
-exact: a trajectory maps to a trajectory of the zero-frequency system, the two
-potentials coincide on it, the descent identity transports, and the chain runs
-through the minimum characterization to phase-locking and $r^2=1$. Phase
+exact: a trajectory (the path of states through time) maps to one of the
+zero-frequency system. The interaction potential depends only on differences,
+so its value is unchanged by rotation, and the deterministic descent identity
+applies in the reduced frame. Under the convergence hypotheses of
+Section~\ref{sec:convergence}, the limit is aligned with $r^2=1$. Phase
 differences, phase-locking and the order parameter magnitude are all proved
-frame-invariant, so no observable is lost in the change of coordinates.
+frame-invariant: changing coordinates preserves these relative observables.
 
 \scope
-Exact only for identical frequencies. A spread of frequencies leaves residual
+Eliminating every natural frequency this way requires identical frequencies.
+A spread of frequencies leaves residual
 detunings $\omega_i-\Omega$ in the reduced system, to which the unboundedness
 result still applies, and phase-locking then depends on the threshold---which
 this file does not treat.
@@ -825,6 +1521,13 @@ this file does not treat.
 \id{Examples}~\S7.
 
 \section{Do the trajectories exist? Picard--Lindel\"of, globally}
+
+An equation is a proposed rule, not yet a guarantee of a well-defined motion.
+\emph{Existence} asks whether any path follows it from the prescribed start.
+\emph{Uniqueness} asks whether two different paths could share that start.
+``Local'' means for a short time interval; ``global'' means for every finite
+time. A vector field is a rule assigning a velocity vector to each state;
+it need not be a physical electromagnetic field.
 
 \what
 Before asking where a differential equation goes, one must know it has a
@@ -841,7 +1544,7 @@ one instant agree forever, in both time directions.
 
 Existence globally in time takes one extra step, because Mathlib's
 \id{IsPicardLindelof} caps a local solution's lifetime by the radius of the
-ball on which the field's bounds hold divided by the field's sup-norm there,
+ball on which the field's bounds hold divided by its largest velocity bound there,
 and carries no global-in-time theorem. The field here is bounded by
 $\sum_i|\omega_i|+\sum_{ij}|A_{ij}|$ on the \emph{whole} state space, so the
 cap can be defeated by enlarging the ball \emph{after} choosing the window.
@@ -862,6 +1565,12 @@ development, and it is worth following because two of its steps replace
 textbook tools that Mathlib does not carry.
 
 \subsection{The motion stops}
+
+If a height only decreases and cannot fall below the valley floor, its value
+approaches a limit. This is \emph{monotone convergence}. An integral over all
+future time is an \emph{improper integral}, defined by taking the limit of
+integrals over longer finite intervals. A finite total squared velocity is a
+budget on motion, but by itself still allows isolated bursts.
 
 \what
 The potential decreases and is bounded below (at zero frequency), so by
@@ -897,6 +1606,13 @@ This locates no limit. It says the motion stops, not where.
 
 \subsection{Where it stops}
 
+An \emph{equilibrium} of a deterministic equation is a state with zero
+velocity. An \emph{invariant region} is one a trajectory cannot leave after
+entering. Compactness is a mathematical form of having no escape to infinity
+or missing boundary points; in ordinary finite-dimensional coordinates,
+closed bounded regions are compact. These concepts help locate eventual motion,
+but they do not mean every equilibrium is a global minimum.
+
 \what
 Locating the limit looks like a job for the \emph{LaSalle invariance
 principle}, which Mathlib does not carry, and which would want a compact
@@ -915,8 +1631,8 @@ lies within a quarter turn,
  2a^2 W \;\le\; \Big(\sum_{ij}A_{ij}\Big)\sum_i\dot\theta_i^{\,2},
 \]
 where $W$ is the excess of the potential over its minimum and $a>0$ is a lower
-bound on the couplings. Its proof uses no spectral gap and no convexity---only
-two extremal indices, the sites carrying the largest and smallest phase.
+bound on the couplings. The proof uses the two sites carrying the largest and
+smallest phase, without assumptions about the curvature of the whole landscape.
 
 Combined with $\dot W=-\sum_i\dot\theta_i^2$ this is the differential
 inequality $\dot W\le -cW$ with $c=2a^2/\sum_{ij}A_{ij}$, which integrates
@@ -930,6 +1646,12 @@ minimizer with $r^2=1$.
 
 \subsection{The compactness objection, met without an invariant region}
 
+Here the direct route is to control the initial energy. If it is too low for
+any pair to reach a quarter-turn separation, energy descent keeps the pair
+within that range. Continuity prevents it from jumping across the forbidden
+angle. This is what the argument calls \emph{branch-pinning}: keeping a phase
+difference in one chosen interval of unwrapped angles.
+
 The quarter-turn region has to be shown forward-invariant, or the estimate
 applies only at the initial instant. It is, and the argument is neat: because
 all terms of the excess are non-negative, a single pair satisfies
@@ -941,8 +1663,10 @@ the cosine vanishes. This is branch-pinning by continuity on a connected
 half-line, and it replaces a quotient by the phase-shift symmetry.
 
 \scope
-The two hypotheses are on the \emph{initial data} and neither can be removed:
-splay and twisted configurations are equilibria too, so ``every trajectory
+The two hypotheses are on the \emph{initial data} and neither can be removed.
+A splay state spreads phases evenly around the circle; a twisted state makes
+phase advance systematically around a spatial loop. Such balanced
+configurations can be equilibria too, so ``every trajectory
 reaches the phase-locked state'' is simply false. What is proved is the
 arc-condition version. It is witnessed on three sites
 (\id{Examples}~\S17), where no closed-form solution exists---the
@@ -952,6 +1676,20 @@ being $\cos\tfrac12>\tfrac34$.
 
 \section{The open gap: propagation of chaos}
 \label{sec:chaos}
+
+A finite simulation keeps a list of $N$ angles. A continuum description keeps
+instead a density $\rho(\theta,t)$: integrating it over an arc gives the
+fraction or probability of phases in that arc. A histogram with ever more
+samples suggests such a density, but interactions can correlate the samples.
+To justify a closed equation for one representative oscillator, one must
+control those correlations as the population grows.
+
+``Chaos'' here means statistical independence in the limiting construction,
+not unpredictability from sensitive deterministic dynamics. Factorization
+means the joint probability becomes a product of individual probabilities.
+The one-particle marginal is the distribution of one oscillator after the
+others have been averaged out. A closed equation determines its evolution
+without needing a separate equation for every pair, triple and larger group.
 
 \what
 Everything in Part VII is about a \emph{mean-field} description---a single
@@ -986,11 +1724,20 @@ reason is structural, not a failure of the simulation: above threshold the
 ensemble has an \emph{unpinned collective orientation}, a shared latent
 variable that every realization draws once. Unconditional independence and
 independence \emph{conditional on that orientation} are different claims, and
-only the first is refuted. In the co-rotating frame---which removes the shared
-orientation---the $N=1000$ density matches the von Mises target closely.
+only the first is refuted. After centering on each realization's collective
+orientation, the $N=1000$ density matches the von Mises target closely.
 \end{itemize}
 This is a negative result for the \emph{unconditional} protocol and settles
 nothing about the conditional mean-field limit.
+
+For intuition, imagine photographs of the same cluster of arrows, each photo
+rotated through a randomly chosen angle. Across photos, knowing one arrow's
+direction tells you about the others, although the cluster shape is unchanged.
+Conditioning means specifying that shared orientation before comparing the
+arrows. The sliced-Wasserstein diagnostic above measures differences between
+distributions by projecting them onto lines and comparing the projected samples;
+its sampling floor is the discrepancy finite samples produce even when the
+underlying distributions agree.
 
 %======================================================================
 \part*{Part VII. The synchronization transition}
@@ -998,6 +1745,39 @@ nothing about the conditional mean-field limit.
 %======================================================================
 \section{The von Mises stationary density}
 \label{sec:vonmises}
+
+\subsection{What becomes stationary?}
+
+Imagine watching many clock hands whose speeds are continually perturbed.
+Individual hands keep moving, but the fraction in each part of the dial can
+remain unchanged. A \emph{stationary density} describes that unchanging
+probability pattern. Stationary therefore does not mean every noisy hand
+stops. The statement is made in the rotating frame, at fixed $K$ and $D$,
+and for a chosen collective orientation $\psi$.
+
+The density integrates to one around the circle. Its collective arrow is
+\[
+ z=\int_{-\pi}^{\pi}e^{\mathrm{i}\theta}\rho(\theta)\,d\theta
+   =r e^{\mathrm{i}\psi}.
+\]
+This is the continuous counterpart of averaging $N$ arrows: $r$ has the same
+meaning as $r_N$, but refers to a distribution rather than one finite list.
+
+\subsection{What is an ansatz?}
+
+An \emph{ansatz} is a proposed form for a solution, with quantities still to
+determine. For example, proposing a straight line $y=mx+b$ leaves its slope
+$m$ and height $b$ to be found. One then checks whether that form satisfies the
+problem. Calling a form an ansatz does not prove it, and does not mean it is
+an arbitrary guess: an equation or symmetry can motivate the choice.
+
+Here the stationary ansatz proposes a circular probability density proportional
+to $e^{a\cos(\theta-\psi)}$. The cosine is largest at $\psi$, so positive
+$a$ weights nearby angles more heavily. At $a=0$ every angle gets equal
+weight; increasing $a$ concentrates the distribution around $\psi$. The
+quantity $a$ is called its \emph{concentration}. It is different from $r$:
+$a$ specifies the density's shape and is unbounded above, while $r$ is the
+length of its average arrow and lies between zero and one.
 
 \what
 The \emph{von Mises} distribution is the circular analogue of the Gaussian:
@@ -1007,7 +1787,50 @@ The \emph{von Mises} distribution is the circular analogue of the Gaussian:
 It is peaked at $\psi$ with \emph{concentration} $a\ge0$; at $a=0$ it is
 uniform, and as $a$ grows it tightens. The normalizing constant involves
 $I_0$, a \emph{modified Bessel function of the first kind}---the functions that
-arise when one integrates $e^{a\cos\theta}$ against powers of $\cos\theta$.
+arise in circular integrals. No prior knowledge of Bessel functions is needed
+here: the two used in self-consistency are defined by
+\[
+ I_0(a)=\frac1{2\pi}\int_{-\pi}^{\pi}e^{a\cos u}\,du,\qquad
+ I_1(a)=\frac1{2\pi}\int_{-\pi}^{\pi}\cos u\,e^{a\cos u}\,du.
+\]
+$2\pi I_0(a)$ is the total unnormalized weight, so dividing by it makes
+$\rho$ integrate to one. The ratio $I_1/I_0$ is the average horizontal
+component of a phase arrow after centering on $\psi$. The vertical components
+cancel by symmetry. A Gaussian is the familiar bell-shaped distribution on
+a line; von Mises plays a similar role on a circle.
+
+\subsection{Why this particular density fits the model}
+
+The mean-field equation for a density is the \emph{Fokker--Planck equation}.
+It tracks probability moving around the dial, rather than each oscillator's
+random path. Writing $b(\theta)=Kr\sin(\psi-\theta)$ for systematic drift,
+\[
+ \frac{\partial\rho}{\partial t}
+ =-\frac{\partial J}{\partial\theta},\qquad
+ J=b\rho-D\frac{\partial\rho}{\partial\theta}.
+\]
+$J$ is the \emph{probability current}: net probability crossing an angle per
+unit time. Its first term transports probability with the drift; the second
+spreads it from denser to less dense regions. If more current enters a small
+arc than leaves, its probability increases. This is the content of the first
+equation, a conservation law.
+
+For the zero-current stationary solution, choose the mean direction as zero
+and set $J=0$. With $b=-Kr\sin\theta$, this gives
+\[
+ D\rho'=-Kr\sin\theta\,\rho,
+ \qquad
+ \frac{\rho'}{\rho}=-\frac{Kr}{D}\sin\theta.
+\]
+The left side is the derivative of $\log\rho$. Since the derivative of
+$\cos\theta$ is $-\sin\theta$, integration yields
+$\log\rho=(Kr/D)\cos\theta+\text{constant}$. Exponentiating and normalizing
+gives the von Mises form with $a=Kr/D$. This elementary calculation explains
+the ansatz under the mean-field and zero-current assumptions. A stationary
+density in a different driven model can carry nonzero current, so the word
+``stationary'' alone does not justify setting $J=0$.
+
+\subsection{Make the population reproduce its own average}
 
 \why
 It is the stationary density of the noisy mean-field Kuramoto dynamics: the
@@ -1031,16 +1854,28 @@ itself, and the fixed points of $r\mapsto R(Kr/D)$ are the possible
 stationary states. \citet{sakaguchi1988} is the source for the threshold this
 yields.
 
+The calculation can be read as a loop: propose $r$, use it to obtain the
+pull $Kr$, use attraction versus diffusion to obtain a density, then average
+that density's arrows. A \emph{self-consistent} proposal returns the same $r$
+you started with. A fixed point of this calculation is a solution of an
+algebraic equation. Repeating this calculation numerically is not the same
+as evolving the physical oscillators in time.
+
+Following these stationary solutions across choices of $K$ traces a
+\emph{stationary branch}: a family of possible settled densities, each at its
+own fixed coupling. Section~\ref{sec:fold} explains how to read that graph.
+
 \scope
-\textbf{The density is assumed, not derived.} Going from the stochastic
-dynamics to this density would require the spectral theory of the associated
-Fokker--Planck operator, which Mathlib does not carry. The algebraic step from
-the stationary Fokker--Planck equation to the von Mises form is verified
-numerically in the repository (\id{simulations/fokker\_planck\_von\_mises.py}),
-not as a theorem. This is the largest single formalization gap in the
-stationary theory, and it compounds with the propagation-of-chaos gap of
-Section~\ref{sec:chaos}: one connects the finite system to \emph{a}
-mean-field density, the other identifies \emph{which} density.
+\textbf{The formal stationary theorems take this density as their starting
+point.} The calculation above is an explanatory derivation, not a Lean proof
+connecting the SDE to its long-time distribution. The repository script
+\id{simulations/fokker\_planck\_von\_mises.py} checks the stationary algebra
+symbolically and numerically. It proves neither the passage from the finite
+system to a density nor the density's dynamical selection. Stability analysis
+asks how small perturbations evolve; spectral methods study the growth or
+decay of their different modes. These are two distinct missing links:
+Section~\ref{sec:chaos} asks whether the finite system approaches a mean-field
+description; the long-time question asks which density that description selects.
 
 \lean
 \id{Phase8\_SelfConsistency.lean}. Because Mathlib has no modified Bessel
@@ -1051,16 +1886,27 @@ functions, \id{besselRatio} is written as a ratio of interval integrals.
 \id{fixedPoint\_iff\_selfReproducing} states the equivalence---$r$ solves
 $r=R(Kr/D)$ exactly when the density it induces has order parameter $r$.
 
-\section{Why the threshold is $\Kc=2D$}
+\section{Why the threshold is \texorpdfstring{$\Kc=2D$}{Kc = 2D}}
 \label{sec:threshold}
 
+Near a uniform density, a small concentration gives approximately $R(a)=a/2$.
+In the self-consistency loop, a small proposed $r$ therefore returns roughly
+$(K/2D)r$. If $K<2D$, that returned value is smaller; if $K>2D$, it is larger.
+The critical value $K_c=2D$ is where the initial slope of this response equals
+one. The following inequalities turn that local intuition into a statement
+about all the stationary solutions. This slope argument alone is not a proof
+of how finite noisy trajectories evolve.
+
 \what
-The claim is that coherence is impossible at or below $K=2D$ and, above it,
-takes exactly one positive value. The number $2$ is not fitted; it falls out of
+The claim is that a positive self-consistent stationary $r$ is impossible at
+or below $K=2D$ and, above it, takes exactly one value. Zero also remains a
+solution above threshold. The number $2$ is not fitted; it falls out of
 a single inequality about the von Mises family.
 
 \statement
-The key algebraic identity is integration by parts:
+Integration by parts is the product rule for derivatives used in reverse
+inside an integral. It exchanges a derivative on one factor for a derivative
+on the other, plus endpoint terms. Here the key identity is
 \[
  \int_{-\pi}^{\pi}\cos\theta\,e^{a\cos\theta}\,d\theta
  \;=\; a\int_{-\pi}^{\pi}\sin^2\!\theta\,e^{a\cos\theta}\,d\theta ,
@@ -1068,8 +1914,12 @@ The key algebraic identity is integration by parts:
 exact because $\sin(\pm\pi)=0$ kills the boundary term. Dividing by the
 normalizer, this factorizes the Bessel ratio:
 \[
- R(a) \;=\; a\,E(a), \qquad E(a) := \E_a[\sin^2\theta].
+R(a) \;=\; a\,E(a), \qquad E(a) := \E_a[\sin^2\theta].
 \]
+The subscript $a$ means average with the von Mises probabilities at that
+concentration. Thus $E(a)$ is the average squared vertical component of a
+centered phase arrow. A moment is an average of a power of a variable; the
+cosine moments below are averages or unnormalized integrals of powers of cosine.
 Now everything turns on $E$. Since $\sin^2\le1$ trivially, $R(a)\le a$, which
 would put a threshold at $K=D$. The sharper fact is
 \[
@@ -1119,8 +1969,11 @@ suffices.)
 
 \noindent
 Together: the non-negative solution set is exactly $\{0\}$ at or below
-threshold and $\{0,r\}$ above it. This is a \emph{pitchfork bifurcation}, and
-zero remains a solution above threshold---it merely ceases to be the only one.
+threshold and $\{0,r\}$ above it. A \emph{bifurcation} is a qualitative change
+in the solution structure as a parameter varies. The onset is often drawn as
+a pitchfork using a signed amplitude. Here $r$ is a nonnegative length, and
+different mean directions $\psi$ give a whole family of rotated coherent
+densities with that same length. Uniqueness concerns the positive magnitude.
 
 \scope
 Everything here is a statement about a stationary \emph{density}. Of the
@@ -1147,6 +2000,39 @@ network.
 \section{The fold-and-cross proof of uniqueness}
 \label{sec:fold}
 
+\subsection{First, what is a stationary branch?}
+
+Fix $D$. For each chosen $K$, solve the stationary equation and mark its
+solutions on a graph with $K$ horizontally and $r$ vertically. Following one
+continuous family of solutions as $K$ changes traces a \emph{branch}. The
+horizontal line $r=0$ is the incoherent branch. Above $K_c$, a positive
+coherent branch emerges and rises. ``Stationary'' describes each solution
+at its own fixed coupling; ``branch'' collects these separate solutions.
+The horizontal axis is coupling, not elapsed time.
+
+\begin{center}
+\begin{tabular}{@{}p{0.27\linewidth}p{0.66\linewidth}@{}}
+\hline
+Object & Question it answers \\
+\hline
+Stationary solution & What density can remain unchanged at this fixed $K$? \\
+Stationary branch & How do those solutions vary across choices of $K$? \\
+Stability & Does a small disturbance shrink or grow under the dynamics? \\
+Trajectory & What does this initial population actually do through time? \\
+\hline
+\end{tabular}
+\end{center}
+
+Finding a branch does not prove stability or say which trajectory approaches
+it. A ball exactly balanced on a hilltop illustrates the distinction: the
+position is an equilibrium, but a small displacement takes it away.
+
+\subsection{Why there cannot be two positive solutions at the same coupling}
+
+The positive-branch equation can be written $E(a)=D/K$. If $E$ strictly
+decreases as $a$ rises, a horizontal line of height $D/K$ can meet it at most
+once. That is the geometric meaning of the uniqueness proof.
+
 This is the one proof worth describing in outline, because its structure is
 unusual and the supplement devotes a section to it.
 
@@ -1156,8 +2042,11 @@ $(0,\infty)$, and what is proved is the stronger statement that $E$ is
 \emph{strictly decreasing} on $[0,\infty)$.
 
 \statement
-The obvious route is to differentiate. For an exponential family, tilting in
-the natural parameter gives
+One route is to differentiate. An exponential family weights outcomes by an
+exponential of a parameter times a statistic; changing the parameter is called
+\emph{tilting}. Covariance measures whether two quantities tend to be above
+their means together: $\mathrm{Cov}(X,Y)=\E[XY]-\E[X]\E[Y]$.
+For this family, differentiation gives
 \[
  E'(a) \;=\; -\,\mathrm{Cov}_a\!\left(\cos^2\theta,\ \cos\theta\right),
 \]
@@ -1167,7 +2056,14 @@ covariance is not sign-definite pointwise---symmetrizing with an independent
 copy gives $\tfrac12\E[(X-X')^2(X+X')]$ with $X=\cos\theta$, an integrand
 changing sign with $X+X'$.
 
-Instead the target is kept as the two-point inequality
+In the proof below the integrals, both over $[-\pi,\pi]$, are
+\[
+ Z(a)=\int_{-\pi}^{\pi}e^{a\cos\theta}\,d\theta,\qquad
+ C_2(a)=\int_{-\pi}^{\pi}\cos(2\theta)e^{a\cos\theta}\,d\theta.
+\]
+$\cosh x=(e^x+e^{-x})/2$ is the hyperbolic cosine. Folding means pairing
+reflected angles so their contributions can be added on a smaller interval.
+The target is the two-point inequality
 $C_2(a)Z(b)<C_2(b)Z(a)$ for $a<b$, and two moves settle it.
 
 \emph{Fold first.} The same two reflections used for $I_2\ge0$ carry both
@@ -1183,7 +2079,8 @@ $2\cosh X\cosh Y=\cosh(X{+}Y)+\cosh(X{-}Y)$ and $\cosh$ increasing in
 $|\cdot|$.
 
 \emph{Then cross.} Rather than integrating that inequality over a square---which
-would need a product measure and Fubini---let $\alpha$ be the mean of $\cos2x$
+would need a product measure and Fubini's theorem, which permits exchanging
+the order of two integrals under suitable conditions---let $\alpha$ be the mean of $\cos2x$
 under $W(a,\cdot)$, and let $x_0\in[0,\pi/2]$ be a point where
 $\cos2x_0=\alpha$, supplied by the intermediate value theorem. Evaluating at
 $y=x_0$ and integrating in $x$ alone gives the conclusion, because the term
@@ -1217,8 +2114,14 @@ therefore needs a different file---the next section.
 \part*{Part VIII. The critical exponent and the square-root onset}
 \addcontentsline{toc}{section}{Part VIII. The critical exponent and the square-root onset}
 %======================================================================
-\section{The exponent $\beta=1/2$}
+\section{The exponent \texorpdfstring{$\beta=1/2$}{beta = 1/2}}
 \label{sec:exponent}
+
+An exponent describes how a quantity changes when its input is rescaled.
+For $r\propto\sqrt{K-K_c}$, making a small coupling excess four times larger
+makes $r$ about twice as large. This is the meaning of exponent $1/2$.
+It describes the branch close to threshold, not the entire curve up to full
+alignment. A critical exponent is an exponent at such a transition.
 
 \what
 Near a continuous phase transition, the order parameter typically behaves like
@@ -1229,15 +2132,20 @@ the transition belongs to. For mean-field theories $\beta=1/2$, giving a
 square-root shape.
 
 \why
-This is the source of the framework's most distinctive falsifiable
-prediction. A square root has \emph{infinite initial slope}: at the first
-instant it rises faster than any exponential, logistic or linear function. If
-recovery from awakening is gated by a threshold crossing, its onset should show
-that shape---and that shape is not what generic saturating nonlinearities
-produce.
+This supplies the framework's proposed near-onset shape. A square-root graph
+has \emph{infinite initial slope}: its slope becomes arbitrarily large as the
+positive coupling excess approaches zero. Its height still starts continuously
+at zero. This is a statement about a stationary graph, not an instantaneous
+physical jump. Converting it to a recovery-time prediction requires the
+additional tracking assumptions in the next section.
 
 \statement
-Getting the rate costs the differentiation the uniqueness proof avoided.
+The calculation uses a Taylor expansion: near a point, approximate a smooth
+function by a polynomial built from its derivatives there, keeping track of
+the remaining error. Differentiating under an integral means exchanging the
+order of differentiation and averaging. Dominated convergence justifies such
+limit exchanges when one common integrable bound controls the quantities.
+These are the tools behind the following steps.
 
 \begin{enumerate}[leftmargin=*]
 \item \textbf{Differentiate under the integral.} Define the cosine moments
@@ -1278,15 +2186,14 @@ positive coherent solutions with $r\to0$ sends $q\to0$ and yields
 \end{enumerate}
 
 \noindent
-The statement is deliberately \emph{filter-indexed} rather than parameterized
-by a curve, so it constrains every such family and privileges no path. Because
-its hypotheses hold only \emph{eventually} along the filter, and an eventual
-clause is vacuously true on the empty filter, the file also exhibits a family
-satisfying it: \id{coherentBranch} selects the unique positive solution above
-threshold, \id{coherentBranch\_tendsto\_zero} reads the continuity result as a
-limit along $K\downarrow2D$, and \id{coherentBranch\_critical\_exponent}
-discharges every hypothesis on it. Without that witness the theorem could be
-true for want of any instance.
+The conclusion applies to any family of positive solutions approaching the
+threshold in the stated way. Lean expresses that generality using a
+\emph{filter}, a device specifying what counts as ``sufficiently close'' in a
+limit. This mathematical filter is unrelated to filtering a recording.
+``Eventually'' means after entering that sufficiently close regime. The file
+also constructs an actual family, \id{coherentBranch}, and proves it approaches
+zero and satisfies the limit. That witness prevents the general statement from
+being useful only for a family that does not exist.
 
 \scope
 Asymptotics of the solutions of a \emph{stationary} equation. It establishes
@@ -1301,6 +2208,17 @@ crossing at non-zero speed.
 \id{coherent\_solution\_critical\_exponent}.
 
 \section{From exponent to prediction}
+
+Two graphs are involved. The stationary graph puts coupling $K$ on the
+horizontal axis. A recovery trace puts time $t$ there. To connect them, one
+must know how coupling changes with time and whether the phase distribution
+can adjust quickly enough to stay near each stationary solution.
+
+\emph{Relaxation time} is the timescale on which a disturbed distribution
+approaches its settled form. \emph{Adiabatic tracking} means the controls
+change little during that adjustment, so the actual distribution remains
+close to the corresponding stationary branch. Here ``adiabatic'' means slow
+tracking; in thermodynamics the same word can instead mean no heat exchange.
 
 \statement
 If the coupling $K(t)$ rises through $\Kc$ at time $t_0$ with non-zero speed
@@ -1341,12 +2259,19 @@ finite-rate trajectory need not show an infinite-slope cusp at all.
 \addcontentsline{toc}{section}{Part IX. Finite populations, finite ramps, and what simulation adds}
 %======================================================================
 
-The stationary theory describes an infinite population tracking a branch
-adiabatically. Cortex is neither infinite nor slow. The simulations exist to
-map the gap, and their headline results \emph{restrict} the hypothesis rather
-than support it.
+The stationary theory describes fixed-parameter densities of an idealized
+infinite population. Applying it to a changing coupling requires adiabatic
+tracking in addition. A cortical population is finite, and its speed of
+adjustment must be measured. The simulations probe these differences.
 
 \section{Euler--Maruyama integration}
+
+A simulation approximates continuous motion by short updates. The \emph{time
+step} $\Delta t$ is the duration of one update. The Euler method uses the
+current systematic velocity to predict the change over that step;
+Euler--Maruyama adds the appropriate random increment. The notation
+$\xi_i\sim\mathcal N(0,1)$ means draw a Gaussian random number of mean zero
+and standard deviation one, independently for each site and each step.
 
 \what
 The numerical scheme for stochastic differential equations. The deterministic
@@ -1359,6 +2284,34 @@ $\sqrt{\Delta t}$. Applied to \eqref{eq:sde}:
  + \sqrt{2D\,\Delta t}\;\xi_i ,\qquad \xi_i\sim\mathcal N(0,1).
 \]
 
+For illustration only, set $\Delta t=0.01$, $D=0.5$, and the current
+systematic velocity to $2$ in chosen time units. The deterministic increment
+is $0.02$ radians; the noise increment has standard deviation $0.1$ radians.
+A draw $\xi_i=-1$ would give a total increment $-0.08$ radians. A single step
+can oppose the drift. Persistent attraction is a statistical effect over
+many steps and oscillators.
+
+\begin{enumerate}[leftmargin=*]
+\item Choose the population size, frequencies, coupling rule, diffusion,
+starting phases and duration. Decide whether coupling stays fixed or changes.
+\item Compute every site's drift from the current phases, then update all
+sites with independent random increments. Recompute the order parameter.
+\item Save observations at a declared interval. Early adjustment is the
+\emph{transient}; a claimed stationary average needs a specified later window.
+\item Repeat with different random-number \emph{seeds}. A seed makes a random
+sequence reproducible; each repeated run is a \emph{replica}. Their ensemble
+mean averages over runs, whereas a time mean averages within one run.
+\item Reduce the time step while keeping the physical duration fixed to check
+integration bias. Increase $N$ separately to examine population-size effects.
+A parameter \emph{sweep} repeats the experiment over declared parameter values.
+\end{enumerate}
+
+Independent uniform arrows have $\E[r_N^2]=1/N$: cross terms cancel in the
+expected squared sum, leaving $N$ unit self-terms divided by $N^2$. Their
+root-mean-square order is therefore $1/\sqrt N$. This \emph{finite-size floor}
+is a fluctuation scale, not a hard lower bound. Correlated near-critical
+populations can fluctuate above this independent reference.
+
 \scope
 Every simulation reported is a finite run at sampled parameters, with explicit
 seeds and saved compact summaries. Equal-duration half-step controls probe
@@ -1368,14 +2321,57 @@ the integrator, and no run discharges a hypothesis of the formal composition.
 \section{Ramp speed sets the apparent onset exponent}
 \label{sec:ramp}
 
+\subsection{What finite ramp speed means}
+
+A \emph{ramp} is a prescribed change in a control parameter over time.
+Here it is the coupling strength, not an oscillation's frequency or amplitude.
+A linear upward ramp has
+\[
+ K(t)=K_{\mathrm{start}}+vt,\qquad v=\frac{dK}{dt}>0.
+\]
+Finite ramp speed means making that change at an actual nonzero rate, giving
+the system only finite time to adjust. It is distinct from finite population
+size $N$ and from finite numerical time step $\Delta t$.
+
+For a hypothetical dimensional example, increasing $K$ from $1$ to
+$3\,\mathrm{s}^{-1}$ over $10$ seconds gives $v=0.2\,\mathrm{s}^{-2}$.
+If $D=1\,\mathrm{s}^{-1}$, the static threshold is
+$K_c=2\,\mathrm{s}^{-1}$, crossed after $5$ seconds. That crossing does
+not promise that a measured coherence criterion is reached at $5$ seconds.
+These numbers illustrate units; they are not a calibration of human recovery.
+
+Suppose a distribution needs a relaxation time $\tau_{\mathrm{relax}}$ to
+adjust. During that time the target coupling moves by roughly
+$v\tau_{\mathrm{relax}}$. Tracking is plausible only if this is small on
+the coupling scale of interest. Near a continuous transition the relaxation
+time grows very large---\emph{critical slowing down}---so even a slow ramp
+can outrun the response close to threshold.
+
+\subsection{Crossing the threshold and observing escape are different events}
+
 \what
-Drive the coupling upward at constant speed $v=\dot K$ through the threshold
-and watch when coherence escapes the floor. The stationary theory says the
-order parameter should follow the branch; a finite ramp cannot, because the
-system needs time to relax and the relaxation time diverges at the transition.
-The result is a \emph{delay}: escape happens at a coupling above $\Kc$, by an
-amount that grows with $v$. This is the same physics as the Kibble--Zurek
-mechanism for driven transitions.
+Drive coupling through the threshold and watch when coherence rises beyond a
+declared fluctuation criterion. Call the threshold-crossing time $t_0$, and
+the first qualifying escape time $t_{\mathrm{escape}}$. For a linear ramp,
+the coupling delay is
+\[
+ \Delta K=K(t_{\mathrm{escape}})-K_c
+         =v(t_{\mathrm{escape}}-t_0).
+\]
+Coupling delay and time delay are different quantities. A faster ramp can
+increase the former without increasing the latter. The simulations study
+delayed passage through a noisy bifurcation. The Kibble--Zurek idea likewise
+concerns the failure of slow tracking near a transition; it does not by itself
+determine every escape criterion or fitted exponent in this finite model.
+
+A \emph{leg} is one ramp rate in the sweep. Right-censored means the run ended
+before the event was observed; it does not mean escape never occurs.
+The fitted $A$ sets the vertical scale, $K_0$ is an estimated horizontal
+offset, and $\beta_{\mathrm{eff}}$ is an \emph{effective} exponent over the
+chosen window. It need not equal the limiting stationary exponent $\beta$.
+A log--log fit takes logarithms of both axes: a power law becomes a line whose
+slope is its exponent. The \emph{foot} of a curve means its earliest rising
+portion.
 
 \statement
 With $N=2000$, $D=1$, $\rampReplicas$ seeded replicas and
@@ -1391,13 +2387,22 @@ $\Delta K\propto v^{\rampDelayExponent}$---near the predicted exponent $1/2$
 at this resolution.
 \item At fixed $v=10^{-2}$ the delay grows with population size
 ($\rampNDelayOne$, $\rampNDelayTwo$, $\rampNDelayThree$ at $N=500$, $2000$,
-$8000$), qualitatively matching a predicted $\sqrt{\log N}$ dependence. Three
-sizes are evidence for a trend, not a scaling law.
+$8000$). However, dividing the delays by $\sqrt{\log N}$ does not give a
+common constant. At the smallest size, fluctuations can already meet the
+absolute escape criterion near threshold. The size trend does not establish
+the proposed scaling law.
 \item \textbf{The apparent onset exponent}, fitted as
 $r=A(K-K_0)^{\beta_{\rm eff}}$ over $0.1\le r\le0.4$, runs
 $\rampOnsetOne,\ \rampOnsetTwo,\ \rampOnsetThree,\ \rampOnsetFour$ from
-fastest to slowest ramp. Slow ramps recover the square-root foot; fast driving
-pushes the observable foot toward a \emph{linear} apparent onset.
+fastest to slowest ramp. Applying the same fit to the exact stationary branch
+on the same coupling grids gives
+$\rampOnsetReferenceOne,\ \rampOnsetReferenceTwo,\
+\rampOnsetReferenceThree,\ \rampOnsetReferenceFour$.
+Those reference estimates are below $1/2$ because the fitting window extends
+beyond the asymptotically small onset region. The two slowest trajectories fall
+on either side of their references. At the fastest ramp, the ensemble mean
+never reaches the declared window; the returned value is a local slope of a
+delayed trajectory, not a measured critical exponent.
 \end{itemize}
 
 \par\smallskip\noindent\textbf{Why this matters.}\ 
@@ -1425,7 +2430,28 @@ critical ramp speed is therefore \emph{not bracketed} by this sweep. Mapping
 these dimensionless rates to human recovery times needs an independently
 calibrated phase diffusion and coupling trajectory.
 
+RMS means root mean square: square deviations, average, and take the square
+root. A \emph{collapse} here means points from different runs lie near one
+common relation after choosing the stated axes; it is not a loss of coherence.
+``Not bracketed'' means the sampled rates do not include cases on both sides
+of the specified deviation threshold, so the sweep cannot locate its crossing.
+
 \section{Spatial coupling and geometric frustration}
+
+A spatial network specifies who interacts with whom as a function of position.
+A \emph{lattice} is a regular grid; periodic boundaries join opposite edges
+to remove an outer boundary. An exponential kernel makes influence fall by a
+fixed factor over each fixed increase in distance; its decay length sets that
+distance scale. Row normalization rescales the inputs to each site to keep
+their total fixed as interaction range changes.
+
+In a signed network, positive and negative entries give opposing influences.
+\emph{Dale's law} is modelled by requiring a source site's outgoing weights
+to share a sign; excitatory and inhibitory sources have positive and negative
+signs here. Row balance means each target receives cancelling positive and
+negative weight totals, not that the phase-dependent forces always cancel.
+An Erd\H{o}s--R\'enyi network samples each permitted edge independently with a
+fixed probability. A self-edge is a connection from a site to itself.
 
 \what
 Two things could break coherence in a spatially extended sheet: coupling that
@@ -1476,11 +2502,34 @@ range tests \emph{fragmentation}, not whether cortex supplies that total
 coupling. The crossing range describes finite-run variability, not a
 confidence interval or an infinite-size critical point. And the ratio
 $\Keff/D$ is dimensionless---carrying it over to cortex needs the rate
-calibration $\gamma$ of Part XVI, which neither sweep supplies. No clinical
+calibration $\gamma$ of Section~\ref{sec:gamma}, which neither sweep supplies. No clinical
 mechanism is inferred from any of this.
 
 \section{Squared-drift plasticity does not learn structure}
 \label{sec:plasticity}
+
+The question is whether changing connection strengths to reduce motion also
+makes the network represent a target pattern. These are separate scores.
+Imagine grouping oscillators by natural frequency: a template could reward
+strong connections within each group. An update reducing differences in drift
+may instead strengthen connections \emph{between} groups to pull unlike
+frequencies together. A lower objective can therefore accompany worse
+agreement with that template.
+
+Each experimental \emph{arm} is one update rule applied to comparable starting
+conditions. A frozen arm keeps the couplings fixed. A random arm moves them in
+random directions. A permuted arm relabels which sites receive the proposed
+changes. A hollow matrix has zero diagonal; symmetric weights act equally in
+both directions. The Frobenius norm is a matrix's size, calculated by summing
+the squares of all entries and taking the square root. Holding the sum of
+weights fixed does not hold this norm fixed: concentrating weight on fewer
+edges increases the sum of squares.
+
+A latent signal is a shared underlying influence in a model; covariance
+describes how signals fluctuate together. The template is such a specified
+covariance pattern, used to score the result. A percentile against relabelled
+templates reports how the chosen template ranks among those alternatives.
+It is not the fraction of biological information the model has learned.
 
 \what
 It is tempting to read the predictive-dissipation bound as saying that a system
@@ -1616,6 +2665,27 @@ interactions cancel in its mean drift.
 %======================================================================
 \section{Building a coupling matrix from a field}
 
+\emph{Discrete} means represented by separate sites; \emph{continuum} means
+represented at every point of a space. Think of estimating the area under a
+curve by rectangles. Subdivide the interval, sample the height in each piece,
+multiply by its width, and add. Refining the mesh makes the pieces smaller.
+Convergence means the approximation approaches the integral as the largest
+piece shrinks, provided the pieces cover the intended region correctly.
+
+A triangulation organizes vertices, edges and higher-dimensional pieces into
+a mesh; a face is one of those constituent pieces. Measurable regions are
+regions to which the chosen measure assigns a size. Pairwise disjoint regions
+do not overlap. Anchoring a sample to its region prevents sampling far away
+from the area it is meant to represent. A modulus of continuity bounds how
+much a field's value can vary across a small piece.
+
+The physical input here is a stress--energy tensor, an object recording energy,
+momentum and stress components relative to directions. A tensor is a rule for
+combining directional inputs; a $(0,2)$ tensor takes two vector inputs and
+returns a number, linearly in each. Turning it into one nonnegative magnitude
+at each location requires a choice, just as one can summarize a matrix by its
+trace (sum of diagonal entries) or its norm (size).
+
 \what
 The framework wants the coupling matrix $A_{ij}$ to be \emph{derived} from a
 continuum physical field rather than posited. The construction: triangulate the
@@ -1672,6 +2742,13 @@ physically interesting discretization.
 \section{The negative result: coarse-graining produces no kernel}
 \label{sec:nokernel}
 
+Knowing the total weight of all connections is different from knowing the
+weight of each connection. Similarly, a single limiting energy does not
+determine a function of two locations. \emph{Coarse-graining} means replacing
+fine detail with summaries on larger regions. It can preserve a total while
+discarding which pairs contributed to it. The product space $M\times M$
+consists of pairs of locations; that is where a two-site kernel belongs.
+
 \what
 It would be natural to read the mesh-refinement theorem as constructing the
 continuum kernel $K(x,y)$ that the rest of the framework uses. It does not,
@@ -1698,12 +2775,13 @@ weights.
 
 \scope
 The manuscript is scrupulous about the direction this cuts. It is
-\emph{Derivation 8's hardware no-go} (Part XIII) applied to the framework's own
+the continuum/discrete comparison of Part XIV applied to the framework's own
 coarse-graining step---the same argument that would separate a finitely-sited
 architecture from a continuum one also blocks the framework's own route from
 mesh to kernel. The continuum kernel is therefore a \emph{modelling input},
 and its identification with the brain's endogenous electromagnetic field is a
-further empirical commitment. E45 (dissipation $\to$ continuum) and E56
+further empirical commitment. E45 or E45Active (the thermodynamic bound
+$\to$ a continuum energy limit) and E56
 (continuum $\to$ field) are where those two steps live.
 
 %======================================================================
@@ -1713,13 +2791,39 @@ further empirical commitment. E45 (dissipation $\to$ continuum) and E56
 \section{What a sheaf is}
 \label{sec:sheaf}
 
+\subsection{Assemble two overlapping maps}
+
+Imagine a system with sites $A,B,C$. One local description covers $A,B$ and
+assigns masses $0.2,0.3$. A second covers $B,C$ and assigns masses $0.3,0.5$.
+They agree at their shared site $B$, so they assemble into the global profile
+$(0.2,0.3,0.5)$. If the second instead assigns $0.4$ to $B$, no single profile
+can restrict to both. Agreement is required only on the overlap.
+
+\emph{Local} refers to a region; \emph{global} to the whole chosen space.
+A section is an allowed description over a region. Restriction keeps the part
+of that description belonging to a smaller region. A cover is a collection
+of regions whose union is the whole space. ``Open'' specifies the regions the
+topology permits as neighbourhoods; in an ordinary plane an open region
+includes a small disk around each of its points. On a discrete space every
+subset is open, so the three-site example needs no geometric subtlety.
+
+For spatial measures, restriction keeps the existing mass on the smaller
+region; it does not renormalize it to one. Thus the local masses above need
+not individually sum to one, even when the global profile does. Gluing arbitrary
+normalized probability distributions is not automatic: the permitted local
+objects and restriction maps must actually have the stated gluing property.
+
+\subsection{The vocabulary for that assembly rule}
+
 \what
 A \emph{presheaf} assigns data to each open region of a space, together with
 \emph{restriction maps} that cut data down to smaller regions. If
 $\mathcal{F}(U)$ is the set of ``local descriptions over $U$'' and
 $V\subseteq U$, there is a map $\mathcal{F}(U)\to\mathcal{F}(V)$ discarding
-what happens outside $V$. In this framework the data are probability measures:
-each cortical patch carries a distribution over what it represents.
+what happens outside $V$. The formal construction uses spatial measures:
+weights assigned to locations in each patch. Interpreting those weights, or
+other suitable local data, as descriptions of represented content is a further
+modelling step.
 
 A presheaf is a \emph{sheaf} when local data that agree on overlaps assemble
 uniquely into global data. Formally: given an open cover $\{U_i\}$ of $X$ and
@@ -1728,9 +2832,12 @@ sections $P_i\in\mathcal{F}(U_i)$ such that $P_i$ and $P_j$ have the
 one global section $P_X\in\mathcal{F}(X)$ restricting to each $P_i$. This is
 the \emph{gluing axiom}, and it is the whole reason sheaves appear here.
 
-The auxiliary notion is the \emph{stalk} at a point $x$---the space of
-\emph{germs}, obtained as a colimit over all neighbourhoods of $x$, capturing
-what the data look like arbitrarily close to $x$.
+The auxiliary notion is a \emph{germ}: what a local description says near one
+point, ignoring differences farther away. Two descriptions have the same germ
+if they agree on some smaller neighbourhood of that point. The \emph{stalk}
+collects all possible germs there. Formally it is a \emph{colimit}: one object
+assembled from a system of local descriptions by identifying the descriptions
+that become equivalent on smaller neighbourhoods.
 
 \why
 Because synchronization alone does not give unity, and the framework needs a
@@ -1740,8 +2847,8 @@ that mechanism, and it delivers uniqueness for free.
 \statement
 
 \begin{quote}
-\textbf{Theorem (Sheaf-theoretic unity).} Given a sheaf $\mathcal{F}$ of
-probability measures over a substrate $X$, if local states
+\textbf{Theorem (Sheaf-theoretic unity).} Given the specified sheaf $\mathcal{F}$
+of spatial measures over a substrate $X$, if local states
 $P_U\in\mathcal{F}(U)$ agree on all intersections $U\cap V$, they glue
 uniquely into a global section $P_X\in\mathcal{F}(X)$.
 \end{quote}
@@ -1809,7 +2916,7 @@ every other requirement of the gluing theorem and fails compatibility alone
 
 \noindent
 That object is what a prose table of assumptions cannot carry. It is also the
-target the compatibility observable of Part XV would have to separate from its
+target the compatibility observable of Part XVIII would have to separate from its
 compatible counterpart.
 
 \scope
@@ -1829,6 +2936,12 @@ a globally compatible representation.
 
 \section{Where uniqueness comes from}
 
+Return to the three-site example. Once both compatible local profiles are
+given, every global entry is fixed. That is uniqueness \emph{for those inputs}.
+It does not choose the sites, decide which measurements define the profiles,
+or select this cover over another candidate cover. A theorem can settle the
+assembly question without settling which biological system to assemble.
+
 \what
 Accounts of conscious unity need something that picks \emph{one} experience
 from among the candidates a system could support. Integrated information theory
@@ -1838,7 +2951,7 @@ postulates an \emph{exclusion} principle for this purpose \citep{tononi2016}.
 Here uniqueness arrives twice as a \emph{consequence} rather than a postulate:
 given a cover whose local sections agree, the sheaf condition gives exactly one
 global section; and given a contracting self-prediction map, Banach's theorem
-(Part XII) gives exactly one fixed point.
+(Part XIII) gives exactly one fixed point.
 
 \scope
 \textbf{Uniqueness is relative to a cover and a map.} Choosing the regions,
@@ -1853,6 +2966,21 @@ construction, leaving selection between constructions to a biological model.
 %======================================================================
 \section{Twisted gluing, and why it fails to add content}
 
+Two maps can use different compass zeros while describing the same directions.
+If one map is rotated by an angle, their overlap disagrees by a constant
+offset. Adjusting each map's zero may remove all such differences. ``Twisted''
+gluing asks when this kind of coordinate adjustment makes local data agree.
+
+For three patches with absolute phase choices $\phi_1,\phi_2,\phi_3$, the
+offsets around their loop add to
+\[
+ (\phi_1-\phi_2)+(\phi_2-\phi_3)+(\phi_3-\phi_1)=0.
+\]
+Every term cancels. Calling these offsets a \emph{coboundary} says they come
+from differences of choices on individual patches, so changing those choices
+removes them. An arbitrary collection of pairwise offsets need not have that
+property.
+
 \what
 A natural weakening of exact overlap agreement: allow local states to differ by
 a \emph{phase} on each overlap, and ask when the family still glues after one
@@ -1864,6 +2992,12 @@ $U_i\cap U_j$ can be written as $\phi_i-\phi_j$ for some per-patch phases.
 Both directions are proved: coboundary offsets glue after one rotation per
 patch, and conversely, when the phase action is free on overlaps, a family that
 glues up to phase has coboundary offsets.
+
+A phase action is a rule for rotating the local data. It is free if only
+the zero rotation leaves the relevant overlap data unchanged. A quotient groups
+objects treated as equivalent. Cochains are lists of values assigned to
+patches or overlaps; \v{C}ech cohomology organizes which such overlap data
+cannot be removed by making local choices.
 
 \textbf{And that is precisely why the construction adds nothing here.} Any
 Kuramoto configuration---including a twisted or splay state---supplies absolute
@@ -1882,6 +3016,20 @@ empty overlap. Naming it after the real thing would overstate what is built.
 \id{PhaseObstruction}.
 
 \section{Phase singularities and winding numbers}
+
+An angle says where a hand points; an \emph{unwrapped} angle also counts how
+many turns it has made. Choosing that real-number version continuously is
+called a \emph{lift}. Walking round a loop while the phase makes one full turn
+brings the pointing direction back to its start, but increases the unwrapped
+angle by $2\pi$. The winding number records that net turn count, with its
+sign recording direction.
+
+For a signal pictured as an arrow, amplitude is arrow length and phase is its
+direction. A zero-length arrow has no direction. This is why a point of zero
+amplitude can be a phase singularity: the amplitude is defined but the phase
+is not. A spiral is one possible pattern around it; not every amplitude zero
+has nonzero winding. The analytic-signal construction used to extract such
+arrows from recordings is explained in Part XVI.
 
 \what
 A narrower and genuinely positive answer comes from the data. The
@@ -1907,6 +3055,11 @@ transitions arising from a single global lift telescope to zero---so non-zero
 winding \emph{obstructs} a global lift---and a winding-one witness on three
 electrodes shows the obstruction is realized.
 
+The following notation spells out where phases can be measured. The
+\emph{punctured domain} is the surface with singularities removed. The
+\emph{nerve} of a cover records which patches overlap: a node for each patch,
+an edge for each pairwise overlap, and higher pieces for shared multiple
+overlaps. Its loops describe closed routes through patches.
 The cover-level specification is explicit: cortical surface $M$, analytic
 signal $z=Ae^{i\phi}$, singularity set $Z_t$, punctured domain
 $M^\ast_t=M\setminus Z_t$, and measurement map $q_t=z/|z|:M^\ast_t\to S^1$. A
@@ -1920,13 +3073,19 @@ Two limits, stated firmly. First, this does \emph{not} rescue the twisted-gluing
 quotient: that quotient uses circle-valued differences of absolute patch
 phases, while the measured obstruction uses integer transitions between local
 lifts. They are different objects. Second, \textbf{no theorem connects winding
-sectors to content.} A proposed content-sensitive test is specified---nested
-preregistered classifiers, a control model containing stimulus, task,
-behavioural response, eye movement and arousal, an augmented model adding
-signed winding, source-localized singularity position, rotation direction and
-lifetime, evaluated on held-out participants and sessions with label
-permutations within strata, requiring replicated incremental out-of-sample
-discrimination including under a changed or absent motor report. A positive
+sectors to content.} A sector groups configurations by their winding numbers.
+A proposed test compares two classifiers, rules trained to predict a content
+label from measurements. One uses stimulus, task, behavior, eye movement and
+arousal (level of wakefulness); the other adds winding, estimated brain-source
+location of singularities, rotation direction and lifetime. They are nested
+models because the second contains the first model's inputs plus more.
+Preregistration fixes the analysis before seeing its outcomes. Held-out
+participants and sessions are reserved for evaluation rather than training;
+shuffling content labels within comparable groups supplies a control for chance
+prediction. The added information must improve prediction on these unseen
+data, replicate, and survive a changed or absent motor report, such as a button
+press. Source localization is inference about the brain locations generating
+recorded signals, with its own uncertainty. A positive
 result would be an empirical \emph{association}, not an identification of a
 topological sector with phenomenal content; a null increment rejects the
 proposed role. In finite-resolution data the amplitude threshold defining
@@ -1945,6 +3104,20 @@ it.
 \addcontentsline{toc}{section}{Part XIII. Metric spaces, contractions, and the reflexive self}
 %======================================================================
 \section{Banach's fixed-point theorem}
+
+Start with the update rule $f(x)=(x+2)/2$. From $0$, repeated application gives
+$1,1.5,1.75,\ldots$, approaching $2$. Starting somewhere else also approaches
+$2$, because each update halves the distance to it. The number $2$ is a
+\emph{fixed point}: $f(2)=2$. Iteration means applying the same rule repeatedly.
+It need not represent physical time unless a model explicitly gives it that
+meaning.
+
+A \emph{Cauchy sequence} has terms that become arbitrarily close to one
+another sufficiently far along. Completeness says their limiting point belongs
+to the space. If we removed $2$ from the real line, the example sequence would
+approach a missing point; that space would not be complete. A distance must
+be nonnegative, symmetric, zero exactly for equal states, and obey the triangle
+inequality: going via a third point cannot shorten the direct distance.
 
 \what
 A \emph{metric space} is a set with a notion of distance. It is
@@ -1986,18 +3159,23 @@ has a unique fixed point.
 \end{quote}
 
 \noindent
-The rate in the exponent, $(K-\Kc)/2$, is the growth rate of the incoherent
+Linearizing means approximating the dynamics of a small disturbance by its
+first-order terms. In the near-threshold amplitude approximation
+$\dot r=\tfrac12(K-2D)r-cr^3$, $c>0$ sets the saturation strength: the cubic
+term slows growth at larger amplitudes. The rate in the exponent, $(K-\Kc)/2$,
+is the growth rate of the incoherent
 state's instability, so supercriticality $K>\Kc$ makes the factor less than one.
 Relaxation about the \emph{coherent} branch is twice as fast---linearizing
 $\dot r = \tfrac12(K-2D)r - cr^3$ about its stable fixed point gives
 $(K-\Kc)$---so $\lambda$ is the larger of the two factors and the Lipschitz
 obligation stated with it is the weaker. Both are below one on exactly the
 half-plane $K>\Kc$.
-Two results split the parameter plane at exactly Sakaguchi's threshold, and
-the negative half is proved as well as the positive: at or below threshold,
-contraction at that rate is false for \emph{every} self-map of \emph{every}
-metric space, so the argument is \emph{unavailable} rather than merely
-unproved.
+Here $\tau>0$ is a specified interval, and a Lipschitz bound says output
+distances are at most $\lambda$ times input distances. Below threshold this
+particular formula gives $\lambda\ge1$, so it does not supply the strict
+factor below one required by the contraction theorem. Other maps can still
+be contractions at other rates; what fails is this rate's contraction
+condition, not the existence of every possible contraction.
 
 \scope
 \textbf{Coherence supplies $K>\Kc$; it does not supply the Lipschitz law.} The
@@ -2007,6 +3185,18 @@ both the Lipschitz law and the identification of the glued section with the
 fixed point---Banach supplies uniqueness, not that identification.
 
 \section{The metric on global sections, and why the obvious ones fail}
+
+Consider two mass profiles $(0.2,0.3,0.5)$ and $(0.2,0.4,0.4)$. Their largest
+sitewise difference is $0.1$. This \emph{uniform distance} measures the
+largest local error in reconstructing a profile. A $0/1$ distance instead calls
+any unequal profiles distance one, whether they differ slightly or completely.
+That discards the gradations an informative contraction needs.
+
+Total variation compares how much two measures can disagree on a whole event
+or region, rather than one site. L\'evy--Prokhorov distance also allows a small
+spatial enlargement of regions before comparing their probabilities. These
+are alternative ways to measure discrepancy, with different contraction and
+completeness properties; naming one does not establish the needed theorem.
 
 \what
 To apply Banach one needs an actual complete metric on the space of global
@@ -2037,20 +3227,31 @@ made.
 
 \subsection{The germ--measure dictionary}
 
-Getting from sheaf sections to numbers requires a bridge, and Mathlib supplies
-none: \id{TopCat.Presheaf.sheafify} has no adjunction and no
-\id{isIso\_toSheafify}, so the inverse had to be built by hand.
-
-On a \emph{discrete} substrate every point has a smallest open
-neighbourhood---itself---so ``the mass carried at $x$'' is a well-defined map
-out of the stalk at $x$, constructed as the colimit map of a cocone whose
-cocone law is precisely that restriction preserves point masses. Reading a
-section's germ at each site of an open $U$ gives a map to mass profiles on $U$,
-and \id{massEquivOn} proves it a \emph{bijection}: injective because a germ on
-a discrete space is determined by its restriction to the point, surjective
-because every prescribed profile is realized by a finite measure on $U$.
+The abstract local descriptions must be translated into numbers before their
+distance can be calculated. On a discrete substrate, a point is itself its
+smallest neighbourhood. Its germ therefore determines a single site's mass.
+Reading those masses at all sites turns a section into a mass profile.
+Conversely, the permitted mass profile defines a measure and hence a section.
+The result \id{massEquivOn} proves this correspondence works in both directions
+without identifying distinct sections or missing profiles. That bijection is
+the dictionary making the uniform-distance construction possible.
 
 \section{The avatar: making the self-model run through a region}
+
+An \emph{encoding} writes information about a global state into a chosen
+local region. A \emph{readout} reconstructs a global state from that local
+record. The framework calls the region the avatar; the word does not imply a
+picture, a person-shaped representation or a digital character.
+The composite map means ``write, then read'':
+\[
+ s\ \longmapsto\ \mathrm{write}(s)\ \longmapsto\
+ \mathrm{readout}(\mathrm{write}(s)).
+\]
+At a fixed point, the reconstruction equals the original state. A predicate
+is a yes/no condition on an object. The \emph{restriction-resonance} predicate
+requires the write to be the state's own restriction to the encoding region.
+A constant encoding writes the same record whatever the state; this is the
+mathematical meaning of the blinding control.
 
 \what
 The self-prediction map could have been carried as free data sitting beside the
@@ -2076,7 +3277,8 @@ at every avatar are equal. The readings are local; the global state is
 reconstructed from them by the same sheaf condition Part XI uses.
 \item \id{self\_mem\_range\_readout}: a fixed point lies in the range of the
 read-out, so the Self is reconstructed from a single section over the avatar
-region---\emph{the low-dimensional fold, as a theorem}.
+region. This proves reconstruction from a local section; it does not by itself
+establish the encoding's dimension or storage capacity.
 \item \id{self\_eq\_readout\_restrict}: under resonance the Self satisfies
 $s=\mathrm{readout}(s|_{\text{avatar}})$---the field is what its own localized
 self-encoding reconstructs. This is exactly the statement a structure carrying
@@ -2115,6 +3317,18 @@ stronger reading than stating the results.
 
 \section{Resource-matched coupling reallocation}
 
+Imagine a wiring budget of $R$ units to distribute among allowed pairs.
+For fixed phases, the score of pair $(i,j)$ is $\cos(\theta_j-\theta_i)$:
+one for alignment, minus one for opposition. With nonnegative weights, the
+weighted sum cannot exceed the budget times the best allowed pair's score.
+If an unavailable pair has a higher score, allowing a wire there can improve
+the optimum at the same budget. This is the comparison made below.
+
+\emph{Support} specifies where a coupling may be nonzero. Resource matching
+means both alternatives receive the same total weight. Optimization means
+finding the best score among permitted choices; suboptimal means some
+permitted comparison achieves a strictly higher score.
+
 \what
 \emph{Rigidity} here means a constraint on \emph{which pairs can be wired at
 all}---weights tunable, wiring fixed---not a constraint on weight values. The
@@ -2140,6 +3354,13 @@ to the best pair is not beaten.} It is a statement about constrained
 optimization, not about biology.
 
 \section{The continuum/discrete separation}
+
+Ordinary area gives a single point zero area, and any finite list of points
+still has zero area. A finite patch can have positive area. An \emph{atomless}
+measure has this no-point-mass property in the spaces considered here; length
+and area are examples. Integrating a function nonzero only at finitely many
+points therefore gives zero. A different measure, such as counting measure,
+would see those points. The distinction is in what is being measured.
 
 \statement
 \id{fieldCorrelation} integrates a kernel against $\mu\otimes\mu$. A
@@ -2184,6 +3405,19 @@ point.
 
 \section{What formalization is claimed to add}
 
+A formal proof spells out an argument in a language whose rules software can
+check. A \emph{type} specifies what kind of object is allowed: a number, a
+function, a probability measure, or evidence for a proposition. Type-checking
+checks that every expression supplies the kind of object the next step needs.
+A proof \emph{term} is the explicit object encoding a derivation. The checker
+can verify that a conclusion follows from assumptions; it cannot measure
+whether a brain satisfies them or decide whether the interpretation is apt.
+
+For example, a proof about a density does not itself supply a time-dependent
+path. To use it in a theorem requiring a trajectory, one must construct that
+trajectory and prove the relationship, or state that relationship as an
+assumption. This is how a missing physical bridge becomes visible in code.
+
 \what
 A prose table of assumptions would list the same eight edges. What the Lean
 development adds is that it makes the list \emph{non-negotiable}.
@@ -2209,6 +3443,21 @@ lose.
 
 \section{Why a global axiom is the wrong shape for a physical postulate}
 \label{sec:soundness}
+
+An \emph{axiom} is accepted without proof. A \emph{class} or structure is a
+record containing named quantities and conditions; its entries are called
+\emph{fields}, a programming term distinct from a physical field. An
+\emph{instance} is one concrete record satisfying those conditions.
+Putting a heat law in the record says ``this result concerns systems obeying
+this law''. Declaring it separately for every record can instead assert it
+even for a record with heat values chosen to violate it.
+
+A variable is bound when a statement specifies what it ranges over.
+An implicit argument is still an input to a theorem even when Lean fills it
+in automatically. \emph{Inconsistent} means the assumptions yield a
+contradiction. In classical logic a contradiction permits any conclusion;
+a successful build alone is therefore not evidence that the physical
+assumptions were expressed consistently.
 
 \what
 Formalization is only as trustworthy as its axioms, and an \emph{inconsistent}
@@ -2258,7 +3507,26 @@ claim about every model. Under that rule the development declares no axioms at
 all: \id{\#print axioms} on any result reports only Lean's own foundational
 three---\id{propext}, \id{Classical.choice} and \id{Quot.sound}.
 
+Those foundations support treating logically equivalent propositions as equal,
+choosing elements whose existence is known, and identifying equivalent
+representatives in quotient constructions, respectively. ``No axioms'' in
+this repository means no additional declared axioms beyond those foundations.
+The default Lean build audits every library declaration and rejects any other
+axiom, including the placeholder \id{sorryAx} introduced by an unfinished
+proof. A separate local check also catches unfinished anonymous examples.
+
 \section{Witnesses, and what inhabitation does and does not prove}
+
+``Every object satisfying conditions $A$ has property $B$'' is true if no
+object satisfies $A$. This is \emph{vacuous truth}. A witness supplies an
+actual object satisfying $A$, showing the result has at least one case to
+which it applies. Inhabited means at least one such object exists.
+A toy witness tests mathematical consistency, not biological plausibility.
+A discrete topology allows every set of sites as an open region; its Borel
+$\sigma$-algebra is the collection of measurable sets generated by those
+regions, which here includes every subset. A $\sigma$-algebra is a collection
+closed under complements and countable unions, providing the events to which
+a measure assigns sizes or probabilities.
 
 \what
 A conditional theorem about an \emph{uninhabited} class is vacuously true and
@@ -2278,43 +3546,115 @@ the equilibrium obligation dischargeable. Getting a physical system into that
 configuration is the content of the informal dynamical argument, not of the
 witness.
 
-\section{The chain theorem}
+\section{The passive and active chain theorems}
+\label{sec:chain-theorems}
+
+Composition means connecting conclusions to the hypotheses of later results.
+If $A$ implies $B$ and $B$ implies $C$, a proof of $A$ gives $C$ through those
+two steps. The repository's chain has more objects and supplied conditions,
+but this is the logical operation. \emph{Joint satisfiability} asks whether all
+its assumptions can hold at once, rather than each in an unrelated example.
+A regression test preserves a demonstrated property when source changes;
+here counterexamples also guard against weakened hypotheses.
 
 \statement
-\id{Chain.lean}'s theorem \id{chain} takes the eight named hypotheses E12--E89,
-together with a \id{ThermodynamicCover} and a \id{ReflexiveBoundary} whose class
-fields specify the local data and encoding, and concludes \id{UnifiedSelf}: that the particular section glued by a
-thermodynamic cover \emph{is} the unique fixed point of self-prediction.
+\id{Chain.lean} provides two branches. The theorem \id{chain} uses passive
+predictive memory, with the eight named hypotheses E12--E89. The theorem
+\id{chain\_active} replaces E34 and E45 with E34Active and E45Active for a
+specified finite feedback process. Both take a \id{ThermodynamicCover} and a
+\id{ReflexiveBoundary} whose class fields specify the local data and encoding,
+and conclude \id{UnifiedSelf}: the particular section glued by that cover
+\emph{is} the unique fixed point of self-prediction.
 The cover includes compatibility. The separate restriction-resonance predicate
-identifies encoding with restriction to the avatar region; the chain theorem
-does not consume that predicate.
+identifies encoding with restriction to the avatar region; neither chain
+theorem consumes that predicate.
 \id{chain\_hypotheses\_jointly\_satisfiable} discharges all eight at once on a
 witness assembled from a double well, a register, a uniform-grid mesh and a
 three-site cortex, which remain distinct toy systems rather than one mechanism.
+\id{chain\_active\_hypotheses\_jointly\_satisfiable} uses the noisy actuator
+of Section~\ref{sec:agency-heat} together with the register, changing mesh and
+specified field/cover. Its controller has the register's state type and its
+heat fits the register's budget. The active bound therefore admits a process
+whose signed passive information difference is negative.
 
-Two of the eight ask for more than bare existence, and each has a regression
-test rejecting a structure that would satisfy the weaker form:
+The following requirements tie premises to specified objects:
 \begin{itemize}[leftmargin=*,noitemsep]
 \item \textbf{E34} asks for a predictive structure carrying \emph{the
 register's own} temperature and Landauer heat, with non-zero waste---not merely
 for some predictive structure.
+\item \textbf{E34Active} supplies positive path probabilities, local detailed
+balance at the register's temperature, and an upper heat allocation for the
+named controlled substep. The entropy bound is then derived. Landauer's lower
+bound on erasure heat does not supply this upper allocation or identify the
+eraser with the actuator.
+\item \textbf{E45Active} consumes the bound for that same process, heat
+observable, temperature and budget, and requires the specified coupling-energy
+sequence to converge to its named limit.
 \item \textbf{E78} asks for a cover coupled at least at $K$ whose equilibrium
 is \emph{the limit of a relaxation on that coupling}
 (\id{ThermodynamicCover.IsReachedByRelaxation})---not merely for some cover.
 \end{itemize}
 
+The active witness rejects a zero budget because its actual mean heat is
+positive. It also rejects an incompatible energy limit: a constant-zero
+sequence cannot converge to three, even though the actuator satisfies its
+thermodynamic bound. The positive mesh witness supplies convergence
+independently of that bound. This demonstrates why the connection to
+coarse-graining needs a modelling assumption.
+
+After either branch reaches n5, \id{chain\_from\_coarseGrains} supplies the
+common proof through E56--E89. The field, cover and fixed section are preserved
+through that passage. Introducing feedback changes the thermodynamic premise;
+it does not remove the supplied compatibility, contraction or fixed-state
+identification.
+
 \scope
-The joint witness proves the hypotheses \emph{simultaneously consistent}. It
-does not prove that one mechanism realizes them, and it certainly does not
+The joint witnesses prove the hypotheses \emph{simultaneously consistent}.
+They do not prove that one mechanism realizes them, and they do not
 establish the empirical truth of any premise. E12 remains equivalent to its own
 conclusion, which is why n1 and n2 are described as independent roots rather
 than as a derivation.
+
+The active chain theorem concerns an autonomous substep with the controller
+fixed, finite states and strictly positive probabilities. The complete finite
+update theorem in Section~\ref{sec:agency-cycle} matches the intermediate law
+and accounts for both substeps at a common thermal scale. Its heat bound does
+not supply E34Active's register-to-actuator allocation or E45Active's
+coupling-convergence implication. A claim about learning
+would require specified update dynamics and a criterion for what counts as
+improvement. Moreover, n5 concerns refinement of a spatial mesh; convergence
+over learning time alone would not establish that limit.
+
+\subsection{A chosen physical model and its empirical interpretation}
+
+A physical model specifies variables with proposed physical meanings and rules
+for their evolution. For the two-bit model, these are the two states, their
+interaction energy, the thermal transition probabilities and the reservoir.
+Choosing those ingredients does not require first measuring a brain. One can
+prove a conditional entropy balance, construct a counterexample or derive a
+convergence theorem entirely from explicitly chosen mathematical assumptions.
+
+An empirical interpretation is a further claim: that particular neural
+quantities obey those assumptions closely enough for the result to explain
+an observation. That claim needs evidence. Lean can check whether a specified
+dynamics implies a stated property; it cannot establish which dynamics cortex
+implements. Progress in the formal model and validation of its biological
+interpretation are therefore distinct tasks.
 
 %======================================================================
 \part*{Part XVI. Circular statistics and the empirical test}
 \addcontentsline{toc}{section}{Part XVI. Circular statistics and the empirical test}
 %======================================================================
 \section{Doing statistics on angles}
+
+An electrode channel records a voltage difference over time. The analysis
+extracts an angle from each selected oscillatory signal and then asks how those
+angles are distributed. A \emph{sample} is one measured value; a distribution
+is the probability pattern those values are used to estimate. An
+\emph{estimator} is the rule turning samples into an estimate of a quantity.
+The \emph{estimand} is the underlying quantity it aims to measure. Changing
+which sites or times are pooled can change the estimand even if the formula
+stays the same.
 
 \what
 Phases live on a circle, where ordinary statistics break. The mean of
@@ -2337,6 +3677,28 @@ practice: linear statistics on wrapped phases estimate neither quantity.
 
 \section{Getting the phases: the analytic signal}
 
+For a pure cosine $x(t)=\cos(\omega t)$, adding the quarter-cycle partner
+$\sin(\omega t)$ gives the arrow
+$z(t)=\cos(\omega t)+\mathrm{i}\sin(\omega t)$. Its direction is phase and
+its length is amplitude. The Hilbert transform constructs a corresponding
+quadrature partner for a more general signal. A \emph{narrowband} signal
+concentrates its oscillatory activity in a limited frequency band, making a
+single phase easier to interpret. A mixture of unrelated rhythms can still
+yield a numerical angle, but not necessarily one meaningful oscillator phase.
+
+\emph{Detrending} removes a fitted slow baseline. A bandpass filter retains
+a chosen frequency range and suppresses others. Filter order controls its
+frequency response; a Butterworth filter is designed for a smooth, flat
+response in its passing band. Second-order sections implement it as a series
+of small filtering operations for numerical reliability. Filtering forward
+and backward removes net phase delay, but uses future as well as past samples
+and can distort short transients. Padding supplies extra samples beyond the
+interval of interest to reduce distortions at its edges.
+
+EEG means electroencephalography, electrical recordings at the scalp. EOG
+records eye-related electrical activity and EMG muscle activity. Hertz (Hz)
+means cycles per second; milliseconds (ms) are thousandths of a second.
+
 \what
 The \emph{Hilbert transform} turns a real oscillatory signal $x(t)$ into a
 complex \emph{analytic signal} $z(t)=x(t)+i\,\mathcal{H}[x](t)=A(t)e^{i\phi(t)}$,
@@ -2354,6 +3716,20 @@ to suppress edge artifacts.
 
 \section{The parameter-free prediction, and the trap in testing it}
 \label{sec:collapse}
+
+Suppose a curve claims one measurement predicts another. A meaningful check
+must calculate both quantities without forcing either to obey that curve.
+Here $r$ comes from averaging phase arrows, while $a$ is estimated from the
+shape of their histogram. ``Independent'' means distinct estimating equations;
+it does not mean the estimates, made from the same data, are statistically
+independent.
+
+\emph{Maximum likelihood} chooses model parameters that make the observed
+sample most probable. A \emph{sufficient statistic} retains all the sample
+information that this fitting calculation uses about a parameter. A score
+equation sets the derivative of the log likelihood to zero to find a candidate
+optimum. In the centered von Mises fit that equation already enforces the
+very concentration--coherence relation being tested.
 
 \what
 The stationary model predicts that concentration and coherence lie on one
@@ -2376,12 +3752,25 @@ whatsoever}, including phases drawn from a distribution that is not von Mises,
 and the collapse would be an algebraic identity rather than a test.
 
 The implemented estimator therefore uses the log-density \emph{shape}: phases
+are counted in intervals called bins. A pseudocount adds a small positive
+count so an empty bin does not require taking $\log0$. Regression fits a line;
+ordinary least squares chooses its slope and intercept to minimize the sum of
+squared vertical errors. Unweighted means each bin contributes equally.
+Specifically, phases
 are centred on their circular mean, binned into 40 bins on $[-\pi,\pi]$, and
 the log of the binned density (with a $0.5$ pseudocount) is regressed on
 $\cos\theta$ by \emph{unweighted} ordinary least squares. Under the von Mises
 model $\log\rho(\theta)=a\cos\theta-\log(2\pi I_0(a))$, so the slope is $a$.
 Other weighting rules are different estimators and are not assumed equivalent
 to maximum likelihood.
+
+The final residual $r-R(\hat a)$ compares measured coherence with the curve's
+prediction using the separately estimated shape; the hat denotes an estimate.
+The artificial controls use other shapes. A wrapped Cauchy wraps a Cauchy
+distribution, which has heavier tails than a Gaussian, from the line onto the
+circle. A top-hat arc has equal density on a chosen arc and zero elsewhere;
+a mixture draws from one of two distributions with specified proportions.
+These controls ask whether the procedure can reject other density shapes.
 
 \emph{Discriminating power was verified directly.} At the analysis's sample
 size, a wrapped Cauchy ($\rho=0.6$), a top-hat arc and a $50/50$ von
@@ -2401,6 +3790,23 @@ threshold ratio \emph{follows from} the density relation instead of testing
 it---and ratios near the finite-size floor are especially unstable.
 
 \section{What the EEG analysis found}
+
+Propofol is an anesthetic drug; these are recordings during drug-induced
+sedation, not ordinary awakening. OpenNeuro is the repository hosting the
+dataset. A \emph{montage} specifies which voltage differences become channels.
+A common-reference montage subtracts one shared reference from each electrode;
+a bipolar montage takes differences between electrode pairs. Shared reference
+signals can therefore enter many channels at once.
+
+SEM, the standard error of a mean, estimates uncertainty in that mean under
+the stated sampling assumptions. It differs from the spread of individual
+observations. RMSE is root-mean-square error and reports a typical residual
+size. Theta, alpha, beta and gamma name conventional EEG frequency bands;
+these names concern different ranges of rhythm speed. ``Broadband'' combines
+the whole selected range. A bootstrap repeatedly resamples observations to
+estimate sampling uncertainty; percentile intervals use quantiles (cutoffs at
+specified fractions) of those estimates. Nearby time bins can be dependent,
+so treating them as independent in resampling can misstate uncertainty.
 
 \statement
 On public propofol-sedation EEG (OpenNeuro ds005620, \citealp{bajwa2025}),
@@ -2460,6 +3866,29 @@ exercise demonstrates what the protocol produces and where it is fragile.
 
 \section{The awakening experiment}
 
+A \emph{protocol} fixes how measurements and decisions will be made before
+the relevant outcomes are examined. A proxy is an indirect measurement of a
+quantity; calibration establishes its relationship to that quantity in a
+specified setting. A behavioral endpoint is a separately defined outcome,
+such as performance on a task. Predeclaring it prevents redefining recovery
+after seeing the coherence curve.
+
+Diffusion MRI is magnetic resonance imaging sensitive to water movement;
+it is not a direct measure of the model's phase diffusion $D$. Astrocytes are
+supporting brain cells whose signals might supply other indirect measurements
+of extracellular conditions. These proxies require their own validation.
+Unblinding means revealing outcomes or group labels hidden during analysis
+design. Observation noise is measurement error, distinct from random motion
+in the underlying model.
+
+A sigmoid is an S-shaped rising curve; an exponential recovery has a fixed
+characteristic rate of approach. They are alternative shapes to compare
+under the same filtering and measurement process. \emph{Hysteresis} means the
+response depends on the path by which a control value was reached, such as
+different coherence on increasing and decreasing coupling. A stationary fold
+is a branch turning back in the control parameter; it can permit multiple
+stationary states. Dynamical lag can produce a loop even without such a fold.
+
 \statement
 The manuscript specifies six requirements, and the design---not any single
 measurement---is where the content of the hypothesis lives.
@@ -2467,7 +3896,7 @@ measurement---is where the content of the hypothesis lives.
 \begin{enumerate}[leftmargin=*,noitemsep]
 \item \textbf{Coupling and diffusion in the same units.} $K$ and $D$ estimated
 from the same cortical regime, in inverse-time units, separating phase
-diffusion from quenched frequency spread and from observation noise. Without
+diffusion from fixed natural-frequency differences and from observation noise. Without
 this, ``$K>2D$'' is not an evaluable statement about cortex. Watching a
 sequence of equilibrated phase distributions will not do it: the stationary
 density is von Mises with concentration $Kr/D$, so it fixes the \emph{ratio}
@@ -2519,6 +3948,13 @@ of ignition.
 \section{Why the units do not match}
 \label{sec:gamma}
 
+\emph{Dimensional analysis} checks whether quantities have compatible physical
+units. Distance divided by time is speed; distance alone cannot be compared
+with a speed threshold. Likewise, a phase shift and a phase-change rate are
+different quantities. A Fermi estimate is a rough estimate assembled from
+plausible factors to establish an approximate scale. Correct arithmetic cannot
+repair incompatible units.
+
 \what
 The manuscript calls this ``the sharpest open limitation of the framework'',
 and it is a pure dimensional-analysis problem---the kind that is embarrassing
@@ -2542,7 +3978,13 @@ with $D$ at all. The conversion
 \]
 puts the entire gap into a rate calibration $\gamma$.
 
-\section{Why $\gamma$ is not recoverable}
+\section{Why \texorpdfstring{$\gamma$}{gamma} is not recoverable}
+
+A unit conversion changes how the same quantity is expressed: seconds into
+milliseconds, for example. Calibration determines an unknown physical
+relationship. A single timing shift does not tell us whether it persists,
+decays, or accumulates with later shifts. The rate $\gamma$ encodes that
+missing relationship, so choosing a time unit cannot measure it.
 
 \statement
 The substantive point is that $\gamma$ is a \emph{hypothesis about
@@ -2584,6 +4026,33 @@ cortical regime by a route \emph{independent} of the field arithmetic---which is
 item~1 of the protocol above.
 
 \section{The empirical case for the field, and its critics}
+
+\emph{Endogenous} means generated within the system. Transmembrane current
+crosses a cell membrane; extracellular current flows through the spaces
+outside cells. \emph{Ephaptic coupling} is an influence of the surrounding
+electric field on a cell's membrane voltage and timing, without requiring a
+direct synaptic connection. Entrainment means an influence brings a rhythm's
+timing into a sustained relationship with it. Modulation changes ongoing
+activity without necessarily initiating it.
+
+The cerebral cortex is the outer neural sheet of the brain. An action
+potential, or spike, is a brief electrical pulse of a neuron. Synapses are
+specialized junctions through which cells influence one another. Gap junctions
+are channels directly connecting cells; a syncytium here means a connected
+cellular network functioning collectively. Representational drift means the
+neural activity associated with a measured content changes over time.
+Superposition means adding contributions to a field.
+
+Conductivity measures how readily current flows for a given electric field;
+its unit is siemens per metre (S/m). A field in volts per metre (V/m) is a
+voltage change per distance, and $1\,\mathrm{mV/mm}=1\,\mathrm{V/m}$.
+Resistive conduction means current approximately follows the applied field
+without a substantial frequency-dependent phase offset in the stated range.
+An effective-medium model replaces microscopic detail by an averaged material
+description. Volume fraction is the proportion of tissue volume occupied by
+a component; diffusion tortuosity measures how tissue obstacles hinder water
+or solute diffusion compared with free medium. Sleep inertia is the temporary
+impairment after waking.
 
 \statement
 The identification of the continuum kernel with cortex's endogenous
@@ -2654,6 +4123,14 @@ to test it.
 
 \section{The commitment}
 
+A \emph{formal correlate} is a mathematical feature proposed to correspond
+to an aspect of experience. The correspondence requires an interpretation;
+a theorem about the feature alone cannot establish it. A conscious episode
+is a period considered as one experienced situation. \emph{Unity} concerns
+the experience being one whole, and a \emph{minimal self} the perceiver's
+place or perspective within that situation, without requiring a life story
+or an explicit verbal judgment about oneself.
+
 \statement
 Two clauses, neither a theorem:
 \begin{description}[leftmargin=*,style=nextline]
@@ -2667,6 +4144,14 @@ requires evidence that the encoding represents the system's own condition.
 \end{description}
 
 \section{Motivations and the choices they require}
+
+A representation carries information interpreted as being about something,
+its \emph{content}. A decoder is a specified rule inferring that content
+from measured activity; it does not follow automatically from coherence.
+Reflexivity means the representation concerns the representing system itself.
+An idealization deliberately makes a feature exact, such as reconstruction
+without error, to define a tractable model. Testing it requires deciding how
+much approximation is acceptable in real measurements.
 
 Compatibility gives a precise way for distinct local descriptions to contribute
 to one global state. Only shared domains must agree. A content model must
@@ -2711,6 +4196,11 @@ requirement while leaving the compatibility clause assessable separately.
 
 \section{The costs}
 
+The \emph{hard problem} is the question why a physical process should have
+any felt quality at all. \emph{Multiple realizability} means the same abstract
+conditions could be implemented by different physical systems. Both terms
+concern the interpretation's reach, rather than an algebraic step in a proof.
+
 \scope
 The manuscript states these rather than leaving them to a referee.
 
@@ -2732,6 +4222,13 @@ while the identification stands, or succeed while it is wrong.
 
 \section{What would count against it, and the observable that is missing}
 
+An observable is a quantity that a specified measurement can estimate.
+\emph{Sufficiency} means meeting the conditions guarantees the outcome;
+\emph{necessity} means the outcome cannot occur without them. A dissociation
+test seeks cases where proposed linked properties come apart, such as coherent
+timing with incompatible decoded contents. Separately measuring each property
+is essential to such a test.
+
 \statement
 A full test must evaluate coupling, compatibility and the proposed
 self-encoding separately, alongside an independent experience endpoint. A
@@ -2748,14 +4245,22 @@ would enter a dissociation test.
 
 \subsection{Three components}
 
+A \emph{null model} specifies what a measurement would look like if the
+tested effect were absent. Here the null is compatibility with noisy decoders,
+so even agreeing underlying contents can give a positive estimated distance.
+Validation means checking the method on cases with known answers, including
+both matching and mismatching local descriptions.
+
 \begin{description}[leftmargin=*,style=nextline]
 \item[A restriction map.] Two regions with overlapping receptive territories
 each carry a distribution over what occupies the shared part, decoded from that
 region's activity alone. Compatibility is a relation between the two
 \emph{restrictions}, so the map taking a region's decoded distribution to a
 distribution over the overlap must be specified before any statistic is
-computed. On a discrete substrate this is the marginalization the formalization
-already uses.
+computed. For the spatial measures in the formalization, restriction retains
+the masses at shared sites. For a decoded distribution over content variables,
+marginalization instead sums over unwanted variables. The content model must
+specify which operation its shared domain requires.
 \item[A statistic with a null.] A distance between the two restricted
 distributions is not yet a measurement, because decoding error alone makes that
 distance positive. The statistic needs the distribution of the distance
@@ -2773,6 +4278,11 @@ not yet a measurement of the property the framework needs.
 \end{description}
 
 \subsection{Three ways it fails silently}
+
+A prior is a probability distribution supplied before the current evidence;
+a posterior is the distribution after incorporating that evidence. A decoder
+can bias results by pulling different inputs toward the same prior. Bias is
+a systematic displacement of estimates, not just random variation.
 
 \begin{enumerate}[leftmargin=*]
 \item A decoder that shrinks both regional posteriors toward a shared prior
@@ -2805,6 +4315,21 @@ place the interpretive commitment outside experimental reach rather than merely
 outside the article.
 
 \section{Relation to other accounts}
+
+Integrated information theories associate consciousness with irreducible
+cause-and-effect organization of a system. Global workspace accounts emphasize
+information becoming broadly available to other processes, often called
+broadcast. Predictive processing describes perception and action through models
+that predict inputs and respond to discrepancies. A generative model specifies
+how hidden conditions could produce observations. These are families of
+accounts, so the comparison concerns these broad emphases.
+
+The exclusion principle in integrated information theory selects a definite
+experience and system among overlapping candidates. Ignition in workspace
+theories refers to a marked transition to broad availability. The combination
+problem asks how purportedly separate experiential constituents could form one
+experience. None of those questions is settled simply by making a physical
+field continuous.
 
 \statement
 The proposal differs in emphasis from integrated information
@@ -2847,14 +4372,16 @@ with an explicit witness showing the class is inhabitable.
 \hline
 \endhead
 Spontaneous symmetry breaking (\S\ref{sec:ssb}) & Degenerate minima make a choice necessary & Theorem (holds a.e.; the a.e.\ is necessary) \\
-Topological defects, $\pi_0$ (\S\ref{sec:kibble}) & Forces a boundary for an agent & Theorem; only the domain-wall case taken \\
+Topological defects, $\pi_0$ (\S\ref{sec:kibble}) & Forces departure from separated minima & Theorem; identifying an agent's boundary needs further assumptions \\
 Finite capacity & Bounded register cannot absorb its history & Theorem; finiteness assumed and fenced \\
 Landauer's principle (\S\ref{sec:landauer}) & Erasure costs heat & Theorem + instance postulate ($\Delta Q=T\Delta S_{\rm bath}$) \\
 Norton--Shenker distinction & Logical $\ne$ physical erasure & Built into the definitions; survives as a theorem \\
 Data processing inequality & Splits memory into predictive and not & Theorem; no-back-action is load-bearing \\
 Still et al.\ bound & Nonpredictive memory is costly & Instance postulate; consequences derived \\
 Landauer $\to$ Still bridge & One heat, two vocabularies & Theorem under an identification (= E34) \\
-KL bound; FEP critique (\S\ref{sec:fep}) & Blocks ``dissipation $\Rightarrow$ true model'' & Instance postulate; the limit does \emph{not} follow \\
+Agency and feedback (\S\ref{sec:agency}) & Explicit perception--action channels; separates two conditional information terms & Theorem; finite information, passive case recovered \\
+Finite feedback thermodynamics (\S\ref{sec:agency-heat}, \S\ref{sec:agency-cycle}) & Elementary and complete two-substep heat budgets; total first law & Theorem under positivity and local detailed balance; common thermal scale and energy for the cycle \\
+KL bound; free-energy critique (\S\ref{sec:fep}) & Blocks ``dissipation $\Rightarrow$ true model'' & Instance postulate; the limit does \emph{not} follow \\
 Squared-drift gradient (\S\ref{sec:sigma}) & A descendable objective for plasticity & Theorem at fixed phases; \emph{not} entropy production \\
 Kuramoto SDE & The physical core & Model \\
 Lyapunov descent (\S\ref{sec:lyapunov}) & Motion is gradient flow on a potential & Theorem; minimum characterization needs positivity \\
@@ -2863,7 +4390,7 @@ Picard--Lindel\"of, global & Trajectories exist and are unique & Theorem on all 
 Barbalat's lemma & Motion stops & Proved here (absent from Mathlib) \\
 \L{}ojasiewicz estimate (\S\ref{sec:convergence}) & Locates the limit & Theorem, conditional on initial data \\
 Propagation of chaos (\S\ref{sec:chaos}) & Would link finite $N$ to mean field & \textbf{Open}; not closed by any theorem \\
-von Mises density (\S\ref{sec:vonmises}) & The stationary phase law & \textbf{Assumed}; checked numerically only \\
+von Mises density (\S\ref{sec:vonmises}) & The stationary phase law & Starting assumption in Lean; stationary algebra checked symbolically and numerically \\
 Threshold $\Kc=2D$ (\S\ref{sec:threshold}) & Coupling gate for coherence & Theorem about a stationary density \\
 Fold-and-cross uniqueness (\S\ref{sec:fold}) & Exactly one coherent branch & Theorem; no differentiation used \\
 Critical exponent $\beta=1/2$ (\S\ref{sec:exponent}) & Square-root onset & Theorem; filter-indexed, with witness \\
@@ -2880,7 +4407,7 @@ Avatar / restriction resonance & Self-model runs through a region & Theorems, po
 Rigid wiring suboptimality & Support constraints cost correlation & Theorem; \emph{not} about biology \\
 Atomless / sited separation & Continuum observable ignores finite sites & Theorem; not resource-matched \\
 No-axioms methodology (\S\ref{sec:soundness}) & Postulates as instance obligations & Methodological; three refutations recorded \\
-Chain theorem & Eight hypotheses $\Rightarrow$ \id{UnifiedSelf} & Conditional theorem; jointly satisfiable \\
+Passive and active chains (\S\ref{sec:chain-theorems}) & Eight hypotheses per branch $\Rightarrow$ the same glued fixed state & Conditional theorems; both jointly satisfiable, budget-to-coupling connection assumed \\
 $(a,r)$ collapse (\S\ref{sec:collapse}) & Parameter-free distributional test & Compatible with EEG; range too narrow to discriminate \\
 Sleep-inertia recovery & Conditional prediction requiring dynamics and mechanism identification & \textbf{Untested} \\
 Rate calibration $\gamma$ (\S\ref{sec:gamma}) & Converts field estimate to coupling & \textbf{Not derivable}; the sharpest open limitation \\
@@ -2892,14 +4419,27 @@ Unity / selfhood identification & What the object is taken to be & \textbf{Philo
 
 \section{Glossary}
 
+These are short reminders of explanations developed in the text. The five
+terms central to the Kuramoto walkthrough are \emph{order parameter},
+\emph{rotating frame}, \emph{ansatz}, \emph{stationary branch} and
+\emph{ramp speed}.
+
 \begin{description}[leftmargin=1.6cm,style=nextline]
-\item[Adiabatic tracking] The assumption that a slowly driven system stays on
-its stationary branch. Fails near a transition, where relaxation times diverge.
+\item[Adiabatic tracking] Remaining close to the fixed-control solution while
+the control changes slowly. Requires adjustment faster than the target moves;
+critical slowing down limits it.
+\item[Agency model] Specified policy, world, observation and memory-update
+channels. Permits action to change future inputs; supplies no learned objective.
+\item[Amplitude] Size of an oscillation; length of its signal arrow.
 \item[Analytic signal] The complex signal $A e^{i\phi}$ built from a real
 signal by the Hilbert transform, supplying instantaneous amplitude and phase.
+\item[Ansatz] A proposed form of solution, with parameters to determine and
+conditions to check. The stationary ansatz here is a von Mises density
+(Section~\ref{sec:vonmises}).
 \item[Atomless measure] A measure giving zero mass to every single point.
 Lebesgue measure is the example; finitely-sited kernels are invisible to
 integrals against it.
+\item[Branch] A continuous family of solutions as a control parameter varies.
 \item[Barbalat's lemma] If a function is well-behaved and its integral
 converges, the function tends to zero. Not in Mathlib; proved in the
 development.
@@ -2908,9 +4448,17 @@ Mises law at concentration $a$. Strictly increasing.
 \item[Coboundary] A family of offsets on overlaps expressible as differences
 $\phi_i-\phi_j$ of per-patch values. Kuramoto phases always give one, which is
 why twisted gluing adds nothing.
+\item[Compatibility] Agreement of local descriptions on their shared domains.
+\item[Complete space] A space containing the limit of every Cauchy sequence,
+whose terms eventually become arbitrarily close to one another.
 \item[Concentration $a$] The von Mises peakedness parameter, estimated here
 from the slope of the log-density on $\cos\theta$.
+\item[Conditional mutual information] Dependence between two variables
+remaining when a third is known, averaged over that third variable's values.
 \item[Contraction] A map shrinking all distances by a factor $\lambda<1$.
+\item[Coupling] An influence of one oscillator's phase on another's speed;
+$K$ controls its strength in the uniform model.
+\item[Cover] A collection of regions together covering the chosen whole space.
 \item[Critical exponent $\beta$] The power law $r\sim(K-\Kc)^\beta$ near
 threshold. Mean-field value $1/2$.
 \item[Critical slowing down] Divergence of relaxation time at a continuous
@@ -2919,36 +4467,68 @@ transition; what limits adiabatic tracking.
 $I(X;Z)\le I(X;Y)$ for a Markov chain $X\to Y\to Z$.
 \item[Dale's law] The constraint that a neuron is either excitatory or
 inhibitory for all its targets.
+\item[Density] A function whose integral over a region gives its probability
+or mass. Its value at one point is not that point's probability.
+\item[Drift] Systematic change per unit time, before random increments are added.
+\item[Equilibrium] A state that can remain unchanged under fixed conditions.
+For noisy dynamics, the stationary object is a probability distribution.
+\item[Estimator / estimand] The rule calculating an estimate / the underlying
+quantity it aims to measure.
 \item[Euler--Maruyama] The basic numerical scheme for SDEs; noise scales as
 $\sqrt{\Delta t}$.
-\item[Fokker--Planck equation] The PDE governing the evolution of a probability
-density under an SDE. Its stationary solution is the von Mises density---a step
-verified numerically, not formally.
-\item[Frustration] Signed couplings that cannot all be satisfied at once,
-producing a near-degenerate landscape. Excluded from the chain by the
-positivity hypothesis.
+\item[Feedback] Influence of the internal state, through action, on the
+future environmental state that the system observes.
+\item[Finite-size floor] Fluctuating sample order even for independent uniform
+phases; its root-mean-square size is $1/\sqrt N$. Not a hard minimum.
+\item[Fixed point] A state unchanged by a specified map: $f(x)=x$.
+\item[Fokker--Planck equation] A partial differential equation (PDE), tracking
+changes in a probability density across position and time. The model's
+zero-current stationary equation gives the von Mises form.
+\item[Frustration] Interaction preferences that cannot all be satisfied at
+once. It can permit competing patterns; it does not guarantee useful memories.
 \item[Germ, stalk] Data ``arbitrarily near'' a point, obtained as a colimit
 over its neighbourhoods.
 \item[Gluing axiom] The sheaf condition: compatible local sections assemble
 uniquely into one global section.
 \item[Global section] An element of $\mathcal{F}(X)$ over the whole space,
 restricting to the given local data.
-\item[Kibble--Zurek mechanism] The physics of driven transitions: the faster
-the drive, the later the escape, with a power-law delay.
-\item[Landauer's principle] Erasing information costs at least $k_BT\ln2$ per
-bit.
+\item[Kernel] A function $K(x,y)$ giving interaction strength for two locations.
+\item[Kibble--Zurek mechanism] Failure to follow changing equilibrium conditions
+near a transition because the adjustment timescale grows. Particular scaling
+predictions require a specified model and driving protocol.
+\item[Landauer's principle] Under its thermodynamic assumptions, resetting one
+unbiased bit costs at least $k_BT\ln2$ in heat. The general bound depends on
+the entropy actually erased.
 \item[Lipschitz] Bounded rate of change: $|f(x)-f(y)|\le L|x-y|$.
+\item[Local detailed balance] The physical relation between a transition's
+forward/reverse probability ratio and reservoir heat at a specified temperature.
 \item[\L{}ojasiewicz estimate] An inequality bounding a functional's excess
 above its minimum by its current rate of decrease. Yields exponential
 convergence without compactness.
 \item[Lyapunov function] A quantity that never increases along trajectories.
-\item[Mean field] The approximation replacing all pairwise interactions by an
-averaged influence. Justifying it from finite $N$ is propagation of chaos.
+\item[Mean field] The population's aggregate influence. Its finite-sample
+formula is exact for uniform coupling; passing to a deterministic limiting
+density requires a separate justification.
+\item[Measure] A rule assigning weights, such as length, area or probability,
+to sets. An integral totals values using those weights.
+\item[Nonidentifiability] Different model mechanisms producing the same chosen
+observations, so those observations alone cannot distinguish them.
 \item[Order parameter $r$] Circular resultant length,
-$|\frac1N\sum_j e^{i\theta_j}|$; zero for incoherence, one for full locking.
+$|\frac1N\sum_j e^{i\theta_j}|$: the length of the average phase arrow.
+One means perfect alignment; zero means cancellation, which can also occur
+in structured opposing groups (Section~\ref{sec:kuramoto-walkthrough}).
+\item[Path law] A probability distribution over transition records. The
+finite thermodynamic model compares normalized forward and reverse path laws.
+\item[Phase] Position within a repeating cycle, expressed as an angle.
+\item[Phase diffusion $D$] Random timing spread: noise alone contributes
+increment variance $2D\Delta t$ over duration $\Delta t$.
+\item[Phase locking] Constant relative phases. Perfect in-phase locking is the
+special case in which all phases coincide.
 \item[Pitchfork bifurcation] A transition where a branch of solutions emerges
 continuously from zero as a parameter crosses threshold, the old solution
 persisting.
+\item[Policy] A rule assigning action probabilities to internal states.
+It may be specified directly; the word does not imply learning or optimality.
 \item[Preconnected / connected] Topological notions of ``in one piece'';
 continuous images of connected sets are connected---the whole proof of the
 domain-wall theorem.
@@ -2956,15 +4536,33 @@ domain-wall theorem.
 sheaf additionally satisfies the gluing axiom.
 \item[Propagation of chaos] Asymptotic independence of particles in an
 interacting system as $N\to\infty$.
+\item[Ramp speed] Rate of change of a control parameter. Here $v=dK/dt$;
+a finite ramp gives the population finite time to adjust (Section~\ref{sec:ramp}).
+\item[Relaxation time] Timescale for returning toward a settled state after a
+disturbance.
+\item[Replica] One repeat of a stochastic simulation with its own random seed.
 \item[Resultant length] See order parameter.
+\item[Rotating frame] Coordinates turning at a chosen angular speed;
+$\phi_i=\theta_i-\Omega t$ removes a shared natural frequency while preserving
+relative phases and coherence (Section~\ref{sec:rotating}).
+\item[Self-consistency] The density generated by a proposed mean field returns
+the same mean field when its phases are averaged.
 \item[Sliced Wasserstein distance] A tractable distance between
 high-dimensional distributions, computed by averaging one-dimensional optimal
 transport over random projections. Used---and shown to have a finite-sample
 floor---in the propagation-of-chaos diagnostics.
+\item[Stability] Whether small disturbances grow or decay under the dynamics.
+Existence of a stationary solution alone does not establish it.
+\item[Stationary branch] Stationary solutions collected across choices of a
+fixed control parameter. It is a graph of solutions versus coupling, not a
+time course (Section~\ref{sec:fold}).
+\item[Stationary density] A probability pattern unchanged over time at fixed
+controls in the chosen frame, even while individual oscillators move.
 \item[Sufficient statistic] A function of the data carrying all the
 information about a parameter. For von Mises it is $\sum_j\cos\theta_j$, i.e.\
 $r$---which is why an ML concentration estimate would make the collapse test
 circular.
+\item[Trajectory] The path a system follows through its states over time.
 \item[Vacuum manifold] The set of lowest-energy field configurations. Its
 topology classifies the defects.
 \item[von Mises distribution] The circular analogue of the Gaussian,

@@ -66,7 +66,7 @@ _INPUT = re.compile(r"\\(?:input|include)\{([^}]*)\}")
 # pointers into it stale. The .aux is a build artifact and not a source; the
 # source it is built from is the .tex of the same name, which is what this
 # resolves to.
-_EXTERNAL = re.compile(r"\\externaldocument(?:\[[^\]]*\])?\{([^}]*)\}")
+_EXTERNAL = re.compile(r"\\externaldocument(?:\[[^\]]*\]){0,2}\{([^}]*)\}")
 _GRAPHICS = re.compile(r"\\includegraphics(?:\[[^\]]*\])?\{([^}]*)\}")
 _GRAPHICSPATH = re.compile(r"\\graphicspath\{((?:\{[^{}]*\})+)\}")
 _BRACED = re.compile(r"\{([^{}]*)\}")

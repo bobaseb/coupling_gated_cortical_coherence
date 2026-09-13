@@ -89,10 +89,10 @@ The contribution has three levels. The separation results establish limits on wh
 \draw[assumption] (unity) -- (self);
 \node[draw, rounded corners=2pt, align=center, text width=122mm,
       inner sep=5pt, font=\scriptsize] at (44mm,-49mm)
- {Supporting constraints: finite capacity, boundaries, erasure heat and predictive memory.\\
+ {Supporting constraints: finite capacity, boundaries, erasure heat, predictive memory and feedback.\\
  Their connection to the coupling model requires additional physical hypotheses.};
 \end{tikzpicture}
-\caption{Three requirements of the proposed account. Each requires the inputs shown below it. Dashed arrows mark proposed connections: phase coherence alone supplies neither compatible local descriptions nor an accurate self-model. Thermodynamics constrains a candidate implementation through separate assumptions. This is the explanatory structure of the article; Table~\ref{tab:summary} records the eight implications consumed by the formal composition.}
+\caption{Three requirements of the proposed account. Each requires the inputs shown below it. Dashed arrows mark proposed connections: phase coherence alone supplies neither compatible local descriptions nor an accurate self-model. Thermodynamics constrains a candidate implementation through separate assumptions. This is the explanatory structure of the article; Table~\ref{tab:summary} records the eight implications consumed by each branch of the formal composition.}
 \label{fig:chain}
 \end{figure}
 
@@ -314,9 +314,31 @@ The constraint most directly relevant to representation concerns predictive memo
 \end{equation}
 Under the no-back-action Markov structure $X_t\to S_t\to S_{t+1}$, the bracket is nonnegative \cite{still2012}. The bound limits nonpredictive memory at a given dissipation budget; zero retained information satisfies it too. Relating it to Landauer heat requires that memory waste be bounded by erased entropy at the same thermal scale and heat budget. These distinct information constraints \cite{rosas2026} leave content and learning dynamics to be specified.
 
+An acting agent changes its future inputs, so the passive assumption requires justification for the variables and interval considered. A feedback model specifies a policy $A_t\sim\pi(\cdot\mid X_t)$, world dynamics $S_{t+1}\sim K(\cdot\mid S_t,A_t)$, an observation channel and a memory update. For finite states, the exact information balance is
+\begin{equation}
+\begin{split}
+ I(X_t;S_t)-I(X_t;S_{t+1})
+ ={}& I(X_t;S_t\mid S_{t+1})\\
+    &-I(X_t;S_{t+1}\mid S_t).
+\end{split}
+\label{eq:feedback-information}
+\end{equation}
+Both conditional terms are nonnegative. The last term vanishes for the passive model; with feedback, the signed difference can be negative because actions create correlations with the future. Its causal interpretation requires an environmental state sufficient to account for the relevant dynamics.
+
+The finite thermodynamic extension instead bounds joint entropy reduction. For an elementary update that holds the controller fixed, strictly positive forward and reverse path probabilities give
+$\Sigma=D_{KL}(P_F\|P_R)=\Delta H(X,S)+\langle Q\rangle/(k_BT)\ge0$
+under local detailed balance, with $Q$ positive into the reservoir \cite{horowitz2014,ito2013}. This supplies the thermodynamic constraint for the active branch below. A proved two-substep extension composes actuation with a memory update initialized from its coordinate-swapped final law. It identifies the output with the perception--action channels and cancels the same intermediate entropy and expected energy. At a common thermal scale, the whole update's joint entropy decrease is bounded by its total heat budget divided by $k_BT$, without assuming stationarity. The supplement gives the balances and reciprocal two-bit witnesses with explicit interaction energy, heat and work. Action and observation alias the existing states; additional physical registers require further accounting. A biological objective, learning rule and cortical action readout remain modelling choices.
+
 \subsection{What the composition establishes}
 
-Table~\ref{tab:summary} lists the eight implications accepted by the theorem \texttt{chain}. They connect the supporting constraints to the phase model and its proposed representational role. Each connection is a hypothesis; in particular, the finite register and the field boundary are independent starting objects.
+Table~\ref{tab:summary} lists the connecting hypotheses of two branches. The theorem \texttt{chain} uses passive predictive memory; \texttt{chain\_active} uses a specified finite feedback process. Each accepts eight implications and shares the passage from coarse-graining to the phase model and its proposed representational role. In both, the finite register and the field boundary are independent starting objects.
+
+For the active branch, the controller has the register's state type and the fourth node records
+\begin{equation}
+ \theta>0,\qquad \theta[H(p)-H(p')]\leq\langle Q\rangle\leq B,
+ \label{eq:active-chain-bound}
+\end{equation}
+where $p,p'$ and $\langle Q\rangle$ belong to that same controlled substep. E34Active supplies positive path probabilities, local detailed balance at the register's thermal scale $\theta$, and the allocation $\langle Q\rangle\leq B$, with $B$ equal to the register's heat. Landauer's lower bound does not imply this upper-budget allocation or identify erasure with actuation. E45Active requires the bound for these specified data to place the coupling energies in the named convergent regime. A coupling dynamics establishing that implication is an additional modelling requirement.
 
 \begin{table}[htbp]
 \centering
@@ -328,21 +350,21 @@ Connection & Status & Required assumption \\
 \hline
 E12 & Independent physical premise & A finite-capacity system realizes a field that leaves its vacuum manifold. Capacity and the boundary are independent roots. \\
 E23 & Bridge assumption & The boundary is associated with a finite register whose update leaves states unreachable. \\
-E34 & Bridge assumption & Erasure supplies a predictive structure with the same thermal scale and heat budget, and nonzero wasted memory. \\
-E45 & Modelling assumption & The predictive dissipation bound places coupling energies in a convergent coarse-graining regime. \\
+E34 / E34Active & Bridge assumption & Passive: a predictive structure with the register's thermal scale and heat budget, and nonzero wasted memory. Active: positivity, local detailed balance and the register's heat allocation for the named elementary process. The proved two-substep bound supplies no allocation. \\
+E45 / E45Active & Modelling assumption & The branch's bound, on predictive memory or the named feedback process, places coupling energies in the specified convergent coarse-graining regime. \\
 E56 & Physical commitment & A specified physical field realizes the limiting coupling and satisfies the kernel conditions. \\
 E67 & Physical commitment & That field operates above the synchronization threshold. \\
 E78 & Bridge assumption & Coherence drives a supplied cover to its relaxed equilibrium at coupling at least the named mean-field value. \\
 E89 & Modelling assumption & A contracting map mediated by local self-encoding fixes the section glued on that same cover. \\
 \hline
 \end{tabular}
-\caption{Connecting hypotheses of the formal composition. The cover's compatibility is supplied as a structure field. Identifying the boundary's encoding with restriction requires a separate resonance condition. The mathematical objects and node-level results are mapped in Supplemental Material, Table~S1.}
+\caption{Connecting hypotheses of the passive and active compositions, eight per branch. They share E12, E23 and E56--E89. The cover's compatibility is supplied as a structure field. Identifying the boundary's encoding with restriction requires a separate resonance condition. The mathematical objects and node-level results are mapped in Supplemental Material, Table~S1.}
 \label{tab:summary}
 \end{table}
 
-Two structures also enter the theorem: a thermodynamic cover, including overlap compatibility, and a reflexive boundary specifying the local encoding and readout. Given these and the connecting hypotheses, \texttt{chain} concludes \texttt{UnifiedSelf}: the section glued on that cover is the unique fixed point of self-prediction. Restriction resonance, needed for the interpretation in Eq.~\eqref{eq:selfmap}, is a separate condition. The result binds the fixed point to the specified local states; compatibility and accuracy at that state are premises, while uniqueness follows from the construction.
+Two structures also enter both theorems: a thermodynamic cover, including overlap compatibility, and a reflexive boundary specifying the local encoding and readout. Given these and the connecting hypotheses, both conclude \texttt{UnifiedSelf}: the section glued on that cover is the unique fixed point of self-prediction. Restriction resonance, needed for the interpretation in Eq.~\eqref{eq:selfmap}, is a separate condition. The result binds the fixed point to the specified local states; compatibility and accuracy at that state are premises, while uniqueness follows from the construction.
 
-The joint witness combines a double well, a register, a uniform-grid mesh and a three-site cortex, establishing that the hypotheses can hold together in distinct toy components. It supplies no common biological mechanism for them. Counterexamples expose the role of individual assumptions, including overlap agreement. The development declares no additional Lean axioms beyond the foundational axioms used by its libraries; physical premises are explicit hypotheses and model fields.
+The joint witnesses combine a double well, a register, a changing uniform-grid mesh and a three-site cortex; the active branch includes the noisy two-bit actuator. They establish that the hypotheses can hold together in distinct toy components. Mesh convergence is supplied independently of the thermodynamic bounds, and no common biological mechanism is established. The active witness rejects a zero heat budget and an incompatible energy limit. Counterexamples also expose the role of overlap agreement. The development declares no additional Lean axioms beyond the foundational axioms used by its libraries; physical premises are explicit hypotheses and model fields.
 
 \section{Discussion}
 

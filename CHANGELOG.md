@@ -20,6 +20,40 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-13 — Complete finite perception–action accounting
+
+The generic feedback result now composes actuation and memory update using
+the same intermediate joint law with an explicit coordinate swap. Its output
+equals the composed perception–action channel law. Total entropy, heat and
+mean-energy balances follow without assuming stationarity, and an upper budget
+on total heat bounds the complete update's joint entropy decrease.
+
+The reciprocal two-bit calculation specializes the theorem. A biased witness
+exposes the swap, changes under sensing and rejects a positive but incompatible
+second step. This closes L1, not the register-to-actuator allocation or the
+coupling-convergence assumption of the active chain. Extra registers, protocols
+and learning remain separate modelling tasks. See `tasks/agency_cycle.md`.
+
+## 2026-09-13 — Scope of predictive thermodynamics for acting agents
+
+The thermodynamic discussion distinguishes the passive predictive-memory bound
+from feedback. The new channel construction makes policy, actuation, observation
+and memory update explicit. A signed information identity recovers the passive
+result when its feedback term vanishes and admits actions that create future
+correlations. A finite path-law construction derives a joint entropy balance;
+local detailed balance supplies the heat interpretation. Reciprocal two-bit
+examples check information, heat, interaction energy and work on the same paths.
+
+The passive composition retains its predictive fourth node. The follow-up
+`chain_active` carries a specified feedback process, actual heat and budget
+through an active fourth node; both branches share the downstream composition.
+Its two new bridge predicates leave the physical budget allocation and the
+connection to coupling convergence explicit. A noisy actuator witnesses the
+branch, and zero-budget and incompatible-limit checks fence it. Neither branch
+derives a cortical policy or thermodynamic selection of convergent couplings.
+Details and verified references are in `tasks/agency.md` and
+`tasks/agency_chain.md`.
+
 ## 2026-09-11 — Audit remediation, part F concluded: three claims of more than was measured
 
 The follow-up audit's remaining wording corrections. Each is a place where a

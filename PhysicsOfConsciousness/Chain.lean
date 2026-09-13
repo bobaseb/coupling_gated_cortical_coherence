@@ -5,6 +5,7 @@ import PhysicsOfConsciousness.Phase2_MeshConvergence
 import PhysicsOfConsciousness.Phase3_CombinatorialThermodynamics
 import PhysicsOfConsciousness.Phase3_KLBound
 import PhysicsOfConsciousness.Phase3_PredictiveThermodynamics
+import PhysicsOfConsciousness.Phase3_AgencyThermodynamics
 import PhysicsOfConsciousness.Phase3_MeasureThermodynamics
 import PhysicsOfConsciousness.Phase4_KuramotoDynamics
 import PhysicsOfConsciousness.Phase4_RotatingFrame
@@ -20,12 +21,15 @@ import PhysicsOfConsciousness.Phase9_EMIdentification
 import PhysicsOfConsciousness.Examples
 
 /-!
-# The chain, as one theorem
+# Passive and active branches of the conditional chain
 
 Every other module in this development proves things about *one* link of the
 deductive chain. This module is about the **edges**: it states each node as a
 `Prop`, and for each arrow of the chain either proves the passage from one node
-to the next or records it as a named hypothesis of `chain`.
+to the next or records it as a named hypothesis of `chain` or `chain_active`.
+The passive branch uses predictive memory; the active branch uses the joint
+entropy and actual heat of a specified finite feedback process. Both join at
+coarse-graining and share `chain_from_coarseGrains` through the same glued state.
 
 ## Why the module exists
 
@@ -140,6 +144,18 @@ def PredictiveBound (Xs Sg Sg' : Type*)
   ∃ R : PredictiveDissipation Xs Sg Sg',
     (R.nonpredictive).toReal ≤ R.dissipatedWork / R.thermalEnergy
 
+/-- **Active n4 — the specified process's joint entropy and heat obey a budget.**
+
+The joint entropies and mean heat are computed from the named step `M` and heat
+observable `q`. The thermal entropy bound follows from path KL and local detailed balance;
+the upper heat budget is supplied. This is neither a bound on passive wasted
+memory nor a claim that the process learns or makes a coupling sequence converge. -/
+def ActiveBound {Xs S : Type*} [Fintype Xs] [Fintype S]
+    (M : FiniteFeedbackStep Xs S) (θ : ℝ) (q : Xs → S → S → ℝ) (budget : ℝ) : Prop :=
+  0 < θ ∧
+    θ * (shannon_entropy M.initial.p - shannon_entropy M.final.p) ≤ M.meanHeat q ∧
+    M.meanHeat q ≤ budget
+
 /-- **n5 — discrete couplings coarse-grain to a continuous kernel.** The discrete
 coupling energies `E n` of a refining sequence of triangulations converge to the
 continuum value `L`.
@@ -222,6 +238,24 @@ reads as a composition rather than as a proof.
 /-- n1 holds outright. -/
 theorem capacity (sys : Type*) [Fintype sys] [Nonempty sys] : Capacity sys :=
   fun p hp => shannon_entropy_le_log_card p hp
+
+/-- The active node follows from the finite path entropy theorem and a supplied
+heat budget. Strict positivity and local detailed balance restrict the physical
+model; the conclusion supplies no policy or coupling dynamics. -/
+theorem activeBound_of_feedback {Xs S : Type*} [Fintype Xs] [Fintype S] [Nonempty S]
+    (M : FiniteFeedbackStep Xs S) (h : M.Positive) (θ : ℝ) (hθ : 0 < θ)
+    (q : Xs → S → S → ℝ) (hldb : M.LocalDetailedBalance θ q)
+    (budget : ℝ) (hbudget : M.meanHeat q ≤ budget) : ActiveBound M θ q budget :=
+  ⟨hθ, M.heat_bound h θ hθ q hldb, hbudget⟩
+
+/-- The same process's entropy reduction is at most its budget divided by the
+positive thermal scale. No sign is imposed on that entropy reduction. -/
+theorem ActiveBound.entropy_budget {Xs S : Type*} [Fintype Xs] [Fintype S]
+    {M : FiniteFeedbackStep Xs S} {θ : ℝ} {q : Xs → S → S → ℝ} {budget : ℝ}
+    (h : ActiveBound M θ q budget) :
+    shannon_entropy M.initial.p - shannon_entropy M.final.p ≤ budget / θ := by
+  apply (le_div_iff₀ h.1).mpr
+  simpa only [mul_comm] using h.2.1.trans h.2.2
 
 /-- n2 from the `π₀` obstruction. -/
 theorem leavesVacuum_of_separated {Y V : Type*} [TopologicalSpace Y] [PreconnectedSpace Y]
@@ -419,6 +453,46 @@ def E45 (Xs Sg Sg' : Type*) [MeasurableSpace Xs] [MeasurableSpace Sg] [Measurabl
     (E : ℕ → ℝ) (L : ℝ) : Prop :=
   PredictiveBound Xs Sg Sg' → CoarseGrains E L
 
+/-- **n3 → active n4. Bridge assumption for a named controlled substep.**
+
+The controller has the register's state type. The bridge supplies strictly
+positive path data, local detailed balance at the register's own temperature,
+and an upper bound on the substep's actual mean heat by the register's heat.
+Landauer gives a lower bound on erasure heat; it does not prove this allocation.
+Neither the shared state type nor the numerical budget identifies `upd` with
+the controlled update, which holds the controller fixed. A physical realization
+must specify their relation and account for other substeps separately.
+
+This is not existence of an arbitrary agent: `M` and `q` are fixed arguments,
+and `E45Active` consumes the bound for exactly these data. -/
+def E34Active {sys S : Type*} [Fintype sys] [Fintype S] [Thermodynamics sys]
+    (upd : sys → sys) (M : FiniteFeedbackStep sys S) (q : sys → S → S → ℝ) : Prop :=
+  Dissipates upd → M.Positive ∧
+    M.LocalDetailedBalance (Thermodynamics.temperature (sys := sys)) q ∧
+    M.meanHeat q ≤ heat_dissipation upd
+
+/-- **Active n4 → n5. Modelling assumption.**
+
+The bound for the named process, heat observable, temperature and budget selects
+the specified convergent coupling-energy regime. No theorem derives convergence
+from a heat budget; a coupling dynamics connecting these objects is missing.
+The finite witness supplies mesh convergence independently and demonstrates
+satisfiability only. `thermalAgency_wrong_limit_rejected` fences this edge. -/
+def E45Active {Xs S : Type*} [Fintype Xs] [Fintype S]
+    (M : FiniteFeedbackStep Xs S) (θ : ℝ) (q : Xs → S → S → ℝ) (budget : ℝ)
+    (E : ℕ → ℝ) (L : ℝ) : Prop :=
+  ActiveBound M θ q budget → CoarseGrains E L
+
+/-- Derive the active node using the physical data supplied by its bridge and
+the existing path entropy theorem. The heat allocation is a premise, not a
+consequence of the register's positive dissipation. -/
+theorem activeBound_of_e34Active {sys S : Type*} [Fintype sys] [Fintype S] [Nonempty S]
+    [Thermodynamics sys] (upd : sys → sys) (M : FiniteFeedbackStep sys S)
+    (q : sys → S → S → ℝ) (e34 : E34Active upd M q) (h : Dissipates upd) :
+    ActiveBound M (Thermodynamics.temperature (sys := sys)) q (heat_dissipation upd) := by
+  obtain ⟨hpos, hldb, hbudget⟩ := e34 h
+  exact activeBound_of_feedback M hpos _ Thermodynamics.temperature_pos q hldb _ hbudget
+
 /-- **n5 → n6. Physical commitment, and the load-bearing joint of the framework.**
 
 Asserts that the continuum limit of the discrete coupling energy is the mean-field
@@ -446,7 +520,6 @@ consumes it together with `E67` to conclude `exhibits_phase_transition` for the
 very field `E56` names — a statement about a substrate, which `FieldRealizes`
 alone cannot reach. -/
 def E56 {M : Type*} [MeasureSpace M] [TopologicalSpace M] (sys : StochasticNeuralField M)
-    (Xs Sg Sg' : Type*) [MeasurableSpace Xs] [MeasurableSpace Sg] [MeasurableSpace Sg']
     (E : ℕ → ℝ) (L K D : ℝ) : Prop :=
   CoarseGrains E L → (FieldRealizes L K D ∧ Nonempty (IsEMFieldCoupling sys K D))
 
@@ -553,8 +626,36 @@ theorem dissipation_of_unreachable {sys : Type*} [Fintype sys] [DecidableEq sys]
 
 /-! ## 5. The chain -/
 
+/-- **The common downstream composition, n5 ⟹ n9.**
+
+Both thermodynamic branches supply the same coarse-graining premise. The four
+remaining edges identify the field and its regime, reach the supplied cover,
+and identify that cover's glued section with the fixed point. Banach proves
+uniqueness, not those physical identifications or the contraction law.
+The concrete-kernel half of `E56` also has the separate consumer
+`em_field_exhibits_phase_transition`. -/
+theorem chain_from_coarseGrains
+    {X : TopCat.{u}} [MeasureSpace X] [BorelSpace X] [TriangulatedManifold ↥X]
+    [MetricSpace (GlobalSection (X := X))] [CompleteSpace (GlobalSection (X := X))]
+    (kernel : StochasticNeuralField X) {E : ℕ → ℝ} {L K D τ : ℝ}
+    (n5 : CoarseGrains E L) (hτ : 0 < τ) (T : ThermodynamicCover X)
+    (rb : ReflexiveBoundary X)
+    (e56 : E56 kernel E L K D) (e67 : E67 L K D)
+    (e78 : E78 K D T) (e89 : E89 K D τ T rb) : UnifiedSelf rb := by
+  have h56 : FieldRealizes L K D ∧ Nonempty (IsEMFieldCoupling kernel K D) := e56 n5
+  have n6 : FieldRealizes L K D := h56.1
+  have n7 : Coherent K D := coherent_of_supercritical n6.1 (e67 n6)
+  have hT : T.IsReachedByRelaxation K := e78 n7
+  have n8 : Unity X := unity_of_cover ⟨T⟩
+  obtain ⟨s, hs_unified, h_lip, hs_fixed⟩ := e89 hT
+  let _ : Nonempty (GlobalSection (X := X)) := ⟨s⟩
+  obtain ⟨p, hp, huniq⟩ :=
+    self_of_coherent_order_parameter n6.1 n6.2.1 hτ n7 rb h_lip
+  have hsp : s = p := huniq s hs_fixed
+  exact ⟨T, s, hs_unified, hs_fixed, fun t ht => (huniq t ht).trans hsp.symm⟩
+
 /--
-**The conditional composition, end to end: n1 ⟹ n9.**
+**The passive conditional composition, end to end: n1 ⟹ n9.**
 
 Eight named hypotheses, `e12 … e89`, one per arrow of Figure 1 that is not a
 theorem. Everything else in the passage from a finite phase space to the
@@ -622,7 +723,7 @@ theorem chain
     (e23 : E23 vac phi upd)
     (e34 : E34 upd Xs Sg Sg')
     (e45 : E45 Xs Sg Sg' E L)
-    (e56 : E56 kernel Xs Sg Sg' E L K D)
+    (e56 : E56 kernel E L K D)
     (e67 : E67 L K D)
     (e78 : E78 K D T)
     (e89 : E89 K D τ T rb) :
@@ -633,17 +734,44 @@ theorem chain
   obtain ⟨R, _, _, _⟩ := e34 n3
   have n4 : PredictiveBound Xs Sg Sg' := predictiveBound_of_nonempty ⟨R⟩
   have n5 : CoarseGrains E L := e45 n4
-  have h56 : FieldRealizes L K D ∧ Nonempty (IsEMFieldCoupling kernel K D) := e56 n5
-  have n6 : FieldRealizes L K D := h56.1
-  have n7 : Coherent K D := coherent_of_supercritical n6.1 (e67 n6)
-  have hT : T.IsReachedByRelaxation K := e78 n7
-  have n8 : Unity X := unity_of_cover ⟨T⟩
-  obtain ⟨s, hs_unified, h_lip, hs_fixed⟩ := e89 hT
-  let _ : Nonempty (GlobalSection (X := X)) := ⟨s⟩
-  obtain ⟨p, hp, huniq⟩ :=
-    self_of_coherent_order_parameter n6.1 n6.2.1 hτ n7 rb h_lip
-  have hsp : s = p := huniq s hs_fixed
-  exact ⟨T, s, hs_unified, hs_fixed, fun t ht => (huniq t ht).trans hsp.symm⟩
+  exact chain_from_coarseGrains kernel n5 hτ T rb e56 e67 e78 e89
+
+/-- **The active conditional composition, end to end: n1 ⟹ n9.**
+
+`E34Active` supplies the finite controlled step's physical premises and budget;
+`activeBound_of_e34Active` derives its entropy bound from path KL.
+`E45Active` consumes the bound for that same step and heat observable, at the
+register's temperature and heat budget. The branch then joins the passive one
+at `chain_from_coarseGrains`, preserving the cover and its fixed section.
+
+Eight named edges remain. This is a theorem about a fixed-controller autonomous
+substep with positive probabilities, not arbitrary feedback protocols or a
+complete agent's thermodynamic cost. The budget allocation and the implication
+to coupling convergence remain independent physical and modelling premises.
+Neither agency, an optimized policy nor a biological mechanism follows from
+erasure, and the downstream representational assumptions are still required. -/
+theorem chain_active
+    {X : TopCat.{u}} [MeasureSpace X] [BorelSpace X] [TriangulatedManifold ↥X]
+    [MetricSpace (GlobalSection (X := X))] [CompleteSpace (GlobalSection (X := X))]
+    (kernel : StochasticNeuralField X)
+    {sys : Type*} [Fintype sys] [DecidableEq sys] [Nonempty sys] [StatisticalMechanics sys]
+    (upd : sys → sys)
+    {Y V : Type*} (vac : Set V) (phi : Y → V)
+    {S : Type*} [Fintype S] [Nonempty S]
+    (M : FiniteFeedbackStep sys S) (q : sys → S → S → ℝ)
+    (E : ℕ → ℝ) (L : ℝ) {K D τ : ℝ} (hτ : 0 < τ)
+    (T : ThermodynamicCover X) (rb : ReflexiveBoundary X)
+    (e12 : E12 sys vac phi) (e23 : E23 vac phi upd)
+    (e34 : E34Active upd M q)
+    (e45 : E45Active M (Thermodynamics.temperature (sys := sys)) q
+      (heat_dissipation upd) E L)
+    (e56 : E56 kernel E L K D) (e67 : E67 L K D)
+    (e78 : E78 K D T) (e89 : E89 K D τ T rb) : UnifiedSelf rb := by
+  have n1 : Capacity sys := capacity sys
+  have n2 : LeavesVacuum vac phi := e12 n1
+  have n3 : Dissipates upd := dissipates_of_not_surjective upd (e23 n2)
+  have n4 := activeBound_of_e34Active upd M q e34 n3
+  exact chain_from_coarseGrains kernel (e45 n4) hτ T rb e56 e67 e78 e89
 
 /-! ## 6. Non-vacuity
 
@@ -673,10 +801,9 @@ to be the coupling constant. Requires a proof that the continuum coupling kernel
 satisfies `IsEMFieldCoupling` — the numerical half is free, the identification is
 not. -/
 theorem e56_of_eq {M : Type*} [MeasureSpace M] [TopologicalSpace M]
-    (kernel : StochasticNeuralField M) (Xs Sg Sg' : Type*)
-    [MeasurableSpace Xs] [MeasurableSpace Sg] [MeasurableSpace Sg']
+    (kernel : StochasticNeuralField M)
     (E : ℕ → ℝ) (hEM : Nonempty (IsEMFieldCoupling kernel (3 : ℝ) (1 : ℝ))) :
-    E56 kernel Xs Sg Sg' E 3 3 1 :=
+    E56 kernel E 3 3 1 :=
   fun _ => ⟨⟨one_pos, by norm_num, rfl⟩, hEM⟩
 
 /-- **The identification half of `E56` does work.** Together with `E67` it puts
@@ -689,10 +816,9 @@ This is the consumer that keeps `IsEMFieldCoupling` from being an annotation
 beside the chain rather than a hypothesis in it. -/
 theorem em_field_exhibits_phase_transition {M : Type*} [MeasureSpace M] [TopologicalSpace M]
     [IsProbabilityMeasure (volume : Measure M)]
-    (kernel : StochasticNeuralField M) (Xs Sg Sg' : Type*)
-    [MeasurableSpace Xs] [MeasurableSpace Sg] [MeasurableSpace Sg']
+    (kernel : StochasticNeuralField M)
     {E : ℕ → ℝ} {L K D : ℝ}
-    (e56 : E56 kernel Xs Sg Sg' E L K D) (e67 : E67 L K D)
+    (e56 : E56 kernel E L K D) (e67 : E67 L K D)
     (n5 : CoarseGrains E L) :
     exhibits_phase_transition kernel :=
   let h56 := e56 n5
@@ -1052,6 +1178,126 @@ theorem vertexKernel_fieldCorrelation_eq_zero {M : Type*} [TopologicalSpace M]
     (w : TM.V → TM.V → ℝ) (μ : Measure M) [NullSingletonClass μ] (theta : M → ℝ) :
     fieldCorrelation μ theta (vertexKernel TM w) = 0 :=
   fieldCorrelation_sited_eq_zero μ _ _ (vertexKernel_sitedOn TM w) theta
+
+/-! ## 10. Active budget, joint witness and regression specifications -/
+
+/-- A finite acting system with a bounded heat budget has bounded joint entropy
+reduction. This is the scalar consequence of `ActiveBound`, the node consumed
+by `chain_active`. Relating it to coupling convergence remains `E45Active`'s
+modelling assumption. The passive `chain` retains its predictive node. -/
+theorem active_entropy_budget {X S : Type*} [Fintype X] [Fintype S] [Nonempty S]
+    (M : FiniteFeedbackStep X S) (h : M.Positive) (θ : ℝ) (hθ : 0 < θ)
+    (q : X → S → S → ℝ) (hldb : M.LocalDetailedBalance θ q)
+    (budget : ℝ) (hbudget : M.meanHeat q ≤ budget) :
+    shannon_entropy M.initial.p - shannon_entropy M.final.p ≤ budget / θ :=
+  (activeBound_of_feedback M h θ hθ q hldb budget hbudget).entropy_budget
+
+open Examples ThermalAgency in
+/-- The thermal actuator fits within the one-bit register's heat budget at the
+same thermal scale. This numerical comparison supplies the allocation premise;
+it does not identify the actuator and eraser as the same physical operation. -/
+theorem thermalAgency_e34Active :
+    E34Active (fun _ : Bool => true) actuation heat := by
+  intro _
+  change actuation.Positive ∧ actuation.LocalDetailedBalance 1 heat ∧
+    actuation.meanHeat heat ≤ Real.log 2
+  refine ⟨actuation_positive, actuation_local_balance, ?_⟩
+  have hprod := actuation_cost_positive.2
+  rw [actuation_entropy_production] at hprod
+  rw [actuation_heat]
+  have hlog := Real.log_pos (show (1 : ℝ) < 3 by norm_num)
+  linarith
+
+open Examples ThermalAgency in
+/-- The actual noisy actuator satisfies the active node at the named register
+budget. Its positive heat and negative passive waste are checked below, so the
+branch admits a feedback process outside the passive data-processing regime. -/
+theorem thermalAgency_activeBound : ActiveBound actuation 1 heat (Real.log 2) :=
+  activeBound_of_e34Active (fun _ : Bool => true) actuation heat
+    thermalAgency_e34Active (dissipates_of_not_surjective _ witness_not_surjective)
+
+open Examples ThermalAgency in
+/-- A zero budget cannot admit this actuator by replacing its actual heat with
+an arbitrary cost. This fences the budget conjunct independently of convergence. -/
+theorem thermalAgency_zero_budget_rejected : ¬ ActiveBound actuation 1 heat 0 := by
+  intro h
+  exact (not_le_of_gt actuation_cost_positive.1) h.2.2
+
+open Examples ThermalAgency in
+/-- The active entropy bound cannot force an unrelated energy sequence to the
+named limit. This counterexample keeps `E45Active` a real modelling obligation. -/
+theorem thermalAgency_wrong_limit_rejected :
+    ¬ E45Active actuation 1 heat (Real.log 2) (fun _ => 0) 3 := by
+  intro h
+  have h0 : Tendsto (fun _ : ℕ => (0 : ℝ)) atTop (𝓝 0) := tendsto_const_nhds
+  have heq : (0 : ℝ) = 3 := tendsto_nhds_unique h0 (h thermalAgency_activeBound)
+  norm_num at heq
+
+open Examples ThermalAgency in
+/-- A genuinely moving grid supplies the active convergence bridge. Its
+convergence is proved by mesh refinement independently of the actuator: this
+witness establishes joint satisfiability, not budget-driven coupling dynamics. -/
+theorem thermalAgency_e45Active :
+    E45Active actuation 1 heat (Real.log 2) t5_refiningEnergy 3 :=
+  fun _ => t5_refiningEnergy_tendsto
+
+open Examples ThermalAgency in
+/-- **All eight active-branch hypotheses are simultaneously satisfiable.**
+
+The noisy actuator, eraser, moving mesh and specified field/cover meet the
+named obligations. They remain separate toy components; this proves no shared
+physical mechanism. The actuator creates future correlations and releases
+positive heat, as the regression below checks on that same process. -/
+theorem chain_active_hypotheses_jointly_satisfiable :
+    UnifiedSelf (X := Cortex) cortexReflexive :=
+  chain_active (X := Cortex) cortexNeuralField (sys := Bool) (fun _ => true)
+    (vac := DynamicalVacuum wellV) (phi := kink) actuation heat
+    (E := t5_refiningEnergy) (L := 3) (K := 3) (D := 1) (τ := cortexTau)
+    cortexTau_pos cortexCover cortexReflexive
+    t5_e12_doubleWell t5_e23_absorbingRegister
+    thermalAgency_e34Active thermalAgency_e45Active
+    (fun _ => ⟨⟨one_pos, by norm_num, rfl⟩, cortexNeuralField_isEMFieldCoupling⟩)
+    e67_three_one (fun _ => cortexCover_reachedByRelaxation_three)
+    (fun _ => ⟨cortexState, (fun _ => rfl),
+      cortexPredict_lipschitz_rate, cortexPredict_fixed⟩)
+
+/-! ## Active-branch regression specifications -/
+
+example {sys S : Type*} [Fintype sys] [Fintype S] [Nonempty S]
+    [Thermodynamics sys] (upd : sys → sys) (M : FiniteFeedbackStep sys S)
+    (q : sys → S → S → ℝ) (e34 : E34Active upd M q) (h : Dissipates upd) :
+    ActiveBound M (Thermodynamics.temperature (sys := sys)) q (heat_dissipation upd) :=
+  activeBound_of_e34Active upd M q e34 h
+
+example {Xs S : Type*} [Fintype Xs] [Fintype S] (M : FiniteFeedbackStep Xs S)
+    (θ : ℝ) (q : Xs → S → S → ℝ) (budget : ℝ)
+    (h : ActiveBound M θ q budget) :
+    shannon_entropy M.initial.p - shannon_entropy M.final.p ≤ budget / θ :=
+  h.entropy_budget
+
+open Examples ThermalAgency in
+example : ActiveBound actuation 1 heat (Real.log 2) ∧
+    0 < actuation.meanHeat heat ∧ Feedback.signedWaste actuation.history < 0 :=
+  ⟨thermalAgency_activeBound, actuation_cost_positive.1, actuation_negative_waste⟩
+
+open Examples ThermalAgency in
+example : ¬ ActiveBound actuation 1 heat 0 := thermalAgency_zero_budget_rejected
+
+open Examples ThermalAgency in
+example : ¬ E45Active actuation 1 heat (Real.log 2) (fun _ => 0) 3 :=
+  thermalAgency_wrong_limit_rejected
+
+open Examples in
+example : UnifiedSelf (X := Cortex) cortexReflexive :=
+  chain_active_hypotheses_jointly_satisfiable
+
+#print axioms activeBound_of_feedback
+#print axioms chain_from_coarseGrains
+#print axioms chain
+#print axioms chain_active
+#print axioms chain_active_hypotheses_jointly_satisfiable
+#print axioms thermalAgency_zero_budget_rejected
+#print axioms thermalAgency_wrong_limit_rejected
 
 end Chain
 

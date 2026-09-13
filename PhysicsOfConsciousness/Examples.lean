@@ -104,6 +104,9 @@ import PhysicsOfConsciousness.Examples.Cortex
 import PhysicsOfConsciousness.Examples.Phase1
 import PhysicsOfConsciousness.Examples.Phase2
 import PhysicsOfConsciousness.Examples.Phase3
+import PhysicsOfConsciousness.Examples.Agency
+import PhysicsOfConsciousness.Examples.AgencyThermodynamics
+import PhysicsOfConsciousness.Examples.AgencyCycle
 import PhysicsOfConsciousness.Examples.Phase4
 import PhysicsOfConsciousness.Examples.Phase5
 import PhysicsOfConsciousness.Examples.Phase6

@@ -62,13 +62,6 @@ WITNESS_DIR = "Examples"
 # be one*, with the reason it is tolerated. Adding to this dict is a decision;
 # it should be made in the ledger, not in passing.
 ALLOWED_LEAVES: dict[str, str] = {
-    "Phase3_KLBound.lean": (
-        "referenced only from Phase3_PredictiveThermodynamics docstrings "
-        "(`structural_resonance_bound`, `discrete_entropy_rate_nonneg`) and from "
-        "the supplement; no theorem consumes it. Recorded, not endorsed: unlike "
-        "the entries below, a consumer here is constructible and giving it one "
-        "is open work"
-    ),
     "Phase5_PhaseLifts.lean": (
         "deliberate — F2's results are about the obstruction, and the chain routes "
         "around it rather than through it"

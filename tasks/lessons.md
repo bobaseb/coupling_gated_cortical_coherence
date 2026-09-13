@@ -1,5 +1,41 @@
 # Lessons Learned
 
+- **2026-09-13: A symmetric witness cannot check a coordinate swap.**
+  Alternating controller/world updates share a joint law in opposite coordinate
+  orders. Construct the second initial law by swapping the first final law;
+  entropy is invariant but an energy observable must be relabelled too.
+  A biased two-bit law exposes the swap even when both state types are Bool,
+  and rejects an unswapped second step whose probabilities are all positive.
+  For finite ENNReal sums, bind the summand with `rw [ENNReal.toReal_sum ...]`
+  (inside `conv` for an inner sum) before invoking `finiteness`; an uninstantiated
+  summand in a `simp_rw` side proof leaves the tactic with no concrete goal.
+
+- **2026-09-13: Conditional information can reuse the existing measure KL.**
+  For a law on `X × (S × S')`, define `I(X;S | S')` by
+  `I(X;(S,S')) - I(X;S')`, using real subtraction under finite joint information.
+  Projection kernels and the existing data-processing theorem prove
+  nonnegativity. Retaining the present signal in a passive kernel gives a
+  projection back to the original law, so data processing in both directions
+  proves exact passive recovery. `mutualInfo_finite` discharges all finiteness
+  conditions on finite discrete spaces, including distributions with zero atoms.
+
+- **2026-09-13: Finite path laws need a bridge to the information API.**
+  `ProbDist.toMeasure` uses `PMF.ofFintype`. With a positive reference law,
+  `Measure.setLIntegral_rnDeriv` on a singleton determines the density ratio
+  pointwise; `integral_fintype` then identifies finite `KL` with Mathlib's
+  `klDiv`. The actuator's recorded history must also be proved equal to the
+  thermodynamic forward law: identical variable names do not establish that
+  two independently supplied probability distributions describe one process.
+
+- **2026-09-13: ENNReal real-conversion has two distinct equality lemmas.**
+  `toReal_eq_toReal_iff x y` includes the exceptional zero/infinity cases.
+  `toReal_eq_toReal_iff' hx hy` is the injective form for finite arguments.
+  `toReal_add` needs both finiteness hypotheses; for finite rational expressions,
+  `simp (disch := finiteness) only [ENNReal.toReal_add]` followed by `norm_num`
+  discharges them without weakening the statement or assuming field laws for
+  ENNReal. `dirac_apply'` returns an indicator; expand `Set.indicator_apply`
+  before expecting finite sums to collapse to their selected atoms.
+
 - **Axiom Laundering Anti-Pattern:** Encoding physical claims (Jensen's inequality, phase-locking ↔ potential minimization, section agreement from synchronization) as `class` or `structure` fields makes theorems `sorry`-free but tautological — the proof just unfolds the definition that already contains the conclusion. Detectable by: (a) theorems provable by `trivial`, `rfl`, or single `exact` of a class field; (b) class fields that state universally quantified inequalities or implications rather than structural properties. Fix: physical claims that are mathematical theorems must be *proved* from Mathlib primitives; irreducible physical postulates must be collected in an explicit `Axioms.lean` with justification for why they're not derivable.
 
 - **Lean Architecture Translation:** When moving from a continuous PDE approach to a combinatorial/topological hybrid model in Lean, implicit typeclass metavariables (like `IsManifold M`) tied to continuous topology (e.g. `ModelWithCorners`) should not be needlessly propagated into the strictly discrete combinatorial structures (like `KuramotoSystem`). Removing unused continuous variables (`E`, `H`, `I`) from the discrete `Phase 3` Engine resolves stuck typeclass inferences.

@@ -35,11 +35,14 @@ negative answers, which the publication now carries.
 
 ## How this ledger is ordered
 
-**Current priority:** the third P-item, the final read of every citation and
-every generated macro. Its prerequisites A1, A2 and F1–F4 are now all closed,
-and the other two P-items are blocked on someone else. The 80/20 constraint
-remains to correct unsupported claims and retain supported results, without
-expanding into incremental sweeps.
+**Current manuscript priority:** the third P-item, the final read of every
+citation and every generated macro. Its prerequisites A1, A2 and F1–F4 are
+closed, and the other two P-items require author or journal decisions.
+The agency/active-chain extension is complete; its primer alignment and the
+complete finite-update theorem are recorded in the dated sections at the end of this
+ledger. Further theoretical modelling does not require new empirical results.
+The 80/20 constraint remains to correct unsupported claims and retain supported
+results, without expanding into incremental sweeps.
 
 **The preceding pass is ordered by effort, ascending.** A-items are prose or
 reference edits against numbers already in the repository. B-items add a
@@ -903,7 +906,9 @@ Carried from the archived ledger; unchanged by the audit.
   the manuscript says the assumption lives; it does not reopen the derivation.
 - The formalization paper and audit paper remain viable separate publications.
 - PRX Life presubmission was explicitly declined.
-- The four recorded leaf modules are terminal and are not re-litigated per pass.
+- The three recorded leaf modules are terminal and are not re-litigated per pass.
+  The agency extension consumes `Phase3_KLBound.KL_nonneg` in its path-law
+  entropy proof and finite-measure bridge (2026-09-13).
 - The `.venv` console scripts embed an absolute interpreter path; after moving or
   renaming the checkout run `uv sync --reinstall` in `simulations/` before
   trusting a green pre-commit run.
@@ -1546,3 +1551,167 @@ the three rebuilt PDFs; `arxiv_submit/`.
 
 **Gates.** 138/138 tests, every hook green, and the merged arXiv document
 compiles from the unpacked tarball at 46 pages.
+
+## 2026-09-13 — Agency and finite feedback thermodynamics
+
+- [x] Specify policy, world, observation and memory-update channels and verify
+      their composition on deterministic and noisy finite agents.
+- [x] Prove the signed conditional-information identity, conditional terms'
+      nonnegativity, finite-law support theorem and exact passive recovery.
+- [x] Derive a feedback entropy balance from normalized forward/reverse laws,
+      with local detailed balance and the first law stated independently.
+- [x] Check reciprocal two-bit actuation and sensing against the same path
+      laws, with nonzero correlations, heat and entropy production, explicit
+      energy consumption and zero external work during relaxation.
+- [x] Add the active heat-budget interface, update the publication and rebuild
+      the tracked PDFs and assembled arXiv submission; pass the Lean audit and
+      publication/tooling gates.
+
+Specification and validation are in `tasks/agency.md`. The proof modules are
+`Phase3_Agency`, `Phase3_FiniteInformation` and `Phase3_AgencyThermodynamics`,
+with two witness files under `Examples/`. The no-axiom audit covers all of them.
+
+The passive composition carries a predictive structure at `n4`. The extension
+supplies the feedback-compatible joint-entropy budget used by the active branch
+recorded below.
+Open physical identifications: a sufficient cortical/environment state, policy
+and action readout, learning dynamics, biological objective and reservoir
+calibration. These are not inferred from coherence or from the second law.
+
+## 2026-09-13 — Active branch of the conditional composition
+
+- [x] Add `ActiveBound`, retaining the named process's initial/final law, heat
+      observable, thermal scale and upper budget.
+- [x] Add `E34Active` and `E45Active`: physical transition/budget premises and
+      the distinct modelling implication to the specified coupling-energy limit.
+- [x] Factor `chain_from_coarseGrains`; preserve `chain` and compose
+      `chain_active` through the same cover and fixed state, with eight edges
+      in each branch. Remove unused predictive carrier parameters from `E56`.
+- [x] Supply the nontrivial thermal-actuator joint witness and regressions
+      rejecting zero heat budget and an incompatible energy limit.
+- [x] Rebuild publication artifacts and complete the full audit/freshness gates:
+      2,320 declarations in 42 modules, only the three permitted axioms;
+      two-pass article/supplement/primer PDFs and a fresh 47-page arXiv archive.
+
+Specification and validation: `tasks/agency_chain.md`. The active substep holds
+the controller fixed and requires strictly positive finite path data and local
+detailed balance. Its controller uses the register's state type, and its heat
+fits the register's named budget. This allocation is assumed, not inferred
+from Landauer's lower bound, and erasure is not identified with actuation.
+The witness supplies mesh convergence independently. Open: the physical
+relation among register, actuator and coupling dynamics, a complete protocol's
+costs and the biological identifications already listed above.
+
+## 2026-09-13 — Primer alignment and the next Lean modelling decision
+
+- [x] Explain agency and both chain branches in the primer, including the
+      signed information identity, path-law heat balance, reciprocal example,
+      physical assumptions and scope. Rebuild and verify its tracked PDF.
+
+The primer is rebuilt at 73 pages with resolved cross-references, no LaTeX
+warnings and no overfull boxes. The changed pages were visually inspected;
+the working-tree PDF/dependency check and arXiv freshness gate pass. The source
+explanations agree with the existing Lean declarations; this documentation
+follow-up introduces no Lean or simulation change.
+
+**Stopping point.** The passive/active interfaces and their joint witnesses are
+complete. There is no need to add another general chain interface or to close
+every bridge before the manuscript can be reviewed. Further Lean work is useful
+when it derives a property from specified dynamics, supplies a missing process
+identification or proves a substantive limitation. Adding a field that assumes
+the desired conclusion would not do that work.
+
+**A specific physical model does not mean new empirical data.** It means
+declaring the internal/environmental states, energy, transition rules,
+reservoir, and any control or learning rule. These may be chosen theoretically;
+Lean can then prove conditional results or counterexamples. Evidence is needed
+to establish that a chosen model describes cortex, not to develop its
+mathematics. This distinction qualifies the recommendation to stop extending
+the current chain: the next bounded modelling theorem can proceed without
+waiting for recordings or biological calibration.
+
+### L1 — Complete finite perception--action update
+
+- [x] Generalize the reciprocal example to alternating finite actuation and
+      memory-update substeps with the internal/world roles exchanged.
+
+**Intent.** Replace separate elementary-step accounting with a reusable
+composition theorem for the actual two-substep process. Begin with the current
+finite, strictly positive autonomous-channel regime at a common thermal scale.
+Action and observation may remain aliases of the existing state variables, as
+in the witnessed model; extra physical registers require additional accounting
+and are outside this first change.
+
+**Completion criteria, specified before implementation:**
+
+1. Carry the first step's final joint law into the second step's initial law,
+   with the coordinate swap explicit. Do not existentially choose an unrelated
+   second law or assume the final distribution equals the initial one.
+2. Identify the resulting joint law with the composed perception--action
+   channels. Derive a total entropy/heat balance by cancelling the same
+   intermediate entropy, and derive the total mean first law using a consistent
+   energy observable and the stated substep work/heat conventions.
+3. Derive a whole-update heat-budget consequence. Show it specializes to the
+   existing two-bit calculations; retain nontrivial action and memory changes
+   and positive actuation heat. Add a regression that detects a mismatched
+   intermediate distribution instead of silently composing it.
+4. Follow SDD/TDD, retain the axiom audit, and update publication scope and
+   tracked PDFs with the verified result. No experimental input is required.
+
+**Stop rule.** Stop when this composition, its budget consequence and its
+witness/regression checks pass. Time-dependent protocols, arbitrary extra
+registers, weaker support conditions and learning are separate changes. L1
+does not establish the register-to-actuator allocation of E34Active or the
+coupling-convergence assumption E45Active; it is not a submission prerequisite.
+
+### Further modelling questions — unscheduled, with no empirical prerequisite
+
+- [ ] Specify a common register/controller/field model in which the named
+      energy and budget refer to identified operations. The existing numerical
+      allocation and distinct toy components do not provide that identification.
+- [ ] Specify a control or learning objective and actual update dynamics before
+      seeking any optimization or convergence theorem. For E45/E45Active,
+      distinguish learning time from the spatial mesh-refinement index:
+      convergence in time alone does not prove convergence of coupling energies
+      under refinement. State and derive the missing relation in the chosen model.
+- [ ] Model how local descriptions acquire or preserve overlap agreement and
+      how a readout fixes the glued state. Conditional proofs and counterexamples
+      can precede data; identifying the variables with neural content and testing
+      their relevance to experience are separate empirical/interpretive tasks.
+
+R1–R6 continue to track calibration, observation and biological validation.
+The final citation/macro review and author/journal metadata items remain in P;
+the primer update does not close those tasks.
+
+## 2026-09-13 — L1 complete: a shared-law finite perception--action update
+
+- [x] Add `FiniteFeedbackCycle` in `Phase3_AgencyThermodynamics`: sensing starts
+      at the coordinate-swapped actuation final law, and its final law equals
+      the existing `Agency.cycle` output. No stationarity premise is supplied.
+- [x] Derive the total entropy/heat balance, mean first law with one energy
+      observable, and whole-update heat-budget consequence. The intermediate
+      entropy and expected energy cancel under the explicit coordinate exchange.
+- [x] Specialize to the existing reciprocal two-bit agent and exact costs.
+      Add a biased witness with an asymmetric intermediate law, changing sensing
+      law and positive actuation heat. Reject a positive but incompatible second
+      step and a zero total heat budget.
+- [x] Update article, supplement, Table S1 and primer; rebuild and inspect the
+      tracked PDFs (38, 32 and 74 pages) and rebuild the 47-page arXiv archive.
+- [x] Pass the full zero-warning Lean build and axiom audit: 2,404 declarations
+      in 43 modules, only `propext`, `Classical.choice` and `Quot.sound`.
+      Explicit headline axiom checks, all pre-commit hooks, 31 PDF/arXiv/figure
+      tests, working-tree PDF/dependency timestamps and `git diff --check` pass.
+
+Specification and execution record: `tasks/agency_cycle.md`. Witnesses and
+regressions: `Examples/AgencyCycle.lean`. The red regression specifications
+failed before implementation. No new simulation, Python source or reference
+was added by L1.
+
+The theorem covers two finite autonomous channels with strictly positive
+initial masses and transitions, a common thermal scale and consistent energy.
+Action and observation alias existing states. Extra registers, protocols,
+weaker support, learning and biological identification remain separate tasks.
+E34Active's register-to-actuator allocation and E45Active's coupling convergence
+are not derived. L1 stops here; the unscheduled modelling questions above and
+the P-items remain open. The user requested a combined commit of the agency
+extension, active chain, primer and L1 on 2026-09-13.

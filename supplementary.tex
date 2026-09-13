@@ -14,7 +14,8 @@
 % here. Build main.tex first. prepare_arxiv.sh discards this preamble, and
 % the merged document resolves the same labels natively.
 \usepackage{xr}
-\externaldocument{main}
+% Both documents print references.tex; import labels without its bibliography.
+\externaldocument[][nocite]{main}
 \input{simulations/simulation_results}
 \input{simulations/fermi_params}
 \geometry{a4paper, margin=1in}
@@ -76,6 +77,100 @@ I(X_t ; S_{t+1}) \le I(X_t ; S_t), \qquad W_{\mathrm{diss}} \ge k_B T \left[\, I
 the second being the bound of \cite{still2012}. Consequently $W_{\mathrm{diss}} \ge 0$, and any bound on the dissipated work is a bound on the nonpredictive information $I(X_t;S_t) - I(X_t;S_{t+1})$.
 
 The first inequality is the data processing inequality for the Markov chain $X_t \to S_t \to S_{t+1}$, proved in \texttt{Phase3\_\allowbreak PredictiveThermodynamics.lean} as \texttt{predictiveInfo\_\allowbreak le\_\allowbreak mutualInfo}; mutual information is defined there from Mathlib's \texttt{klDiv} as the divergence of the joint law from the product of its marginals, since Mathlib carries no mutual information of its own. The second inequality is the class field \texttt{PredictiveDissipation.still\_\allowbreak bound}, an irreducible physical postulate for the same reason as every other one here --- its \texttt{axiom} form is refutable, and \texttt{Examples}~\S18.4 refutes it. Everything downstream is derived: non-negativity of the dissipated work, the bound of the nonpredictive information by the dissipation budget, and the statement that a quasi-static drive leaves every retained bit predictive. \texttt{Examples}~\S18 inhabits the class twice over one correlated two-bit law --- a frozen signal, permitted to dissipate nothing, and a scrambled one, forced to dissipate its entire memory --- and fences the theorem with a Markov kernel on the pair that writes the system's state into the signal and thereby \emph{raises} mutual information, so the no-back-action hypothesis is shown to carry weight rather than to decorate. The equality of \cite{kawai2007}, $\langle W_{\mathrm{diss}} \rangle = k_B T\, D_{KL}(\mathrm{forward} \,||\, \mathrm{reverse})$, is carried as a predicate on an instance and yields \texttt{nonpredictive\_\allowbreak le\_\allowbreak arrow}: the irreversibility of the dynamics is at least the memory that fails to earn its keep.
+
+\subsection{Agency and the scope of the passive bound}
+\label{sec:agency}
+
+The stochastic channels of \texttt{Agency} (\texttt{Phase3\_\allowbreak Agency.lean}) specify one perception--action cycle:
+\begin{align*}
+ A_t&\sim\pi(\cdot\mid X_t),&
+ S_{t+1}&\sim K(\cdot\mid S_t,A_t),\\
+ O_{t+1}&\sim G(\cdot\mid S_{t+1}),&
+ X_{t+1}&\sim U(\cdot\mid X_t,A_t,O_{t+1}).
+\end{align*}
+The sampled action is retained through actuation and supplied to the memory update. The history used for predictive information records $(X_t,S_t,S_{t+1})$, keeping memory at its pre-action state. Its present marginal is the input law and its future marginal is the post-action world paired with that pre-action memory. The environmental state must be sufficient for the declared Markov dynamics; an observation alone need not satisfy this condition.
+
+\texttt{Feedback.information\_\allowbreak balance} proves Eq.~\eqref{eq:feedback-information} from the existing KL-based mutual information. Conditional information uses the chain-rule expression $I(X;(S,S'))-I(X;S')$ or $I(X;(S,S'))-I(X;S)$, respectively. Data processing proves both nonnegative under finite joint information, and \texttt{mutualInfo\_\allowbreak finite} discharges that condition on finite discrete spaces, including laws with zero atoms. Real subtraction preserves the sign of their difference. The passive constructor retains the present signal while evolving it through its own kernel; \texttt{passive\_\allowbreak feedback\_\allowbreak zero} and \texttt{passive\_\allowbreak signedWaste} recover the passive information statements exactly. The witness \texttt{writingAgent} selects its own bit as the action, writes it into an initially independent world bit, senses the result and updates its memory. Its signed difference is strictly negative, and its composed cycle equals the explicit write kernel. Conditional dependence identifies causal influence only with an adequate causal model.
+
+\subsection{A finite thermodynamic model with feedback}
+
+For a finite controller--world law $p(x,s)$ and a normalized channel $K_x(s'\mid s)$, one elementary update holds $x$ fixed. The final law and the forward and reverse path laws are
+\begin{align*}
+ p'(x,s')&=\sum_s p(x,s)K_x(s'\mid s),\\
+ P_F(x,s,s')&=p(x,s)K_x(s'\mid s),\\
+ P_R(x,s,s')&=p'(x,s')K_x(s\mid s').
+\end{align*}
+Both path laws are normalized. The reverse uses the same autonomous transition channel, started at the forward final distribution. The theorem assumes strictly positive initial masses and transition probabilities. Time-dependent protocols and unidirectional transitions require a corresponding treatment of reversal and support.
+
+\texttt{FiniteFeedbackStep.entropy\_\allowbreak balance}
+(\texttt{Phase3\_\allowbreak AgencyThermodynamics.lean}) expands the path log-ratio to obtain
+\begin{equation}
+ \Sigma=D_{KL}(P_F\|P_R)
+ =H(p')-H(p)+\sum_{x,s,s'}P_F(x,s,s')
+       \log\frac{K_x(s'\mid s)}{K_x(s\mid s')}\ge0.
+\end{equation}
+Gibbs' inequality proves nonnegativity; the balance is derived from these distributions. \texttt{ProbDist.KL\_\allowbreak eq\_\allowbreak klDiv} identifies the finite divergence with Mathlib's measure-theoretic divergence for a positive reference law. The information identity uses the same forward law and its proven initial and final marginals.
+
+Local detailed balance is the physical identification
+$q(x,s,s')=k_BT\log[K_x(s'\mid s)/K_x(s\mid s')]$, with heat positive into the reservoir \cite{horowitz2014,ito2013}. It gives
+$\langle Q\rangle\ge k_BT[H(p)-H(p')]$.
+The first-law hypothesis $w=E(x,s')-E(x,s)+q$ separately fixes work. These are bounds on the joint controller--world system. The passive signed information difference alone is insufficient to supply a general work bound. \texttt{Chain.active\_\allowbreak entropy\_\allowbreak budget} gives the scalar budget consequence of \texttt{ActiveBound}, the fourth node of the active composition.
+
+\textit{Complete finite perception--action update.}
+\texttt{FiniteFeedbackCycle}, in the same module, carries an actuation step and a memory channel $U_t(y\mid x)$. Its sensing step starts at $p_1^{\mathrm{swap}}(t,x)=p_1(x,t)$, where
+\begin{equation}
+ p_1(x,t)=\sum_s p_0(x,s)K_x(t\mid s),\qquad
+ p_2(y,t)=\sum_x p_1(x,t)U_t(y\mid x).
+\end{equation}
+The second initial law is constructed from the first final law. The theorem
+\texttt{cycle\_law} identifies $p_2$ with the output of the composed
+\texttt{Agency.cycle} channels, with action $a=x$ and observation $o=t$.
+Strictly positive $p_0,K,U$ give positive substep path laws. At a common
+thermal scale $\theta=k_BT>0$, local detailed balance for each channel yields
+\begin{equation}
+ \Sigma_A+\Sigma_M
+ =H(p_2)-H(p_0)+\frac{\langle Q_A\rangle+\langle Q_M\rangle}{\theta}\ge0.
+ \label{eq:finite-update-balance}
+\end{equation}
+The intermediate entropy cancels because exchanging coordinates preserves
+joint entropy. No intermediate or final law is assumed stationary.
+\texttt{entropy\_budget} therefore gives
+$H(p_0)-H(p_2)\le B/\theta$ whenever
+$\langle Q_A\rangle+\langle Q_M\rangle\le B$.
+
+With one energy observable $E(x,s)$, the separate first-law hypotheses are
+$w_A(x,s,t)=E(x,t)-E(x,s)+q_A(x,s,t)$ and
+$w_M(t,x,y)=E(y,t)-E(x,t)+q_M(t,x,y)$.
+\texttt{mean\_first\_law} cancels the same intermediate expected energy and proves
+\begin{equation}
+ \langle W_A\rangle+\langle W_M\rangle
+ =\mathbb E_{p_2}E-\mathbb E_{p_0}E
+   +\langle Q_A\rangle+\langle Q_M\rangle.
+\end{equation}
+These results cover the two autonomous channel substeps with action and
+observation aliases. Extra physical registers, time-dependent control and
+learning require specified dynamics and costs. The upper budget and its
+allocation from any other operation remain physical inputs.
+
+\textit{Reciprocal two-bit witness.} In units $k_BT=1$, let the interaction energy be zero for $x=s$ and $\log3$ for $x\ne s$. Each substep redraws one bit, agreeing with the fixed other bit with probability $3/4$. Actuation updates $s$ using action $a=x$; sensing updates $x$ using observation $o=s$. The action and observation are aliases of existing states and require no separate storage register. Their physical content is the specified pair interaction and thermal updates. The alignment preference is supplied by that interaction.
+
+Starting from independent uniform bits, actuation produces probability $3/8$ on each agreeing pair and $1/8$ on each disagreeing pair. Both marginals remain uniform. The subsequent sensing step preserves this joint law while allowing individual memory transitions. In \texttt{Examples/AgencyThermodynamics.lean}, the exact actuation heat is $(\log3)/4$ and entropy production is $\log2-(\log3)/2>0$; the sensing step has zero mean heat and entropy production. Each substep satisfies detailed balance and the first law with zero external work. The positive actuation heat comes from a decrease in mean interaction energy. The example accounts for relaxation of an initially nonequilibrium law; a maintained supply of useful work or a learning process would require additional dynamics and resources.
+
+\texttt{Examples/AgencyCycle.lean} specializes the general composition, total
+heat budget and first law to these same channels and laws. A biased initial
+memory law gives an asymmetric intermediate law and a sensing step that changes
+the joint distribution, with positive actuation heat. The regression
+\texttt{mismatched\_\allowbreak intermediate\_\allowbreak rejected} excludes a
+second step initialized without the required coordinate swap; the symmetric
+equilibrium law alone cannot detect that error. The reciprocal cycle also
+rejects a zero total heat budget.
+
+\textit{Active and passive composition (\texttt{Chain.lean}).}
+The theorem \texttt{chain} uses the passive predictive node; \texttt{chain\_active} uses Eq.~\eqref{eq:active-chain-bound} for a named \texttt{FiniteFeedbackStep} $M$, heat observable $q$, thermal scale $\theta$ and budget $B$. The process's controller has the register's state type. \texttt{E34Active} requires positivity, local detailed balance at that register's temperature and $\langle Q\rangle_M\leq B$, with $B$ the register's heat. The entropy lower bound is derived by \texttt{activeBound\_\allowbreak of\_\allowbreak e34Active}; the upper-budget allocation is a bridge assumption. A lower bound on erasure heat does not supply an upper bound for an actuator or equate their operations. Equation~\eqref{eq:finite-update-balance} accounts for both finite update substeps at a common thermal scale; it supplies neither this register-to-actuator allocation nor the coupling-convergence implication of E45Active.
+
+\texttt{E45Active} consumes \texttt{ActiveBound} for these same $M,q,\theta,B$ and requires convergence of the specified coupling-energy sequence to its named limit. Neither an unspecified agent nor a bound for a different process discharges this edge. The connection from the budget to coupling dynamics remains a modelling assumption. Both branches then use \texttt{chain\_\allowbreak from\_\allowbreak coarseGrains}, sharing E56--E89 and preserving the particular cover and its fixed section. Each composition has eight named edges; local-state compatibility, contraction and the fixed-state identification remain supplied physical content.
+
+\texttt{chain\_active\_\allowbreak hypotheses\_\allowbreak jointly\_\allowbreak satisfiable} combines the noisy actuator with the one-bit register at thermal scale one, the changing grid and the specified field/cover. Its heat fits within the register's $\log2$ budget, while its passive signed information difference is negative. \texttt{thermalAgency\_\allowbreak zero\_\allowbreak budget\_\allowbreak rejected} excludes a zero budget for that same heat observable. \texttt{thermalAgency\_\allowbreak wrong\_\allowbreak limit\_\allowbreak rejected} exhibits a valid active bound for which the constant-zero energy sequence cannot converge to the named limit three. The positive mesh witness supplies convergence independently; joint satisfiability establishes no common mechanism or thermodynamic derivation of convergence.
 
 The class field in \texttt{Phase3\_\allowbreak KLBound.lean} is separate from Gibbs' nonnegativity theorem. The witness \texttt{boolDetuned} attains the assumed bound with $D_{KL}=\sigma=\log2$, showing that a positive divergence is permitted.
 
@@ -423,6 +518,7 @@ Figure~\ref{fig:chain} in the main text separates the three requirements and the
 \hline
 \textbf{Conceptual Claim} & \textbf{Lean 4 Implementation} & \textbf{Status} \\ \hline
 \endhead
+Agency and feedback thermodynamics & \texttt{Phase3\_\allowbreak Agency} composes policy, world, observation and memory-update channels. It proves the signed conditional-information identity, conditional nonnegativity under finite information, and passive recovery. \texttt{Phase3\_\allowbreak FiniteInformation} connects finite laws to the same KL definition and proves finite-state finiteness. \texttt{Phase3\_\allowbreak AgencyThermodynamics} derives the joint entropy balance from normalized positive path laws; local detailed balance supplies heat. Its \texttt{FiniteFeedbackCycle} constructs the swapped intermediate law, identifies the composed channel output and proves total entropy, heat, first-law and budget relations at a common thermal scale and energy observable. Reciprocal and biased two-bit witnesses check nontrivial updates and reject a mismatched intermediate law. \texttt{Chain.ActiveBound} carries the named elementary process's entropy, heat and budget into \texttt{chain\_active}; the cycle bound supplies neither the register allocation nor coupling convergence. Extra registers, protocols, learning and cortical readouts require further models & Theorem (conditional) \\ \hline
 Capacity of a finite phase space & The first premise, discharged by theorem rather than by footnote (\texttt{Phase1\_\allowbreak Phase\-Space\-Capacity}). $H(p) \le \log|X|$ for any distribution on a finite state space, with equality exactly at the uniform law (\texttt{shannon\_\allowbreak entropy\_\allowbreak eq\_\allowbreak log\_\allowbreak card\_\allowbreak iff}); a stream with $|P|^k > |X|$ histories cannot be recorded injectively (\texttt{absorb\_\allowbreak not\_\allowbreak injective}) and its entropy exceeds anything the system can hold; and on a \emph{finite} space an unreachable state is an erasure, hence heat (\texttt{finite\_\allowbreak phase\_\allowbreak space\_\allowbreak dissipates}). Finiteness is assumed, not derived, and is fenced --- \texttt{Nat.succ} refutes the last step on an infinite space (\texttt{Examples}~\S19). The symmetry group and the metric are still consumed by no theorem & Theorem \\ \hline
 Pointwise Vacuum Minimization & \texttt{pointwise\_\allowbreak vacuum\_\allowbreak of\_\allowbreak global\_\allowbreak min} (\texttt{Phase1}), potential energy defined as an integral; holds a.e., and a double-well witness proves the a.e.\ cannot be strengthened & Theorem \\ \hline
 Landauer's Principle & Derived from statistical mechanics (\texttt{Phase3}); the axiom-free reversibility core becomes a heat bound via the field \texttt{StatisticalMechanics.heat\_\allowbreak eq} & Theorem + instance postulate \\ \hline
@@ -442,7 +538,7 @@ Kuramoto Lyapunov descent & Descent chained to the minimum characterization by t
 Kuramoto dynamics run & The initial value problem is well posed on all of $\mathbb{R}$: the field is globally Lipschitz and globally bounded (\texttt{kuramotoField\_\allowbreak lipschitz}, \texttt{kuramotoField\_\allowbreak norm\_\allowbreak le}), and through every state at every instant passes exactly one trajectory, defined for all time (\texttt{kuramoto\_\allowbreak cauchy\_\allowbreak problem}). Along \emph{every} trajectory of a zero-frequency system the dynamic potential converges (\texttt{dynamic\_\allowbreak potential\_\allowbreak tendsto}) and the total dissipation $\int_0^\infty \sum_i \dot\theta_i^2$ is finite, equal to the potential's total drop (\texttt{dissipation\_\allowbreak integral\_\allowbreak tendsto}). The motion stops: Barbalat's lemma is proved here, Mathlib lacking it, and applied, so $\sum_i \dot\theta_i^2 \to 0$ along every trajectory (\texttt{velocity\_\allowbreak sq\_\allowbreak tendsto\_\allowbreak zero}). Where it stops is proved under an initial-data condition: if the phases start within a quarter turn and the potential excess starts below $a/2$, where $a>0$ bounds the coupling below, the trajectory converges to a phase-locked configuration that is a \emph{global} minimiser, with $r^2=1$ (\texttt{kuramoto\_\allowbreak tendsto\_\allowbreak global\_\allowbreak minimum}), by a Polyak--\L{}ojasiewicz estimate rather than a LaSalle principle. Unconditionally this is false --- splay and twisted states are equilibria --- so the condition cannot be removed. Witnessed on three sites, where no closed form exists (\texttt{Examples}~\S17) & Theorem (conditional) \\ \hline
 Continuous vs. Rigid Topology & Fixed wiring support at matched resource (\texttt{Phase7\_\allowbreak Rigidity}), deriving the suboptimality Phase 7 assumed; typed continuum/discrete separation & Theorem \\ \hline
 Critical Coupling Threshold ($K_c = 2D$) & Self-consistency equation (\texttt{Phase8\_\allowbreak SelfConsistency}): at or below $K_c$, threshold included, only $r = 0$ solves it; above $K_c$ \emph{exactly one} $r > 0$ does (\texttt{supercritical\_\allowbreak fixed\_\allowbreak point\_\allowbreak existsUnique}), so the non-negative solutions are $\{0\}$ below and $\{0, r\}$ above; that $r$ tends to $0$ as $K \downarrow K_c$ and increases strictly with $K$ (\texttt{coherent\_\allowbreak branch\_\allowbreak strictMono}); that it does so at the mean-field rate $r^2/(K-K_c) \to 1/D$, i.e.\ $\beta = 1/2$ (\texttt{Phase8\_\allowbreak CriticalExponent}: \texttt{coherent\_\allowbreak solution\_\allowbreak critical\_\allowbreak exponent}, witnessed by \texttt{coherentBranch\_\allowbreak critical\_\allowbreak exponent}); a solution is a density reproducing its own order parameter. Conditional on the von Mises stationary density, which is an input, and on no link to a trajectory & Theorem (conditional) \\ \hline
-Conditional composition & \texttt{Chain.lean}: \texttt{chain} takes eight named hypotheses, together with a \texttt{ThermodynamicCover} and a \texttt{ReflexiveBoundary} whose class fields carry physical content of their own, and concludes \texttt{UnifiedSelf}, meaning that the particular section glued by a thermodynamic cover is the unique fixed point of self-prediction. \texttt{E89} explicitly supplies both the Lipschitz law and the identification of the glued state with a fixed point; Banach supplies uniqueness, not that identification. \texttt{chain\_hypotheses\_jointly\_satisfiable} discharges all eight on one toy substrate and proves only that the hypotheses are simultaneously consistent, not that one mechanism realizes them. \texttt{E12} remains equivalent to its conclusion, so the first two links are independent roots. Two of the eight ask for a structure tied to the objects of their premise rather than for bare existence: \texttt{E34} for a predictive structure carrying the register's own temperature and Landauer heat and a non-zero waste, \texttt{E78} for a cover coupled at least at $K$ whose equilibrium is the limit of a relaxation on that coupling (\texttt{ThermodynamicCover.\allowbreak IsReachedByRelaxation}); each is discharged in the joint witness and each has a regression rejecting a structure that would satisfy the bare form & Conditional theorem with eight named hypotheses \\ \hline
+Conditional composition & \texttt{Chain.lean}: \texttt{chain} and \texttt{chain\_active} each take eight named hypotheses, a \texttt{ThermodynamicCover} and a \texttt{ReflexiveBoundary}, and conclude \texttt{UnifiedSelf} through the shared downstream proof. \texttt{E89} supplies the Lipschitz law and identifies the particular glued section with a fixed point; Banach supplies uniqueness. \texttt{E34} requires a passive predictive structure with the register's temperature, heat and nonzero waste. \texttt{E34Active} supplies physical premises and a heat allocation for the named finite feedback process; its entropy bound is derived. \texttt{E45} and \texttt{E45Active} separately assume the connection to coupling-energy convergence. \texttt{E78} requires the supplied cover to be reached by relaxation at coupling at least $K$. \texttt{chain\_hypotheses\_jointly\_satisfiable} and \texttt{chain\_active\_\allowbreak hypotheses\_\allowbreak jointly\_\allowbreak satisfiable} witness the two branches with distinct toy components. The active witness rejects a zero heat budget and an incompatible energy limit. Joint satisfiability establishes no common mechanism; mesh convergence is supplied independently. \texttt{E12} is equivalent to its conclusion, so the first two links are independent roots. The supplied structures' physical fields and the representational assumptions remain additional inputs & Conditional theorem with eight named hypotheses \\ \hline
 Coarse-graining produces no kernel & \textbf{Negative result} (\texttt{Chain.lean}~\S9). \texttt{ContinuousNeuralField} carries no conditions, so a constructor from a mesh limit would be free of content (\texttt{continuousNeuralField\_\allowbreak free}). \texttt{mesh\_\allowbreak refinement\_\allowbreak convergence} converges a \emph{scalar}, and \texttt{TriangulatedManifold.edge\_\allowbreak region} is a subset of $M$ rather than of $M \times M$, so the discrete side has no product structure to pass to a limit. The vertex-sited candidate does carry the weights (\texttt{vertexKernel\_\allowbreak apply\_\allowbreak embedding}) and still contributes exactly zero continuum coupling energy on an atomless substrate (\texttt{vertexKernel\_\allowbreak fieldCorrelation\_\allowbreak eq\_\allowbreak zero}) --- Derivation 8's hardware no-go, cutting against the framework's own coarse-graining step & Theorem (negative) \\ \hline
 \label{tab:full}
 \end{longtable}

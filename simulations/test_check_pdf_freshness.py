@@ -51,6 +51,16 @@ class DependencyTest(unittest.TestCase):
             check_pdf_freshness.dependencies(supplement), {main.resolve(), shared.resolve()}
         )
 
+    def test_external_document_without_citations_remains_a_dependency(self) -> None:
+        """xr's second option suppresses citations while retaining label dependencies."""
+        main = self.write("main.tex", "\\input{shared}\n")
+        shared = self.write("shared.tex", "macros\n")
+        supplement = self.write("supplementary.tex", "\\externaldocument[][nocite]{main}\n")
+
+        self.assertEqual(
+            check_pdf_freshness.dependencies(supplement), {main.resolve(), shared.resolve()}
+        )
+
     def test_figures_resolve_through_graphicspath(self) -> None:
         figure = self.write("figures/plot.png", "not really a png")
         tex = self.write(
