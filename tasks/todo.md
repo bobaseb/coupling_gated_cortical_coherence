@@ -1761,3 +1761,145 @@ performance/cost accounting, budget-feasible improvement theorem and negative
 regression. Kept learning dynamics, E34Active's common resource identification
 and E45Active's spatial convergence as separate open tasks. This ledger update
 adds no implementation or proved claim.
+
+## 2026-09-13 — Relaxed consistency conditions (external review response)
+
+An external model review of the manuscript on 2026-09-13 raised four points.
+Three restate limitations the manuscript already states in its own words:
+overlap compatibility as a premise (`main.tex:375`), the rigidity of the exact
+fixed point (`main.tex:285`), and the speculative status of the coupling
+identification (`main.tex:156`, `main.tex:171`). They confirm the limitations
+section rather than revise it, and open no task.
+
+The reviewable content is its closing question: what a relaxed consistency
+condition does to the uniqueness results. The question conflates two
+relaxations that are independent in this development. Relaxing the fixed point
+leaves Derivation 5 untouched, because Banach is downstream of the gluing and
+consumes it (`main.tex:291` already says both uniqueness results are separately
+conditional). Relaxing overlap agreement is the relaxation that actually
+threatens uniqueness. L3 and L4 separate them. Neither is a submission
+prerequisite, and neither precedes L2.
+
+### L3 — Approximate fixed point of the self-prediction map
+
+- [ ] Replace the conjecture at `main.tex:285` with the bound it guesses at:
+      an approximate self is confined to a ball whose radius is set by the
+      coupling margin.
+
+**Gap and intent.** The manuscript states that approximate self-models may
+require a weaker condition than the exact fixed point and leaves no result
+behind the statement. Banach's uniqueness is not what the relaxation costs:
+the exact fixed point still exists and is still unique. What the relaxation
+buys is that the Self becomes graded in `K - 2D` rather than binary. Mathlib
+supplies the estimate, so this is a cheap item.
+
+**Completion criteria, specified before implementation:**
+
+1. In `Phase6_ReflexiveTopology`, state and prove: for a boundary whose
+   `predict` is `ContractingWith q`, any `s` with `dist s (rb.predict s) ≤ ε`
+   satisfies `dist s s_* ≤ ε / (1 - q)` for the Self `s_*`. This is
+   `ContractingWith.dist_le_of_fixedPoint`
+   (`Mathlib/Topology/MetricSpace/Contracting.lean:256`); do not restate Banach
+   around it.
+2. Instantiate `q` at `resonanceRate K D τ = exp (-(K - 2D) τ / 2)` and record
+   the consequence as an inequality, not a numeral: the tolerance behaves as
+   `2ε / ((K - 2D) τ)` near threshold and diverges as `K → 2D⁺`. This is the
+   statement that makes self-representation graded in the supercritical margin.
+3. Compose the two errors. If the glued state is displaced by `δ`, the residual
+   at the displaced state is at most `ε + (1 + q) δ`, so the approximate-self
+   ball has radius `(ε + (1 + q) δ) / (1 - q)`. The point of the item is that
+   the errors add and are divided by the spectral gap rather than amplifying;
+   state it that way.
+4. Negative companion: exhibit a nonexpansive (`q = 1`) self-map on the
+   Examples §10 metric with more than one fixed point. This locates the cliff
+   at `q → 1`, not at exactness, and pairs with the existing
+   `not_contractingWith_resonanceRate` below threshold.
+5. Witness with `cortexReflexive`, which contracts by exactly one half, at an
+   explicit `ε`. Follow SDD/TDD and the axiom audit; rewrite `main.tex:285` to
+   state the proved bound in place of the conjecture, and align the supplement
+   and tracked PDFs.
+
+**Stop rule.** Stop at the a-posteriori bound, its threshold instantiation, the
+error composition and the non-uniqueness witness. L3 does not construct the
+encoding or the readout, which remain a separate obligation (`main.tex:270`),
+does not supply restriction resonance, and changes nothing in Derivation 5.
+
+### L4 — Approximate overlap agreement: what survives of uniqueness
+
+- [ ] Determine what an `ε`-compatible family determines, with an explicit
+      constant, and what it demonstrably fails to determine.
+
+**Gap and intent.** `sheaf_glue_unique`
+(`PhysicsOfConsciousness/Phase5_GlobalSection.lean:53`) takes `h_compat` as an
+equation, and the sheaf condition is equality-or-nothing. Under
+`d (ρᵢ sᵢ) (ρⱼ sⱼ) ≤ ε` there is in general neither an exact global section nor
+any bound on the diameter of the approximate ones without further structure.
+Two routes are available and each has a declared cost. Do not attempt both in
+one change; pick one and state which.
+
+*Route A — selection.* The local states are finite measures and admit convex
+combination, so a partition of unity subordinate to the cover averages the
+family into a canonical global object. Uniqueness is then replaced by a
+selection rule, and two partitions are expected to give sections differing by
+`O(N ε)` with `N` the cover's multiplicity. The item is to prove that constant,
+not to assume it. The cost is interpretive: unity becomes coarse-grained at
+scale `δ`, which is defensible only if the identification is shown to depend on
+features invariant at that resolution, and `main.tex` does not currently argue
+this.
+
+*Route B — obstruction.* The discrepancy is a Čech-style 1-cochain; gluing is
+exact iff it is a coboundary, and the least achievable residual is the quotient
+norm of its class. This is the metric version of `Phase5_TwistedGluing`. The
+trap is already recorded at `supplementary.tex:262`: with phase coefficients the
+obstruction is vacuous, because absolute patch phases make every offset a
+coboundary (`isCoboundary_of_phaseField`). The `ε`-version is informative only
+in content coefficients — precisely the state space that module declines to
+choose. Route B therefore requires choosing a content state space first, and
+that choice is the physical commitment, not a formality.
+
+**Completion criteria, specified before implementation:**
+
+1. State the relaxed hypothesis with a metric on sections over overlaps. A
+   weakening to a predicate carrying no modulus does not answer the question.
+2. Prove the positive statement with an explicit constant in `ε` and the
+   cover's multiplicity. A statement without a constant is not a relaxation of
+   uniqueness, only an abandonment of it.
+3. Prove the matching negative: either a family that is `ε`-compatible for
+   arbitrarily small `ε` and admits no exact global section, or two approximate
+   sections whose distance is not controlled by `ε` alone. Without this the
+   hypotheses are not shown to be necessary, which is the failure the existing
+   counterexamples exist to prevent.
+4. Witness on the three-site cortex, with a regression that rejects a family
+   compatible only pairwise.
+5. Follow SDD/TDD and the axiom audit; align publication scope and tracked PDFs.
+
+**Stop rule.** Stop at one route with its constant, its negative companion and
+its witness. L4 supplies no mechanism by which cortical descriptions acquire
+agreement; that remains the unscheduled item above. It does not close the
+content-model gap at `main.tex:226`.
+
+### Recorded, not scheduled — from the same review
+
+- **Coboundary repair as a consensus dynamics.** Least-squares minimisation of
+  the discrepancy cochain over 0-cochains on the nerve is Laplacian consensus,
+  and the residual it cannot remove is the cycle-space component. This is the
+  shape a mechanism for acquiring overlap agreement would take, and it is the
+  natural successor to the unscheduled overlap-agreement item. It is a
+  suggestion and not a result: it presupposes L4 Route B, hence a content state
+  space, and a declared dynamics, and the circle-valued case carries subtleties
+  the real-valued case does not. Do not schedule before L4.
+- **The gap the review did not name.** What is proved is about spatial mass
+  profiles, where restriction is functorial and gluing is easy; what is claimed
+  is about contents, where matching overlap marginals need not determine a joint.
+  `main.tex:226` already cites `abramsky2011` for exactly this, and the content
+  model is the standing unscheduled research item. Recorded here so that no
+  later reader mistakes the measure-theoretic theorem for the content-theoretic
+  one. No task opened.
+- **Cover selection remains the deepest conditional** (`main.tex:291`). Both
+  uniqueness results are relative to a chosen cover and nothing selects it;
+  `tononi2016` makes exclusion explicit and this framework does not. Recorded
+  because relaxing consistency makes the selection problem worse rather than
+  better: a set of approximate sections over a set of admissible covers. No
+  task opened.
+
+This ledger update adds no implementation and no proved claim.
