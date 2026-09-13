@@ -39,8 +39,10 @@ negative answers, which the publication now carries.
 citation and every generated macro. Its prerequisites A1, A2 and F1–F4 are
 closed, and the other two P-items require author or journal decisions.
 The agency/active-chain extension is complete; its primer alignment and the
-complete finite-update theorem are recorded in the dated sections at the end of this
-ledger. Further theoretical modelling does not require new empirical results.
+complete finite-update theorem are recorded in the dated sections at the end
+of this ledger. L2 below is the recommended next bounded agentic Lean task:
+goal-directed policy selection under a finite budget. Further theoretical
+modelling does not require new empirical results.
 The 80/20 constraint remains to correct unsupported claims and retain supported
 results, without expanding into incremental sweeps.
 
@@ -1664,16 +1666,52 @@ registers, weaker support conditions and learning are separate changes. L1
 does not establish the register-to-actuator allocation of E34Active or the
 coupling-convergence assumption E45Active; it is not a submission prerequisite.
 
-### Further modelling questions — unscheduled, with no empirical prerequisite
+### L2 — Goal-directed policy selection under a finite budget
 
-- [ ] Specify a common register/controller/field model in which the named
-      energy and budget refer to identified operations. The existing numerical
-      allocation and distinct toy components do not provide that identification.
-- [ ] Specify a control or learning objective and actual update dynamics before
-      seeking any optimization or convergence theorem. For E45/E45Active,
-      distinguish learning time from the spatial mesh-refinement index:
-      convergence in time alone does not prove convergence of coupling energies
-      under refinement. State and derive the missing relation in the chosen model.
+- [ ] Derive a policy choice that improves a specified finite task while
+      satisfying the heat budget of its actual perception--action process.
+
+**Gap and intent.** L1 accounts for a complete update with supplied channels;
+it does not select actions or improve a policy against an objective. L2 adds
+purposeful control under declared model assumptions. The objective is an
+explicit modelling input, not a consequence of the thermodynamic bound.
+
+**Completion criteria, specified before implementation:**
+
+1. Specify a finite task, objective, permitted policies and comparison baseline.
+2. Compute each policy's expected performance and heat/work from its actual L1
+   process, using consistent initial/intermediate/final laws, energy and
+   reservoir conventions. Do not substitute an unrelated assigned cost.
+3. Construct a budget-feasible policy and prove strict improvement in expected
+   task performance over the baseline. Supply a nontrivial witness and a
+   regression showing that cost feasibility alone does not ensure task success.
+4. Follow SDD/TDD and the axiom audit; align publication scope and tracked PDFs
+   with the verified result.
+
+**Stop rule.** Stop at the finite control result and its witness/regressions.
+Learning dynamics and learning convergence are separate follow-ups. Additional
+physical registers or time-dependent control require their own accounting.
+L2 does not close E34Active's physical budget allocation or E45Active's spatial
+coupling-convergence implication. No empirical data is required for this
+mathematical task; cortical identification remains separate. L2 is not a
+submission prerequisite.
+
+### Further modelling questions — separate, unscheduled gaps
+
+- [ ] **E34Active — common physical resource budget.** Specify a common
+      register/controller resource model in which the named energies, heat
+      budget and actual operations are identified. The existing numerical heat
+      comparison and distinct toy components do not establish a shared physical
+      mechanism. A lower bound on erasure heat supplies no upper actuator budget.
+- [ ] **Learning dynamics.** After the bounded L2 control result, specify how
+      the policy changes, which objective drives the update and what resource
+      costs it incurs before seeking a learning-improvement or convergence theorem.
+- [ ] **E45/E45Active — spatial coupling convergence.** Specify and derive the
+      relation from the chosen control or learning dynamics to the named
+      coupling-energy sequence under spatial mesh refinement. Learning time
+      and the mesh-refinement index are distinct: convergence in time alone
+      does not prove convergence under refinement. This is separate from
+      E34Active's budget identification and L2's task-performance theorem.
 - [ ] Model how local descriptions acquire or preserve overlap agreement and
       how a readout fixes the glued state. Conditional proofs and counterexamples
       can precede data; identifying the variables with neural content and testing
@@ -1715,3 +1753,11 @@ E34Active's register-to-actuator allocation and E45Active's coupling convergence
 are not derived. L1 stops here; the unscheduled modelling questions above and
 the P-items remain open. The user requested a combined commit of the agency
 extension, active chain, primer and L1 on 2026-09-13.
+
+## 2026-09-13 — Next agentic Lean task recorded
+
+Recorded L2's finite task, explicit objective and policies, same-process
+performance/cost accounting, budget-feasible improvement theorem and negative
+regression. Kept learning dynamics, E34Active's common resource identification
+and E45Active's spatial convergence as separate open tasks. This ledger update
+adds no implementation or proved claim.
