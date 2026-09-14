@@ -132,8 +132,9 @@ the same law.
 
 ## Plan
 
-1. [x] Write failing Lean specifications for the protocol, the store, the
-   agent, the witness numerals and the regressions; observe failure.
+1. [x] Recover the inherited specification and run failing specifications for
+   the unfinished resource results, controls and active-bound integration.
+   The generic protocol was already implemented on resumption.
 2. [x] Add `Phase3_ContinuingAgent.lean` with the three structures and their
    derivations.
 3. [x] Add `Examples/ContinuingAgent.lean` with the witness and regressions.
@@ -196,7 +197,8 @@ funded stage in the active node at its store allowance, and
 `continuing_stage_activeBound` discharges it for the witness's first cycle —
 without identifying that allowance with the register ledger's erasure heat.
 
-`Examples/ContinuingAgent.lean` witnesses it on five bits. `masses` is the
+`Examples/ContinuingAgent.lean` uses five bit-valued state types and a joint
+state of three bits (parameter, register and flag). `masses` is the
 four-parameter mass form; `law_zero_masses`, `act_masses`, `learn_masses`,
 `reset_masses`, `learn_end_masses` and `cycle_masses` transport it through the
 cycle and compose into the exact agreement map `a ↦ 65/128 + a/128` with the
@@ -235,7 +237,9 @@ The article gained one subsection paragraph with its budget equation and a
 rewritten E34 row, the supplement one subsection with two displayed equations
 and one Table S1 row, and the primer one subsection with a summary-table row.
 The rebuilt article, supplement and primer have 45, 40 and 84 pages against 44,
-39 and 82, with no overfull boxes. The 58-page arXiv submission compiles from
+39 and 82. Final logs have zero warnings and overfull boxes, with underfull
+counts matching fresh baseline builds (2, 0 and 29). The changed result and
+table pages were visually inspected. The 58-page arXiv submission compiles from
 its unpacked archive and passes manifest freshness. `git diff --check` passes.
 
 Still open after this change: preparation of the initial law, a microscopic or

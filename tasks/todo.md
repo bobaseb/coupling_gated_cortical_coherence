@@ -2557,13 +2557,15 @@ node at its store allowance, and `continuing_stage_activeBound` discharges it
 for the witness's first cycle, without identifying that allowance with the
 register ledger's erasure heat.
 
-`Examples/ContinuingAgent.lean` witnesses it on five bits, every primitive mass
+`Examples/ContinuingAgent.lean` uses five bit-valued types and a three-bit joint
+state (parameter, register and flag), every primitive channel mass
 `1/4` or `3/4`, so every stage heat is a rational multiple of `log 3` or
 `log (5/3)`. The mass form is transported through the cycle exactly, giving the
 agreement map `a ↦ 65/128 + a/128` with the flag returned to `1/4` and
 independent at every completed reset: the register's agreement with the unknown
-rewarding action is at least `65/128 > 1/2` after every cycle, for ever, and
-successive cycle laws differ. On those same laws the first cycle costs
+rewarding action is at least `65/128 > 1/2` after every cycle of the mathematical
+protocol, and successive cycle laws differ. The finite store funds only a
+prefix of that protocol. On those same laws the first cycle costs
 `(15/32) log 3 + (1/16) log (5/3)` and every cycle at least
 `(3/16) log 3 + (1/16) log (5/3)`, the learning stage's `(1/16) log (5/3)` being
 independent of what the agent has learned and the reset's heat strictly
