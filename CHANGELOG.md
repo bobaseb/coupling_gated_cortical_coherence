@@ -20,6 +20,51 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-14 — The register's bath, and what a map-indexed budget needs
+
+Two scope sentences are no longer written. The article said that deriving the
+register ledger's accounting identity from a microscopic bipartite dynamics was
+a separate model, and the primer said the same in its ledger scope paragraph.
+The model now exists, and what it establishes is a negative: a reversible
+register/bath gate delivers the erasure heat and supplies neither of the
+ledger's two physical inputs. Both sentences state that instead.
+
+`Examples/RegisterBath.lean` carries each of the four maps of a register bit to
+a permutation of register and bath that performs it on a bath prepared pure.
+Heat is the bath's actual mean energy gain on the executed paths: `log 2` for
+the two erasures, `0` for the two injective maps, at bath levels `0` and
+`2 log 2`, degenerate register levels and thermal scale one. Those values
+inhabit `StatisticalMechanics Bool` with the reachable bath supports, so the
+instance is sharper than `Examples/Bit.lean`'s, which charges `log 2` for every
+map including the identity. It is `local` to its file, and that witness and its
+consumers are unchanged.
+
+`FiniteProtocol.energyTransfer`, `sum_energyTransfer` and `reported_heat_eq`
+(`Phase3_ContinuingAgent.lean`) give the bath's ledger for any finite protocol:
+the stage transfers sum to the bath's endpoint gain, with no positive support
+and no thermal identification, and a reported heat ledger differs from that gain
+by the transfer it omits. No entropy inequality comes out of either.
+
+Three results fence a heat budget indexed by the register's map. The same
+erasing gate executed twice returns the `log 2` and restores the prepared law,
+with shares `log 2` and `-log 2` about a total of zero, so an eraser is reusable
+only if something prepares its bath again. A second reversible gate holds the
+register fixed and excites its bath, performing the same register map as idling
+at `2 log 2`; the work is `log 2` for one erasure, `2 log 2` for that drive and
+zero for two erasures. And a swap is an involution, so the gate's transition
+log-ratios vanish on every realized path while its bath gains `log 2`, and a
+deterministic channel, which sends one state to one state, is not strictly
+positive.
+
+This constructs no `RegisterLedger` and weakens no result that consumes one.
+Positivity, local detailed balance and the accounting identity remain the
+physical inputs `Examples/RegisterBudget.lean` supplies. Preparing the bath,
+supplying the work, fabricating the gate and identifying this bath with the
+reservoir the ledger's operations exchange heat with are open, and no cortical
+identification follows.
+
+---
+
 ## 2026-09-14 — Sequenced episodes with a finite expected-work allowance
 
 The open continuing-agent item is closed for a bounded finite model.

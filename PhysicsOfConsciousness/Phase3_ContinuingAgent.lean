@@ -16,6 +16,13 @@ law and the Gibbs bound hold stagewise and telescope over the run. `ofStep_step`
 identifies the constant protocol with `iterate`, so the repeated case is the
 same theory rather than a second one.
 
+`energyTransfer`, `sum_energyTransfer` and `reported_heat_eq` account for an
+explicitly modelled subsystem of the same protocol: the stage transfers of a
+declared bath energy sum to that bath's endpoint gain, with no positive support
+and no thermal identification, and a reported heat ledger differs from that gain
+by the transfer it omits. `Examples/RegisterBath.lean` runs them on reversible
+register/bath gates, where neither positivity nor local detailed balance holds.
+
 `ContinuingProcess` adds a common energy, a stage-indexed heat observable, one
 thermal scale and `stored`: the usable work available before the first stage.
 `remaining` is what is left of it, `Sustains N` says it was never overdrawn, and
@@ -154,6 +161,37 @@ theorem sum_first_law (E : X × S → ℝ) (q : ℕ → X → S → S → ℝ) (
       (P.step N).mean_first_law E (q N) (protocolWork E q N) (fun _ _ _ => rfl),
       ← P.law_succ N, step_initial]
     ring
+
+/-- Transfer into the subsystem whose energy is `E`, on an actual transition.
+For a bath coordinate this is its energy gain. Calling that gain heat assumes
+the bath has no separately unaccounted work port; no thermal law is inferred. -/
+noncomputable def energyTransfer (_P : FiniteProtocol X S) (E : X × S → ℝ)
+    (x : X) (s t : S) : ℝ := E (x, t) - E (x, s)
+
+/-- An explicit bath's energy ledger follows from the same evolving law: its
+stage transfers sum to its endpoint energy gain. This allows deterministic
+gates and zero masses and asserts no entropy/temperature identification. -/
+theorem sum_energyTransfer (E : X × S → ℝ) (N : ℕ) :
+    (∑ k ∈ Finset.range N, (P.step k).meanHeat (P.energyTransfer E)) =
+      (∑ z, (P.law N).p z * E z) - (∑ z, P.initial.p z * E z) := by
+  have h := P.sum_first_law E (fun _ _ _ _ => 0) N
+  simpa [protocolWork, energyTransfer, FiniteFeedbackStep.meanHeat] using h
+
+/-- A reported heat ledger differs from the explicit bath's energy gain by
+the expected transfer it miscounts. Equality requires this correction to
+vanish; a logical register update alone supplies no such identification. -/
+theorem reported_heat_eq (E : X × S → ℝ) (q : ℕ → X → S → S → ℝ) (N : ℕ) :
+    (∑ k ∈ Finset.range N, (P.step k).meanHeat (q k)) =
+      (∑ z, (P.law N).p z * E z) - (∑ z, P.initial.p z * E z) +
+        ∑ k ∈ Finset.range N,
+          (P.step k).meanHeat (fun x s t => q k x s t - P.energyTransfer E x s t) := by
+  have hd (k : ℕ) :
+      (P.step k).meanHeat (fun x s t => q k x s t - P.energyTransfer E x s t) =
+        (P.step k).meanHeat (q k) - (P.step k).meanHeat (P.energyTransfer E) := by
+    simp only [FiniteFeedbackStep.meanHeat, mul_sub, Finset.sum_sub_distrib]
+  simp_rw [hd]
+  rw [Finset.sum_sub_distrib, P.sum_energyTransfer E N]
+  ring
 
 /-- The joint entropy the sequence removes is paid for by its cumulative heat,
 at the declared thermal scale. Gibbs and local detailed balance, stage by stage. -/

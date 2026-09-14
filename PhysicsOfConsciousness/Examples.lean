@@ -23,6 +23,7 @@
     `Examples/ObservationalLearning.lean` -- learning an unknown task from outcomes
     `Examples/ContinuingAgent.lean` -- sequenced episodes and a finite work allowance
     `Examples/RegisterBudget.lean` -- one register's operations and its heat ledger
+    `Examples/RegisterBath.lean` -- that register's bath, and what its map does not fix
     `Examples/ActuatedCoupling.lean` -- a feedback step's scalar coupling amplitude
     `Examples/MicroscopicCoupling.lean` -- a thermal switch's installed spatial mode
     `Examples/Phase4.lean`  §7, §15, §16, §17
@@ -123,6 +124,7 @@ import PhysicsOfConsciousness.Examples.PolicyLearning
 import PhysicsOfConsciousness.Examples.ObservationalLearning
 import PhysicsOfConsciousness.Examples.ContinuingAgent
 import PhysicsOfConsciousness.Examples.RegisterBudget
+import PhysicsOfConsciousness.Examples.RegisterBath
 import PhysicsOfConsciousness.Examples.ActuatedCoupling
 import PhysicsOfConsciousness.Examples.MicroscopicCoupling
 import PhysicsOfConsciousness.Examples.Phase4

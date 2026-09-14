@@ -1736,17 +1736,29 @@ submission prerequisite.
       inputs, each fenced by a regression; they are the separate open item
       below. Specification, resource boundary and verification:
       `tasks/e34_active.md` and the completion record below.
-- [ ] **The register ledger's own premises.** The derived allocation rests on
+- [x] **The register ledger's own premises.** The derived allocation rests on
       two model inputs: the accounting identity that the register's dissipated
       heat is exactly the total its operations deliver to its reservoir, and
-      the compressiveness of its other operations. Neither follows from a
-      microscopic model here. Specify a bipartite register/bath dynamics and
-      derive the identity for it, or exhibit the conditions under which it
-      fails. `Examples/Bit.lean`'s bath fixes `heat_dissipation` at `log 2` for
-      every map of the register, including the identity, so a sharper register
-      instance is part of this question. `leaky_exceeds_budget` and
+      the compressiveness of its other operations. `leaky_exceeds_budget` and
       `compressive_exceeds_budget` show that dropping either input loses the
       bound, so neither is decorative.
+      **Done 2026-09-14, as an obstruction:** `Examples/RegisterBath.lean`
+      specifies a bipartite register/bath dynamics — each of the four maps of a
+      register bit as a permutation of the pair, on a bath prepared pure — and
+      computes heat as the bath's actual mean energy gain: `log 2` for the
+      erasures, `0` for the injective maps, inhabiting `StatisticalMechanics`
+      with the reachable bath supports and sharper than `Examples/Bit.lean`'s
+      `log 2` for every map. `FiniteProtocol.sum_energyTransfer` and
+      `reported_heat_eq` give that bath's ledger and its correction for any
+      finite protocol, with no positivity. The identity does not follow: the
+      same gate run twice restores the prepared law with shares `log 2` and
+      `-log 2` about a total of zero, a drive that holds the register fixed
+      excites its bath at `2 log 2`, and an involution's log-ratio heat vanishes
+      on every realized path while its bath gains `log 2`, on a reduced channel
+      that is not strictly positive. Positivity, local detailed balance and the
+      identity are therefore inputs rather than consequences of reversibility.
+      Specification and execution record: `tasks/register_bath.md` and the
+      dated completion section below.
 - [x] **Learning dynamics.** After the bounded L2 control result, specify how
       the policy changes, which objective drives the update and what resource
       costs it incurs before seeking a learning-improvement or convergence theorem.
@@ -2603,3 +2615,79 @@ optimal-policy convergence, unbounded horizons, and any cortical
 identification. The first is now its own ledger item; the remaining agency gaps
 are that item, the register ledger's own premises, and local content agreement.
 Specification and execution record: `tasks/continuing_agent.md`.
+
+## 2026-09-14 — The register ledger's premises: a finite bath and three obstructions
+
+`FiniteProtocol.energyTransfer` (`Phase3_ContinuingAgent.lean`) is the gain of
+the subsystem whose energy is declared, on an actual transition.
+`sum_energyTransfer` sums a protocol's stage transfers to that subsystem's
+endpoint gain and `reported_heat_eq` exhibits the correction by which a reported
+heat ledger differs from it. Both hold for deterministic gates and zero masses,
+neither needs positive support, and neither supplies an entropy inequality: they
+are first-law bookkeeping for an explicitly modelled bath.
+
+`Examples/RegisterBath.lean` is the witness. `lift` sends each of the four maps
+of a register bit to a permutation of register and bath (`lift_injective`) that
+performs the requested map on a bath prepared `false` (`lift_realizes`): an
+injective map moves the register alone, an erasure swaps the register's bit into
+the bath. With a uniform register, a pure bath, bath levels `0` and `2 log 2`,
+degenerate register levels and thermal scale one, `operationHeat` is the bath's
+mean energy gain on the executed paths and `operationHeat_formula` evaluates it
+as `log 2` for the two erasures and `0` for the two injective maps.
+`bathThermo`, `bathEnv` and `bathStatMech` inhabit `StatisticalMechanics Bool`
+at those values with the gates' reachable bath supports, so Landauer's heat
+equation is discharged by computation rather than stipulation, and
+`idle_dissipation = 0` is the sharpening over `Examples/Bit.lean`, whose bath
+charges `log 2` for every map. The three instances are `local` to the file: a
+second global instance would silently re-target that witness's consumers, and a
+scratch module importing `Examples` confirms
+`heat_dissipation (id : Bool → Bool) = Real.log 2` still holds there by `rfl`.
+
+Three results fence a heat budget indexed by the register's map.
+`erase_law_one` clears the register and leaves the bath uniform;
+`erase_law_two` proves that the second execution of the same gate restores
+`prepared`, so the register is uniform again, with shares `log 2`
+(`erase_first_heat`) and `-log 2` (`reused_bath_heat`) about a total of zero
+(`two_stage_heat`, derived from `sum_energyTransfer`) and neither
+nonnegativity nor a bound by the total (`shares_exceed_total`). `driveGate`
+holds the register at its value and excites its bath, so it performs the
+identity on a prepared bath at `2 log 2` rather than `0`
+(`same_update_different_heat`); `suppliedWork` charges those gains to an
+external drive, `log 2` for one erasure, `2 log 2` for the drive and zero for
+two erasures, the register's levels being degenerate. And the premises fail on
+the gate itself: `gate_channel_zero` and `gate_not_positive`, because a
+deterministic channel sends one state to one state, and `erase_stageHeat_zero`,
+because a swap is an involution, so
+its log-ratio heat vanishes at every thermal scale while the bath gains `log 2`
+(`erase_stageHeat_not_bath_heat`), the whole of which the reported ledger omits
+(`erase_reported_correction`).
+
+The result is therefore narrower than a derivation and is what the
+specification asked for as its alternative: positivity, local detailed balance
+and the accounting identity are physical inputs of `RegisterLedger`, not
+consequences of microscopic reversibility. No `RegisterLedger` instance is
+constructed here and no result that consumes one is weakened. Two Lean lessons
+are recorded in `tasks/lessons.md`.
+
+The red specifications failed before the declarations existed. The full
+`lake build` has zero warnings; the default axiom audit covers 3,488
+declarations in 56 modules with only `propext`, `Classical.choice` and
+`Quot.sound`, and the explicit headline checks agree. All pre-commit hooks pass
+under `uv --project simulations` at the repository root, as do the 143 existing
+Python tests. No Python, dependency, reference, macro or simulation result
+changed.
+
+The article gained one paragraph with a two-identity bath-ledger equation and a
+rewritten E34 row, the supplement one paragraph set with a Table S1 row, and the
+primer one subsection with a summary row. The rebuilt article, supplement and
+primer have 46, 41 and 85 pages against 45, 40 and 84, with no overfull boxes
+and underfull counts matching baseline builds of `HEAD` (2, 0, 29). The
+60-page arXiv submission compiles from its unpacked archive and passes manifest
+freshness. `git diff --check` passes.
+
+Out of scope and still open: preparing the bath and the register's law,
+supplying the work, fabricating the gate, identifying this bath with the
+reservoir the ledger's operations exchange heat with, a pathwise or replenished
+store, and any cortical identification. The remaining agency gaps are physical
+preparation and supply beyond the finite model, and local content agreement.
+Specification and execution record: `tasks/register_bath.md`.

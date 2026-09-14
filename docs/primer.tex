@@ -1433,9 +1433,10 @@ while allocating $(7/6)\log2$ to its controlled operation.
 \scope
 The index labels the operations; it does not sequence them. Composing them
 into one evolving joint law, with its preparation, resets and power source,
-is a separate model, and so is deriving the accounting identity from a
-microscopic bipartite dynamics. The ledger says nothing about the
-coupling-convergence assumption of the next edge, and nothing about cortex.
+is a separate model. A microscopic bipartite dynamics does not supply the
+accounting identity either: \S\ref{sec:register-bath} builds one and shows
+what it leaves open. The ledger says nothing about the coupling-convergence
+assumption of the next edge, and nothing about cortex.
 
 \lean{
 \id{RegisterLedger} in \id{Phase3\_AgencyThermodynamics.lean} carries the
@@ -1445,6 +1446,71 @@ derive the allocation, \id{ledger\_bathEntropy} exhibits the total as the
 register's own bath entropy change, and \id{Chain.e34Active\_of\_ledger}
 discharges the edge. \id{Examples/RegisterBudget.lean} proves the family's
 heat, final law and entropy, the witness ledger, and the two regressions.}
+
+\subsection{What a register's bath fixes, and what it does not}
+\label{sec:register-bath}
+
+\what
+The ledger charges a register's operations against the heat that register
+dissipates. Write down the bath that receives the heat, and ask which of the
+ledger's premises the microscopic dynamics gives you.
+
+Take one register bit and one bath bit. Each of the four maps of the register
+--- identity, negation, and the two erasures --- is carried by a permutation
+of the \emph{pair} that performs it when the bath is prepared in its ground
+state: an injective map moves the register and leaves the bath alone, and an
+erasure swaps the register's bit into the bath. Nothing is lost
+microscopically; the register's information goes somewhere. Let the bath's
+levels be $0$ and $2\log2$, let the register's be degenerate, take the
+register uniform and the thermal scale one, and read heat off the paths the
+gate actually runs as the bath's mean energy gain. It is $\log2$ for either
+erasure and $0$ for either injective map, and those are the values Landauer's
+heat equation demands of this bath, whose reachable states the model records.
+
+For any sequence of operations on one law, the bath's own ledger is a first
+law and nothing more:
+\[
+ \sum_{k<N}\langle\Delta E_B\rangle_k=\langle E_B\rangle_N-\langle E_B\rangle_0 ,
+\]
+with no positivity anywhere and no entropy inequality out of it. A reported
+heat ledger differs from that gain by the transfer it fails to count, and the
+difference is available as an identity rather than an estimate.
+
+Three things then go wrong for a budget indexed by the register's map. First,
+run the erasing gate a second time: the bath is not prepared any more, so the
+gate hands the bit back, returns the $\log2$ and restores the law it started
+from. The two shares are $\log2$ and $-\log2$ about a total of zero, so a
+share is neither nonnegative nor bounded by the total, and an eraser is
+reusable only if something prepares its bath again. Second, a different
+reversible gate leaves the register exactly where it is and flips the bath:
+the same register map as idling, at $2\log2$ instead of $0$. The work
+accounts for the difference --- $\log2$ for one erasure, $2\log2$ for that
+drive, zero for two erasures --- and the register's map does not determine
+any of it. Third, a swap is its own inverse, so forward and reverse
+transition probabilities agree on every path the gate runs, and the
+log-ratio heat that local detailed balance would assign is zero at every
+thermal scale, while the bath gains $\log2$. And a deterministic gate sends one
+state to one state, so it is not a strictly positive channel either.
+
+\scope
+So positivity, local detailed balance and the accounting identity are physical
+inputs of the resource model, not consequences of microscopic reversibility.
+This model constructs no ledger and weakens no result that uses one; it says
+what such a model has to be given. The numbers are those of the declared
+energy gap and preparation. Preparing the bath, supplying the work,
+fabricating the gate and identifying this bath with the reservoir the ledger's
+operations exchange heat with are all still open, and nothing here concerns
+cortex.
+
+\lean{\id{FiniteProtocol.energyTransfer}, \id{sum\_energyTransfer} and
+\id{reported\_heat\_eq} in \id{Phase3\_ContinuingAgent.lean} are the generic
+ledger and its correction. \id{Examples/RegisterBath.lean} carries
+\id{lift} with \id{lift\_injective} and \id{lift\_realizes},
+\id{operationHeat\_formula}, a file-local \id{StatisticalMechanics Bool}
+instance, \id{erase\_law\_two} and \id{two\_stage\_heat} for the reused
+eraser, \id{same\_update\_different\_heat} and \id{driven\_work} for the
+drive, and \id{gate\_channel\_zero}, \id{gate\_not\_positive} and
+\id{erase\_stageHeat\_not\_bath\_heat} for the two premises.}
 
 \subsection{How an action can set a scalar coupling amplitude}
 \label{sec:actuated-coupling}
@@ -5011,6 +5077,7 @@ Finite policy selection (\S\ref{sec:agency-control}) & Unique feasible optimum i
 Policy adaptation (\S\ref{sec:policy-learning}) & Expected reward improves toward a stationary mixture; cumulative register heat is finite & Theorem for supplied values, thermal channel and initial preparation; task execution and readout installation excluded \\
 Continuing agent (\S\ref{sec:continuing-agent}) & \raggedright An act--learn--reset sequence retains above-chance reward at positive recurring cost & \raggedright\arraybackslash Theorem for a supplied prior, channels and work store; budgets bound expectations; battery and sensor-memory dynamics excluded \\
 Learning from outcomes (\S\ref{sec:observational-learning}) & Expected reward of the executed action rises from $1/2$ toward $3/4$; the work spent is irreducible & Theorem for an unknown parameter, a declared prior and observation-driven updates; preparation, power supply and readout fabrication excluded \\
+Register's bath (\S\ref{sec:register-bath}) & \raggedright A reversible register--bath gate delivers the erasure heat, and a map-indexed budget needs a prepared bath and a work supply & \raggedright\arraybackslash Theorem (negative); positivity, local detailed balance and the ledger identity do not follow from reversibility \\
 KL bound; free-energy critique (\S\ref{sec:fep}) & Blocks ``dissipation $\Rightarrow$ true model'' & Instance postulate; the limit does \emph{not} follow \\
 Squared-drift gradient (\S\ref{sec:sigma}) & A descendable objective for plasticity & Theorem at fixed phases; \emph{not} entropy production \\
 Kuramoto SDE & The physical core & Model \\

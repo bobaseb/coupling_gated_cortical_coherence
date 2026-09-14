@@ -452,6 +452,73 @@ The theorem \texttt{chain} uses the passive predictive node; \texttt{chain\_acti
 
 \textit{The register's ledger (\texttt{Examples/RegisterBudget.lean}).} The witness is that same one-bit register, at temperature one with Landauer heat $\log2$, and its operations act on a lamp bit through one family: the environment relaxes toward agreement with the held register bit at odds $a:1-a$, from a law whose agreement probability is $w$, with interaction energy $\log[a/(1-a)]$ for disagreement and mean heat $\log[a/(1-a)]\,(a-w)$. The controlled operation takes $a=2/3$, $w=4/15$ and delivers $(2/5)\log2$; the other takes $a=4/5$, $w=1/2$ and delivers $(3/5)\log2$. Their sum is the register's $\log2$, so \texttt{registerBudget\_\allowbreak e34Active} discharges the bridge with no numerical comparison between separate models, and \texttt{chain\_\allowbreak active\_\allowbreak budget\_\allowbreak jointly\_\allowbreak satisfiable} composes the whole branch through it. Both inputs are load-bearing. \texttt{act\_\allowbreak not\_\allowbreak compressive} shows the controlled operation increases the joint entropy, so its own second law bounds it neither below at zero nor above; \texttt{compressive\_\allowbreak exceeds\_\allowbreak budget} exhibits an entropy-preserving operation of the same family delivering $(7/3)\log2$, above the register's whole dissipation; and \texttt{leaky\_\allowbreak exceeds\_\allowbreak budget} exhibits a second ledger for the same register, satisfying positivity, local detailed balance and the identity, whose other operation draws heat out of the reservoir and whose controlled operation is allocated $(7/6)\log2$. \texttt{leaky\_\allowbreak other\_\allowbreak not\_\allowbreak compressive} identifies that operation as the one the derivation excludes.
 
+\textit{The register's bath (\texttt{Examples/RegisterBath.lean}).}
+\texttt{FiniteProtocol.energyTransfer} is the gain of the subsystem whose
+energy is declared, on an actual transition.
+\texttt{sum\_\allowbreak energyTransfer} and
+\texttt{reported\_\allowbreak heat\_\allowbreak eq}
+(\texttt{Phase3\_\allowbreak ContinuingAgent.lean}) give the article's
+Eq.~\eqref{eq:bath-ledger} for any finite protocol: the first is a first-law
+statement that admits deterministic gates and zero masses and asserts no
+entropy or temperature identification, and the second exhibits the correction
+by which a reported ledger differs from the modelled bath's gain.
+
+The witness carries one register bit and one bath bit. \texttt{lift} sends each
+of the four maps of the register to a permutation of the pair
+(\texttt{lift\_\allowbreak injective}) that performs the requested map on a
+bath prepared \texttt{false} (\texttt{lift\_\allowbreak realizes}); an
+injective map acts on the register alone and an erasure swaps the register's
+bit into the bath. The prepared law is a uniform register and a pure bath, the
+bath's levels are $0$ and $2\log2$, the register's are degenerate
+(\texttt{bathEnergy\_\allowbreak register\_\allowbreak degenerate}), and the
+thermal scale is one. \texttt{operationHeat} is the bath's mean energy gain on
+the executed paths and \texttt{operationHeat\_\allowbreak formula} evaluates it
+as $\log2$ for the two erasures and $0$ for the two injective maps. A
+\texttt{StatisticalMechanics Bool} instance discharges Landauer's heat equation
+for these values, with the reachable bath supports as its final supports; the
+instance is local to the file, so \S1's bath, which charges $\log2$ for every
+map including the identity, and its consumers are unchanged.
+
+Three results fence a map-indexed budget. \emph{The eraser is not reusable.}
+\texttt{erase\_\allowbreak law\_\allowbreak one} clears the register and
+leaves the bath uniform, and \texttt{erase\_\allowbreak law\_\allowbreak two}
+proves that a second execution of the same gate restores the prepared law, so
+the register is uniform again. The shares are $\log2$
+(\texttt{erase\_\allowbreak first\_\allowbreak heat}) and $-\log2$
+(\texttt{reused\_\allowbreak bath\_\allowbreak heat}) about a total of zero
+(\texttt{two\_\allowbreak stage\_\allowbreak heat}), which is the generic bath
+ledger applied to this protocol rather than a separate calculation, so a share
+is neither nonnegative nor bounded by the total
+(\texttt{shares\_\allowbreak exceed\_\allowbreak total}).
+\emph{The register's map does not fix the cost.}
+\texttt{driveGate} holds the register at its value and excites its bath, so it
+performs the identity on a prepared bath at heat $2\log2$ rather than $0$
+(\texttt{drivenIdleHeat\_\allowbreak eq},
+\texttt{same\_\allowbreak update\_\allowbreak different\_\allowbreak heat}).
+The work is accounted with the bath: $\log2$ for one erasure
+(\texttt{erase\_\allowbreak work}), $2\log2$ for the drive
+(\texttt{driven\_\allowbreak work}) and zero for two erasures
+(\texttt{reuse\_\allowbreak work}), the register's levels being degenerate.
+\emph{Reversibility supplies neither ledger premise.} A deterministic gate
+sends one state to one state, so its channel charges nothing to any other
+(\texttt{gate\_\allowbreak channel\_\allowbreak zero}) and the reduced step
+is not strictly positive
+(\texttt{gate\_\allowbreak not\_\allowbreak positive}); and a swap is an
+involution, so its forward and reverse transition masses agree on every
+realized path and its log-ratio heat vanishes at every thermal scale
+(\texttt{erase\_\allowbreak stageHeat\_\allowbreak zero}) while its bath gains
+$\log2$ (\texttt{erase\_\allowbreak stageHeat\_\allowbreak not\_\allowbreak
+bath\_\allowbreak heat}), the whole of which the reported ledger then omits
+(\texttt{erase\_\allowbreak reported\_\allowbreak correction}).
+
+This constructs no \texttt{RegisterLedger} instance and weakens none of its
+results: positivity, local detailed balance and the accounting identity remain
+the physical inputs \texttt{RegisterBudget} supplies, and this model shows that
+a reversible microscopic gate does not supply them. The values follow from the
+declared energy gap and preparation. Preparing the bath, supplying the work,
+fabricating the gate and identifying this bath with the reservoir the ledger's
+operations exchange heat with remain separate.
+
 \textit{Actuated scalar coupling (\texttt{Phase3\_\allowbreak ActuatedCoupling.lean}).}
 \texttt{ActuatedCoupling} carries a named feedback step, temperature and heat,
 a nonnegative conversion gain $g$, a spatial profile $b$, and regular meshes
@@ -1031,6 +1098,7 @@ Learning from observed outcomes & \texttt{FiniteObservationalLearner} (\texttt{P
 Actuated scalar coupling & \texttt{ActuatedCoupling} fixes density $g[H(p)-H(p')]b(x)$ for a named feedback step. Regular mesh refinement proves convergence; \texttt{Chain.actuated\_\allowbreak limit\_\allowbreak le\_\allowbreak budget} bounds its limit by $g(B/\theta)\int b$ when the total profile is nonnegative. A noisy actuator has positive drive and changing spatial energies; stationary execution, changed gain and changed profile alter the result. The constitutive law is supplied and produces no kernel or microscopic actuator work account & Theorem + instance postulate \\ \hline
 Microscopic actuation and kernel refinement & \texttt{LocalActuator} (\texttt{Phase3\_\allowbreak LocalActuator}) sets a product-space kernel $\sum_i c_i(z)\phi_i(x)\phi_i(y)$ and a stored energy $\sum_i u_i c_i(z)$ from the same mode occupancies. \texttt{kernel\_\allowbreak update} and \texttt{kernel\_\allowbreak update\_\allowbreak local} give a transition's change and its spatial locality; \texttt{expected\_\allowbreak kernel\_\allowbreak update} averages those pathwise changes over the executed step, and \texttt{installation\_\allowbreak first\_\allowbreak law} charges the same paths with the stored-energy change plus the channel's heat. \texttt{KernelMesh} (\texttt{Phase2\_\allowbreak KernelMesh}) reconstructs each sampled weight throughout its cell pair, \texttt{energy\_\allowbreak eq\_\allowbreak integral} identifies the cell-mass weighted energy with that reconstruction's product-measure integral, and \texttt{energy\_\allowbreak tendsto} converges it under shrinking sample error on a compact substrate. \texttt{Chain.e45Active\_\allowbreak of\_\allowbreak localActuator} and \texttt{Chain.e45\_\allowbreak of\_\allowbreak localActuator} discharge the two spatial edges for an arrangement holding, respectively, a named step's final law and a declared predictive system's joint law; neither proof consults its premise. A thermal switch installs one mode for positive external work, changes a pairwise value, changes its coupling energy between the first two partitions of an atomless interval, and rejects a zero-work and a wrong-limit claim. Profiles, prices, readout, reservoir and substrate are declared hardware; fabrication, continuing power and cortical identification are not established & Theorem + instance postulate \\ \hline
 One register's resource ledger & \texttt{RegisterLedger} (\texttt{Phase3\_\allowbreak AgencyThermodynamics}) carries one register's update, its operations as elementary steps controlled by that register, local detailed balance for each at that register's temperature, and the identity that its dissipated heat is the total those operations deliver to its reservoir. \texttt{opHeat\_\allowbreak nonneg\_\allowbreak of\_\allowbreak compressive} is the path-model second law at that temperature and \texttt{opHeat\_\allowbreak le\_\allowbreak dissipation} derives the allocation; \texttt{ledger\_\allowbreak bathEntropy} exhibits the total as the register's own bath entropy change. \texttt{Examples/RegisterBudget.lean} witnesses it on the one-bit eraser with two operations delivering $(2/5)\log2$ and $(3/5)\log2$, and fences both inputs: a compressive operation above the whole dissipation, and a ledger whose other operation draws heat out of the reservoir. The identity and the compressiveness are physical inputs; sequencing the operations into one evolving law, a continuing energy source and cortical identification are separate models & Theorem (conditional) \\ \hline
+A register's microscopic bath & \texttt{Examples/RegisterBath.lean} realizes each of the four maps of a register bit by a permutation of register and bath acting on a bath prepared pure, and computes heat as the bath's mean energy gain on the executed paths: $\log2$ for the erasures, $0$ for the injective maps, inhabiting Landauer's heat equation with the reachable bath supports. \texttt{sum\_\allowbreak energyTransfer} and \texttt{reported\_\allowbreak heat\_\allowbreak eq} (\texttt{Phase3\_\allowbreak ContinuingAgent}) give this ledger for any finite protocol with no positivity. Three results fence a map-indexed budget: the same gate run twice restores the prepared law, with shares $\log2$ and $-\log2$ about a total of zero; a drive that holds the register fixed excites its bath at $2\log2$, so the map does not fix the cost, and the work is $\log2$, $2\log2$ and zero for the three runs; and a deterministic gate is not strictly positive, while an involution's log-ratio heat vanishes on every realized path though its bath gains $\log2$. Positivity, local detailed balance and the ledger identity are therefore inputs rather than consequences of reversibility. The instance is local to its file; preparation, work supply, fabrication and identification of this bath with the ledger's reservoir are separate & Theorem (negative) \\ \hline
 Agency and feedback thermodynamics & \texttt{Phase3\_\allowbreak Agency} composes policy, world, observation and memory-update channels. It proves the signed conditional-information identity, conditional nonnegativity under finite information, and passive recovery. \texttt{Phase3\_\allowbreak FiniteInformation} connects finite laws to the same KL definition and proves finite-state finiteness. \texttt{Phase3\_\allowbreak AgencyThermodynamics} derives the joint entropy balance from normalized positive path laws; local detailed balance supplies heat. Its \texttt{FiniteFeedbackCycle} constructs the swapped intermediate law, identifies the composed channel output and proves total entropy, heat, first-law and budget relations at a common thermal scale and energy observable. Reciprocal and biased two-bit witnesses check nontrivial updates and reject a mismatched intermediate law. \texttt{Chain.ActiveBound} carries the named elementary process's entropy, heat and budget into \texttt{chain\_active}; the cycle bound supplies neither the register allocation nor coupling convergence. Extra registers, protocols, learning and cortical readouts require further models & Theorem (conditional) \\ \hline
 Capacity of a finite phase space & The first premise, discharged by theorem rather than by footnote (\texttt{Phase1\_\allowbreak Phase\-Space\-Capacity}). $H(p) \le \log|X|$ for any distribution on a finite state space, with equality exactly at the uniform law (\texttt{shannon\_\allowbreak entropy\_\allowbreak eq\_\allowbreak log\_\allowbreak card\_\allowbreak iff}); a stream with $|P|^k > |X|$ histories cannot be recorded injectively (\texttt{absorb\_\allowbreak not\_\allowbreak injective}) and its entropy exceeds anything the system can hold; and on a \emph{finite} space an unreachable state is an erasure, hence heat (\texttt{finite\_\allowbreak phase\_\allowbreak space\_\allowbreak dissipates}). Finiteness is assumed, not derived, and is fenced --- \texttt{Nat.succ} refutes the last step on an infinite space (\texttt{Examples}~\S19). The symmetry group and the metric are still consumed by no theorem & Theorem \\ \hline
 Pointwise Vacuum Minimization & \texttt{pointwise\_\allowbreak vacuum\_\allowbreak of\_\allowbreak global\_\allowbreak min} (\texttt{Phase1}), potential energy defined as an integral; holds a.e., and a double-well witness proves the a.e.\ cannot be strengthened & Theorem \\ \hline
