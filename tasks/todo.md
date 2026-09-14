@@ -2746,32 +2746,83 @@ relates them; the supplement's fence (the fixed-phase kernel descent row and
 its section) is therefore recording a domain change, not a missing integrand.
 Do not record any later result as identifying the two.
 
-What is available instead is a separation, in three tiers of increasing cost.
+**The ansatz note bundles three claims of different cost.**
+`Phase8_SelfConsistency` §"The ansatz" declares the von Mises density underived,
+citing "the Fokker–Planck operator, existence and uniqueness of its stationary
+solution, and a spectral stability argument". That bundle separates, and the
+first piece also subsumes the separation result recorded above — so the two
+items below replace the earlier three-tier plan, which had the separation
+conditional on an ansatz the same computation would derive.
 
-- [ ] **Cheap, and self-contained.** In the rotating frame at identical
-      frequencies the mean-field drift is `v θ = −K r sin (θ − ψ) = −∂θ V`
-      for `V θ = −K r cos (θ − ψ)`, and `vonMisesWeight a θ = exp (a * cos θ)`
-      at `a = K r / D` is exactly `exp (−V/D)`. Then `∂θ ρ = −(1/D) (∂θ V) ρ`
-      and the current vanishes identically, so entropy production is zero at
-      the stationary state while σ stays positive. This needs one definition
-      of `J` for one explicit density and a derivative of `Real.exp ∘ cos`:
-      no Fokker–Planck operator, no `Real.besselI` (which Mathlib lacks, per
-      `Phase8_SelfConsistency` §1), no PDE theory. `vonMisesWeight` already
-      carries continuity, positivity and interval integrability.
-- [ ] **Moderate.** Identify σ as the low-noise limit of the free-energy
-      dissipation `∫ ρ |∂θ (V + D log ρ)|²`. Still one-dimensional and
-      explicit, but the relative Fisher information has to be defined here —
-      Mathlib has no Wasserstein gradient flow to instantiate.
-- [ ] **Expensive, and required by nothing above.** A general probability
-      current over configuration space. Do not start here.
+- [ ] **The form of the stationary density, and the vanishing current — one
+      computation.** Claim: any periodic positive `C¹` stationary density is
+      von Mises. Stationarity gives `∂θ J = 0`, so `J` is a constant `J₀`. With
+      `v = −∂θ V` put `u = ρ * exp (V/D)`; then `∂θ u = −(J₀/D) * exp (V/D)`,
+      and periodicity of `u` forces `J₀ * ∫ exp (V/D) = 0`, hence `J₀ = 0`
+      because that integral is strictly positive — the same argument shape as
+      `vonMisesZ_pos` in this file. Then `u` is constant, `ρ = c * exp (−V/D)`,
+      and with `V θ = −K r cos (θ − ψ)` that is `vonMisesWeight (K*r/D)` up to
+      normalization. A first-order linear ODE on the circle: `deriv`, the
+      fundamental theorem of calculus and positivity of the integral of a
+      positive continuous function, all in Mathlib. No `Real.besselI`, no
+      spectral theory. **The middle step `J₀ = 0` is exactly the separation
+      result** — entropy production vanishes at the stationary state while σ
+      stays positive — so this derives the ansatz's form and discharges the
+      separation's conditionality in one proof rather than assuming the first
+      to get the second.
+- [ ] **Existence is largely present already.**
+      `supercritical_fixed_point_existsUnique` gives exactly one `r > 0` above
+      threshold and `fixedPoint_iff_selfReproducing` ties it to a density
+      reproducing its own order parameter. Given the form above, existence of
+      the self-consistent stationary state follows. The ansatz note counts this
+      as missing; check what actually remains before scheduling work on it.
 
-The cheap tier inherits the standing conditionality rather than adding to it:
-`Phase8_SelfConsistency` §"The ansatz" states that nothing in the development
-derives the von Mises density from the Fokker–Planck operator, its stationary
-solution or uniqueness. The separation would rest on that ansatz exactly as
-`K_c = 2D` already does, and must be stated as resting on it.
+**Where the real cost sits, and the soundness trap.** Neither item is hard
+mathematics. The cost is that the development has no Fokker–Planck operator and
+no stationarity predicate at all, so both must be introduced. The supplement's
+formal-soundness section names the failure mode precisely: a declaration that
+constrains a symbol it does not itself bind is a constraint on every model of
+the class, not a postulate about one system, and a class with a model violating
+it is inconsistent. A carelessly stated "is stationary" predicate is exactly
+that shape and would make everything downstream vacuous while still
+type-checking. Write the definition first and review it on its own before
+building any theorem on it.
 
-The regime where production is nonzero is the non-reciprocal one, which
+**Spectral stability is expensive, not obstructed — and its tractable half is
+worth having.** Nothing here proves stability cannot be established; the
+barrier is tooling. It separates by which solution is being linearized around,
+and the two halves are not comparable in cost.
+
+- [ ] **The incoherent state — tractable, and an independent derivation of the
+      threshold.** Linearizing about the uniform density, the coupling reaches
+      only the first harmonic, so the linearized operator is diagonal in the
+      Fourier basis: `λ n = −D n²` for `|n| ≥ 2` and `λ 1 = K/2 − D`. The
+      uniform state loses linear stability exactly at `K = 2D`. This is a
+      finite per-mode computation with no continuous-spectrum difficulty, and
+      Mathlib has Fourier series on `AddCircle` with Parseval. It would upgrade
+      `K_c = 2D` from "the only self-consistent order parameter below
+      threshold" to "the coupling at which the incoherent state becomes
+      linearly unstable", which is a dynamical statement the file currently
+      does not make.
+- [ ] **The coherent branch — substantial.** Linearizing about `vonMisesWeight`
+      does not diagonalize: multiplication by `cos θ` couples neighbouring
+      Fourier modes into a tridiagonal operator with no closed-form spectrum.
+      The available structure is that the operator is self-adjoint in the
+      weighted space and so needs a Poincaré inequality for the von Mises
+      measure — routable through Parseval to Wirtinger on the circle and a
+      bounded-perturbation argument — with the rotational symmetry contributing
+      a genuine zero mode, so stability holds only modulo the phase orbit.
+      Nonlinear stability is a further step beyond the linear one. Do not
+      schedule this without a concrete model requiring it.
+
+**Do not conflate this with dynamical selection.** `main.tex` records a
+separate gap: connecting finite trajectories to the mean-field description
+needs a dynamical mean-field limit (propagation of chaos, cited to
+`sznitman1991`) and dynamical selection. That concerns the `N → ∞` passage, not
+the stability of a solution of the limiting equation. Full spectral stability
+would not close it, and closing it would not supply stability.
+
+The regime where entropy production is nonzero is the non-reciprocal one, which
 `Examples` §16 already enters — a one-way coupling on two sites strictly
 beating its own phase-locked state — and which the symmetric machinery does
 not cover.
