@@ -2691,3 +2691,66 @@ reservoir the ledger's operations exchange heat with, a pathwise or replenished
 store, and any cortical identification. The remaining agency gaps are physical
 preparation and supply beyond the finite model, and local content agreement.
 Specification and execution record: `tasks/register_bath.md`.
+
+## 2026-09-15 — Recorded, not scheduled: the steady-state obstruction
+
+The discussion now states which of the results bear on formulations that read
+a generative model off a steady state, and fences what does not transfer: the
+squared-drift functional is not a variational free energy, is not identified
+with entropy production, and no bridge between them is claimed or needed by
+any theorem in the development. This section records the modelling work that
+would replace the fence with a result. **None of it is a submission
+prerequisite, and none of it belongs in the current manuscript.**
+
+**Why the direct bridge is not the task.** Building σ into a variational free
+energy needs three things, in order: a partition of the substrate into
+external, blanket and internal states; a synchronization map carrying internal
+states to parameters of a posterior over external states; and a factorization
+of the stationary density making that map well defined. Each is a posit rather
+than a derivation, and the third is the one the cited critiques
+(`aguilera2022`, `biehl2021`, `bruineberg2022`) report failing outside a narrow
+class. In this development it is worse than generic: `overlap_agreement_fails`
+exhibits local sections agreeing everywhere but one shared site, and
+`apx_no_global_section` gives, at every positive tolerance, a three-patch
+family with no global section at all. That is the same shape of obstruction as
+a blanket decomposition failing to determine one posterior. Assuming the
+factorization is the move the whole development is organised against.
+
+**The task instead is the obstruction, in the established pattern.** Declare
+the factorization requirement as a predicate over an already-formalized
+structure, in the shape `IsEMFieldCoupling` uses in
+`Phase9_EMIdentification.lean`: named fields, no hidden quantifier over a
+symbol the declaration does not bind, and the soundness discipline of the
+supplement's formal-soundness section. Then exhibit a witness in this
+development's own objects — a cover or a stochastic field meeting the
+coherence hypotheses — on which the predicate fails. The value is that it
+names which premise does the work, which is a sharper and more defensible
+statement than any claim that coordination refutes an inference account.
+
+**What would not count.** A predicate satisfied by no constructed object, or
+refuted by every one, establishes nothing about this framework; both a
+positive and a failing instance are required, as elsewhere in `Examples`. A
+witness whose failure comes from the cover being degenerate rather than from
+the dynamics would not separate the cases either — the supplement already
+records that a suitably chosen partition can conceal or manufacture
+disagreement, so the cover must be constrained independently.
+
+**Optional prerequisite, independently useful.** `sigmaContinuum` integrates
+the squared drift against a fixed measure, whereas entropy production is
+`(1/D) ∫ |J|²/p` for the current `J = b p − D ∇p`; the supplement already
+states that the identification needs current information
+(`supplementary.tex`, the fixed-phase kernel descent row and its section).
+Carrying the density rather than the measure would settle it, and the von
+Mises stationary density in `Phase8_SelfConsistency` supplies one for the
+mean-field case. Note the expected shape of the answer before starting: for a
+reciprocal kernel the drift is a gradient, so the stationary current vanishes
+and entropy production is zero while σ is positive. The honest result is
+therefore a separation, with σ identified as the low-noise limit of the
+free-energy dissipation rather than as entropy production. The regime where
+production is nonzero is the non-reciprocal one, which `Examples` §16 already
+enters — a one-way coupling on two sites strictly beating its own phase-locked
+state — and which the symmetric machinery does not cover.
+
+**Recording check.** This section records an unscheduled modelling direction
+and its fences. It adds no Lean declaration, simulation, reference or
+publication claim.
