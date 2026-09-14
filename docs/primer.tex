@@ -172,7 +172,7 @@ Edge & Kind & What it asks for \\
 \hline
 E12 & independent physical premise & a finite-capacity system realizes a field leaving its vacuum manifold \\
 E23 & bridge assumption & the boundary is a finite register whose update strands states \\
-E34 / E34Active & bridge assumption & passive: predictive structure at the register's temperature and heat, with nonzero waste; active: physical transition assumptions and a heat allocation for the named process \\
+E34 / E34Active & bridge assumption & passive: predictive structure at the register's temperature and heat, with nonzero waste; active: physical transition assumptions and a heat allocation for the named process, the allocation itself derived from a ledger of one register's operations (\S\ref{sec:register-ledger}) \\
 E45 / E45Active & modelling assumption & the branch's thermodynamic bound places the specified coupling energies in a convergent regime \\
 E56 & physical commitment & the limiting coupling is realized by a specified physical field \\
 E67 & physical commitment & that field operates above the synchronization threshold \\
@@ -1129,7 +1129,8 @@ better feasible policy, as this example provides. The theorem compares fixed
 policies for one update. The register model below supplies adaptation dynamics
 and their heat accounting; the comparison supplies no continuing power
 source or identification with cortex. The active chain's resource allocation
-and coupling-convergence assumptions remain separate.
+is derived separately in \S\ref{sec:register-ledger}; its coupling-convergence
+assumption remains untouched.
 
 \lean{
 \id{FiniteControlProblem} in \id{Phase3\_AgencyThermodynamics.lean} defines
@@ -1220,6 +1221,66 @@ proves the recurrence from the actual channel, and checks reward improvement,
 the stationary limit, transition heat and cumulative energy loss. Its
 regressions retain reward-decreasing paths, reject a reset initial law and
 show expected reward decrease for the alternative preparation.}
+
+\subsection{One register's ledger}
+\label{sec:register-ledger}
+
+The active chain's fourth node needs an \emph{upper} bound on a controlled
+substep's heat. Landauer's principle gives a \emph{lower} bound on an
+erasure's heat, which is the opposite direction, and two numbers computed in
+unrelated models do not bound one another at all. What closes the gap is a
+model in which one register owns both quantities.
+
+A ledger for a register records its own update, the operations it performs on
+its environment, and one accounting identity: the heat the register dissipates
+is the total those operations deliver to its reservoir,
+\[
+ Q_{\mathrm{reg}}=\sum_i\langle Q\rangle_i .
+\]
+Every operation in the ledger has that register as its controller and obeys
+local detailed balance at that register's temperature, so the shares and the
+total are quantities of one physical system rather than of several.
+
+Call an operation \emph{compressive} when it does not increase the joint
+register--environment entropy. The heat bound of \S\ref{sec:agency-heat},
+applied to such an operation, gives $\langle Q\rangle_i\ge
+k_BT[H(p)-H(p')]\ge0$: a compressive operation cannot draw heat out of the
+reservoir. If every operation but one compresses, the remaining share is
+therefore at most $Q_{\mathrm{reg}}$. That is the allocation the edge asks
+for, derived from the identity and the second law instead of assumed.
+
+The witness is the chain's own one-bit register, at temperature one and with
+Landauer heat $\log2$. Its operations drive a lamp bit toward the register's
+bit: the lamp agrees with the held register bit with probability $a$, starting
+from a law of agreement probability $w$, with interaction energy
+$\log[a/(1-a)]$ for disagreement. Such an operation delivers mean heat
+$\log[a/(1-a)](a-w)$. At $a=2/3$, $w=4/15$ that is $(2/5)\log2$; at $a=4/5$,
+$w=1/2$ it is $(3/5)\log2$. The two make exactly the register's $\log2$, and
+the controlled one is the entropy-\emph{increasing} of the pair: its own
+second law gives it no bound in either direction.
+
+Neither input can be dropped. The same family at $a=8/9$, $w=1/9$ preserves
+the joint entropy exactly, so it is compressive, and still delivers
+$(7/3)\log2$ --- more than the whole dissipation. And a second ledger for the
+same register, whose other operation starts at $w=5/6$ and therefore draws
+$(1/6)\log2$ out of the reservoir, satisfies every field of the structure
+while allocating $(7/6)\log2$ to its controlled operation.
+
+\scope
+The index labels the operations; it does not sequence them. Composing them
+into one evolving joint law, with its preparation, resets and power source,
+is a separate model, and so is deriving the accounting identity from a
+microscopic bipartite dynamics. The ledger says nothing about the
+coupling-convergence assumption of the next edge, and nothing about cortex.
+
+\lean{
+\id{RegisterLedger} in \id{Phase3\_AgencyThermodynamics.lean} carries the
+update, operations, local detailed balance and the identity.
+\id{opHeat\_nonneg\_of\_compressive} and \id{opHeat\_le\_dissipation}
+derive the allocation, \id{ledger\_bathEntropy} exhibits the total as the
+register's own bath entropy change, and \id{Chain.e34Active\_of\_ledger}
+discharges the edge. \id{Examples/RegisterBudget.lean} proves the family's
+heat, final law and entropy, the witness ledger, and the two regressions.}
 
 \section{What does not follow: the free-energy reading}
 \label{sec:fep}

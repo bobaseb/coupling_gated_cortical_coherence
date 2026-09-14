@@ -464,7 +464,14 @@ the controlled update, which holds the controller fixed. A physical realization
 must specify their relation and account for other substeps separately.
 
 This is not existence of an arbitrary agent: `M` and `q` are fixed arguments,
-and `E45Active` consumes the bound for exactly these data. -/
+and `E45Active` consumes the bound for exactly these data.
+
+`e34Active_of_ledger` below discharges this edge from a `RegisterLedger`, in
+which the allocation is derived rather than assumed: the register's dissipated
+heat is the total its operations deliver to its own reservoir, and the other
+operations' shares are nonnegative because they compress. The ledger identity
+and that compressiveness are then the physical inputs, both of them statements
+about the named register. -/
 def E34Active {sys S : Type*} [Fintype sys] [Fintype S] [Thermodynamics sys]
     (upd : sys → sys) (M : FiniteFeedbackStep sys S) (q : sys → S → S → ℝ) : Prop :=
   Dissipates upd → M.Positive ∧
@@ -492,6 +499,25 @@ theorem activeBound_of_e34Active {sys S : Type*} [Fintype sys] [Fintype S] [None
     ActiveBound M (Thermodynamics.temperature (sys := sys)) q (heat_dissipation upd) := by
   obtain ⟨hpos, hldb, hbudget⟩ := e34 h
   exact activeBound_of_feedback M hpos _ Thermodynamics.temperature_pos q hldb _ hbudget
+
+/-- **Discharging the active bridge from one register's resource ledger.**
+
+`RegisterLedger` is the common resource model this edge asked for: one register,
+one reservoir at its own temperature, and its dissipated heat identified with
+the total its operations deliver. Given that model, the bridge's remaining
+content is *derived* — the controlled operation's share is at most the total
+because the other shares are nonnegative by the second law.
+
+What stays a physical input is the ledger identity and the compressiveness of
+the register's other operations, both statements about the named register. What
+is no longer assumed is the allocation itself, and what is still not claimed is
+that `update` and the controlled operation are one physical act: they are two
+operations of one register sharing one reservoir and one budget. -/
+theorem e34Active_of_ledger {sys S : Type*} {n : ℕ} [Fintype sys] [Fintype S] [Nonempty S]
+    [Thermodynamics sys] (L : RegisterLedger sys S n) (a : Fin n)
+    (h : ∀ i, i ≠ a → L.Compressive i) :
+    E34Active L.update (L.step a) (L.heat a) :=
+  fun _ => ⟨L.positive a, L.balance a, L.opHeat_le_dissipation a h⟩
 
 /-- **n5 → n6. Physical commitment, and the load-bearing joint of the framework.**
 
@@ -1195,7 +1221,9 @@ theorem active_entropy_budget {X S : Type*} [Fintype X] [Fintype S] [Nonempty S]
 open Examples ThermalAgency in
 /-- The thermal actuator fits within the one-bit register's heat budget at the
 same thermal scale. This numerical comparison supplies the allocation premise;
-it does not identify the actuator and eraser as the same physical operation. -/
+it does not identify the actuator and eraser as the same physical operation.
+`registerBudget_e34Active` below discharges the same edge without it, from a
+ledger of that register's own operations. -/
 theorem thermalAgency_e34Active :
     E34Active (fun _ : Bool => true) actuation heat := by
   intro _
@@ -1261,6 +1289,49 @@ theorem chain_active_hypotheses_jointly_satisfiable :
     (fun _ => ⟨cortexState, (fun _ => rfl),
       cortexPredict_lipschitz_rate, cortexPredict_fixed⟩)
 
+/-! ### The active bridge's budget, derived from one register's ledger -/
+
+open Examples RegisterBudget in
+/-- **The n3 → active n4 edge, discharged from a resource model.** `cycle` is
+§1's one-bit register — the register this branch already names at n3 — together
+with its two operations, its reservoir and its temperature. The controlled
+operation's budget comes from `e34Active_of_ledger`: the register's dissipation
+is the total its operations deliver, the other operation's share is nonnegative
+because it compresses, and the remainder is the bound. No numerical comparison
+between separate models is used, and Landauer's lower bound is not read as an
+upper one. -/
+theorem registerBudget_e34Active :
+    E34Active cycle.update (cycle.step 0) (cycle.heat 0) :=
+  e34Active_of_ledger cycle 0 act_others_compressive
+
+open Examples RegisterBudget in
+/-- The derived edge supplies the active node for that same operation, heat
+observable, temperature and budget. -/
+theorem registerBudget_activeBound :
+    ActiveBound (cycle.step 0) 1 (cycle.heat 0) (Real.log 2) :=
+  activeBound_of_e34Active (fun _ : Bool => true) (cycle.step 0) (cycle.heat 0)
+    registerBudget_e34Active (dissipates_of_not_surjective _ witness_not_surjective)
+
+open Examples RegisterBudget in
+/-- **The active branch composes end to end through the derived edge.** Only the
+n3 → n4 arrow changes: the mesh, field, cover and boundary witnesses are the ones
+the branch already used, and `E45Active` is still supplied independently of any
+thermodynamic quantity. What the ledger removes is the bare allocation, not the
+downstream modelling assumptions; joint satisfiability establishes no common
+biological mechanism. -/
+theorem chain_active_budget_jointly_satisfiable :
+    UnifiedSelf (X := Cortex) cortexReflexive :=
+  chain_active (X := Cortex) cortexNeuralField (sys := Bool) (fun _ => true)
+    (vac := DynamicalVacuum wellV) (phi := kink) (cycle.step 0) (cycle.heat 0)
+    (E := t5_refiningEnergy) (L := 3) (K := 3) (D := 1) (τ := cortexTau)
+    cortexTau_pos cortexCover cortexReflexive
+    t5_e12_doubleWell t5_e23_absorbingRegister
+    registerBudget_e34Active (fun _ => t5_refiningEnergy_tendsto)
+    (fun _ => ⟨⟨one_pos, by norm_num, rfl⟩, cortexNeuralField_isEMFieldCoupling⟩)
+    e67_three_one (fun _ => cortexCover_reachedByRelaxation_three)
+    (fun _ => ⟨cortexState, (fun _ => rfl),
+      cortexPredict_lipschitz_rate, cortexPredict_fixed⟩)
+
 /-! ## Active-branch regression specifications -/
 
 example {sys S : Type*} [Fintype sys] [Fintype S] [Nonempty S]
@@ -1291,6 +1362,22 @@ open Examples in
 example : UnifiedSelf (X := Cortex) cortexReflexive :=
   chain_active_hypotheses_jointly_satisfiable
 
+example {sys S : Type*} {n : ℕ} [Fintype sys] [Fintype S] [Nonempty S]
+    [Thermodynamics sys] (L : RegisterLedger sys S n) (a : Fin n)
+    (h : ∀ i, i ≠ a → L.Compressive i) :
+    E34Active L.update (L.step a) (L.heat a) :=
+  e34Active_of_ledger L a h
+
+open Examples RegisterBudget in
+example : ActiveBound (cycle.step 0) 1 (cycle.heat 0) (Real.log 2) ∧
+    ¬ cycle.Compressive 0 ∧
+    heat_dissipation (fun _ : Bool => true) < leaky.opHeat 0 :=
+  ⟨registerBudget_activeBound, act_not_compressive, leaky_exceeds_budget⟩
+
+open Examples in
+example : UnifiedSelf (X := Cortex) cortexReflexive :=
+  chain_active_budget_jointly_satisfiable
+
 #print axioms activeBound_of_feedback
 #print axioms chain_from_coarseGrains
 #print axioms chain
@@ -1298,6 +1385,9 @@ example : UnifiedSelf (X := Cortex) cortexReflexive :=
 #print axioms chain_active_hypotheses_jointly_satisfiable
 #print axioms thermalAgency_zero_budget_rejected
 #print axioms thermalAgency_wrong_limit_rejected
+#print axioms e34Active_of_ledger
+#print axioms registerBudget_e34Active
+#print axioms chain_active_budget_jointly_satisfiable
 
 end Chain
 

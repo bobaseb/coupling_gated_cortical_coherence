@@ -33,6 +33,15 @@ final law. Finite sums of its entropy and first-law balances telescope. The
 policy-register witness uses these results for objective-biased relaxation;
 task execution and physical installation of the readout remain separate.
 
+`RegisterLedger` names one physical register: its own update, the operations it
+performs on the environment, and the accounting identity that its dissipated
+heat is exactly what those operations deliver to its own reservoir at its own
+temperature. A compressive operation's share of that heat is nonnegative by the
+same path-model second law, so an operation whose companions all compress has a
+share no larger than the register's dissipation. The index labels operations
+rather than ordering them in time; composing them into one evolving law, and
+deriving the ledger from a microscopic bipartite dynamics, are separate models.
+
 References, verified 2026-09-13: J. M. Horowitz and M. Esposito,
 "Thermodynamics with Continuous Information Flow", Physical Review X 4,
 031015 (2014), doi:10.1103/PhysRevX.4.031015; S. Ito and T. Sagawa,
@@ -721,4 +730,109 @@ theorem cycle_law (P : FiniteControlProblem X S A) (π : X → A) :
 end Channels
 
 end FiniteControlProblem
+
+/-! ## One register's resource ledger
+
+`E34Active` asks for an upper bound on a controlled substep's actual heat by a
+named register's dissipation. Landauer's principle bounds erasure heat from
+*below* and supplies no such allocation, and a numerical comparison between two
+unrelated models supplies no physical mechanism. The structure below is the
+resource model in which the comparison becomes an accounting identity.
+-/
+
+/-- The operations one physical register performs on its environment, together
+with the ledger that identifies their heats with that register's dissipation.
+
+Everything here belongs to one register. `update` is the register's own map and
+`heat_dissipation update` its dissipated heat; every operation is an elementary
+step whose *controller is that register's own state type*; `balance` puts every
+operation's heat in the register's own reservoir at the register's own
+temperature; and `ledger` is the accounting identity: the register's dissipated
+heat is exactly what its operations deliver to that reservoir.
+
+The index is a labelling of the operations, not a time order: nothing here
+composes them into one evolving joint law, prepares their initial laws or
+supplies a continuing energy source. Deriving the ledger itself from a
+microscopic bipartite dynamics is likewise a separate model; what it replaces
+is the bare assumption of the allocation it now implies. -/
+structure RegisterLedger (sys S : Type*) (n : ℕ) [Fintype sys] [Fintype S]
+    [Thermodynamics sys] where
+  /-- The register's own update, whose dissipated heat is the whole budget. -/
+  update : sys → sys
+  /-- Each of the `n` operations, controlled by the register itself. -/
+  step : Fin n → FiniteFeedbackStep sys S
+  /-- Each operation's heat observable, in the register's own reservoir. -/
+  heat : Fin n → sys → S → S → ℝ
+  positive : ∀ i, (step i).Positive
+  /-- Every operation exchanges heat with that reservoir at the register's
+  temperature. This is the local-detailed-balance hypothesis, applied to the
+  named register rather than to a free thermal scale. -/
+  balance : ∀ i, (step i).LocalDetailedBalance
+    (Thermodynamics.temperature (sys := sys)) (heat i)
+  /-- The ledger. The register's dissipated heat is the total its operations
+  deliver: a conservation statement about one reservoir, not a bound. -/
+  ledger : heat_dissipation update = ∑ i, (step i).meanHeat (heat i)
+
+namespace RegisterLedger
+
+variable {sys S : Type*} {n : ℕ} [Fintype sys] [Fintype S] [Thermodynamics sys]
+
+/-- The heat one operation delivers to the register's reservoir. -/
+noncomputable def opHeat (L : RegisterLedger sys S n) (i : Fin n) : ℝ :=
+  (L.step i).meanHeat (L.heat i)
+
+/-- An operation that does not increase the joint register–environment entropy.
+Erasing, resetting and correlating operations are of this kind; the controlled
+substep of an actuator need not be. -/
+def Compressive (L : RegisterLedger sys S n) (i : Fin n) : Prop :=
+  shannon_entropy (L.step i).final.p ≤ shannon_entropy (L.step i).initial.p
+
+/-- A compressive operation cannot draw heat out of the register's reservoir.
+This is the path model's second law at the register's own temperature, with no
+new premise: `heat_bound` plus a nonnegative entropy drop. -/
+theorem opHeat_nonneg_of_compressive [Nonempty S] (L : RegisterLedger sys S n)
+    (i : Fin n) (h : L.Compressive i) : 0 ≤ L.opHeat i := by
+  have hb := (L.step i).heat_bound (L.positive i) (Thermodynamics.temperature (sys := sys))
+    Thermodynamics.temperature_pos (L.heat i) (L.balance i)
+  have hT : (0 : ℝ) ≤ Thermodynamics.temperature (sys := sys) :=
+    Thermodynamics.temperature_pos.le
+  have hdrop : 0 ≤ shannon_entropy (L.step i).initial.p -
+      shannon_entropy (L.step i).final.p := by
+    simpa [Compressive, sub_nonneg] using h
+  exact le_trans (mul_nonneg hT hdrop) hb
+
+/-- **The allocation.** One operation's heat is at most the register's whole
+dissipation, provided every *other* operation of that register is compressive.
+
+The bound is derived, not assumed: the ledger says the shares sum to the
+register's dissipation, and the second law says the other shares are
+nonnegative. Both inputs are physical statements about the named register.
+Neither the ledger alone nor compressiveness alone suffices, as the witness
+file's two regressions show. -/
+theorem opHeat_le_dissipation [Nonempty S] (L : RegisterLedger sys S n) (a : Fin n)
+    (h : ∀ i, i ≠ a → L.Compressive i) :
+    L.opHeat a ≤ heat_dissipation L.update := by
+  classical
+  have hsplit : L.opHeat a + ∑ i ∈ Finset.univ.erase a, L.opHeat i =
+      ∑ i, L.opHeat i := Finset.add_sum_erase _ _ (Finset.mem_univ a)
+  have hrest : 0 ≤ ∑ i ∈ Finset.univ.erase a, L.opHeat i :=
+    Finset.sum_nonneg fun i hi =>
+      L.opHeat_nonneg_of_compressive i (h i (Finset.ne_of_mem_erase hi))
+  have hsum : ∑ i, L.opHeat i = heat_dissipation L.update := L.ledger.symm
+  linarith [hsplit, hrest, hsum]
+
+/-- The budget is the register's own bath entropy change. Under Landauer's heat
+equation the ledger's total is not an assigned cost but the physical bookkeeping
+of the very reservoir the operations exchange heat with. -/
+theorem ledger_bathEntropy {sys S : Type*} {n : ℕ} [Fintype sys] [DecidableEq sys]
+    [Fintype S] [StatisticalMechanics sys] (L : RegisterLedger sys S n) :
+    ∑ i, L.opHeat i = Thermodynamics.temperature (sys := sys) *
+      (boltzmann_entropy (BipartiteEnvironment.final_bath L.update) -
+        boltzmann_entropy (BipartiteEnvironment.initial_bath L.update)) := by
+  simp only [opHeat]
+  rw [← L.ledger]
+  exact StatisticalMechanics.heat_eq L.update
+
+end RegisterLedger
+
 end PhysicsOfConsciousness

@@ -20,6 +20,29 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-14 — The active chain's heat allocation is derived, not assumed
+
+The n3 → n4 edge's upper-budget allocation was a bridge assumption, discharged
+on the witness by comparing an actuator's heat with an unrelated register's
+Landauer heat. It is now a consequence of a named resource model. A
+`RegisterLedger` holds one register's update, its operations as elementary
+steps controlled by that register, local detailed balance for each at that
+register's own temperature, and the identity that the register's dissipated
+heat is the total its operations deliver to its reservoir. An operation that
+does not increase the joint entropy has a nonnegative share by the path model's
+own second law, so an operation whose companions all compress has a share no
+larger than the register's dissipation.
+
+The claim the supplement no longer makes is that this allocation is an
+assumption of the composition. What it now names as assumptions are the
+accounting identity and that compressiveness, both statements about one
+register, and both fenced by regressions: a compressive operation of the
+witness family exceeds the whole dissipation, and a second ledger whose other
+operation draws heat out of the reservoir over-allocates its controlled one.
+Sequencing the operations into one evolving law, a continuing power source and
+the coupling-convergence assumption of the next edge remain separate. See
+`tasks/e34_active.md`.
+
 ## 2026-09-14 — Finite policy selection at a supplied heat budget
 
 The feedback development now selects among fixed deterministic policies for a

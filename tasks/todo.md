@@ -1716,7 +1716,7 @@ submission prerequisite.
 
 ### Further modelling questions — separate, unscheduled gaps
 
-- [ ] **E34Active — common physical resource budget.** Specify a common
+- [x] **E34Active — common physical resource budget.** Specify a common
       register/controller resource model in which the named energies, heat
       budget and actual operations are identified. The existing numerical heat
       comparison and distinct toy components do not establish a shared physical
@@ -1724,6 +1724,29 @@ submission prerequisite.
       Integrating the agent's processes is useful progress, but closing this
       edge additionally requires identifying the named register and deriving
       its allocation to the controlled process.
+      **Done 2026-09-14:** `RegisterLedger` holds one register's update, its
+      operations as steps controlled by that register, local detailed balance
+      at its own temperature and the identity that its dissipated heat is the
+      total those operations deliver. `opHeat_le_dissipation` derives the
+      allocation from that identity and the second law;
+      `Chain.e34Active_of_ledger` discharges the edge, and
+      `Examples/RegisterBudget.lean` witnesses it on the one-bit eraser with an
+      exact `(2/5)log 2 + (3/5)log 2 = log 2` ledger. The identity and the
+      compressiveness of the register's other operations remain physical
+      inputs, each fenced by a regression; they are the separate open item
+      below. Specification, resource boundary and verification:
+      `tasks/e34_active.md` and the completion record below.
+- [ ] **The register ledger's own premises.** The derived allocation rests on
+      two model inputs: the accounting identity that the register's dissipated
+      heat is exactly the total its operations deliver to its reservoir, and
+      the compressiveness of its other operations. Neither follows from a
+      microscopic model here. Specify a bipartite register/bath dynamics and
+      derive the identity for it, or exhibit the conditions under which it
+      fails. `Examples/Bit.lean`'s bath fixes `heat_dissipation` at `log 2` for
+      every map of the register, including the identity, so a sharper register
+      instance is part of this question. `leaky_exceeds_budget` and
+      `compressive_exceeds_budget` show that dropping either input loses the
+      bound, so neither is decorative.
 - [x] **Learning dynamics.** After the bounded L2 control result, specify how
       the policy changes, which objective drives the update and what resource
       costs it incurs before seeking a learning-improvement or convergence theorem.
@@ -1742,7 +1765,9 @@ submission prerequisite.
       completed policy-register model also supplies the policy values in its
       energy, so it does not establish their acquisition from experience.
 - [ ] **One continuing physical agent.** Compose learning, subsequent action,
-      observation and memory updates on one evolving joint law. Include the
+      observation and memory updates on one evolving joint law. The register
+      ledger labels one register's operations and does not sequence them, so
+      this remains open. Include the
       policy register's actual influence on the actuator, preparation and any
       resets, and the energy source and resource consumption. Derive total
       heat/work and entropy accounting for the executed process. The current
@@ -2243,3 +2268,53 @@ retain their exact agreement hypothesis. Route B, the obstruction version, is
 not started and still requires choosing a content state space; the recorded
 consensus-dynamics suggestion above presupposes it. The unscheduled modelling
 questions, the agency research gaps and the P-items remain open.
+
+## 2026-09-14 — E34Active complete: one register's resource ledger
+
+- [x] Specify the resource model, the derived allocation, the witness numbers
+      and the regressions before implementation; run the failing Lean
+      specifications first.
+- [x] Add `RegisterLedger` beside `FiniteFeedbackStep`: one register's update,
+      its operations, local detailed balance at that register's temperature and
+      the identity `heat_dissipation update = ∑ i, meanHeat i`.
+      `opHeat_nonneg_of_compressive` is the existing path-model second law at
+      that temperature; `opHeat_le_dissipation` derives the allocation;
+      `ledger_bathEntropy` exhibits the total as the register's own bath
+      entropy change. `Chain.e34Active_of_ledger` turns a ledger into the edge.
+- [x] Witness it in `Examples/RegisterBudget.lean` on §1's one-bit eraser: one
+      log-odds family with proved final law, mean heat and joint entropy, and
+      two operations delivering `(2/5)log 2` and `(3/5)log 2` — exactly the
+      register's `log 2`. `chain_active_budget_jointly_satisfiable` composes
+      the whole active branch through the derived edge.
+- [x] Fence both inputs. `act_not_compressive`: the controlled operation
+      increases joint entropy, so its own second law bounds it in neither
+      direction. `compressive_exceeds_budget`: an entropy-preserving operation
+      of the same family delivers `(7/3)log 2`, above the whole dissipation.
+      `leaky_exceeds_budget` and `leaky_other_not_compressive`: a second ledger
+      for the same register, satisfying positivity, local detailed balance and
+      the identity, allocates `(7/6)log 2` because its other operation draws
+      heat out of the reservoir.
+- [x] Align article, supplement, Table S1 and primer; rebuild and inspect the
+      tracked PDFs (article 41, supplement 36, primer 79 pages) and the 53-page
+      arXiv submission, which compiles from its unpacked tarball. Final logs
+      have no warnings or overfull boxes, matching the pre-change baseline.
+- [x] Pass the zero-warning full Lean build and axiom audit: 2,773 declarations
+      in 46 modules resting only on `propext`, `Classical.choice` and
+      `Quot.sound`, with the explicit headline axiom checks agreeing. The eight
+      applicable gates, the advisory hedging report, the 143 publication and
+      simulation tests and `git diff --check` pass. Python hooks skip because
+      no Python changed.
+
+Specification and execution record: `tasks/e34_active.md`. Witnesses and
+regressions: `Examples/RegisterBudget.lean`. No Lean axiom, Python source,
+dependency, reference or simulation result was added.
+
+The edge's allocation is now derived inside one named register's resource
+model rather than compared across separate toy components. What the model
+still supplies as physical input is the accounting identity and the
+compressiveness of the register's other operations; what it does not supply is
+a sequential joint law, a preparation or continuing power source, the
+coupling-convergence implication of E45Active, or any cortical identification.
+`thermalAgency_e34Active` and its numerical comparison remain in place as the
+other discharge of the same edge. The remaining unscheduled modelling
+questions, the agency research gaps and the P-items are unchanged.
