@@ -282,7 +282,14 @@ The motivation for a minimal self is that the cup is encountered from a location
 
 The fixed-point condition requires accuracy about the very state containing the encoding. Reconstruction alone is insufficient for a perspective: a recording can be reconstructed without being used by a system to represent its own condition. The proposed interpretation therefore needs evidence that the encoding helps the system distinguish changes in itself from changes in its surroundings. Changing the encoded hand or viewpoint while holding the external scene fixed should alter the system's estimates of its relation to the cup as the readout predicts. This functional criterion goes beyond $F(s_*)=s_*$; whether the represented perspective is experienced remains a further question.
 
-Accuracy concerns the variables represented by $s_*$, rather than every microscopic physical fact. A cortical realization must specify those variables and justify the required fidelity. Approximate self-models, errors and changing states may require a weaker condition than the exact fixed point established here.
+Accuracy concerns the variables represented by $s_*$, rather than every microscopic physical fact. For a fixed map $F$ with Lipschitz factor $q<1$ and fixed point $s_*$, approximate reconstruction has a quantitative bound:
+\begin{equation}
+d(s,F(s))\leq\varepsilon
+\quad\Longrightarrow\quad
+d(s,s_*)\leq\frac{\varepsilon}{1-q}.
+\label{eq:approximate-self}
+\end{equation}
+At the stipulated rate $q=e^{-(K-2D)\tau/2}$, this radius grows as $2\varepsilon/((K-2D)\tau)$ near threshold, for fixed positive $\varepsilon$ and $\tau$. The bound weakens while the exact fixed point remains unique. The supplement gives explicit inequalities and composes reconstruction error with displacement of the state. A cortical realization must specify the represented variables, their metric and the required fidelity; changing readouts require a further dynamical model.
 
 We propose reflexivity as necessary because even an unreflective episode has a perspective: the cup appears somewhere relative to the perceiver, whether or not the perceiver attends to themselves. Requiring internal self-encoding on that basis is the philosophical hypothesis. Gluing alone does not require it; the dissociations below test the two commitments separately.
 
@@ -359,7 +366,7 @@ E45 / E45Active & Modelling assumption & The branch's bound, on predictive memor
 E56 & Physical commitment & A specified physical field realizes the limiting coupling and satisfies the kernel conditions. \\
 E67 & Physical commitment & That field operates above the synchronization threshold. \\
 E78 & Bridge assumption & Coherence drives a supplied cover to its relaxed equilibrium at coupling at least the named mean-field value. \\
-E89 & Modelling assumption & A contracting map mediated by local self-encoding fixes the section glued on that same cover. \\
+E89 & Modelling assumption & A map mediated by local self-encoding fixes the section glued on that cover and has the Lipschitz factor $q<1$ used in the exact and approximate-state results. \\
 \hline
 \end{tabular}
 \caption{Connecting hypotheses of the passive and active compositions, eight per branch. They share E12, E23 and E56--E89. The cover's compatibility is supplied as a structure field. Identifying the boundary's encoding with restriction requires a separate resonance condition. The mathematical objects and node-level results are mapped in Supplemental Material, Table~S1.}

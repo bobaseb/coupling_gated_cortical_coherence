@@ -38,6 +38,7 @@ negative answers, which the publication now carries.
 **Current manuscript priority:** the third P-item, the final read of every
 citation and every generated macro. Its prerequisites A1, A2 and F1–F4 are
 closed, and the other two P-items require author or journal decisions.
+**The publication audit is on hold at the user's request, 2026-09-14.**
 The agency/active-chain extension is complete; its primer alignment and the
 complete finite-update theorem are recorded in the dated sections at the end
 of this ledger. L2's goal-directed policy selection under a finite budget is
@@ -895,7 +896,8 @@ because they rank below the A–D items.
 - [ ] Add or confirm the journal-required data-availability statement and the
       supplemental-material description. *Blocked on a journal choice.*
 - [ ] Final read of every cited reference and every generated numerical macro
-      after the last prose edit. **A1, A2 and F1–F4 were prerequisites and are
+      after the last prose edit. **On hold at the user's request, 2026-09-14.**
+      **A1, A2 and F1–F4 were prerequisites and are
       closed**, so this item is now the open one; it is no longer a formality: the audit found one wrong numeral and two
       unresolvable citations by doing exactly this read. Do not submit while any
       source/PDF, estimator or public-description inconsistency remains.
@@ -1829,9 +1831,14 @@ prerequisite, and neither precedes L2.
 
 ### L3 — Approximate fixed point of the self-prediction map
 
-- [ ] Replace the conjecture at `main.tex:285` with the bound it guesses at:
+- [x] Replace the conjecture at `main.tex:285` with the bound it guesses at:
       an approximate self is confined to a ball whose radius is set by the
       coupling margin.
+      **Done 2026-09-14:** residual and displacement bounds, an exact
+      near-threshold sandwich, a sharp cortical witness and nonexpansive
+      non-uniqueness are proved. Article, supplement and primer are aligned.
+      Specification and verification: `tasks/approximate_self.md` and the
+      completion record below.
 
 **Gap and intent.** The manuscript states that approximate self-models may
 require a weaker condition than the exact fixed point and leaves no result
@@ -1855,8 +1862,8 @@ supplies the estimate, so this is a cheap item.
 3. Compose the two errors. If the glued state is displaced by `δ`, the residual
    at the displaced state is at most `ε + (1 + q) δ`, so the approximate-self
    ball has radius `(ε + (1 + q) δ) / (1 - q)`. The point of the item is that
-   the errors add and are divided by the spectral gap rather than amplifying;
-   state it that way.
+   the errors add before division by the contraction gap. Its inverse amplifies
+   the bound near threshold; no uniform error control survives as `q → 1`.
 4. Negative companion: exhibit a nonexpansive (`q = 1`) self-map on the
    Examples §10 metric with more than one fixed point. This locates the cliff
    at `q → 1`, not at exactness, and pairs with the existing
@@ -2133,3 +2140,45 @@ distinct empirical/interpretive work.
 **Recording check.** This roadmap expands and separates the existing open
 items and records the suggested bounded experiment and stretch work. It adds
 no Lean declaration, simulation, reference or publication claim.
+
+## 2026-09-14 — L3 complete: approximate self-prediction
+
+- [x] Prove `ReflexiveBoundary.approximate_self_bound` from Mathlib's existing
+      a-posteriori estimate: residual at most `ε` gives distance at most
+      `ε / (1 - q)` from the named fixed point of the same map. Prove that
+      displacement at most `δ` gives residual at most `ε + (1 + q) δ`, and
+      compose that residual with the fixed-point estimate.
+- [x] Instantiate the bound at `resonanceRate`. For `K > 2D`, `τ > 0` and
+      `ε ≥ 0`, `resonance_error_radius_bounds` places the radius between
+      `2ε / ((K - 2D) τ)` and that expression plus `ε`. These inequalities
+      give the leading threshold behaviour without a series expansion.
+      The inverse contraction gap amplifies the bound; divergence of the
+      tolerance radius is not a statement that any actual error diverges.
+- [x] Exercise the bound on the existing nonconstant, one-site-avatar witness:
+      the silent state has residual one and distance two from `cortexState`,
+      attaining the bound at `q = 1/2`. On the same metric, identity encoding
+      and readout through a whole-space avatar are nonexpansive and have
+      distinct fixed points. This is a negative control, not a local
+      compression model. The initially failing Lean specifications pass,
+      including the zero-residual case.
+- [x] Replace the article's approximate-self conjecture with the inequality;
+      align the supplement, status tables and primer. Rebuild and visually
+      inspect the changed PDF pages: article 40 pages, supplement 34, primer
+      77. All standalone logs have zero warnings and overfull boxes, matching
+      the pre-change baseline. The 51-page arXiv submission compiles cleanly
+      from the unpacked tarball and passes manifest freshness.
+- [x] Pass the full zero-warning Lean build and axiom audit: 2,585 declarations
+      in 45 modules use only `propext`, `Classical.choice` and `Quot.sound`.
+      Explicit axiom checks cover all nine new headline theorems. The 39
+      publication/macro regression tests, applicable pre-commit hooks,
+      working-tree PDF dependency checks and `git diff --check` pass.
+
+Specification and execution record: `tasks/approximate_self.md`. No Python,
+reference, dependency, simulation result or physical assumption was added.
+The estimate holds the map and metric fixed, assumes its contraction law and
+does not choose the represented variables, construct the readout or derive
+restriction resonance. Exact gluing and the chain's identification of the
+glued state with a fixed point retain their hypotheses. L4's approximate
+overlap problem remains a separate modelling change. The publication audit
+is on hold at the user's request; the agency research gaps and author/journal
+metadata items remain open.

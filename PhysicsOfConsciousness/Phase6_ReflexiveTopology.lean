@@ -252,6 +252,54 @@ theorem self_unique {X : TopCat.{u}} [MeasurableSpace X] [BorelSpace X]
    h_contracting.fixedPoint_isFixedPt,
    fun _ hs => h_contracting.fixedPoint_unique hs⟩
 
+/-! ### Approximate reconstruction of a fixed state -/
+
+/-- A reconstruction residual at most `ε` confines the state to the ball of radius
+`ε / (1 - q)` about a fixed point of the same map. Mathlib supplies the a-posteriori
+estimate. The existing existence theorem supplies the fixed point under completeness;
+this estimate needs only a named fixed point. It does not construct the readout, supply
+restriction resonance, or relax the independent overlap-compatibility hypothesis. -/
+theorem approximate_self_bound
+    [MetricSpace (GlobalSection (X := X))]
+    (rb : ReflexiveBoundary X) {q : NNReal} (hq : ContractingWith q rb.predict)
+    {s sstar : GlobalSection (X := X)} {ε : ℝ}
+    (hfixed : rb.predict sstar = sstar) (hε : dist s (rb.predict s) ≤ ε) :
+    dist s sstar ≤ ε / (1 - (q : ℝ)) :=
+  (hq.dist_le_of_fixedPoint s hfixed).trans
+    ((div_le_div_iff_of_pos_right hq.one_sub_K_pos).2 hε)
+
+/-- Displacing a state by at most `δ` raises its reconstruction residual by at most
+`(1 + q) δ`. The map and metric are held fixed; this is not a bound on a changing
+readout or a mechanism producing approximately compatible local sections. -/
+theorem prediction_residual_of_dist_le
+    [MetricSpace (GlobalSection (X := X))]
+    (rb : ReflexiveBoundary X) {q : NNReal} (hq : LipschitzWith q rb.predict)
+    {s t : GlobalSection (X := X)} {ε δ : ℝ}
+    (hε : dist s (rb.predict s) ≤ ε) (hδ : dist t s ≤ δ) :
+    dist t (rb.predict t) ≤ ε + (1 + (q : ℝ)) * δ := by
+  have hst : dist s t ≤ δ := by rwa [dist_comm]
+  calc
+    dist t (rb.predict t) ≤ dist t s + dist s (rb.predict t) := dist_triangle _ _ _
+    _ ≤ dist t s + (dist s (rb.predict s) + dist (rb.predict s) (rb.predict t)) :=
+      add_le_add le_rfl (dist_triangle _ _ _)
+    _ ≤ δ + (ε + (q : ℝ) * δ) :=
+      add_le_add hδ (add_le_add hε
+        ((hq.dist_le_mul s t).trans (mul_le_mul_of_nonneg_left hst q.coe_nonneg)))
+    _ = ε + (1 + (q : ℝ)) * δ := by ring
+
+/-- Reconstruction and displacement errors add before division by the contraction
+gap. This inverse gap can amplify their effect near threshold; the result supplies
+neither the displacement bound nor an approximate-gluing theorem. -/
+theorem approximate_self_bound_of_dist_le
+    [MetricSpace (GlobalSection (X := X))]
+    (rb : ReflexiveBoundary X) {q : NNReal} (hq : ContractingWith q rb.predict)
+    {s t sstar : GlobalSection (X := X)} {ε δ : ℝ}
+    (hfixed : rb.predict sstar = sstar)
+    (hε : dist s (rb.predict s) ≤ ε) (hδ : dist t s ≤ δ) :
+    dist t sstar ≤ (ε + (1 + (q : ℝ)) * δ) / (1 - (q : ℝ)) :=
+  rb.approximate_self_bound hq hfixed
+    (rb.prediction_residual_of_dist_le hq.toLipschitzWith hε hδ)
+
 /-! ### What being a fixed point buys
 
 Two theorems that are *false statements about the old structure*, because there
@@ -561,5 +609,62 @@ theorem self_of_supercritical {X : TopCat.{u}} [MeasurableSpace X] [BorelSpace X
     (h_lip : LipschitzWith (resonanceRate K D τ) rb.predict) :
     ∃! s : GlobalSection (X := X), rb.predict s = s :=
   ReflexiveBoundary.self_unique rb ⟨resonanceRate_lt_one hτ hKD, h_lip⟩
+
+/-- The approximate-self estimate at the prescribed supercritical rate. The fixed
+point can be the one supplied by `self_of_supercritical` or by E89 on a named cover.
+The Lipschitz law remains a separate hypothesis; supercriticality alone does not
+construct an encoding/readout or establish representational accuracy. -/
+theorem approximate_self_bound_of_supercritical
+    [MetricSpace (GlobalSection (X := X))]
+    {K D τ : ℝ} (hτ : 0 < τ) (hKD : critical_coupling D < K)
+    (rb : ReflexiveBoundary X)
+    (h_lip : LipschitzWith (resonanceRate K D τ) rb.predict)
+    {s sstar : GlobalSection (X := X)} {ε : ℝ}
+    (hfixed : rb.predict sstar = sstar) (hε : dist s (rb.predict s) ≤ ε) :
+    dist s sstar ≤ ε / (1 - Real.exp (-(K - critical_coupling D) * τ / 2)) := by
+  simpa only [coe_resonanceRate] using
+    rb.approximate_self_bound ⟨resonanceRate_lt_one hτ hKD, h_lip⟩ hfixed hε
+
+/-- Exact bounds on the tolerance radius: with `x = (K - 2D) τ / 2 > 0`, it lies
+between `ε / x` and `ε / x + ε`. Thus its leading threshold behaviour is `ε / x`,
+and it diverges for fixed positive `ε` and `τ` as `K` decreases to `2D`. This is
+a statement about the bound, not divergence of an actual state's error; for zero
+residual the radius is zero at every supercritical coupling. -/
+theorem resonance_error_radius_bounds {K D τ ε : ℝ}
+    (hτ : 0 < τ) (hKD : critical_coupling D < K) (hε : 0 ≤ ε) :
+    2 * ε / ((K - critical_coupling D) * τ) ≤
+      ε / (1 - (resonanceRate K D τ : ℝ)) ∧
+    ε / (1 - (resonanceRate K D τ : ℝ)) ≤
+      2 * ε / ((K - critical_coupling D) * τ) + ε := by
+  let x := (K - critical_coupling D) * τ / 2
+  have hx : 0 < x := div_pos (mul_pos (sub_pos.mpr hKD) hτ) (by norm_num)
+  have hx1 : 0 < x + 1 := by linarith
+  have hgap : 0 < 1 - Real.exp (-x) :=
+    sub_pos.mpr (Real.exp_lt_one_iff.mpr (neg_neg_of_pos hx))
+  have hsmall : 1 - Real.exp (-x) ≤ x := by
+    have := Real.add_one_le_exp (-x)
+    linarith
+  have hlarge : x / (x + 1) ≤ 1 - Real.exp (-x) := by
+    rw [Real.exp_neg, le_sub_iff_add_le]
+    have hinv : (Real.exp x)⁻¹ ≤ (x + 1)⁻¹ :=
+      inv_anti₀ hx1 (Real.add_one_le_exp x)
+    calc
+      x / (x + 1) + (Real.exp x)⁻¹ ≤ x / (x + 1) + (x + 1)⁻¹ :=
+        add_le_add le_rfl hinv
+      _ = 1 := by field_simp
+  have hbase : 2 * ε / ((K - critical_coupling D) * τ) = ε / x := by
+    dsimp [x]
+    rw [div_div_eq_mul_div]
+    ring
+  rw [hbase, coe_resonanceRate]
+  rw [show -(K - critical_coupling D) * τ / 2 = -x by dsimp [x]; ring]
+  change ε / x ≤ ε / (1 - Real.exp (-x)) ∧
+    ε / (1 - Real.exp (-x)) ≤ ε / x + ε
+  constructor
+  · exact div_le_div_of_nonneg_left hε hgap hsmall
+  · calc
+      ε / (1 - Real.exp (-x)) ≤ ε / (x / (x + 1)) :=
+        div_le_div_of_nonneg_left hε (div_pos hx hx1) hlarge
+      _ = ε / x + ε := by field_simp; ring
 
 end PhysicsOfConsciousness

@@ -562,7 +562,7 @@ The gluing construction assumes local overlap agreement and derives both existen
 \section{Reflexive Topology and the Self}
 Self-representation is an additional relation between the glued global state and an encoding within it. The model specifies an encoding and readout whose composite fixes that state; contraction gives uniqueness. A dissipation bound imposes neither the encoding nor its accuracy.
 
-\textbf{Theorem 6 (Conditional Auto-Resonance):} On a complete metric space of global sections, a self-prediction map has a unique fixed point if it is Lipschitz at the independently assumed rate $e^{-(K-K_c)\tau/2}<1$. Coherence supplies $K>K_c$; it does not supply the Lipschitz law. To identify this fixed point with the section glued on a given cover, that section must itself be fixed by the map.
+\textbf{Theorem 6 (Conditional Auto-Resonance):} On a nonempty complete metric space of global sections, a self-prediction map has a unique fixed point if it is Lipschitz at the independently assumed rate $q=e^{-(K-K_c)\tau/2}<1$. A state with reconstruction residual at most $\varepsilon$ is within $\varepsilon/(1-q)$ of that fixed point. Coherence supplies $K>K_c$; it does not supply the Lipschitz law. To identify this fixed point with the section glued on a given cover, that section must itself be fixed by the map.
 
 \subsection{States and their metric}
 
@@ -599,13 +599,54 @@ The rate is motivated by the mean-field linearization near the incoherent state,
 
 Banach's theorem establishes uniqueness for the specified map. E89 additionally requires the section glued on the specified cover to be fixed by that map, making it the unique fixed point. The theorem \texttt{chain} uses this equality and the contraction law but does not require restriction resonance. The interpretation through $s|_U$ needs that additional predicate.
 
-\subsection{A nonconstant witness and its blinded control}
+\subsection{Approximate reconstruction}
+
+Let $F(s_*)=s_*$ and $d(s,F(s))\leq\varepsilon$. The triangle inequality and the Lipschitz law give
+\[
+d(s,s_*)\leq d(s,F(s))+d(F(s),F(s_*))
+\leq\varepsilon+q\,d(s,s_*),
+\]
+hence $d(s,s_*)\leq\varepsilon/(1-q)$. The theorem
+\texttt{ReflexiveBoundary.approximate\_\allowbreak self\_\allowbreak bound}
+applies Mathlib's \texttt{ContractingWith.dist\_\allowbreak le\_\allowbreak of\_\allowbreak fixedPoint}.
+An estimate about a supplied fixed point requires neither completeness nor a separate existence proof; those hypotheses enter the existing Banach construction. The approximate states can form a set while the exact fixed point remains unique.
+
+If $d(t,s)\leq\delta$, the same fixed map satisfies
+\[
+\begin{aligned}
+d(t,F(t))&\leq\varepsilon+(1+q)\delta,\\
+d(t,s_*)&\leq\frac{\varepsilon+(1+q)\delta}{1-q}.
+\end{aligned}
+\]
+These are \texttt{prediction\_\allowbreak residual\_\allowbreak of\_\allowbreak dist\_\allowbreak le}
+and \texttt{approximate\_\allowbreak self\_\allowbreak bound\_\allowbreak of\_\allowbreak dist\_\allowbreak le}.
+The errors add before division by the contraction gap, whose inverse amplifies the bound near threshold. The displacement bound is supplied; this result does not derive approximate gluing or weaken Theorem~5's overlap hypothesis.
+
+For $K>2D$, $\tau>0$ and $\varepsilon\geq0$,
+\texttt{approximate\_\allowbreak self\_\allowbreak bound\_\allowbreak of\_\allowbreak supercritical}
+instantiates the estimate at the prescribed rate, and
+\texttt{resonance\_\allowbreak error\_\allowbreak radius\_\allowbreak bounds} proves
+\[
+\frac{2\varepsilon}{(K-2D)\tau}
+\;\leq\;\frac{\varepsilon}{1-e^{-(K-2D)\tau/2}}
+\;\leq\;\frac{2\varepsilon}{(K-2D)\tau}+\varepsilon.
+\]
+The proof uses $1-e^{-x}\leq x$ and $x/(1+x)\leq1-e^{-x}$ for $x=(K-2D)\tau/2>0$, both consequences of $1+x\leq e^x$. Thus the radius has leading behaviour $2\varepsilon/((K-2D)\tau)$ and diverges as $K\downarrow2D$ at fixed positive $\varepsilon$ and $\tau$. This concerns the tolerance bound, not an actual state's error. Zero residual still gives zero distance at every supercritical coupling. The map, metric and Lipschitz law remain specified inputs; no result here models a changing readout or constructs a biological encoding.
+
+\subsection{A nonconstant witness and its controls}
 
 On the three-site cortex, the avatar is one site. The encoding reads its mass (\texttt{avatarRead}), and \texttt{avatarReadout} reconstructs a profile by averaging the reading with a baseline. The resulting map is nonconstant, has a unique fixed point, and contracts by one half of the difference visible at the avatar (\texttt{cortexPredict\_\allowbreak not\_\allowbreak const}, \texttt{cortexPredict\_\allowbreak fixed\_\allowbreak unique}, \texttt{cortexPredict\_\allowbreak dist}). Differences elsewhere are invisible to this map. The whole-field averaging map \texttt{relax} therefore cannot replace it as a witness for a one-site encoding.
 
 The witness takes $K=3$, $D=1$ and $\tau=2\ln2$, so $q=1/2$ (\texttt{cortexResonanceRate}). These are parameters chosen for the example, not calibrated cortical values. The boundary \texttt{cortexReflexive} performs restriction and satisfies resonance. Its avatar distinguishes the silent field from the baseline, as shown by \texttt{cortexReflexive\_\allowbreak restrict\_\allowbreak ne}. One avatar per site gives a covering family and reconstruction from the three readings (\texttt{cortex\_\allowbreak eq\_\allowbreak of\_\allowbreak avatar\_\allowbreak eq}). The same map at $K=1$ exercises the failure of contraction at the prescribed subcritical factor (\texttt{cortexSubcritical\_\allowbreak not\_\allowbreak contracting}).
 
 Replacing the encoding by a constant makes the composite constant. It still has a unique fixed point, namely the readout of that constant (\texttt{constResonance\_\allowbreak existsUnique\_\allowbreak self}). In the cortical control, this fixed point differs from the original baseline (\texttt{cortexBlind\_\allowbreak self\_\allowbreak ne}), and distinct states have identical blinded readings (\texttt{cortexBlind\_\allowbreak not\_\allowbreak determined}). A constant encoding fails restriction resonance whenever two states differ on the avatar region (\texttt{constResonance\_\allowbreak not\_\allowbreak isRestrictionResonance}). The control thus distinguishes fixed-point uniqueness from sensitivity to the encoded state.
+
+The approximate bound is sharp on the same one-site-avatar witness. The silent profile has $d(s,F(s))=1$ and $d(s,s_*)=2$, attaining $\varepsilon/(1-q)$ at $\varepsilon=1$, $q=1/2$
+(\texttt{cortexSilent\_\allowbreak prediction\_\allowbreak residual},
+\texttt{cortex\_\allowbreak approximate\_\allowbreak self\_\allowbreak sharp}).
+At $q=1$, \texttt{cortexIdentity} instead takes the whole substrate as its avatar and uses identity encoding and readout. It is nonexpansive, and the silent and baseline profiles are distinct fixed points
+(\texttt{cortex\_\allowbreak nonexpansive\_\allowbreak not\_\allowbreak unique}).
+This control establishes the failure of nonexpansive uniqueness on the same metric; it is not a model of compression into a proper local region.
 
 \subsection{What a biological interpretation must add}
 
@@ -662,7 +703,7 @@ Coarse-graining of a symmetric coupling & \texttt{mesh\_\allowbreak refinement\_
 The field is the endogenous EM field & \textbf{Conditions formalized; the identification itself not derived.} A continuum coupling kernel is posited after the scalar convergence result; identifying that kernel with cortical ephaptic coupling is the framework's central empirical commitment (the physical-calibration subsection of the main article). \texttt{IsEMFieldCoupling} (\texttt{Phase9\_\allowbreak EMIdentification.lean}) is the predicate \texttt{E56} carries: a jointly continuous kernel, a normalised substrate, a coupling constant $K$ equal to that kernel's double average, no single site contributing more than half of it, and a noise $D$ that is the field's own. No object in this development denotes cortex, so whether cortex satisfies them is not a Lean question. Supported as \emph{modulatory and integrative}, not as primary: measured endogenous fields of $1$--$5$ mV/mm shift spike timing by $1$--$3$ ms. Calibration and observational tests are stated in the main article & Modelling assumption + empirical commitment \\ \hline
 Frustration as memory capacity & \textbf{Outside the regime the chain covers.} \texttt{ThermodynamicCover.A\_\allowbreak pos} excludes frustrated couplings at the gluing node, and circle-valued offsets from patch phases are coboundaries. Cortical phase singularities supply integer transitions between local real lifts instead: \texttt{loopWinding\_\allowbreak eq\_\allowbreak zero\_\allowbreak of\_\allowbreak hasGlobalLift} proves non-zero winding obstructs a global lift, with a winding-one witness. No theorem connects winding sectors to content & Theorem (topological obstruction) + empirical candidate \\ \hline
 Phase synchronization to Unity & Sheaf-theoretic gluing (\texttt{Phase5}) over a \texttt{ThermodynamicCover}, whose fields are all local: the global section is constructed by \texttt{probability\_\allowbreak glue\_\allowbreak unique}, and the statement that every local section is its restriction, \texttt{sync\_\allowbreak to\_\allowbreak section\_\allowbreak eq}, is a theorem about it. Witnessed by two patches built from different mass profiles, each section constructed over its own patch, whose glued state is neither of them (\texttt{Examples}~\S14). The cover's equilibrium hypothesis is not an assumption on every instance: \texttt{ThermodynamicCover.of\-Convergent\-Trajectory} (\texttt{Phase5\_\allowbreak Equilibrium\-Bridge}) discharges it from \texttt{kuramoto\_\allowbreak tendsto\_\allowbreak global\_\allowbreak minimum}, and \texttt{Examples}~\S17.1 is a three-patch cover whose phase field is the limit of a trajectory started \emph{unsynchronized}. The overlap-agreement hypothesis is untouched by any dynamics and is read pointwise: two patch sections have the same restriction to their overlap exactly when they assign the same mass to every shared site (\texttt{restrict\_\allowbreak eq\_\allowbreak iff\_\allowbreak densityOn\_\allowbreak eqOn}), and a two-patch cover at one phase with profiles differing at the shared site fails it while meeting every other requirement (\texttt{overlap\_\allowbreak agreement\_\allowbreak fails}, \texttt{Examples}~\S20) & Theorem + instance postulate \\ \hline
-Reflexive Topology (the Self) & Banach fixed point for a self-prediction map (\texttt{Phase6}); metric, completeness and the Lipschitz law at $e^{-(K-K_c)\tau/2}$ are hypotheses, discharged on the three-site witness. Coherence yields $K>K_c$ and hence makes the stipulated rate less than one; it does not prove that the avatar read-out contracts at that rate. \texttt{E89} carries both the independent Lipschitz law and the identification of the glued state with that fixed point & Conditional theorem + modelling postulate (witnessed) \\ \hline
+Reflexive Topology (the Self) & Banach fixed point and residual bound $d(s,s_*)\leq\varepsilon/(1-q)$ for a self-prediction map (\texttt{Phase6}); metric, completeness and the Lipschitz law at $q=e^{-(K-K_c)\tau/2}$ are hypotheses, discharged on the three-site witness. Displacement errors add before division by $1-q$; the witness attains the bound, and nonexpansiveness alone permits distinct fixed points. Coherence yields $K>K_c$; it does not prove the Lipschitz law. \texttt{E89} supplies that law and identifies the glued state with the fixed point & Conditional theorem + modelling postulate (witnessed) \\ \hline
 Kuramoto Lyapunov descent & Descent chained to the minimum characterization by the rotating frame (\texttt{Phase4\_\allowbreak RotatingFrame}); identical frequencies & Theorem \\ \hline
 Kuramoto dynamics run & The initial value problem is well posed on all of $\mathbb{R}$: the field is globally Lipschitz and globally bounded (\texttt{kuramotoField\_\allowbreak lipschitz}, \texttt{kuramotoField\_\allowbreak norm\_\allowbreak le}), and through every state at every instant passes exactly one trajectory, defined for all time (\texttt{kuramoto\_\allowbreak cauchy\_\allowbreak problem}). Along \emph{every} trajectory of a zero-frequency system the dynamic potential converges (\texttt{dynamic\_\allowbreak potential\_\allowbreak tendsto}) and the total dissipation $\int_0^\infty \sum_i \dot\theta_i^2$ is finite, equal to the potential's total drop (\texttt{dissipation\_\allowbreak integral\_\allowbreak tendsto}). The motion stops: Barbalat's lemma is proved here, Mathlib lacking it, and applied, so $\sum_i \dot\theta_i^2 \to 0$ along every trajectory (\texttt{velocity\_\allowbreak sq\_\allowbreak tendsto\_\allowbreak zero}). Where it stops is proved under an initial-data condition: if the phases start within a quarter turn and the potential excess starts below $a/2$, where $a>0$ bounds the coupling below, the trajectory converges to a phase-locked configuration that is a \emph{global} minimiser, with $r^2=1$ (\texttt{kuramoto\_\allowbreak tendsto\_\allowbreak global\_\allowbreak minimum}), by a Polyak--\L{}ojasiewicz estimate rather than a LaSalle principle. Unconditionally this is false --- splay and twisted states are equilibria --- so the condition cannot be removed. Witnessed on three sites, where no closed form exists (\texttt{Examples}~\S17) & Theorem (conditional) \\ \hline
 Continuous vs. Rigid Topology & Fixed wiring support at matched resource (\texttt{Phase7\_\allowbreak Rigidity}), deriving the suboptimality Phase 7 assumed; typed continuum/discrete separation & Theorem \\ \hline

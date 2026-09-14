@@ -3296,7 +3296,7 @@ does not describe a temporal prediction without a further dynamical model.
 \statement
 
 \begin{quote}
-\textbf{Theorem (Conditional auto-resonance).} On a complete metric space of
+\textbf{Theorem (Conditional auto-resonance).} On a nonempty complete metric space of
 global sections, a self-prediction map with Lipschitz rate
 \[
  \lambda \;=\; e^{-(K-\Kc)\tau/2} \;<\; 1
@@ -3329,6 +3329,53 @@ bound is an obligation on each instance, not a consequence of field dynamics,
 and no field dynamics in the development produces the read-out map. E89 carries
 both the Lipschitz law and the identification of the glued section with the
 fixed point---Banach supplies uniqueness, not that identification.
+
+\subsection{Approximate reconstruction}
+
+A state need not reconstruct itself exactly to be close to the fixed point.
+Suppose its reconstruction error is at most $\varepsilon$, measured with the
+same metric as the contraction. Since $F(s_*)=s_*$,
+\[
+d(s,s_*)\leq d(s,F(s))+d(F(s),F(s_*))
+\leq\varepsilon+\lambda d(s,s_*).
+\]
+Moving the last term to the left gives
+\[
+d(s,s_*)\leq\frac{\varepsilon}{1-\lambda}.
+\]
+The exact fixed point remains unique; several approximately reconstructed
+states may lie near it. For the three-site witness, the silent profile
+$(0,0,0)$ reconstructs as $(0,1,0)$, while the fixed profile is $(0,2,0)$.
+The reconstruction error is one and the distance to the fixed point is two.
+With $\lambda=1/2$, the bound is attained exactly.
+
+The denominator measures how strongly successive predictions contract.
+At the stipulated rate $\lambda=e^{-(K-2D)\tau/2}$, the proved bounds are
+\[
+\frac{2\varepsilon}{(K-2D)\tau}
+\leq\frac{\varepsilon}{1-\lambda}
+\leq\frac{2\varepsilon}{(K-2D)\tau}+\varepsilon
+\qquad(K>2D,\ \tau>0,\ \varepsilon\geq0).
+\]
+For fixed positive error tolerance and interval, the radius therefore grows
+without bound as coupling approaches the threshold from above. The estimate
+loses precision; it does not say that an actual state moves arbitrarily far
+away. At zero reconstruction error, its distance from the fixed point is zero
+at every supercritical coupling.
+
+If the state is also displaced by at most $\delta$, its new reconstruction
+error is at most $\varepsilon+(1+\lambda)\delta$, giving distance at most
+$[\varepsilon+(1+\lambda)\delta]/(1-\lambda)$. The errors add and the inverse
+contraction gap amplifies the bound. This calculation holds the map fixed and
+assumes the displacement bound. It supplies no mechanism for achieving
+agreement between local descriptions.
+
+Strict contraction matters. On the same metric, identity encoding and readout
+through a whole-space avatar give $F(s)=s$ for every state. This map is
+nonexpansive, with factor one, and both silent and baseline profiles are fixed
+points. The result locates the failure of the uniqueness guarantee at the
+loss of strict contraction. Choosing a biological state space, metric and
+readout remains a modelling task.
 
 \section{The metric on global sections, and why the obvious ones fail}
 

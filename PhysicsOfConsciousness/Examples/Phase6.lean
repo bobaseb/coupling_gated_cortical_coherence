@@ -771,6 +771,72 @@ theorem cortexHasSelf : ∃! s : GlobalSection (X := Cortex),
 theorem cortexFixedPoint : cortexReflexive.predict cortexState = cortexState :=
   cortexPredict_fixed
 
+/-! #### Approximate self-prediction and the nonexpansive boundary -/
+
+/-- A genuinely inexact reconstruction: the silent state has residual one under
+the same nonconstant one-site readout. This is a mass-profile distance, not a
+calibrated neural error. -/
+theorem cortexSilent_prediction_residual :
+    dist cortexSilent (cortexReflexive.predict cortexSilent) = 1 := by
+  refine le_antisymm ?_ ?_
+  · rw [gs_dist_eq, dist_pi_le_iff (by norm_num)]
+    intro x
+    rw [Phi_cortexSilent, Phi_cortexPredict, Phi_cortexSilent]
+    split_ifs <;> norm_num [NNReal.dist_eq]
+  · have h := dist_le_pi_dist (density cortexSilent)
+      (density (cortexReflexive.predict cortexSilent)) Site.mid
+    rw [← gs_dist_eq, Phi_cortexSilent, Phi_cortexPredict_mid, Phi_cortexSilent] at h
+    simpa [NNReal.dist_eq] using h
+
+/-- The general a-posteriori estimate on the nonconstant cortical witness, with
+its exact factor one half. The error tolerance does not supply a content model. -/
+theorem cortex_approximate_self_bound {s : GlobalSection (X := Cortex)} {ε : ℝ}
+    (hε : dist s (cortexReflexive.predict s) ≤ ε) : dist s cortexState ≤ 2 * ε := by
+  have h := approximate_self_bound_of_supercritical cortexTau_pos cortexSupercritical
+    cortexReflexive cortexPredict_lipschitz_rate cortexPredict_fixed hε
+  rw [← coe_resonanceRate, cortexResonanceRate] at h
+  norm_num at h
+  linarith
+
+/-- The silent state saturates the residual-to-distance bound: residual one,
+distance two. A radius `ε` without the inverse contraction gap is false even
+on the existing one-site-avatar witness. -/
+theorem cortex_approximate_self_sharp : dist cortexSilent cortexState =
+    dist cortexSilent (cortexReflexive.predict cortexSilent) / (1 - (1 / 2 : ℝ)) := by
+  rw [cortexSilent_prediction_residual, dist_cortexSilent_cortexState]
+  norm_num
+
+/-- A nonexpansive boundary on the same complete metric, using the whole substrate
+as its avatar and identity maps. This is a negative control for uniqueness at
+factor one; it makes no claim to compress information into a proper local region. -/
+def cortexIdentity : ReflexiveBoundary Cortex where
+  avatar_region := ⊤
+  auto_resonance := id
+  readout := id
+
+/-- At factor one, two distinct fixed points survive on the very metric supporting
+the strict contraction. Nonexpansiveness cannot replace strict contraction in the
+uniqueness theorem; this says nothing about which neural readout is realized. -/
+theorem cortex_nonexpansive_not_unique : LipschitzWith 1 cortexIdentity.predict ∧
+    ¬ ∃! s : GlobalSection (X := Cortex), cortexIdentity.predict s = s := by
+  refine ⟨LipschitzWith.id, ?_⟩
+  rintro ⟨s, _, hunique⟩
+  have h : cortexSilent = cortexState := (hunique cortexSilent rfl).trans
+    (hunique cortexState rfl).symm
+  have hd := dist_cortexSilent_cortexState
+  rw [h, dist_self] at hd
+  norm_num at hd
+
+#print axioms ReflexiveBoundary.approximate_self_bound
+#print axioms ReflexiveBoundary.prediction_residual_of_dist_le
+#print axioms ReflexiveBoundary.approximate_self_bound_of_dist_le
+#print axioms approximate_self_bound_of_supercritical
+#print axioms resonance_error_radius_bounds
+#print axioms cortexSilent_prediction_residual
+#print axioms cortex_approximate_self_bound
+#print axioms cortex_approximate_self_sharp
+#print axioms cortex_nonexpansive_not_unique
+
 /-- **Below the threshold the argument is unavailable on this very substrate.** The map is
 unchanged; only the parameters the rate is read from have moved, to `K = 1 ≤ 2 = K_c`. At
 that rate `ContractingWith` is false, so Banach supplies nothing. This does not say the
