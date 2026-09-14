@@ -3080,6 +3080,67 @@ a globally compatible representation.
 \id{Phase5\_EquilibriumBridge.lean}
 (\id{ThermodynamicCover.ofConvergentTrajectory}).
 
+\subsection{Agreement to within a tolerance}
+
+A biological description will not agree exactly. So ask what survives if the
+patches agree only to within some $\varepsilon$: at every shared site, the two
+profiles differ by at most $\varepsilon$ in mass.
+
+\what
+A \emph{partition of unity} subordinate to the cover is a set of weights
+$w_i(x)\geq0$, each vanishing off patch $i$, with $\sum_i w_i(x)=1$ at every
+site. It averages the family into a single profile,
+\[
+(\mathrm{select}\;w\,s)(x)\;=\;\sum_i w_i(x)\,s_i(x),
+\]
+which is a weighted vote among the patches that can see the site $x$.
+
+\statement
+Three facts, in the uniform distance (the largest mass difference at any site).
+The selected profile is within $\varepsilon$ of each patch on that patch. Two
+partitions subordinate to the same cover select profiles at most $\varepsilon$
+apart --- and that constant does not grow with how many patches cover a site,
+because the weights sum to one rather than to the number of patches voting. At
+$\varepsilon=0$ the selection is the glued state, so the exact case is
+recovered and nothing is given up there.
+
+The three-site substrate makes the second fact concrete. Take the three
+two-site patches, each blind to one site; the common profile is $(2,1,3)$, and
+let patch $0$ report $\varepsilon$ more mass at each of the two sites it sees.
+Assign every site to the lowest-indexed patch containing it and the selection
+is $(2,\,1+\varepsilon,\,3+\varepsilon)$; assign every site to the highest-indexed
+patch containing it and the selection is $(2,1,3)$. Those two selections are
+exactly $\varepsilon$ apart, so the bound is attained and cannot be improved.
+
+\scope
+The tolerance costs existence. For every positive
+$\varepsilon$ that family has no global profile at all: patches $0$ and $1$
+both see the right-hand site and report $3+\varepsilon$ and $3$ there. So
+selection is a \emph{choice} among states rather than an extension of the data,
+and a different choice of weights gives a different unified state. Uniqueness
+is replaced by a selection rule with a diameter, which is a weaker thing to
+have.
+
+Two further cautions. The $\varepsilon$ must hold on \emph{every} pair, not on
+a spanning set of overlaps: put a $2\varepsilon$ discrepancy at the middle
+site, which one patch cannot see, and the pairs $(0,1)$ and $(1,2)$ agree
+exactly while the two selections are $2\varepsilon$ apart. And a readout that
+is $L$-Lipschitz in the profile moves by at most $L\varepsilon$ between
+selections --- total mass, with $L=3$ here, actually moves by $2\varepsilon$.
+Reading the selected state as a conscious content at resolution $\delta$ would
+require exhibiting the decoder and arguing $L\varepsilon\leq\delta$. Nothing in
+this construction produces the approximate agreement, picks the cover or picks
+the weights.
+
+\lean
+\id{Phase5\_GlobalSection.lean}, namespace \id{ApproximateGluing}:
+\id{Compatible}, \id{IsPartition}, \id{select}, \id{select\_close},
+\id{select\_dist\_le}, \id{approximate\_diameter\_le},
+\id{select\_glue\_unique}, \id{feature\_dist\_le}; the three-site witness and
+its regressions in \id{Examples/Phase5.lean} \S21
+(\id{apx\_select\_dist}, \id{apx\_no\_global\_section},
+\id{chainW\_select\_dist\_gt}).
+
 \section{Where uniqueness comes from}
 
 Return to the three-site example. Once both compatible local profiles are

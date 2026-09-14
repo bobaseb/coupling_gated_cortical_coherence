@@ -559,6 +559,85 @@ Two further results specify the phase and section data. The theorem \texttt{pote
 
 The gluing construction assumes local overlap agreement and derives both existence and uniqueness of the global section. The lemma \texttt{probability\_\allowbreak glue\_\allowbreak unique} takes a compatible family to its unique global extension; \texttt{ThermodynamicCover.invariantMeasure} denotes that section. The construction uses local data, not a global state supplied as a premise.
 
+\subsection{Approximate overlap agreement}
+
+Theorem~5 admits no tolerance: the sheaf condition is an equation. Under an
+$\varepsilon$-tolerance neither existence nor uniqueness of a global section
+survives, and what replaces them is a selection rule with an explicit constant.
+The results are stated for a finite substrate whose local states are nonnegative
+site masses, with the uniform distance $\max_{x\in U}|f(x)-g(x)|$ on the sites a
+pair of patches shares (\texttt{ApproximateGluing.\allowbreak profileDist},
+\texttt{Phase5\_\allowbreak GlobalSection.lean}).
+
+Let $\{U_i\}_{i\in I}$ be a finite cover, let $s_i$ be the local profiles with
+$\mathrm{dist}(s_i,s_j)\leq\varepsilon$ on $U_i\cap U_j$ for \emph{every} pair
+(\texttt{Compatible}), and let $w_i\geq0$ vanish off $U_i$ and satisfy
+$\sum_i w_i(x)=1$ at every site (\texttt{IsPartition}). The selection is
+\[
+(\mathrm{select}\;w\,s)(x)\;=\;\sum_{i} w_i(x)\,s_i(x).
+\]
+It depends on the profiles only through their values on their own patches
+(\texttt{select\_\allowbreak eq\_\allowbreak of\_\allowbreak eqOn}), so the
+bookkeeping values a patch carries elsewhere do not enter. Four estimates follow.
+The selection is within $\varepsilon$ of each patch on that patch
+(\texttt{select\_\allowbreak close}); two partitions subordinate to the same
+cover select states at distance at most $\varepsilon$
+(\texttt{select\_\allowbreak dist\_\allowbreak le}); any two profiles fitting
+every patch to tolerance $\delta$ lie within $2\delta$ of each other
+(\texttt{approximate\_\allowbreak diameter\_\allowbreak le}); and at
+$\varepsilon=0$ the selection is the unique profile fitting all patches
+(\texttt{select\_\allowbreak glue\_\allowbreak unique}).
+
+The constant in the second estimate is $C(N)=1$ at every cover multiplicity $N$,
+rather than the $N\varepsilon$ a term-by-term count would give: the weights sum
+to one rather than to the number of patches active at a site. This is a
+statement in the uniform mass metric and not in total variation. A feature
+$F$ that is $L$-Lipschitz on profiles therefore satisfies
+$\mathrm{dist}\big(F(\mathrm{select}\;w\,s),F(\mathrm{select}\;v\,s)\big)\leq
+L\varepsilon$ (\texttt{feature\_\allowbreak dist\_\allowbreak le}), which is
+the resolution condition an interpretation at scale $\delta$ must meet; the
+theorem chooses no decoder.
+
+The three-site cortex witnesses both halves (\texttt{Examples}~\S21). Its three
+two-site patches have multiplicity two, and the family \texttt{apxW} is
+\S17.1's data with one patch reporting $\varepsilon$ more mass everywhere it can
+see. Two partitions --- each site assigned to the lowest, respectively the
+highest, indexed patch containing it --- select states at distance exactly
+$\varepsilon$ (\texttt{apx\_\allowbreak select\_\allowbreak dist}), so the
+constant is attained and cannot be improved at this multiplicity. For every
+positive $\varepsilon$ that same family has no exact global section at all
+(\texttt{apx\_\allowbreak no\_\allowbreak global\_\allowbreak section}): two
+patches see the site \texttt{right} and disagree there, so selection stands in
+for a gluing that does not exist. The corresponding sections fail the class
+field of Theorem~5 exactly as the two-patch fence does
+(\texttt{apxSection\_\allowbreak overlap\_\allowbreak fails}), and the tolerance
+cannot be dropped to zero
+(\texttt{apxW\_\allowbreak not\_\allowbreak compatible\_\allowbreak zero}).
+
+Checking a spanning subfamily of the overlaps is not checking the family. The
+family \texttt{chainW} agrees exactly on the overlaps $(0,1)$ and $(1,2)$ and is
+off by $2\varepsilon$ on $(0,2)$; its two selections are $2\varepsilon$ apart
+(\texttt{chainW\_\allowbreak not\_\allowbreak compatible},
+\texttt{chainW\_\allowbreak select\_\allowbreak dist\_\allowbreak gt}), so the
+hypothesis quantifies over all pairs. On the same witness the total-mass readout
+moves by $2\varepsilon$ between the two selections, within the $3\varepsilon$
+its Lipschitz constant permits
+(\texttt{totalMass\_\allowbreak apx\_\allowbreak dist},
+\texttt{totalMass\_\allowbreak apx\_\allowbreak dist\_\allowbreak le}): the
+selection dependence of a readout is a real effect and not an artefact of a
+loose bound. At $\varepsilon=0$ the three-patch family of \S17.1 satisfies the
+relaxed hypothesis and the selection returns its glued profile
+(\texttt{trioW\_\allowbreak compatible},
+\texttt{trioW\_\allowbreak glue\_\allowbreak unique}).
+
+The scope is narrow in three ways. The state space is finite spatial mass
+profiles, where restriction is functorial; nothing here bears on matching
+marginals of decoded contents \cite{abramsky2011}. Nothing produces the
+approximate agreement, selects the cover or selects the weights, so the
+interpretive cost of the route is that unity becomes a choice at resolution
+$\varepsilon$. Theorem~5, the \texttt{ThermodynamicCover} instances and the
+composed chain retain their exact agreement hypothesis.
+
 \section{Reflexive Topology and the Self}
 Self-representation is an additional relation between the glued global state and an encoding within it. The model specifies an encoding and readout whose composite fixes that state; contraction gives uniqueness. A dissipation bound imposes neither the encoding nor its accuracy.
 
@@ -702,7 +781,7 @@ Electrodynamic Discretization & Lebesgue-Bochner edge weights (\texttt{Phase2}) 
 Coarse-graining of a symmetric coupling & \texttt{mesh\_\allowbreak refinement\_\allowbreak convergence} (\texttt{Phase2}) proves convergence of the scalar coupling energy along regular refining triangulations. On the formalized $[0,1)$ grid the energy is the composite trapezoidal rule, so a $C^2$ integrand has error at most $\zeta/(12N^2)$. The result produces neither a kernel nor dynamics: \texttt{edge\_\allowbreak region} supplies no product-structured data on $M\times M$. A genuine kernel limit requires new architecture before the separate dynamical mean-field problem can be stated & Theorem (scalar energy only) \\ \hline
 The field is the endogenous EM field & \textbf{Conditions formalized; the identification itself not derived.} A continuum coupling kernel is posited after the scalar convergence result; identifying that kernel with cortical ephaptic coupling is the framework's central empirical commitment (the physical-calibration subsection of the main article). \texttt{IsEMFieldCoupling} (\texttt{Phase9\_\allowbreak EMIdentification.lean}) is the predicate \texttt{E56} carries: a jointly continuous kernel, a normalised substrate, a coupling constant $K$ equal to that kernel's double average, no single site contributing more than half of it, and a noise $D$ that is the field's own. No object in this development denotes cortex, so whether cortex satisfies them is not a Lean question. Supported as \emph{modulatory and integrative}, not as primary: measured endogenous fields of $1$--$5$ mV/mm shift spike timing by $1$--$3$ ms. Calibration and observational tests are stated in the main article & Modelling assumption + empirical commitment \\ \hline
 Frustration as memory capacity & \textbf{Outside the regime the chain covers.} \texttt{ThermodynamicCover.A\_\allowbreak pos} excludes frustrated couplings at the gluing node, and circle-valued offsets from patch phases are coboundaries. Cortical phase singularities supply integer transitions between local real lifts instead: \texttt{loopWinding\_\allowbreak eq\_\allowbreak zero\_\allowbreak of\_\allowbreak hasGlobalLift} proves non-zero winding obstructs a global lift, with a winding-one witness. No theorem connects winding sectors to content & Theorem (topological obstruction) + empirical candidate \\ \hline
-Phase synchronization to Unity & Sheaf-theoretic gluing (\texttt{Phase5}) over a \texttt{ThermodynamicCover}, whose fields are all local: the global section is constructed by \texttt{probability\_\allowbreak glue\_\allowbreak unique}, and the statement that every local section is its restriction, \texttt{sync\_\allowbreak to\_\allowbreak section\_\allowbreak eq}, is a theorem about it. Witnessed by two patches built from different mass profiles, each section constructed over its own patch, whose glued state is neither of them (\texttt{Examples}~\S14). The cover's equilibrium hypothesis is not an assumption on every instance: \texttt{ThermodynamicCover.of\-Convergent\-Trajectory} (\texttt{Phase5\_\allowbreak Equilibrium\-Bridge}) discharges it from \texttt{kuramoto\_\allowbreak tendsto\_\allowbreak global\_\allowbreak minimum}, and \texttt{Examples}~\S17.1 is a three-patch cover whose phase field is the limit of a trajectory started \emph{unsynchronized}. The overlap-agreement hypothesis is untouched by any dynamics and is read pointwise: two patch sections have the same restriction to their overlap exactly when they assign the same mass to every shared site (\texttt{restrict\_\allowbreak eq\_\allowbreak iff\_\allowbreak densityOn\_\allowbreak eqOn}), and a two-patch cover at one phase with profiles differing at the shared site fails it while meeting every other requirement (\texttt{overlap\_\allowbreak agreement\_\allowbreak fails}, \texttt{Examples}~\S20) & Theorem + instance postulate \\ \hline
+Phase synchronization to Unity & Sheaf-theoretic gluing (\texttt{Phase5}) over a \texttt{ThermodynamicCover}, whose fields are all local: the global section is constructed by \texttt{probability\_\allowbreak glue\_\allowbreak unique}, and the statement that every local section is its restriction, \texttt{sync\_\allowbreak to\_\allowbreak section\_\allowbreak eq}, is a theorem about it. Witnessed by two patches built from different mass profiles, each section constructed over its own patch, whose glued state is neither of them (\texttt{Examples}~\S14). The cover's equilibrium hypothesis is not an assumption on every instance: \texttt{ThermodynamicCover.of\-Convergent\-Trajectory} (\texttt{Phase5\_\allowbreak Equilibrium\-Bridge}) discharges it from \texttt{kuramoto\_\allowbreak tendsto\_\allowbreak global\_\allowbreak minimum}, and \texttt{Examples}~\S17.1 is a three-patch cover whose phase field is the limit of a trajectory started \emph{unsynchronized}. The overlap-agreement hypothesis is untouched by any dynamics and is read pointwise: two patch sections have the same restriction to their overlap exactly when they assign the same mass to every shared site (\texttt{restrict\_\allowbreak eq\_\allowbreak iff\_\allowbreak densityOn\_\allowbreak eqOn}), and a two-patch cover at one phase with profiles differing at the shared site fails it while meeting every other requirement (\texttt{overlap\_\allowbreak agreement\_\allowbreak fails}, \texttt{Examples}~\S20). Under an $\varepsilon$-tolerance on overlaps the sheaf condition is replaced by a selection rule: normalized subordinate weights select a state within $\varepsilon$ of every patch, two such selections differ by at most $\varepsilon$ at any cover multiplicity (\texttt{select\_\allowbreak dist\_\allowbreak le}), zero tolerance recovers the unique gluing, and for every positive $\varepsilon$ a three-patch family at that tolerance has no global section at all (\texttt{apx\_\allowbreak no\_\allowbreak global\_\allowbreak section}, \texttt{Examples}~\S21) & Theorem + instance postulate \\ \hline
 Reflexive Topology (the Self) & Banach fixed point and residual bound $d(s,s_*)\leq\varepsilon/(1-q)$ for a self-prediction map (\texttt{Phase6}); metric, completeness and the Lipschitz law at $q=e^{-(K-K_c)\tau/2}$ are hypotheses, discharged on the three-site witness. Displacement errors add before division by $1-q$; the witness attains the bound, and nonexpansiveness alone permits distinct fixed points. Coherence yields $K>K_c$; it does not prove the Lipschitz law. \texttt{E89} supplies that law and identifies the glued state with the fixed point & Conditional theorem + modelling postulate (witnessed) \\ \hline
 Kuramoto Lyapunov descent & Descent chained to the minimum characterization by the rotating frame (\texttt{Phase4\_\allowbreak RotatingFrame}); identical frequencies & Theorem \\ \hline
 Kuramoto dynamics run & The initial value problem is well posed on all of $\mathbb{R}$: the field is globally Lipschitz and globally bounded (\texttt{kuramotoField\_\allowbreak lipschitz}, \texttt{kuramotoField\_\allowbreak norm\_\allowbreak le}), and through every state at every instant passes exactly one trajectory, defined for all time (\texttt{kuramoto\_\allowbreak cauchy\_\allowbreak problem}). Along \emph{every} trajectory of a zero-frequency system the dynamic potential converges (\texttt{dynamic\_\allowbreak potential\_\allowbreak tendsto}) and the total dissipation $\int_0^\infty \sum_i \dot\theta_i^2$ is finite, equal to the potential's total drop (\texttt{dissipation\_\allowbreak integral\_\allowbreak tendsto}). The motion stops: Barbalat's lemma is proved here, Mathlib lacking it, and applied, so $\sum_i \dot\theta_i^2 \to 0$ along every trajectory (\texttt{velocity\_\allowbreak sq\_\allowbreak tendsto\_\allowbreak zero}). Where it stops is proved under an initial-data condition: if the phases start within a quarter turn and the potential excess starts below $a/2$, where $a>0$ bounds the coupling below, the trajectory converges to a phase-locked configuration that is a \emph{global} minimiser, with $r^2=1$ (\texttt{kuramoto\_\allowbreak tendsto\_\allowbreak global\_\allowbreak minimum}), by a Polyak--\L{}ojasiewicz estimate rather than a LaSalle principle. Unconditionally this is false --- splay and twisted states are equilibria --- so the condition cannot be removed. Witnessed on three sites, where no closed form exists (\texttt{Examples}~\S17) & Theorem (conditional) \\ \hline

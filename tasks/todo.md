@@ -1880,8 +1880,14 @@ does not supply restriction resonance, and changes nothing in Derivation 5.
 
 ### L4 — Approximate overlap agreement: what survives of uniqueness
 
-- [ ] Determine what an `ε`-compatible family determines, with an explicit
+- [x] Determine what an `ε`-compatible family determines, with an explicit
       constant, and what it demonstrably fails to determine.
+      **Done 2026-09-14:** Route A. Selection by a partition of unity, the
+      constant `C(N) = 1` in the uniform mass metric, the `ε = 0` recovery of
+      exact gluing, a three-patch witness attaining `ε`, the failure of exact
+      gluing at every positive `ε` and two regressions are proved.
+      Specification and verification: `tasks/approximate_gluing.md` and the
+      completion record below.
 
 **Gap and intent.** `sheaf_glue_unique`
 (`PhysicsOfConsciousness/Phase5_GlobalSection.lean:53`) takes `h_compat` as an
@@ -2182,3 +2188,58 @@ glued state with a fixed point retain their hypotheses. L4's approximate
 overlap problem remains a separate modelling change. The publication audit
 is on hold at the user's request; the agency research gaps and author/journal
 metadata items remain open.
+
+## 2026-09-14 — L4 complete: selection under approximate overlap agreement
+
+- [x] Run failing Lean specifications for the witness before implementation,
+      then implement Route A. The scratch specification file failed on the
+      absent declarations and passes unchanged afterwards.
+- [x] State the relaxed hypothesis with a metric: `ApproximateGluing` in
+      `Phase5_GlobalSection.lean` measures restrictions to an overlap in the
+      uniform distance on site masses (`profileDist`), and `Compatible`
+      quantifies over every pair of the supplied family.
+- [x] Prove the positive statement with its constant. A nonnegative partition
+      subordinate to the cover selects a profile within `ε` of each patch on
+      that patch, and any two partitions select profiles at distance at most
+      `ε`: `C(N) = 1` at every cover multiplicity, because normalized weights
+      sum to one rather than to the number of active patches. Arbitrary
+      `δ`-fits have diameter `2δ`, off-patch values cannot influence a
+      selection, `ε = 0` recovers unique gluing, and an `L`-Lipschitz feature
+      varies by at most `Lε`.
+- [x] Prove the matching negative on the three two-site patches of §17.1: for
+      every positive `ε` the `ε`-compatible family `apxW` admits no exact
+      global section, and two partitions select states at distance exactly
+      `ε`, so the constant is attained. The total-mass readout moves by `2ε`
+      of the `3ε` its Lipschitz constant permits.
+- [x] Keep the two regressions explicit. Approximate agreement cannot be
+      passed as exact compatibility or as the class field of Derivation 5, and
+      agreement on the overlaps `(0,1)` and `(1,2)` alone leaves the
+      selections `2ε` apart. Exact pairwise agreement of the fixed §17.1
+      family is the `ε = 0` case and still glues uniquely.
+- [x] Align article, supplement, Table S1 and primer; rebuild and visually
+      inspect the changed tracked PDF pages (article 40, supplement 35, primer
+      78). All logs have zero warnings and overfull boxes, matching the
+      pre-change baseline, and the 52-page arXiv submission compiles from its
+      unpacked tarball.
+- [x] Pass the zero-warning full Lean build and axiom audit: 2,662
+      declarations in 45 modules using only `propext`, `Classical.choice` and
+      `Quot.sound`, with sixteen explicit headline axiom checks. The seven
+      applicable gates, the advisory hedging report, the 39 publication and
+      macro tests and `git diff --check` pass. Python hooks skip because no
+      Python changed.
+
+Specification and execution record: `tasks/approximate_gluing.md`. Witnesses
+and regressions: `Examples/Phase5.lean` §21. No Lean axiom, Python source,
+dependency, reference or simulation result was added.
+
+The theorems are about finite spatial mass profiles in the uniform metric,
+where restriction is functorial; they say nothing about matching marginals of
+decoded contents (`main.tex:226`). Selection replaces uniqueness with a choice
+at resolution `ε`: L4 supplies no process by which local descriptions acquire
+agreement, no rule selecting the cover or the weights, and no argument that a
+conscious episode depends only on features invariant at that resolution.
+`sheaf_glue_unique`, the `ThermodynamicCover` instances and both chain theorems
+retain their exact agreement hypothesis. Route B, the obstruction version, is
+not started and still requires choosing a content state space; the recorded
+consensus-dynamics suggestion above presupposes it. The unscheduled modelling
+questions, the agency research gaps and the P-items remain open.

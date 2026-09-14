@@ -254,4 +254,189 @@ theorem ThermodynamicCover.invariantMeasure_unique (T : ThermodynamicCover X)
     s = T.invariantMeasure :=
   (@global_section_from_thermodynamics X _ _ _ T).choose_spec.2 s hs
 
+/-! ## Approximate gluing by selection on a finite spatial substrate
+
+This is Route A of L4: local finite measures are represented by their nonnegative
+site masses, with the uniform metric on restrictions. Nonnegative subordinate
+weights summing to one select a profile. The selection is not an exact extension
+of inconsistent data, and the sheaf theorem above retains exact compatibility.
+
+The constant is `C(N) = 1` for every cover multiplicity `N`, stronger than an
+`N * ε` estimate: convex weights sum to one rather than to the number of active
+patches. This is a statement in the uniform mass metric, not total variation or
+an arbitrary sheaf metric. `Examples/Phase5.lean` realizes these profiles as
+actual probability-sheaf sections via the existing three-site mass dictionary.
+-/
+
+namespace ApproximateGluing
+
+open scoped NNReal
+
+section FiniteProfiles
+
+variable {α ι : Type*} [Fintype α] [Fintype ι]
+
+/-- Uniform distance between the restrictions to `U`. It is the metric on
+`U → ℝ≥0`, pulled back to ambient profiles; off-`U` values are ignored. -/
+noncomputable def profileDist (U : Set α) (f g : α → ℝ≥0) : ℝ :=
+  letI := Fintype.ofFinite U
+  dist (fun x : U => f x) (fun x : U => g x)
+
+theorem profileDist_le_iff {U : Set α} {f g : α → ℝ≥0} {ε : ℝ}
+    (hε : 0 ≤ ε) :
+    profileDist U f g ≤ ε ↔ ∀ x ∈ U, dist (f x) (g x) ≤ ε := by
+  let := Fintype.ofFinite U
+  exact (dist_pi_le_iff hε).trans Subtype.forall
+
+/-- All overlaps of the same supplied family are within the declared tolerance.
+On a finite discrete substrate these are local finite measures. This predicate
+supplies no process producing their approximate agreement. -/
+def Compatible (U : ι → Set α) (s : ι → α → ℝ≥0) (ε : ℝ≥0) : Prop :=
+  ∀ i j, profileDist (U i ∩ U j) (s i) (s j) ≤ ε
+
+/-- A nonnegative partition of unity subordinate to the finite cover. Data stay
+bare; support and normalization are properties, not assumed error bounds. No
+smooth partition on a continuous substrate is constructed here. -/
+def IsPartition (U : ι → Set α) (w : ι → α → ℝ≥0) : Prop :=
+  (∀ i x, x ∉ U i → w i x = 0) ∧ ∀ x, ∑ i, w i x = 1
+
+/-- Pointwise weighted selection. Nonnegative site masses represent a finite
+measure on the finite discrete substrate; total mass need not be one. -/
+noncomputable def select (w s : ι → α → ℝ≥0) : α → ℝ≥0 :=
+  fun x => ∑ i, w i x * s i x
+
+omit [Fintype α] in
+/-- Normalized subordinate weights imply coverage. They do not choose which
+cover or weights are physically appropriate. -/
+theorem IsPartition.covers {U : ι → Set α} {w : ι → α → ℝ≥0}
+    (hw : IsPartition U w) (x : α) : ∃ i, x ∈ U i := by
+  by_contra h
+  have hz : ∑ i, w i x = 0 := Finset.sum_eq_zero fun i _ =>
+    hw.1 i x (fun hx => h ⟨i, hx⟩)
+  rw [hw.2 x] at hz
+  exact one_ne_zero hz
+
+omit [Fintype α] in
+/-- Off-patch extensions cannot influence a subordinate selection. This is the
+locality check needed when patch profiles are stored as ambient functions. -/
+theorem select_eq_of_eqOn {U : ι → Set α} {w s t : ι → α → ℝ≥0}
+    (hw : IsPartition U w) (hst : ∀ i, Set.EqOn (s i) (t i) (U i)) :
+    select w s = select w t := by
+  classical
+  funext x
+  apply Finset.sum_congr rfl
+  intro i _
+  by_cases hx : x ∈ U i
+  · rw [hst i hx]
+  · rw [hw.1 i x hx, zero_mul, zero_mul]
+
+private theorem weighted_dist_le (w a : ι → ℝ≥0) (c ε : ℝ≥0)
+    (hw : ∑ i, w i = 1) (ha : ∀ i, w i ≠ 0 → dist (a i) c ≤ ε) :
+    dist (∑ i, w i * a i) c ≤ ε := by
+  have hw' : ∑ i, (w i : ℝ) = 1 := by exact_mod_cast hw
+  have hc : (c : ℝ) = ∑ i, (w i : ℝ) * c := by
+    rw [← Finset.sum_mul, hw', one_mul]
+  change |(↑(∑ i, w i * a i) : ℝ) - c| ≤ ε
+  simp only [NNReal.coe_sum, NNReal.coe_mul]
+  rw [hc, ← Finset.sum_sub_distrib]
+  calc
+    _ ≤ ∑ i, |(w i : ℝ) * a i - (w i : ℝ) * c| :=
+      Finset.abs_sum_le_sum_abs _ _
+    _ ≤ ∑ i, (w i : ℝ) * ε := by
+      apply Finset.sum_le_sum
+      intro i _
+      by_cases hi : w i = 0
+      · simp [hi]
+      · rw [← mul_sub, abs_mul, abs_of_nonneg (w i).coe_nonneg]
+        exact mul_le_mul_of_nonneg_left (ha i hi) (w i).coe_nonneg
+    _ = ε := by rw [← Finset.sum_mul, hw', one_mul]
+
+/-- A partition selects a profile within `ε` of every patch on that patch.
+The modulus comes from convexity and the uniform overlap metric. It establishes
+approximation, not exact extension, and assumes all pairs are checked. -/
+theorem select_close {U : ι → Set α} {w s : ι → α → ℝ≥0} {ε : ℝ≥0}
+    (hw : IsPartition U w) (hs : Compatible U s ε) (i : ι) :
+    profileDist (U i) (select w s) (s i) ≤ ε := by
+  apply (profileDist_le_iff ε.coe_nonneg).2
+  intro x hx
+  apply weighted_dist_le (fun j => w j x) (fun j => s j x) (s i x) ε (hw.2 x)
+  intro j hj
+  have hxj : x ∈ U j := by
+    by_contra h
+    exact hj (hw.1 j x h)
+  exact (profileDist_le_iff ε.coe_nonneg).1 (hs j i) x ⟨hxj, hx⟩
+
+/-- **Selection replaces uniqueness with a sharp `ε` diameter.** Any two
+subordinate partitions select profiles at uniform distance at most `ε`:
+`C(N) = 1` independently of cover multiplicity. Normalization is essential to
+this estimate. It does not bound arbitrary approximate sections unless their
+fitting tolerance is also specified, or justify a content interpretation. -/
+theorem select_dist_le {U : ι → Set α} {w v s : ι → α → ℝ≥0} {ε : ℝ≥0}
+    (hw : IsPartition U w) (hv : IsPartition U v) (hs : Compatible U s ε) :
+    dist (select w s) (select v s) ≤ ε := by
+  apply (dist_pi_le_iff ε.coe_nonneg).2
+  intro x
+  rw [dist_comm]
+  apply weighted_dist_le (fun i => v i x) (fun i => s i x) (select w s x) ε (hv.2 x)
+  intro i hi
+  have hx : x ∈ U i := by
+    by_contra h
+    exact hi (hv.1 i x h)
+  rw [dist_comm]
+  exact (profileDist_le_iff ε.coe_nonneg).1 (select_close hw hs i) x hx
+
+omit [Fintype ι] in
+/-- **Arbitrary fits have diameter `2δ`** in the uniform metric when each fits
+every patch to tolerance `δ` and the patches cover. Pairwise compatibility alone
+specifies neither those candidates nor their fitting tolerance. -/
+theorem approximate_diameter_le {U : ι → Set α} {s : ι → α → ℝ≥0}
+    {g h : α → ℝ≥0} {δ : ℝ≥0} (hc : ∀ x, ∃ i, x ∈ U i)
+    (hg : ∀ i, profileDist (U i) g (s i) ≤ δ)
+    (hh : ∀ i, profileDist (U i) h (s i) ≤ δ) :
+    dist g h ≤ 2 * (δ : ℝ) := by
+  apply (dist_pi_le_iff (by positivity)).2
+  intro x
+  obtain ⟨i, hi⟩ := hc x
+  have hgx := (profileDist_le_iff δ.coe_nonneg).1 (hg i) x hi
+  have hhx := (profileDist_le_iff δ.coe_nonneg).1 (hh i) x hi
+  calc
+    dist (g x) (h x) ≤ dist (g x) (s i x) + dist (h x) (s i x) :=
+      dist_triangle_right _ _ _
+    _ ≤ 2 * (δ : ℝ) := by linarith
+
+/-- Zero overlap error recovers exact, unique gluing of finite mass profiles.
+For positive error, the same conclusion is false even on the three-site cortex;
+this does not relax the exact hypothesis of `sheaf_glue_unique`. -/
+theorem select_glue_unique {U : ι → Set α} {w s : ι → α → ℝ≥0}
+    (hw : IsPartition U w) (hs : Compatible U s 0) :
+    ∃! g : α → ℝ≥0, ∀ i, Set.EqOn g (s i) (U i) := by
+  have hfit : ∀ i, profileDist (U i) (select w s) (s i) ≤ (0 : ℝ≥0) :=
+    select_close hw hs
+  refine ⟨select w s, ?_, ?_⟩
+  · intro i x hx
+    exact dist_le_zero.mp ((profileDist_le_iff (by norm_num)).1 (hfit i) x hx)
+  · intro g hg
+    apply dist_le_zero.mp
+    have hgfit : ∀ i, profileDist (U i) g (s i) ≤ (0 : ℝ≥0) := by
+      intro i
+      apply (profileDist_le_iff (by norm_num)).2
+      intro x hx
+      simp [hg i hx]
+    simpa using approximate_diameter_le hw.covers hgfit hfit
+
+/-- A supplied `L`-Lipschitz feature varies by at most `Lε` across selections.
+An interpretation at resolution `δ` must additionally justify its decoder and
+`Lε ≤ δ`; this theorem neither chooses content nor equates nearby experiences. -/
+theorem feature_dist_le {U : ι → Set α} {w v s : ι → α → ℝ≥0} {ε : ℝ≥0}
+    {Y : Type*} [PseudoMetricSpace Y] {L : ℝ≥0} {F : (α → ℝ≥0) → Y}
+    (hF : LipschitzWith L F) (hw : IsPartition U w) (hv : IsPartition U v)
+    (hs : Compatible U s ε) :
+    dist (F (select w s)) (F (select v s)) ≤ (L : ℝ) * ε :=
+  (hF.dist_le_mul _ _).trans
+    (mul_le_mul_of_nonneg_left (select_dist_le hw hv hs) L.coe_nonneg)
+
+end FiniteProfiles
+
+end ApproximateGluing
+
 end PhysicsOfConsciousness

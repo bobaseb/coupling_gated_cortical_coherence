@@ -70,7 +70,7 @@ To ensure our derivations are mathematically rigorous and avoid "math theatre," 
 | ⛓️ **Composition** | `Chain.lean` | ✅ Verified |
 | 🔍 **Axiom audit** | `Audit.lean` | ✅ Enforced |
 
-The table names one representative module per phase; the development is 37
+The table names one representative module per phase; the development is 45
 modules in total, and `Chain.lean` is the one that matters most — it imports all
 nine phases and states the single conditional theorem, with the eight
 connecting hypotheses as explicit arguments. It also discharges all eight at
@@ -78,7 +78,7 @@ once, on the three-site cortex the witnesses under `Examples/` build, which is
 what makes the conjunction non-empty rather than vacuous.
 
 `Audit.lean` is not a phase. It is a default `lake` target that walks every one
-of the 2072 declarations the library adds to the environment and fails the
+of the 2662 declarations the library adds to the environment and fails the
 build if any of them depends on an axiom other than `propext`,
 `Classical.choice` and `Quot.sound` — `sorryAx` included, which is the case
 `lake build` reports as a warning and passes. The development declares no
