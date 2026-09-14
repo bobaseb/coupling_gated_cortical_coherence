@@ -358,7 +358,21 @@ where $p,p'$ and $\langle Q\rangle$ belong to that same controlled substep. E34A
  L_A\leq g\,\frac{B}{\theta}\int_S b\,d\mu
  \label{eq:actuated-coupling}
 \end{equation}
-when $\int_S b\,d\mu\geq0$. The limit follows from mesh assumptions; the upper bound uses Eq.~\eqref{eq:active-chain-bound} for the same process. The constitutive law uses ensemble entropy reduction and supplies neither a microscopic actuator nor its work account. Changing the gain or profile at fixed process and heat changes the coupling energies. Constructing a coupling kernel from implemented actions and identifying its physical realization remain further modelling requirements.
+when $\int_S b\,d\mu\geq0$. The limit follows from mesh assumptions; the upper bound uses Eq.~\eqref{eq:active-chain-bound} for the same process. The constitutive law uses ensemble entropy reduction and supplies neither a microscopic actuator nor its work account. Changing the gain or profile at fixed process and heat changes the coupling energies.
+
+A second, microscopic model supplies an actuator and a kernel. The hardware carries finitely many spatial response modes with fixed profiles $\phi_i$ and installation prices $u_i$. A configuration $z$ of the controller and its switches sets the mode occupancies $c_i(z)$, and those same occupancies determine both a reciprocal kernel on the product space and a stored installation energy,
+\begin{equation}
+ K_z(x,y)=\sum_i c_i(z)\,\phi_i(x)\,\phi_i(y),
+ \qquad
+ U(z)=\sum_i u_i\,c_i(z).
+ \label{eq:microscopic-kernel}
+\end{equation}
+A transition $z\to z'$ changes $K$ only through the modes whose occupancy it changes, so a pair outside the response of those modes is untouched, and the transition's external work is $U(z')-U(z)+Q$. The kernel the executed step installs is the average of $K_z$ over the law that step actually leaves; its change is the mean of the pathwise changes, and the mean of the transition works splits into the change in stored energy and the channel's heat. A finite measurable partition of the substrate with one sample per cell reconstructs the installed kernel throughout each cell pair, and the cell-mass weighted finite energy equals the product-measure integral of that reconstruction exactly. On a compact substrate with continuous profiles, a sample error tending to zero gives
+\begin{equation}
+ \mathcal{E}_n\longrightarrow\iint K\,d\mu\,d\mu .
+ \label{eq:kernel-limit}
+\end{equation}
+The refinement index here is spatial and is independent of the number of executed control updates; convergence in one is not convergence in the other. The same hardware discharges the passive edge from a declared predictive system's own joint law, and two declared systems with different dissipated work give the identical edge, so predictive efficiency selects neither the hardware nor the partition. Mode profiles, prices, occupancy readout, reservoir convention and substrate are declared hardware data, which no heat bound supplies. Fabricating that hardware, powering it beyond one prepared update, and identifying the substrate or the modes with a physical field remain separate requirements.
 
 \begin{table}[htbp]
 \centering
@@ -371,7 +385,7 @@ Connection & Status & Required assumption \\
 E12 & Independent physical premise & A finite-capacity system realizes a field that leaves its vacuum manifold. Capacity and the boundary are independent roots. \\
 E23 & Bridge assumption & The boundary is associated with a finite register whose update leaves states unreachable. \\
 E34 / E34Active & Bridge assumption & Passive: a predictive structure with the register's thermal scale and heat budget, and nonzero wasted memory. Active: positivity, local detailed balance and the register's heat allocation for the named elementary process, the allocation being derived from a ledger of that register's own operations. The ledger identity and the compressiveness of the register's other operations are that model's inputs. \\
-E45 / E45Active & Modelling assumption & Passive: a convergent regime. Active scalar model: supplied gain, profile and regular meshes give Eq.~\eqref{eq:actuated-coupling}. Kernel construction remains open. \\
+E45 / E45Active & Modelling assumption & Passive: a convergent regime, for hardware holding a declared predictive law. Active: Eq.~\eqref{eq:actuated-coupling} from a supplied gain, profile and meshes; Eq.~\eqref{eq:kernel-limit} from declared response modes. \\
 E56 & Physical commitment & A specified physical field realizes the limiting coupling and satisfies the kernel conditions. \\
 E67 & Physical commitment & That field operates above the synchronization threshold. \\
 E78 & Bridge assumption & Coherence drives a supplied cover to its relaxed equilibrium at coupling at least the named mean-field value. \\
@@ -384,7 +398,7 @@ E89 & Modelling assumption & A map mediated by local self-encoding fixes the sec
 
 Two structures also enter both theorems: a thermodynamic cover, including overlap compatibility, and a reflexive boundary specifying the local encoding and readout. Given these and the connecting hypotheses, both conclude \texttt{UnifiedSelf}: the section glued on that cover is the unique fixed point of self-prediction. Restriction resonance, needed for the interpretation in Eq.~\eqref{eq:selfmap}, is a separate condition. The result binds the fixed point to the specified local states; compatibility and accuracy at that state are premises, while uniqueness follows from the construction.
 
-The joint witnesses combine a double well, a register, a changing uniform-grid mesh and a three-site cortex; the active branch includes the noisy two-bit actuator. They establish that the hypotheses can hold together in distinct toy components. Mesh convergence is supplied independently of the thermodynamic bounds, and no common biological mechanism is established. A second active witness composes the same branch with the bridge discharged from that register's ledger: its two operations deliver $(2/5)\log2$ and $(3/5)\log2$ to one reservoir, summing to the register's $\log2$. The active witnesses reject a zero heat budget, an incompatible energy limit, a compressive operation above the register's whole dissipation, and a ledger whose other operation draws heat out of the reservoir. Counterexamples also expose the role of overlap agreement. The development declares no additional Lean axioms beyond the foundational axioms used by its libraries; physical premises are explicit hypotheses and model fields.
+The joint witnesses combine a double well, a register, a changing uniform-grid mesh and a three-site cortex; the active branch includes the noisy two-bit actuator. They establish that the hypotheses can hold together in distinct toy components. Mesh convergence is supplied independently of the thermodynamic bounds, and no common biological mechanism is established. A second active witness composes the same branch with the bridge discharged from that register's ledger: its two operations deliver $(2/5)\log2$ and $(3/5)\log2$ to one reservoir, summing to the register's $\log2$. A third active witness closes one spatial response mode with a thermal switch: executing the channel strictly raises a pairwise kernel value, closing the mode costs its stored energy plus the channel's heat, and uniform partitions of an atomless interval give a coupling energy that changes between the first two refinements and converges to the value the field witness uses. The active witnesses reject a zero heat budget, an incompatible energy limit, a compressive operation above the register's whole dissipation, a ledger whose other operation draws heat out of the reservoir, an uncharged installation, and a wrong spatial limit for the microscopic sequence. Counterexamples also expose the role of overlap agreement. The development declares no additional Lean axioms beyond the foundational axioms used by its libraries; physical premises are explicit hypotheses and model fields.
 
 \section{Discussion}
 

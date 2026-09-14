@@ -7,6 +7,7 @@ import PhysicsOfConsciousness.Phase3_KLBound
 import PhysicsOfConsciousness.Phase3_PredictiveThermodynamics
 import PhysicsOfConsciousness.Phase3_AgencyThermodynamics
 import PhysicsOfConsciousness.Phase3_ActuatedCoupling
+import PhysicsOfConsciousness.Phase3_LocalActuator
 import PhysicsOfConsciousness.Phase3_MeasureThermodynamics
 import PhysicsOfConsciousness.Phase4_KuramotoDynamics
 import PhysicsOfConsciousness.Phase4_RotatingFrame
@@ -518,6 +519,57 @@ theorem actuated_limit_le_budget {M Xs S : Type*}
     A.continuumLimit ≤
       A.gain * (budget / A.temperature) * ∫ x in A.region, A.base x ∂A.volume :=
   A.actuated_limit_le_of_drive_le h.entropy_budget hbase
+
+/-- **A microscopic arrangement discharges the active spatial edge with a
+product-space kernel.**
+
+The energy sequence is the cell-pair quadrature of the kernel that the named
+step's *executed final law* installs on the hardware's response modes, which is
+what `_hlaw` fixes. Convergence is `KernelArrangement.coarseGrains`, a
+consequence of profile continuity, compactness, finite substrate mass and
+shrinking sample error. The `ActiveBound` premise is discarded, deliberately
+and in the same way as in `e45Active_of_actuatedCoupling`: a heat allowance
+neither produces the refinement data nor selects the hardware.
+
+What this adds over the scalar edge is the object. `ActuatedCoupling` actuates a
+density on `M` and quadratures it; here the arrangement carries a kernel on
+`M × M` built from occupancies the step actually changes, and
+`LocalActuator.installation_first_law` charges the installation to the same
+paths. What it still does not supply is the hardware itself — profiles, prices,
+occupancy readout, reservoir and substrate are declared inputs — nor any
+identification of `M` with cortex or of the modes with a physical field. -/
+theorem e45Active_of_localActuator {M X S I : Type*} [TopologicalSpace M] [CompactSpace M]
+    [MeasurableSpace M] [BorelSpace M] [SecondCountableTopology M]
+    [Fintype X] [Fintype S] [Fintype I]
+    (A : KernelArrangement M X S I) (P : FiniteFeedbackStep X S) (_hlaw : A.law = P.final)
+    (θ : ℝ) (q : X → S → S → ℝ) (budget : ℝ) :
+    E45Active P θ q budget A.energy A.continuumEnergy :=
+  fun _ => A.coarseGrains
+
+/-- **The same hardware discharges the passive spatial edge from a declared
+predictive system's own joint law.**
+
+`R` is the predictive-dissipation structure the passive branch is about, and
+`_hlaw` says the configuration its modes sit in *is* that structure's joint law,
+read on the finite configuration space. That is the whole of the connection
+between the two branches' data, and it is supplied rather than derived.
+
+`PredictiveBound` is discarded. This is the point of the theorem rather than a
+weakness of it: the passive branch's bound constrains how much a memory
+dissipates and says nothing about which modes are occupied, which profiles they
+carry, or how the substrate is partitioned. Convergence here comes from the
+arrangement's spatial data, exactly as `E45`'s own doc-string records. A
+selection argument that made efficient prediction *choose* this hardware would
+be a different theorem, and this development contains no such argument. -/
+theorem e45_of_localActuator {M X S Sg' I : Type*} [TopologicalSpace M] [CompactSpace M]
+    [MeasurableSpace M] [BorelSpace M] [SecondCountableTopology M]
+    [Fintype X] [Fintype S] [Fintype I]
+    [MeasurableSpace X] [MeasurableSingletonClass X]
+    [MeasurableSpace S] [MeasurableSingletonClass S] [MeasurableSpace Sg']
+    (A : KernelArrangement M X S I) (R : PredictiveDissipation X S Sg')
+    (_hlaw : R.joint = A.law.toMeasure) :
+    E45 X S Sg' A.energy A.continuumEnergy :=
+  fun _ => A.coarseGrains
 
 /-- Derive the active node using the physical data supplied by its bridge and
 the existing path entropy theorem. The heat allocation is a premise, not a
@@ -1425,6 +1477,81 @@ theorem chain_active_actuated_jointly_satisfiable :
     (fun _ => ⟨cortexState, (fun _ => rfl),
       cortexPredict_lipschitz_rate, cortexPredict_fixed⟩)
 
+/-! ### The microscopic arrangement's two edges -/
+
+open Examples MicroscopicCoupling ThermalAgency in
+/-- **The active spatial edge, discharged with a product-space kernel.** The
+sequence is the cell-pair quadrature of the kernel the executed channel's own
+final law installs on the declared response modes, and `rfl` is the statement
+that the arrangement holds that law. Convergence comes from the mesh, as
+`e45Active_of_localActuator` records; the budget is not consulted. -/
+theorem microscopic_e45Active :
+    E45Active actuation 1 heat (Real.log 2) meshEnergy 3 := by
+  simpa only [installed_energy, installed_continuumEnergy] using
+    e45Active_of_localActuator installed actuation rfl 1 heat (Real.log 2)
+
+open Examples MicroscopicCoupling ThermalAgency in
+/-- The same arrangement's limit cannot be replaced by an unrelated target.
+This fences the microscopic sequence exactly as `actuated_wrong_limit_rejected`
+fences the scalar one. -/
+theorem microscopic_wrong_limit_rejected :
+    ¬ E45Active actuation 1 heat (Real.log 2) meshEnergy 0 := by
+  intro h
+  have heq := tendsto_nhds_unique spatial_limit (h thermalAgency_activeBound)
+  rw [continuumEnergy_eq] at heq
+  norm_num at heq
+
+open Examples MicroscopicCoupling in
+/-- **The passive spatial edge, on the same hardware.** `frozenSystem` is the
+predictive system the passive branch names, and `frozen_law` says the
+arrangement holds that system's own joint law. The predictive bound plays no
+part in the proof; the convergence is the same spatial fact. -/
+theorem microscopic_e45 : E45 Bool Bool Bool remembered.energy 4 := by
+  simpa only [remembered_continuumEnergy] using
+    e45_of_localActuator remembered frozenSystem frozen_law
+
+open Examples MicroscopicCoupling in
+/-- The other declared system over that same joint law dissipates its whole
+memory and discharges the identical edge. Efficiency picks out no hardware,
+no configuration law and no partition. -/
+theorem microscopic_e45_scrambled : E45 Bool Bool Bool remembered.energy 4 := by
+  simpa only [remembered_continuumEnergy] using
+    e45_of_localActuator remembered scrambledSystem scrambled_law
+
+open Examples MicroscopicCoupling in
+/-- The passive bound cannot move the passive arrangement's limit either. The
+predictive premise is genuinely available here — `frozenSystem` inhabits it —
+so this is a rejection rather than a vacuous implication. -/
+theorem microscopic_passive_wrong_limit_rejected :
+    ¬ E45 Bool Bool Bool remembered.energy 0 := by
+  intro h
+  have heq := tendsto_nhds_unique remembered_limit
+    (h (predictiveBound_of_nonempty ⟨frozenSystem⟩))
+  norm_num at heq
+
+open Examples MicroscopicCoupling ThermalAgency in
+/-- **The active branch composes through a kernel on the product space.**
+
+Only the n4 → n5 arrow changes from `chain_active_hypotheses_jointly_satisfiable`:
+the energies are now the cell-pair quadratures of a kernel built from mode
+occupancies the executed step actually changes, rather than a scalar density's.
+The profile and price that put its limit at three are declared hardware, the
+mesh still supplies convergence, and every downstream physical and
+representational input is unchanged. Joint satisfiability is not a shared
+physical mechanism, and nothing here identifies the substrate with cortex. -/
+theorem chain_active_microscopic_jointly_satisfiable :
+    UnifiedSelf (X := Cortex) cortexReflexive :=
+  chain_active (X := Cortex) cortexNeuralField (sys := Bool) (fun _ => true)
+    (vac := DynamicalVacuum wellV) (phi := kink) actuation heat
+    (E := meshEnergy) (L := 3) (K := 3) (D := 1) (τ := cortexTau)
+    cortexTau_pos cortexCover cortexReflexive
+    t5_e12_doubleWell t5_e23_absorbingRegister
+    thermalAgency_e34Active microscopic_e45Active
+    (fun _ => ⟨⟨one_pos, by norm_num, rfl⟩, cortexNeuralField_isEMFieldCoupling⟩)
+    e67_three_one (fun _ => cortexCover_reachedByRelaxation_three)
+    (fun _ => ⟨cortexState, (fun _ => rfl),
+      cortexPredict_lipschitz_rate, cortexPredict_fixed⟩)
+
 open Examples ActuatedField in
 example : ∃ A : ActuatedCoupling.{0, 0} ℝ Bool Bool,
     ActiveBound A.step A.temperature A.heat (Real.log 2) ∧
@@ -1481,6 +1608,25 @@ open Examples in
 example : UnifiedSelf (X := Cortex) cortexReflexive :=
   chain_active_budget_jointly_satisfiable
 
+open Examples MicroscopicCoupling ThermalAgency in
+example : E45Active actuation 1 heat (Real.log 2) meshEnergy 3 ∧
+    ¬ E45Active actuation 1 heat (Real.log 2) meshEnergy 0 ∧
+    0 < actuation.meanHeat (hardware.pathWork heat) ∧
+    before (0 : unitInterval) 0 < after 0 0 ∧
+    meshEnergy 0 ≠ meshEnergy 1 :=
+  ⟨microscopic_e45Active, microscopic_wrong_limit_rejected, installation_work_positive,
+    action_changes_kernel, mesh_energy_changes⟩
+
+open Examples MicroscopicCoupling in
+example : E45 Bool Bool Bool remembered.energy 4 ∧
+    ¬ E45 Bool Bool Bool remembered.energy 0 ∧
+    remembered.continuumEnergy ≠ continuumEnergy :=
+  ⟨microscopic_e45, microscopic_passive_wrong_limit_rejected, law_matters⟩
+
+open Examples in
+example : UnifiedSelf (X := Cortex) cortexReflexive :=
+  chain_active_microscopic_jointly_satisfiable
+
 #print axioms activeBound_of_feedback
 #print axioms chain_from_coarseGrains
 #print axioms chain
@@ -1497,6 +1643,13 @@ example : UnifiedSelf (X := Cortex) cortexReflexive :=
 #print axioms actuated_no_gain_free_budget_cap
 #print axioms actuated_wrong_limit_rejected
 #print axioms chain_active_actuated_jointly_satisfiable
+#print axioms e45Active_of_localActuator
+#print axioms e45_of_localActuator
+#print axioms microscopic_e45Active
+#print axioms microscopic_e45
+#print axioms microscopic_wrong_limit_rejected
+#print axioms microscopic_passive_wrong_limit_rejected
+#print axioms chain_active_microscopic_jointly_satisfiable
 
 end Chain
 

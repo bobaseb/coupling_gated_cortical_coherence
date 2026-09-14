@@ -20,6 +20,36 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-14 — A coupling kernel is constructed, not assumed
+
+Two sentences are no longer claimed. The article's status table said "kernel
+construction remains open" for E45/E45Active, and Table S1 said that a genuine
+kernel limit "requires new architecture" before anything further could be
+stated. The architecture now exists. `LocalActuator` gives finitely many
+spatial response modes whose occupancies determine both a reciprocal kernel on
+`M × M` and a stored installation energy, so an executed transition changes the
+kernel through the modes it changes and pays for them; `KernelMesh` carries
+cell *pairs* rather than edges, reconstructs the kernel throughout each pair,
+and converges to its product-measure integral under shrinking sample error.
+Both spatial edges are discharged on their named laws — the active one on an
+executed step's final law, the passive one on a declared predictive system's
+joint law — and the active chain composes through the result.
+
+`Chain.lean` §9's negative result is not withdrawn and did not need to be. It
+says that *triangulation* coarse-graining converges a scalar, that
+`edge_region` offers no product structure, and that a vertex-sited kernel is
+invisible on an atomless substrate. The cell-pair construction answers each of
+those separately rather than repealing any of them, and the unit-interval
+witness is atomless precisely so that this is checkable.
+
+What replaced the gap is hardware, not a derivation from thermodynamics. Mode
+profiles, prices, occupancy readout, the reservoir convention and the substrate
+measure are declared; no heat bound supplies them, and neither does predictive
+efficiency — two declared predictive systems differing by their whole
+dissipated work install the same kernel and discharge the identical edge. One
+prepared update is accounted for. Specification and verification:
+`tasks/e45_kernel.md`.
+
 ## 2026-09-14 — A named feedback step sets a scalar coupling amplitude
 
 The active chain's spatial energy sequence can now be constructed from its

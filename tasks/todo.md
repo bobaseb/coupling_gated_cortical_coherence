@@ -1784,17 +1784,19 @@ submission prerequisite.
       process/gain/profile regressions and a composed active chain. This is the
       completed scope of the interrupted module, not a microscopic actuator or
       kernel construction. Specification: `tasks/e45_active.md`.
-- [ ] **E45/E45Active — microscopic actuation and kernel convergence.** Specify and derive the
-      relation from the chosen control or learning dynamics to the named
-      coupling-energy sequence under spatial mesh refinement. Learning time
-      and the mesh-refinement index are distinct: convergence in time alone
-      does not prove convergence under refinement. This is separate from
-      E34Active's budget identification and L2's task-performance theorem.
-      Specify how implemented actions or policy updates change the actual
-      coupling kernel before attempting the limit theorem.
-      The scalar constitutive case above supplies `density = gain * drive * base`
-      as a model law; it does not derive that law from local actions, account for
-      actuator installation work or construct a kernel on the product space.
+- [x] **E45/E45Active — microscopic actuation and kernel convergence.**
+      Completed 2026-09-14: a finite actuator with spatial response modes whose
+      occupancies determine both a product-space kernel and a stored
+      installation energy. Pathwise, local and expected kernel updates and the
+      installation work come from the same executed process. Finite cell-pair
+      partitions reconstruct the installed kernel and converge to its
+      product-measure integral under spatial refinement, at a refinement index
+      independent of the number of executed updates. Both spatial edges are
+      discharged on their named laws: the active one on an executed step's final
+      law, the passive one on a declared predictive system's joint law.
+      Specification: `tasks/e45_kernel.md`. Mode profiles, prices, occupancy
+      readout, reservoir and substrate remain declared hardware; fabrication,
+      continuing power and cortical identification are not established.
 - [ ] Model how local descriptions acquire or preserve overlap agreement and
       how a readout fixes the glued state. For an agency-based mechanism, connect
       observations and updates to a declared local content state and derive
@@ -2147,13 +2149,15 @@ Sharing a state type or satisfying a numerical heat comparison is not that
 identification. Keep this bridge task separate if the bounded witness does
 not realize that specific register.
 
-**Coupling and representation.** Specify a mechanism by which the executed
-agent changes the field's coupling kernel and derive the claimed spatial
-limit with explicit regularity and refinement assumptions. Separately choose
-the local content variables and their observation/update dynamics, then prove
-overlap agreement, preservation of agreement or a quantified residual and
-the required readout relation. These are the existing E45/E45Active and local
-agreement gaps, not consequences of improved task reward. Cortical calibration
+**Coupling and representation.** The coupling half is closed: the finite
+microscopic actuator changes a product-space kernel through occupancies the
+executed step sets, and the cell-pair limit carries explicit regularity and
+refinement hypotheses (`tasks/e45_kernel.md`). What it supplies as physical
+input is the hardware, not a heat bound. Still open: choose the local content
+variables and their observation/update dynamics, then prove overlap agreement,
+preservation of agreement or a quantified residual and the required readout
+relation. That is the local-agreement gap, and it is not a consequence of
+improved task reward. Cortical calibration
 and the interpretation of these variables as experienced content remain
 distinct empirical/interpretive work.
 
@@ -2366,3 +2370,62 @@ work account, product-space kernel or cortical identification. The composed
 witness uses the thermal actuator's numerical heat comparison, separately from
 the register-ledger witness. Neither construction supplies one continuing
 physical agent. Other open agency and publication tasks are unchanged.
+
+## 2026-09-14 — E45/E45Active complete: a microscopic actuator and its kernel
+
+- [x] Add `Phase3_LocalActuator.lean`. `LocalActuator` carries mode occupancies,
+      spatial profiles and installation prices; the same occupancies give the
+      reciprocal kernel on `M × M` and the stored energy. `kernel_update`,
+      `kernel_update_local`, `kernel_symmetric` and `kernel_nonneg` describe a
+      transition's change, its spatial locality and the kernel's shape;
+      `expected_kernel_update` averages the pathwise changes over the executed
+      step, and `installation_first_law` charges the same paths with the
+      stored-energy change plus the channel's heat.
+- [x] Add `Phase2_KernelMesh.lean`. `KernelMesh` reconstructs each sampled
+      weight throughout its cell pair; `energy_eq_integral` identifies the
+      cell-mass weighted energy with that reconstruction's product-measure
+      integral, and `energy_tendsto` converges it under shrinking sample error
+      on a compact substrate of finite mass. `KernelArrangement.coarseGrains`
+      is the arrangement-level limit.
+- [x] Add `Chain.e45Active_of_localActuator` and `Chain.e45_of_localActuator`,
+      discharging the active and passive spatial edges for an arrangement
+      holding, respectively, a named step's final law and a declared
+      `PredictiveDissipation`'s joint law. Neither proof consults its premise:
+      the refinement data, not the bound, supplies convergence. The general
+      chain keeps its eight hypotheses.
+- [x] Add the thermal-switch witness in `Examples/MicroscopicCoupling.lean`:
+      positive installation work `(1 + log 3)/4`, a strictly raised pairwise
+      value, a pathwise closure from `0` to `16/9`, sample error `1/(n+1)`,
+      first energies `4/3` and `25/12` and limit three on the atomless unit
+      interval. Reading the declared predictive law on the same hardware gives
+      limit four, and the two declared systems differ by their whole dissipated
+      work while discharging the identical passive edge. Wrong limits are
+      rejected for both sequences and a zero-work claim for the same paths.
+      `chain_active_microscopic_jointly_satisfiable` composes the active branch
+      through a product-space kernel.
+- [x] Align article, supplement, Table 1, Table S1 and primer; rebuild and
+      inspect their PDFs (43, 38 and 81 pages). Final logs have zero warnings
+      and zero overfull boxes, with the same underfull counts as a fresh HEAD
+      build. Rebuild the 56-page arXiv submission from its unpacked tarball and
+      pass manifest freshness.
+- [x] Pass the full zero-warning Lean build, the axiom audit (3,028
+      declarations in 51 modules, only the permitted three axioms), the headline
+      axiom checks, 143 publication regression tests, all applicable pre-commit
+      hooks and the working-tree PDF dependency check.
+
+Specification and execution record: `tasks/e45_kernel.md`. Witnesses and
+regressions: `Examples/MicroscopicCoupling.lean`. No new Lean axiom, Python
+source, dependency, reference or simulation result was added.
+
+The coupling kernel is now constructed from local actions rather than assumed,
+and its installation is charged to the same executed paths. What the model
+supplies as physical input is the hardware: mode profiles, prices, occupancy
+readout, the reservoir convention and the substrate measure. One prepared
+update is accounted for; fabrication, preparation of the initial configuration
+law and continuing power are not. `Chain.lean` §9's negative result is
+unchanged — it is an obstruction to the triangulation architecture, which the
+cell-pair construction answers point by point rather than repeals. The
+remaining open item is the overlap-agreement and readout question below;
+E34Active's allocation and E45Active's scalar case stay closed as recorded.
+Cortical identification, field trajectory convergence and the P-items are
+unchanged.

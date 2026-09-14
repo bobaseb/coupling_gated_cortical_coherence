@@ -1,5 +1,25 @@
 # Lessons Learned
 
+- **2026-09-14: A projected structure field blocks instance synthesis.** In a
+  mesh whose `size` field is `n + 1`, the type `Fin (mesh n).size` is defeq to
+  `Fin (n + 1)` and yet `OfNat (Fin (mesh n).size) 0` fails: unification unfolds
+  a `def`, instance search does not. State the lemmas at the literal type
+  instead — a `rfl` bridge `meshEnergy n = ∑ ij : Fin (n + 1) × Fin (n + 1), …`
+  or a `show` at the head of the proof — rather than unfolding the structure
+  with `simp`, which rewrites some occurrences of the projection and not the
+  ones inside a `Set`'s `Singleton` instance, leaving a goal that is no longer
+  type-correct at reducible transparency.
+
+- **2026-09-14: Integrals over `unitInterval` go through one transfer lemma.**
+  `unitInterval.volume_def` exposes `Measure.comap Subtype.val volume`, but
+  `integral_subtype_comap measurableSet_Icc` will not rewrite against
+  `↑unitInterval` unless the set is pinned with `(s := unitInterval)`. Prove
+  `∫ x : unitInterval, f x = ∫ x in (0:ℝ)..1, f x` once and reuse it; there is
+  no `Continuous.integrable` on a compact space, so routing through
+  `intervalIntegrable_const` and `intervalIntegral.intervalIntegrable_id`
+  avoids needing one. `integral_prod_mul` needs both factors given explicitly:
+  its higher-order pattern does not match `(1 + ↑a.1) * (1 + ↑a.2)` on its own.
+
 - **2026-09-14: A mesh family needs its vertex universe named.** A structure
   storing `mesh : ℕ → TriangulatedManifold M` must bind the second universe of
   `TriangulatedManifold`, which belongs to its vertex type. An explicit

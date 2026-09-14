@@ -173,7 +173,7 @@ Edge & Kind & What it asks for \\
 E12 & independent physical premise & a finite-capacity system realizes a field leaving its vacuum manifold \\
 E23 & bridge assumption & the boundary is a finite register whose update strands states \\
 E34 / E34Active & bridge assumption & passive: predictive structure at the register's temperature and heat, with nonzero waste; active: physical transition assumptions and a heat allocation for the named process, the allocation itself derived from a ledger of one register's operations (\S\ref{sec:register-ledger}) \\
-E45 / E45Active & modelling assumption & passive: a convergent regime is supplied; active: a specified scalar actuation law connects the process to regular spatial meshes (\S\ref{sec:actuated-coupling}) \\
+E45 / E45Active & modelling assumption & passive: a convergent regime, supplied by named hardware holding a declared predictive system's own joint law; active: a scalar actuation law connects the process to regular spatial meshes (\S\ref{sec:actuated-coupling}), or declared response modes carry a kernel on the product space (\S\ref{sec:microscopic-coupling}) \\
 E56 & physical commitment & the limiting coupling is realized by a specified physical field \\
 E67 & physical commitment & that field operates above the synchronization threshold \\
 E78 & bridge assumption & coherence drives a \emph{given} cover to its relaxed equilibrium \\
@@ -1131,7 +1131,8 @@ and their heat accounting; the comparison supplies no continuing power
 source or identification with cortex. The active chain's resource allocation
 is derived separately in \S\ref{sec:register-ledger}. The scalar actuation
 model in \S\ref{sec:actuated-coupling} supplies a spatial connection through
-an additional constitutive law.
+an additional constitutive law, and \S\ref{sec:microscopic-coupling} supplies
+one through declared hardware instead.
 
 \lean{
 \id{FiniteControlProblem} in \id{Phase3\_AgencyThermodynamics.lean} defines
@@ -1323,8 +1324,9 @@ This is a supplied law for an ensemble entropy difference. It does not say
 how a local actuator measures that difference or pays for installing the
 profile. The gain and profile are additional physical choices, and a scalar
 density on space is not a pairwise coupling kernel. The model discharges
-E45Active for its own energy sequence; a microscopic actuation mechanism,
-kernel construction and cortical identification remain separate questions.
+E45Active for its own energy sequence; the microscopic mechanism and the
+kernel are built separately in \S\ref{sec:microscopic-coupling}, and
+cortical identification remains a separate question.
 Choosing the gain to fit the existing field witness's strength permits
 composition of the chain but does not predict that strength from heat.
 
@@ -1335,6 +1337,77 @@ composition of the chain but does not predict that strength from heat.
 \id{actuated\_limit\_le\_budget} supplies the limit bound for the same
 process, temperature, heat and budget. \id{Examples/ActuatedCoupling.lean}
 fences process, gain and profile dependence.}
+
+\subsection{How local actions install a coupling kernel}
+\label{sec:microscopic-coupling}
+
+\what
+A scalar density is not a pairwise coupling. To build one, the model has to
+say what the hardware is. Suppose it carries finitely many spatial response
+modes. Each mode $i$ has a fixed profile $\phi_i(x)$ saying where on the
+substrate it responds, and a price $u_i$ saying what it costs to hold open.
+A configuration $z$ of the controller and its switches sets the occupancies
+$c_i(z)$, and those same numbers fix two things at once:
+\[
+ K_z(x,y)=\sum_i c_i(z)\,\phi_i(x)\,\phi_i(y),
+ \qquad
+ U(z)=\sum_i u_i\,c_i(z).
+\]
+The first is a kernel on pairs of points; the second is the energy stored in
+the hardware as configured. A transition $z\to z'$ changes the kernel only
+through the modes whose occupancy it changes, and its external work is
+$U(z')-U(z)+Q$.
+
+\why
+This is what the scalar model leaves out. The kernel the executed step
+installs is the average of $K_z$ over the law that step actually leaves, so
+its change is the mean of the pathwise changes rather than a function of an
+entropy difference. The mean of the transition works is the installation
+cost, and the first law splits it into the change in expected stored energy
+and the channel's heat: closing a mode is paid for, not free.
+
+The spatial limit is then a separate, spatial argument. Divide the substrate
+into finitely many measurable cells and pick one sample point in each. The
+reconstruction that uses the sampled weight throughout each \emph{cell pair}
+has a cell-mass weighted energy exactly equal to its integral against the
+product measure. As the sample error shrinks, a continuous kernel on a
+compact substrate gives
+\[
+ \mathcal{E}_n\longrightarrow\iint K\,d\mu\,d\mu .
+\]
+The index $n$ counts refinements of space, not executed updates.
+
+One response mode on $[0,1]$ with profile $(4/3)(1+x)$ and unit price,
+switched by the same noisy two-bit channel, installs $(8/9)(1+x)(1+y)$ before
+and $(4/3)(1+x)(1+y)$ after; the switch closing takes the kernel at the
+origin from $0$ to $16/9$. The mean work is $(1+\log3)/4$, of which the unit
+stored energy at probability one half is the installation and $(\log3)/4$ is
+heat. Uniform cells give first energies $4/3$ and $25/12$ with limit $3$.
+Reading a declared predictive system's own joint law on the same hardware
+installs $(16/9)(1+x)(1+y)$ with limit $4$, so which law the hardware holds
+changes the answer.
+
+\scope
+Profiles, prices, occupancy readout, the reservoir convention and the
+substrate measure are declared hardware. They are what a heat bound does not
+supply, and the passive edge makes the same point from the other side: two
+declared predictive systems differing by their whole dissipated work install
+the same kernel, so efficiency picks out neither the hardware nor the
+partition. One prepared update is accounted for. Fabricating the hardware,
+preparing its initial law, powering it indefinitely, and identifying the
+substrate or the modes with a physical field are separate questions.
+
+\lean{
+\id{Phase3\_LocalActuator.lean} defines \id{LocalActuator} and
+\id{KernelArrangement} and proves \id{kernel\_update},
+\id{kernel\_update\_local}, \id{expected\_kernel\_update},
+\id{installation\_first\_law} and \id{coarseGrains}.
+\id{Phase2\_KernelMesh.lean} proves \id{energy\_eq\_integral} and
+\id{energy\_tendsto}. In \id{Chain.lean},
+\id{e45Active\_of\_localActuator} and \id{e45\_of\_localActuator} supply the
+active and passive spatial edges.
+\id{Examples/MicroscopicCoupling.lean} holds the thermal-switch witness and
+its regressions.}
 
 \section{What does not follow: the free-energy reading}
 \label{sec:fep}
@@ -3039,10 +3112,17 @@ The manuscript is scrupulous about the direction this cuts. It is
 the continuum/discrete comparison of Part XIV applied to the framework's own
 coarse-graining step---the same argument that would separate a finitely-sited
 architecture from a continuum one also blocks the framework's own route from
-mesh to kernel. The continuum kernel is therefore a \emph{modelling input},
-and its identification with the brain's endogenous electromagnetic field is a
-further empirical commitment. E45 or E45Active (the thermodynamic bound
-$\to$ a continuum energy limit) and E56
+mesh to kernel.
+
+All three obstructions are to \emph{this} architecture. The construction in
+\S\ref{sec:microscopic-coupling} evades none of them and answers each
+separately: its kernel comes from declared hardware rather than from a scalar
+limit, its discrete data are cell \emph{pairs} and so are product-shaped, and
+its cells carry positive mass, so nothing is sited on a null set. What that
+construction still does not supply is the hardware. The continuum kernel
+remains a \emph{modelling input}, and its identification with the brain's
+endogenous electromagnetic field is a further empirical commitment. E45 or
+E45Active (the thermodynamic bound $\to$ a continuum energy limit) and E56
 (continuum $\to$ field) are where those two steps live.
 
 %======================================================================
@@ -3960,7 +4040,9 @@ eraser with the actuator.
 observable, temperature and budget, and requires the specified coupling-energy
 sequence to converge to its named limit. Section~\ref{sec:actuated-coupling}
 discharges this for a scalar constitutive law and regular meshes, retaining
-the gain and profile as supplied inputs.
+the gain and profile as supplied inputs;
+Section~\ref{sec:microscopic-coupling} discharges it again for a kernel built
+from declared response modes, retaining their profiles and prices.
 \item \textbf{E78} asks for a cover coupled at least at $K$ whose equilibrium
 is \emph{the limit of a relaxation on that coupling}
 (\id{ThermodynamicCover.IsReachedByRelaxation})---not merely for some cover.
@@ -3975,7 +4057,12 @@ coarse-graining needs a modelling assumption. The actuated witness makes
 that assumption explicit as a density law: its energy depends on the same
 step's joint entropy reduction. Its spatial convergence follows from mesh
 regularity, and the budget bounds its limit only through the supplied gain
-and profile. This construction still supplies no kernel.
+and profile. That construction supplies no kernel. The microscopic witness
+supplies one, from occupancies the same step changes, and pays the
+installation work; its convergence is again spatial, and its hardware is
+declared. The passive edge is discharged on that same hardware from a declared
+predictive system's own joint law, and two such systems differing by their
+whole dissipated work give the identical edge.
 
 After either branch reaches n5, \id{chain\_from\_coarseGrains} supplies the
 common proof through E56--E89. The field, cover and fixed section are preserved
@@ -3994,8 +4081,9 @@ The active chain theorem concerns an autonomous substep with the controller
 fixed, finite states and strictly positive probabilities. The complete finite
 update theorem in Section~\ref{sec:agency-cycle} matches the intermediate law
 and accounts for both substeps at a common thermal scale. Its heat bound does
-not supply E34Active's register-to-actuator allocation or E45Active's
-coupling-convergence implication. A claim about learning
+not supply E34Active's register-to-actuator allocation, and no heat bound
+supplies the hardware or the partitions that E45Active's spatial convergence
+rests on. A claim about learning
 requires specified update dynamics and a criterion for improvement, as in
 the policy-register model of Section~\ref{sec:policy-learning}. That model's
 convergence is over learning updates; n5 concerns refinement of a spatial
