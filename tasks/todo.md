@@ -40,8 +40,8 @@ citation and every generated macro. Its prerequisites A1, A2 and F1–F4 are
 closed, and the other two P-items require author or journal decisions.
 The agency/active-chain extension is complete; its primer alignment and the
 complete finite-update theorem are recorded in the dated sections at the end
-of this ledger. L2 below is the recommended next bounded agentic Lean task:
-goal-directed policy selection under a finite budget. Further theoretical
+of this ledger. L2's goal-directed policy selection under a finite budget is
+complete; its witness and scope are recorded below. Further theoretical
 modelling does not require new empirical results.
 The 80/20 constraint remains to correct unsupported claims and retain supported
 results, without expanding into incremental sweeps.
@@ -1668,8 +1668,18 @@ coupling-convergence assumption E45Active; it is not a submission prerequisite.
 
 ### L2 — Goal-directed policy selection under a finite budget
 
-- [ ] Derive a policy choice that improves a specified finite task while
+- [x] Derive a policy choice that improves a specified finite task while
       satisfying the heat budget of its actual perception--action process.
+
+**Done 2026-09-14.** `FiniteControlProblem` evaluates reward, heat and work on
+the actual L1 cycle and proves finite feasible maximization. The lamp witness
+compares all deterministic bit policies on common channels, initial law and
+energy. At budget `log 3 / 4`, copying uniquely maximizes feasible performance:
+1/2 versus the feasible baseline's 1/4, with the same total mean heat and zero
+mean work. The baseline misses the task target, the constant-true policy
+exceeds the budget, and equal final laws can have different heat costs. See
+`tasks/agency_control.md` and the completion record below. Learning and the
+active chain's resource and spatial bridges remain separate.
 
 **Gap and intent.** L1 accounts for a complete update with supplied channels;
 it does not select actions or improve a policy against an objective. L2 adds
@@ -1903,3 +1913,38 @@ content-model gap at `main.tex:226`.
   task opened.
 
 This ledger update adds no implementation and no proved claim.
+
+## 2026-09-14 — L2 complete: finite control using the actual update's heat
+
+- [x] State the task and red Lean specifications before implementation. The
+      specifications fail on the absent control declarations, then pass with
+      the complete implementation.
+- [x] Add `FiniteControlProblem` beside the L1 construction. Its bare data are
+      the shared initial law, world and memory channels and terminal reward.
+      Deterministic policy channels produce the exact law used for reward and
+      heat, and the common first law and entropy-budget bound apply. A nonempty
+      finite feasible policy set has a reward maximizer.
+- [x] Prove exact performance, actuation heat, memory heat and total work for
+      every deterministic bit policy in `Examples/AgencyControl.lean`. At the
+      supplied heat budget, copy is the unique optimum and doubles lamp success
+      over a feasible baseline. The baseline misses the declared target;
+      constant true beats copy but is infeasible; copy and invert have equal
+      final joint laws and different costs. Both selected substeps permit
+      state changes.
+- [x] Align article, supplement, status tables and primer, and rebuild their
+      tracked PDFs (39, 33 and 75 pages). Visually inspect the changed text,
+      equations and tables; rebuild the 48-page arXiv archive from its tarball.
+- [x] Pass the full zero-warning Lean build and axiom audit: 2,497 declarations
+      in 44 modules, only `propext`, `Classical.choice` and `Quot.sound`.
+      Headline axiom checks, all applicable pre-commit hooks, 39 publication
+      and macro tests, PDF source-dependency checks and `git diff --check` pass.
+
+Specification and execution record: `tasks/agency_control.md`. The numerical
+table contains exact finite expectations proved in Lean, not simulation
+estimates. No simulation, Python source, dependency or reference was added.
+The reward, initial resource, fixed channels and upper budget are modelling
+inputs. This result compares policies for one update and accounts for its
+transition work; it excludes policy installation, switching, learning and
+additional physical registers. It supplies neither cortical identification nor
+a continuing energy source, E34Active allocation or E45Active convergence.
+L3, L4, the unscheduled modelling questions and the P-items remain open.

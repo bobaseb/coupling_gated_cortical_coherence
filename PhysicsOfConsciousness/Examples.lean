@@ -9,8 +9,8 @@
 
   These files discharge that obligation for the finite-state parts of the theory
   by exhibiting concrete instances. This file is their index and imports them
-  all; every witness lives in one of the nine files under `Examples/`, named
-  for the phase it inhabits. The section numbers below are stable and are the
+  all; the witness files under `Examples/` are named for their phase or model.
+  The section numbers below are stable and are the
   ones the supplement cites, so the map from a section to its file is here:
 
     `Examples/Bit.lean`     §1 -- the one-bit eraser and its bath
@@ -18,6 +18,7 @@
     `Examples/Phase1.lean`  §3, §11, §19
     `Examples/Phase2.lean`  §6
     `Examples/Phase3.lean`  §2, §18
+    `Examples/AgencyControl.lean` -- finite budgeted policy selection
     `Examples/Phase4.lean`  §7, §15, §16, §17
     `Examples/Phase5.lean`  §13, §14, §17.1, §20 (overlap agreement)
     `Examples/Phase6.lean`  §10
@@ -33,6 +34,10 @@
       a frozen signal, whose memory is entirely predictive and which is permitted
       to dissipate nothing, and a scrambled one, whose memory predicts nothing and
       which is *forced* to dissipate its whole mutual information.
+    ✓ `FiniteControlProblem` — the lamp task compares all deterministic bit
+      policies on common channels and initial law. Its unique feasible optimum
+      improves reward, while equal-cost failure and an infeasible stronger
+      policy fence the role of the goal and the whole-update heat budget.
     ✓ `LocalSectionSynchronization` / `ThermodynamicCover` — two overlapping
       patches on a three-site substrate, with sections of the sheafified
       probability presheaf built from a phase-dependent invariant measure (§4);
@@ -107,6 +112,7 @@ import PhysicsOfConsciousness.Examples.Phase3
 import PhysicsOfConsciousness.Examples.Agency
 import PhysicsOfConsciousness.Examples.AgencyThermodynamics
 import PhysicsOfConsciousness.Examples.AgencyCycle
+import PhysicsOfConsciousness.Examples.AgencyControl
 import PhysicsOfConsciousness.Examples.Phase4
 import PhysicsOfConsciousness.Examples.Phase5
 import PhysicsOfConsciousness.Examples.Phase6

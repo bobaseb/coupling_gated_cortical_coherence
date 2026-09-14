@@ -1075,6 +1075,70 @@ nontrivial action and sensing, signed information, heat, entropy production,
 energy and work. \id{ThermalAgency.agent\_cycle\_law} checks the composed
 update and \id{cycle\_energy\_budget} checks its energy source.}
 
+\subsection{Choosing a policy for a finite task}
+\label{sec:agency-control}
+
+A goal can be supplied explicitly and policies compared against it. Consider
+the task of making a lamp true after one complete update. The internal bit is
+initially unbiased and independent of the lamp, which starts true with
+probability $1/4$. A fixed world channel makes the lamp agree with the chosen
+action with probability $3/4$. The memory channel then makes the internal bit
+agree with the new lamp with the same probability. Every policy faces these
+same channels and initial conditions.
+
+There are four deterministic rules from a bit to a bit: always choose false,
+copy the internal bit, invert it, or always choose true. The baseline is always
+false. Performance is the final probability that the lamp is true, with a task
+target of at least $1/2$. This objective is an input to the model.
+
+The thermodynamic comparison uses the complete update. In units $k_BT=1$,
+each transition's outward heat is its forward/backward log-ratio. Its work
+is the change in the common interaction energy plus this heat. Agreement has
+energy zero and disagreement has energy $\log3$. This is the declared
+reservoir and work model for the compared policies.
+
+\begin{center}
+\begin{tabular}{lccc}
+\hline
+Policy & Lamp success & Total mean heat & Total mean work \\
+\hline
+Always false & $1/4$ & $(\log3)/4$ & $0$ \\
+Copy & $1/2$ & $(\log3)/4$ & $0$ \\
+Invert & $1/2$ & $3(\log3)/4$ & $(\log3)/2$ \\
+Always true & $3/4$ & $3(\log3)/4$ & $(\log3)/2$ \\
+\hline
+\end{tabular}
+\end{center}
+
+These are exact expectations proved from the finite transition laws. The
+initial mean interaction energy is $(\log3)/2$ and its final value is
+$(\log3)/4$ under every policy. Their difference accounts for the heat
+released at zero mean work; individual paths can still exchange work.
+
+At a heat budget of $(\log3)/4$, copying is the unique feasible optimum.
+It doubles success over the baseline and meets the task target. The baseline
+has the same mean heat and work yet misses the target: feasibility alone
+does not select successful behaviour. Always choosing true performs better
+but exceeds this budget. Copying and inversion even end with the same joint
+distribution, while inversion dissipates more. Computing costs from the
+endpoint alone would miss that difference.
+
+More generally, a nonempty finite set of feasible deterministic policies has
+a maximizer for any supplied terminal reward. Strict improvement needs a
+better feasible policy, as this example provides. The theorem compares fixed
+policies for one update. Learning, installing or switching a policy needs
+its own dynamics and accounting; the comparison supplies no continuing power
+source or identification with cortex. The active chain's resource allocation
+and coupling-convergence assumptions remain separate.
+
+\lean{
+\id{FiniteControlProblem} in \id{Phase3\_AgencyThermodynamics.lean} defines
+reward and heat on the actual \id{FiniteFeedbackCycle} and identifies its law
+with the explicit policy, world, observation and memory channels. \id{exists\_optimal}
+proves finite feasible maximization. \id{Examples/AgencyControl.lean} proves
+the exact policy table, \id{budgeted\_improvement}, \id{unique\_optimum} and
+the counterexamples involving feasibility and equal outputs.}
+
 \section{What does not follow: the free-energy reading}
 \label{sec:fep}
 
@@ -4381,6 +4445,7 @@ Still et al.\ bound & Nonpredictive memory is costly & Instance postulate; conse
 Landauer $\to$ Still bridge & One heat, two vocabularies & Theorem under an identification (= E34) \\
 Agency and feedback (\S\ref{sec:agency}) & Explicit perception--action channels; separates two conditional information terms & Theorem; finite information, passive case recovered \\
 Finite feedback thermodynamics (\S\ref{sec:agency-heat}, \S\ref{sec:agency-cycle}) & Elementary and complete two-substep heat budgets; total first law & Theorem under positivity and local detailed balance; common thermal scale and energy for the cycle \\
+Finite policy selection (\S\ref{sec:agency-control}) & Unique feasible optimum improves a declared lamp task & Theorem for specified deterministic policies and an actual-update heat budget; learning and switching excluded \\
 KL bound; free-energy critique (\S\ref{sec:fep}) & Blocks ``dissipation $\Rightarrow$ true model'' & Instance postulate; the limit does \emph{not} follow \\
 Squared-drift gradient (\S\ref{sec:sigma}) & A descendable objective for plasticity & Theorem at fixed phases; \emph{not} entropy production \\
 Kuramoto SDE & The physical core & Model \\

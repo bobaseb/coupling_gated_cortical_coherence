@@ -23,6 +23,11 @@ thermal scale and energy observable; no stationarity is required. The budget
 consequence covers these two substeps with action/observation aliases. Extra
 physical registers and time-dependent control require further accounting.
 
+`FiniteControlProblem` compares deterministic policies through these actual
+cycles, with a supplied terminal reward and local-detailed-balance reservoir
+model. A finite nonempty feasible set has a reward maximizer. This chooses no
+biological objective and supplies neither learning nor policy-switching costs.
+
 References, verified 2026-09-13: J. M. Horowitz and M. Esposito,
 "Thermodynamics with Continuous Information Flow", Physical Review X 4,
 031015 (2014), doi:10.1103/PhysRevX.4.031015; S. Ito and T. Sagawa,
@@ -486,4 +491,160 @@ theorem cycle_law (C : FiniteFeedbackCycle X S) :
 end Channels
 
 end FiniteFeedbackCycle
+
+/-! ## Finite deterministic control under an actual-cycle heat budget -/
+
+/-- Shared task data for comparing fixed deterministic policies `X → A`.
+The reward is a modelling input. No success, feasibility or optimality property
+is a field. Actions are functions of existing memory, not extra physical
+registers; policy installation, switching and learning are outside this model. -/
+structure FiniteControlProblem (X S A : Type*) [Fintype X] [Fintype S] [Fintype A] where
+  initial : ProbDist (X × S)
+  world : A → S → ProbDist S
+  memory : S → X → ProbDist X
+  reward : X × S → ℝ
+
+namespace FiniteControlProblem
+
+variable {X S A : Type*} [Fintype X] [Fintype S] [Fintype A]
+
+/-- The policy changes only the action supplied to the common world channel.
+The L1 construction fixes the sensing input to the swapped post-action law. -/
+noncomputable def cycle (P : FiniteControlProblem X S A) (π : X → A) :
+    FiniteFeedbackCycle X S := ⟨⟨P.initial, fun x => P.world (π x)⟩, P.memory⟩
+
+/-- Expected terminal reward, evaluated on the complete update's actual law. -/
+noncomputable def performance (P : FiniteControlProblem X S A) (π : X → A) : ℝ :=
+  ∑ z, (P.cycle π).final.p z * P.reward z
+
+/-- Strict support of the common initial law and both channels. -/
+def Positive (P : FiniteControlProblem X S A) : Prop :=
+  (∀ z, 0 < P.initial.p z) ∧ (∀ a s t, 0 < (P.world a s).p t) ∧
+    ∀ s x y, 0 < (P.memory s x).p y
+
+theorem cycle_positive (P : FiniteControlProblem X S A) (h : P.Positive) (π : X → A) :
+    (P.cycle π).Positive := ⟨⟨h.1, fun x => h.2.1 (π x)⟩, h.2.2⟩
+
+/-- Outward actuation heat in the declared local-detailed-balance model.
+Its thermal interpretation is a physical choice, not inferred from optimization. -/
+noncomputable def actuationHeat (P : FiniteControlProblem X S A) (θ : ℝ)
+    (π : X → A) (x : X) (s t : S) : ℝ :=
+  θ * Real.log ((P.world (π x) s).p t / (P.world (π x) t).p s)
+
+/-- Memory heat uses the same reservoir scale and the actual memory channel. -/
+noncomputable def memoryHeat (P : FiniteControlProblem X S A) (θ : ℝ)
+    (s : S) (x y : X) : ℝ :=
+  θ * Real.log ((P.memory s x).p y / (P.memory s y).p x)
+
+/-- Total expected heat of both actual substeps, not an assigned policy cost. -/
+noncomputable def heat (P : FiniteControlProblem X S A) (θ : ℝ) (π : X → A) : ℝ :=
+  (P.cycle π).meanHeat (P.actuationHeat θ π) (P.memoryHeat θ)
+
+/-- Work into the system on each actuation path, using a common energy. -/
+noncomputable def actuationWork (P : FiniteControlProblem X S A) (E : X × S → ℝ)
+    (θ : ℝ) (π : X → A) (x : X) (s t : S) : ℝ :=
+  E (x, t) - E (x, s) + P.actuationHeat θ π x s t
+
+/-- Work into the system on each memory path, in the same energy coordinates. -/
+noncomputable def memoryWork (P : FiniteControlProblem X S A) (E : X × S → ℝ)
+    (θ : ℝ) (s : S) (x y : X) : ℝ :=
+  E (y, s) - E (x, s) + P.memoryHeat θ s x y
+
+/-- Total expected work of the specified fixed-policy update. -/
+noncomputable def work (P : FiniteControlProblem X S A) (E : X × S → ℝ)
+    (θ : ℝ) (π : X → A) : ℝ :=
+  (P.cycle π).meanHeat (P.actuationWork E θ π) (P.memoryWork E θ)
+
+/-- The common initial/intermediate/final energies telescope for every policy.
+This accounts for the declared transition work, not policy-switching costs. -/
+theorem first_law (P : FiniteControlProblem X S A) (E : X × S → ℝ)
+    (θ : ℝ) (π : X → A) :
+    P.work E θ π = (∑ z, (P.cycle π).final.p z * E z) -
+      (∑ z, P.initial.p z * E z) + P.heat θ π :=
+  (P.cycle π).mean_first_law E _ _ _ _ (fun _ _ _ => rfl) (fun _ _ _ => rfl)
+
+/-- Feasibility supplies the upper heat allocation; the whole-update entropy
+bound follows from the L1 theorem in the declared reservoir model. No task
+performance or physical source of the budget follows from this inequality. -/
+theorem entropy_budget [Nonempty X] [Nonempty S]
+    (P : FiniteControlProblem X S A) (π : X → A) (h : P.Positive)
+    (θ : ℝ) (hθ : 0 < θ) (B : ℝ) (hB : P.heat θ π ≤ B) :
+    shannon_entropy P.initial.p - shannon_entropy (P.cycle π).final.p ≤ B / θ :=
+  (P.cycle π).entropy_budget (P.cycle_positive h π) θ hθ _ _
+    (fun _ _ _ => rfl) (fun _ _ _ => rfl) B hB
+
+/-- A nonempty finite feasible set has a reward maximizer. The objective and
+permitted policies are supplied; strict improvement requires an actual better
+feasible policy, and no learning algorithm or computation cost is inferred. -/
+theorem exists_optimal (P : FiniteControlProblem X S A) (θ B : ℝ)
+    (allowed : Finset (X → A)) (π₀ : X → A) (hmem : π₀ ∈ allowed)
+    (hbudget : P.heat θ π₀ ≤ B) :
+    ∃ π ∈ allowed, P.heat θ π ≤ B ∧
+      ∀ ρ ∈ allowed, P.heat θ ρ ≤ B → P.performance ρ ≤ P.performance π := by
+  classical
+  obtain ⟨π, hπ, hmax⟩ :=
+    (allowed.filter (fun π => P.heat θ π ≤ B)).exists_max_image P.performance
+      ⟨π₀, Finset.mem_filter.mpr ⟨hmem, hbudget⟩⟩
+  exact ⟨π, (Finset.mem_filter.mp hπ).1, (Finset.mem_filter.mp hπ).2,
+    fun ρ hρ hB => hmax ρ (Finset.mem_filter.mpr ⟨hρ, hB⟩)⟩
+
+section Channels
+
+variable [MeasurableSpace X] [MeasurableSpace S] [MeasurableSpace A]
+  [MeasurableSingletonClass X] [MeasurableSingletonClass S] [MeasurableSingletonClass A]
+
+noncomputable def memoryUpdate (P : FiniteControlProblem X S A) :
+    Kernel ((X × A) × S) X := ProbDist.kernel (fun z => P.memory z.2 z.1.1)
+
+instance (P : FiniteControlProblem X S A) : IsMarkovKernel P.memoryUpdate := by
+  unfold memoryUpdate
+  infer_instance
+
+/-- Explicit deterministic policy, shared world, exact observation and common
+memory update. The action is an alias, so no stochastic action is marginalized
+out before calculating heat. Such hidden paths would require extra accounting. -/
+noncomputable def toAgency (P : FiniteControlProblem X S A) (π : X → A) : Agency X S A S where
+  policy := Kernel.deterministic π (measurable_of_finite π)
+  world := ProbDist.kernel (fun z => P.world z.2 z.1)
+  observe := Kernel.id
+  update := P.memoryUpdate
+  policy_markov := inferInstance
+  world_markov := inferInstance
+  observe_markov := inferInstance
+  update_markov := inferInstance
+
+/-- Policy selection and the actual two thermal substeps have the same path
+probabilities; varying the policy leaves world and memory channels fixed. -/
+theorem cycle_transition (P : FiniteControlProblem X S A) (π : X → A)
+    (x y : X) (s t : S) :
+    (P.toAgency π).cycle (x, s) {(y, t)} =
+      ENNReal.ofReal ((P.world (π x) s).p t) * ENNReal.ofReal ((P.memory t x).p y) := by
+  classical
+  simp only [Agency.cycle, Agency.sense, Agency.act, Agency.select, toAgency,
+    memoryUpdate, Kernel.id]
+  simp only [Kernel.comap_apply, ProbDist.comp_singleton, Fintype.sum_prod_type,
+    ProbDist.prod_singleton, Kernel.deterministic_apply,
+    Measure.dirac_apply' _ (measurableSet_singleton _), ProbDist.kernel_singleton,
+    Set.indicator_apply, Set.mem_singleton_iff, Pi.one_apply, id_eq, Prod.mk.injEq,
+    ite_and, ite_mul, mul_ite, one_mul, mul_one, zero_mul, mul_zero]
+  simp only [Finset.sum_ite_irrel, Finset.sum_const_zero, Finset.sum_ite_eq',
+    Finset.sum_ite_eq, Finset.mem_univ, ite_true, ite_mul, zero_mul]
+  exact mul_comm _ _
+
+/-- The explicit policy's full channel output equals the L1 law used for both
+reward and cost. This is process identification, not a thermodynamic assumption. -/
+theorem cycle_law (P : FiniteControlProblem X S A) (π : X → A) :
+    (P.toAgency π).cycle ∘ₘ P.initial.toMeasure = (P.cycle π).final.toMeasure := by
+  have heq : (P.toAgency π).cycle = (P.cycle π).toAgency.cycle := by
+    ext z : 1
+    apply Measure.ext_of_singleton
+    intro ⟨y, t⟩
+    rw [P.cycle_transition π z.1 y z.2 t, (P.cycle π).cycle_transition z.1 y z.2 t]
+    rfl
+  rw [heq]
+  exact (P.cycle π).cycle_law
+
+end Channels
+
+end FiniteControlProblem
 end PhysicsOfConsciousness

@@ -20,6 +20,21 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-14 — Finite policy selection at a supplied heat budget
+
+The feedback development now selects among fixed deterministic policies for a
+declared finite task. Reward and both substep costs use each policy's actual
+L1 cycle. The lamp witness proves a unique feasible optimum that doubles
+success over an equally costly baseline; a stronger policy exceeds the budget.
+Equal final laws can have different heat costs, and budget feasibility alone
+does not ensure the task target.
+
+This closes L2's finite control result. The objective and budget remain model
+inputs; learning, policy installation and switching, biological identification
+and the active chain's resource and spatial bridges remain separate. The
+article, supplement, primer and their tracked PDFs carry the result and its
+scope. See `tasks/agency_control.md`.
+
 ## 2026-09-13 — Complete finite perception–action accounting
 
 The generic feedback result now composes actuation and memory update using
