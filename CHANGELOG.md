@@ -20,6 +20,24 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-14 — A named feedback step sets a scalar coupling amplitude
+
+The active chain's spatial energy sequence can now be constructed from its
+named feedback process. `ActuatedCoupling` supplies the constitutive law
+`density x = gain * [H(initial) - H(final)] * base x`. Mesh refinement proves
+convergence of that sequence, and the same process's heat budget bounds its
+continuum limit through the gain and profile integral. The noisy two-bit
+witness has positive drive and changing grid energies; changing the process,
+gain or profile changes the outcome. The active chain composes with the
+actuated sequence after a stated calibration to the existing field witness.
+
+This replaces the absence of a process-to-density relation with a specified
+scalar model, not with a derivation of a microscopic coupling mechanism. The
+gain, profile and use of ensemble entropy reduction remain constitutive inputs.
+The budget does not cause spatial convergence, pay for a separate actuator, or
+construct a kernel. The broader E45/E45Active task remains open with that scope.
+Specification and verification: `tasks/e45_active.md`.
+
 ## 2026-09-14 — The active chain's heat allocation is derived, not assumed
 
 The n3 → n4 edge's upper-budget allocation was a bridge assumption, discharged

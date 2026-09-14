@@ -1775,7 +1775,16 @@ submission prerequisite.
       expectations and summable register heat do not account for running them
       together. This and observational learning form the bounded next
       experiment specified in the agency roadmap below.
-- [ ] **E45/E45Active — spatial coupling convergence.** Specify and derive the
+- [x] **E45Active — a scalar constitutive case.** Completed 2026-09-14:
+      `ActuatedCoupling` constructs a spatial density from the named feedback
+      step's joint entropy reduction, a supplied nonnegative gain and a supplied
+      profile. Regular mesh refinement discharges this instance of E45Active;
+      `actuated_limit_le_budget` bounds its limit using that same process's
+      budget. A positive-drive noisy actuator has changing spatial energies,
+      process/gain/profile regressions and a composed active chain. This is the
+      completed scope of the interrupted module, not a microscopic actuator or
+      kernel construction. Specification: `tasks/e45_active.md`.
+- [ ] **E45/E45Active — microscopic actuation and kernel convergence.** Specify and derive the
       relation from the chosen control or learning dynamics to the named
       coupling-energy sequence under spatial mesh refinement. Learning time
       and the mesh-refinement index are distinct: convergence in time alone
@@ -1783,6 +1792,9 @@ submission prerequisite.
       E34Active's budget identification and L2's task-performance theorem.
       Specify how implemented actions or policy updates change the actual
       coupling kernel before attempting the limit theorem.
+      The scalar constitutive case above supplies `density = gain * drive * base`
+      as a model law; it does not derive that law from local actions, account for
+      actuator installation work or construct a kernel on the product space.
 - [ ] Model how local descriptions acquire or preserve overlap agreement and
       how a readout fixes the glued state. For an agency-based mechanism, connect
       observations and updates to a declared local content state and derive
@@ -2318,3 +2330,39 @@ coupling-convergence implication of E45Active, or any cortical identification.
 `thermalAgency_e34Active` and its numerical comparison remain in place as the
 other discharge of the same edge. The remaining unscheduled modelling
 questions, the agency research gaps and the P-items are unchanged.
+
+## 2026-09-14 — E45Active scalar actuation model complete
+
+- [x] Complete the interrupted `Phase3_ActuatedCoupling.lean`, fixing its mesh
+      vertex universe. The model defines density from a named feedback step's
+      joint entropy reduction, a nonnegative gain and a spatial profile;
+      `actuated_coarseGrains` proves its spatial limit under regular refinement.
+- [x] Add `Chain.e45Active_of_actuatedCoupling` and
+      `actuated_limit_le_budget`: mesh assumptions give convergence, while the
+      same process's thermal bound caps the limit through gain and total
+      profile. The general chain retains its eight hypotheses.
+- [x] Add the positive-drive noisy-actuator witness and changing grid energies
+      in `Examples/ActuatedCoupling.lean`. Check stationary-step, gain and
+      profile dependence, reject a wrong limit for the same sequence and a
+      heat-only cap omitting the conversion, and compose the full active branch
+      at a calibrated limit. Run the failing specifications before completing
+      implementation and the passing specifications afterwards.
+- [x] Align article, supplement, Table S1 and primer; rebuild and inspect their
+      PDFs (41, 37 and 79 pages). Final logs have zero warnings or overfull boxes
+      and the same underfull counts as a fresh HEAD build. Rebuild the 53-page
+      arXiv submission from its unpacked tarball and pass manifest freshness.
+- [x] Pass the full zero-warning Lean build, the axiom audit (2,859 declarations
+      in 48 modules, only the permitted three axioms), fourteen headline axiom
+      checks, 39 publication regression tests, all applicable pre-commit hooks,
+      working-tree PDF dependency checks and `git diff --check`.
+
+Specification and execution record: `tasks/e45_active.md`. No new axiom,
+Python source, dependency, reference or simulation result was added.
+
+The full E45/E45Active item remains open as microscopic actuation and kernel
+convergence. The scalar model supplies its constitutive gain, profile and use
+of ensemble entropy reduction; it establishes no local implementation, actuator
+work account, product-space kernel or cortical identification. The composed
+witness uses the thermal actuator's numerical heat comparison, separately from
+the register-ledger witness. Neither construction supplies one continuing
+physical agent. Other open agency and publication tasks are unchanged.

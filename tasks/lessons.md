@@ -1,5 +1,14 @@
 # Lessons Learned
 
+- **2026-09-14: A mesh family needs its vertex universe named.** A structure
+  storing `mesh : ℕ → TriangulatedManifold M` must bind the second universe of
+  `TriangulatedManifold`, which belongs to its vertex type. An explicit
+  `mesh : ℕ → TriangulatedManifold.{u, v} M` makes the dependent finiteness,
+  order and regularity fields elaborate. A concrete existential over a
+  `Fin`-vertex witness must fix that universe to zero: leaving it free silently
+  asks for a witness in every universe. For proof-local instances, the pinned
+  Lean linter prefers `let := ...` to `letI := ...`.
+
 - **2026-09-13: A symmetric witness cannot check a coordinate swap.**
   Alternating controller/world updates share a joint law in opposite coordinate
   orders. Construct the second initial law by swapping the first final law;

@@ -6,6 +6,7 @@ import PhysicsOfConsciousness.Phase3_CombinatorialThermodynamics
 import PhysicsOfConsciousness.Phase3_KLBound
 import PhysicsOfConsciousness.Phase3_PredictiveThermodynamics
 import PhysicsOfConsciousness.Phase3_AgencyThermodynamics
+import PhysicsOfConsciousness.Phase3_ActuatedCoupling
 import PhysicsOfConsciousness.Phase3_MeasureThermodynamics
 import PhysicsOfConsciousness.Phase4_KuramotoDynamics
 import PhysicsOfConsciousness.Phase4_RotatingFrame
@@ -443,10 +444,11 @@ Asserts that a substrate held to a dissipation budget has couplings whose
 discrete energies converge — that selection against nonpredictive memory is what
 puts the coupling matrix in the regime where coarse-graining is legitimate.
 
-This is the framework's central dynamical story and it is an *assumption*, not a
-gap in the formalization: there is no theorem here or elsewhere that a
-dissipation bound constrains a coupling matrix, because the two objects have no
-formal relation. `Phase8_ContinuousField` §7 proves the nearest available thing —
+This remains an assumption for passive predictive memory: the bound supplies no
+coupling mechanism. The active scalar model in `Phase3_ActuatedCoupling` relates
+entropy reduction to a spatial density through an additional constitutive law;
+it neither supplies a kernel nor settles this passive edge.
+`Phase8_ContinuousField` §7 proves a separate statement —
 that a gradient flow on the coupling kernel decreases entropy production — which
 is the converse direction and at frozen phases. -/
 def E45 (Xs Sg Sg' : Type*) [MeasurableSpace Xs] [MeasurableSpace Sg] [MeasurableSpace Sg']
@@ -481,14 +483,41 @@ def E34Active {sys S : Type*} [Fintype sys] [Fintype S] [Thermodynamics sys]
 /-- **Active n4 → n5. Modelling assumption.**
 
 The bound for the named process, heat observable, temperature and budget selects
-the specified convergent coupling-energy regime. No theorem derives convergence
-from a heat budget; a coupling dynamics connecting these objects is missing.
-The finite witness supplies mesh convergence independently and demonstrates
-satisfiability only. `thermalAgency_wrong_limit_rejected` fences this edge. -/
+the specified convergent coupling-energy regime. `e45Active_of_actuatedCoupling`
+discharges this for a supplied scalar actuation law and regular spatial meshes;
+`actuated_limit_le_budget` then bounds its limit using this same process's heat.
+Convergence still follows from the mesh assumptions, not the budget. A
+microscopic mechanism and a product-space kernel remain open.
+`thermalAgency_wrong_limit_rejected` and `actuated_wrong_limit_rejected` fence
+both an unrelated sequence and the actuated sequence's target. -/
 def E45Active {Xs S : Type*} [Fintype Xs] [Fintype S]
     (M : FiniteFeedbackStep Xs S) (θ : ℝ) (q : Xs → S → S → ℝ) (budget : ℝ)
     (E : ℕ → ℝ) (L : ℝ) : Prop :=
   ActiveBound M θ q budget → CoarseGrains E L
+
+/-- **A specified actuation law discharges the active spatial edge.**
+The energy sequence is constructed from this step's joint entropy reduction.
+Its convergence follows from the arrangement's spatial refinement assumptions,
+independently of the budget. The constitutive gain and profile remain inputs;
+this does not construct a kernel or derive a microscopic actuation mechanism. -/
+theorem e45Active_of_actuatedCoupling {M Xs S : Type*}
+    [PseudoMetricSpace M] [MeasurableSpace M] [Fintype Xs] [Fintype S]
+    (A : ActuatedCoupling M Xs S) (budget : ℝ) :
+    E45Active A.step A.temperature A.heat budget A.energy A.continuumLimit :=
+  fun _ => A.actuated_coarseGrains
+
+/-- **The named heat budget caps the actuated continuum amplitude.**
+Unlike convergence, this bound uses `ActiveBound` for the arrangement's own
+step, temperature and heat. Nonnegative gain and total profile preserve the
+inequality. Neither the gain nor the profile is derived or bounded by heat. -/
+theorem actuated_limit_le_budget {M Xs S : Type*}
+    [PseudoMetricSpace M] [MeasurableSpace M] [Fintype Xs] [Fintype S]
+    (A : ActuatedCoupling M Xs S) {budget : ℝ}
+    (h : ActiveBound A.step A.temperature A.heat budget)
+    (hbase : 0 ≤ ∫ x in A.region, A.base x ∂A.volume) :
+    A.continuumLimit ≤
+      A.gain * (budget / A.temperature) * ∫ x in A.region, A.base x ∂A.volume :=
+  A.actuated_limit_le_of_drive_le h.entropy_budget hbase
 
 /-- Derive the active node using the physical data supplied by its bridge and
 the existing path entropy theorem. The heat allocation is a premise, not a
@@ -1334,6 +1363,80 @@ theorem chain_active_budget_jointly_satisfiable :
 
 /-! ## Active-branch regression specifications -/
 
+open Examples ActuatedField in
+/-- The constitutive scalar model uses the actual thermal actuator's bound.
+The gain is calibrated to the separate field witness; it is not inferred from
+the actuator's heat, and no kernel is constructed by the refinement theorem. -/
+theorem actuated_activeBound :
+    ActiveBound normalized.step normalized.temperature normalized.heat (Real.log 2) :=
+  thermalAgency_activeBound
+
+open Examples ActuatedField in
+/-- The same budget constrains the continuum limit only after the constitutive
+gain and profile are fixed. This witness consumes the general budget theorem. -/
+theorem actuated_budget_cap : normalized.continuumLimit ≤
+    normalized.gain * Real.log 2 * profileMass := by
+  have h := actuated_limit_le_budget normalized actuated_activeBound profileMass_pos.le
+  change normalized.continuumLimit ≤ normalized.gain * (Real.log 2 / 1) * profileMass at h
+  simpa only [div_one] using h
+
+open Examples ActuatedField in
+/-- Dropping the gain/profile conversion loses even the numerical upper bound
+`limit ≤ budget`: this arrangement has limit three at heat budget `log 2`.
+The quantities need a supplied dimensional conversion; heat is not coupling. -/
+theorem actuated_no_gain_free_budget_cap : ∃ A : ActuatedCoupling.{0, 0} ℝ Bool Bool,
+    ActiveBound A.step A.temperature A.heat (Real.log 2) ∧
+    Real.log 2 < A.continuumLimit := by
+  refine ⟨normalized, actuated_activeBound, ?_⟩
+  rw [normalized_limit]
+  have h := Real.log_lt_sub_one_of_pos (show (0 : ℝ) < 2 by norm_num)
+    (show (2 : ℝ) ≠ 1 by norm_num)
+  linarith
+
+open Examples ActuatedField in
+/-- The valid bound cannot change this process's specified spatial limit.
+This rejects a wrong target for the actuated sequence itself. -/
+theorem actuated_wrong_limit_rejected :
+    ¬ E45Active normalized.step 1 normalized.heat (Real.log 2) normalized.energy 0 := by
+  intro h
+  have heq := tendsto_nhds_unique normalized.actuated_coarseGrains (h actuated_activeBound)
+  rw [normalized_limit] at heq
+  norm_num at heq
+
+open Examples ActuatedField in
+/-- **The active branch composes with a process-dependent energy sequence.**
+The constitutive gain calibrates its limit to the existing field witness. The
+mesh still supplies convergence, the numerical heat comparison supplies E34,
+and all downstream physical and representational inputs remain independent. -/
+theorem chain_active_actuated_jointly_satisfiable :
+    UnifiedSelf (X := Cortex) cortexReflexive := by
+  have he45 : E45Active normalized.step 1 normalized.heat (Real.log 2)
+      normalized.energy 3 := by
+    simpa only [normalized_limit, show normalized.temperature = 1 from rfl] using
+      e45Active_of_actuatedCoupling normalized (Real.log 2)
+  exact chain_active (X := Cortex) cortexNeuralField (sys := Bool) (fun _ => true)
+    (vac := DynamicalVacuum wellV) (phi := kink) normalized.step normalized.heat
+    (E := normalized.energy) (L := 3) (K := 3) (D := 1) (τ := cortexTau)
+    cortexTau_pos cortexCover cortexReflexive
+    t5_e12_doubleWell t5_e23_absorbingRegister
+    thermalAgency_e34Active he45
+    (fun _ => ⟨⟨one_pos, by norm_num, rfl⟩, cortexNeuralField_isEMFieldCoupling⟩)
+    e67_three_one (fun _ => cortexCover_reachedByRelaxation_three)
+    (fun _ => ⟨cortexState, (fun _ => rfl),
+      cortexPredict_lipschitz_rate, cortexPredict_fixed⟩)
+
+open Examples ActuatedField in
+example : ∃ A : ActuatedCoupling.{0, 0} ℝ Bool Bool,
+    ActiveBound A.step A.temperature A.heat (Real.log 2) ∧
+    Real.log 2 < A.continuumLimit := actuated_no_gain_free_budget_cap
+
+open Examples ActuatedField in
+example : ¬ E45Active normalized.step 1 normalized.heat
+    (Real.log 2) normalized.energy 0 := actuated_wrong_limit_rejected
+
+open Examples in
+example : UnifiedSelf (X := Cortex) cortexReflexive := chain_active_actuated_jointly_satisfiable
+
 example {sys S : Type*} [Fintype sys] [Fintype S] [Nonempty S]
     [Thermodynamics sys] (upd : sys → sys) (M : FiniteFeedbackStep sys S)
     (q : sys → S → S → ℝ) (e34 : E34Active upd M q) (h : Dissipates upd) :
@@ -1388,6 +1491,12 @@ example : UnifiedSelf (X := Cortex) cortexReflexive :=
 #print axioms e34Active_of_ledger
 #print axioms registerBudget_e34Active
 #print axioms chain_active_budget_jointly_satisfiable
+#print axioms e45Active_of_actuatedCoupling
+#print axioms actuated_limit_le_budget
+#print axioms actuated_budget_cap
+#print axioms actuated_no_gain_free_budget_cap
+#print axioms actuated_wrong_limit_rejected
+#print axioms chain_active_actuated_jointly_satisfiable
 
 end Chain
 
