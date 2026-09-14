@@ -2735,21 +2735,46 @@ the dynamics would not separate the cases either — the supplement already
 records that a suitably chosen partition can conceal or manufacture
 disagreement, so the cover must be constrained independently.
 
-**Optional prerequisite, independently useful.** `sigmaContinuum` integrates
-the squared drift against a fixed measure, whereas entropy production is
-`(1/D) ∫ |J|²/p` for the current `J = b p − D ∇p`; the supplement already
-states that the identification needs current information
-(`supplementary.tex`, the fixed-phase kernel descent row and its section).
-Carrying the density rather than the measure would settle it, and the von
-Mises stationary density in `Phase8_SelfConsistency` supplies one for the
-mean-field case. Note the expected shape of the answer before starting: for a
-reciprocal kernel the drift is a gradient, so the stationary current vanishes
-and entropy production is zero while σ is positive. The honest result is
-therefore a separation, with σ identified as the low-noise limit of the
-free-energy dissipation rather than as entropy production. The regime where
-production is nonzero is the non-reciprocal one, which `Examples` §16 already
-enters — a one-way coupling on two sites strictly beating its own phase-locked
-state — and which the symmetric machinery does not cover.
+**Optional prerequisite, independently useful — and the two functionals are
+not over the same domain.** `sigmaContinuum` is `(1/D) ‖A K + ω‖²` in `L²(μ)`,
+so it integrates squared drift over the **substrate** sites carrying μ, as a
+functional of the coupling kernel at fixed phases. Entropy production
+`(1/D) ∫ |J|²/ρ` for the current `J = vρ − D ∂θ ρ` is a functional of the
+**phase distribution**, over configuration space. These are different objects
+over different domains, and no substitution of a density for a measure
+relates them; the supplement's fence (the fixed-phase kernel descent row and
+its section) is therefore recording a domain change, not a missing integrand.
+Do not record any later result as identifying the two.
+
+What is available instead is a separation, in three tiers of increasing cost.
+
+- [ ] **Cheap, and self-contained.** In the rotating frame at identical
+      frequencies the mean-field drift is `v θ = −K r sin (θ − ψ) = −∂θ V`
+      for `V θ = −K r cos (θ − ψ)`, and `vonMisesWeight a θ = exp (a * cos θ)`
+      at `a = K r / D` is exactly `exp (−V/D)`. Then `∂θ ρ = −(1/D) (∂θ V) ρ`
+      and the current vanishes identically, so entropy production is zero at
+      the stationary state while σ stays positive. This needs one definition
+      of `J` for one explicit density and a derivative of `Real.exp ∘ cos`:
+      no Fokker–Planck operator, no `Real.besselI` (which Mathlib lacks, per
+      `Phase8_SelfConsistency` §1), no PDE theory. `vonMisesWeight` already
+      carries continuity, positivity and interval integrability.
+- [ ] **Moderate.** Identify σ as the low-noise limit of the free-energy
+      dissipation `∫ ρ |∂θ (V + D log ρ)|²`. Still one-dimensional and
+      explicit, but the relative Fisher information has to be defined here —
+      Mathlib has no Wasserstein gradient flow to instantiate.
+- [ ] **Expensive, and required by nothing above.** A general probability
+      current over configuration space. Do not start here.
+
+The cheap tier inherits the standing conditionality rather than adding to it:
+`Phase8_SelfConsistency` §"The ansatz" states that nothing in the development
+derives the von Mises density from the Fokker–Planck operator, its stationary
+solution or uniqueness. The separation would rest on that ansatz exactly as
+`K_c = 2D` already does, and must be stated as resting on it.
+
+The regime where production is nonzero is the non-reciprocal one, which
+`Examples` §16 already enters — a one-way coupling on two sites strictly
+beating its own phase-locked state — and which the symmetric machinery does
+not cover.
 
 **Recording check.** This section records an unscheduled modelling direction
 and its fences. It adds no Lean declaration, simulation, reference or
