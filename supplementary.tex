@@ -370,6 +370,79 @@ updates, executing task episodes beyond the declared updates, fabricating the
 readout, convergence to an optimal policy and any cortical identification are
 outside this model.
 
+\textit{A continuing agent with a finite work store.}
+\texttt{FiniteProtocol} in \texttt{Phase3\_\allowbreak ContinuingAgent.lean}
+allows a different channel at every stage, carrying each actual final law
+into the next initial law. \texttt{sum\_\allowbreak entropy\_\allowbreak balance},
+\texttt{sum\_\allowbreak first\_\allowbreak law} and
+\texttt{cumulative\_\allowbreak entropy\_\allowbreak budget} telescope the
+existing finite path balances over this sequence without stationarity.
+\texttt{ContinuingProcess} adds a common energy, stage heat observables, a
+thermal scale and an initial work allowance $B$.
+Its predicate \texttt{Sustains}$\,N$ requires
+$B-W_{<k}\geq0$ for every $k\leq N$, where work is an expectation on the
+executed paths. The resulting bound is the article's
+Eq.~\eqref{eq:continuing-budget}; when each stage costs at least $c>0$,
+\texttt{horizon\_\allowbreak le\_\allowbreak of\_\allowbreak cost} gives
+$Nc\leq B$. These results include the system's mean energy drop and do not
+identify the allowance with a register's erasure heat.
+
+\texttt{ContinuingAgent} implements a three-stage cycle on
+$(w,r,e)$: the parameter $w$ is fixed, the register $r$ selects the action,
+and the environment flag $e$ retains what that action did. Acting drives the
+flag while the register drifts; learning reads the flag, writes the register
+and lets the flag drift; reset prepares the flag for reuse while the register
+drifts. The learner's readout, observation and update do not take $w$ as an
+argument. The actuator responds to $w$, as a physical task must, and reward
+is used only to score the law. The observation is marginalized inside the
+learning channel, whose thermal interpretation is supplied by local detailed
+balance for that composite channel.
+
+In \texttt{Examples/ContinuingAgent.lean}, all five state types are bits and
+the initial joint law is uniform. A clear flag is set with probability $3/4$
+by the rewarding action $r=w$ and $1/4$ by the other; an already set flag
+stays set with probability $3/4$. Observation is correct with probability
+$3/4$. Success keeps the register with probability $3/4$ and failure flips
+it with that probability. Idle drift keeps a bit with probability $3/4$;
+reset sets the flag's probability to $1/4$ independently of its input.
+The three composite channels have strictly positive support. With common
+energy zero, thermal scale one and stage heat equal to each channel's
+forward/reverse transition log-ratio, every path's work equals its heat.
+
+The proved mass recursion gives agreement $a_0=65/128$ after the first
+cycle and
+\begin{equation}
+ a_{m+1}=\frac{65}{128}+\frac{a_m}{128},\qquad
+ J_{3(m+1)}=a_m\geq\frac{65}{128}>\frac12.
+ \label{eq:continuing-agreement}
+\end{equation}
+The flag has probability $1/4$ and is independent of parameter and register
+at each completed reset. Successive cycle laws differ. These are exact
+finite-channel identities, proved in Lean rather than fitted to a simulation.
+On the same laws, \texttt{first\_\allowbreak cycle\_\allowbreak work} and
+\texttt{totalWork\_\allowbreak cycles\_\allowbreak lower} give
+\begin{equation}
+ W_{<3}=\frac{15}{32}\log3+\frac1{16}\log\frac53,\qquad
+ W_{<3m}\geq m\left(\frac3{16}\log3+\frac1{16}\log\frac53\right).
+ \label{eq:continuing-cost}
+\end{equation}
+The learning stage costs $(\log(5/3))/16$ at every cycle, and reset has
+strictly positive mean heat. Every prefix of the first cycle fits the declared
+$B=4\log3$, while 22 complete cycles exceed it. This is a conservative
+exclusion, not the exact exhaustion time.
+
+Two controls delimit the result. Uniform observations leave chance reward
+at every completed cycle and zero learning-stage heat. Replacing only reset
+by idle drift leaves flag probability $17/32$ after the first cycle, against
+$1/4$ with reset, and reduces second-cycle reward from $8385/16384$ to
+$4157/8192$. The control still learns; reset restores the specified workspace
+law and changes subsequent behaviour. The store limits expected work at each
+prefix, not the battery on every realization. Initial-law preparation, the
+initial store, microscopic battery and sensor-memory dynamics, fabrication,
+optimal-policy convergence and cortical identification remain supplied or
+outside the construction. Its indefinite law sequence is a mathematical
+continuation, whose funded prefixes are selected by \texttt{Sustains}.
+
 \textit{Active and passive composition (\texttt{Chain.lean}).}
 The theorem \texttt{chain} uses the passive predictive node; \texttt{chain\_active} uses the article's Eq.~\eqref{eq:active-chain-bound} for a named \texttt{FiniteFeedbackStep} $M$, heat observable $q$, thermal scale $\theta$ and budget $B$. The process's controller has the register's state type. \texttt{E34Active} requires positivity, local detailed balance at that register's temperature and $\langle Q\rangle_M\leq B$, with $B$ the register's heat. The entropy lower bound is derived by \texttt{activeBound\_\allowbreak of\_\allowbreak e34Active}. A lower bound on erasure heat supplies no upper bound for an actuator and equates no operations; the upper-budget allocation comes from a resource model instead. \texttt{RegisterLedger} carries one register's update, its operations as elementary steps controlled by that register, local detailed balance for each at that register's own temperature, and the accounting identity $Q_{\mathrm{reg}}=\sum_i\langle Q\rangle_i$ for the heat its operations deliver to its reservoir. \texttt{opHeat\_\allowbreak nonneg\_\allowbreak of\_\allowbreak compressive} applies the left inequality of the article's Eq.~\eqref{eq:active-chain-bound} to an operation with $H(p')\leq H(p)$, so its share is nonnegative; \texttt{opHeat\_\allowbreak le\_\allowbreak dissipation} then bounds an operation whose companions all compress by $Q_{\mathrm{reg}}$, and \texttt{e34Active\_\allowbreak of\_\allowbreak ledger} turns that bound into the edge. Under Landauer's heat equation, \texttt{ledger\_\allowbreak bathEntropy} exhibits the same total as the register's own bath entropy change. The identity and the compressiveness are the model's physical inputs. Equation~\eqref{eq:finite-update-balance} accounts for both finite update substeps at a common thermal scale; it supplies neither this allocation nor the coupling-convergence implication of E45Active, and the ledger's index labels operations rather than sequencing them into one evolving law.
 
@@ -951,6 +1024,7 @@ Figure~\ref{fig:chain} in the main text separates the three requirements and the
 \hline
 \textbf{Conceptual Claim} & \textbf{Lean 4 Implementation} & \textbf{Status} \\ \hline
 \endhead
+Continuing finite agent & \texttt{FiniteProtocol} sequences different operations on one evolving law. \texttt{ContinuingProcess} bounds total heat and joint entropy reduction by a declared work store plus the system's mean energy drop. \texttt{ContinuingAgent} executes actuation, observation-driven learning and reset; \texttt{Examples/ContinuingAgent.lean} proves persistent above-chance reward, positive recurring cost, a funded first cycle and exclusion of 22 cycles at its declared allowance. Blinding removes the reward advantage; omitting reset reduces later reward. \texttt{Chain.activeBound\_\allowbreak of\_\allowbreak continuing} derives stage budgets when every stage has nonnegative mean heat. The store constrains expectations at every prefix, not individual paths; the prior, store and composite-channel reservoir model are supplied. Sensor-memory implementation, battery dynamics, fabrication, register-ledger identification and cortical interpretation remain separate & Theorem (conditional) \\ \hline
 Finite goal-directed control & \texttt{FiniteControlProblem} (\texttt{Phase3\_\allowbreak AgencyThermodynamics}) evaluates terminal reward and both substep costs on the same \texttt{FiniteFeedbackCycle}, with an explicit deterministic policy and shared world and memory channels. \texttt{exists\_optimal} proves finite feasible maximization. \texttt{Examples/AgencyControl.lean} computes every deterministic bit policy's performance, heat and work and proves a unique feasible optimum that strictly improves a declared lamp task. A feasible baseline misses the target; a better-performing policy exceeds the budget; equal final laws can have unequal heat. Objective, reservoir model, initial resource and budget are supplied. This comparison covers fixed policies; adaptation of a policy register is treated separately below & Theorem (conditional) \\ \hline
 Finite learning dynamics & \texttt{FiniteFeedbackStep.iterate} carries successive laws and telescopes entropy and first-law balances. \texttt{Examples/PolicyLearning.lean} proves strictly improving expected lamp reward, geometric convergence to a stationary mixture, positive update heat and bounded cumulative heat from the register's energy loss. Its energy encodes known task values. The limit is suboptimal; individual updates and a different initial preparation can lower reward. Task costs are prospective lamp task expectations. Preparing the register, executing task episodes, implementing the policy readout, cortical identification and the active chain's resource and spatial bridges require separate accounting & Theorem (conditional) \\ \hline
 Learning from observed outcomes & \texttt{FiniteObservationalLearner} (\texttt{Phase3\_\allowbreak ObservationalLearning}) holds an environmental parameter fixed and updates a policy register from the observed outcome of the action its readout executed. Neither the update nor the readout takes the parameter as an argument and the reward enters no channel, so nothing supplies the task's values. Act--observe--update composes into one \texttt{FiniteFeedbackStep}, carrying reward, heat and entropy on the same law. \texttt{Examples/ObservationalLearning.lean} gives every mass of that law at every horizon for a two-action task with an unknown rewarding action, hence strictly improving expected reward $3/4-\frac14(1/2)^n$ from a uniform prior, strict improvement over a frozen register and over an uninformative world under a common allowance, cumulative heat $(\log3/4)[1-(1/2)^N]$ and its equality with external work. \texttt{zero\_\allowbreak work\_\allowbreak needs\_\allowbreak parameter\_\allowbreak independent\_\allowbreak heat} proves that a free relaxation would carry no information about the parameter, so the work is irreducible. The limit is below certainty, each action is executed half the time at every horizon, and a reward-decreasing transition keeps positive probability. Preparing the prior, supplying the work, task episodes beyond the declared updates, fabricating the readout, optimal-policy convergence and cortical identification are separate & Theorem (conditional) \\ \hline

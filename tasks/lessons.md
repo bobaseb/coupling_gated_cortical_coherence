@@ -1,5 +1,21 @@
 # Lessons Learned
 
+- **2026-09-14: Simplify exactly one step of a law recursion.** Putting
+  `law_succ_apply` in `simp only` recursively expands every earlier stage it
+  can recognize, destroying the intermediate law needed by a uniformity or
+  invariance lemma. Use `rw [law_succ_apply n z]` for the particular output
+  first, then simplify the finite sums and stage channel. In a law theorem
+  proved by induction, generalize the queried state so the induction
+  hypothesis supplies every input mass to the next channel.
+
+- **2026-09-14: A mean-work ledger is not a pathwise battery.** Subtracting
+  cumulative expected work from an initial store proves an expectation bound
+  at each prefix. It does not carry a battery state through the transition
+  law or prevent individual trajectories from overdrawing it. Likewise,
+  marginalizing an observation into a learning channel permits a declared
+  composite-channel heat model, not a derivation of a separate sensor's
+  memory, erasure or hidden dissipation. Keep these scopes explicit.
+
 - **2026-09-14: A projected structure field blocks instance synthesis.** In a
   mesh whose `size` field is `n + 1`, the type `Fin (mesh n).size` is defeq to
   `Fin (n + 1)` and yet `OfNat (Fin (mesh n).size) 0` fails: unification unfolds

@@ -20,6 +20,33 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-14 — Sequenced episodes with a finite expected-work allowance
+
+The open continuing-agent item is closed for a bounded finite model.
+`FiniteProtocol` runs different stages on one evolving law and telescopes
+their entropy and first-law balances. `ContinuingAgent` sequences an actual
+register-driven actuator, observation-driven learning and reset.
+`ContinuingProcess` bounds the whole run by a declared initial store plus
+the system's mean energy drop. The witness learns above chance, pays for reset
+and has a positive recurring work cost; its store funds the first cycle but
+cannot fund 22 complete cycles. The same funded stages inhabit `ActiveBound`
+without identifying their store with the register ledger's erasure heat.
+
+The interrupted witness had an incorrect coefficient in its composed law;
+direct composition fixes it without changing the channels or planned cycle
+map. Its proposed reset-control claim was too strong: replacing reset by idle
+drift reduces later reward but does not eliminate learning or create an
+absorbing saturated flag. The proved control states that narrower result.
+
+The store bounds expectations at every prefix, not batteries along individual
+paths. Preparing the initial law, constructing or replenishing the store,
+implementing a separate sensor memory and fabricating the hardware remain
+outside the model. Local detailed balance is a physical input for each
+composite stage. No general optimality, full active-chain physical realization
+or cortical identification is claimed.
+
+---
+
 ## 2026-09-14 — A register learns a task nobody told it about
 
 Four sentences are no longer claimed. The article said that "learning unknown

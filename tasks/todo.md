@@ -1775,19 +1775,27 @@ submission prerequisite.
       and `zero_work_needs_parameter_independent_heat` shows the work spent is
       irreducible. Specification, resource boundary and verification:
       `tasks/observational_learning.md` and the completion record below.
-- [ ] **One continuing physical agent.** Compose learning, subsequent action,
-      observation and memory updates on one evolving joint law. The register
-      ledger labels one register's operations and does not sequence them, so
-      this remains open. Include the
-      policy register's actual influence on the actuator, preparation and any
-      resets, and the energy source and resource consumption. Derive total
-      heat/work and entropy accounting for the executed process. The current
-      learner and sensorimotor task are separate processes; prospective task
-      expectations and summable register heat do not account for running them
-      together. Observational learning is closed; sequencing its updates with
-      preparation, resets and a declared power source into one continuing
-      process is what remains of the bounded next experiment specified in the
-      agency roadmap below.
+- [x] **One continuing physical agent — bounded finite model.** Completed
+      2026-09-14: `FiniteProtocol` sequences heterogeneous operations on one
+      evolving law; `ContinuingAgent` carries actuation, observation-driven
+      register updates and reset on the same parameter/register/environment
+      state. `ContinuingProcess` charges expected work to a declared initial
+      store and derives total heat and entropy budgets including the system's
+      energy drop. The bit witness retains above-chance reward, pays for each
+      reset and has a positive recurring cost: the first cycle fits its store,
+      while 22 complete cycles cannot. Blinding and omitted-reset controls
+      fence the observation and preparation claims. The store constrains
+      expectations at every prefix, not individual paths. Initial preparation,
+      a microscopic supply, sensor-memory implementation and fabrication are
+      supplied or excluded, not derived. Specification and execution record:
+      `tasks/continuing_agent.md` and the dated completion section below.
+- [ ] **Physical preparation and supply beyond the finite model.** Derive
+      preparation of the initial law, model the work store or replenishment
+      on individual trajectories, and account for a separately implemented
+      sensor memory if one is used. The continuing model's declared prior,
+      initial allowance and composite learning-channel reservoir do not
+      establish these. Keep this separate from the register-ledger identity,
+      spatial actuation and cortical identification.
 - [x] **E45Active — a scalar constitutive case.** Completed 2026-09-14:
       `ActuatedCoupling` constructs a spatial density from the named feedback
       step's joint entropy reduction, a supplied nonnegative gain and a supplied
@@ -2517,3 +2525,79 @@ the updates, executing task episodes beyond the declared updates, fabricating
 the readout, optimal-policy convergence, and any cortical identification. The
 remaining agency gaps are the register ledger's own premises, one continuing
 physical agent, and local content agreement.
+
+## 2026-09-14 — One continuing agent: sequenced episodes on a finite allowance
+
+`FiniteProtocol` (`Phase3_ContinuingAgent.lean`) carries an initial law and a
+*sequence* of channels, each stage starting at the law the previous one
+produced. Every stage is an ordinary `FiniteFeedbackStep`, so
+`sum_entropy_balance`, `sum_first_law` and `cumulative_entropy_budget` telescope
+over operations that need not be alike — which is what the `iterate` docstring
+said was missing — and `ofStep_step` identifies the constant protocol with
+`iterate`, so the repeated case is the same theory rather than a second one.
+
+`ContinuingProcess` adds the resources: one energy in joint coordinates, each
+stage's heat, one thermal scale, and `stored`, the usable work available before
+the first stage. `Sustains N` says the ledger was never overdrawn up to `N`.
+`sustains_totalWork_le`, `totalHeat_le_stored`, `entropy_reduction_le_stored`
+and `horizon_le_of_cost` are the four consequences: a sustained run has drawn at
+most its store, its reservoirs received at most the store plus the system's
+energy drop, the joint entropy it removed is bounded by the same quantity, and
+`N` stages each costing `c` require `N * c ≤ stored`. Sustained operation is
+therefore a claim about replenishment, and nothing here makes one.
+
+`ContinuingAgent` composes the loop on the joint state `R × Env` with the
+parameter `W` fixed: the readout drives `actuate`, which moves the environment;
+`sense` reads the environment the action moved and `update` writes the register;
+`reset` prepares the environment for the next episode. The three stages run in
+that order, three-periodically, on one evolving law. The fences are signatures:
+neither `update`, `readout` nor `sense` takes the parameter, and `reward` enters
+no channel. `Chain.activeBound_of_continuing` puts a funded stage in the active
+node at its store allowance, and `continuing_stage_activeBound` discharges it
+for the witness's first cycle, without identifying that allowance with the
+register ledger's erasure heat.
+
+`Examples/ContinuingAgent.lean` witnesses it on five bits, every primitive mass
+`1/4` or `3/4`, so every stage heat is a rational multiple of `log 3` or
+`log (5/3)`. The mass form is transported through the cycle exactly, giving the
+agreement map `a ↦ 65/128 + a/128` with the flag returned to `1/4` and
+independent at every completed reset: the register's agreement with the unknown
+rewarding action is at least `65/128 > 1/2` after every cycle, for ever, and
+successive cycle laws differ. On those same laws the first cycle costs
+`(15/32) log 3 + (1/16) log (5/3)` and every cycle at least
+`(3/16) log 3 + (1/16) log (5/3)`, the learning stage's `(1/16) log (5/3)` being
+independent of what the agent has learned and the reset's heat strictly
+positive. The declared store `4 log 3` funds every prefix of the first cycle and
+cannot fund 22 complete cycles. Blinding the observation leaves reward at chance
+and the learning stage free; replacing the reset by idle drift leaves the flag
+at `17/32` instead of `1/4` and lowers the second cycle's reward from
+`8385/16384` to `4157/8192`.
+
+Two conclusions are narrower than first proposed, and the narrower ones are what
+is proved: the store bounds *expected* work at every prefix and carries no
+battery along a trajectory, and the reset control still learns — it is the
+reward comparison, not saturation, that makes the reset load-bearing. Both are
+recorded in `tasks/lessons.md` and stated in all three documents.
+
+The red specifications failed before the declarations existed. The full
+`lake build` has zero warnings; the default axiom audit covers 3,408
+declarations in 55 modules with only `propext`, `Classical.choice` and
+`Quot.sound`, and the explicit headline checks agree. All pre-commit hooks pass
+under `uv --project simulations` at the repository root, as do the 143 existing
+Python tests. No Python, dependency, reference, macro or simulation result
+changed.
+
+The article gained a paragraph and its budget equation and a rewritten E34 row,
+the supplement a subsection with two displayed equations and a Table S1 row, and
+the primer a subsection and a summary row. The rebuilt article, supplement and
+primer have 45, 40 and 84 pages against 44, 39 and 82, with no overfull boxes.
+The 58-page arXiv submission compiles from its unpacked archive and passes
+manifest freshness. `git diff --check` passes.
+
+Out of scope and still open: preparing the initial law, a microscopic or
+pathwise model of the store and its replenishment, a separately implemented
+sensor memory and its erasure, fabrication of the readout and the actuator,
+optimal-policy convergence, unbounded horizons, and any cortical
+identification. The first is now its own ledger item; the remaining agency gaps
+are that item, the register ledger's own premises, and local content agreement.
+Specification and execution record: `tasks/continuing_agent.md`.

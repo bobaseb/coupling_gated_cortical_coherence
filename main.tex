@@ -346,6 +346,31 @@ A second learning model supplies no values at all. Which of two actions is rewar
 
 \subsection{What the composition establishes}
 
+A continuing finite agent sequences actuation, observation-driven learning and
+reset on one joint law of an unknown task parameter, a register and a task
+flag. The register drives the actuator; the observation reads the flag that
+action changed; the reset prepares its next use. Each stage starts from the
+preceding output. For a supplied initial work store $B$, a common energy $E$
+and thermal scale $\theta$, the first law and entropy balance telescope to
+\begin{equation}
+ \theta[H(p_0)-H(p_N)]\leq Q_{<N}
+ =W_{<N}+\langle E\rangle_0-\langle E\rangle_N
+ \leq B+\langle E\rangle_0-\langle E\rangle_N,
+ \label{eq:continuing-budget}
+\end{equation}
+provided expected cumulative work stays within $B$ at every prefix and each
+stage satisfies positive support and local detailed balance. A bit witness
+retains agreement with the unknown rewarding action above chance after every
+completed cycle, while every cycle draws a positive minimum of work, including
+reset. Blinding the observations leaves chance performance and makes the
+learning stage free. Replacing reset by idle drift preserves some learning but
+reduces the next cycle's performance. A finite store therefore supports only
+a bounded prefix of this protocol. This is accounting in expectation:
+preparation of the initial law, microscopic battery dynamics, fabrication and
+a separate sensor-memory implementation are supplied or outside the model.
+Heat is assigned to the composite learning channel through local detailed
+balance; no pathwise battery guarantee or cortical identification follows.
+
 Table~\ref{tab:summary} lists the connecting hypotheses of two branches. The theorem \texttt{chain} uses passive predictive memory; \texttt{chain\_active} uses a specified finite feedback process. Each accepts eight implications and shares the passage from coarse-graining to the phase model and its proposed representational role. In both, the finite register and the field boundary are independent starting objects.
 
 For the active branch, the controller has the register's state type and the fourth node records
@@ -386,7 +411,7 @@ Connection & Status & Required assumption \\
 \hline
 E12 & Independent physical premise & A finite-capacity system realizes a field that leaves its vacuum manifold. Capacity and the boundary are independent roots. \\
 E23 & Bridge assumption & The boundary is associated with a finite register whose update leaves states unreachable. \\
-E34 / E34Active & Bridge assumption & Passive: a predictive structure with the register's thermal scale and heat budget, and nonzero wasted memory. Active: positivity, local detailed balance and the register's heat allocation for the named elementary process, the allocation being derived from a ledger of that register's own operations. The ledger identity and the compressiveness of the register's other operations are that model's inputs. \\
+E34 / E34Active & Bridge assumption & Passive: a predictive structure at the register's thermal scale and heat budget, with nonzero wasted memory. Active: positivity, local detailed balance and a register-heat allocation, derived from its ledger identity and other operations' compressiveness. A continuing protocol gives store budgets when stage heats are nonnegative; identifying these with register heat remains an input. \\
 E45 / E45Active & Modelling assumption & Passive: a convergent regime, for hardware holding a declared predictive law. Active: Eq.~\eqref{eq:actuated-coupling} from a supplied gain, profile and meshes; Eq.~\eqref{eq:kernel-limit} from declared response modes. \\
 E56 & Physical commitment & A specified physical field realizes the limiting coupling and satisfies the kernel conditions. \\
 E67 & Physical commitment & That field operates above the synchronization threshold. \\

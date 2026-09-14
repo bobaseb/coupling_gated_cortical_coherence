@@ -1313,6 +1313,79 @@ both baselines. Its regressions retain a reward-decreasing transition, an
 unchanged action marginal, a conditional-only informativeness of the outcome and
 the rejection of a reset law.}
 
+\subsection{Running another episode costs another episode}
+\label{sec:continuing-agent}
+
+A learner's register can release only a finite amount of energy while its
+decoded policy improves. Running a task again also involves acting on the
+world and preparing it for reuse. A continuing finite-agent model makes those
+operations explicit on one evolving law.
+
+The state has three bits: an unknown rewarding action, a register that
+selects the action, and a task flag. The cycle has three stages. Acting moves
+the flag according to the register's action. Learning reads that flag through
+a noisy observation and writes the register. Reset returns the flag to a
+standard probability distribution for the next episode. The coordinate not
+being driven undergoes noisy drift. Each output is the next input; no stage
+receives a freshly prepared copy of the task.
+
+The register, observation and update cannot directly consult the unknown
+parameter. The actuator's response depends on whether the chosen action is
+the rewarding one, so the observation can convey useful information. Reward
+scores what happens and enters none of the channels. Starting with three
+uniform bits, the register agrees with the unknown rewarding action with
+probability $65/128$ after the first complete cycle. Later cycles obey
+\[
+ a_{m+1}=\frac{65}{128}+\frac{a_m}{128}.
+\]
+Thus the acquired advantage remains above chance at every completed cycle
+of the mathematical protocol. The flag returns to probability $1/4$ after
+each reset; the register's changing correlation with the task carries over.
+
+Now give the process an initial work allowance $B$. The remaining allowance
+after $N$ stages is $B-W_{<N}$, where $W_{<N}$ is expected cumulative work.
+A run fits that allowance only if it stays nonnegative at every earlier
+stage too. For one common energy and temperature, the first law and entropy
+balance add across the actual sequence:
+\[
+ \theta[H(p_0)-H(p_N)]\leq Q_{<N}
+ =W_{<N}+\langle E\rangle_0-\langle E\rangle_N.
+\]
+The store and the system's energy loss therefore bound the joint entropy
+the run can remove. If each stage costs at least a positive amount, a finite
+store funds only finitely many stages.
+
+The bit witness assigns zero energy to every joint state, so heat is paid
+entirely by work. Heat is the transition log-ratio at thermal scale one for
+each composite stage. The first cycle costs
+$(15/32)\log3+(1/16)\log(5/3)$, including reset, and every cycle costs at
+least $(3/16)\log3+(1/16)\log(5/3)$. An allowance $4\log3$ covers every
+stage of the first cycle and cannot cover 22 complete cycles. This bound
+does not locate the exact stage at which the allowance runs out.
+
+The controls explain the roles of observation and preparation. Make the
+observation independent of the flag and performance remains at chance,
+with no learning-stage heat. Replace reset by idle drift and some learning
+survives, but the flag fails to return to its standard law and performance
+in the second cycle is lower. The reset has a cost and an effect on the
+next action.
+
+\scope
+The allowance bounds expected work at each prefix, not a battery on every
+sample path. The initial law and store are supplied resources. Reset prepares
+later episodes; preparing the original prior is outside this accounting.
+The observation is marginalized inside the learning channel, so its local
+detailed balance does not derive a separate physical sensor memory or its
+erasure. Battery dynamics, fabrication and cortical identification require
+further models.
+
+\lean{\id{FiniteProtocol}, \id{ContinuingProcess} and \id{ContinuingAgent}
+live in \id{Phase3\_ContinuingAgent.lean}. The summed first law and entropy
+balance lead to \id{entropy\_reduction\_le\_stored} and
+\id{horizon\_le\_of\_cost}. \id{Examples/ContinuingAgent.lean} proves the
+cycle law, persistent reward, stage costs, a funded first cycle, finite-store
+exhaustion and the observation/reset controls.}
+
 \subsection{One register's ledger}
 \label{sec:register-ledger}
 
@@ -4936,6 +5009,7 @@ Agency and feedback (\S\ref{sec:agency}) & Explicit perception--action channels;
 Finite feedback thermodynamics (\S\ref{sec:agency-heat}, \S\ref{sec:agency-cycle}) & Elementary and complete two-substep heat budgets; total first law & Theorem under positivity and local detailed balance; common thermal scale and energy for the cycle \\
 Finite policy selection (\S\ref{sec:agency-control}) & Unique feasible optimum improves a declared lamp task & Theorem for specified deterministic policies and an actual-update heat budget; learning and switching excluded \\
 Policy adaptation (\S\ref{sec:policy-learning}) & Expected reward improves toward a stationary mixture; cumulative register heat is finite & Theorem for supplied values, thermal channel and initial preparation; task execution and readout installation excluded \\
+Continuing agent (\S\ref{sec:continuing-agent}) & \raggedright An act--learn--reset sequence retains above-chance reward at positive recurring cost & \raggedright\arraybackslash Theorem for a supplied prior, channels and work store; budgets bound expectations; battery and sensor-memory dynamics excluded \\
 Learning from outcomes (\S\ref{sec:observational-learning}) & Expected reward of the executed action rises from $1/2$ toward $3/4$; the work spent is irreducible & Theorem for an unknown parameter, a declared prior and observation-driven updates; preparation, power supply and readout fabrication excluded \\
 KL bound; free-energy critique (\S\ref{sec:fep}) & Blocks ``dissipation $\Rightarrow$ true model'' & Instance postulate; the limit does \emph{not} follow \\
 Squared-drift gradient (\S\ref{sec:sigma}) & A descendable objective for plasticity & Theorem at fixed phases; \emph{not} entropy production \\

@@ -6,6 +6,7 @@ import PhysicsOfConsciousness.Phase3_CombinatorialThermodynamics
 import PhysicsOfConsciousness.Phase3_KLBound
 import PhysicsOfConsciousness.Phase3_PredictiveThermodynamics
 import PhysicsOfConsciousness.Phase3_AgencyThermodynamics
+import PhysicsOfConsciousness.Phase3_ContinuingAgent
 import PhysicsOfConsciousness.Phase3_ActuatedCoupling
 import PhysicsOfConsciousness.Phase3_LocalActuator
 import PhysicsOfConsciousness.Phase3_MeasureThermodynamics
@@ -249,6 +250,54 @@ theorem activeBound_of_feedback {Xs S : Type*} [Fintype Xs] [Fintype S] [Nonempt
     (q : Xs → S → S → ℝ) (hldb : M.LocalDetailedBalance θ q)
     (budget : ℝ) (hbudget : M.meanHeat q ≤ budget) : ActiveBound M θ q budget :=
   ⟨hθ, M.heat_bound h θ hθ q hldb, hbudget⟩
+
+/-- A stage of one continuing process satisfies the active node within the
+store plus the run's mean energy drop, provided every stage delivers
+nonnegative mean heat. The allocation follows from the executed sequence's
+first law. This is not E34Active's identification with a named register's
+erasure heat, and does not supply E45Active's spatial convergence. -/
+theorem activeBound_of_continuing {X S : Type*} [Fintype X] [Fintype S] [Nonempty S]
+    (C : ContinuingProcess X S) (hp : C.protocol.Positive)
+    (ht : 0 < C.temperature) (hq : C.protocol.LocalDetailedBalance C.temperature C.heat)
+    (N k : ℕ) (hk : k < N) (hs : C.Sustains N)
+    (hn : ∀ j ∈ Finset.range N, 0 ≤ (C.protocol.step j).meanHeat (C.heat j)) :
+    ActiveBound (C.protocol.step k) C.temperature (C.heat k)
+      (C.stored + (∑ z, (C.protocol.law 0).p z * C.energy z) -
+        ∑ z, (C.protocol.law N).p z * C.energy z) := by
+  apply activeBound_of_feedback _ (C.protocol.step_positive hp k) _ ht _ (hq k)
+  have hpart : (C.protocol.step k).meanHeat (C.heat k) ≤ C.totalHeat N :=
+    Finset.single_le_sum hn (Finset.mem_range.mpr hk)
+  exact hpart.trans (C.totalHeat_le_stored N hs)
+
+/-- Every stage of the continuing bit agent's funded first cycle inhabits the
+active node at its store allowance. This identifies the executed stage and
+its resources, but not the register-erasure budget demanded by E34Active. -/
+theorem continuing_stage_activeBound (k : ℕ) (hk : k < 3) :
+    ActiveBound (Examples.Continuing.agent.protocol.step k) 1
+      (Examples.Continuing.agent.protocol.stageHeat 1 k) (4 * Real.log 3) := by
+  let C := Examples.Continuing.process
+  have hn : ∀ j ∈ Finset.range 3, 0 ≤ (C.protocol.step j).meanHeat (C.heat j) := by
+    intro j hj
+    have hj3 := Finset.mem_range.mp hj
+    change 0 ≤ (Examples.Continuing.agent.protocol.step j).meanHeat
+      (Examples.Continuing.agent.protocol.stageHeat 1 j)
+    interval_cases j
+    · rw [Examples.Continuing.act_cost 0 _ _ _ _ Examples.Continuing.law_zero_masses]
+      have := Examples.Continuing.log_three_pos
+      norm_num
+      positivity
+    · rw [Examples.Continuing.learn_cost 0]
+      exact mul_nonneg (by norm_num) Examples.Continuing.log_ratio_pos.le
+    · exact (Examples.Continuing.reset_cost_pos 0).le
+  have h := activeBound_of_continuing C Examples.Continuing.protocol_positive
+    (by norm_num [C, Examples.Continuing.process])
+    (Examples.Continuing.agent.protocol.local_balance 1) 3 k hk
+    Examples.Continuing.first_cycle_sustained hn
+  simpa only [C, Examples.Continuing.process, mul_zero, Finset.sum_const_zero,
+    add_zero, sub_zero] using h
+
+#print axioms activeBound_of_continuing
+#print axioms continuing_stage_activeBound
 
 /-- The same process's entropy reduction is at most its budget divided by the
 positive thermal scale. No sign is imposed on that entropy reduction. -/

@@ -85,6 +85,22 @@ def dirac [DecidableEq V] (v : V) : ProbDist V where
 @[simp] theorem dirac_apply [DecidableEq V] (v u : V) :
     (dirac v).p u = if u = v then 1 else 0 := rfl
 
+/-- Two coordinates updated by unrelated channels in the same operation. A
+product is the absence of a correlation written by that operation, not the
+absence of correlation in the joint law it acts on. -/
+noncomputable def prod (P : ProbDist U) (Q : ProbDist V) : ProbDist (U × V) where
+  p z := P.p z.1 * Q.p z.2
+  nonneg z := mul_nonneg (P.nonneg z.1) (Q.nonneg z.2)
+  sum_one := by
+    simp only [Fintype.sum_prod_type, ← Finset.mul_sum, ProbDist.sum_one, mul_one, P.sum_one]
+
+@[simp] theorem prod_apply (P : ProbDist U) (Q : ProbDist V) (z : U × V) :
+    (P.prod Q).p z = P.p z.1 * Q.p z.2 := rfl
+
+theorem prod_pos (P : ProbDist U) (Q : ProbDist V) (hP : ∀ u, 0 < P.p u)
+    (hQ : ∀ v, 0 < Q.p v) (z : U × V) : 0 < (P.prod Q).p z :=
+  mul_pos (hP z.1) (hQ z.2)
+
 /-- A channel that ignores its input discards the input law. This is the
 identity a frozen register's composite transition reduces to. -/
 @[simp] theorem bind_const (P : ProbDist U) (Q : ProbDist V) :
