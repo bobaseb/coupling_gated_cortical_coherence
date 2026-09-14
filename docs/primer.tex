@@ -1126,8 +1126,8 @@ endpoint alone would miss that difference.
 More generally, a nonempty finite set of feasible deterministic policies has
 a maximizer for any supplied terminal reward. Strict improvement needs a
 better feasible policy, as this example provides. The theorem compares fixed
-policies for one update. Learning, installing or switching a policy needs
-its own dynamics and accounting; the comparison supplies no continuing power
+policies for one update. The register model below supplies adaptation dynamics
+and their heat accounting; the comparison supplies no continuing power
 source or identification with cortex. The active chain's resource allocation
 and coupling-convergence assumptions remain separate.
 
@@ -1138,6 +1138,88 @@ with the explicit policy, world, observation and memory channels. \id{exists\_op
 proves finite feasible maximization. \id{Examples/AgencyControl.lean} proves
 the exact policy table, \id{budgeted\_improvement}, \id{unique\_optimum} and
 the counterexamples involving feasibility and equal outputs.}
+
+\subsection{A policy register that adapts}
+\label{sec:policy-learning}
+
+Comparing policies does not say how a physical controller changes its policy.
+A small learning model makes that next step explicit. Add a separate register
+bit: false stands for the baseline lamp policy, true for copying memory. Both
+policies fit the task's heat budget. The question is how the probability of
+using copy changes, and what changing the register costs.
+
+The model starts with the policies' expected rewards already known. At thermal
+scale one, assign the register energy $\log3$ when false and zero when true.
+This energy is exactly $4\log3$ times the gap between copy's expected reward
+and the selected policy's reward. The objective is therefore built into the
+energy landscape. The model concerns adaptation toward that encoded
+objective; it does not estimate an unknown reward from experience.
+
+At each learning update the register follows this fixed channel:
+\begin{center}
+\begin{tabular}{lcc}
+\hline
+Current register & Next false & Next true \\
+\hline
+False & $5/8$ & $3/8$ \\
+True & $1/8$ & $7/8$ \\
+\hline
+\end{tabular}
+\end{center}
+The ratio of the forward and reverse switching probabilities is three.
+Consequently, each transition's forward/backward log-ratio equals the energy
+lost by the register. That loss is the outward heat in this reservoir model,
+and the pathwise first law gives zero external work during relaxation.
+
+Let $p_n$ be the probability that the register holds copy after $n$ updates.
+Each update starts from the preceding update's actual output. With $p_0=1/4$,
+\[
+ p_{n+1}=\frac38+\frac12p_n,
+ \qquad p_n=\frac34-\frac12\left(\frac12\right)^n.
+\]
+The expected reward of the policy it holds is then
+\[
+ J_n=(1-p_n)\frac14+p_n\frac12
+ =\frac7{16}-\frac18\left(\frac12\right)^n.
+\]
+This expectation increases at every finite update. The distribution converges
+to probability $3/4$ of copy, and that distribution is stationary under the
+same channel. Its expected reward $7/16$ remains below copy's $1/2$ and below
+the task target. Convergence need not mean optimal learning.
+
+The resource accounting uses those same changing probabilities. Update $n$
+releases mean heat $(\log3)(1/2)^n/4$, and the total through $N$ updates is
+\[
+ Q^L_{<N}=\frac{\log3}{2}\left[1-\left(\frac12\right)^N\right].
+\]
+This equals the decrease in the register's mean energy and stays below
+$(\log3)/2$. The finite entropy balances telescope as well. The initial
+preparation contains the energy that is released; the model supplies no
+continuing power source.
+
+The task has a different clock. $J_n$ evaluates how well the held policy
+would perform on the lamp task's prepared initial law, independently of the
+register. Both policies have task heat $(\log3)/4$ and zero mean task work,
+so every mixture retains those expectations. The learning updates themselves
+execute no lamp trials. Preparing either initial law, measuring unknown
+rewards and implementing the register's readout in an actuator need their own
+physical accounting. A finite total for register relaxation cannot pay for
+arbitrarily many task episodes.
+
+Two checks delimit the improvement claim. A register holding copy can switch
+to the baseline with probability $1/8$, lowering that trajectory's reward.
+And the same channel, started with copy probability $7/8$, lowers expected
+reward because it relaxes toward $3/4$. The proved improvement depends on
+the chosen initial preparation as well as the objective and channel.
+
+\lean{
+\id{FiniteFeedbackStep.iterate} and its summed entropy and first-law theorems
+live in \id{Phase3\_AgencyThermodynamics.lean}.
+\id{Examples/PolicyLearning.lean} identifies energy with the supplied reward,
+proves the recurrence from the actual channel, and checks reward improvement,
+the stationary limit, transition heat and cumulative energy loss. Its
+regressions retain reward-decreasing paths, reject a reset initial law and
+show expected reward decrease for the alternative preparation.}
 
 \section{What does not follow: the free-energy reading}
 \label{sec:fep}
@@ -3685,9 +3767,10 @@ update theorem in Section~\ref{sec:agency-cycle} matches the intermediate law
 and accounts for both substeps at a common thermal scale. Its heat bound does
 not supply E34Active's register-to-actuator allocation or E45Active's
 coupling-convergence implication. A claim about learning
-would require specified update dynamics and a criterion for what counts as
-improvement. Moreover, n5 concerns refinement of a spatial mesh; convergence
-over learning time alone would not establish that limit.
+requires specified update dynamics and a criterion for improvement, as in
+the policy-register model of Section~\ref{sec:policy-learning}. That model's
+convergence is over learning updates; n5 concerns refinement of a spatial
+mesh. Convergence over learning time alone does not establish that limit.
 
 \subsection{A chosen physical model and its empirical interpretation}
 
@@ -4446,6 +4529,7 @@ Landauer $\to$ Still bridge & One heat, two vocabularies & Theorem under an iden
 Agency and feedback (\S\ref{sec:agency}) & Explicit perception--action channels; separates two conditional information terms & Theorem; finite information, passive case recovered \\
 Finite feedback thermodynamics (\S\ref{sec:agency-heat}, \S\ref{sec:agency-cycle}) & Elementary and complete two-substep heat budgets; total first law & Theorem under positivity and local detailed balance; common thermal scale and energy for the cycle \\
 Finite policy selection (\S\ref{sec:agency-control}) & Unique feasible optimum improves a declared lamp task & Theorem for specified deterministic policies and an actual-update heat budget; learning and switching excluded \\
+Policy adaptation (\S\ref{sec:policy-learning}) & Expected reward improves toward a stationary mixture; cumulative register heat is finite & Theorem for supplied values, thermal channel and initial preparation; task execution and readout installation excluded \\
 KL bound; free-energy critique (\S\ref{sec:fep}) & Blocks ``dissipation $\Rightarrow$ true model'' & Instance postulate; the limit does \emph{not} follow \\
 Squared-drift gradient (\S\ref{sec:sigma}) & A descendable objective for plasticity & Theorem at fixed phases; \emph{not} entropy production \\
 Kuramoto SDE & The physical core & Model \\

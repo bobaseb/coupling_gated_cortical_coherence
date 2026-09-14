@@ -19,6 +19,7 @@
     `Examples/Phase2.lean`  §6
     `Examples/Phase3.lean`  §2, §18
     `Examples/AgencyControl.lean` -- finite budgeted policy selection
+    `Examples/PolicyLearning.lean` -- thermal policy adaptation and its costs
     `Examples/Phase4.lean`  §7, §15, §16, §17
     `Examples/Phase5.lean`  §13, §14, §17.1, §20 (overlap agreement)
     `Examples/Phase6.lean`  §10
@@ -113,6 +114,7 @@ import PhysicsOfConsciousness.Examples.Agency
 import PhysicsOfConsciousness.Examples.AgencyThermodynamics
 import PhysicsOfConsciousness.Examples.AgencyCycle
 import PhysicsOfConsciousness.Examples.AgencyControl
+import PhysicsOfConsciousness.Examples.PolicyLearning
 import PhysicsOfConsciousness.Examples.Phase4
 import PhysicsOfConsciousness.Examples.Phase5
 import PhysicsOfConsciousness.Examples.Phase6

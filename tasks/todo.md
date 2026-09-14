@@ -42,7 +42,13 @@ The agency/active-chain extension is complete; its primer alignment and the
 complete finite-update theorem are recorded in the dated sections at the end
 of this ledger. L2's goal-directed policy selection under a finite budget is
 complete; its witness and scope are recorded below. Further theoretical
-modelling does not require new empirical results.
+modelling does not require new empirical results. The bounded learning-dynamics
+model is complete: thermal adaptation of a policy register with known task
+values, expected improvement, a stationary limit and explicit update heat.
+Its specification and scope are in `tasks/learning_dynamics.md`.
+The agency roadmap at the end of this ledger records the remaining modelling
+gaps and stretch work. Agency has reached the 80/20 stopping point for the
+current manuscript; those extensions are not submission prerequisites.
 The 80/20 constraint remains to correct unsupported claims and retain supported
 results, without expanding into incremental sweeps.
 
@@ -1713,19 +1719,50 @@ submission prerequisite.
       budget and actual operations are identified. The existing numerical heat
       comparison and distinct toy components do not establish a shared physical
       mechanism. A lower bound on erasure heat supplies no upper actuator budget.
-- [ ] **Learning dynamics.** After the bounded L2 control result, specify how
+      Integrating the agent's processes is useful progress, but closing this
+      edge additionally requires identifying the named register and deriving
+      its allocation to the controlled process.
+- [x] **Learning dynamics.** After the bounded L2 control result, specify how
       the policy changes, which objective drives the update and what resource
       costs it incurs before seeking a learning-improvement or convergence theorem.
+      **Done 2026-09-14:** `FiniteFeedbackStep.iterate` and
+      `Examples/PolicyLearning.lean` derive actual-law iteration, expected reward
+      improvement, convergence to a suboptimal stationary mixture and cumulative
+      register heat from energy loss. The thermal energy encodes known L2 rewards;
+      individual paths and a different initial preparation can lower reward.
+      Specification, resource boundary and verification:
+      `tasks/learning_dynamics.md` and the completion record below.
+- [ ] **Learning from experience.** Specify observations of actual task
+      outcomes, an estimator or memory update and a policy update driven by
+      that information. Prove that acquired observations affect subsequent
+      behaviour and improve a declared performance criterion in a model with
+      initially unknown task information. The objective may be supplied; the
+      completed policy-register model also supplies the policy values in its
+      energy, so it does not establish their acquisition from experience.
+- [ ] **One continuing physical agent.** Compose learning, subsequent action,
+      observation and memory updates on one evolving joint law. Include the
+      policy register's actual influence on the actuator, preparation and any
+      resets, and the energy source and resource consumption. Derive total
+      heat/work and entropy accounting for the executed process. The current
+      learner and sensorimotor task are separate processes; prospective task
+      expectations and summable register heat do not account for running them
+      together. This and observational learning form the bounded next
+      experiment specified in the agency roadmap below.
 - [ ] **E45/E45Active — spatial coupling convergence.** Specify and derive the
       relation from the chosen control or learning dynamics to the named
       coupling-energy sequence under spatial mesh refinement. Learning time
       and the mesh-refinement index are distinct: convergence in time alone
       does not prove convergence under refinement. This is separate from
       E34Active's budget identification and L2's task-performance theorem.
+      Specify how implemented actions or policy updates change the actual
+      coupling kernel before attempting the limit theorem.
 - [ ] Model how local descriptions acquire or preserve overlap agreement and
-      how a readout fixes the glued state. Conditional proofs and counterexamples
-      can precede data; identifying the variables with neural content and testing
-      their relevance to experience are separate empirical/interpretive tasks.
+      how a readout fixes the glued state. For an agency-based mechanism, connect
+      observations and updates to a declared local content state and derive
+      agreement or a quantified residual. Coordinate this choice with L3/L4's
+      consistency work. Conditional proofs and counterexamples can precede
+      data; identifying the variables with neural content and testing their
+      relevance to experience are separate empirical/interpretive tasks.
 
 R1–R6 continue to track calibration, observation and biological validation.
 The final citation/macro review and author/journal metadata items remain in P;
@@ -1948,3 +1985,151 @@ transition work; it excludes policy installation, switching, learning and
 additional physical registers. It supplies neither cortical identification nor
 a continuing energy source, E34Active allocation or E45Active convergence.
 L3, L4, the unscheduled modelling questions and the P-items remain open.
+
+## 2026-09-14 — Learning dynamics: thermal adaptation with actual update costs
+
+- [x] Specify the objective, autonomous register channel, initial preparation,
+      resource accounting and stopping point before implementation. Run failing
+      Lean specifications before adding the iteration and witness declarations.
+- [x] Add `FiniteFeedbackStep.iterate` beside the elementary process. Every
+      update receives the previous final law; positivity persists, and finite
+      entropy and first-law balances telescope. Zero path work identifies
+      cumulative heat with the same process's mean energy loss.
+- [x] In `Examples/PolicyLearning.lean`, decode the register into L2's two
+      feasible lamp policies and identify its energy with their known reward
+      gap. Derive the distribution from the actual channel, strict expected
+      improvement, geometric convergence to a stationary mixture, positive
+      update heat and a finite cumulative heat bound. The prospective task
+      mixture retains L2's heat budget and zero expected work.
+- [x] Retain positive-probability reward-decreasing transitions, prove that the
+      limit stays below the optimal policy, and show expected reward decrease
+      from a different strictly positive initial preparation. Reject frozen or
+      reset initial laws by proving consecutive distributions differ.
+- [x] Align article, supplement, status tables and primer. Rebuild and visually
+      inspect the tracked PDFs (39, 34 and 76 pages); rebuild the 49-page arXiv
+      archive and compile it from the unpacked tarball. Final standalone logs
+      have no warnings or overfull boxes, matching the pre-change baseline.
+- [x] Pass the zero-warning full Lean build and axiom audit: 2,568 declarations
+      in 45 modules, only `propext`, `Classical.choice` and `Quot.sound`.
+      Explicit headline axiom checks, all applicable pre-commit hooks, 39
+      publication/macro tests, working-tree PDF dependency checks and
+      `git diff --check` pass. Python hooks skip because no Python changed.
+
+Specification and execution record: `tasks/learning_dynamics.md`. The exact
+expectations and limits are proved in Lean; no simulation, reference, Python
+source or dependency was added. The register adapts toward a supplied energy
+encoding of known task values. It does not learn unknown rewards from data.
+Its heat covers register relaxation from a prepared initial law, not preparing
+that law, executing/resetting task episodes or installing the policy readout
+in an actuator. Those processes remain in the separate open item above.
+Neither E34Active's common resource identification nor E45Active's spatial
+convergence follows from this learning-time limit. L3, L4 and the other
+modelling/submission tasks remain open.
+
+## 2026-09-14 — Agency roadmap and stretch work
+
+**Assessment and priority.** Agency has reached the 80/20 stopping point for
+its role in the current manuscript: feedback information, a complete finite
+perception--action update with heat/work accounting, budgeted goal-directed
+control and policy adaptation toward supplied values are proved and witnessed.
+The remaining gaps concern learning from experience, one continuing physical
+agent, and the connection to cortical coupling and representation. They remain
+substantial research questions. None is a prerequisite for reviewing or
+submitting the manuscript with its current scope statements.
+
+The open checkboxes in the modelling section above are the status record for
+those gaps. The specifications below explain what would close them; they do
+not mark further implementation as complete. All items, including the stretch
+work, are recorded at the user's request on 2026-09-14.
+
+### Highest-value optional next step — learning changes the next actual action
+
+**Intent.** Combine observational learning and execution in one bounded finite
+task. An observed outcome changes the policy, and the changed policy controls
+the next actual action. Begin with a small state space, explicit initial
+uncertainty and a fixed finite horizon. Retain the current support and
+autonomous-channel regime where possible rather than first generalizing the
+thermodynamic library.
+
+**Completion criteria to specify before implementation:**
+
+1. Declare the environment, internal memory, policy register, action and
+   observation variables, objective, permitted update rule, horizon and
+   comparison baseline. The learner cannot read the unknown environmental
+   parameter or receive precomputed policy values in place of observations.
+2. Construct the sequence observation--policy update--next action on one joint
+   law, carrying every actual output into the next input. Exhibit dependence
+   of the updated policy on the observation and of the next world transition
+   on that policy. A changing internal label with unchanged behaviour does not
+   satisfy this criterion.
+3. Account for the implemented readout and all executed substeps, with common
+   energy and reservoir conventions. Include preparation or resets if used,
+   specify the source of consumed energy, and state any initially supplied
+   resource explicitly. Derive total heat/work and entropy balances for the
+   same process used to evaluate performance.
+4. Prove strict improvement in a prespecified task-performance criterion over
+   a frozen-policy baseline under declared initial uncertainty and a common
+   resource allowance. Evaluate the actual trajectories; prospective rewards
+   at independently prepared task laws are insufficient for this result.
+5. Supply nontrivial witnesses and regressions: observations carry task
+   information, policies and subsequent actions can change, and informative
+   observations cannot be replaced by an uninformative channel while keeping
+   the same improvement claim. Retain the distinction between expected
+   improvement and improvement of every sample path.
+6. Follow SDD/TDD, the axiom audit and publication/PDF alignment rules. A
+   theoretical finite model requires no new empirical data; identifying it
+   with cortex is a separate task.
+
+**Stop rule.** Stop at one specified finite task, its whole-process accounting,
+an improvement theorem and its negative checks. Do not make arbitrary horizons,
+general reinforcement-learning convergence or a cortical identification part
+of this change. If the proposed model cannot meet the criterion, record the
+obstruction or counterexample before designing a separate alternative.
+
+### Further major gaps — separate modelling changes
+
+**Common resources and sustained operation.** A bounded interacting witness
+should expose where useful energy is consumed. A claim about a continuing
+agent additionally needs a declared supply or replenishment process and its
+work/heat balance. E34Active is closed only when the named register's physical
+operations and its allocation to the controlled process are established.
+Sharing a state type or satisfying a numerical heat comparison is not that
+identification. Keep this bridge task separate if the bounded witness does
+not realize that specific register.
+
+**Coupling and representation.** Specify a mechanism by which the executed
+agent changes the field's coupling kernel and derive the claimed spatial
+limit with explicit regularity and refinement assumptions. Separately choose
+the local content variables and their observation/update dynamics, then prove
+overlap agreement, preservation of agreement or a quantified residual and
+the required readout relation. These are the existing E45/E45Active and local
+agreement gaps, not consequences of improved task reward. Cortical calibration
+and the interpretation of these variables as experienced content remain
+distinct empirical/interpretive work.
+
+### Stretch — lower priority until a concrete model needs it
+
+- [ ] **Broader state spaces for agency thermodynamics and control.** Extend
+      the finite path-cost and control results to a declared countable or
+      continuous model, with the necessary integrability, support and existence
+      assumptions and a nontrivial witness. The general `Agency` channel
+      interface already accepts measurable spaces; another such interface
+      would not close this gap.
+- [ ] **Weaker positivity assumptions in the thermodynamic results.** Admit
+      zero initial masses or transitions under appropriate forward/reverse
+      support conditions. Prove the balance in a meaningful new case and retain
+      cases of infinite entropy production or absolute irreversibility where
+      required. Do not turn an infinite information quantity into a finite cost
+      through `ENNReal.toReal`. Finite information results already cover zero
+      atoms; the strict-support restriction here concerns path thermodynamics.
+- [ ] **Longer horizons and additional learning-convergence results.** Once an
+      interacting learner is specified, prove persistence of task performance
+      or convergence/rate results for that process, together with resource
+      consumption as the horizon grows. State whether convergence is in law,
+      expectation or along paths, and whether the limit is optimal. Another
+      convergence theorem for a register with pre-encoded policy values would
+      not resolve observational learning or sustained operation.
+
+**Recording check.** This roadmap expands and separates the existing open
+items and records the suggested bounded experiment and stretch work. It adds
+no Lean declaration, simulation, reference or publication claim.

@@ -28,6 +28,11 @@ cycles, with a supplied terminal reward and local-detailed-balance reservoir
 model. A finite nonempty feasible set has a reward maximizer. This chooses no
 biological objective and supplies neither learning nor policy-switching costs.
 
+`FiniteFeedbackStep.iterate` evolves an autonomous channel from each preceding
+final law. Finite sums of its entropy and first-law balances telescope. The
+policy-register witness uses these results for objective-biased relaxation;
+task execution and physical installation of the readout remain separate.
+
 References, verified 2026-09-13: J. M. Horowitz and M. Esposito,
 "Thermodynamics with Continuous Information Flow", Physical Review X 4,
 031015 (2014), doi:10.1103/PhysRevX.4.031015; S. Ito and T. Sagawa,
@@ -195,6 +200,75 @@ theorem mean_first_law (M : FiniteFeedbackStep X S) (E : X × S → ℝ)
   simp_rw [h, mul_add, mul_sub]
   rw [Finset.sum_add_distrib, Finset.sum_sub_distrib,
     forward_expect_final, forward_expect_initial]
+
+/-! ## Repeated autonomous updates with a shared law -/
+
+/-- Repeat the same channel, carrying the actual final law into the next step.
+The index counts updates, not spatial refinement or independently reset trials. -/
+noncomputable def iterate (M : FiniteFeedbackStep X S) : ℕ → FiniteFeedbackStep X S
+  | 0 => M
+  | n + 1 => ⟨(M.iterate n).final, M.transition⟩
+
+@[simp] theorem iterate_zero (M : FiniteFeedbackStep X S) : M.iterate 0 = M := rfl
+
+@[simp] theorem iterate_initial_succ (M : FiniteFeedbackStep X S) (n : ℕ) :
+    (M.iterate (n + 1)).initial = (M.iterate n).final := rfl
+
+@[simp] theorem iterate_transition (M : FiniteFeedbackStep X S) (n : ℕ) :
+    (M.iterate n).transition = M.transition := by
+  cases n <;> rfl
+
+/-- Strict support survives every finite update. The initial support and
+channel positivity are hypotheses; no convergence or stationarity is used. -/
+theorem iterate_positive [Nonempty S] (M : FiniteFeedbackStep X S)
+    (h : M.Positive) (n : ℕ) : (M.iterate n).Positive := by
+  induction n with
+  | zero => exact h
+  | succ n ih => exact ⟨(M.iterate n).final_positive ih, h.2⟩
+
+/-- The entropy balance telescopes along the actual successive laws. Physical
+heat still requires local detailed balance; the channel is autonomous. -/
+theorem sum_entropy_balance [Nonempty S] (M : FiniteFeedbackStep X S)
+    (h : M.Positive) (n : ℕ) :
+    (∑ k ∈ Finset.range n, (M.iterate k).entropyProduction) =
+      shannon_entropy (M.iterate n).initial.p - shannon_entropy M.initial.p +
+        ∑ k ∈ Finset.range n, (M.iterate k).bathEntropy := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [Finset.sum_range_succ, Finset.sum_range_succ, ih,
+      (M.iterate n).entropy_balance (M.iterate_positive h n), iterate_initial_succ]
+    ring
+
+/-- A common energy and pathwise first law give finite cumulative work from
+the same evolving process. Preparation and time-dependent protocols are absent. -/
+theorem sum_first_law (M : FiniteFeedbackStep X S) (E : X × S → ℝ)
+    (q w : X → S → S → ℝ)
+    (h : ∀ x s t, w x s t = E (x, t) - E (x, s) + q x s t) (n : ℕ) :
+    (∑ k ∈ Finset.range n, (M.iterate k).meanHeat w) =
+      (∑ z, (M.iterate n).initial.p z * E z) - (∑ z, M.initial.p z * E z) +
+        ∑ k ∈ Finset.range n, (M.iterate k).meanHeat q := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [Finset.sum_range_succ, Finset.sum_range_succ, ih,
+      (M.iterate n).mean_first_law E q w h, iterate_initial_succ]
+    ring
+
+/-- With zero path work, cumulative heat is funded by the actual initial
+energy decrease. This neither supplies a continuing power source nor accounts
+for preparing the initial distribution. -/
+theorem sum_meanHeat_eq_energy_drop (M : FiniteFeedbackStep X S)
+    (E : X × S → ℝ) (q : X → S → S → ℝ)
+    (h : ∀ x s t, E (x, t) - E (x, s) + q x s t = 0) (n : ℕ) :
+    (∑ k ∈ Finset.range n, (M.iterate k).meanHeat q) =
+      (∑ z, M.initial.p z * E z) -
+        (∑ z, (M.iterate n).initial.p z * E z) := by
+  have hf := M.sum_first_law E q (fun _ _ _ => 0) (fun x s t => (h x s t).symm) n
+  have hz (k : ℕ) : (M.iterate k).meanHeat (fun _ _ _ => 0) = 0 := by
+    simp [meanHeat]
+  simp only [hz, Finset.sum_const_zero] at hf
+  linarith
 
 section Information
 
