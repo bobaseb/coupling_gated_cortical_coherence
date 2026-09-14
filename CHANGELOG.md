@@ -20,6 +20,52 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-14 — A register learns a task nobody told it about
+
+Four sentences are no longer claimed. The article said that "learning unknown
+rewards from observations" required additional accounting; Table S1's learning
+row listed "learning unknown rewards" among the separate work; the supplement
+said "learning unknown values" required further models; and the primer said
+that "measuring unknown rewards" needed its own physical accounting. Each was
+true of the policy-register model, whose energy landscape is built from rewards
+that are already known. None of them is true of the repository any more.
+
+`FiniteObservationalLearner` (`Phase3_ObservationalLearning.lean`) holds an
+environmental parameter fixed and unknown, reads the register out as the
+executed action, and updates the register from the observed outcome of that
+action. The fences are signatures: `update : O → R → ProbDist R` and
+`readout : R → A` have no `W` argument, so no channel can consult the parameter
+and no precomputed policy value can be decoded into the action; `reward` enters
+`performance` and nothing else. Act–observe–update composes into a single
+`FiniteFeedbackStep`, so the existing entropy balance, local detailed balance,
+first law and their telescoped sums apply to exactly the process the reward is
+read from.
+
+`Examples/ObservationalLearning.lean` witnesses it on a two-action task whose
+rewarding action is an unknown bit: every mass of the joint law in closed form,
+expected reward of the executed action rising strictly from `1/2` to `3/4`,
+strict improvement over both a frozen register and an uninformative world under
+one allowance, and cumulative heat `(log 3/4)[1 − (1/2)^N]`.
+
+The result that makes this a different model rather than the previous one
+relabelled is negative.
+`zero_work_needs_parameter_independent_heat` proves that a register energy
+giving zero path work forces the drive's heat to be the same at every parameter
+value. A drive that behaves identically in both environments cannot be what
+tells the register which one it is in, so the work spent here is irreducible:
+an energy landscape that paid for this learning would be one that already
+encoded the answer. Policy relaxation toward supplied values is free; learning
+from experience is not.
+
+What is still not claimed: preparing the prior, supplying that work, task
+episodes beyond the declared updates, fabricating the readout, convergence to
+an optimal policy, and any identification of these variables with cortical
+ones. The learner also acquires no preference between the two actions — it
+executes each half the time at every horizon — only a correlation with the
+parameter.
+
+---
+
 ## 2026-09-14 — A coupling kernel is constructed, not assumed
 
 Two sentences are no longer claimed. The article's status table said "kernel

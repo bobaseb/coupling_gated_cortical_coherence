@@ -1757,13 +1757,24 @@ submission prerequisite.
       individual paths and a different initial preparation can lower reward.
       Specification, resource boundary and verification:
       `tasks/learning_dynamics.md` and the completion record below.
-- [ ] **Learning from experience.** Specify observations of actual task
+- [x] **Learning from experience.** Specify observations of actual task
       outcomes, an estimator or memory update and a policy update driven by
       that information. Prove that acquired observations affect subsequent
       behaviour and improve a declared performance criterion in a model with
       initially unknown task information. The objective may be supplied; the
       completed policy-register model also supplies the policy values in its
       energy, so it does not establish their acquisition from experience.
+      **Done 2026-09-14:** `FiniteObservationalLearner` holds an environmental
+      parameter fixed and unknown and updates a policy register from the
+      observed outcome of the action its readout executed. The fences are
+      signatures: neither `update` nor `readout` takes the parameter, and the
+      reward enters no channel. Act--observe--update composes into one
+      `FiniteFeedbackStep`, so reward, heat and entropy are read from the same
+      law. `Examples/ObservationalLearning.lean` proves strict improvement over
+      a frozen register and an uninformative world under a common allowance,
+      and `zero_work_needs_parameter_independent_heat` shows the work spent is
+      irreducible. Specification, resource boundary and verification:
+      `tasks/observational_learning.md` and the completion record below.
 - [ ] **One continuing physical agent.** Compose learning, subsequent action,
       observation and memory updates on one evolving joint law. The register
       ledger labels one register's operations and does not sequence them, so
@@ -1773,8 +1784,10 @@ submission prerequisite.
       heat/work and entropy accounting for the executed process. The current
       learner and sensorimotor task are separate processes; prospective task
       expectations and summable register heat do not account for running them
-      together. This and observational learning form the bounded next
-      experiment specified in the agency roadmap below.
+      together. Observational learning is closed; sequencing its updates with
+      preparation, resets and a declared power source into one continuing
+      process is what remains of the bounded next experiment specified in the
+      agency roadmap below.
 - [x] **E45Active — a scalar constitutive case.** Completed 2026-09-14:
       `ActuatedCoupling` constructs a spatial density from the named feedback
       step's joint entropy reduction, a supplied nonnegative gain and a supplied
@@ -2095,6 +2108,14 @@ not mark further implementation as complete. All items, including the stretch
 work, are recorded at the user's request on 2026-09-14.
 
 ### Highest-value optional next step — learning changes the next actual action
+
+**Closed 2026-09-14** by the observational-learning model; see the completion
+record at the end of this file. Criteria 1, 2, 4, 5 and 6 are met in full.
+Criterion 3 is met for the executed updates and their drive, and explicitly not
+for preparation of the prior or a continuing supply: that half is what the
+"one continuing physical agent" item above still carries. The specification
+below stands as the statement of what was required.
+
 
 **Intent.** Combine observational learning and execution in one bounded finite
 task. An observed outcome changes the policy, and the changed policy controls
@@ -2429,3 +2450,70 @@ remaining open item is the overlap-agreement and readout question below;
 E34Active's allocation and E45Active's scalar case stay closed as recorded.
 Cortical identification, field trajectory convergence and the P-items are
 unchanged.
+
+## 2026-09-14 — Learning from experience: a register taught by its own outcomes
+
+`FiniteObservationalLearner` (`Phase3_ObservationalLearning.lean`) carries a
+prior on parameter and register, a readout `R → A`, a world channel
+`W → A → ProbDist O`, an update `O → R → ProbDist R` and a reward `W → A → ℝ`.
+The fences are type signatures rather than prose: the update has no `W`
+argument, so no channel can read the unknown parameter; the readout has no `W`
+argument, so no precomputed policy value can be decoded into the action; and
+the reward is used by `performance` and by nothing else. Act--observe--update
+composes into a `FiniteFeedbackStep W R`, so `iterate`, the KL-based entropy
+balance, local detailed balance, the first law and their telescoped sums apply
+to exactly the process the reward is read from. `law_succ_apply` and
+`meanHeat_apply` expose the evolving law and its path expectations;
+`cumulative_work_eq_heat`, `cumulative_entropy_budget` and `frozen_law` are the
+generic accounting and baseline results.
+
+`Examples/ObservationalLearning.lean` witnesses it on a two-action task whose
+rewarding action is an unknown bit. The world returns success with probability
+`3/4` for the rewarding action and `1/4` for the other; the update is win-stay,
+lose-resample. The composite channel is `[[5/8, 3/8], [1/8, 7/8]]` at one
+parameter value and its mirror at the other, every entry positive. `law_apply`
+gives every mass of the actual joint law at every horizon from the uniform
+prior, hence `performance_formula`'s `3/4 - (1/4)(1/2)^n`,
+`performance_improves`, `performance_limit` and `performance_below_certainty`.
+`update_heat` and `cumulative_heat` give `(log 3/8)(1/2)^n` and
+`(log 3/4)[1 - (1/2)^N]` on the same laws; `cumulative_work` makes that whole
+sum external work, because the register's two states are degenerate.
+
+The negative half is what separates this from the policy-register model.
+`zero_work_needs_parameter_independent_heat` proves that a register energy
+giving zero path work forces the drive's heat to be equal at every parameter
+value, and `no_zero_work_energy` exhibits `q_1(0,1) = log 3 = -q_0(0,1)`. An
+energy landscape that made this learning free would be one that already encoded
+the answer. `frozen_performance` and `blind_performance` hold both baselines at
+`1/2`, `blind_heat` shows the uninformative one is free, and
+`improves_on_baselines` states the strict improvement over both inside a common
+allowance, so the improvement is bought by the observations and not by the
+update rule or the heat. `observation_informative` and
+`outcome_marginal_uninformative` locate the information in the outcome
+conditional on the action, not in its marginal.
+`reward_decreasing_transition` keeps probability `1/8` on a reward-decreasing
+transition, `successive_laws_differ` rejects a frozen register and a reset, and
+`action_marginal_unchanged` shows the learner acquires a correlation with the
+parameter rather than a preference between actions.
+
+The red specifications failed before the declarations existed and pass with the
+proofs. The full `lake build` has zero warnings; the default axiom audit covers
+3,154 declarations in 53 modules with only `propext`, `Classical.choice` and
+`Quot.sound`, and the explicit headline checks agree. All pre-commit hooks pass
+under `uv --project simulations` at the repository root, as do 143 existing
+Python tests. No Python, dependency, reference, macro or simulation result
+changed.
+
+The article gained one paragraph, the supplement one subsection and one Table S1
+row, the primer one subsection and one summary row; four sentences claiming that
+learning unknown values remained open were removed as no longer true, and are
+recorded in `CHANGELOG.md`. The rebuilt article, supplement and primer have 44,
+39 and 82 pages, each one page longer than its predecessor, with no overfull
+boxes and the same underfull profile. The 57-page arXiv submission compiles from
+its unpacked archive and passes manifest freshness. `git diff --check` passes.
+
+Out of scope and still open: preparing the prior, supplying the work that drives
+the updates, executing task episodes beyond the declared updates, fabricating
+the readout, optimal-policy convergence, and any cortical identification. The
+remaining agency gaps are the register ledger's own premises, one continuing
+physical agent, and local content agreement.

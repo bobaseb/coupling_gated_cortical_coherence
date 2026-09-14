@@ -1204,10 +1204,11 @@ The task has a different clock. $J_n$ evaluates how well the held policy
 would perform on the lamp task's prepared initial law, independently of the
 register. Both policies have task heat $(\log3)/4$ and zero mean task work,
 so every mixture retains those expectations. The learning updates themselves
-execute no lamp trials. Preparing either initial law, measuring unknown
-rewards and implementing the register's readout in an actuator need their own
-physical accounting. A finite total for register relaxation cannot pay for
-arbitrarily many task episodes.
+execute no lamp trials. Preparing either initial law and implementing the
+register's readout in an actuator need their own physical accounting. A finite
+total for register relaxation cannot pay for arbitrarily many task episodes.
+Section~\ref{sec:observational-learning} takes up the separate question of a
+register whose values are not supplied in advance.
 
 Two checks delimit the improvement claim. A register holding copy can switch
 to the baseline with probability $1/8$, lowering that trajectory's reward.
@@ -1223,6 +1224,94 @@ proves the recurrence from the actual channel, and checks reward improvement,
 the stationary limit, transition heat and cumulative energy loss. Its
 regressions retain reward-decreasing paths, reject a reset initial law and
 show expected reward decrease for the alternative preparation.}
+
+\subsection{Learning a task nobody told the register about}
+\label{sec:observational-learning}
+
+The model above starts from the answer: the energy landscape is built from
+rewards that are already known. The obvious objection is that a learner is
+precisely a thing that does not know them. So remove the supply and see what
+survives.
+
+Which of two actions pays is an environmental bit. The learner's register bit
+is read out directly as the action it executes. The world answers each action
+with a noisy outcome: success with probability $3/4$ if the action taken was
+the rewarding one, $1/4$ otherwise. The update rule is win-stay,
+lose-resample --- keep the register on success, redraw it uniformly on failure.
+
+What makes this a different model, rather than the previous one relabelled, is
+where the fences sit. They are in the types. The update has the shape
+$\text{observation}\to\text{register}\to\text{register law}$, and the readout
+the shape $\text{register}\to\text{action}$. Neither has a slot for the
+environmental bit, so neither can consult it, and no expected reward can be
+decoded into the action. The reward function is used to score the process and
+appears in none of its channels.
+
+Acting, observing and updating compose into a single channel on the joint law
+of parameter and register, which is the same elementary bipartite update the
+rest of this section uses. At $w=1$ it is
+
+\begin{center}
+\begin{tabular}{lcc}
+\hline
+Current register & Next $0$ & Next $1$ \\
+\hline
+$0$ & $5/8$ & $3/8$ \\
+$1$ & $1/8$ & $7/8$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\noindent and its mirror image at $w=0$. Every mass of the actual joint law is
+available in closed form from the uniform prior: each pair with $r=w$ carries
+$3/8-\frac18(1/2)^n$ and each pair with $r\neq w$ carries
+$\frac18+\frac18(1/2)^n$. The expected reward of the action \emph{actually
+executed} is therefore
+\[
+ J_n=\frac34-\frac14\left(\frac12\right)^n,
+\]
+rising strictly from $1/2$ and never reaching certainty.
+
+Two baselines say what did the work. Freeze the register and it stays at
+$1/2$ forever. Keep the update rule but make the world uninformative --- success
+with probability $1/2$ whatever is done --- and it also stays at $1/2$, and
+spends nothing doing so. The improvement is bought by the observations, not by
+the update rule. The information those observations carry is conditional on the
+action: at a fixed register value the outcome distribution differs between the
+two environments, while at the prior the outcome's marginal says nothing at all.
+
+The accounting has a feature the previous model does not. Cumulative heat is
+\[
+ \sum_{n<N}\langle Q_n\rangle=\frac{\log3}{4}\left[1-\left(\frac12\right)^N\right]
+ \leq\frac{\log3}{4},
+\]
+and because the register's two states are energetically degenerate, all of it is
+work supplied from outside. That is not an artefact of choosing a flat energy.
+A register energy that made these updates free would force the drive's heat to
+be the same at both values of the environmental bit --- and a drive that behaves
+identically in the two environments cannot be what tells the register which one
+it is in. Learning from experience is paid for in work; relaxation toward an
+encoded objective is not. The entropy the learner removes fits inside the same
+$(\log3)/4$.
+
+Two more checks delimit the claim. The register leaves the rewarding action
+with probability $1/8$ at every update, so expected improvement is not
+improvement along every path. And each action is executed exactly half the time
+at every horizon: the learner acquires no preference between the actions, only a
+correlation with the parameter. What is still outside the model is preparing the
+prior, supplying the work, running task episodes beyond the declared updates,
+building the readout, and any claim that these variables are cortical ones.
+
+\lean{
+\id{FiniteObservationalLearner} and its generic results live in
+\id{Phase3\_ObservationalLearning.lean}:
+\id{zero\_work\_needs\_parameter\_independent\_heat} is the obstruction above,
+and \id{cumulative\_entropy\_budget} telescopes the entropy balance.
+\id{Examples/ObservationalLearning.lean} proves every mass of the law, the
+reward formula and its limit, the heat and work sums, and the improvement over
+both baselines. Its regressions retain a reward-decreasing transition, an
+unchanged action marginal, a conditional-only informativeness of the outcome and
+the rejection of a reset law.}
 
 \subsection{One register's ledger}
 \label{sec:register-ledger}
@@ -4847,6 +4936,7 @@ Agency and feedback (\S\ref{sec:agency}) & Explicit perception--action channels;
 Finite feedback thermodynamics (\S\ref{sec:agency-heat}, \S\ref{sec:agency-cycle}) & Elementary and complete two-substep heat budgets; total first law & Theorem under positivity and local detailed balance; common thermal scale and energy for the cycle \\
 Finite policy selection (\S\ref{sec:agency-control}) & Unique feasible optimum improves a declared lamp task & Theorem for specified deterministic policies and an actual-update heat budget; learning and switching excluded \\
 Policy adaptation (\S\ref{sec:policy-learning}) & Expected reward improves toward a stationary mixture; cumulative register heat is finite & Theorem for supplied values, thermal channel and initial preparation; task execution and readout installation excluded \\
+Learning from outcomes (\S\ref{sec:observational-learning}) & Expected reward of the executed action rises from $1/2$ toward $3/4$; the work spent is irreducible & Theorem for an unknown parameter, a declared prior and observation-driven updates; preparation, power supply and readout fabrication excluded \\
 KL bound; free-energy critique (\S\ref{sec:fep}) & Blocks ``dissipation $\Rightarrow$ true model'' & Instance postulate; the limit does \emph{not} follow \\
 Squared-drift gradient (\S\ref{sec:sigma}) & A descendable objective for plasticity & Theorem at fixed phases; \emph{not} entropy production \\
 Kuramoto SDE & The physical core & Model \\

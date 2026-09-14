@@ -20,6 +20,7 @@
     `Examples/Phase3.lean`  §2, §18
     `Examples/AgencyControl.lean` -- finite budgeted policy selection
     `Examples/PolicyLearning.lean` -- thermal policy adaptation and its costs
+    `Examples/ObservationalLearning.lean` -- learning an unknown task from outcomes
     `Examples/RegisterBudget.lean` -- one register's operations and its heat ledger
     `Examples/ActuatedCoupling.lean` -- a feedback step's scalar coupling amplitude
     `Examples/MicroscopicCoupling.lean` -- a thermal switch's installed spatial mode
@@ -118,6 +119,7 @@ import PhysicsOfConsciousness.Examples.AgencyThermodynamics
 import PhysicsOfConsciousness.Examples.AgencyCycle
 import PhysicsOfConsciousness.Examples.AgencyControl
 import PhysicsOfConsciousness.Examples.PolicyLearning
+import PhysicsOfConsciousness.Examples.ObservationalLearning
 import PhysicsOfConsciousness.Examples.RegisterBudget
 import PhysicsOfConsciousness.Examples.ActuatedCoupling
 import PhysicsOfConsciousness.Examples.MicroscopicCoupling

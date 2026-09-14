@@ -52,6 +52,49 @@ theorem expect_swap (P : ProbDist (X × S)) (f : S × X → ℝ) :
 
 end Swap
 
+section Bind
+
+variable {U V : Type*} [Fintype U] [Fintype V]
+
+/-- Sample from `P`, then from the channel `f` at the sampled point. The
+intermediate value is marginalized out; a model that must retain it composes
+the two laws explicitly instead. -/
+noncomputable def bind (P : ProbDist U) (f : U → ProbDist V) : ProbDist V where
+  p v := ∑ u, P.p u * (f u).p v
+  nonneg v := Finset.sum_nonneg fun u _ => mul_nonneg (P.nonneg u) ((f u).nonneg v)
+  sum_one := by
+    rw [Finset.sum_comm]
+    simp only [← Finset.mul_sum, ProbDist.sum_one, mul_one, P.sum_one]
+
+@[simp] theorem bind_apply (P : ProbDist U) (f : U → ProbDist V) (v : V) :
+    (P.bind f).p v = ∑ u, P.p u * (f u).p v := rfl
+
+/-- A channel whose every output law is positive keeps `bind` positive, for any
+input law on a nonempty domain. -/
+theorem bind_pos [Nonempty U] (P : ProbDist U) (f : U → ProbDist V)
+    (hP : ∀ u, 0 < P.p u) (hf : ∀ u v, 0 < (f u).p v) (v : V) : 0 < (P.bind f).p v :=
+  Finset.sum_pos (fun u _ => mul_pos (hP u) (hf u v)) Finset.univ_nonempty
+
+/-- The point mass at `v`. It is the update rule of a register that does not
+change, so it is the frozen baseline rather than a physical relaxation. -/
+def dirac [DecidableEq V] (v : V) : ProbDist V where
+  p u := if u = v then 1 else 0
+  nonneg u := by split <;> norm_num
+  sum_one := by simp
+
+@[simp] theorem dirac_apply [DecidableEq V] (v u : V) :
+    (dirac v).p u = if u = v then 1 else 0 := rfl
+
+/-- A channel that ignores its input discards the input law. This is the
+identity a frozen register's composite transition reduces to. -/
+@[simp] theorem bind_const (P : ProbDist U) (Q : ProbDist V) :
+    (P.bind fun _ => Q) = Q := by
+  apply ext
+  funext v
+  simp only [bind_apply, ← Finset.sum_mul, P.sum_one, one_mul]
+
+end Bind
+
 variable {V : Type*} [Fintype V] [MeasurableSpace V] [MeasurableSingletonClass V]
 
 /-- The probability measure with the specified finite real masses. -/

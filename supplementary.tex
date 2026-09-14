@@ -256,10 +256,10 @@ of updates, preserving strict support. In
  =\frac7{16}-\frac18\left(\frac12\right)^n.
  \label{eq:policy-learning-reward}
 \end{align}
-The theorem \texttt{performance\_improves} proves strict expected improvement
+The theorem \texttt{performance\_\allowbreak improves} proves strict expected improvement
 at every finite update. \texttt{law\_limit} and \texttt{stationary\_law}
 identify convergence to the stationary law with $\Pr(b=1)=3/4$;
-\texttt{performance\_limit} gives $J_n\to7/16<1/2=J(\pi_1)$.
+\texttt{performance\_\allowbreak limit} gives $J_n\to7/16<1/2=J(\pi_1)$.
 These are exact finite-state results, not simulation estimates.
 
 Heat is evaluated on the same evolving forward path laws:
@@ -288,9 +288,87 @@ probability of a copy-to-baseline transition. The same channel initialized
 with $\Pr(b=1)=7/8$ lowers expected reward
 (\texttt{overprepared\_\allowbreak reward\_\allowbreak decreases}). Improvement therefore depends
 on the objective, channel and initial preparation. This model establishes
-policy adaptation toward encoded task values; learning unknown values,
-cortical identification and the spatial coupling convergence of E45Active
-require further models.
+policy adaptation toward encoded task values. The model below supplies no such
+values; cortical identification and the spatial coupling convergence of
+E45Active require further models.
+
+\textit{Learning an unknown task from observed outcomes.}
+Which of two actions is rewarded is an environmental bit $w$ that the learner
+never reads. Its register bit $r$ is read out as the executed action $a=r$; the
+world returns success with $\Pr(o=1\mid w,a)=3/4$ when $a=w$ and $1/4$
+otherwise; and the update is win-stay, lose-resample, so $o=1$ leaves $r$
+unchanged and $o=0$ redraws it uniformly. The fences are signatures rather than
+prose. In \texttt{FiniteObservationalLearner}, the update has type
+$O\to R\to\mathrm{ProbDist}\,R$ and the readout has type $R\to A$: neither takes
+the parameter as an argument, so no channel can read it and no precomputed
+policy value can be decoded into the action. The reward enters
+\texttt{performance} and no channel.
+
+Acting, observing and updating compose into one \texttt{FiniteFeedbackStep} on
+$(W,R)$ with the parameter held fixed, so the existing path-law entropy balance,
+local detailed balance, first law and their telescoped sums apply to exactly the
+process the reward is read from. Its composite channel is
+\begin{equation}
+ T_w=\begin{pmatrix}5/8&3/8\\1/8&7/8\end{pmatrix}\quad(w=1),
+ \label{eq:observational-channel}
+\end{equation}
+with rows and columns ordered $r=0,1$, and its mirror image at $w=0$; every
+entry is positive. From the uniform prior on $(w,r)$, \texttt{law\_\allowbreak apply} gives
+every mass of the actual joint law at every horizon, and hence the expected
+reward of the action actually executed:
+\begin{align}
+ \Pr{}_n(w,r)&=\frac38-\frac18\left(\frac12\right)^n\ \ (r=w),
+ &\Pr{}_n(w,r)&=\frac18+\frac18\left(\frac12\right)^n\ \ (r\neq w),\\
+ J_n&=\frac34-\frac14\left(\frac12\right)^n.
+ \label{eq:observational-reward}
+\end{align}
+\texttt{performance\_\allowbreak improves} proves strict improvement at every update from
+$J_0=1/2$, \texttt{performance\_\allowbreak limit} gives $J_n\to3/4$ and
+\texttt{performance\_\allowbreak below\_\allowbreak certainty} keeps every $J_n$ below $1$.
+\texttt{action\_\allowbreak marginal\_\allowbreak unchanged} shows that each action is executed half the
+time at every horizon: what the learner acquires is a correlation with the
+parameter, not a preference between actions.
+
+Two baselines share the task, prior, readout and resource allowance.
+\texttt{frozen\_\allowbreak performance} holds the register fixed and
+\texttt{blind\_\allowbreak performance} replaces the world by one returning success with
+probability $1/2$ whatever is done; both stay at $1/2$ for every $n$, and
+\texttt{blind\_heat} shows the second spends nothing while remaining strictly
+positive. \texttt{improves\_\allowbreak on\_\allowbreak baselines} states the strict improvement over
+both within the common allowance. The claim therefore rests on the observations
+carrying task information, not on the update rule or on the heat.
+\texttt{observation\_\allowbreak informative} exhibits that information as conditional on
+the action, $\Pr(o=1\mid w=1,r=1)=3/4$ against $1/4$ at $w=0$, while
+\texttt{outcome\_\allowbreak marginal\_\allowbreak uninformative} shows the outcome's marginal carries
+nothing about $w$ at the prior.
+
+Heat is the transition log-ratio of the same composite channel at thermal scale
+one, $q_w(r,r')=\pm\log3$ on the two register flips and $0$ otherwise, and is
+evaluated on the actual evolving laws:
+\begin{equation}
+ \langle Q_n\rangle=\frac{\log3}{8}\left(\frac12\right)^n,\qquad
+ \sum_{n=0}^{N-1}\langle Q_n\rangle=\frac{\log3}{4}
+ \left[1-\left(\frac12\right)^N\right]\leq\frac{\log3}{4}.
+ \label{eq:observational-heat}
+\end{equation}
+The register's two states are energetically degenerate, so it stores nothing and
+\texttt{cumulative\_\allowbreak work} makes that whole sum external work. The work is
+irreducible rather than a modelling convenience.
+\texttt{zero\_\allowbreak work\_\allowbreak needs\_\allowbreak parameter\_\allowbreak independent\_\allowbreak heat} proves that a register
+energy giving zero work on every path forces $q_w=q_{w'}$ for all parameter
+values, and \texttt{no\_\allowbreak zero\_\allowbreak work\_\allowbreak energy} exhibits $q_1(0,1)=\log3=-q_0(0,1)$:
+an energy landscape that paid for this learning would be one that already
+encoded the answer. \texttt{learning\_\allowbreak entropy\_\allowbreak budget} closes the accounting by
+telescoping the KL-based entropy balance over the same laws, so the joint
+entropy the learner removes fits inside $(\log3)/4$.
+
+\texttt{reward\_\allowbreak decreasing\_\allowbreak transition} retains probability $1/8$ that the
+register leaves the rewarding action, so expected improvement is not pathwise
+improvement, and \texttt{successive\_\allowbreak laws\_\allowbreak differ} rejects a frozen register and
+a reset to the prior. Preparing the prior, supplying the work that drives the
+updates, executing task episodes beyond the declared updates, fabricating the
+readout, convergence to an optimal policy and any cortical identification are
+outside this model.
 
 \textit{Active and passive composition (\texttt{Chain.lean}).}
 The theorem \texttt{chain} uses the passive predictive node; \texttt{chain\_active} uses the article's Eq.~\eqref{eq:active-chain-bound} for a named \texttt{FiniteFeedbackStep} $M$, heat observable $q$, thermal scale $\theta$ and budget $B$. The process's controller has the register's state type. \texttt{E34Active} requires positivity, local detailed balance at that register's temperature and $\langle Q\rangle_M\leq B$, with $B$ the register's heat. The entropy lower bound is derived by \texttt{activeBound\_\allowbreak of\_\allowbreak e34Active}. A lower bound on erasure heat supplies no upper bound for an actuator and equates no operations; the upper-budget allocation comes from a resource model instead. \texttt{RegisterLedger} carries one register's update, its operations as elementary steps controlled by that register, local detailed balance for each at that register's own temperature, and the accounting identity $Q_{\mathrm{reg}}=\sum_i\langle Q\rangle_i$ for the heat its operations deliver to its reservoir. \texttt{opHeat\_\allowbreak nonneg\_\allowbreak of\_\allowbreak compressive} applies the left inequality of the article's Eq.~\eqref{eq:active-chain-bound} to an operation with $H(p')\leq H(p)$, so its share is nonnegative; \texttt{opHeat\_\allowbreak le\_\allowbreak dissipation} then bounds an operation whose companions all compress by $Q_{\mathrm{reg}}$, and \texttt{e34Active\_\allowbreak of\_\allowbreak ledger} turns that bound into the edge. Under Landauer's heat equation, \texttt{ledger\_\allowbreak bathEntropy} exhibits the same total as the register's own bath entropy change. The identity and the compressiveness are the model's physical inputs. Equation~\eqref{eq:finite-update-balance} accounts for both finite update substeps at a common thermal scale; it supplies neither this allocation nor the coupling-convergence implication of E45Active, and the ledger's index labels operations rather than sequencing them into one evolving law.
@@ -874,7 +952,8 @@ Figure~\ref{fig:chain} in the main text separates the three requirements and the
 \textbf{Conceptual Claim} & \textbf{Lean 4 Implementation} & \textbf{Status} \\ \hline
 \endhead
 Finite goal-directed control & \texttt{FiniteControlProblem} (\texttt{Phase3\_\allowbreak AgencyThermodynamics}) evaluates terminal reward and both substep costs on the same \texttt{FiniteFeedbackCycle}, with an explicit deterministic policy and shared world and memory channels. \texttt{exists\_optimal} proves finite feasible maximization. \texttt{Examples/AgencyControl.lean} computes every deterministic bit policy's performance, heat and work and proves a unique feasible optimum that strictly improves a declared lamp task. A feasible baseline misses the target; a better-performing policy exceeds the budget; equal final laws can have unequal heat. Objective, reservoir model, initial resource and budget are supplied. This comparison covers fixed policies; adaptation of a policy register is treated separately below & Theorem (conditional) \\ \hline
-Finite learning dynamics & \texttt{FiniteFeedbackStep.iterate} carries successive laws and telescopes entropy and first-law balances. \texttt{Examples/PolicyLearning.lean} proves strictly improving expected lamp reward, geometric convergence to a stationary mixture, positive update heat and bounded cumulative heat from the register's energy loss. Its energy encodes known task values. The limit is suboptimal; individual updates and a different initial preparation can lower reward. Task costs are prospective lamp task expectations. Preparing the register, learning unknown rewards, executing task episodes, implementing the policy readout, cortical identification and the active chain's resource and spatial bridges require separate accounting & Theorem (conditional) \\ \hline
+Finite learning dynamics & \texttt{FiniteFeedbackStep.iterate} carries successive laws and telescopes entropy and first-law balances. \texttt{Examples/PolicyLearning.lean} proves strictly improving expected lamp reward, geometric convergence to a stationary mixture, positive update heat and bounded cumulative heat from the register's energy loss. Its energy encodes known task values. The limit is suboptimal; individual updates and a different initial preparation can lower reward. Task costs are prospective lamp task expectations. Preparing the register, executing task episodes, implementing the policy readout, cortical identification and the active chain's resource and spatial bridges require separate accounting & Theorem (conditional) \\ \hline
+Learning from observed outcomes & \texttt{FiniteObservationalLearner} (\texttt{Phase3\_\allowbreak ObservationalLearning}) holds an environmental parameter fixed and updates a policy register from the observed outcome of the action its readout executed. Neither the update nor the readout takes the parameter as an argument and the reward enters no channel, so nothing supplies the task's values. Act--observe--update composes into one \texttt{FiniteFeedbackStep}, carrying reward, heat and entropy on the same law. \texttt{Examples/ObservationalLearning.lean} gives every mass of that law at every horizon for a two-action task with an unknown rewarding action, hence strictly improving expected reward $3/4-\frac14(1/2)^n$ from a uniform prior, strict improvement over a frozen register and over an uninformative world under a common allowance, cumulative heat $(\log3/4)[1-(1/2)^N]$ and its equality with external work. \texttt{zero\_\allowbreak work\_\allowbreak needs\_\allowbreak parameter\_\allowbreak independent\_\allowbreak heat} proves that a free relaxation would carry no information about the parameter, so the work is irreducible. The limit is below certainty, each action is executed half the time at every horizon, and a reward-decreasing transition keeps positive probability. Preparing the prior, supplying the work, task episodes beyond the declared updates, fabricating the readout, optimal-policy convergence and cortical identification are separate & Theorem (conditional) \\ \hline
 Actuated scalar coupling & \texttt{ActuatedCoupling} fixes density $g[H(p)-H(p')]b(x)$ for a named feedback step. Regular mesh refinement proves convergence; \texttt{Chain.actuated\_\allowbreak limit\_\allowbreak le\_\allowbreak budget} bounds its limit by $g(B/\theta)\int b$ when the total profile is nonnegative. A noisy actuator has positive drive and changing spatial energies; stationary execution, changed gain and changed profile alter the result. The constitutive law is supplied and produces no kernel or microscopic actuator work account & Theorem + instance postulate \\ \hline
 Microscopic actuation and kernel refinement & \texttt{LocalActuator} (\texttt{Phase3\_\allowbreak LocalActuator}) sets a product-space kernel $\sum_i c_i(z)\phi_i(x)\phi_i(y)$ and a stored energy $\sum_i u_i c_i(z)$ from the same mode occupancies. \texttt{kernel\_\allowbreak update} and \texttt{kernel\_\allowbreak update\_\allowbreak local} give a transition's change and its spatial locality; \texttt{expected\_\allowbreak kernel\_\allowbreak update} averages those pathwise changes over the executed step, and \texttt{installation\_\allowbreak first\_\allowbreak law} charges the same paths with the stored-energy change plus the channel's heat. \texttt{KernelMesh} (\texttt{Phase2\_\allowbreak KernelMesh}) reconstructs each sampled weight throughout its cell pair, \texttt{energy\_\allowbreak eq\_\allowbreak integral} identifies the cell-mass weighted energy with that reconstruction's product-measure integral, and \texttt{energy\_\allowbreak tendsto} converges it under shrinking sample error on a compact substrate. \texttt{Chain.e45Active\_\allowbreak of\_\allowbreak localActuator} and \texttt{Chain.e45\_\allowbreak of\_\allowbreak localActuator} discharge the two spatial edges for an arrangement holding, respectively, a named step's final law and a declared predictive system's joint law; neither proof consults its premise. A thermal switch installs one mode for positive external work, changes a pairwise value, changes its coupling energy between the first two partitions of an atomless interval, and rejects a zero-work and a wrong-limit claim. Profiles, prices, readout, reservoir and substrate are declared hardware; fabrication, continuing power and cortical identification are not established & Theorem + instance postulate \\ \hline
 One register's resource ledger & \texttt{RegisterLedger} (\texttt{Phase3\_\allowbreak AgencyThermodynamics}) carries one register's update, its operations as elementary steps controlled by that register, local detailed balance for each at that register's temperature, and the identity that its dissipated heat is the total those operations deliver to its reservoir. \texttt{opHeat\_\allowbreak nonneg\_\allowbreak of\_\allowbreak compressive} is the path-model second law at that temperature and \texttt{opHeat\_\allowbreak le\_\allowbreak dissipation} derives the allocation; \texttt{ledger\_\allowbreak bathEntropy} exhibits the total as the register's own bath entropy change. \texttt{Examples/RegisterBudget.lean} witnesses it on the one-bit eraser with two operations delivering $(2/5)\log2$ and $(3/5)\log2$, and fences both inputs: a compressive operation above the whole dissipation, and a ledger whose other operation draws heat out of the reservoir. The identity and the compressiveness are physical inputs; sequencing the operations into one evolving law, a continuing energy source and cortical identification are separate models & Theorem (conditional) \\ \hline
