@@ -1830,7 +1830,15 @@ submission prerequisite.
       ledger and a finite source for the unbounded charger. Specification:
       `tasks/finite_supply.md`. Initial-law/source preparation, gate control,
       external refuelling, a separate sensor memory and connecting this source
-      to the learning agent's actual channels remain open.
+      to the learning agent's actual channels remain open. *The measurement's own register is also
+      closed (2026-09-15):* `MemoryAgent` holds the observation in a memory
+      coordinate, updates the register from that memory alone and clears it as
+      an executed stage; `memoryHeat_const` gives the exact cost of clearing,
+      and the bit witness gives a positive per-cycle floor from channel masses
+      alone. Specification: `tasks/sensor_memory.md`. Preparing the prior and
+      the memory's initial law, gate fabrication and control, supplying the work
+      these operations draw, and connecting this memory to the finite source or
+      to the learning agent's channels remain open.
 - [x] **E45Active — a scalar constitutive case.** Completed 2026-09-14:
       `ActuatedCoupling` constructs a spatial density from the named feedback
       step's joint entropy reduction, a supplied nonnegative gain and a supplied
@@ -2991,3 +2999,83 @@ a separately implemented sensor memory and its erasure, and identification
 with the learning agent's actual channels. Local content agreement is also
 open. No Python, dependency, reference, generated macro or simulation changed.
 Specification and execution record: `tasks/finite_supply.md`.
+
+## 2026-09-15 — A sensor memory, and the exact cost of clearing it
+
+`memoryHeat` (`Phase3_SensorMemory.lean`) is the mean log-ratio heat of a memory
+channel on a declared memory law. `memoryHeat_const` proves that an erasure
+landing on one law `ν` whatever it is given costs
+`θ (H(μ) − H(ν)) + θ D(μ‖ν)` — the entropy removed plus the relative entropy of
+what the memory held from the state it is driven to. `KL_eq_cross_entropy`, the
+step it runs through, needs no positivity of `μ`: a state the memory never holds
+contributes to neither side. `memoryHeat_ge_entropy_drop` is Gibbs applied to
+that identity and `memoryHeat_self` is the matched case. The identity states two
+things the inequality does not, and both are witnessed below: a memory already
+at `ν` is free to clear, and one *more* ordered than `ν` draws heat out of the
+reservoir. Clearing dissipates because of what the memory holds, not by
+construction.
+
+`MemoryAgent` carries prior, readout, actuator, measurement, register update,
+erasure, world reset, three idle drifts and the reward on the joint state
+`R × (M × Env)`, and runs act, record, learn and clear four-periodically. The
+fences are signatures — `record` and `erase` do not take the parameter, `update`
+takes neither the parameter nor the world — and `learn_register_independent`
+states the second as a theorem. `protocol` is an ordinary `FiniteProtocol`, so
+the stagewise entropy balance, first law and Gibbs bound of
+`Phase3_ContinuingAgent` telescope over the run unchanged; `entropy_budget`
+instantiates that for the witness.
+
+`memoryLaw_clear` is the one stage at which the memory's marginal is autonomous
+and `memoryLaw_record` is the stage at which it is not — the correlation
+recording writes is exactly what clearing destroys.
+`clear_stageHeat_eq` splits the clear stage's log-ratio heat into the register's,
+the memory's and the world's own shares, `clear_memoryHeat` identifies the
+memory's share with `memoryHeat` on its marginal, and
+`clear_memoryHeat_const` is the identity on the agent's executed paths.
+
+`Examples/SensorMemory.lean` is a bit witness with every channel mass `1/4` or
+`3/4`. `erase_cost` evaluates the share at `ν = (3/4, 1/4)` as
+`(3/4 − μ(0)) log 3` on any memory law. **The recurring cost is proved without
+the joint law**: the world's marginal after an act stage is a mixture of
+actuator outputs, hence in `[1/4, 3/4]`; a measurement that overwrites pushes
+that to `[3/8, 5/8]`; the learn stage's drift gives `[7/16, 9/16]` at every
+clearing. So `clear_cost_floor` and `clear_cost_ceiling` give
+`(3/16) log 3` and `(5/16) log 3` at every cycle, whatever the agent has
+learned. The first cycle is exact: `(1/4) log 3`, decomposing as
+`[(3/4) log 3 − log 2] + (1/2) log (4/3)`, the entropy term positive from
+`16 < 27` rather than from a numeral. `erase_memory_forgets` returns the
+standard law whatever the measurement wrote.
+
+Four controls fence the reading. `blind_same_cost` exhibits an agent whose
+measurement ignores the world, leaves the same memory marginal and pays the
+identical heat: the cost is set by the marginal, not by what the memory is
+about. `idle_clear_free` and `idle_memory_depends` replace the erasure by the
+symmetric drift, which costs nothing and carries the measurement into the next
+episode. `standard_free` and `over_ordered_absorbs` are the two cases the
+inequality does not see, the second delivering `−(1/4) log 3`.
+
+The 27 retained specifications failed before the declarations existed (38
+errors, all absent declarations) and pass unchanged afterwards. The full
+`lake build` has zero warnings; the default axiom audit covers 3,871
+declarations in 60 modules with only `propext`, `Classical.choice` and
+`Quot.sound`, and seventeen explicit headline checks agree. All fifteen
+pre-commit hooks pass under `uv --project simulations` at the repository root,
+as do the 143 existing Python tests. No Python, dependency, reference, macro or
+simulation result changed.
+
+The article gained two paragraphs and the erasure-cost equation, the supplement
+a subsection and a Table S1 row, and the primer a subsection and a summary-table
+row; four scope statements that said the sensor memory was outside the model
+were rewritten. The rebuilt article, supplement and primer have 52, 43 and 87
+pages against 50, 42 and 86, with zero overfull boxes and underfull counts
+matching baseline builds of `HEAD` (2, 0, 29). Table 1 was not touched and its
+recorded 22.86668 pt overflow is unchanged. The 64-page arXiv submission
+compiles from its unpacked archive and passes manifest freshness.
+`git diff --check` passes.
+
+Out of scope and still open: preparing the prior and the memory's initial law,
+fabricating and controlling the gates, supplying the work these operations draw,
+identifying this memory with the finite source's load or with the learning
+agent's actual channels, and any cortical identification. The remaining agency
+gaps are those and local content agreement. Specification and execution record:
+`tasks/sensor_memory.md`.

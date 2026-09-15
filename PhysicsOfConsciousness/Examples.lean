@@ -26,6 +26,7 @@
     `Examples/RegisterBath.lean` -- that register's bath, and what its map does not fix
     `Examples/PathwiseStore.lean` -- a store on the trajectory, and what replenishment buys
     `Examples/FiniteSupply.lean` -- a finite source, conserved energy and uncertain delivery
+    `Examples/SensorMemory.lean` -- a measurement's own register, and what clearing it costs
     `Examples/ActuatedCoupling.lean` -- a feedback step's scalar coupling amplitude
     `Examples/MicroscopicCoupling.lean` -- a thermal switch's installed spatial mode
     `Examples/Phase4.lean`  §7, §15, §16, §17
@@ -129,6 +130,7 @@ import PhysicsOfConsciousness.Examples.RegisterBudget
 import PhysicsOfConsciousness.Examples.RegisterBath
 import PhysicsOfConsciousness.Examples.PathwiseStore
 import PhysicsOfConsciousness.Examples.FiniteSupply
+import PhysicsOfConsciousness.Examples.SensorMemory
 import PhysicsOfConsciousness.Examples.ActuatedCoupling
 import PhysicsOfConsciousness.Examples.MicroscopicCoupling
 import PhysicsOfConsciousness.Examples.Phase4

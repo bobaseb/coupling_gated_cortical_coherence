@@ -366,8 +366,10 @@ reset. Blinding the observations leaves chance performance and makes the
 learning stage free. Replacing reset by idle drift preserves some learning but
 reduces the next cycle's performance. A finite store therefore supports only
 a bounded prefix of this protocol. This is accounting in expectation:
-preparation of the initial law, microscopic battery dynamics, fabrication and
-a separate sensor-memory implementation are supplied or outside the model.
+preparation of the initial law, microscopic battery dynamics and fabrication
+are supplied or outside the model, and the observation is marginalized inside
+the learning channel rather than held in a register of its own, which
+Eq.~\eqref{eq:erasure-cost} below supplies.
 Heat is assigned to the composite learning channel through local detailed
 balance, and the store bounds a mean; no cortical identification follows.
 
@@ -399,8 +401,51 @@ store ledger. An initially empty source delivers nothing. The indefinitely
 replenished charger cannot have any nonnegative finite source coordinate
 satisfying Eq.~\eqref{eq:finite-source}. This witness models one uncertain
 transfer followed by idling; source preparation, gate-control costs, external
-refuelling, a separate sensor memory and identification with the learning
-agent's actuator remain separate.
+refuelling and identification with the learning agent's actuator remain
+separate.
+
+The measurement has a register of its own, and clearing it is an executed
+operation. Let the state carry a memory coordinate alongside the register and
+the world, and run four operations in sequence: the readout drives the
+actuator, a measurement writes the memory from the world the action moved, the
+register is updated from the memory alone, and a clearing operation drives the
+memory toward a declared standard law $\nu$ while the world is prepared. The
+update takes the memory and not the world, so two worlds holding the same
+memory drive the register identically: what the register can learn is what the
+memory carries. The clearing operation drives three coordinates at once, and its
+transition log-ratio is the sum of the three coordinates' own, so the memory's
+share is a named part of that operation's cost rather than a residue. For an
+erasure that lands on $\nu$ whatever it is given, that share is
+\begin{equation}
+ \langle Q_M\rangle=\theta[H(\mu)-H(\nu)]+\theta\,D_{KL}(\mu\|\nu),
+ \label{eq:erasure-cost}
+\end{equation}
+with $\mu$ the memory's marginal before the operation. The first term is
+Landauer's bound and the second is the cost of applying one fixed channel to a
+law it is not matched to; Gibbs' inequality turns the identity into the bound.
+The identity also states what the bound does not. A memory already at $\nu$ is
+free to clear, and one more ordered than $\nu$ draws heat out of the reservoir,
+so clearing dissipates because of what the memory holds rather than by
+construction.
+
+A bit witness fixes the numbers without computing the joint law. The memory's
+marginal after a measurement is a mixture of measurement outputs over a world
+marginal that is itself a mixture of actuator outputs; with every channel mass
+$1/4$ or $3/4$, the memory's mass on a set flag lies in $[7/16,9/16]$ at every
+clearing, whatever the agent has learned. At $\nu=(3/4,1/4)$ the share is
+$[3/4-\mu(0)]\log3$, hence between $(3/16)\log3$ and $(5/16)\log3$ at every
+cycle: no amount of learning makes the measurement free. In the first cycle the
+memory is exactly uniform and the two terms of Eq.~\eqref{eq:erasure-cost} are
+$(3/4)\log3-\log2$ and $(1/2)\log(4/3)$, summing to $(1/4)\log3$; the first is
+positive because $16<27$. Two controls fence the reading. A blind measurement
+that records nothing about the world leaves the same marginal and pays the
+identical heat, so the cost is set by the memory's marginal and not by what the
+memory is about. Replacing the clearing by the symmetric drift costs nothing
+and carries the measurement into the next episode, where the erasure returns
+the standard state whatever was written. The four operations are stages of one
+protocol, so Eq.~\eqref{eq:continuing-budget} charges the whole run, clearing
+included. Preparing the prior, fabricating the gates, supplying the work and
+any cortical identification remain outside this model.
 
 Table~\ref{tab:summary} lists the connecting hypotheses of two branches. The theorem \texttt{chain} uses passive predictive memory; \texttt{chain\_active} uses a specified finite feedback process. Each accepts eight implications and shares the passage from coarse-graining to the phase model and its proposed representational role. In both, the finite register and the field boundary are independent starting objects.
 

@@ -1377,8 +1377,8 @@ instead. The initial law and store are supplied resources. Reset prepares
 later episodes; preparing the original prior is outside this accounting.
 The observation is marginalized inside the learning channel, so its local
 detailed balance does not derive a separate physical sensor memory or its
-erasure. Battery dynamics, fabrication and cortical identification require
-further models.
+erasure; \S\ref{sec:sensor-memory} supplies that register. Battery dynamics,
+fabrication and cortical identification require further models.
 
 \lean{\id{FiniteProtocol}, \id{ContinuingProcess} and \id{ContinuingAgent}
 live in \id{Phase3\_ContinuingAgent.lean}. The summed first law and entropy
@@ -1432,8 +1432,8 @@ happens to the store at all.
 
 \scope
 The generic supply is an input. The next subsection accounts for a finite
-source behind it. Preparing the initial resources, implementing a separate
-sensor memory and charging its erasure, and every cortical identification
+source behind it, and \S\ref{sec:sensor-memory} for the measurement's own
+register. Preparing the initial resources and every cortical identification
 remain distinct tasks.
 
 \lean{\id{PathwiseStore} and its predicates \id{Ledgered}, \id{Funded} and
@@ -1484,9 +1484,9 @@ that finite resource boundary.
 This is one uncertain transfer; the selector is prepared once and is carried
 through both gates. Subsequent stages idle. The work is energy deposited in
 an ideal output load, and no heat bath is introduced. Preparing the source and
-selector, controlling the gates, externally refuelling the source, sensor
-memory and identifying this hardware with the learning agent's actuator remain
-separate modelling tasks.
+selector, controlling the gates, externally refuelling the source and
+identifying this hardware with the learning agent's actuator remain separate
+modelling tasks.
 
 \lean{\id{SourceLedgered}, \id{withSource\_ledgered},
 \id{totalSupply\_eq\_source\_loss},
@@ -1496,6 +1496,73 @@ separate modelling tasks.
 the gates' reversibility and energy conservation, \id{law\_eq\_coin},
 \id{draw\_two}, \id{undelivered\_mass}, \id{forced\_not\_ledgered},
 \id{empty\_source\_draw} and \id{charger\_no\_finite\_source}.}
+
+\subsection{What the measurement leaves behind}
+\label{sec:sensor-memory}
+
+In the agent of \S\ref{sec:continuing-agent} the observation is used and
+thrown away inside a single channel. A real measurement leaves a mark: a
+register that now holds something about the world and will hold it until
+something clears it. Clearing it is an operation like any other, and it costs.
+
+Give the state a memory coordinate and run four operations in order. The
+readout drives the actuator. A measurement writes the memory from the world
+the action moved. The register is updated from the memory --- only from the
+memory, which is a fact about the update's type, not a promise about its
+behaviour: two worlds leaving the same memory drive the register identically.
+Then a clearing operation pushes the memory toward a declared standard law
+$\nu$ while the world is prepared for the next episode.
+
+The clearing operation moves three coordinates at once, and its transition
+log-ratio splits exactly into their three own. So there is a well-defined
+answer to what clearing the memory cost, rather than a leftover. When the
+erasure lands on $\nu$ whatever it is given, that answer is
+\[
+ \langle Q_M\rangle=\theta\,[H(\mu)-H(\nu)]+\theta\,D_{KL}(\mu\|\nu),
+\]
+where $\mu$ is what the memory held. The first term is Landauer's: the entropy
+you removed. The second is the price of using one fixed channel on a law it
+was not built for. Gibbs' inequality says the second term is nonnegative, which
+recovers the usual bound --- but the identity says more than the bound does.
+Set $\mu=\nu$ and the cost is zero: a memory already standard is free to clear.
+Make $\mu$ \emph{more} ordered than $\nu$ and the cost is negative: the
+operation takes heat out of the reservoir. Clearing dissipates because of what
+the memory holds, not because clearing is clearing.
+
+The bit witness pins this down without ever computing the joint law. Every
+channel mass is $1/4$ or $3/4$. Whatever the agent has learned, the flag it
+leaves is a mixture of the actuator's two masses, so it lies in $[1/4,3/4]$;
+the measurement mixes that into the memory and the drift moves it halfway to
+uniform, so the memory's mass at each clearing lies in $[7/16,9/16]$. With
+$\nu=(3/4,1/4)$ the cost is $[3/4-\mu(0)]\log3$, hence at least
+$(3/16)\log3>0$ at every cycle. Learning does not make the measurement free.
+In the first cycle the memory is exactly uniform, and the two terms are
+$(3/4)\log3-\log2$ and $(1/2)\log(4/3)$, adding to $(1/4)\log3$. The first is
+positive for the reason that $16<27$.
+
+Two controls say what the cost is and is not about. Blind the measurement ---
+let it record a coin instead of the world --- and the memory's marginal is
+unchanged, so the heat is identical. You pay to clear a register that learned
+nothing, exactly as much as one that learned something. Replace the clearing
+by the symmetric drift and you pay nothing, and the measurement survives into
+the next episode; the erasure returns the standard state whatever was written.
+
+\scope
+The four operations are stages of one protocol, so the cumulative entropy
+balance of \S\ref{sec:continuing-agent} charges the whole run including the
+clearing. Local detailed balance at the memory's reservoir is an input, as
+everywhere here. Preparing the prior, fabricating the gates, supplying the work
+these operations draw, connecting this memory to the finite source of
+\S\ref{sec:finite-supply}, and any cortical identification are separate.
+
+\lean{\id{memoryHeat}, \id{memoryHeat\_const},
+\id{memoryHeat\_ge\_entropy\_drop} and \id{MemoryAgent} live in
+\id{Phase3\_SensorMemory.lean}, with \id{learn\_register\_independent},
+\id{memoryLaw\_clear}, \id{memoryLaw\_record}, \id{clear\_stageHeat\_eq} and
+\id{clear\_memoryHeat\_const}. \id{Examples/SensorMemory.lean} proves
+\id{erase\_cost}, \id{memMass\_clear\_bounds}, \id{clear\_cost\_floor},
+\id{first\_cost\_decomposes}, \id{blind\_same\_cost}, \id{idle\_clear\_free}
+and \id{over\_ordered\_absorbs}.}
 
 \subsection{One register's ledger}
 \label{sec:register-ledger}
@@ -5186,9 +5253,10 @@ Agency and feedback (\S\ref{sec:agency}) & Explicit perception--action channels;
 Finite feedback thermodynamics (\S\ref{sec:agency-heat}, \S\ref{sec:agency-cycle}) & Elementary and complete two-substep heat budgets; total first law & Theorem under positivity and local detailed balance; common thermal scale and energy for the cycle \\
 Finite policy selection (\S\ref{sec:agency-control}) & Unique feasible optimum improves a declared lamp task & Theorem for specified deterministic policies and an actual-update heat budget; learning and switching excluded \\
 Policy adaptation (\S\ref{sec:policy-learning}) & Expected reward improves toward a stationary mixture; cumulative register heat is finite & Theorem for supplied values, thermal channel and initial preparation; task execution and readout installation excluded \\
-Continuing agent (\S\ref{sec:continuing-agent}) & \raggedright An act--learn--reset sequence retains above-chance reward at positive recurring cost & \raggedright\arraybackslash Theorem for a supplied prior, channels and work store; budgets bound expectations; battery and sensor-memory dynamics excluded \\
+Continuing agent (\S\ref{sec:continuing-agent}) & \raggedright An act--learn--reset sequence retains above-chance reward at positive recurring cost & \raggedright\arraybackslash Theorem for a supplied prior, channels and work store; budgets bound expectations; battery dynamics excluded and the measurement's register carried separately \\
 Store on the trajectory (\S\ref{sec:pathwise-store}) & \raggedright A reading carried in the state is solvent on every path a funded process has, and an expected allowance is not a battery & \raggedright\arraybackslash Theorem without positivity; a supply covering each draw sustains any horizon and a uniformly positive net draw stops the process; the supply is declared \\
 Finite source (\S\ref{sec:finite-supply}) & \raggedright Internal replenishment cancels when source and store are counted together & \raggedright\arraybackslash Conditional finite-resource bound; reversible gates conserve energy but need not deliver it; preparation and gate control are inputs \\
+Sensor memory (\S\ref{sec:sensor-memory}) & \raggedright Clearing a measurement register costs the entropy removed plus the relative entropy of what it held from the state it is driven to & \raggedright\arraybackslash Theorem for an erasure landing on one declared law; positive at every cycle from channel masses alone; a blind measurement pays the same and a matched memory nothing \\
 Learning from outcomes (\S\ref{sec:observational-learning}) & Expected reward of the executed action rises from $1/2$ toward $3/4$; the work spent is irreducible & Theorem for an unknown parameter, a declared prior and observation-driven updates; preparation, power supply and readout fabrication excluded \\
 Register's bath (\S\ref{sec:register-bath}) & \raggedright A reversible register--bath gate delivers the erasure heat, and a map-indexed budget needs a prepared bath and a work supply & \raggedright\arraybackslash Theorem (negative); positivity, local detailed balance and the ledger identity do not follow from reversibility \\
 KL bound; free-energy critique (\S\ref{sec:fep}) & Blocks ``dissipation $\Rightarrow$ true model'' & Instance postulate; the limit does \emph{not} follow \\

@@ -20,6 +20,37 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-15 — A sensor memory, and what clearing it costs
+
+Four scope sentences are no longer written. The article said the observation was
+marginalized inside the learning channel and a separate sensor-memory
+implementation was outside the model; the supplement and Table S1 said the same
+in three places, and the primer's scope paragraphs said the learning channel's
+local detailed balance derived no separate physical sensor memory or its
+erasure. The measurement now has a register of its own.
+
+`Phase3_SensorMemory.lean` proves the exact cost of clearing it: for an erasure
+that lands on one declared law, the memory's heat is the entropy removed plus
+the relative entropy of what the memory held from the state it is driven to.
+Landauer's inequality is the Gibbs corollary of that identity, and the identity
+says two things the inequality does not — a matched memory is free to clear,
+and a memory more ordered than the standard state draws heat out of the
+reservoir. `MemoryAgent` runs act, record, learn and clear as four stages of an
+ordinary `FiniteProtocol`, so the existing cumulative balances charge the whole
+run; the clear stage's heat is allocated to its three coordinates, and the
+memory's share is identified with that identity on the agent's own paths.
+
+The recurring cost is established from channel masses alone, with no joint law:
+the memory's mass at every clearing lies in `[7/16, 9/16]`, so every cycle pays
+between `(3/16) log 3` and `(5/16) log 3` whatever the agent has learned. A
+blind measurement leaves the same marginal and pays the identical heat, so the
+cost is set by the memory's marginal and not by what the memory is about.
+
+Preparing the prior, fabricating the gates, supplying the work these operations
+draw and connecting this memory to the finite source above remain open.
+Specification and validation: `tasks/sensor_memory.md` and the dated
+`tasks/todo.md` record.
+
 ## 2026-09-15 — A finite source behind replenishment
 
 The resource discussion no longer leaves every microscopic supply model
