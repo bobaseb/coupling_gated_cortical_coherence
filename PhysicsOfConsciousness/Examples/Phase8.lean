@@ -8,11 +8,14 @@
   double integral clears the bar, which is why the criterion is about coupling
   and not about size. §12 records the three structures that still have no
   instance and why. §20 supplies an atomless witness for the continuum operator.
+  §21 runs the stationary Fokker–Planck equation and both stability results on
+  named numbers.
 -/
 
 import PhysicsOfConsciousness.Phase1_Primitives
 import PhysicsOfConsciousness.Phase3_CombinatorialThermodynamics
 import PhysicsOfConsciousness.Phase8_ContinuousField
+import PhysicsOfConsciousness.Phase8_CoherentStability
 
 open MeasureTheory CategoryTheory TopologicalSpace Opposite Filter Topology
 open scoped ENNReal NNReal
@@ -385,6 +388,73 @@ theorem unit_resonance_antitone {theta : ℝ → ℝ} (h : Measurable theta) (D 
   structural_resonance_decreases_sigmaContinuum h D omega K_t hc hflow
 
 end ContinuumOperatorWitness
+
+/-! ## 21. The stationary equation and its two branches, on named numbers
+
+`Phase8_FokkerPlanck.lean` and the modules above it prove their results for
+every positive diffusion and concentration. This section fixes numbers, so that
+the predicates are inhabited by something a reader can evaluate, and checks the
+two ways they could be hollow: the coherent stationary density could be the
+uniform one in disguise, and the stability estimate could hold because its rate
+is zero. Neither is the case.
+
+The incoherent modes are exercised at `K = 3`, `D = 1` — the coupling and
+diffusion of the cortex witness that `Chain.lean` carries — where the first
+harmonic grows, and at `K = 1`, where no mode does.
+-/
+
+section StationaryWitness
+
+open PhysicsOfConsciousness.FokkerPlanck
+
+/-- The coherent stationary state at diffusion `1` and concentration `1`: the
+density is stationary for the mean field it generates itself. -/
+theorem unitBranch_stationary :
+    IsStationary 1 (meanDrift (branchCoupling 1 1) (vonMisesDensity 1)) (vonMisesDensity 1) :=
+  branch_stationary one_pos one_pos
+
+/-- The coupling that parametrization selects is above threshold, so this is a
+point of the coherent branch and not a subcritical state. -/
+theorem unitBranch_supercritical : critical_coupling 1 < branchCoupling 1 1 := by
+  rw [critical_coupling]
+  exact branchCoupling_supercritical one_pos one_pos
+
+/-- **Not the uniform state.** The witness would be empty of content if the
+stationary density it exhibits were constant; this one takes different values at
+`0` and at `π`. -/
+theorem unitBranch_not_uniform : vonMisesDensity 1 0 ≠ vonMisesDensity 1 Real.pi := by
+  intro h
+  rw [vonMisesDensity, vonMisesDensity, vonMisesWeight, vonMisesWeight, Real.cos_zero,
+    Real.cos_pi, div_left_inj' (vonMisesZ_pos 1).ne'] at h
+  have h1 := Real.exp_eq_exp.mp h
+  norm_num at h1
+
+/-- **The gap is not zero.** `coherent_linear_stability` would be vacuous with a
+rate of `0`; here the rate is a positive real. -/
+theorem unitBranch_rate_pos : 0 < linearStabilityRate 1 1 :=
+  linearStabilityRate_pos one_pos one_pos
+
+/-- The separation, on this state: the stationary current dissipates nothing
+while the phase-averaged squared drift is positive. Both are functionals on
+phase space, and neither is `sigmaContinuum` on substrate sites. -/
+theorem unitBranch_separation :
+    currentDissipation 1 (meanDrift (branchCoupling 1 1) (vonMisesDensity 1))
+      (vonMisesDensity 1) = 0 ∧
+    0 < average 1 (((-1 * 1 : ℝ) • circleSin) * ((-1 * 1 : ℝ) • circleSin)) / 1 :=
+  stationary_current_separation one_pos one_pos
+
+/-- At the cortex witness's coupling the incoherent state has a growing mode. -/
+theorem incoherent_unstable_three_one : ∃ n : ℕ, 0 < n ∧ 0 < incoherentRate 1 3 n :=
+  (incoherent_instability_iff one_pos 3).mpr (by norm_num)
+
+/-- Below threshold none of them grows, so the criterion is not trivially
+satisfied. -/
+theorem incoherent_stable_one_one : ¬ ∃ n : ℕ, 0 < n ∧ 0 < incoherentRate 1 1 n := by
+  intro h
+  have := (incoherent_instability_iff one_pos 1).mp h
+  linarith
+
+end StationaryWitness
 
 end Examples
 end PhysicsOfConsciousness

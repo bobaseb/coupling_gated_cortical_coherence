@@ -2690,9 +2690,20 @@ The left side is the derivative of $\log\rho$. Since the derivative of
 $\cos\theta$ is $-\sin\theta$, integration yields
 $\log\rho=(Kr/D)\cos\theta+\text{constant}$. Exponentiating and normalizing
 gives the von Mises form with $a=Kr/D$. This elementary calculation explains
-the ansatz under the mean-field and zero-current assumptions. A stationary
-density in a different driven model can carry nonzero current, so the word
-``stationary'' alone does not justify setting $J=0$.
+the ansatz under the mean-field and zero-current conditions.
+
+The second condition is a consequence here rather than a further assumption.
+Stationarity makes $J$ constant, since $\partial J/\partial\theta=0$. On a
+circle, with a drift that is the slope of a periodic potential, that constant
+has to be zero: multiplying $\rho$ by $e^{V/D}$ turns the current into the
+derivative of a single periodic function, and a periodic function's derivative
+integrates to zero over a full turn, while the factor it is multiplied by is
+strictly positive. The formalization proves this
+(\id{stationary\_current\_zero}) and then reads off the density
+(\id{stationary\_iff\_vonMises}). Periodicity is what does the work: a
+stationary density on a line, or under a drift that is not the slope of a
+potential, can carry nonzero current, so the word ``stationary'' alone does not
+justify setting $J=0$.
 
 \subsection{Make the population reproduce its own average}
 
@@ -2890,6 +2901,19 @@ Trajectory & What does this initial population actually do through time? \\
 Finding a branch does not prove stability or say which trajectory approaches
 it. A ball exactly balanced on a hilltop illustrates the distinction: the
 position is an equilibrium, but a small displacement takes it away.
+
+The first of those two questions is answered for this equation, one linear
+order deep. Disturb the uniform density a little: the disturbance splits into
+harmonics, the coupling touches only the first one, and that harmonic changes
+at rate $K/2-D$ while the $n$-th shrinks at rate $-Dn^2$. So a growing
+disturbance exists exactly above $K=2D$ --- the hilltop, in this picture,
+appears at the same coupling at which the coherent branch appears. Disturb the
+coherent density instead, and the corresponding quantity is strictly negative
+in every direction except one. The exception is rotation: sliding the whole
+density around the dial gives another stationary density, so nothing decays
+along that direction and nothing can. Stability here therefore means stability
+of the shape, not of its position. None of this says which trajectory a
+population follows, which is the second question and remains open.
 
 \subsection{Why there cannot be two positive solutions at the same coupling}
 

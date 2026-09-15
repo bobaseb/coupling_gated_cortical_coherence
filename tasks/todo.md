@@ -2986,8 +2986,10 @@ first piece also subsumes the separation result recorded above — so the two
 items below replace the earlier three-tier plan, which had the separation
 conditional on an ansatz the same computation would derive.
 
-- [ ] **The form of the stationary density, and the vanishing current — one
-      computation.** Claim: any periodic positive `C¹` stationary density is
+- [x] **The form of the stationary density, and the vanishing current — one
+      computation.** *Done 2026-09-15* — `stationary_current_zero`,
+      `stationary_gibbs` and `stationary_iff_vonMises` in
+      `Phase8_FokkerPlanck.lean`, by the route described below. Claim: any periodic positive `C¹` stationary density is
       von Mises. Stationarity gives `∂θ J = 0`, so `J` is a constant `J₀`. With
       `v = −∂θ V` put `u = ρ * exp (V/D)`; then `∂θ u = −(J₀/D) * exp (V/D)`,
       and periodicity of `u` forces `J₀ * ∫ exp (V/D) = 0`, hence `J₀ = 0`
@@ -3002,7 +3004,9 @@ conditional on an ansatz the same computation would derive.
       stays positive — so this derives the ansatz's form and discharges the
       separation's conditionality in one proof rather than assuming the first
       to get the second.
-- [ ] **Existence is largely present already.**
+- [x] **Existence is largely present already.** *Done 2026-09-15* — it was:
+      `supercritical_stationary_existsUnique` is the scalar theorem transferred
+      through the classification, and needed no new analysis.
       `supercritical_fixed_point_existsUnique` gives exactly one `r > 0` above
       threshold and `fixedPoint_iff_selfReproducing` ties it to a density
       reproducing its own order parameter. Given the form above, existence of
@@ -3025,8 +3029,10 @@ worth having.** Nothing here proves stability cannot be established; the
 barrier is tooling. It separates by which solution is being linearized around,
 and the two halves are not comparable in cost.
 
-- [ ] **The incoherent state — tractable, and an independent derivation of the
-      threshold.** Linearizing about the uniform density, the coupling reaches
+- [x] **The incoherent state — tractable, and an independent derivation of the
+      threshold.** *Done 2026-09-15* — `Phase8_Linearization.lean`:
+      `incoherent_mode_rate` and `incoherent_instability_iff`, from an exact
+      expansion of the current rather than from a declared rate list. Linearizing about the uniform density, the coupling reaches
       only the first harmonic, so the linearized operator is diagonal in the
       Fourier basis: `λ n = −D n²` for `|n| ≥ 2` and `λ 1 = K/2 − D`. The
       uniform state loses linear stability exactly at `K = 2D`. This is a
@@ -3036,7 +3042,12 @@ and the two halves are not comparable in cost.
       threshold" to "the coupling at which the incoherent state becomes
       linearly unstable", which is a dynamical statement the file currently
       does not make.
-- [ ] **The coherent branch — substantial.** Linearizing about `vonMisesWeight`
+- [x] **The coherent branch — substantial.** *Done 2026-09-15* — and it was
+      substantial: four modules. `Phase8_CoherentStability.lean`
+      (`coherent_linear_stability`, `rotation_generator_zero`) over
+      `Phase8_CircleForm.lean`, `Phase8_WeightedPoincare.lean` and
+      `Phase8_StabilityMoments.lean`. The covariance inequality the estimate
+      needs is derived from a Riccati identity, not assumed. Linearizing about `vonMisesWeight`
       does not diagonalize: multiplication by `cos θ` couples neighbouring
       Fourier modes into a tridiagonal operator with no closed-form spectrum.
       The available structure is that the operator is self-adjoint in the
@@ -3699,3 +3710,103 @@ audit covers 4293 declarations in 69 modules resting only on `propext`,
 result carries an explicit `#print axioms`. Red regression specifications failed
 before the declarations existed and pass with the proofs. No Python, dependency,
 reference, generated macro or simulation result changed.
+
+## 2026-09-15 — The stationary equation, and linear stability of both branches
+
+The four unchecked Lean items of the steady-state section are closed. They were
+recorded as "not scheduled, and not a submission prerequisite", and that
+judgement about scheduling is what changed; the mathematics is as the item
+described it, apart from the last one, which was costed as needing a spectral
+theory it did not need.
+
+**The equation.** `Phase8_FokkerPlanck.lean` introduces `current`
+(`J = vρ − D ∂θρ`), `operator` (`−∂θ J`) and `IsStationary`, a predicate over
+named data: a differentiable, `2π`-periodic, strictly positive, normalized
+density whose current is differentiable and whose operator vanishes.
+Differentiability sits inside the predicate because `deriv` is totalized —
+the trap the item's own "soundness" paragraph named, and the reason the
+predicate binds every symbol it constrains rather than quantifying over a
+symbol supplied from outside.
+
+**The classification.** `integratingFactor_hasDerivAt` is the identity
+`∂θ(ρ e^{V/D}) = −(J/D) e^{V/D}`. Stationarity makes `J` constant,
+periodicity makes the period integral of that derivative vanish, and
+`∫ e^{V/D} > 0` forces the constant to zero: `stationary_current_zero`. Then
+`stationary_gibbs` gives `ρ = c e^{−V/D}`, and with the cosine potential and
+normalization `stationary_iff_vonMises` gives the von Mises density on the
+nose. `supercritical_stationary_existsUnique` restates the scalar bifurcation
+theorem in those terms. The item predicted "a first-order linear ODE on the
+circle: `deriv`, the fundamental theorem of calculus and positivity of the
+integral of a positive continuous function, all in Mathlib." That is what it
+cost.
+
+**The incoherent state.** `Phase8_Linearization.lean` writes the mean-field
+coupling through the density's two trigonometric moments, expands the current
+at `q + εu` exactly — background plus `ε` times a linear term plus an explicit
+quadratic remainder (`current_expansion`) — and reads the rates off the
+resulting operator: `K/2 − D` at the first harmonic and `−D n²` above it, on
+both real Fourier families (`incoherent_mode_rate`). `incoherent_instability_iff`
+concludes that a mode of positive index grows exactly above `2D`. The
+constant mode is excluded because a density perturbation carries zero mass.
+This is the item's "independent derivation of the threshold", and it is
+per-mode: no completeness of the Fourier family is claimed.
+
+**The coherent branch.** Four modules, and the estimate the item said would
+need a Poincaré inequality for the von Mises measure does need one.
+`Phase8_StabilityMoments.lean` derives the strict moment inequality
+(`cosine_variance_lt_sine`) from the Riccati identity for `E`, so the
+covariance gap is a theorem rather than a physical input;
+`Phase8_CircleForm.lean` builds the quadratic form on continuous functions —
+the full space on the circle, not a Fourier truncation — with a weighted
+Cauchy–Schwarz and a strictly positive gap transverse to rotation;
+`Phase8_WeightedPoincare.lean` bounds a zero-mass perturbation's primitive by
+the perturbation, with an explicit and finite (not sharp) constant;
+`Phase8_CoherentStability.lean` identifies the generator with minus the
+linearized current, proves it symmetric in the weighted primitive pairing, and
+concludes `coherent_linear_stability` with a positive rate. `rotation_generator_zero`
+exhibits the rotation direction as a nonzero element of rate zero, so the
+transversality is forced: the item's "genuine zero mode, so stability holds
+only modulo the phase orbit" is a theorem about why the estimate has the shape
+it has.
+
+**The separation, closed as a theorem rather than a fence.**
+`stationary_current_separation` evaluates current dissipation and the
+phase-averaged squared drift at the coherent stationary state: the first is
+zero, the second positive. Both are functionals on phase space, so this is not
+a difference of domains, and neither is `sigmaContinuum` on substrate sites.
+The section above forbade recording any later result as identifying the two;
+nothing here does, and the manuscript now says the two differ where it
+previously only declined to connect them.
+
+**Consumers and witnesses.** `Phase9_EMIdentification.coherent_phase_model`
+carries the stationary state and the gap predicate to the identified field
+model at that model's own coupling and diffusion. `Examples/Phase8.lean` §21
+fixes `D = 1` and concentration `1`, checks the stationary density is not the
+uniform one and the rate is not zero, and runs the incoherent criterion at
+`K = 3` and `K = 1`. `Phase8_CriticalExponent.lean` stops being a recorded leaf:
+`Phase8_StabilityMoments` consumes its moment derivatives, so its entry leaves
+`check_leaves.ALLOWED_LEAVES`.
+
+**What is deliberately not done.** No solution of the evolution equation is
+constructed, no semigroup and no self-adjoint closure; nonlinear and orbital
+stability are untouched; dynamical selection is untouched and is a different
+statement from linear stability; the finite-`N` limit is untouched; and the
+passage from the stochastic differential equation to the Fokker–Planck equation
+is formalized nowhere — the development starts from the classical stationary
+equation. The sine family of incoherent modes is proved alongside the cosine
+family, but completeness of either in a function space is not.
+
+**Provenance note.** `Phase8_FokkerPlanck.lean` was overwritten in the working
+tree during this pass and rebuilt from its compiled artifact: the declaration
+set, signatures and doc-strings are the originals, recovered from the `.olean`;
+the proof terms are re-derived and are not the originals. Everything in it is
+checked by the build like any other module.
+
+**Verification.** `lake build` is clean with zero warnings; the default axiom
+audit covers 4521 declarations in 75 modules resting only on `propext`,
+`Classical.choice` and `Quot.sound`, up from 4293 in 69. `check_prose`,
+`check_hedging`, `check_figures`, `check_tableS1`, `check_leaves`,
+`check_sorry`, `check_pdf_freshness` and `check_arxiv_freshness` pass, and the
+143-test Python suite passes. The one Python change is the deleted
+`ALLOWED_LEAVES` entry described above; no dependency, reference, generated
+macro or simulation result changed, and no sweep was rerun.

@@ -36,7 +36,8 @@
     `Examples/Phase5.lean`  §13, §14, §17.1, §20 (overlap agreement)
     `Examples/Phase6.lean`  §10
     `Examples/Phase7.lean`  §8
-    `Examples/Phase8.lean`  §5, §9, §12, §20 (continuum operator)
+    `Examples/Phase8.lean`  §5, §9, §12, §20 (continuum operator), §21 (stationary
+      equation and both stability branches)
     `Examples/AgencyFoundations.lean` -- regressions for the agency foundations
 
   **Coverage — every class carrying a physical postulate is now inhabited.**

@@ -1,5 +1,34 @@
 # Lessons Learned
 
+- **2026-09-15: On a circle, a constant current is a zero current, and that is
+  the whole derivation of the von Mises ansatz.** The item had costed the
+  stationary density as needing "the Fokker–Planck operator, existence and
+  uniqueness of its stationary solution, and a spectral stability argument". It
+  needs none of them. Multiply the density by `exp(V/D)`: for a gradient drift
+  the current becomes `-D` times the derivative of that single function, so a
+  constant current makes it an exponential, and periodicity forces the constant
+  to zero because `∫ exp(V/D) > 0` over a period. The remaining equation is
+  first order. **Pattern:** when an item cites a body of theory as the blocker,
+  check first whether the *periodic* case collapses to an ODE — compactness with
+  no boundary is what kills the free constant, and it is exactly what a spectral
+  argument would be used to reproduce.
+
+- **2026-09-15: A shell heredoc has no read-before-write gate, and a compiled
+  `.olean` is a recovery route.** `cat > file.lean` in a repository where
+  another pass has been working destroys that file with no prompt and no
+  history, because an untracked file has nothing in git to restore from. The
+  recovery path, when the module had been built: run `lake env lean` on a
+  scratch file that imports it (this reads the existing `.olean` and does *not*
+  rebuild), walk `env.constants` filtered by `getModuleIdxFor?`, and print each
+  declaration's type, its value for a `def`, and `findDocString?`;
+  `Lean.getModuleDoc?` returns the module header verbatim. That recovers the
+  API, the definitions and every doc-string exactly — everything except the
+  proof terms, which have to be redone. Do not run `lake build` first: it will
+  rebuild the module from the file that replaced it and overwrite the artifact.
+  **Pattern:** before writing a file by redirection, `ls` it; and when the
+  working tree contains untracked work, check `git status` before writing
+  anything, not after.
+
 - **2026-09-15: A divergent positive family does not price its sharp endpoint.**
   `Real.log 0 = 0` and real division by zero is totalized. A real-valued
   log-ratio expression therefore does not encode infinite heat on a forbidden

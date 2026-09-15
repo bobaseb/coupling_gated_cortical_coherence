@@ -20,6 +20,44 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-15 — Claims withdrawn when the stationary equation was formalized
+
+**"The von Mises density is an input, not an output."** The article called it a
+stationary *ansatz*, the supplement said the density was assumed and not derived
+from the Fokker–Planck equation, and the Phase 4 note said deriving it would
+need the spectral theory of that operator, which Mathlib does not have. That
+estimate was wrong about what the derivation costs.
+`Phase8_FokkerPlanck.stationary_iff_vonMises` classifies the positive normalized
+stationary densities for the cosine drift, and the whole argument is an
+integrating factor, the fundamental theorem of calculus, and positivity of the
+integral of a positive continuous function. The middle step —
+`stationary_current_zero`, a periodic gradient drift carries no stationary
+current — is the one the primer had flagged as an extra assumption beside
+stationarity. It is a consequence of periodicity. Both documents now say so, and
+the Python check that verified the same algebra numerically is described as a
+numerical check rather than as the reason to believe it.
+
+**"Nothing here establishes stability."** True of the self-consistency and
+critical-exponent files, which is where it is still written, and no longer true
+of the development. Linearizing the equation about the uniform density gives
+rate `K/2 − D` on the first harmonic and `−D n²` above it, so a growing mode
+exists exactly above `2D` (`incoherent_instability_iff`), and the coherent
+branch carries a strictly dissipative form transverse to its rotation orbit
+(`coherent_linear_stability`), with rate zero along the orbit
+(`rotation_generator_zero`). Selection is a different claim and remains open:
+linear stability of a solution of the limiting equation says nothing about which
+trajectory a finite population follows, and the mean-field limit is untouched.
+
+**"The squared-drift objective is not identified with entropy production."** A
+declined connection becomes a proved separation. At the coherent stationary
+state the phase-space current dissipation is zero while the phase-averaged
+squared drift is positive (`stationary_current_separation`), so the two are not
+the same functional even on the same argument. The substrate-level objective
+that the plasticity results descend is a functional of a third argument, and no
+identification among the three is claimed.
+
+---
+
 ## 2026-09-15 — Claims withdrawn when the last three agency items closed
 
 **"Phase order cannot establish compatibility."** The article stated this

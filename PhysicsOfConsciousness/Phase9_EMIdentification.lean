@@ -1,5 +1,6 @@
 import Mathlib
 import PhysicsOfConsciousness.Phase8_ContinuousField
+import PhysicsOfConsciousness.Phase8_CoherentStability
 
 /-!
 # Phase 9 — EM field identification predicate
@@ -112,6 +113,33 @@ theorem exhibits_phase_transition_of_isEMFieldCoupling
     exhibits_phase_transition sys := by
   rw [exhibits_phase_transition, h.coupling_is_mean_field, h.noise_is_field_noise]
   exact hK
+
+/-- The identified scalar mean-field model above threshold has a coherent
+stationary density with a proved classical linear gap modulo rotation. The
+coupling and diffusion are those of the named field. This does not transfer
+the scalar equation's stability to a heterogeneous spatial kernel or establish
+an electromagnetic or cortical identification; those remain model inputs. -/
+theorem IsEMFieldCoupling.coherent_phase_model
+    {sys : StochasticNeuralField M} {K D : ℝ}
+    (h : IsEMFieldCoupling sys K D) (hK : critical_coupling D < K) :
+    ∃ a : ℝ, 0 < a ∧
+      FokkerPlanck.IsStationary sys.D
+        (FokkerPlanck.meanDrift (mean_field_coupling sys) (vonMisesDensity a))
+        (vonMisesDensity a) ∧
+      FokkerPlanck.HasCoherentLinearGap sys.D (mean_field_coupling sys) a := by
+  have hD := h.noise_pos
+  have hKpos : 0 < K := by unfold critical_coupling at hK; linarith
+  obtain ⟨r, hr, _, hf⟩ := supercritical_fixed_point_exists hD hK
+  have ha : 0 < K * r / D := div_pos (mul_pos hKpos hr) hD
+  have he : FokkerPlanck.branchCoupling D (K * r / D) = K := by
+    rw [FokkerPlanck.branchCoupling, (coherent_iff_sRatio_eq hD hKpos hr.ne').mp hf]
+    field_simp
+  rw [h.coupling_is_mean_field, h.noise_is_field_noise]
+  refine ⟨K * r / D, ha, ?_, ?_⟩
+  · simpa only [he] using FokkerPlanck.branch_stationary hD ha
+  · simpa only [he] using FokkerPlanck.branch_hasLinearGap hD ha
+
+#print axioms IsEMFieldCoupling.coherent_phase_model
 
 /-! ## Witnesses -/
 

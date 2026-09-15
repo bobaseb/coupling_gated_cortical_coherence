@@ -79,12 +79,6 @@ ALLOWED_LEAVES: dict[str, str] = {
         "carry phase — a modelling decision, not a formalization step, and not "
         "one to be taken to close this gate"
     ),
-    "Phase8_CriticalExponent.lean": (
-        "referenced only from a Phase8_SelfConsistency docstring "
-        "(`vonMisesSRatio_second_order`) and from the manuscript. The exponent is "
-        "a terminal prediction: nothing in Lean is downstream of beta = 1/2, and "
-        "nothing is expected to be"
-    ),
 }
 
 DECL_RE = re.compile(

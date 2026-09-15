@@ -100,6 +100,18 @@ converges to it, or that it is stable. Nothing in this file mentions a
 trajectory at all, so "the selected branch" is not a statement this file can
 make — that is the dynamics, and it lives in `Phase4_RotatingFrame.lean`.
 
+Linear stability of the two branches of the *limiting* equation is proved
+downstream and is a different statement from selection.
+`Phase8_Linearization.lean` computes the linearization about the uniform density
+from the exact expansion of the current and gets `K/2 - D` on the first
+harmonic and `-D n²` above it, so the incoherent state has a growing mode
+exactly above `2D` (`incoherent_instability_iff`);
+`Phase8_CoherentStability.lean` proves the coherent branch's gap inequality
+transverse to its rotation orbit (`coherent_linear_stability`), the orbit
+direction itself having zero rate (`rotation_generator_zero`). Neither
+constructs a solution of the evolution equation, and neither is a finite-`N`
+statement.
+
 *Three gaps this section used to record are now closed.* `K = 2D` is covered
 (`fixed_point_eq_zero_of_le_critical`, and it falls on the incoherent side), a
 discontinuous jump at threshold is excluded
@@ -124,11 +136,22 @@ integral and proves `E(a) = 1/2 - a²/16 + o(a²)`
 form would need a fourth derivative and no result requires it. `R(a) → 1` and
 concavity of `R` remain unformalized, and nothing needs them either.
 
-**The ansatz.** Nothing here derives the von Mises stationary density from the
-SDE `dθ = (ω + K·mean-field) dt + √(2D) dW`. That needs the Fokker–Planck
-operator, existence and uniqueness of its stationary solution, and a spectral
-stability argument, none of which Mathlib has. The density is an input to this
-file, not an output of it.
+**The ansatz** is an input here and an output downstream.
+`Phase8_FokkerPlanck.lean` introduces the periodic current and its forward
+operator and proves `stationary_iff_vonMises`: for the cosine drift, the
+positive normalized classical stationary densities are exactly
+`vonMisesDensity (K r / D)`. The middle step is that a periodic gradient drift
+carries no stationary current (`stationary_current_zero`), which the argument of
+`vonMisesZ_pos` gives once more — an integrating factor, the fundamental theorem
+of calculus, and positivity of the integral of a positive continuous function.
+No `Real.besselI` and no spectral theory enter it. Within *this* file the
+density remains an input: nothing below depends on that classification, and the
+threshold theorems are statements about the scalar equation either way.
+
+What is still not derived anywhere is the passage from the SDE
+`dθ = (ω + K·mean-field) dt + √(2D) dW` to the Fokker–Planck equation itself.
+`Phase8_FokkerPlanck.lean` starts from the classical stationary equation; it
+constructs no stochastic process.
 
 **The dynamics.** §7 connects `selfConsistency` to the order parameter *of a
 density*. It does not connect it to a *trajectory*: nothing here mentions
