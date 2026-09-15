@@ -20,6 +20,30 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-15 — Preparation enters the agent's law sequence
+
+Preparation of a declared prior is no longer absent from every finite-agent
+account. `FiniteProtocol.withPreparation` prepends a channel, identifies the
+subsequent laws with the original run when it reaches the declared prior, and
+reuses the existing balances. `Examples/Preparation.lean` prepares the
+sensor-memory agent's uniform prior from a different positive hardware law and
+includes it in the cumulative entropy bound. The parameter's uncertainty is
+still supplied; a constant hardware channel cannot create parameter-system
+correlation.
+
+The interrupted draft described uniform preparation as free and its bit-family
+divergence as excluding every sharp law from finite-cost preparation. Those
+claims have been narrowed to the proofs: uniform preparation has zero mean
+log-ratio heat; implementation and control work are unaccounted for. The
+positive bit family is unbounded from uniform input at thermal scale one, and
+its sharp endpoint fails the entropy identity's positivity premise. No universal
+exact-preparation obstruction follows, and other modules do admit zero masses.
+
+The article, supplement, Table S1 and primer now use that scope. Funding the
+preparation, preparing the charge, gate implementation, reservoir identification
+and external refuelling remain separate. Specification and validation:
+`tasks/preparation.md` and the dated `tasks/todo.md` record.
+
 ## 2026-09-15 — The source that pays for the clearing
 
 Four scope sentences are no longer written. The article, the supplement, Table

@@ -1,5 +1,22 @@
 # Lessons Learned
 
+- **2026-09-15: A divergent positive family does not price its sharp endpoint.**
+  `Real.log 0 = 0` and real division by zero is totalized. A real-valued
+  log-ratio expression therefore does not encode infinite heat on a forbidden
+  reverse path. State the positive-target hypothesis of the entropy identity,
+  prove unboundedness within the specified positive family, and separately
+  reject a sharp target from that hypothesis. Do not infer a universal
+  exact-preparation obstruction. Likewise, zero mean log-ratio heat does not
+  account for the construction or control work of a channel.
+
+- **2026-09-15: Match the preparation witness to the cumulative theorem's support.**
+  `memoryHeat_uniform` allows zero masses in the initial hardware law, while
+  `FiniteProtocol.cumulative_entropy_budget` requires a positive initial joint
+  law. A skewed law with full support exercises the complete protocol and its
+  budget. Prove that law differs from the target, and separately reject a
+  mismatched parameter marginal: a hardware channel cannot prepare uncertainty
+  in the parameter it leaves fixed.
+
 - **2026-09-15: A finite-state exhaustion bound needs a finite-horizon cost premise.**
   A state coordinate on a finite type is bounded below. Requiring its net
   loss to be at least `c > 0` at every natural-numbered stage, with a ledger

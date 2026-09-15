@@ -1551,9 +1551,9 @@ the next episode; the erasure returns the standard state whatever was written.
 The four operations are stages of one protocol, so the cumulative entropy
 balance of \S\ref{sec:continuing-agent} charges the whole run including the
 clearing. Local detailed balance at the memory's reservoir is an input, as
-everywhere here. Preparing the prior, fabricating the gates and any cortical
-identification are separate; \S\ref{sec:funded-memory} supplies the source these
-operations draw on.
+everywhere here. Gate fabrication and cortical identification remain separate.
+Section~\ref{sec:funded-memory} supplies the source these operations draw on;
+\S\ref{sec:preparation} accounts for reaching the declared prior.
 
 \lean{\id{memoryHeat}, \id{memoryHeat\_const},
 \id{memoryHeat\_ge\_entropy\_drop} and \id{MemoryAgent} live in
@@ -1606,7 +1606,8 @@ The unit the clearing draws is a declared reading of the agent's state. It is
 not identified with that stage's log-ratio heat; doing so needs the reservoir's
 own energy as a coordinate, as in \S\ref{sec:register-bath}. Preparing the
 charge, refuelling it from outside, fabricating the gates and any cortical
-identification are separate.
+identification are separate. The preparation model in
+\S\ref{sec:preparation} requires a target with full support.
 
 \lean{\id{balance\_le\_of\_stage\_cost}, \id{sum\_period\_indicator},
 \id{horizon\_le\_of\_periodic\_cost},
@@ -1618,6 +1619,59 @@ identification are separate.
 \id{charge\_invariant}, \id{clear\_spends\_one}, \id{cycles\_le\_three},
 \id{not\_solvent\_four}, \id{clear\_cost\_floor}, \id{clear\_unfunded} and
 \id{not\_positive}.}
+
+\subsection{Who prepares the prior}
+\label{sec:preparation}
+
+An agent's prior specifies the law from which its operations start. To account
+for reaching it, prepend a preparation channel to the same protocol. Here that
+channel lands on one hardware law \emph{whatever it is given}, so the clearing
+identity of \S\ref{sec:sensor-memory} also gives its mean heat. Its target must
+give every hardware state positive probability.
+
+For a uniform target the mean log-ratio heat is zero. The relative entropy of
+any $\mu$ from the uniform law is $\log|S|-H(\mu)$; this cancels the entropy
+change in the clearing identity. The result holds for any starting hardware law
+and any thermal scale. Interpreting this expression as reservoir heat uses local
+detailed balance. It does not price the construction or control of the channel.
+
+The sensor-memory witness starts with a skewed hardware law with full support
+and randomizes it to the agent's uniform prior. The starting and target laws
+are proved different. Preparation is stage zero, every later law is the agent's
+own, and the existing cumulative entropy bound covers the whole run. The choice
+of the starting hardware law remains an input.
+
+Two limits follow from what the channel can access. It writes the hardware and
+leaves the unknown parameter's marginal unchanged, so it cannot turn a certain
+parameter into the uncertainty this agent needs. A channel that reads neither
+coordinate produces a product law: it cannot create a correlation between the
+parameter and register. Both limits have concrete counterexamples in Lean.
+
+For contrast, preparing the memory's standard state $(3/4,1/4)$ from uniform
+has mean heat $(1/4)\log3$ at thermal scale one. For a target biased to
+$\varepsilon$, the corresponding expression is
+$(1/2-\varepsilon)\log[(1-\varepsilon)/\varepsilon]$, with
+$0<\varepsilon<1$. Lean proves this family has no finite upper bound. Its exact
+endpoint has zero reverse probabilities and fails the positive-target premise.
+This result concerns the specified channels; it does not establish the cost of
+every implementation of exact preparation. In particular, preparing the sharp
+charge of \S\ref{sec:funded-memory} remains a separate problem.
+
+\scope
+Local detailed balance at the preparing reservoir is an input, as everywhere
+here. Funding the preparation from a source, fabricating the gates, preparing a
+sharp law and any cortical identification are separate.
+
+\lean{\id{ProbDist.uniform}, \id{KL\_uniform}, \id{memoryHeat\_uniform},
+\id{FiniteProtocol.withPreparation}, \id{withPreparation\_law\_succ},
+\id{preparation\_meanHeat}, \id{preparation\_parameter\_marginal} and
+\id{preparation\_product} live in \id{Phase3\_Preparation.lean}.
+\id{Examples/Preparation.lean} proves \id{prior\_eq\_uniform},
+\id{prepared\_law}, \id{preparation\_free}, \id{prepared\_entropy\_budget},
+\id{standard\_prep\_cost}, \id{biased\_prep\_cost},
+\id{sharp\_prep\_unbounded}, \id{blank\_ne\_prior},
+\id{known\_parameter\_not\_preparable}, \id{sharp\_target\_not\_positive}
+and \id{correlated\_not\_preparable}.}
 
 \subsection{One register's ledger}
 \label{sec:register-ledger}
@@ -5313,6 +5367,7 @@ Store on the trajectory (\S\ref{sec:pathwise-store}) & \raggedright A reading ca
 Finite source (\S\ref{sec:finite-supply}) & \raggedright Internal replenishment cancels when source and store are counted together & \raggedright\arraybackslash Conditional finite-resource bound; reversible gates conserve energy but need not deliver it; preparation and gate control are inputs \\
 Sensor memory (\S\ref{sec:sensor-memory}) & \raggedright Clearing a measurement register costs the entropy removed plus the relative entropy of what it held from the state it is driven to & \raggedright\arraybackslash Theorem for an erasure landing on one declared law; positive at every cycle from channel masses alone; a blind measurement pays the same and a matched memory nothing \\
 Funded clearing (\S\ref{sec:funded-memory}) & \raggedright A charge carried in the agent's own world and spent once per cycle funds $m\leq b/c$ clearings & \raggedright\arraybackslash Theorem for a stage-dependent cost; the erasure cannot be conditioned on the charge, so an exhausted run continues unfunded, and full support admits no net draw at all \\
+\raggedright Preparing the prior (\S\ref{sec:preparation}) & \raggedright A constant preparation channel has the same heat identity as erasure; a uniform target has zero mean heat & \raggedright\arraybackslash Theorem for the declared channel; it preserves the parameter marginal and creates no parameter-hardware correlation. Biased bit targets have unbounded heat; exact preparation and implementation costs remain separate \\
 Learning from outcomes (\S\ref{sec:observational-learning}) & Expected reward of the executed action rises from $1/2$ toward $3/4$; the work spent is irreducible & Theorem for an unknown parameter, a declared prior and observation-driven updates; preparation, power supply and readout fabrication excluded \\
 Register's bath (\S\ref{sec:register-bath}) & \raggedright A reversible register--bath gate delivers the erasure heat, and a map-indexed budget needs a prepared bath and a work supply & \raggedright\arraybackslash Theorem (negative); positivity, local detailed balance and the ledger identity do not follow from reversibility \\
 KL bound; free-energy critique (\S\ref{sec:fep}) & Blocks ``dissipation $\Rightarrow$ true model'' & Instance postulate; the limit does \emph{not} follow \\

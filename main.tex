@@ -366,10 +366,9 @@ reset. Blinding the observations leaves chance performance and makes the
 learning stage free. Replacing reset by idle drift preserves some learning but
 reduces the next cycle's performance. A finite store therefore supports only
 a bounded prefix of this protocol. This is accounting in expectation:
-preparation of the initial law, microscopic battery dynamics and fabrication
-are supplied or outside the model, and the observation is marginalized inside
-the learning channel rather than held in a register of its own, which
-Eq.~\eqref{eq:erasure-cost} below supplies.
+the initial law and store are supplied resources, and the observation is
+marginalized inside the learning channel. Pathwise stores, a separate sensor
+memory and preparation channels are treated below.
 Heat is assigned to the composite learning channel through local detailed
 balance, and the store bounds a mean; no cortical identification follows.
 
@@ -444,8 +443,8 @@ memory is about. Replacing the clearing by the symmetric drift costs nothing
 and carries the measurement into the next episode, where the erasure returns
 the standard state whatever was written. The four operations are stages of one
 protocol, so Eq.~\eqref{eq:continuing-budget} charges the whole run, clearing
-included. Preparing the prior, fabricating the gates and any cortical
-identification remain outside this model.
+included. Fabricating the gates and any cortical identification remain outside
+this model; preparing the prior is charged below by the same identity.
 
 The work those operations draw can be carried in the same state. Let a
 coordinate $R$ of the agent's own state read a finite charge, let each executed
@@ -477,6 +476,31 @@ that never rises is then constant between every pair of states, in both
 directions, so every net draw is zero, and the witness's restricted support is
 forced by that rather than chosen. Preparing the charge, refuelling it from
 outside and fabricating the gates remain outside this model.
+
+Preparation can be modelled by the same constant channel as memory clearing.
+For a strictly positive target $\nu$, Eq.~\eqref{eq:erasure-cost} gives its mean
+log-ratio heat from hardware law $\mu$ as
+$\theta[H(\mu)-H(\nu)]+\theta D_{KL}(\mu\|\nu)$. Against a uniform target the two
+terms cancel, because $D_{KL}(\mu\|\mathrm{unif})=\log|S|-H(\mu)$: the channel
+has zero mean heat from any starting law. The reservoir interpretation uses
+local detailed balance; gate construction, control work and a funding source
+require separate accounting. Prepending this channel as stage zero includes
+preparation in the cumulative balance whenever its hypotheses hold. Once it
+reaches the declared prior, every subsequent law is the original agent's own.
+The sensor-memory witness prepares its uniform prior from a different,
+strictly positive hardware law and satisfies the whole-run entropy bound.
+
+Two things a preparation cannot do are properties of its signature. It writes
+the system coordinate and leaves the parameter's marginal as it found it, so the
+agent's uncertainty about the world is an input rather than something it
+prepares; and a preparation that reads neither coordinate produces a product,
+so it cannot create a correlation between parameter and register. At $\theta=1$,
+preparing a bit law biased to $\varepsilon$ from uniform has mean heat
+$(1/2-\varepsilon)\log[(1-\varepsilon)/\varepsilon]$ for $0<\varepsilon<1$;
+this family has no finite upper bound. Its sharp endpoint has zero reverse
+probabilities and fails the identity's positive-target premise. This is a
+restriction of the specified channel and heat model; it supplies no cost bound
+for other implementations of exact preparation, including the charge above.
 
 Table~\ref{tab:summary} lists the connecting hypotheses of two branches. The theorem \texttt{chain} uses passive predictive memory; \texttt{chain\_active} uses a specified finite feedback process. Each accepts eight implications and shares the passage from coarse-graining to the phase model and its proposed representational role. In both, the finite register and the field boundary are independent starting objects.
 
@@ -527,7 +551,7 @@ Connection & Status & Required assumption \\
 \hline
 E12 & Independent physical premise & A finite-capacity system realizes a field that leaves its vacuum manifold. Capacity and the boundary are independent roots. \\
 E23 & Bridge assumption & The boundary is associated with a finite register whose update leaves states unreachable. \\
-E34 / E34Active & Bridge assumption & Passive: a predictive structure at the register's thermal scale and heat budget, with nonzero wasted memory. Active: positivity, local detailed balance and a register-heat allocation, derived from its ledger identity and other operations' compressiveness. Finite source and store budgets follow their own executed laws; identifying them with register heat remains an input. A reversible register--bath gate realizes erasure without satisfying the positivity or local-detailed-balance premise. \\
+E34 / E34Active & Bridge assumption & Passive: a predictive structure at the register's thermal scale and heat budget, with nonzero wasted memory. Active: positivity, local detailed balance and a register-heat allocation, derived from its ledger identity and other operations' compressiveness. Preparation, source and store accounts use their own laws; identifying them with register heat remains an input. A reversible register--bath gate realizes erasure without satisfying the positivity or local-detailed-balance premise. \\
 E45 / E45Active & Modelling assumption & Passive: a convergent regime, for hardware holding a declared predictive law. Active: Eq.~\eqref{eq:actuated-coupling} from a supplied gain, profile and meshes; Eq.~\eqref{eq:kernel-limit} from declared response modes. \\
 E56 & Physical commitment & A specified physical field realizes the limiting coupling and satisfies the kernel conditions. \\
 E67 & Physical commitment & That field operates above the synchronization threshold. \\

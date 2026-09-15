@@ -50,6 +50,10 @@ Its specification and scope are in `tasks/learning_dynamics.md`.
 The agency roadmap at the end of this ledger records the remaining modelling
 gaps and stretch work. Agency has reached the 80/20 stopping point for the
 current manuscript; those extensions are not submission prerequisites.
+The interrupted initial-prior preparation item is complete (2026-09-15):
+`tasks/preparation.md` and the final dated record give its channel, mean-heat
+accounting and support limitations. Funding preparation and preparing the sharp
+charge remain separate work within the physical-supply item.
 The 80/20 constraint remains to correct unsupported claims and retain supported
 results, without expanding into incremental sweeps.
 
@@ -1828,17 +1832,16 @@ submission prerequisite.
       uncertain delivery through energy-conserving reversible gates on source,
       buffer and load bits, with a prepared selector. It rejects a forced-work
       ledger and a finite source for the unbounded charger. Specification:
-      `tasks/finite_supply.md`. Initial-law/source preparation, gate control,
-      external refuelling, a separate sensor memory and connecting this source
-      to the learning agent's actual channels remain open. *The measurement's own register is also
+      `tasks/finite_supply.md`. Gate control and external refuelling remain
+      open; memory implementation, the agent connection and prior preparation
+      are recorded next. *The measurement's own register is also
       closed (2026-09-15):* `MemoryAgent` holds the observation in a memory
       coordinate, updates the register from that memory alone and clears it as
       an executed stage; `memoryHeat_const` gives the exact cost of clearing,
       and the bit witness gives a positive per-cycle floor from channel masses
-      alone. Specification: `tasks/sensor_memory.md`. Preparing the prior and
-      the memory's initial law, gate fabrication and control, supplying the work
-      these operations draw, and connecting this memory to the finite source or
-      to the learning agent's channels remain open. *The work those operations
+      alone. Specification: `tasks/sensor_memory.md`. Gate fabrication and
+      control remain open; the finite source and prior preparation are recorded
+      next. *The work those operations
       draw now comes from a source in the agent's own state (2026-09-15):*
       `balance_le_of_stage_cost` admits a cost that depends on the stage, so an
       agent paying at one operation in four is describable;
@@ -1850,10 +1853,27 @@ submission prerequisite.
       units in the world the sensor-memory agent acts on, attains the bound at
       three cycles and reads below empty at the sixteenth operation, while
       every clearing still costs between `(3/16)log 3` and `(5/16)log 3`.
-      Specification: `tasks/funded_agent.md`. Preparing the prior, the memory's
-      initial law and the charge; gate fabrication and control; identifying the
-      drawn unit with the stage's own log-ratio heat; and external refuelling
-      remain open.
+      Specification: `tasks/funded_agent.md`.
+
+  - [x] **Prepare the declared initial law — bounded channel model.** Completed
+        2026-09-15: `FiniteProtocol.withPreparation` prepends one channel and
+        identifies its later laws with the original run when the target is
+        reached. `memoryHeat_uniform` gives zero mean log-ratio heat at every
+        hardware input; `Examples/Preparation.lean` prepares the sensor-memory
+        agent's own uniform prior, including the memory, from a different
+        positive hardware law and proves the whole-run entropy bound. The
+        parameter marginal remains an input, and a constant preparation cannot
+        create parameter-system correlation. The biased bit family has
+        unbounded heat from uniform input at thermal scale one; its sharp
+        endpoint fails the identity's positivity premise. This is no universal
+        exact-preparation obstruction or zero implementation-cost result.
+        Specification and verification: `tasks/preparation.md` and the final
+        dated record below.
+  - [ ] **Remaining preparation and supply.** Fund preparation from a source;
+        prepare the sharp charge under an appropriate model; account for gate
+        fabrication and control, identify the drawn unit with the stage's own
+        reservoir heat, and model external refuelling. Each is a separate
+        modelling change; the preparation result does not close the parent item.
 - [x] **E45Active — a scalar constitutive case.** Completed 2026-09-14:
       `ActuatedCoupling` constructs a spatial density from the named feedback
       step's joint entropy reduction, a supplied nonnegative gain and a supplied
@@ -3179,3 +3199,62 @@ the charge itself; fabricating and controlling the gates; identifying the drawn
 unit with the stage's own log-ratio heat; and external refuelling. The remaining
 agency gaps are those and local content agreement. Specification and execution
 record: `tasks/funded_agent.md`.
+
+## 2026-09-15 — Preparing the agent's declared prior
+
+`Phase3_Preparation.lean` adds `ProbDist.uniform`, its entropy and
+`KL_uniform`: the divergence from a uniform reference is the entropy deficit,
+with no positivity assumption on the input law. `memoryHeat_uniform` derives
+zero mean log-ratio heat for a constant channel to that target.
+`FiniteProtocol.withPreparation` prepends a preparation stage to an existing
+protocol; `withPreparation_law_succ` identifies every subsequent law with the
+original run once that stage reaches its declared initial law.
+`preparation_meanHeat` prices the stage using the hardware marginal, while
+`preparation_parameter_marginal` and `preparation_product` show that hardware
+preparation preserves the parameter marginal and that a constant preparation
+cannot create parameter-hardware correlation.
+
+`Examples/Preparation.lean` prepares the sensor-memory agent's own uniform prior
+from a skewed hardware law with full support. `blank_ne_prior` makes the change
+nontrivial, `prep_lands` and `prepared_law` identify its actual law sequence,
+and `prepared_entropy_budget` applies the existing cumulative bound to the
+whole run. The same channel identity prices preparation of the memory's
+standard state at `(1/4) log 3` from uniform. `biased_prep_cost` evaluates a
+positive bit target at `(1/2-ε) log((1-ε)/ε)` at thermal scale one, and
+`sharp_prep_unbounded` proves that this family has no finite upper bound.
+`known_parameter_not_preparable`, `correlated_not_preparable` and
+`sharp_target_not_positive` are the concrete limits.
+
+The resumption review narrowed two claims in the interrupted draft. Zero mean
+log-ratio heat does not price gate construction or control work. Unboundedness
+of the specified positive family does not assign an infinite value to its
+sharp endpoint or exclude every finite-cost exact-preparation implementation.
+The real logarithm is totalized at zero; the endpoint instead fails the entropy
+identity's positive-target premise. The complete-run witness uses a positive
+skewed input, rather than the definite hardware state first proposed, because
+the cumulative theorem requires positivity of the initial law. These scopes
+are aligned in the docstrings, article, supplement, Table S1 and primer, with
+the corrections recorded in `CHANGELOG.md` and `tasks/lessons.md`.
+
+The inherited 13 specifications are retained. Three further specifications
+failed on absent declarations before implementation and pass afterwards.
+The full `lake build` has zero warnings; the default audit covers 4,022
+declarations in 63 modules with only `propext`, `Classical.choice` and
+`Quot.sound`, and eighteen explicit headline checks agree. All 143 Python tests
+and all fifteen pre-commit hooks pass, including the publication and artifact
+gates. The staged diff passes `git diff --cached --check`. No Python,
+dependency, reference, generated macro or simulation result changed.
+
+The rebuilt article, supplement and primer have 54, 45 and 90 pages against
+53, 44 and 88 at `906afe2`. They have zero overfull boxes and baseline underfull
+counts (2, 0, 29); the new primer row's label was made ragged right to remove
+its extra warning. Table 1's existing 22.86668 pt overflow is unchanged.
+The changed passages and summary rows were visually inspected. The 67-page
+arXiv submission compiles from its unpacked archive and passes freshness.
+
+This closes the bounded initial-prior preparation sub-item. Funding the
+preparation, preparing the sharp charge under an appropriate model, gate
+construction and control, identifying the drawn unit with reservoir heat and
+external refuelling remain separate work within the open physical-supply item.
+Local content agreement remains a separate agency task. Specification,
+resumption review and validation: `tasks/preparation.md`.

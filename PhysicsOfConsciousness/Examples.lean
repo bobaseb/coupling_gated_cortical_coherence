@@ -28,6 +28,7 @@
     `Examples/FiniteSupply.lean` -- a finite source, conserved energy and uncertain delivery
     `Examples/SensorMemory.lean` -- a measurement's own register, and what clearing it costs
     `Examples/FundedMemory.lean` -- the source that pays for that clearing, and its horizon
+    `Examples/Preparation.lean` -- prior preparation and the limits of its heat identity
     `Examples/ActuatedCoupling.lean` -- a feedback step's scalar coupling amplitude
     `Examples/MicroscopicCoupling.lean` -- a thermal switch's installed spatial mode
     `Examples/Phase4.lean`  §7, §15, §16, §17
@@ -133,6 +134,7 @@ import PhysicsOfConsciousness.Examples.PathwiseStore
 import PhysicsOfConsciousness.Examples.FiniteSupply
 import PhysicsOfConsciousness.Examples.SensorMemory
 import PhysicsOfConsciousness.Examples.FundedMemory
+import PhysicsOfConsciousness.Examples.Preparation
 import PhysicsOfConsciousness.Examples.ActuatedCoupling
 import PhysicsOfConsciousness.Examples.MicroscopicCoupling
 import PhysicsOfConsciousness.Examples.Phase4
