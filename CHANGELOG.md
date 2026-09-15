@@ -1208,3 +1208,34 @@ record of why the earliest witness was empty. The Lévy–Prokhorov metric named
 
 **Record:** `_archive/todo_2026-08-30_pre-strategic-replan.md`; the manuscript's
 soundness section states the three mathematical findings.
+
+## 2026-09-15 — Table 1 as a longtable, and the final citation and macro read
+
+The last two actionable submission-readiness items are closed.
+
+**Table 1 no longer overflows its page.** The eight-row summary of connecting
+hypotheses was a `table` float taller than `\textheight`, so `pdflatex` reported
+`Float too large for page by 22.87pt` and no placement specifier could help. It
+is now a `longtable`, as Table S1 already is, with a repeating header and a
+`Table 1 (continued)` marker. The article stays at 58 pages and the merged arXiv
+document fits the table on one page unbroken.
+
+**Two references were wrong.** `pinotsis2023ephaptic` ran to 9877–9890 and the
+article ends at 9877–9895; `bajwa2025` carried article number 32012 and the paper
+is 32746 — the OpenNeuro ds005620 source cited in the data-availability
+statement. The other 41 entries are correct as printed, checked against Crossref,
+Europe PMC, arXiv or the publisher.
+
+**One numeral was wrong.** Table S1 stated that fields of 1–5 mV/mm shift spike
+timing by 1–3 ms. That was uncited, hand-typed, and inconsistent with the
+repository's own calibration: at `\fermiShift` = 0.4 ms per mV/mm the range is
+0.4–2 ms. The cell now computes it with `\fpeval` from the generated parameters
+and names the constant it used, so it cannot drift from them again.
+
+**The supplement's citations rendered unparenthesised.** `main.tex` redefines
+`\cite` to `\citep` and `supplementary.tex` did not, so the standalone PDF that
+`README.md` and `index.html` link showed bare author-year text at all 12 sites.
+The merged arXiv document was already correct. The supplement now carries the
+same redefinition.
+
+No Lean source, dependency, generated macro or simulation result changed.

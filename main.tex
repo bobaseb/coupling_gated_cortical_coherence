@@ -8,6 +8,7 @@
 \usepackage{setspace}
 \usepackage[round]{natbib}
 \usepackage{array}
+\usepackage{longtable}
 \usepackage{tikz}
 \usetikzlibrary{positioning,arrows.meta,calc,decorations.pathreplacing}
 % Float placement for the review manuscript.
@@ -544,14 +545,25 @@ A third finite model examines the register's own bath. One register bit and one 
  \label{eq:bath-ledger}
 \end{equation}
 where the first identity needs no positive support and supplies no entropy inequality, and the second is the correction a reported heat ledger carries when it omits part of that transfer. Three consequences fence what a map-indexed budget can mean. Executing the same erasing gate twice returns the $\log2$ and restores the initial law, so the two shares are $\log2$ and $-\log2$ about a total of zero, and a reusable eraser requires its bath prepared again. A second reversible gate holds the register fixed and excites its bath, performing the same register map as idling at $2\log2$ instead of $0$; the work supplied is $\log2$ for one erasure, $2\log2$ for that drive and zero for two erasures. And a swap is an involution, so the gates' own transition log-ratios vanish on every realized path while their bath gains $\log2$: a deterministic reversible gate is not a strictly positive reduced channel, and local detailed balance at any thermal scale assigns it none of the heat its bath receives. Positivity, local detailed balance and the ledger identity are inputs of the resource model rather than consequences of microscopic reversibility. Preparing the bath, supplying the work, and identifying this bath with the reservoir of the ledger's operations remain separate; the numerical values are those of the declared energy gap and preparation.
-\begin{table}[htbp]
-\centering
+\begingroup
+\nolinenumbers
 \singlespacing
 \small
-\begin{tabular}{>{\raggedright\arraybackslash}p{0.14\linewidth}>{\raggedright\arraybackslash}p{0.20\linewidth}>{\raggedright\arraybackslash}p{0.56\linewidth}}
+\setlength{\LTcapwidth}{\linewidth}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.14\linewidth}>{\raggedright\arraybackslash}p{0.20\linewidth}>{\raggedright\arraybackslash}p{0.56\linewidth}}
+\caption{Connecting hypotheses of the passive and active compositions, eight per branch. They share E12, E23 and E56--E89. The cover's compatibility is supplied as a structure field. Identifying the boundary's encoding with restriction requires a separate resonance condition. The mathematical objects and node-level results are mapped in Supplemental Material, Table~S1.}
+\label{tab:summary}\\
 \hline
 Connection & Status & Required assumption \\
 \hline
+\endfirsthead
+\multicolumn{3}{l}{\small\itshape Table \thetable\ (continued)}\\
+\hline
+Connection & Status & Required assumption \\
+\hline
+\endhead
+\hline
+\endfoot
 E12 & Independent physical premise & A finite-capacity system realizes a field that leaves its vacuum manifold. Capacity and the boundary are independent roots. \\
 E23 & Bridge assumption & The boundary is associated with a finite register whose update leaves states unreachable. \\
 E34 / E34Active & Bridge assumption & Passive: a predictive structure at the register's thermal scale and heat budget, with nonzero wasted memory. Active: positivity, local detailed balance and a register-heat allocation, derived from its ledger identity and other operations' compressiveness. Preparation, source and store accounts use their own laws; identifying them with register heat remains an input. A reversible register--bath gate realizes erasure without satisfying the positivity or local-detailed-balance premise. \\
@@ -560,11 +572,8 @@ E56 & Physical commitment & A specified physical field realizes the limiting cou
 E67 & Physical commitment & That field operates above the synchronization threshold. \\
 E78 & Bridge assumption & Coherence drives a supplied cover to its relaxed equilibrium at coupling at least the named mean-field value. \\
 E89 & Modelling assumption & A map mediated by local self-encoding fixes the section glued on that cover and has the Lipschitz factor $q<1$ used in the exact and approximate-state results. \\
-\hline
-\end{tabular}
-\caption{Connecting hypotheses of the passive and active compositions, eight per branch. They share E12, E23 and E56--E89. The cover's compatibility is supplied as a structure field. Identifying the boundary's encoding with restriction requires a separate resonance condition. The mathematical objects and node-level results are mapped in Supplemental Material, Table~S1.}
-\label{tab:summary}
-\end{table}
+\end{longtable}
+\endgroup
 
 Two structures also enter both theorems: a thermodynamic cover, including overlap compatibility, and a reflexive boundary specifying the local encoding and readout. Given these and the connecting hypotheses, both conclude \texttt{UnifiedSelf}: the section glued on that cover is the unique fixed point of self-prediction. Restriction resonance, needed for the interpretation in Eq.~\eqref{eq:selfmap}, is a separate condition. The result binds the fixed point to the specified local states; compatibility and accuracy at that state are premises, while uniqueness follows from the construction.
 

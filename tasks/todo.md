@@ -35,10 +35,10 @@ negative answers, which the publication now carries.
 
 ## How this ledger is ordered
 
-**Current manuscript priority:** the third P-item, the final read of every
-citation and every generated macro. Its prerequisites A1, A2 and F1–F4 are
-closed, and the other two P-items require author or journal decisions.
-**The publication audit is on hold at the user's request, 2026-09-14.**
+**Current manuscript priority:** none of the open items is actionable here.
+The final read of every citation and every generated macro is closed
+(2026-09-15), as is the Table 1 overflow; the two P-items that remain require
+author or journal decisions, and R1–R7 are unbounded research.
 The agency/active-chain extension is complete; its primer alignment and the
 complete finite-update theorem are recorded in the dated sections at the end
 of this ledger. L2's goal-directed policy selection under a finite budget is
@@ -930,24 +930,74 @@ because they rank below the A–D items.
       history. *Blocked on the author.*
 - [ ] Add or confirm the journal-required data-availability statement and the
       supplemental-material description. *Blocked on a journal choice.*
-- [ ] **Table 1 of the article overflows its page.** `pdflatex` reports
-      `Float too large for page by 22.87pt on input line 464` after the
-      2026-09-15 finite-source row alignment, down from 36.47pt. The `table` float holding the eight-row
-      summary is taller than `\textheight`, so no placement specifier helps —
-      the fix is structural. `longtable`, as Table S1 already uses, is the
-      obvious candidate; splitting the `Required assumption` column's longest
-      cells is the alternative. This is a defect in a tracked deliverable,
-      which `README.md` and `index.html` link directly, and it predates the
-      2026-09-15 pathwise-store change. The finite-source change fits its
-      resource-accounting summary by shortening the E34 row, but leaves the
-      structural overflow open. Verify by rebuilding and checking
-      that the warning is gone, not only that the page count is unchanged.
-- [ ] Final read of every cited reference and every generated numerical macro
-      after the last prose edit. **On hold at the user's request, 2026-09-14.**
-      **A1, A2 and F1–F4 were prerequisites and are
-      closed**, so this item is now the open one; it is no longer a formality: the audit found one wrong numeral and two
-      unresolvable citations by doing exactly this read. Do not submit while any
-      source/PDF, estimator or public-description inconsistency remains.
+- [x] **Table 1 of the article overflows its page.** **Done 2026-09-15.** The
+      eight-row summary is a `longtable`, as Table S1 already is, with a
+      repeating header and a `Table 1 (continued)` marker; `\usepackage{longtable}`
+      joins `array` in the preamble and the float wrapper is gone. `pdflatex`
+      reports no `Float too large` and no overfull `\vbox`, the article stays at
+      58 pages and the table breaks after E78. `\newpage` before it was tried
+      and rejected: it fits all eight rows on one page at the cost of a
+      near-blank page before them. In the merged arXiv document the table fits
+      one page unbroken, so the break is local to the double-spaced build.
+      `prepare_arxiv.sh` already injects `longtable`, so the merge needed no
+      change, and `check_tableS1` reads only `supplementary.tex`.
+- [x] Final read of every cited reference and every generated numerical macro.
+      **Done 2026-09-15**, off hold.
+
+      **References.** All 43 `\bibitem` keys are cited, all cited keys are
+      defined, and there are no duplicates. Each entry was checked against
+      Crossref, Europe PMC, arXiv or the publisher. **Two were wrong and are
+      fixed:** `pinotsis2023ephaptic` ran to 9877--9890 and the article ends at
+      **9877--9895** (Cerebral Cortex 33(17), doi:10.1093/cercor/bhad251);
+      `bajwa2025` carried article number 32012 and the paper is **32746**
+      (Sci Rep 15, doi:10.1038/s41598-025-12695-z) — the OpenNeuro ds005620
+      source, so the wrong number sat in the data-availability trail. The other
+      41 are correct as printed, including every venue, volume and page range.
+      `bruineberg2022` is deliberately the print year: Crossref issues it
+      2021-10-22 online, BBS vol 45 e183 is 2022.
+
+      **Macros.** 242 are generated, 199 used, 9 more consumed inside the
+      generated files. The remaining 34 are dead but harmless; they are
+      generated output and removing them means editing the generators, so they
+      are recorded here rather than chased. The drift test passes.
+
+      **Numerals in prose.** Every literal decimal in both publication files was
+      read against the generated macro values. All of them are LaTeX layout
+      parameters, declared simulation *inputs*, or values attributed to a cited
+      source; **no computed output is hand-typed**, which is AGENTS.md's rule
+      holding. Every literature numeral was verified at its source: Xie 2013's
+      alpha rise (14.1 +/- 1.8% awake, 23.4 +/- 1.9% asleep), Sykova & Nicholson's
+      alpha ~ 0.2 and lambda ~ 1.6, Barbour's 0.3--0.6 S/m below 10 kHz,
+      Voroslakos's sub-1 V/m cortical field, and the oomoto2026 dataset's
+      7.65 Hz, thousands of neurons, spatial coordinates and wakefulness /
+      NREM / REM / isoflurane coverage — the last confirmed against the
+      Scientific Data abstract, which states REM explicitly.
+
+      **One numeral was wrong, and it is the class this item exists for.**
+      Table S1 read "measured endogenous fields of $1$--$5$ mV/mm shift spike
+      timing by $1$--$3$ ms": uncited, hand-typed, and inconsistent with the
+      repository's own calibration, where `\fermiShift` is 0.4 ms per mV/mm and
+      the field range is `\fermiFieldMin`--`\fermiFieldMax`. The product is
+      **0.4--2 ms**, not 1--3. The cell now computes the range with `\fpeval`
+      from those macros, names the calibration constant it used and carries the
+      citation, so it cannot drift from the parameters again. `supplementary.tex`
+      gained `xfp` for this. A second hand-typed copy of the same field range at
+      the ephaptic-coupling paragraph now reads the macros too.
+
+      **A presentation defect the read surfaced.** `main.tex` redefines `\cite`
+      to `\citep` and the supplement did not, so all 12 of its citations rendered
+      unparenthesised in the standalone `supplementary.pdf` — the file
+      `README.md` and `index.html` link. The merged arXiv document was already
+      correct, because it takes `main.tex`'s preamble. The supplement now carries
+      the same redefinition. Each of the 12 sites is clause-final, so none reads
+      as a grammatical subject under `\citep`.
+
+      **Verification.** Both documents and the primer rebuild with no
+      `Float too large`, no overfull `\vbox`, and no undefined reference,
+      citation or label. All 15 pre-commit gates pass and the 143-test Python
+      suite passes. `prepare_arxiv.sh` rebuilt and recompiled the submission
+      from its own tarball, 74 pages. No Lean source, dependency, generated
+      macro or simulation result changed.
 
 ## Recorded, not scheduled
 
