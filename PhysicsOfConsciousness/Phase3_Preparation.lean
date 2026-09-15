@@ -25,7 +25,12 @@ work and a funding source are not specified by this identity.
 so the telescoped entropy balance, the first law and the store bounds of
 `Phase3_ContinuingAgent` cover it without a second theory, and
 `withPreparation_law_succ` identifies the shifted run with the original one.
-`preparation_meanHeat` is its cost.
+`preparation_meanHeat` is its cost. `PathwiseStore.withPreparation` attaches the
+same stage to an existing store, so the preparation's own draw is inside the
+resource boundary from the start of the run rather than outside it, and
+`withPreparation_ledgered` inherits the operating ledger once the stage reaches
+the declared prior. The general trajectory form of that ledger is
+`Phase3_ResourceFoundations`; this is the finite-protocol case.
 
 Two fences are theorems rather than remarks. `preparation_parameter_marginal`
 holds for every preparation: the channel does not touch the parameter, so the
@@ -191,5 +196,44 @@ theorem preparation_product {X S : Type*} [Fintype X] [Fintype S]
       (∑ s, blank.p (z.1, s)) * ν.p z.2 := by
   show (∑ s, blank.p (z.1, s) * ν.p z.2) = _
   rw [← Finset.sum_mul]
+
+/-! ## The preparation inside the store's boundary -/
+
+namespace PathwiseStore
+
+variable {X S : Type*} [Fintype X] [Fintype S]
+
+/-- Prepend preparation on the same state and balance observable, with an
+explicit preparation draw and supply. Reaching the operating prior is a
+hypothesis of `withPreparation_ledgered`, not part of this data constructor. -/
+noncomputable def withPreparation (B : PathwiseStore X S) (blank : ProbDist (X × S))
+    (prep : X → S → ProbDist S) (d u : X → S → S → ℝ) : PathwiseStore X S where
+  protocol := B.protocol.withPreparation blank prep
+  balance := B.balance
+  draw n := Nat.rec d (fun k _ => B.draw k) n
+  supply n := Nat.rec u (fun k _ => B.supply k) n
+
+/-- The prepared run inherits the operating ledger after paying the new first
+stage. This needs the preparation's own transition ledger and its actual target
+law; it supplies no microscopic implementation of that preparation. -/
+theorem withPreparation_ledgered (B : PathwiseStore X S) (blank : ProbDist (X × S))
+    (prep : X → S → ProbDist S) (d u : X → S → S → ℝ) (hb : B.Ledgered)
+    (hland : (⟨blank, prep⟩ : FiniteFeedbackStep X S).final = B.protocol.initial)
+    (hp : ∀ x s t, 0 < blank.p (x, s) → 0 < (prep x s).p t →
+      B.balance t = B.balance s - d x s t + u x s t) :
+    (B.withPreparation blank prep d u).Ledgered := by
+  intro n x s t hs ht
+  cases n with
+  | zero => exact hp x s t hs ht
+  | succ n =>
+    apply hb n x s t
+    · change 0 < ((B.protocol.withPreparation blank prep).law (n + 1)).p (x, s) at hs
+      rw [FiniteProtocol.withPreparation_law_succ _ _ _ hland] at hs
+      exact hs
+    · exact ht
+
+end PathwiseStore
+
+#print axioms PathwiseStore.withPreparation_ledgered
 
 end PhysicsOfConsciousness

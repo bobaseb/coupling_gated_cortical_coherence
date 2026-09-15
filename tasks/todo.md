@@ -3258,3 +3258,96 @@ construction and control, identifying the drawn unit with reservoir heat and
 external refuelling remain separate work within the open physical-supply item.
 Local content agreement remains a separate agency task. Specification,
 resumption review and validation: `tasks/preparation.md`.
+
+## 2026-09-15 — Foundations for the remaining agency items
+
+Five new modules, wired to the root and compiled together. They are foundations
+for the open agency items, not closures of them; no publication source, PDF or
+arXiv artifact is touched, and no scope sentence in the manuscript has become
+false.
+
+`Phase3_ResourceFoundations` proves the ledger and horizon bounds on an
+**arbitrary** state type — `balance_sum`, `draw_le_resources`, `horizon_bound` —
+so the resource accounting no longer carries a finite state assumption.
+`ContinuingProcess.horizon_le_of_cost` is now that bound specialized to the
+expected-work ledger rather than a second sum argument: the finite state space
+plays no part in it, and the pathwise store's bounds, which branch over
+reachable states, stay where they were.
+`draw_eq_energy_heat_control` identifies the draw from a conserved boundary that
+includes installation and control energy, and `draw_eq_thermal_work` names the
+thermal substitution as a hypothesis rather than deriving it. `transferCharge`
+is the reversible sharp swap on `ℕ × ℕ` and `refuel` a real-valued trajectory
+that stays solvent forever under matched delivery: unbounded state, with the
+supply still external. `PathwiseStore.withPreparation` puts the existing
+preparation channel inside the store's boundary, and `withPreparation_ledgered`
+inherits the operating ledger once it lands on the declared prior; both moved to
+`Phase3_Preparation`, beside the channel they wrap, which is what lets the
+resource module sit above `Phase3_ContinuingAgent`.
+
+`Phase3_SupportedThermodynamics` weakens full positivity to forward-into-reverse
+support inclusion. `KL_nonneg_of_support`, `entropyProduction_nonneg_of_support`
+and `entropy_balance_of_support` hold there, and
+`reversibleSupport_of_positive` places the old premise strictly inside the new
+one. The irreversible case is not absorbed into a real number:
+`ProbDist.extendedKL` lives in `ℝ≥0∞`, agrees with `KL` where support holds and
+returns `⊤` on a single unsupported forward atom.
+`entropy_reduction_le_bathEntropy`, in the resource module, is the second-law
+form this buys and is that module's consumer.
+
+`Phase5_ContentDynamics` makes local contents real-valued fields on a declared
+cover, driven by observations. `update_residual` gives `(1-η)ε + ηδ`,
+`run_residual` the geometric decay under compatible observations, and
+`readout_agrees` / `readout_unique` the gluing and uniqueness at zero residual.
+The module is upstream of `Phase5_GlobalSection`, which it uses nothing from:
+`ApproximateGluing.compatible_pointwise` reads that section's finite nonnegative
+mass profiles as such a family at the same tolerance, so the development's two
+agreement predicates are one predicate. Compatibility is an input; nothing derives it from reward, coherence or a shared
+target, and the contents are identified with no neural variable and with no
+section of the probability sheaf.
+
+`Examples/ContinuingLimit` is about the learner that already exists.
+`performance_error` is the exact error of its own recurrence and
+`performance_tendsto` its convergence to `65/127`, below perfect play;
+`work_unbounded` reuses the existing per-cycle floor to exceed every finite
+expected allowance, so the sequence that converges is the one that cannot be
+funded.
+
+`Examples/AgencyFoundations` carries 22 specifications. The 9 general ones
+failed with 16 errors, all absent declarations, against the pre-implementation
+import set and pass unchanged after wiring. The 13 added are concrete, because
+a general statement about an arbitrary cover or an arbitrary state space proves
+nothing about inhabitation: a ten-unit trajectory whose horizon is 10; the sharp
+transfer emptying a seven-unit source; `sparse`, a feedback step whose initial
+law sits on one atom, for which `sparse_not_positive` and
+`sparse_reversibleSupport` are the two halves of the point; erasure onto the
+opposite definite bit at `extendedKL = ⊤` against the same bit from uniform at
+`log 2`; and two patches on three sites whose readout glues to `(5, 1, 7)`,
+with a family that is compatible at `ε = 1` and provably not at `ε = 0`.
+
+The full `lake build` has zero warnings; the default audit covers 4,126
+declarations in 68 modules with only `propext`, `Classical.choice` and
+`Quot.sound`, and the 17 explicit headline checks agree. `check_sorry` and
+`check_leaves` pass. No Python, dependency, reference, macro or simulation
+result changed.
+
+All three new phase modules began as leaves — theorems referenced by nothing
+outside themselves and the witness file. `check_leaves` caught only
+`Phase3_SupportedThermodynamics`, because it matches bare declaration names and
+`withPreparation`, `update`, `readout` and `Compatible` are names elsewhere too.
+The repair was placement, not invention: each module had been put *below* work
+that should depend on it. `Phase5_ContentDynamics` imported the sheaf module and
+used nothing from it; `Phase3_ResourceFoundations` imported `Phase3_Preparation`,
+which forced it below the very store whose horizon bound it generalizes. Both
+moved up, and each is now consumed by a qualified reference in a real proof.
+
+The publication work — article, supplement, Table S1, primer, tracked PDFs and
+the arXiv submission — is deferred by the authorized scope of this pass.
+
+Still open, unchanged: gate fabrication and control work, which are charged to
+an observable and never priced; conservation and the thermal identification of
+the bath term, which remain hypotheses; countable and continuous stochastic
+thermodynamics and optimal control; the bridge from `extendedKL` to Mathlib's
+measure divergence; construction of physical reverse protocols; the content
+model at `main.tex:226` and the mechanism by which overlap agreement is
+acquired; and pathwise convergence or optimality for the learner.
+Specification and execution record: `tasks/agency_foundations.md`.

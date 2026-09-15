@@ -1,4 +1,5 @@
 import PhysicsOfConsciousness.Phase3_ObservationalLearning
+import PhysicsOfConsciousness.Phase3_ResourceFoundations
 
 /-!
 # One continuing agent: sequenced stages on one law, funded by a declared store
@@ -346,15 +347,21 @@ theorem entropy_reduction_le_stored [Nonempty S] (hp : C.protocol.Positive)
 
 /-- **No perpetual agent.** If every stage costs at least `c > 0` of work, a
 store of `stored` sustains at most `stored / c` stages. Continuing operation is
-a claim about replenishment, which a store does not make. -/
+a claim about replenishment, which a store does not make.
+
+The expected allowance is a ledger on the trajectory `n ↦ n`, drawing each
+stage's mean work and supplied nothing, so this is
+`ResourceTrajectory.horizon_bound` specialized. The finite state space plays no
+part in it; what needs one is the pathwise bound below, which branches over
+reachable states rather than following a single sequence. -/
 theorem horizon_le_of_cost (c : ℝ)
     (hcost : ∀ k, c ≤ (C.protocol.step k).meanHeat (C.stageWork k)) (N : ℕ)
     (h : C.Sustains N) : (N : ℝ) * c ≤ C.stored := by
-  have hsum : (N : ℝ) * c ≤ C.totalWork N := by
-    unfold totalWork
-    have := Finset.sum_le_sum (fun k (_ : k ∈ Finset.range N) => hcost k)
-    simpa only [Finset.sum_const, Finset.card_range, nsmul_eq_mul] using this
-  exact hsum.trans (C.sustains_totalWork_le N h)
+  have hb := ResourceTrajectory.horizon_bound (fun n => n) C.remaining
+    (fun k => (C.protocol.step k).meanHeat (C.stageWork k)) (fun _ => 0) N c
+    (fun n _ => by simpa using C.remaining_succ n)
+    (fun k _ => by simpa using hcost k) (h N le_rfl)
+  simpa [remaining, totalWork] using hb
 
 theorem not_sustains_of_totalWork_gt (N : ℕ) (h : C.stored < C.totalWork N) :
     ¬ C.Sustains N := fun hs => absurd (C.sustains_totalWork_le N hs) (not_le.mpr h)

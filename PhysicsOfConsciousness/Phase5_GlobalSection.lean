@@ -1,4 +1,5 @@
 import PhysicsOfConsciousness.Phase4_MacroscopicScaling
+import PhysicsOfConsciousness.Phase5_ContentDynamics
 import Mathlib.CategoryTheory.Sites.Sheaf
 import Mathlib.Topology.Category.TopCat.Basic
 import Mathlib.MeasureTheory.Measure.FiniteMeasure
@@ -293,6 +294,20 @@ On a finite discrete substrate these are local finite measures. This predicate
 supplies no process producing their approximate agreement. -/
 def Compatible (U : ι → Set α) (s : ι → α → ℝ≥0) (ε : ℝ≥0) : Prop :=
   ∀ i j, profileDist (U i ∩ U j) (s i) (s j) ≤ ε
+
+omit [Fintype ι] in
+/-- **The two agreement predicates are one predicate.** `profileDist` on an
+overlap bounds exactly the pointwise distances across it, so a compatible family
+of mass profiles is a compatible family of signed contents in the sense of
+`Phase5_ContentDynamics`, at the same tolerance. The observation dynamics of
+that module therefore acts on the families these theorems accept. It produces no
+agreement: the hypothesis is still supplied. -/
+theorem compatible_pointwise {U : ι → Set α} {s : ι → α → ℝ≥0} {ε : ℝ≥0}
+    (h : Compatible U s ε) :
+    LocalContent.Compatible U (fun i x => (s i x : ℝ)) ε := by
+  intro i j x hi hj
+  have hx := (profileDist_le_iff ε.coe_nonneg).1 (h i j) x ⟨hi, hj⟩
+  simpa [NNReal.dist_eq] using hx
 
 /-- A nonnegative partition of unity subordinate to the finite cover. Data stay
 bare; support and normalization are properties, not assumed error bounds. No

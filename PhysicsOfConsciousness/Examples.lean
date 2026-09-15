@@ -22,6 +22,7 @@
     `Examples/PolicyLearning.lean` -- thermal policy adaptation and its costs
     `Examples/ObservationalLearning.lean` -- learning an unknown task from outcomes
     `Examples/ContinuingAgent.lean` -- sequenced episodes and a finite work allowance
+    `Examples/ContinuingLimit.lean` -- that learner's rate, limit and unbounded work
     `Examples/RegisterBudget.lean` -- one register's operations and its heat ledger
     `Examples/RegisterBath.lean` -- that register's bath, and what its map does not fix
     `Examples/PathwiseStore.lean` -- a store on the trajectory, and what replenishment buys
@@ -36,6 +37,7 @@
     `Examples/Phase6.lean`  §10
     `Examples/Phase7.lean`  §8
     `Examples/Phase8.lean`  §5, §9, §12, §20 (continuum operator)
+    `Examples/AgencyFoundations.lean` -- regressions for the agency foundations
 
   **Coverage — every class carrying a physical postulate is now inhabited.**
     ✓ `StatisticalMechanics` — a one-bit erasure model with a genuine bath.
@@ -128,6 +130,7 @@ import PhysicsOfConsciousness.Examples.AgencyControl
 import PhysicsOfConsciousness.Examples.PolicyLearning
 import PhysicsOfConsciousness.Examples.ObservationalLearning
 import PhysicsOfConsciousness.Examples.ContinuingAgent
+import PhysicsOfConsciousness.Examples.ContinuingLimit
 import PhysicsOfConsciousness.Examples.RegisterBudget
 import PhysicsOfConsciousness.Examples.RegisterBath
 import PhysicsOfConsciousness.Examples.PathwiseStore
@@ -142,3 +145,4 @@ import PhysicsOfConsciousness.Examples.Phase5
 import PhysicsOfConsciousness.Examples.Phase6
 import PhysicsOfConsciousness.Examples.Phase7
 import PhysicsOfConsciousness.Examples.Phase8
+import PhysicsOfConsciousness.Examples.AgencyFoundations
