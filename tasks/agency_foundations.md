@@ -42,8 +42,11 @@ dependencies, simulation runs or new references are required.
 - [x] Add the actual learner's convergence/rate and resource obstruction.
 - [x] Run the build/audit and applicable lightweight checks; record results.
 
-The parent roadmap items stay open: these are foundations for their next
-reviewable changes, not claims that all modelling and publication work is done.
+Of the five parent roadmap items these serve, two — weaker positivity and
+longer horizons — are closed against their own completion criteria and ticked in
+`tasks/todo.md`. Broader state spaces and local content agreement are half
+closed, with the open half named in each. Physical preparation and supply
+remains open. The dated assessment is at the end of that ledger.
 
 ## Execution record — 2026-09-15
 

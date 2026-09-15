@@ -1853,7 +1853,26 @@ submission prerequisite.
       units in the world the sensor-memory agent acts on, attains the bound at
       three cycles and reads below empty at the sixteenth operation, while
       every clearing still costs between `(3/16)log 3` and `(5/16)log 3`.
-      Specification: `tasks/funded_agent.md`.
+      Specification: `tasks/funded_agent.md`. *The ledger is now stated without
+      a finite state space, and delivery is explicit (2026-09-15):*
+      `ResourceTrajectory` bounds the horizon on an arbitrary state type;
+      `refuel` is a trajectory solvent at every operation when delivery matches
+      draw, which is what external refuelling looks like while the supply is
+      declared; `transferCharge` transfers a sharp charge reversibly on
+      `ℕ × ℕ`; and `PathwiseStore.withPreparation` (`Phase3_Preparation`) puts
+      the preparation stage inside the same boundary, so its draw is charged
+      from the start of the run. `entropy_reduction_le_bathEntropy` gives the
+      second-law form under the weakened support condition. **This item stays
+      open, and these are the reasons.** Gate fabrication and control work are
+      charged to an observable `C` and never priced. Conservation and the
+      thermal identification of the bath term are hypotheses:
+      `draw_eq_thermal_work` will substitute any real number written
+      `θ * log ratio`, and identifying that term with reservoir heat is still
+      local detailed balance's job. Preparing the sharp charge is untouched —
+      the transfer moves a charge it does not make. The delivery `u` is an input
+      rather than a modelled source, and nothing connects these trajectories to
+      the funded agent's own channels. `withPreparation_ledgered` supplies no
+      microscopic implementation of the preparation it charges.
 
   - [x] **Prepare the declared initial law — bounded channel model.** Completed
         2026-09-15: `FiniteProtocol.withPreparation` prepends one channel and
@@ -1903,6 +1922,24 @@ submission prerequisite.
       consistency work. Conditional proofs and counterexamples can precede
       data; identifying the variables with neural content and testing their
       relevance to experience are separate empirical/interpretive tasks.
+      *The preserve half and the readout half are closed (2026-09-15):*
+      `LocalContent` (`Phase5_ContentDynamics`) is the declared local content
+      state — real fields on the patches of a declared cover — and `update`
+      mixes each with that patch's own observation at gain `η`.
+      `update_residual` is the quantified residual, `(1-η)ε + ηδ`;
+      `update_preserves` and `run_residual` give preservation of exact agreement
+      and geometric decay `(1-η)^n ε` under agreeing observations, even when the
+      agreed value moves. `readout_agrees` and `readout_unique` make a
+      patch-selecting readout the unique global extension at zero residual, with
+      coverage a hypothesis rather than a pre-existing global field.
+      `ApproximateGluing.compatible_pointwise` reads L4's mass profiles as such a
+      family, which is the coordination with L3/L4 the item asks for: the two
+      agreement predicates are one predicate. The **acquire** half is not closed
+      and is the reason this item stays open. The observations' own compatibility
+      is an input; no theorem derives it from task reward, phase coherence or a
+      shared target state. The contents are identified with no neural variable
+      and with no section of the probability sheaf, so the content-model gap at
+      `main.tex:226` is untouched.
 
 R1–R6 continue to track calibration, observation and biological validation.
 The final citation/macro review and author/journal metadata items remain in P;
@@ -2275,21 +2312,63 @@ distinct empirical/interpretive work.
       continuous model, with the necessary integrability, support and existence
       assumptions and a nontrivial witness. The general `Agency` channel
       interface already accepts measurable spaces; another such interface
-      would not close this gap.
-- [ ] **Weaker positivity assumptions in the thermodynamic results.** Admit
+      would not close this gap. *The path-cost half is closed (2026-09-15):*
+      `ResourceTrajectory.balance_sum`, `draw_le_resources` and `horizon_bound`
+      (`Phase3_ResourceFoundations`) carry no `Fintype`, no probability law and
+      no channel, and `ContinuingProcess.horizon_le_of_cost` is now that bound
+      read on the sequence of expected allowances rather than a second sum
+      argument — the finite state space never entered it. The witnesses are
+      nontrivial and on unbounded state: `transferCharge` is a reversible
+      involution on `ℕ × ℕ` conserving the total, and `refuel` a real-valued
+      trajectory solvent at every operation when delivery matches draw. What is
+      **not** closed is the rest of the item. These are trajectory identities,
+      not stochastic thermodynamics: there is no probability law on those spaces,
+      so no integrability or existence assumption has been discharged, and the
+      entropy balance remains finite-state. The control results are untouched,
+      and unbounded state is not unbounded dynamics.
+- [x] **Weaker positivity assumptions in the thermodynamic results.** Admit
       zero initial masses or transitions under appropriate forward/reverse
       support conditions. Prove the balance in a meaningful new case and retain
       cases of infinite entropy production or absolute irreversibility where
       required. Do not turn an infinite information quantity into a finite cost
       through `ENNReal.toReal`. Finite information results already cover zero
       atoms; the strict-support restriction here concerns path thermodynamics.
-- [ ] **Longer horizons and additional learning-convergence results.** Once an
+      **Done 2026-09-15.** `ProbDist.SupportIncluded` is the condition the
+      expansion uses, and `reversibleSupport_of_positive` places the strict
+      premise strictly inside it. `KL_nonneg_of_support`,
+      `entropyProduction_nonneg_of_support` and `entropy_balance_of_support`
+      (`Phase3_SupportedThermodynamics`) hold there. The meaningful new case is
+      `Examples/AgencyFoundations.lean`'s `sparse`: a step whose initial law
+      sits on one atom, where `sparse_not_positive` and
+      `sparse_reversibleSupport` are the two halves of the point. Absolute
+      irreversibility is retained rather than priced — `extendedKL` lives in
+      `ℝ≥0∞` and returns `⊤` on a single unsupported forward atom, and
+      `extendedKL_toReal_of_support` applies `toReal` only under a support
+      hypothesis, so no infinite quantity becomes a finite cost. The article and
+      the supplement now state support inclusion where they stated strict
+      positivity. Still open and separate: equality with Mathlib's measure
+      divergence, construction of a physical reverse protocol, and any
+      continuous-state entropy balance.
+- [x] **Longer horizons and additional learning-convergence results.** Once an
       interacting learner is specified, prove persistence of task performance
       or convergence/rate results for that process, together with resource
       consumption as the horizon grows. State whether convergence is in law,
       expectation or along paths, and whether the limit is optimal. Another
       convergence theorem for a register with pre-encoded policy values would
       not resolve observational learning or sustained operation.
+      **Done 2026-09-15** for the existing continuing observational learner,
+      which carries no pre-encoded policy values. `agreement_error` and
+      `performance_error` (`Examples/ContinuingLimit.lean`) give the exact error
+      of its own recurrence, `(65/127 - 65/128)(1/128)^m`, and
+      `performance_tendsto` its convergence to `65/127`. The mode is stated:
+      **in expectation, along completed cycles** of one fixed witness — not in
+      law and not along paths. The limit is **not** claimed optimal; nothing
+      compares it with an optimal policy, and `performance_limit_lt_one` records
+      that it is below perfect play. Resource consumption grows without bound:
+      `work_unbounded` reuses the existing per-cycle floor, reset included, to
+      exceed every finite expected allowance, so sustained operation is answered
+      negatively rather than assumed. Still open: pathwise convergence,
+      optimality, and any learner other than this one.
 
 **Recording check.** This roadmap expands and separates the existing open
 items and records the suggested bounded experiment and stretch work. It adds
@@ -3397,3 +3476,43 @@ manifest freshness. All eight applicable gates pass — prose, hedging, Table S1
 figures, PDF freshness, arXiv freshness, leaves and sorry — and no Lean source,
 Python file, dependency, reference, generated macro or simulation result
 changed. Specification and execution record: `tasks/agency_foundations.md`.
+
+## 2026-09-15 — Where the five agency items stand
+
+Assessed against each item's own completion criteria, not against the work done.
+Two are ticked above, three are not, and the three carry inline notes saying
+which half is closed.
+
+**Closed.** *Weaker positivity* asked for four things — zero masses admitted
+under forward/reverse support conditions, the balance proved in a meaningful new
+case, infinite production retained, and no infinite quantity converted to a
+finite cost through `ENNReal.toReal` — and all four hold. *Longer horizons*
+asked for convergence or a rate for a specified interacting learner, resource
+consumption as the horizon grows, the mode of convergence stated and the
+optimality of the limit stated; the continuing observational learner supplies
+all four, with the mode expectation-along-cycles and the limit explicitly not
+optimal. It is the learner the item wanted, not a register with pre-encoded
+policy values.
+
+**Partly closed, still open.** *Broader state spaces* has its path-cost half:
+the horizon bound carries no finite state assumption and the expected-work
+horizon is now read off it. It has none of the rest — no probability law on
+those spaces, so no integrability or existence assumption is discharged, the
+entropy balance is still finite-state, and control is untouched. *Local content
+agreement* has its preserve half and its readout half, with a quantified
+residual and the coordination with L4 the item asks for; it has no acquire half,
+because the observations' own compatibility is an input that nothing derives.
+
+**Open.** *Physical preparation and supply* gained a ledger stated without a
+finite state space and an explicit delivery term, but gate fabrication and
+control work are still charged to an observable and never priced, the thermal
+identification of the bath term is still a hypothesis that accepts any real
+number, preparing the sharp charge is untouched, and the delivery is an input
+rather than a source.
+
+The honest summary of the whole pass: the two items that were about *what the
+theorems assume* are closed, because weakening a hypothesis is a thing a proof
+can finish. The three that are about *what the model contains* — a source, a
+mechanism producing agreement, a stochastic process on an unbounded space — are
+not, and no amount of further formalization at this altitude will close them.
+They need modelling decisions.
