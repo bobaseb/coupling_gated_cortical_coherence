@@ -3866,6 +3866,74 @@ its regressions in \id{Examples/Phase5.lean} \S21
 (\id{apx\_select\_dist}, \id{apx\_no\_global\_section},
 \id{chainW\_select\_dist\_gt}).
 
+\subsection{Where the agreement comes from}
+\label{sec:coherence-agreement-primer}
+
+\what
+Everything above takes the agreement as given. The obvious question is what
+would produce it, and the answer is the coherence the rest of the framework is
+about --- but only for a particular kind of content, and the restriction is the
+interesting part.
+
+\statement
+Start from an identity. Writing $r$ for the order parameter of $N$ oscillators,
+\[
+ N^{2}r^{2}=\sum_{i,j}\cos(\theta_i-\theta_j),
+\]
+because $r^2$ is the squared length of the mean unit vector and expanding that
+square pairs every oscillator with every other. Subtract from $N^2$ and every
+term becomes $1-\cos(\theta_i-\theta_j)$, which is never negative. A sum of
+nonnegative things is at least any one of them, so for \emph{every} pair
+\[
+ 1-\cos(\theta_i-\theta_j)\;\le\;N^{2}\bigl(1-r^{2}\bigr).
+\]
+A single global number bounds every individual phase gap. The $N^{2}$ is the
+price: one oscillator out of $N$ placed badly shifts $r$ by only $O(1/N)$, so
+buying a pointwise guarantee with a population average cannot be cheap.
+
+Now the content. A phase is an angle, so a content that is a function of phase
+has to be a function of the point $(\cos\theta,\sin\theta)$ on the circle; a
+model that reads $\theta$ as a real number is not $2\pi$-periodic and so is not
+a function of the phase at all. In the chord distance on that circle the
+squared separation is exactly $2(1-\cos\Delta)$ --- the same quantity the
+inequality bounds. An encoder declared Lipschitz at constant $L$ therefore
+gives contents that agree on every overlap to within
+$L\sqrt{2}\,N\sqrt{1-r^{2}}$, with no agreement assumed anywhere. At $r^2=1$
+the residual is zero and the agreement is exact, so perfect locking is the
+endpoint of this scale rather than a separate theorem.
+
+\scope
+This does not contradict the counterexample that opened the section, and seeing
+why is the point. The counterexample's two mass profiles are chosen
+\emph{independently of the oscillators}; nothing makes them functions of phase,
+so equal phases constrain them not at all. The new bound applies exactly when
+the content does read the phase. The two results fence each other: coherence
+buys agreement for content that reads the phase and buys nothing for content
+that does not.
+
+That turns the framework's central distinction into an empirical question
+instead of a modelling convenience. Which kind a neural description is --- how
+much of its content is carried by phase and how much is free of it --- is
+something a decoder study can ask, and the answer decides whether coordination
+can be doing the work the account wants from it.
+
+The encoder and its constant are declared hardware, in the same sense as
+anything else the model supplies. The agreement is derived rather than declared,
+which is the whole point of the section. The contents are real-valued fields
+identified with no neural variable, and the bound is not tight: two antiphase
+oscillators give a residual of $2\sqrt2$ where the actual disagreement is $2$.
+
+\lean
+\id{Phase4\_KuramotoDynamics.lean}:
+\id{order\_parameter\_r\_sq\_eq\_mean\_cos}, \id{cos\_gap\_le\_of\_coherence},
+\id{circlePoint}, \id{chord}, \id{chord\_le\_of\_coherence},
+\id{chord\_eq\_zero\_of\_phase\_locked}.
+\id{Phase5\_ContentDynamics.lean}: \id{LipschitzEncoder},
+\id{compatible\_of\_coherence}, \id{compatible\_of\_phase\_locked},
+\id{run\_residual\_floor}, \id{run\_residual\_of\_coherence}; the antiphase
+witness, its computed $r^2=0$ and the disagreement control in
+\id{Examples/AgencyFoundations.lean}.
+
 \section{Where uniqueness comes from}
 
 Return to the three-site example. Once both compatible local profiles are
@@ -5403,7 +5471,9 @@ Squared-drift plasticity (\S\ref{sec:plasticity}) & Dissipation descent $\ne$ le
 Mesh refinement & Discrete energy $\to$ continuum energy & Theorem (scalar energy only) \\
 No kernel from coarse-graining (\S\ref{sec:nokernel}) & Continuum kernel is an input & Theorem (negative) \\
 Sheaf gluing (\S\ref{sec:sheaf}) & Local $\to$ unique global state & Theorem + instance postulate \\
-Contents driven by observation & Agreeing observations preserve agreement and contract mismatch by $(1-\eta)$ per step & Theorem; the observations' agreement is still an input \\
+Contents driven by observation & Agreeing observations preserve agreement and contract mismatch by $(1-\eta)$ per step, onto the observations' own floor & Theorem; the floor does not decay \\
+Coherence bounds disagreement & $N^2r^2=\sum_{ij}\cos(\theta_i-\theta_j)$, so one pair obeys $1-\cos\le N^2(1-r^2)$; phase-derived contents agree to a residual read off $r$ & Theorem; the encoder is declared, the agreement is not \\
+Thermodynamics off finite state & Path divergence in $[0,\infty]$ on any measurable space: chain rule, data processing, second law; control over a compact action set & Theorem; the Shannon-entropy form does not generalize \\
 Compatibility $\ne$ phase agreement (\S\ref{sec:compat}) & The framework's central distinction & Theorem, with explicit counterexample \\
 Twisted gluing & Weakening to per-patch phases & Theorem; adds nothing (offsets are coboundaries) \\
 Winding numbers, phase lifts & Measured topological obstruction & Theorem + empirical candidate; no link to content \\

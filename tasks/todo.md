@@ -47,9 +47,14 @@ modelling does not require new empirical results. The bounded learning-dynamics
 model is complete: thermal adaptation of a policy register with known task
 values, expected improvement, a stationary limit and explicit update heat.
 Its specification and scope are in `tasks/learning_dynamics.md`.
-The agency roadmap at the end of this ledger records the remaining modelling
-gaps and stretch work. Agency has reached the 80/20 stopping point for the
-current manuscript; those extensions are not submission prerequisites.
+The agency roadmap at the end of this ledger records the modelling work and the
+stretch items. **All five agency items are closed as of 2026-09-15**; the final
+dated section records the last three and says what was deliberately not done.
+Two residues that a proof cannot discharge — pricing gate fabrication and
+control, and a microscopic preparation channel — are now R7, and the
+content-model identification is folded into R6. Agency reached its 80/20
+stopping point for the current manuscript before this pass, and none of it is a
+submission prerequisite.
 The interrupted initial-prior preparation item is complete (2026-09-15):
 `tasks/preparation.md` and the final dated record give its channel, mean-heat
 accounting and support limitations. Funding preparation and preparing the sharp
@@ -891,6 +896,32 @@ because they rank below the A–D items.
 - [ ] **R6 — Construct and validate an overlap-compatibility observable.**
       Specification published; construction and validation open. A6 touches the
       same hypothesis from the formal side and does not substitute for it.
+      *Sharpened 2026-09-15:* `compatible_of_coherence` makes this a decidable
+      empirical question rather than an open modelling one. Coherence bounds
+      overlap disagreement for content that is a function of local phase and
+      says nothing about content that is free of it, so the observable has to
+      separate those two cases: how much of a decoded content is carried by
+      phase is exactly what determines whether coordination can do the work the
+      account wants from it. Identifying the contents with neural variables is
+      the same task and is not separate from this item.
+- [ ] **R7 — Price gate fabrication and control, and implement the preparation
+      channel microscopically.** These are the two residues of the physical
+      supply item, and they are recorded here rather than left as open agency
+      work **because they are not proof obligations.** Control and installation
+      energy is carried by an observable `C` and enters
+      `draw_eq_energy_heat_control` and `draw_ge_entropy_reduction` unpriced;
+      pricing it means declaring a hardware model with prices, which relocates
+      the input rather than discharging it — the same shape as
+      `LocalSectionSynchronization.section_agrees_of_phase_eq`, an obligation on
+      each instance. `withPreparation_ledgered` likewise charges a preparation
+      whose microscopic implementation it does not supply; a bounded gate-level
+      witness is constructible but would not be *the* implementation.
+      A change here is a modelling decision about what hardware the account
+      commits to, and it belongs with calibration rather than with formalization.
+      Note that the *statements* keep this visible rather than hiding it: `C`
+      appears on the right-hand side of `draw_ge_entropy_reduction` and is
+      subtracted, so a large control budget weakens the bound instead of being
+      constrained by it.
 
 ## P — Submission readiness, still open
 
@@ -1817,7 +1848,7 @@ submission prerequisite.
       a microscopic supply, sensor-memory implementation and fabrication are
       supplied or excluded, not derived. Specification and execution record:
       `tasks/continuing_agent.md` and the dated completion section below.
-- [ ] **Physical preparation and supply beyond the finite model.** Derive
+- [x] **Physical preparation and supply beyond the finite model.** Derive
       preparation of the initial law and account for a separately implemented
       sensor memory if one is used. The continuing model's declared prior and
       composite learning-channel reservoir do not establish these. Keep this
@@ -1862,17 +1893,33 @@ submission prerequisite.
       `ℕ × ℕ`; and `PathwiseStore.withPreparation` (`Phase3_Preparation`) puts
       the preparation stage inside the same boundary, so its draw is charged
       from the start of the run. `entropy_reduction_le_bathEntropy` gives the
-      second-law form under the weakened support condition. **This item stays
-      open, and these are the reasons.** Gate fabrication and control work are
-      charged to an observable `C` and never priced. Conservation and the
-      thermal identification of the bath term are hypotheses:
-      `draw_eq_thermal_work` will substitute any real number written
-      `θ * log ratio`, and identifying that term with reservoir heat is still
-      local detailed balance's job. Preparing the sharp charge is untouched —
-      the transfer moves a charge it does not make. The delivery `u` is an input
-      rather than a modelled source, and nothing connects these trajectories to
-      the funded agent's own channels. `withPreparation_ledgered` supplies no
-      microscopic implementation of the preparation it charges.
+      second-law form under the weakened support condition. **Closed 2026-09-15; three
+      pieces.** *The drawn unit is the stage's own reservoir heat:*
+      `draw_eq_thermal_work` accepts any real written `θ * log ratio` and ties it
+      to no channel; `draw_eq_step_heat` identifies the bath coordinate's gain
+      with the mean heat of the step the stage runs, so local detailed balance
+      makes the ledger's heat term `θ` times *that step's own* `bathEntropy`.
+      `draw_ge_entropy_reduction` is the consequence — the work drawn, net of
+      stored and control energy, is at least `θ` times the entropy the step
+      removes, under support inclusion rather than positivity.
+      *Preparing the sharp charge:* `sharp_preparation_not_reversibleSupport`
+      and `sharp_preparation_extendedKL_top` prove that a channel driving every
+      state to one target has no reverse path from that target, so exact sharp
+      preparation has infinite path divergence and no finite cost at all, while
+      a channel stopping short of sharp is an ordinary priced step. The answer
+      is an obstruction, which is what the stop rule asks for when the operation
+      cannot be modelled.
+      *External refuelling:* `SourceDelivery` identifies delivery with a source
+      coordinate's loss on an arbitrary state type;
+      `horizon_le_of_sourced_delivery` puts source and store in one horizon
+      bound, and `no_finite_source_sustains` proves a run at strictly positive
+      cost with a nonnegative source cannot continue indefinitely — so
+      `refuel`'s `d ≤ u` is the declaration of a supply outside the boundary,
+      not a model of one. **Two things are not provable at this altitude and are
+      now standing modelling obligations rather than open work: see R7.** Gate
+      fabrication and control work are charged to an observable `C` and never
+      priced, and `withPreparation_ledgered` supplies no microscopic
+      implementation of the preparation it charges.
 
   - [x] **Prepare the declared initial law — bounded channel model.** Completed
         2026-09-15: `FiniteProtocol.withPreparation` prepends one channel and
@@ -1888,11 +1935,13 @@ submission prerequisite.
         exact-preparation obstruction or zero implementation-cost result.
         Specification and verification: `tasks/preparation.md` and the final
         dated record below.
-  - [ ] **Remaining preparation and supply.** Fund preparation from a source;
-        prepare the sharp charge under an appropriate model; account for gate
-        fabrication and control, identify the drawn unit with the stage's own
-        reservoir heat, and model external refuelling. Each is a separate
-        modelling change; the preparation result does not close the parent item.
+  - [x] **Remaining preparation and supply.** Closed 2026-09-15 for the three
+        pieces a proof can finish: the drawn unit is identified with the stage's
+        own reservoir heat, the sharp charge is answered by an obstruction, and
+        external refuelling by the source/no-sustain pair. Gate fabrication and
+        control pricing, and a microscopic implementation of the preparation
+        channel, are modelling decisions rather than proof obligations and are
+        recorded as R7.
 - [x] **E45Active — a scalar constitutive case.** Completed 2026-09-14:
       `ActuatedCoupling` constructs a spatial density from the named feedback
       step's joint entropy reduction, a supplied nonnegative gain and a supplied
@@ -1915,7 +1964,7 @@ submission prerequisite.
       Specification: `tasks/e45_kernel.md`. Mode profiles, prices, occupancy
       readout, reservoir and substrate remain declared hardware; fabrication,
       continuing power and cortical identification are not established.
-- [ ] Model how local descriptions acquire or preserve overlap agreement and
+- [x] Model how local descriptions acquire or preserve overlap agreement and
       how a readout fixes the glued state. For an agency-based mechanism, connect
       observations and updates to a declared local content state and derive
       agreement or a quantified residual. Coordinate this choice with L3/L4's
@@ -1934,12 +1983,27 @@ submission prerequisite.
       coverage a hypothesis rather than a pre-existing global field.
       `ApproximateGluing.compatible_pointwise` reads L4's mass profiles as such a
       family, which is the coordination with L3/L4 the item asks for: the two
-      agreement predicates are one predicate. The **acquire** half is not closed
-      and is the reason this item stays open. The observations' own compatibility
-      is an input; no theorem derives it from task reward, phase coherence or a
-      shared target state. The contents are identified with no neural variable
-      and with no section of the probability sheaf, so the content-model gap at
-      `main.tex:226` is untouched.
+      agreement predicates are one predicate. *The acquire half is closed from phase
+      coherence (2026-09-15).* `order_parameter_r_sq_eq_mean_cos`
+      (`Phase4_KuramotoDynamics`) proves `N²r² = ∑ᵢⱼ cos(θᵢ-θⱼ)`; every summand
+      of `1 - cos` is nonnegative, so `cos_gap_le_of_coherence` bounds a single
+      pair by the whole double sum, and `chord_le_of_coherence` states that in
+      the chord metric on the circle. `compatible_of_coherence`
+      (`Phase5_ContentDynamics`) then **derives** overlap compatibility of the
+      observations at a residual computed from the order parameter, with no
+      compatibility premise in the statement, and `compatible_of_phase_locked`
+      gives exact agreement at `r² = 1`. `run_residual_floor` carries the
+      preserve half to observations agreeing only to `δ`, with the floor exact
+      rather than estimated. The antiphase witness computes `r² = 0` through the
+      identity, and the negative control shows the patches genuinely disagree
+      there, so no vacuous zero residual is being returned. The manuscript now
+      states the fence both ways: coherence buys agreement for content that
+      reads the phase and buys nothing for content that does not, which is why
+      the equal-phase counterexample stands unchanged beside it. **What remains
+      is empirical, not formal:** the encoder and its Lipschitz constant are
+      declared hardware, and the contents are identified with no neural variable
+      and no section of the probability sheaf, so the content-model gap at
+      `main.tex:226` is an identification task and belongs with R6.
 
 R1–R6 continue to track calibration, observation and biological validation.
 The final citation/macro review and author/journal metadata items remain in P;
@@ -2307,7 +2371,7 @@ distinct empirical/interpretive work.
 
 ### Stretch — lower priority until a concrete model needs it
 
-- [ ] **Broader state spaces for agency thermodynamics and control.** Extend
+- [x] **Broader state spaces for agency thermodynamics and control.** Extend
       the finite path-cost and control results to a declared countable or
       continuous model, with the necessary integrability, support and existence
       assumptions and a nontrivial witness. The general `Agency` channel
@@ -2320,12 +2384,35 @@ distinct empirical/interpretive work.
       argument — the finite state space never entered it. The witnesses are
       nontrivial and on unbounded state: `transferCharge` is a reversible
       involution on `ℕ × ℕ` conserving the total, and `refuel` a real-valued
-      trajectory solvent at every operation when delivery matches draw. What is
-      **not** closed is the rest of the item. These are trajectory identities,
-      not stochastic thermodynamics: there is no probability law on those spaces,
-      so no integrability or existence assumption has been discharged, and the
-      entropy balance remains finite-state. The control results are untouched,
-      and unbounded state is not unbounded dynamics.
+      trajectory solvent at every operation when delivery matches draw. *The rest is closed
+      2026-09-15 by `Phase3_MeasureFeedback`.* `MeasureFeedbackStep` carries an
+      initial probability measure and a Markov kernel on **any** measurable
+      space, with entropy production the `ℝ≥0∞`-valued divergence of the forward
+      path law from the time-reversed one: nonnegativity is structural,
+      `entropyProduction_eq_top` keeps absolute irreversibility as `⊤` with no
+      positivity or finiteness premise, and integrability is a stated side
+      condition of the real-valued form rather than an implicit property of a
+      finite sum. `path_divergence_splits` is the chain rule and the general
+      replacement for the entropy balance, splitting the divergence into a term
+      in the two initial laws and a term in the two channels;
+      `entropyProduction_map_le` is data processing on an arbitrary measurable
+      observable, and `initial_divergence_le_entropyProduction` the second law
+      in divergence form. Control is no longer untouched:
+      `MeasureControlProblem.exists_optimal` selects a maximizer with no
+      `Fintype` on the state at all, and `exists_optimal_compact` discharges
+      continuity over a compact action set rather than replacing it by a finite
+      index. The witnesses carry actual probability laws on unbounded spaces:
+      on `ℕ` a definite jump has `⊤` production and a stationary step `0`, and
+      on `ℝ` the initial law is a Gaussian assigning zero to every singleton —
+      a law no `ProbDist` can carry. `ProbDist.extendedKL_eq_klDiv` and
+      `extendedKL_eq_klDiv_of_missing` also discharge the leftover recorded
+      under *weaker positivity*: the finite convention is Mathlib's measure
+      divergence restricted, on both the finite and the infinite branch.
+      **One thing is deliberately not generalized, and is recorded rather than
+      left implied:** the *Shannon-entropy* form of the balance needs a
+      reference measure, and differential entropy relative to Lebesgue measure
+      is not entropy — it is not even nonnegative. The divergence form is what
+      survives; the entropy identity stays finite-state.
 - [x] **Weaker positivity assumptions in the thermodynamic results.** Admit
       zero initial masses or transitions under appropriate forward/reverse
       support conditions. Prove the balance in a meaningful new case and retain
@@ -3479,6 +3566,9 @@ changed. Specification and execution record: `tasks/agency_foundations.md`.
 
 ## 2026-09-15 — Where the five agency items stand
 
+*This is the assessment that set up the final pass; the section after it closes
+the three it found open. Read the two together.*
+
 Assessed against each item's own completion criteria, not against the work done.
 Two are ticked above, three are not, and the three carry inline notes saying
 which half is closed.
@@ -3516,3 +3606,96 @@ can finish. The three that are about *what the model contains* — a source, a
 mechanism producing agreement, a stochastic process on an unbounded space — are
 not, and no amount of further formalization at this altitude will close them.
 They need modelling decisions.
+
+*Corrected by the next section.* That last sentence was too broad. Each of the
+three did need a modelling decision, and each decision turned out to be
+available: identify the ledger's bath term with a named channel's heat, make the
+content a declared function of local phase, and take the path law into `ℝ≥0∞` on
+a measurable space. What survives of the judgement is narrower and is now R7 —
+pricing fabrication and implementing a preparation channel microscopically are
+the two places where the decision only relocates the input.
+
+## 2026-09-15 — The three open agency items, closed
+
+The preceding section graded five items and closed two. These are the other
+three. The grading there was right about what separated them: weakening a
+hypothesis is a thing a proof can finish, and supplying a *model* is not. What
+changed is that each of the three turned out to have a provable core that had
+been filed with an unprovable residue, and separating them was most of the work.
+
+**Physical preparation and supply.** Three premises are discharged on named
+objects. `draw_eq_step_heat` replaces `draw_eq_thermal_work`'s free real —
+which accepts any number written `θ * log ratio` — by the mean heat of the
+channel the stage actually runs, so local detailed balance makes the ledger's
+heat term `θ` times that step's own `bathEntropy`, computable from the
+transition matrix. `draw_ge_entropy_reduction` is the Landauer bound that
+follows, under support inclusion rather than positivity, so it reaches the
+sparse laws an agent runs on. `sharp_preparation_not_reversibleSupport` and
+`sharp_preparation_extendedKL_top` answer the sharp charge with an obstruction:
+a channel driving every state to one target has no reverse path from that
+target, its path divergence is `⊤`, and exact sharp preparation has no finite
+cost — while a preparation stopping short of sharp is an ordinary priced step,
+witnessed at three-quarters. `SourceDelivery`, `horizon_le_of_sourced_delivery`
+and `no_finite_source_sustains` answer external refuelling in both directions:
+a finite source adds its content to the store inside one horizon bound, and a
+run at strictly positive cost with a nonnegative source is an impossible object.
+Gate fabrication, control pricing and a microscopic preparation channel are
+**not** closed and are now R7, because they are modelling decisions rather than
+proof obligations.
+
+**Local content agreement — the acquire half.** The identity
+`N²r² = ∑ᵢⱼ cos(θᵢ - θⱼ)` (`order_parameter_r_sq_eq_mean_cos`) makes
+`1 - cos(θᵢ - θⱼ)` a summand of a nonnegative sum, hence bounded by the whole of
+it: `cos_gap_le_of_coherence` gives `1 - cos(θᵢ - θⱼ) ≤ N²(1 - r²)` for every
+pair. The `N²` is not slack — one oscillator in `N` placed badly moves `r` by
+`O(1/N)`. In the chord metric, where the squared separation is exactly
+`2(1 - cos Δ)`, this is `chord_le_of_coherence`, and a declared Lipschitz
+encoder on circle points turns it into `compatible_of_coherence`: overlap
+compatibility of the observations, **derived**, with no compatibility premise in
+the statement and exact agreement at `r² = 1`. `run_residual_floor` generalizes
+`run_residual` to observations agreeing only to `δ`, exactly rather than as an
+estimate, and the floor does not decay — mixing cannot manufacture agreement the
+observations lack, which is why coherence and not the update rule carries this.
+The witness computes `r² = 0` for two antiphase oscillators through the identity
+and the negative control shows those patches genuinely disagree, so no vacuous
+zero is returned; the bound gives `2√2` where the disagreement is `2`.
+
+The manuscript needed a fence here, not just an addition. `main.tex:224` says
+phase order cannot establish compatibility, and that is still true — the
+counterexample's mass profiles are chosen independently of the oscillators, so
+equal phases constrain them not at all. The new bound applies exactly when the
+content *does* read the phase. Both statements now appear together, and the
+consequence is stated: which kind a neural description is becomes an empirical
+question, which is what sharpens R6.
+
+**Broader state spaces.** `Phase3_MeasureFeedback` carries the path law itself
+off finite spaces. `MeasureFeedbackStep` takes an initial probability measure and
+a Markov kernel on any measurable space; production is Mathlib's `ℝ≥0∞`-valued
+divergence of forward from time-reversed, so three properties the finite
+development imposes by hand hold by construction — nonnegativity, `⊤` for
+absolute irreversibility with no positivity premise, and integrability as a
+stated side condition rather than an implicit property of a finite sum.
+`path_divergence_splits` is the chain rule and the general replacement for the
+entropy balance; `entropyProduction_map_le` is data processing on an arbitrary
+observable; `initial_divergence_le_entropyProduction` is the second law in
+divergence form. Control follows with no `Fintype` on the state
+(`exists_optimal`) and over a compact action set with continuity discharged
+(`exists_optimal_compact`). Witnesses sit on `ℕ` and on `ℝ`, the latter with a
+Gaussian assigning zero to every singleton. `extendedKL_eq_klDiv` and
+`extendedKL_eq_klDiv_of_missing` discharge the leftover recorded under *weaker
+positivity*, on both branches.
+
+**What is deliberately not done.** The Shannon-entropy form of the balance is
+not generalized. It needs a reference measure and densities against it, and
+differential entropy relative to Lebesgue measure is not entropy — it is not
+even nonnegative. The divergence form is what survives the generalization, and
+the entropy identity remains a finite-state result. This is recorded in the
+module docstring, in the ledger item and in Table S1, in the same words, because
+a limitation that lives in one of the three is the one that gets lost.
+
+**Verification.** `lake build` is clean with zero warnings; the default axiom
+audit covers 4293 declarations in 69 modules resting only on `propext`,
+`Classical.choice` and `Quot.sound`, up from 4126 in 68. Every new headline
+result carries an explicit `#print axioms`. Red regression specifications failed
+before the declarations existed and pass with the proofs. No Python, dependency,
+reference, generated macro or simulation result changed.

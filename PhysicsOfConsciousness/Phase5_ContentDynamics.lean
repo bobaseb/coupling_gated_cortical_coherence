@@ -107,9 +107,117 @@ theorem readout_unique (U : I → Set A) (choose : A → I) (s : I → A → ℝ
   funext x
   exact hf (choose x) x (hc x)
 
+
+/-! ## Where the observations' own agreement comes from
+
+Everything above takes `Compatible U o δ` as an input. That input is the whole
+of the acquire problem: contents that are *given* agreeing observations preserve
+agreement, but nothing so far says why two patches should observe compatibly at
+all.
+
+This section answers it from coherence. Observations are a declared Lipschitz
+function of the local phase, read as a point of the circle; the population's
+order parameter then bounds their overlap disagreement, with no compatibility
+assumed anywhere. The chain is `cos_gap_le_of_coherence` →
+`chord_le_of_coherence` → `compatible_of_coherence` → `update_residual`.
+
+**What is still declared and what is not.** The encoder and its Lipschitz
+constant are declared hardware, as the coupling-side actuator's mode profiles
+are. What is no longer declared is the *agreement*: it is a theorem about the
+phases, and at `r² = 1` it is exact. What this does not do is identify these
+scalar contents with any neural variable or with a section of the probability
+sheaf; that identification is empirical and is not attempted here. -/
+
+/-- An encoder from circle points to scalar content, with a declared Lipschitz
+constant in the chord metric. Phrased on `circlePoint` rather than on `ℝ`, so
+that an encoder is automatically a function of the phase and not of a
+representative of it. -/
+def LipschitzEncoder (e : ℝ × ℝ → ℝ) (L : ℝ) : Prop :=
+  ∀ a b : ℝ, |e (circlePoint a) - e (circlePoint b)| ≤ L * chord a b
+
+/-- **Coherence produces observation agreement.** Observations that are a
+declared Lipschitz function of each patch's local phase are compatible on every
+overlap, at a residual fixed by the population's order parameter alone.
+
+This is the acquire half. No premise of the form `Compatible U o δ` appears:
+the residual is computed from the phases. The `N` is inherited from
+`cos_gap_le_of_coherence` and is the price of a pointwise guarantee drawn from
+a global mean. -/
+theorem compatible_of_coherence {V : Type*} [Fintype V] [Nonempty V]
+    (U : I → Set A) (patch : I → V) (theta : V → ℝ) (e : ℝ × ℝ → ℝ) (L : ℝ)
+    (hL : 0 ≤ L) (he : LipschitzEncoder e L) :
+    Compatible U (fun i _ => e (circlePoint (theta (patch i))))
+      (L * (Real.sqrt 2 * (Fintype.card V : ℝ) *
+        Real.sqrt (1 - order_parameter_r_sq theta))) := by
+  intro i j _ _ _
+  exact (he _ _).trans
+    (mul_le_mul_of_nonneg_left (chord_le_of_coherence theta (patch i) (patch j)) hL)
+
+/-- At perfect locking the derived residual is exactly zero, so the observations
+glue and `readout_agrees` applies to what they drive. The quantitative bound has
+the exact case as its endpoint rather than as a separate hypothesis. -/
+theorem compatible_of_phase_locked {V : Type*} [Fintype V] [Nonempty V]
+    (U : I → Set A) (patch : I → V) (theta : V → ℝ) (e : ℝ × ℝ → ℝ) (L : ℝ)
+    (he : LipschitzEncoder e L) (hlock : is_phase_locked theta) :
+    Compatible U (fun i _ => e (circlePoint (theta (patch i)))) 0 := by
+  intro i j _ _ _
+  have h := he (theta (patch i)) (theta (patch j))
+  rw [chord_eq_zero_of_phase_locked theta hlock, mul_zero] at h
+  exact h
+
+/-- **The residual floor.** `run_residual` needs observations that agree
+exactly; coherence below one gives observations that agree to `δ`. Iterating the
+update then contracts the initial mismatch geometrically onto that floor, and
+the arithmetic is exact rather than an estimate: `(1-η)((1-η)^n ε + δ) + ηδ`
+is `(1-η)^(n+1) ε + δ`.
+
+The floor does not decay. An agent whose observations disagree by `δ` cannot be
+driven to exact agreement by mixing them, however long it runs — which is why
+the coherence bound, and not the update rule, is what carries this result. -/
+theorem run_residual_floor (U : I → Set A) (s : I → A → ℝ) (o : ℕ → I → A → ℝ)
+    (ε δ η : ℝ) (hη : 0 ≤ η) (hη' : η ≤ 1) (hδ : 0 ≤ δ) (hs : Compatible U s ε)
+    (ho : ∀ n, Compatible U (o n) δ) (n : ℕ) :
+    Compatible U (run η o s n) ((1 - η) ^ n * ε + δ) := by
+  induction n with
+  | zero =>
+    intro i j x hi hj
+    have h := hs i j x hi hj
+    simp only [run, pow_zero, one_mul]
+    linarith
+  | succ n ih =>
+    have h := update_residual U (run η o s n) (o n) ((1 - η) ^ n * ε + δ) δ η hη hη' ih (ho n)
+    have heq : (1 - η) * ((1 - η) ^ n * ε + δ) + η * δ = (1 - η) ^ (n + 1) * ε + δ := by
+      rw [pow_succ]; ring
+    rw [heq] at h
+    exact h
+
+/-- The acquire and preserve halves in one statement: contents driven by
+observations from a coherent population contract onto a floor set by the order
+parameter, with nothing about the observations assumed. -/
+theorem run_residual_of_coherence {V : Type*} [Fintype V] [Nonempty V]
+    (U : I → Set A) (patch : I → V) (theta : ℕ → V → ℝ) (e : ℝ × ℝ → ℝ)
+    (L : ℝ) (hL : 0 ≤ L) (he : LipschitzEncoder e L)
+    (s : I → A → ℝ) (ε η δ : ℝ) (hη : 0 ≤ η) (hη' : η ≤ 1)
+    (hs : Compatible U s ε)
+    (hδ : ∀ n, L * (Real.sqrt 2 * (Fintype.card V : ℝ) *
+      Real.sqrt (1 - order_parameter_r_sq (theta n))) ≤ δ) (n : ℕ) :
+    Compatible U
+      (run η (fun n i _ => e (circlePoint (theta n (patch i)))) s n)
+      ((1 - η) ^ n * ε + δ) := by
+  have hnn : (0 : ℝ) ≤ L * (Real.sqrt 2 * (Fintype.card V : ℝ) *
+      Real.sqrt (1 - order_parameter_r_sq (theta 0))) :=
+    mul_nonneg hL (mul_nonneg (mul_nonneg (Real.sqrt_nonneg 2) (Nat.cast_nonneg _))
+      (Real.sqrt_nonneg _))
+  exact run_residual_floor U s _ ε δ η hη hη' (hnn.trans (hδ 0)) hs
+    (fun m i j x hi hj =>
+      (compatible_of_coherence U patch (theta m) e L hL he i j x hi hj).trans (hδ m)) n
+
 #print axioms update_residual
 #print axioms run_residual
 #print axioms readout_agrees
 #print axioms readout_unique
+#print axioms compatible_of_coherence
+#print axioms run_residual_floor
+#print axioms run_residual_of_coherence
 
 end PhysicsOfConsciousness.LocalContent

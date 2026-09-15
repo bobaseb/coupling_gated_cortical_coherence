@@ -122,6 +122,13 @@ the standard case --- has infinite divergence, and
 \texttt{ProbDist.extendedKL} records it as such in $[0,\infty]$ rather than
 returning the finite number the totalized real logarithm would supply. Where
 support does hold, that extended value is the real divergence above.
+\texttt{ProbDist.extendedKL\_\allowbreak eq\_\allowbreak klDiv} and
+\texttt{extendedKL\_\allowbreak eq\_\allowbreak klDiv\_\allowbreak of\_\allowbreak missing}
+(\texttt{Phase3\_\allowbreak MeasureFeedback.lean}) identify the extended value
+with Mathlib's measure divergence on both branches --- the finite one under a
+positive reference law and the infinite one wherever a forward atom has no
+reverse --- so the finite convention here is the measure-theoretic divergence
+restricted to finite spaces, not a second definition standing beside it.
 
 Local detailed balance is the physical identification
 $q(x,s,s')=k_BT\log[K_x(s'\mid s)/K_x(s\mid s')]$, with heat positive into the reservoir \cite{horowitz2014,ito2013}. It gives
@@ -781,9 +788,105 @@ an infinite value at the endpoint or a universal exact-preparation cost.
 shows that hardware preparation cannot turn a certain parameter into the
 sensor agent's uncertain one.
 \texttt{correlated\_\allowbreak not\_\allowbreak preparable} exhibits a
-two-bit prior that no state-blind preparation produces. Funding the preparation
-from a source, fabricating the gates, preparing a sharp law and any cortical
-identification are outside this model.
+two-bit prior that no state-blind preparation produces. Fabricating the gates
+and any cortical identification are outside this model; funding from a source
+and the sharp law are treated next.
+
+\textit{The drawn unit, the sharp charge and the source
+(\texttt{Phase3\_\allowbreak ResourceFoundations}).} Three premises of the
+resource ledger are discharged on named objects rather than declared.
+
+The first is what the drawn unit \emph{is}.
+\texttt{draw\_\allowbreak eq\_\allowbreak energy\_\allowbreak heat\_\allowbreak control}
+identifies the draw from a conserved boundary, and
+\texttt{draw\_\allowbreak eq\_\allowbreak thermal\_\allowbreak work} substitutes
+a thermal term wherever one is assumed --- which is to say it accepts any real
+number written as $\theta\log(\cdot)$, with nothing tying it to a channel.
+\texttt{draw\_\allowbreak eq\_\allowbreak step\_\allowbreak heat} closes that:
+the bath coordinate's gain is the mean heat of the step the stage actually runs,
+and local detailed balance turns it into $\theta$ times \emph{that step's own}
+bath entropy, a log-ratio of the declared transition matrix. The consequence is
+\texttt{draw\_\allowbreak ge\_\allowbreak entropy\_\allowbreak reduction}: the
+work drawn, net of the system's stored energy and of installation and control,
+is at least $\theta$ times the entropy the step removes from the joint state,
+under support inclusion rather than full positivity, so it reaches the sparse
+laws an agent runs on. Control remains on the right-hand side and is subtracted,
+so a large control budget weakens this bound rather than being constrained by
+it: fabrication is still unpriced, and it is visible in the statement where it
+is unpriced.
+
+The second is the sharp charge. \texttt{transferCharge} moves one reversibly and
+creates nothing; what it cannot do is make one, and
+\texttt{sharp\_\allowbreak preparation\_\allowbreak not\_\allowbreak reversibleSupport}
+says why. A channel driving every state to one target $t_0$ has no reverse path
+from $t_0$ to anything else, so a forward path that started elsewhere has zero
+reverse mass and the support condition fails; the path divergence is $\infty$
+(\texttt{sharp\_\allowbreak preparation\_\allowbreak extendedKL\_\allowbreak top}),
+recorded in $[0,\infty]$ and not converted to a real. Exact sharp preparation
+has no finite path cost. A preparation stopping short of sharp is an ordinary
+step: \texttt{Examples/\allowbreak AgencyFoundations.lean} carries one at
+three-quarters, positive and therefore covered by the second-law bound the exact
+one has no access to. The approximate charge is priceable and the exact one is
+not, and both halves are theorems.
+
+The third is where delivery comes from. \texttt{refuel} takes $u$ as an input
+and sustains a run forever on $d\le u$; that hypothesis is a claim about what is
+outside the boundary. \texttt{SourceDelivery} identifies delivery with a source
+coordinate's loss on an arbitrary state type,
+\texttt{totalDelivery\_\allowbreak eq\_\allowbreak source\_\allowbreak loss}
+telescopes it, and
+\texttt{horizon\_\allowbreak le\_\allowbreak of\_\allowbreak sourced\_\allowbreak delivery}
+adds the source's initial content to the store's inside one horizon bound:
+refuelling buys a longer run of the same shape.
+\texttt{no\_\allowbreak finite\_\allowbreak source\_\allowbreak sustains} is the
+other half --- a ledger with delivery from a nonnegative source, a store never
+below empty and a strictly positive cost at every operation is an impossible
+object. Sustained operation is not a property a finite agent has.
+
+\textit{Off finite state
+(\texttt{Phase3\_\allowbreak MeasureFeedback}).} The resource results above hold
+on an arbitrary state type, but they are trajectory identities: real readings
+indexed by operation number, with no probability law anywhere, so nothing in
+them discharges an integrability or existence assumption. Carrying the path law
+itself off finite spaces needs a different vehicle, and it is Mathlib's
+divergence valued in $[0,\infty]$.
+
+\texttt{MeasureFeedbackStep} carries an initial probability measure and a Markov
+kernel on any measurable space; the forward path law is their composition, the
+reverse is a declared reverse channel started at the final law and read in
+forward time order, and the entropy production is the divergence between them.
+Three properties the finite development imposes by hand then hold by
+construction: nonnegativity, because the codomain has no negative element;
+$\infty$ for a forward law not absolutely continuous with respect to the
+reversed one
+(\texttt{entropyProduction\_\allowbreak eq\_\allowbreak top}), with no positivity
+or finiteness hypothesis; and integrability as a stated side condition of the
+real-valued form rather than an implicit property of a finite sum.
+
+\texttt{path\_\allowbreak divergence\_\allowbreak splits} is the chain rule and
+the general replacement for Eq.~\eqref{eq:finite-update-balance}: against any
+reference process the divergence separates into a term in the two initial laws
+and a term in the two channels compared on the forward law's own initial
+distribution. \texttt{entropyProduction\_\allowbreak map\_\allowbreak le} is data
+processing, so coarse-graining by any measurable observable cannot increase
+production, and
+\texttt{initial\_\allowbreak divergence\_\allowbreak le\_\allowbreak entropyProduction}
+is the second law in divergence form.
+
+Control follows. \texttt{MeasureControlProblem.\allowbreak exists\_\allowbreak optimal}
+selects a maximizing action over a finite permitted set with no finiteness on the
+state at all, and \texttt{exists\_\allowbreak optimal\_\allowbreak compact} over
+a compact one, where continuity of cost and performance is discharged on the
+witness rather than replaced by a finite index. The witnesses sit on $\mathbb{N}$
+--- a definite jump has infinite production, a stationary step none --- and on
+$\mathbb{R}$, where the initial law is a Gaussian assigning zero to every
+singleton, a law no finite distribution can carry.
+
+The \emph{Shannon-entropy} form of the balance is not carried across. It needs a
+reference measure and densities against it, and differential entropy relative to
+Lebesgue measure is not entropy: it is not even nonnegative. The divergence form
+is the statement that survives, and the entropy identity remains a finite-state
+result.
 
 \textit{Active and passive composition (\texttt{Chain.lean}).}
 The theorem \texttt{chain} uses the passive predictive node; \texttt{chain\_active} uses the article's Eq.~\eqref{eq:active-chain-bound} for a named \texttt{FiniteFeedbackStep} $M$, heat observable $q$, thermal scale $\theta$ and budget $B$. The process's controller has the register's state type. \texttt{E34Active} requires positivity, local detailed balance at that register's temperature and $\langle Q\rangle_M\leq B$, with $B$ the register's heat. The entropy lower bound is derived by \texttt{activeBound\_\allowbreak of\_\allowbreak e34Active}. A lower bound on erasure heat supplies no upper bound for an actuator and equates no operations; the upper-budget allocation comes from a resource model instead. \texttt{RegisterLedger} carries one register's update, its operations as elementary steps controlled by that register, local detailed balance for each at that register's own temperature, and the accounting identity $Q_{\mathrm{reg}}=\sum_i\langle Q\rangle_i$ for the heat its operations deliver to its reservoir. \texttt{opHeat\_\allowbreak nonneg\_\allowbreak of\_\allowbreak compressive} applies the left inequality of the article's Eq.~\eqref{eq:active-chain-bound} to an operation with $H(p')\leq H(p)$, so its share is nonnegative; \texttt{opHeat\_\allowbreak le\_\allowbreak dissipation} then bounds an operation whose companions all compress by $Q_{\mathrm{reg}}$, and \texttt{e34Active\_\allowbreak of\_\allowbreak ledger} turns that bound into the edge. Under Landauer's heat equation, \texttt{ledger\_\allowbreak bathEntropy} exhibits the same total as the register's own bath entropy change. The identity and the compressiveness are the model's physical inputs. Equation~\eqref{eq:finite-update-balance} accounts for both finite update substeps at a common thermal scale; it supplies neither this allocation nor the coupling-convergence implication of E45Active, and the ledger's index labels operations rather than sequencing them into one evolving law.
@@ -1333,13 +1436,17 @@ the coercion, at the same tolerance
 (\texttt{ApproximateGluing.compatible\_\allowbreak pointwise}), so the two
 agreement predicates in the development are one predicate.
 
-This supplies no mechanism by which cortical descriptions come to agree. The
-compatibility of the observations is the input, and no theorem here derives it
-from task reward, phase coherence or a shared target state; the contents are
-real-valued fields identified with no neural variable and with no section of the
-probability sheaf. What it does answer is the narrower half of the question the
-gluing hypothesis raises: given agreeing observations, agreement is preserved
-and disagreement decays at a stated rate.
+Observations agreeing only to $\delta$ are covered by the same recursion.
+Iterating Eq.~\eqref{eq:content-residual} gives
+$(1-\eta)^{n}\varepsilon+\delta$ exactly, not as an estimate
+(\texttt{run\_\allowbreak residual\_\allowbreak floor}), so the initial mismatch
+contracts geometrically onto the observations' own disagreement and stops there.
+The floor does not decay with $n$. Mixing cannot manufacture agreement that the
+observations lack, which is why the next subsection, and not the update rule, is
+what carries the mechanism.
+
+The contents remain real-valued fields identified with no neural variable and
+with no section of the probability sheaf.
 
 The scope is narrow in three ways. The state space is finite spatial mass
 profiles, where restriction is functorial; nothing here bears on matching
@@ -1348,6 +1455,69 @@ approximate agreement, selects the cover or selects the weights, so the
 interpretive cost of the route is that unity becomes a choice at resolution
 $\varepsilon$. Theorem~5, the \texttt{ThermodynamicCover} instances and the
 composed chain retain their exact agreement hypothesis.
+
+\subsection{Agreement acquired from coherence}
+\label{sec:coherence-agreement}
+
+What makes two patches observe compatibly is the coordination of the
+oscillators they read. The order parameter of Sec.~\ref{sec:content-dynamics}'s
+population is not merely correlated with agreement; it bounds it.
+
+Write $N$ for the number of oscillators and $r$ for the order parameter. The
+identity
+\begin{equation}
+ N^{2}r^{2}=\sum_{i,j}\cos(\theta_i-\theta_j)
+ \label{eq:order-mean-cos}
+\end{equation}
+(\texttt{order\_\allowbreak parameter\_\allowbreak r\_\allowbreak sq\_\allowbreak eq\_\allowbreak mean\_\allowbreak cos},
+\texttt{Phase4\_\allowbreak Kuramoto\-Dynamics.lean}) rewrites $N^2(1-r^2)$ as
+$\sum_{i,j}\bigl[1-\cos(\theta_i-\theta_j)\bigr]$, a sum of nonnegative terms.
+A single term is therefore at most the whole sum:
+\begin{equation}
+ 1-\cos(\theta_i-\theta_j)\le N^{2}\bigl(1-r^{2}\bigr)
+ \label{eq:cos-gap}
+\end{equation}
+for \emph{every} pair (\texttt{cos\_\allowbreak gap\_\allowbreak le\_\allowbreak of\_\allowbreak coherence}).
+The factor $N^{2}$ is not slack that better bookkeeping would remove: one
+oscillator out of $N$ placed badly moves $r$ by $O(1/N)$, so a pointwise
+guarantee drawn from a population average has to pay for it.
+
+A phase is an angle, so a content that is a function of phase must be a
+function of the circle point $(\cos\theta,\sin\theta)$; a model reading
+$\theta$ as a real number is not $2\pi$-periodic and is not a function of the
+phase at all. In the chord metric on that circle,
+$\lVert\cdot\rVert^2=2(1-\cos\Delta)$, and Eq.~\eqref{eq:cos-gap} becomes
+\begin{equation}
+ \mathrm{chord}(\theta_i,\theta_j)\le\sqrt{2}\,N\sqrt{1-r^{2}}
+ \label{eq:chord-bound}
+\end{equation}
+(\texttt{chord\_\allowbreak le\_\allowbreak of\_\allowbreak coherence}). An
+encoder declared Lipschitz at constant $L$ in that metric, which is what
+\texttt{Lipschitz\-Encoder} states, then gives observations compatible at residual
+$L\sqrt{2}\,N\sqrt{1-r^{2}}$
+(\texttt{compatible\_\allowbreak of\_\allowbreak coherence},
+\texttt{Phase5\_\allowbreak Content\-Dynamics.lean}). No compatibility premise
+appears anywhere in that statement: the residual is computed from the phases.
+At $r^{2}=1$ it is zero and the observations agree exactly
+(\texttt{compatible\_\allowbreak of\_\allowbreak phase\_\allowbreak locked}), so
+perfect locking is this scale's endpoint rather than a separate case, and the
+readout results of Sec.~\ref{sec:content-dynamics} apply to a family nothing
+assumed to be compatible.
+
+The result is fenced on both sides. Two antiphase oscillators have $r^{2}=0$,
+computed through Eq.~\eqref{eq:order-mean-cos} rather than asserted, and at that
+coherence the two patches demonstrably disagree
+(\texttt{Examples/\allowbreak AgencyFoundations.lean}), so the derivation is not
+returning a vacuous zero residual. The bound is also not tight there: it gives
+$2\sqrt{2}$ where the actual disagreement is $2$, which is the $N^{2}$ of
+Eq.~\eqref{eq:cos-gap} being paid.
+
+The encoder and its constant are declared hardware, in the same sense as the
+actuator's mode profiles. The agreement is not declared: it is derived from the
+phases, which is what separates this result from the residual bound above.
+Identifying these scalar contents with neural variables, and testing whether
+their agreement matters for experience, remain the empirical work of
+Sec.~\ref{sec:content-dynamics}'s closing scope.
 
 \section{Reflexive Topology and the Self}
 Self-representation is an additional relation between the glued global state and an encoding within it. The model specifies an encoding and readout whose composite fixes that state; contraction gives uniqueness. A dissipation bound imposes neither the encoding nor its accuracy.
@@ -1482,9 +1652,11 @@ Finite supply and delivery & \texttt{PathwiseStore.SourceLedgered} identifies su
 A sensor memory and its erasure & \texttt{memoryHeat} is the mean log-ratio heat of a memory channel on a declared memory law. \texttt{memoryHeat\_\allowbreak const} (\texttt{Phase3\_\allowbreak Sensor\allowbreak Memory}) proves that an erasure landing on one law $\nu$ costs $\theta[H(\mu)-H(\nu)]+\theta D_{KL}(\mu\|\nu)$, with \texttt{memoryHeat\_\allowbreak ge\_\allowbreak entropy\_\allowbreak drop} the Gibbs corollary and \texttt{memoryHeat\_\allowbreak self} the matched case. \texttt{MemoryAgent} runs act, record, learn and clear four-periodically on $R\times(M\times\mathit{Env})$ as a \texttt{FiniteProtocol}; \texttt{learn\_\allowbreak register\_\allowbreak independent} proves the register reads the memory alone, \texttt{memoryLaw\_\allowbreak clear} makes the memory autonomous under the erasure while \texttt{memoryLaw\_\allowbreak record} does not, \texttt{clear\_\allowbreak stageHeat\_\allowbreak eq} allocates the stage's heat to its three coordinates, and \texttt{clear\_\allowbreak memoryHeat\_\allowbreak const} is the identity on the agent's executed paths. \texttt{Examples/SensorMemory.lean} bounds the memory's mass in $[7/16,9/16]$ at every clearing from channel masses alone, giving a cost between $(3/16)\log3$ and $(5/16)\log3$ whatever has been learned, and $(1/4)\log3=[(3/4)\log3-\log2]+(1/2)\log(4/3)$ in the first cycle. A blind measurement pays the same, a drift in place of the erasure pays nothing and forgets nothing, a matched memory is free and an over-ordered one absorbs $(1/4)\log3$. Gate fabrication remains separate; prior preparation is treated below & Theorem (conditional) \\ \hline
 A funded clearing & \texttt{PathwiseStore.\allowbreak balance\_\allowbreak le\_\allowbreak of\_\allowbreak stage\_\allowbreak cost} generalizes the reading bound to a stage-dependent cost, with the constant case derived from it; \texttt{sum\_\allowbreak period\_\allowbreak indicator} and \texttt{horizon\_\allowbreak le\_\allowbreak of\_\allowbreak periodic\_\allowbreak cost} give $mc\leq b$ for a charge paid once per period, and \texttt{periodic\_\allowbreak horizon\_\allowbreak le\_\allowbreak of\_\allowbreak finite\_\allowbreak source} states it with the source inside the boundary. \texttt{net\_\allowbreak draw\_\allowbreak eq\_\allowbreak zero\_\allowbreak of\_\allowbreak positive} proves that full support admits no net draw at all. \texttt{MemoryAgent.\allowbreak clearings\_\allowbreak le\_\allowbreak of\_\allowbreak source} applies this to the clear stage of the sensor-memory agent. \texttt{Examples/FundedMemory.lean} carries a charge of three units in the world the same agent acts on, spends one at each clearing (\texttt{charge\_\allowbreak invariant}, \texttt{clear\_\allowbreak spends\_\allowbreak one}), attains the bound at three cycles (\texttt{cycles\_\allowbreak le\_\allowbreak three}) and reads below empty at the sixteenth operation (\texttt{not\_\allowbreak solvent\_\allowbreak four}), while every clearing still costs between $(3/16)\log3$ and $(5/16)\log3$. \texttt{clear\_\allowbreak unfunded} records that an erasure reading only the memory cannot be conditioned on the charge, so the unfunded run continues; \texttt{not\_\allowbreak positive} derives the agent's restricted support. The drawn unit is not identified with the stage's heat. Charge preparation, external refuelling and gate fabrication remain separate & Theorem (conditional) \\ \hline
 Preparing the prior & A constant preparation channel drives the hardware to a positive law without reading it, which is the hypothesis of \texttt{memoryHeat\_\allowbreak const}, so the same heat identity prices it. \texttt{KL\_\allowbreak uniform} (\texttt{Phase3\_\allowbreak Preparation}) gives $D_{KL}(\mu\|\mathrm{unif})=\log|V|-H(\mu)$ with no positivity of $\mu$, so \texttt{memoryHeat\_\allowbreak uniform} is zero at every starting law: a uniform target has zero mean log-ratio heat. \texttt{FiniteProtocol.\allowbreak withPreparation} runs it as stage zero, \texttt{withPreparation\_\allowbreak law\_\allowbreak succ} identifies the shifted run with the original and \texttt{preparation\_\allowbreak meanHeat} is its cost. \texttt{preparation\_\allowbreak parameter\_\allowbreak marginal} and \texttt{preparation\_\allowbreak product} are the two fences: the parameter's marginal is untouched and a constant preparation creates no parameter-hardware correlation. \texttt{Examples/Preparation.lean} prepares the sensor-memory agent's own prior with zero mean heat, charges the whole run through the existing bound, prices the agent's standard state at $(1/4)\log3$ from uniform, evaluates a bias-$\varepsilon$ target at $(1/2-\varepsilon)\log[(1-\varepsilon)/\varepsilon]$ and proves this family unbounded at thermal scale one. The witness changes the initial hardware law, rejects preparing parameter uncertainty or correlation, and rejects the sharp target from the positivity premise. Funding, exact preparation and gate implementation remain separate & Theorem (conditional) \\ \hline
-Resource bounds on a trajectory & \texttt{ResourceTrajectory} (\texttt{Phase3\_\allowbreak ResourceFoundations}) telescopes the ledger $\beta_{n+1}=\beta_n-w^-_n+w^+_n$ on an \emph{arbitrary} state type: \texttt{balance\_\allowbreak sum}, \texttt{draw\_\allowbreak le\_\allowbreak resources} and \texttt{horizon\_\allowbreak bound} use no \texttt{Fintype}, no probability law and no channel, and \texttt{ContinuingProcess.\allowbreak horizon\_\allowbreak le\_\allowbreak of\_\allowbreak cost} is that bound read on the sequence of expected allowances. \texttt{draw\_\allowbreak eq\_\allowbreak energy\_\allowbreak heat\_\allowbreak control} identifies the draw from a conserved boundary carrying stored, bath and installation/control energy; \texttt{draw\_\allowbreak eq\_\allowbreak thermal\_\allowbreak work} substitutes a thermal term only where that term is assumed, and prices no gate. \texttt{transferCharge} is a reversible swap on $\mathbb{N}\times\mathbb{N}$ conserving the total; \texttt{refuel} is a real-valued trajectory solvent at every operation when delivery matches draw. The supply is declared, not derived, and no theorem connects these trajectories to a particular agent's channels & Theorem \\ \hline
-Entropy balance without full support & \texttt{ProbDist.SupportIncluded} replaces strictly positive masses by the condition the expansion uses: every forward path of positive probability has positive reverse probability. \texttt{KL\_\allowbreak nonneg\_\allowbreak of\_\allowbreak support}, \texttt{entropyProduction\_\allowbreak nonneg\_\allowbreak of\_\allowbreak support} and \texttt{entropy\_\allowbreak balance\_\allowbreak of\_\allowbreak support} (\texttt{Phase3\_\allowbreak SupportedThermodynamics}) hold there, and \texttt{reversibleSupport\_\allowbreak of\_\allowbreak positive} places the stronger premise strictly inside the weaker one. A step whose initial law sits on one atom witnesses the gap (\texttt{Examples/AgencyFoundations.lean}). Where a forward path has no reverse, \texttt{ProbDist.extendedKL} returns $\infty$ in $[0,\infty]$ rather than a finite real cost, and agrees with the real divergence where support holds. Equality with Mathlib's measure divergence, and construction of a physical reverse protocol, are separate & Theorem \\ \hline
-Contents driven by observation & \texttt{LocalContent} (\texttt{Phase5\_\allowbreak ContentDynamics}) carries patch contents as real fields and mixes each with that patch's observation at gain $\eta$. \texttt{update\_\allowbreak residual} gives $(1-\eta)\varepsilon+\eta\delta$, \texttt{update\_\allowbreak preserves} exact agreement under agreeing observations, and \texttt{run\_\allowbreak residual} the decay $(1-\eta)^n\varepsilon$. \texttt{readout\_\allowbreak agrees} and \texttt{readout\_\allowbreak unique} make a patch-selecting readout the unique global extension at zero residual, with coverage a hypothesis. \texttt{ApproximateGluing.\allowbreak compatible\_\allowbreak pointwise} reads this section's mass profiles as such a family, so the two agreement predicates are one. The observations' compatibility is an input: nothing derives it from reward, coherence or a shared target, and the contents are identified with no neural variable and no sheaf section & Theorem \\ \hline
+Resource bounds on a trajectory & \texttt{ResourceTrajectory} (\texttt{Phase3\_\allowbreak ResourceFoundations}) telescopes the ledger $\beta_{n+1}=\beta_n-w^-_n+w^+_n$ on an \emph{arbitrary} state type: \texttt{balance\_\allowbreak sum}, \texttt{draw\_\allowbreak le\_\allowbreak resources} and \texttt{horizon\_\allowbreak bound} use no \texttt{Fintype}, no probability law and no channel, and \texttt{ContinuingProcess.\allowbreak horizon\_\allowbreak le\_\allowbreak of\_\allowbreak cost} is that bound read on the sequence of expected allowances. \texttt{draw\_\allowbreak eq\_\allowbreak energy\_\allowbreak heat\_\allowbreak control} identifies the draw from a conserved boundary carrying stored, bath and installation/control energy; \texttt{draw\_\allowbreak eq\_\allowbreak step\_\allowbreak heat} closes that identification on a named channel: the bath coordinate's gain is the mean heat of the step the stage runs, and local detailed balance makes the ledger's heat term $\theta$ times \emph{that step's own} \texttt{bathEntropy} rather than any real written as a logarithm. \texttt{draw\_\allowbreak ge\_\allowbreak entropy\_\allowbreak reduction} is the resulting Landauer bound: the work drawn, net of stored and control energy, is at least $\theta$ times the entropy the step removes, under support inclusion rather than full positivity. \texttt{transferCharge} is a reversible swap on $\mathbb{N}\times\mathbb{N}$ conserving the total, and \texttt{sharp\_\allowbreak preparation\_\allowbreak extendedKL\_\allowbreak top} is why it cannot also \emph{make} a sharp charge: a channel driving every state to one target has no reverse path from that target, so its path divergence is $\infty$ and no finite cost exists for it, while a channel stopping short of sharp is an ordinary priced step. \texttt{SourceDelivery} identifies delivery with a source coordinate's loss on an arbitrary state type; \texttt{horizon\_\allowbreak le\_\allowbreak of\_\allowbreak sourced\_\allowbreak delivery} adds the source's initial content to the store's in one horizon bound, and \texttt{no\_\allowbreak finite\_\allowbreak source\_\allowbreak sustains} shows a run at strictly positive cost with a nonnegative source cannot continue indefinitely, so \texttt{refuel}'s sustaining hypothesis is the declaration of a supply outside the boundary. Gate fabrication and control work are charged to an observable and never priced, and no theorem connects these trajectories to a particular agent's channels & Theorem \\ \hline
+Entropy balance without full support & \texttt{ProbDist.SupportIncluded} replaces strictly positive masses by the condition the expansion uses: every forward path of positive probability has positive reverse probability. \texttt{KL\_\allowbreak nonneg\_\allowbreak of\_\allowbreak support}, \texttt{entropyProduction\_\allowbreak nonneg\_\allowbreak of\_\allowbreak support} and \texttt{entropy\_\allowbreak balance\_\allowbreak of\_\allowbreak support} (\texttt{Phase3\_\allowbreak SupportedThermodynamics}) hold there, and \texttt{reversibleSupport\_\allowbreak of\_\allowbreak positive} places the stronger premise strictly inside the weaker one. A step whose initial law sits on one atom witnesses the gap (\texttt{Examples/AgencyFoundations.lean}). Where a forward path has no reverse, \texttt{ProbDist.extendedKL} returns $\infty$ in $[0,\infty]$ rather than a finite real cost, and agrees with the real divergence where support holds. \texttt{extendedKL\_\allowbreak eq\_\allowbreak klDiv} and \texttt{extendedKL\_\allowbreak eq\_\allowbreak klDiv\_\allowbreak of\_\allowbreak missing} (\texttt{Phase3\_\allowbreak MeasureFeedback}) identify it with Mathlib's measure divergence on \emph{both} branches, the finite one under a positive reference law and the infinite one wherever an atom is missing, so the finite convention is the measure-theoretic one restricted rather than a second definition beside it. Construction of a physical reverse protocol remains separate & Theorem \\ \hline
+Contents driven by observation & \texttt{LocalContent} (\texttt{Phase5\_\allowbreak ContentDynamics}) carries patch contents as real fields and mixes each with that patch's observation at gain $\eta$. \texttt{update\_\allowbreak residual} gives $(1-\eta)\varepsilon+\eta\delta$, \texttt{update\_\allowbreak preserves} exact agreement under agreeing observations, and \texttt{run\_\allowbreak residual} the decay $(1-\eta)^n\varepsilon$. \texttt{readout\_\allowbreak agrees} and \texttt{readout\_\allowbreak unique} make a patch-selecting readout the unique global extension at zero residual, with coverage a hypothesis. \texttt{ApproximateGluing.\allowbreak compatible\_\allowbreak pointwise} reads this section's mass profiles as such a family, so the two agreement predicates are one. \texttt{run\_\allowbreak residual\_\allowbreak floor} generalizes the decay to observations agreeing only to $\delta$, contracting the initial mismatch geometrically onto that floor exactly rather than in estimate; the floor does not decay, so mixing cannot manufacture agreement the observations lack. The observations' own compatibility is supplied by the coherence row below rather than assumed here. The contents are identified with no neural variable and no sheaf section & Theorem \\ \hline
+Coherence produces content agreement & The order parameter is the mean pairwise phase cosine: \texttt{order\_\allowbreak parameter\_\allowbreak r\_\allowbreak sq\_\allowbreak eq\_\allowbreak mean\_\allowbreak cos} (\texttt{Phase4\_\allowbreak KuramotoDynamics}) proves $N^2r^2=\sum_{ij}\cos(\theta_i-\theta_j)$, and since every summand of $1-\cos$ is nonnegative a single pair is bounded by the whole double sum (\texttt{cos\_\allowbreak gap\_\allowbreak le\_\allowbreak of\_\allowbreak coherence}): a global mean controls each local difference, at a factor $N^2$ that is the price of a pointwise statement drawn from an average. \texttt{chord\_\allowbreak le\_\allowbreak of\_\allowbreak coherence} states it in the chord metric on the circle, in which \texttt{LipschitzEncoder} declares an encoder's constant; a phase is read as a circle point, so an encoder is a function of the phase rather than of a representative of it. \texttt{compatible\_\allowbreak of\_\allowbreak coherence} (\texttt{Phase5\_\allowbreak ContentDynamics}) then \emph{derives} overlap compatibility of the observations, with a residual computed from the order parameter and no compatibility premise anywhere, and \texttt{compatible\_\allowbreak of\_\allowbreak phase\_\allowbreak locked} gives exact agreement at $r^2=1$, so the exact case is this scale's endpoint rather than a separate hypothesis. \texttt{Examples/AgencyFoundations.lean} computes $r^2=0$ for two antiphase oscillators through the identity, and fences the result: at that coherence the two patches demonstrably disagree, so no vacuous zero residual is being returned. The encoder and its constant are declared hardware, and identifying these contents with neural variables remains empirical & Theorem \\ \hline
+Thermodynamics and control off finite state & \texttt{MeasureFeedbackStep} (\texttt{Phase3\_\allowbreak MeasureFeedback}) carries an initial probability measure and a Markov kernel on \emph{any} measurable space, with entropy production the divergence of the forward path law from the time-reversed one valued in $[0,\infty]$. Nonnegativity is then structural rather than derived, \texttt{entropyProduction\_\allowbreak eq\_\allowbreak top} keeps absolute irreversibility as $\infty$ with no positivity or finiteness hypothesis, and \texttt{path\_\allowbreak divergence\_\allowbreak splits} is the chain rule: the divergence separates into a term in the two initial laws and a term in the two channels compared on the forward law. \texttt{entropyProduction\_\allowbreak map\_\allowbreak le} is data processing --- coarse-graining by any measurable observable cannot increase production --- and \texttt{initial\_\allowbreak divergence\_\allowbreak le\_\allowbreak entropyProduction} the second law in divergence form. \texttt{MeasureControlProblem.\allowbreak exists\_\allowbreak optimal} selects a maximizing action over a finite permitted set with no \texttt{Fintype} on the state at all, and \texttt{exists\_\allowbreak optimal\_\allowbreak compact} over a compact one, discharging continuity rather than replacing it by finiteness. Witnesses sit on $\mathbb{N}$, where a definite jump has infinite production and a stationary step none, and on $\mathbb{R}$, where the initial law is a Gaussian assigning zero to every singleton --- a law no \texttt{ProbDist} can carry. The \emph{Shannon-entropy} form of the balance is not generalized: it needs a reference measure, and differential entropy is not entropy & Theorem \\ \hline
 Finite goal-directed control & \texttt{FiniteControlProblem} (\texttt{Phase3\_\allowbreak AgencyThermodynamics}) evaluates terminal reward and both substep costs on the same \texttt{FiniteFeedbackCycle}, with an explicit deterministic policy and shared world and memory channels. \texttt{exists\_optimal} proves finite feasible maximization. \texttt{Examples/AgencyControl.lean} computes every deterministic bit policy's performance, heat and work and proves a unique feasible optimum that strictly improves a declared lamp task. A feasible baseline misses the target; a better-performing policy exceeds the budget; equal final laws can have unequal heat. Objective, reservoir model, initial resource and budget are supplied. This comparison covers fixed policies; adaptation of a policy register is treated separately below & Theorem (conditional) \\ \hline
 Finite learning dynamics & \texttt{FiniteFeedbackStep.iterate} carries successive laws and telescopes entropy and first-law balances. \texttt{Examples/PolicyLearning.lean} proves strictly improving expected lamp reward, geometric convergence to a stationary mixture, positive update heat and bounded cumulative heat from the register's energy loss. Its energy encodes known task values. The limit is suboptimal; individual updates and a different initial preparation can lower reward. Task costs are prospective lamp task expectations. Preparing the register, executing task episodes, implementing the policy readout, cortical identification and the active chain's resource and spatial bridges require separate accounting & Theorem (conditional) \\ \hline
 Learning from observed outcomes & \texttt{FiniteObservationalLearner} (\texttt{Phase3\_\allowbreak ObservationalLearning}) holds an environmental parameter fixed and updates a policy register from the observed outcome of the action its readout executed. Neither the update nor the readout takes the parameter as an argument and the reward enters no channel, so nothing supplies the task's values. Act--observe--update composes into one \texttt{FiniteFeedbackStep}, carrying reward, heat and entropy on the same law. \texttt{Examples/ObservationalLearning.lean} gives every mass of that law at every horizon for a two-action task with an unknown rewarding action, hence strictly improving expected reward $3/4-\frac14(1/2)^n$ from a uniform prior, strict improvement over a frozen register and over an uninformative world under a common allowance, cumulative heat $(\log3/4)[1-(1/2)^N]$ and its equality with external work. \texttt{zero\_\allowbreak work\_\allowbreak needs\_\allowbreak parameter\_\allowbreak independent\_\allowbreak heat} proves that a free relaxation would carry no information about the parameter, so the work is irreducible. The limit is below certainty, each action is executed half the time at every horizon, and a reward-decreasing transition keeps positive probability. Preparing the prior, supplying the work, task episodes beyond the declared updates, fabricating the readout, optimal-policy convergence and cortical identification are separate & Theorem (conditional) \\ \hline

@@ -384,4 +384,149 @@ theorem potential_min_iff_phase_locked
   ⟨potential_min_implies_phase_locked sys h_pos theta,
    fun h_lock => phase_locked_minimizes_potential' sys h_pos theta h_lock⟩
 
+/-! ## 6. Coherence as a quantitative bound on phase disagreement
+
+`phase_locked_implies_r_sq_eq_one` is the exact endpoint of a scale that is
+otherwise missing: below perfect locking, the order parameter says nothing here
+about how far apart two individual phases are. The results in this section
+supply that scale, and they are what carries coupling-gated coherence into the
+content agreement of `Phase5_ContentDynamics`.
+
+The step that makes it work is the identity `N² r² = ∑ᵢ∑ⱼ cos(θᵢ − θⱼ)`. Every
+summand of `1 − cos` is nonnegative, so a *single* pair is bounded by the whole
+double sum: a global average controls each local difference, with a factor `N²`
+that is the honest price of extracting a pointwise statement from a mean.
+-/
+
+omit [DecidableEq V] in
+private lemma exp_I_re (t : ℝ) : (Complex.exp (Complex.I * (t : ℂ))).re = Real.cos t := by
+  rw [mul_comm, Complex.exp_mul_I]
+  simp [Complex.cos_ofReal_re]
+
+omit [DecidableEq V] in
+private lemma exp_I_im (t : ℝ) : (Complex.exp (Complex.I * (t : ℂ))).im = Real.sin t := by
+  rw [mul_comm, Complex.exp_mul_I]
+  simp [Complex.sin_ofReal_re]
+
+omit [DecidableEq V] in
+/-- **The order parameter is the mean pairwise phase cosine.** Stated multiplied
+through by `N²` so that no division appears and no nonvanishing side condition
+is needed beyond `Nonempty`. -/
+theorem order_parameter_r_sq_eq_mean_cos [Nonempty V] (theta : V → ℝ) :
+    (Fintype.card V : ℝ) ^ 2 * order_parameter_r_sq theta
+      = ∑ i, ∑ j, Real.cos (theta i - theta j) := by
+  have hNr : (Fintype.card V : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr Fintype.card_ne_zero
+  set S : ℂ := ∑ j, Complex.exp (Complex.I * (theta j : ℂ)) with hS
+  have h1 : S.re = ∑ j, Real.cos (theta j) := by
+    rw [hS, Complex.re_sum]
+    exact Finset.sum_congr rfl fun j _ => exp_I_re (theta j)
+  have h2 : S.im = ∑ j, Real.sin (theta j) := by
+    rw [hS, Complex.im_sum]
+    exact Finset.sum_congr rfl fun j _ => exp_I_im (theta j)
+  have hnorm : Complex.normSq S
+      = (∑ j, Real.cos (theta j)) ^ 2 + (∑ j, Real.sin (theta j)) ^ 2 := by
+    rw [Complex.normSq_apply, h1, h2]; ring
+  have h3 : Complex.normSq (1 / (Fintype.card V : ℂ)) = 1 / (Fintype.card V : ℝ) ^ 2 := by
+    rw [Complex.normSq_div, Complex.normSq_natCast]
+    simp
+    rw [sq, mul_inv]
+  have key : (∑ j, Real.cos (theta j)) ^ 2 + (∑ j, Real.sin (theta j)) ^ 2
+      = ∑ i, ∑ j, Real.cos (theta i - theta j) := by
+    rw [sq, sq, Finset.sum_mul_sum, Finset.sum_mul_sum, ← Finset.sum_add_distrib]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [← Finset.sum_add_distrib]
+    exact Finset.sum_congr rfl fun j _ => (Real.cos_sub (theta i) (theta j)).symm
+  unfold order_parameter_r_sq order_parameter_complex
+  rw [← hS, Complex.normSq_mul, hnorm, h3, key]
+  field_simp
+
+omit [DecidableEq V] in
+/-- **Coherence bounds every individual phase gap.** The `N²` is real and not an
+artifact: one badly placed oscillator among `N` moves the order parameter by
+`O(1/N)`, so a pointwise guarantee from a global mean must pay for it. -/
+theorem cos_gap_le_of_coherence [Nonempty V] (theta : V → ℝ) (i j : V) :
+    1 - Real.cos (theta i - theta j)
+      ≤ (Fintype.card V : ℝ) ^ 2 * (1 - order_parameter_r_sq theta) := by
+  have hid := order_parameter_r_sq_eq_mean_cos theta
+  have hcard : ∑ _a : V, ∑ _b : V, (1 : ℝ) = (Fintype.card V : ℝ) ^ 2 := by
+    simp [Finset.card_univ, sq]
+  have hsum : (Fintype.card V : ℝ) ^ 2 * (1 - order_parameter_r_sq theta)
+      = ∑ a, ∑ b, (1 - Real.cos (theta a - theta b)) := by
+    rw [mul_sub, mul_one, hid, ← hcard, ← Finset.sum_sub_distrib]
+    refine Finset.sum_congr rfl fun a _ => ?_
+    rw [← Finset.sum_sub_distrib]
+  have hrow : ∑ b, (1 - Real.cos (theta i - theta b))
+      ≤ ∑ a, ∑ b, (1 - Real.cos (theta a - theta b)) :=
+    Finset.single_le_sum
+      (f := fun a => ∑ b, (1 - Real.cos (theta a - theta b)))
+      (fun a _ => Finset.sum_nonneg fun b _ => by
+        linarith [Real.cos_le_one (theta a - theta b)])
+      (Finset.mem_univ i)
+  have hterm : 1 - Real.cos (theta i - theta j)
+      ≤ ∑ b, (1 - Real.cos (theta i - theta b)) :=
+    Finset.single_le_sum
+      (f := fun b => 1 - Real.cos (theta i - theta b))
+      (fun b _ => by linarith [Real.cos_le_one (theta i - theta b)])
+      (Finset.mem_univ j)
+  rw [hsum]
+  linarith
+
+/-- A phase read as the point of the unit circle it names. A content model that
+reads `θ` as a real number is not `2π`-periodic and so is not a function of the
+phase at all; factoring through this is what makes the encoder well posed. -/
+noncomputable def circlePoint (t : ℝ) : ℝ × ℝ := (Real.cos t, Real.sin t)
+
+/-- Chord separation of two phases: the Euclidean distance between their circle
+points. This is the metric in which an encoder's Lipschitz constant is declared. -/
+noncomputable def chord (a b : ℝ) : ℝ :=
+  Real.sqrt ((Real.cos a - Real.cos b) ^ 2 + (Real.sin a - Real.sin b) ^ 2)
+
+theorem chord_sq_eq (a b : ℝ) :
+    (Real.cos a - Real.cos b) ^ 2 + (Real.sin a - Real.sin b) ^ 2
+      = 2 * (1 - Real.cos (a - b)) := by
+  rw [Real.cos_sub]
+  nlinarith [Real.sin_sq_add_cos_sq a, Real.sin_sq_add_cos_sq b]
+
+theorem chord_nonneg (a b : ℝ) : 0 ≤ chord a b := Real.sqrt_nonneg _
+
+omit [DecidableEq V] in
+/-- **Coherence bounds the chord separation of any two phases.** This is
+`cos_gap_le_of_coherence` in the metric an encoder is Lipschitz for. At
+`r² = 1` the right side is zero, which recovers exact agreement. -/
+theorem chord_le_of_coherence [Nonempty V] (theta : V → ℝ) (i j : V) :
+    chord (theta i) (theta j)
+      ≤ Real.sqrt 2 * (Fintype.card V : ℝ) *
+          Real.sqrt (1 - order_parameter_r_sq theta) := by
+  have hN : (0 : ℝ) ≤ (Fintype.card V : ℝ) := Nat.cast_nonneg _
+  have hgap := cos_gap_le_of_coherence theta i j
+  have hNpos : (0 : ℝ) < (Fintype.card V : ℝ) :=
+    Nat.cast_pos.mpr Fintype.card_pos
+  have hc : (0 : ℝ) ≤ 1 - order_parameter_r_sq theta := by
+    have hself := cos_gap_le_of_coherence theta i i
+    rw [sub_self, Real.cos_zero] at hself
+    have h2 : (0 : ℝ) < (Fintype.card V : ℝ) ^ 2 := pow_pos hNpos 2
+    have hm : (Fintype.card V : ℝ) ^ 2 * 0
+        ≤ (Fintype.card V : ℝ) ^ 2 * (1 - order_parameter_r_sq theta) := by
+      rw [mul_zero]; linarith
+    exact le_of_mul_le_mul_left hm h2
+  have hstep : chord (theta i) (theta j)
+      ≤ Real.sqrt (2 * ((Fintype.card V : ℝ) ^ 2 * (1 - order_parameter_r_sq theta))) := by
+    unfold chord
+    rw [chord_sq_eq]
+    exact Real.sqrt_le_sqrt (by linarith)
+  refine hstep.trans_eq ?_
+  rw [Real.sqrt_mul (by norm_num : (0:ℝ) ≤ 2),
+    Real.sqrt_mul (sq_nonneg (Fintype.card V : ℝ)), Real.sqrt_sq hN]
+  ring
+
+omit [Fintype V] [DecidableEq V] in
+/-- Perfect locking makes the chord bound vanish, so the quantitative statement
+has the exact one as its endpoint rather than sitting beside it. -/
+theorem chord_eq_zero_of_phase_locked [Nonempty V] (theta : V → ℝ)
+    (h : is_phase_locked theta) (i j : V) : chord (theta i) (theta j) = 0 := by
+  unfold chord
+  rw [chord_sq_eq, h i j]
+  simp
+
+
 end PhysicsOfConsciousness

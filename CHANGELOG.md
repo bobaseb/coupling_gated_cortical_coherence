@@ -20,6 +20,49 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-15 — Claims withdrawn when the last three agency items closed
+
+**"Phase order cannot establish compatibility."** The article stated this
+without qualification. It is true of descriptions that are free of the phase,
+which is what the equal-phase counterexample exhibits: its two mass profiles are
+chosen independently of the oscillators, so equal phases constrain them not at
+all. It is false of contents that are a declared Lipschitz function of the local
+phase, where `compatible_of_coherence` bounds overlap disagreement by a residual
+read off the order parameter. The article now states both halves and the fence
+between them.
+
+**"The observations' own agreement is the input."** The Discussion said the
+acquire half of the explanatory gap was untouched, and the supplement said no
+theorem derived observation compatibility from task reward, phase coherence or a
+shared target state. A theorem now derives it from phase coherence. The encoder
+and its Lipschitz constant remain declared; the agreement does not.
+
+**"The drawn unit is a declared reading, not the stage's heat."** The resource
+ledger's thermal identification was a free hypothesis: `draw_eq_thermal_work`
+substitutes any real number written `θ * log ratio`. `draw_eq_step_heat` ties it
+to a named channel's mean heat, so the ledger's heat term is that step's own
+`bathEntropy`. The claim that the identification is unavailable is withdrawn;
+the claim that gate fabrication and control are unpriced stands, and is now
+visible in the statement of `draw_ge_entropy_reduction`, where `C` is subtracted.
+
+**"Equality with Mathlib's measure divergence is separate."** Recorded as an
+open leftover under the weaker-positivity work. `extendedKL_eq_klDiv` and
+`extendedKL_eq_klDiv_of_missing` close it on both branches, so the finite
+convention is the measure-theoretic divergence restricted rather than a second
+definition beside it.
+
+**"The entropy balance remains finite-state."** Withdrawn in one direction and
+retained in the other, which is why it is here rather than simply deleted. The
+*divergence* form generalizes to an arbitrary measurable space
+(`path_divergence_splits`). The *Shannon-entropy* form does not, and is not
+claimed to: it needs a reference measure, and differential entropy relative to
+Lebesgue measure is not entropy. The retained half is stated in the module
+docstring, the ledger and Table S1 in the same words.
+
+The full pass record is the dated section at the end of `tasks/todo.md`.
+
+---
+
 ## 2026-09-15 — Four scope sentences the foundations narrow
 
 The finite path-law balance is no longer stated with strictly positive masses
