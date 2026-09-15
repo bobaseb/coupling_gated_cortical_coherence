@@ -44,5 +44,6 @@ import PhysicsOfConsciousness.Phase8_CircleForm
 import PhysicsOfConsciousness.Phase8_WeightedPoincare
 import PhysicsOfConsciousness.Phase8_CoherentStability
 import PhysicsOfConsciousness.Phase9_EMIdentification
+import PhysicsOfConsciousness.Phase9_InstalledCoupling
 import PhysicsOfConsciousness.Examples
 import PhysicsOfConsciousness.Chain

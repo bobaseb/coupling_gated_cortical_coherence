@@ -32,6 +32,7 @@
     `Examples/Preparation.lean` -- prior preparation and the limits of its heat identity
     `Examples/ActuatedCoupling.lean` -- a feedback step's scalar coupling amplitude
     `Examples/MicroscopicCoupling.lean` -- a thermal switch's installed spatial mode
+    `Examples/InstalledCoupling.lean` -- installed energy bounds its scalar mean-field coupling
     `Examples/Phase4.lean`  §7, §15, §16, §17
     `Examples/Phase5.lean`  §13, §14, §17.1, §20 (overlap agreement)
     `Examples/Phase6.lean`  §10
@@ -141,6 +142,7 @@ import PhysicsOfConsciousness.Examples.FundedMemory
 import PhysicsOfConsciousness.Examples.Preparation
 import PhysicsOfConsciousness.Examples.ActuatedCoupling
 import PhysicsOfConsciousness.Examples.MicroscopicCoupling
+import PhysicsOfConsciousness.Examples.InstalledCoupling
 import PhysicsOfConsciousness.Examples.Phase4
 import PhysicsOfConsciousness.Examples.Phase5
 import PhysicsOfConsciousness.Examples.Phase6

@@ -1,5 +1,15 @@
 # Lessons Learned
 
+- **2026-09-15: A mode-price inequality needs a signed-factor audit.**
+  `m² ≤ κ u` alone permits both `κ` and `u` to be negative. A positive hardware
+  conversion factor rules that out and derives `u ≥ 0`, giving a meaningful
+  energy threshold `2D / κ`. Nonnegative occupancy is a separate condition:
+  adding a negative-occupancy mode with zero response can cancel installed
+  energy without reducing coupling, making even the threshold exclusion false.
+  Also distinguish an admissibility test for κ from enforcing when κ was
+  chosen: Lean can check the former, while threshold-independent calibration
+  must remain explicit model scope.
+
 - **2026-09-15: On a circle, a constant current is a zero current, and that is
   the whole derivation of the von Mises ansatz.** The item had costed the
   stationary density as needing "the Fokker–Planck operator, existence and

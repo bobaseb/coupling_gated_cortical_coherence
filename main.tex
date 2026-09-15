@@ -47,7 +47,7 @@ ORCID: \href{https://orcid.org/0000-0002-5951-0772}{0000-0002-5951-0772}}
 
 \begin{abstract}
 \singlespacing
-Coordinated cortical activity need not describe a single experienced situation. We develop a conditional field account of coherence, compatibility and self-representation. Its demonstrated results establish what coordination leaves undetermined: increasing coupling, decreasing diffusion and a matched common drive can produce identical stationary phase distributions; equal phases permit incompatible local states; and a plasticity control preserves coherence while losing alignment with a specified environmental template. The conditional construction glues compatible spatial measures into one state and makes that state the unique fixed point of a contracting reconstruction map. Lean~4 checks the composition under eight connecting hypotheses and additional structures, with compatibility and accuracy at the glued state supplied as premises. We propose the glued state as a formal correlate of conscious unity and its accurate internal reconstruction as a correlate of a minimal self. The physical hypothesis is that changing extracellular geometry increases field-mediated coupling during awakening. A noisy mean-field phase model gives a square-root stationary onset, but finite ramps delay the response and the distributional equivalence requires measurements that distinguish recovery mechanisms. Testing the account further requires identifying neural content and self-encoding independently, then determining whether coordination maintains their agreement and whether these relations matter for unified experience.
+Coordinated cortical activity need not describe a single experienced situation. We develop a conditional field account of coherence, compatibility and self-representation. Its demonstrated results establish what coordination leaves undetermined: increasing coupling, decreasing diffusion and a matched common drive can produce identical stationary phase distributions; equal phases permit incompatible local states; and a plasticity control preserves coherence while losing alignment with a specified environmental template. A declared installation's mean-field coupling obeys $K\leq\kappa U$, so $\kappa U\leq2D$ excludes a coherent stationary branch in the scalar phase model. Here $U$ is installed energy rather than dissipated heat, $\kappa>0$ is declared hardware data, and exceeding the energy threshold does not guarantee coherence; identifying the installed kernel with a cortical field remains a physical commitment. The conditional construction glues compatible spatial measures into one state and makes that state the unique fixed point of a contracting reconstruction map. Lean~4 checks the composition under eight connecting hypotheses and additional structures, with compatibility and accuracy at the glued state supplied as premises. We propose the glued state as a formal correlate of conscious unity and its accurate internal reconstruction as a correlate of a minimal self. The physical hypothesis is that changing extracellular geometry increases field-mediated coupling during awakening. A noisy mean-field phase model gives a square-root stationary onset, but finite ramps delay the response and the distributional equivalence requires measurements that distinguish recovery mechanisms. Testing the account further requires identifying neural content and self-encoding independently, then determining whether coordination maintains their agreement and whether these relations matter for unified experience.
 \end{abstract}
 \linenumbers
 
@@ -536,6 +536,36 @@ A transition $z\to z'$ changes $K$ only through the modes whose occupancy it cha
 \end{equation}
 The refinement index here is spatial and is independent of the number of executed control updates; convergence in one is not convergence in the other. The same hardware discharges the passive edge from a declared predictive system's own joint law, and two declared systems with different dissipated work give the identical edge, so predictive efficiency selects neither the hardware nor the partition. Mode profiles, prices, occupancy readout, reservoir convention and substrate are declared hardware data, which no heat bound supplies. Fabricating that hardware, powering it beyond one prepared update, and identifying the substrate or the modes with a physical field remain separate requirements.
 
+\paragraph{Installed energy constrains the mean-field threshold.}
+Normalize the substrate measure to one, write $p(z)$ for the configuration law,
+and assume $c_i(z)\geq0$. Declare a hardware conversion factor $\kappa>0$
+such that $m_i^2\leq\kappa u_i$ for every mode, where
+$m_i=\int\phi_i\,d\mu$. Fubini identifies the product-space limit with the
+field's iterated mean coupling when its kernel is the installed one. Each
+mode's integral factorizes, and averaging preserves its price bound:
+\begin{equation}
+ \begin{aligned}
+ U_{\mathrm{inst}}&=\sum_z p(z)U(z),\\
+ K_{\mathrm{mf}}&=\iint K(x,y)\,d\mu(x)\,d\mu(y)
+ =\sum_z p(z)\sum_i c_i(z)m_i^2
+ \leq\kappa U_{\mathrm{inst}}.
+ \end{aligned}
+ \label{eq:installed-coupling-bound}
+\end{equation}
+Consequently, $\kappa U_{\mathrm{inst}}\leq2D$ leaves only the uniform
+self-consistent stationary density in the scalar mean-field model and no
+growing Fourier mode about it, including at equality. A coherent stationary
+branch therefore requires $U_{\mathrm{inst}}>2D/\kappa$.
+This is a necessary condition on installed energy, not dissipated heat:
+reversible energy transfer can have zero entropy production, and the
+register--bath example below separates that transfer from transition-log heat.
+The factor $\kappa$ is supplied by profiles, prices and substrate normalization;
+no heat bound determines it. Energy above the line does not guarantee a coherent
+branch, since the upper bound need not be attained. Identifying the installed
+kernel with a cortical field remains E56's physical commitment, and applying
+the scalar model to heterogeneous spatial dynamics requires the reduction
+specified in Section~\ref{sec:field}.
+
 A third finite model examines the register's own bath. One register bit and one bath bit carry each of the four deterministic maps of the register as a permutation of the pair, acting on a bath prepared in its ground state: an injective map moves the register alone, and an erasure swaps the register's bit into the bath. With bath levels $0$ and $2\log2$, degenerate register levels, a uniform register and $\theta=1$, the bath's mean energy gain along the executed paths is $0$ for each injective map and $\log2$ for each erasure, and those values inhabit Landauer's heat equation with the bath supports the gates actually reach. For an arbitrary finite protocol and an explicitly modelled bath energy $E_B$,
 \begin{equation}
  \sum_{k<N}\langle\Delta E_B\rangle_k=\langle E_B\rangle_N-\langle E_B\rangle_0,
@@ -551,7 +581,7 @@ where the first identity needs no positive support and supplies no entropy inequ
 \small
 \setlength{\LTcapwidth}{\linewidth}
 \begin{longtable}{>{\raggedright\arraybackslash}p{0.14\linewidth}>{\raggedright\arraybackslash}p{0.20\linewidth}>{\raggedright\arraybackslash}p{0.56\linewidth}}
-\caption{Connecting hypotheses of the passive and active compositions, eight per branch. They share E12, E23 and E56--E89. The cover's compatibility is supplied as a structure field. Identifying the boundary's encoding with restriction requires a separate resonance condition. The mathematical objects and node-level results are mapped in Supplemental Material, Table~S1.}
+\caption{Connecting hypotheses of the passive and active compositions, eight per branch, and the derived installed-energy condition. The branches share E12, E23 and E56--E89. The cover's compatibility is supplied as a structure field. Identifying the boundary's encoding with restriction requires a separate resonance condition. The mathematical objects and node-level results are mapped in Supplemental Material, Table~S1.}
 \label{tab:summary}\\
 \hline
 Connection & Status & Required assumption \\
@@ -572,6 +602,7 @@ E56 & Physical commitment & A specified physical field realizes the limiting cou
 E67 & Physical commitment & That field operates above the synchronization threshold. \\
 E78 & Bridge assumption & Coherence drives a supplied cover to its relaxed equilibrium at coupling at least the named mean-field value. \\
 E89 & Modelling assumption & A map mediated by local self-encoding fixes the section glued on that cover and has the Lipschitz factor $q<1$ used in the exact and approximate-state results. \\
+Installed energy & Theorem (conditional) & For the installed kernel, E56 and E67 require $U_{\mathrm{inst}}>2D/\kappa$ under the declared mode-price and occupancy conditions. This is necessary, concerns stored energy rather than heat, and supplies neither physical edge. \\
 \end{longtable}
 \endgroup
 

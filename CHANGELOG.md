@@ -20,6 +20,34 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-15 — Installed energy reaches the scalar coherence threshold
+
+The K ledger described an installed product-space kernel whose continuum
+integral had never been identified with mean-field coupling or bounded by its
+stored energy. `Phase9_InstalledCoupling` makes both connections: Fubini gives
+the identity, and declared mode prices give `K ≤ κ U`. At `κ U ≤ 2D` only the
+uniform self-consistent stationary density remains in the scalar phase model,
+with no growing Fourier mode about it. `Chain.installedEnergy_required_by_chain`
+derives the strict necessary energy `U > 2D / κ` from E56 and E67 for the same
+arrangement.
+
+The ledger's “dissipation bound” name does not describe this result: `U` is
+installed energy, the hardware supplies κ, and the inequality has no converse.
+The abstract, thermodynamic section, both status tables and primer state those
+limits with the result. Field identification and a justified reduction from a
+heterogeneous kernel remain physical inputs. The microscopic-work explanation
+also now states the actual expected stored-energy increase, from 1/2 to 3/4,
+rather than describing a half-unit installation beside a quarter-unit mean
+work increment.
+
+The witnesses retain the threshold case, add a strict subcritical case, and
+reject the converse, negative prices, underpriced modes and a conversion factor
+fitted to force exclusion. Signed occupancies can cancel all stored energy
+while leaving supercritical coupling, so their exclusion is substantive. No
+empirical result or reference is added.
+
+---
+
 ## 2026-09-15 — Claims withdrawn when the stationary equation was formalized
 
 **"The von Mises density is an input, not an output."** The article called it a

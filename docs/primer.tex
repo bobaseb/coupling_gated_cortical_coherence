@@ -1910,9 +1910,9 @@ The index $n$ counts refinements of space, not executed updates.
 One response mode on $[0,1]$ with profile $(4/3)(1+x)$ and unit price,
 switched by the same noisy two-bit channel, installs $(8/9)(1+x)(1+y)$ before
 and $(4/3)(1+x)(1+y)$ after; the switch closing takes the kernel at the
-origin from $0$ to $16/9$. The mean work is $(1+\log3)/4$, of which the unit
-stored energy at probability one half is the installation and $(\log3)/4$ is
-heat. Uniform cells give first energies $4/3$ and $25/12$ with limit $3$.
+origin from $0$ to $16/9$. The mean work is $(1+\log3)/4$: expected stored
+energy rises from $1/2$ to $3/4$, and $(\log3)/4$ goes to heat.
+Uniform cells give first energies $4/3$ and $25/12$ with limit $3$.
 Reading a declared predictive system's own joint law on the same hardware
 installs $(16/9)(1+x)(1+y)$ with limit $4$, so which law the hardware holds
 changes the answer.
@@ -1938,6 +1938,65 @@ substrate or the modes with a physical field are separate questions.
 active and passive spatial edges.
 \id{Examples/MicroscopicCoupling.lean} holds the thermal-switch witness and
 its regressions.}
+
+\subsection{How much installed energy the scalar coherent branch requires}
+\label{sec:installed-energy}
+
+\what
+The integral of the installed kernel is also its mean-field coupling. Fubini's
+theorem says that averaging over pairs at once and averaging over each point
+in turn give the same number. With a substrate measure of total mass one,
+that number is the coupling strength used by the scalar threshold $K_c=2D$.
+
+Write $m_i=\int\phi_i\,d\mu$ for the spatial mass of mode $i$ and $p(z)$ for
+the law of the hardware's configuration. The product of its two profiles
+integrates to $m_i^2$. The mean coupling and the energy held in the modes are
+therefore
+\[
+ K=\sum_z p(z)\sum_i c_i(z)m_i^2,
+ \qquad U=\sum_z p(z)\sum_i u_i c_i(z).
+\]
+Declare $\kappa>0$ with $m_i^2\leq\kappa u_i$ for every mode. If occupancies
+are nonnegative, multiply that inequality by each occupancy and average:
+\[
+ K\leq\kappa U,\qquad
+ \kappa U\leq2D\ \Longrightarrow\ K\leq2D.
+\]
+The scalar phase model then has only the uniform self-consistent stationary
+density and no growing Fourier mode about it. A coherent stationary branch
+requires $U>2D/\kappa$.
+
+\why
+This connects the hardware's energy account to the scalar coherence criterion.
+For the existing profile $(4/3)(1+x)$, the spatial mass is $2$ and the price is
+$1$, so the sharp conversion factor is $4$. At noise $D=1$, agreement
+probabilities $1/4$, $1/2$ and $3/4$ hold energies $1/4$, $1/2$ and $3/4$ and
+give couplings $1$, $2$ and $3$. The theorem excludes the first two, including
+the threshold itself. It does not decide the third merely from the energy
+bound; its coupling can be computed separately.
+
+\scope
+Energy sitting in the modes is not heat dissipated in putting it there.
+Reversible transfer can move energy with zero entropy production, as the
+register--bath witness illustrates. The profiles, prices and substrate fix the
+allowed conversion factors; a heat budget supplies none of them. Exceeding the
+energy line is necessary, not sufficient: a dearer half-filled mode can sit
+above it while its coupling stays at the threshold. Negative occupancy would
+invalidate the bound by allowing one mode to cancel another's price without
+cancelling its coupling. Finally, the scalar model requires a justified
+reduction from a heterogeneous kernel. E56 still supplies the physical field
+identification, and these witnesses identify no cortical substrate.
+
+\lean{
+\id{Phase9\_InstalledCoupling.lean} proves
+\id{continuumEnergy\_eq\_mean\_field\_coupling},
+\id{continuumEnergy\_eq\_modes},
+\id{continuumEnergy\_le\_installedEnergy},
+\id{no\_coherence\_of\_installedEnergy} and
+\id{stationary\_eq\_incoherent\_of\_installedEnergy}.
+\id{Chain.installedEnergy\_required\_by\_chain} derives the necessary energy
+from E56 and E67 for this arrangement. \id{Examples/InstalledCoupling.lean}
+contains the numerical witnesses and the rejections.}
 
 \section{What does not follow: the free-energy reading}
 \label{sec:fep}
@@ -4686,6 +4745,12 @@ declared. The passive edge is discharged on that same hardware from a declared
 predictive system's own joint law, and two such systems differing by their
 whole dissipated work give the identical edge.
 
+For priced hardware with nonnegative occupancies,
+Section~\ref{sec:installed-energy} bounds that kernel's mean-field coupling by
+its installed energy. E56 and E67 together require $U>2D/\kappa$ for this
+arrangement (\id{installedEnergy\_required\_by\_chain}); neither edge follows
+from meeting the energy condition.
+
 After either branch reaches n5, \id{chain\_from\_coarseGrains} supplies the
 common proof through E56--E89. The field, cover and fixed section are preserved
 through that passage. Introducing feedback changes the thermodynamic premise;
@@ -5477,6 +5542,7 @@ Funded clearing (\S\ref{sec:funded-memory}) & \raggedright A charge carried in t
 \raggedright Preparing the prior (\S\ref{sec:preparation}) & \raggedright A constant preparation channel has the same heat identity as erasure; a uniform target has zero mean heat & \raggedright\arraybackslash Theorem for the declared channel; it preserves the parameter marginal and creates no parameter-hardware correlation. Biased bit targets have unbounded heat; exact preparation and implementation costs remain separate \\
 Learning from outcomes (\S\ref{sec:observational-learning}) & Expected reward of the executed action rises from $1/2$ toward $3/4$; the work spent is irreducible & Theorem for an unknown parameter, a declared prior and observation-driven updates; preparation, power supply and readout fabrication excluded \\
 Register's bath (\S\ref{sec:register-bath}) & \raggedright A reversible register--bath gate delivers the erasure heat, and a map-indexed budget needs a prepared bath and a work supply & \raggedright\arraybackslash Theorem (negative); positivity, local detailed balance and the ledger identity do not follow from reversibility \\
+Installed energy (\S\ref{sec:installed-energy}) & \raggedright $K\leq\kappa U$ excludes the scalar coherent branch when $\kappa U\leq2D$ & \raggedright\arraybackslash Conditional theorem; hardware sets $\kappa$, installed energy is not heat, and exceeding the line does not guarantee coherence \\
 KL bound; free-energy critique (\S\ref{sec:fep}) & Blocks ``dissipation $\Rightarrow$ true model'' & Instance postulate; the limit does \emph{not} follow \\
 Squared-drift gradient (\S\ref{sec:sigma}) & A descendable objective for plasticity & Theorem at fixed phases; \emph{not} entropy production \\
 Kuramoto SDE & The physical core & Model \\

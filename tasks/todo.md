@@ -1,4 +1,4 @@
-# Physics of Consciousness — a dissipation bound on coherence
+# Physics of Consciousness — installed energy and coherence
 
 **Replanned 2026-09-15.** The preceding ledger is archived unchanged at
 `_archive/todo_2026-09-15_pre-coupling-budget-replan.md`. It closed A1–A7,
@@ -15,7 +15,10 @@ This file replaces the old one because **the agency extension built two-thirds
 of a bridge into the coherence model and stopped, and the missing third is a
 theorem rather than a research programme.**
 
-## The gap this ledger is about
+## The gap at the 2026-09-15 replan
+
+The following motivation records the state before the K pass; its completion
+and the precise scope of the installed-energy result are recorded below.
 
 Section 5 is 42% of the article and the abstract does not mention it. The one
 result that would justify that share does not exist yet, and both halves of it
@@ -64,11 +67,11 @@ has to take, and K5 below is where that is recorded rather than glossed.
 
 ## How this ledger is ordered
 
-**Current priority: K1, then K2.** K1 is a Fubini identity that costs an
-afternoon and is a prerequisite for everything after it. K2 is the substantive
-inequality. K3 composes them into the threshold statement, K4 is the witness,
-K5 is the scope record and the manuscript change. K-items are the reason this
-file exists and come first.
+**K1–K5 completed 2026-09-15.** K1 identifies the
+coupling by Fubini, K2 bounds it by installed energy, K3 composes the threshold
+and stationary-density consequences, and K4 supplies the witnesses and
+rejections. K5 aligns the publication, primer and rebuilt deliverables.
+The pass is recorded in `tasks/k_completion.md`.
 
 R-items are the carried-forward research programme and are unbounded. P-items
 are submission mechanics and are blocked on someone else.
@@ -94,11 +97,11 @@ names the quantity K1 identifies.
   deliverable** (AGENTS.md §6): the K5 prose change and its rebuilt PDFs go in
   one commit.
 
-## K — The dissipation bound on coherence
+## K — An installed-energy bound on coherence
 
 ### K1 — Identify the installed kernel's energy with the mean-field coupling
 
-- [ ] Prove `KernelArrangement.continuumEnergy A = mean_field_coupling sys`
+- [x] Prove `KernelArrangement.continuumEnergy A = mean_field_coupling sys`
       whenever the arrangement's installed kernel is the field's kernel and the
       substrate carries a probability measure.
 
@@ -123,7 +126,7 @@ installed one; that identification is `E56` and stays a physical commitment.
 
 ### K2 — Bound the installed coupling by the installation energy
 
-- [ ] Prove `KernelArrangement.continuumEnergy A ≤ κ * storedEnergy`, for a
+- [x] Prove `KernelArrangement.continuumEnergy A ≤ κ * storedEnergy`, for a
       declared hardware constant `κ` relating each mode's spatial mass to its
       price.
 
@@ -155,7 +158,7 @@ condition, and the scope paragraph says `κ` is hardware data.
 
 ### K3 — A minimum installed energy for coherence
 
-- [ ] Compose K1 and K2 with `critical_coupling` to conclude that an
+- [x] Compose K1 and K2 with `critical_coupling` to conclude that an
       arrangement whose installed energy satisfies `κ * storedEnergy ≤ 2 * D`
       does not exhibit the phase transition, and carry that to the incoherent
       stationary state.
@@ -182,7 +185,7 @@ converse.
 
 ### K4 — A witness with numbers
 
-- [ ] Discharge K1–K3 on a concrete arrangement, reusing
+- [x] Discharge K1–K3 on a concrete arrangement, reusing
       `Examples/MicroscopicCoupling.lean`'s hardware rather than building new.
 
 **What it must exhibit.** Declared profiles, prices and a `κ` satisfying K2's
@@ -201,7 +204,7 @@ Table S1 and `check_leaves` still passes.
 
 ### K5 — What the bound is about, in the manuscript
 
-- [ ] State K3 in Section 5 and in the abstract, and record in the same pass
+- [x] State K3 in the thermodynamic composition section and in the abstract, and record in the same pass
       what it is not.
 
 **The prose change.** Section 5 currently reaches `E45Active` through two models
@@ -351,3 +354,44 @@ the simulation audit, the F-items, the agency and active-chain extension, L1–L
 the five agency items, the steady-state section, the Table 1 overflow and the
 final citation and macro read — is in
 `_archive/todo_2026-09-15_pre-coupling-budget-replan.md`.
+
+### 2026-09-15 — K1–K5: installed energy and the scalar coherent branch
+
+Completed the inherited, untracked installed-coupling drafts and wired them
+into the library and witness index. `Phase9_InstalledCoupling.lean` identifies
+the product integral with mean-field coupling, factorizes it mode by mode, and
+proves `K ≤ κ U` for expected stored energy under positive hardware conversion,
+the mode-price condition and nonnegative occupancies. At `κ U ≤ 2D` the scalar
+stationary self-consistency equation has only zero, its positive classical
+stationary density is uniform, and no uniform-state Fourier mode grows.
+`Chain.installedEnergy_required_by_chain` derives `U > 2D / κ` from E56 and
+E67 for this same arrangement; a low-energy witness rejects their conjunction.
+
+The witnesses use the existing thermal-switch hardware, retaining its threshold
+case and adding a strictly subcritical configuration law. They reject a
+negative price, an underpriced mode, a conversion fitted to force exclusion,
+signed occupancies and the converse. In the signed counterexample a
+zero-response mode cancels stored energy while leaving supercritical coupling.
+Eight retained regression specifications fail under the pre-K imports and pass
+after integration. K1 was first verified independently, and the Chain interface
+was also checked red then green.
+
+The abstract, thermodynamic section, Table 1, supplement implementation notes,
+Table S1 and primer state the result and its limits together. The ledger's
+“dissipation bound” title is replaced with “installed energy”: this result does
+not turn stored energy into heat. Conversion remains hardware data, the
+converse fails, and E56's cortical identification and the reduction of a
+heterogeneous kernel to the scalar model remain inputs. R and P items remain
+as recorded; no empirical result, reference, Python source or simulation
+artifact changed. The related work-account prose now uses the proved increase
+in expected stored energy from 1/2 to 3/4.
+
+Validation: warning-free `lake build`; the audit covers 4,635 declarations in
+77 modules using only `propext`, `Classical.choice` and `Quot.sound`. All three
+tracked PDFs were rebuilt with two passes and no new warning signatures
+against the pre-change sources; there are zero overfull boxes. The arXiv bundle
+was refreshed and compiled from its unpacked tarball. The detailed check record
+is in `tasks/k_completion.md`. All applicable pre-commit gates pass, including
+prose, hedging, Table S1, figures, PDF freshness, arXiv freshness, module
+consumers and placeholders. Sources and all three tracked PDFs are committed
+together.

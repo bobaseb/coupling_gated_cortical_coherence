@@ -21,6 +21,7 @@ import PhysicsOfConsciousness.Phase7_Rigidity
 import PhysicsOfConsciousness.Phase8_ContinuousField
 import PhysicsOfConsciousness.Phase8_SelfConsistency
 import PhysicsOfConsciousness.Phase9_EMIdentification
+import PhysicsOfConsciousness.Phase9_InstalledCoupling
 import PhysicsOfConsciousness.Examples
 
 /-!
@@ -536,8 +537,10 @@ The bound for the named process, heat observable, temperature and budget selects
 the specified convergent coupling-energy regime. `e45Active_of_actuatedCoupling`
 discharges this for a supplied scalar actuation law and regular spatial meshes;
 `actuated_limit_le_budget` then bounds its limit using this same process's heat.
-Convergence still follows from the mesh assumptions, not the budget. A
-microscopic mechanism and a product-space kernel remain open.
+Convergence still follows from the mesh assumptions, not the budget. The
+microscopic alternative `e45Active_of_localActuator` supplies a product-space
+kernel; `installedEnergy_required_by_chain` constrains its stored energy if
+the field-identification and supercriticality commitments also hold.
 `thermalAgency_wrong_limit_rejected` and `actuated_wrong_limit_rejected` fence
 both an unrelated sequence and the actuated sequence's target. -/
 def E45Active {Xs S : Type*} [Fintype Xs] [Fintype S]
@@ -979,6 +982,52 @@ theorem em_field_exhibits_phase_transition {M : Type*} [MeasureSpace M] [Topolog
     exhibits_phase_transition kernel :=
   let h56 := e56 n5
   exhibits_phase_transition_of_isEMFieldCoupling h56.2.some (e67 h56.1)
+
+/-- A priced installation compatible with the chain's field-identification and
+supercriticality edges must store more than `2 D / κ`. Spatial refinement
+supplies the antecedent of E56, which identifies the field's own noise and
+normalization; K3 then excludes every smaller installation.
+
+This necessary condition supplies neither E56 nor E67, identifies no cortex,
+and bounds installed energy rather than dissipated heat. In particular, meeting
+the strict energy inequality does not supply either edge or select a coherent
+trajectory of a heterogeneous field. -/
+theorem installedEnergy_required_by_chain {M X S I : Type*}
+    [MeasureSpace M] [TopologicalSpace M] [CompactSpace M] [BorelSpace M]
+    [SecondCountableTopology M] [Fintype X] [Fintype S] [Fintype I]
+    (A : PricedArrangement M X S I) (sys : StochasticNeuralField M)
+    (hvol : A.volume = (volume : Measure M)) (hker : sys.K = A.kernel)
+    {K D : ℝ}
+    (e56 : E56 sys A.energy A.toKernelArrangement.continuumEnergy K D)
+    (e67 : E67 A.toKernelArrangement.continuumEnergy K D) :
+    critical_coupling D / A.couplingPerEnergy < A.installedEnergy := by
+  have h56 := e56 A.toKernelArrangement.coarseGrains
+  obtain ⟨hEM⟩ := h56.2
+  let := hEM.domain_probability
+  have hphase := em_field_exhibits_phase_transition sys e56 e67
+    A.toKernelArrangement.coarseGrains
+  apply (div_lt_iff₀ A.couplingPerEnergy_pos).mpr
+  by_contra h
+  have hU : A.couplingPerEnergy * A.installedEnergy ≤ critical_coupling sys.D := by
+    rw [hEM.noise_is_field_noise, mul_comm]
+    exact le_of_not_gt h
+  exact (A.no_coherence_of_installedEnergy sys hvol hker hU).1 hphase
+
+#print axioms installedEnergy_required_by_chain
+
+open Examples.InstalledCoupling in
+/-- The same low-energy hardware cannot discharge both physical field edges
+at unit noise. Identification is supplied here; its supercriticality is what
+the installed-energy obstruction rejects. -/
+theorem below_installation_rejects_supercritical_edge {K : ℝ}
+    (e56 : E56 belowField below.energy below.toKernelArrangement.continuumEnergy K 1) :
+    ¬ E67 below.toKernelArrangement.continuumEnergy K 1 := by
+  intro e67
+  have h := installedEnergy_required_by_chain below belowField rfl rfl e56 e67
+  rw [below_installedEnergy] at h
+  norm_num [critical_coupling, below, priced] at h
+
+#print axioms below_installation_rejects_supercritical_edge
 
 open Examples in
 /-- **The n3 → n4 edge, discharged on the one-bit eraser.**
