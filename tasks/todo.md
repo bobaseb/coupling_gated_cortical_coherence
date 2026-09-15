@@ -3341,7 +3341,8 @@ which forced it below the very store whose horizon bound it generalizes. Both
 moved up, and each is now consumed by a qualified reference in a real proof.
 
 The publication work — article, supplement, Table S1, primer, tracked PDFs and
-the arXiv submission — is deferred by the authorized scope of this pass.
+the arXiv submission — was deferred by the authorized scope of this pass and
+done immediately after it, at the user's request; see the entry below.
 
 Still open, unchanged: gate fabrication and control work, which are charged to
 an observable and never priced; conservation and the thermal identification of
@@ -3351,3 +3352,48 @@ measure divergence; construction of physical reverse protocols; the content
 model at `main.tex:226` and the mechanism by which overlap agreement is
 acquired; and pathwise convergence or optimality for the learner.
 Specification and execution record: `tasks/agency_foundations.md`.
+
+
+## 2026-09-15 — The foundations enter the publication
+
+Follow-up to the entry above, requested after it landed. Four scope sentences
+are rewritten rather than deleted, and `CHANGELOG.md` records which.
+
+The path-law premise is the substantive one. The article said strictly positive
+forward and reverse path probabilities give the balance and its sign; the
+supplement said the theorem assumes strictly positive initial masses and
+transition probabilities. Both now state support inclusion, which is what the
+expansion uses, with the strict-positivity implication named and the gap
+witnessed by a step whose initial law sits on one atom. A forward path with no
+reverse has infinite divergence, carried in the extended nonnegatives instead of
+as a finite number from a totalized logarithm.
+
+The store's horizon bound is restated without a finite state space: it is a
+ledger on a trajectory, and the expected-work horizon is that bound read on the
+sequence of allowances. A reading whose delivery matches its draw is solvent at
+every operation, and the sharp transfer is reversible on a countably infinite
+state space. The two sentences that put external refuelling outside the model
+now say the supply is declared and unconnected to that agent's channels, which
+is what is proved.
+
+The explanatory-gap paragraph treated acquiring and preserving compatibility as
+one open question. They are separated: contents mixed with their own
+observations preserve exact agreement and contract mismatch by $(1-\eta)$ per
+observation, with a residual floor when the observations disagree; the
+observations' own agreement remains the input, and the paragraph says so.
+
+The supplement gains a subsection on observation-driven contents and the closed
+form of the continuing learner's recursion — the error falls by a factor of 128
+per cycle to a limit of 65/127, below perfect play, while the per-cycle work
+floor makes that limit unfundable. Table S1 gains three rows. The primer gains
+the closed form and a summary-table row.
+
+The rebuilt article, supplement and primer have 57, 47 and 90 pages against
+baseline builds of `HEAD` at 56, 46 and 90. Overfull boxes are zero in all three
+and underfull counts are 2, 1 and 29, matching those baseline builds exactly;
+the supplement's single underfull box is present in the baseline and unchanged.
+The 69-page arXiv submission compiles from its unpacked archive and passes
+manifest freshness. All eight applicable gates pass — prose, hedging, Table S1,
+figures, PDF freshness, arXiv freshness, leaves and sorry — and no Lean source,
+Python file, dependency, reference, generated macro or simulation result
+changed. Specification and execution record: `tasks/agency_foundations.md`.

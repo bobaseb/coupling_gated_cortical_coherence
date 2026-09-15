@@ -334,9 +334,9 @@ An acting agent changes its future inputs, so the passive assumption requires ju
 \end{equation}
 Both conditional terms are nonnegative. The last term vanishes for the passive model; with feedback, the signed difference can be negative because actions create correlations with the future. Its causal interpretation requires an environmental state sufficient to account for the relevant dynamics.
 
-The finite thermodynamic extension instead bounds joint entropy reduction. For an elementary update that holds the controller fixed, strictly positive forward and reverse path probabilities give
+The finite thermodynamic extension instead bounds joint entropy reduction. For an elementary update that holds the controller fixed, forward paths whose reverses carry positive probability give
 $\Sigma=D_{KL}(P_F\|P_R)=\Delta H(X,S)+\langle Q\rangle/(k_BT)\ge0$
-under local detailed balance, with $Q$ positive into the reservoir \cite{horowitz2014,ito2013}. This supplies the thermodynamic constraint for the active branch below. A proved two-substep extension composes actuation with a memory update initialized from its coordinate-swapped final law. It identifies the output with the perception--action channels and cancels the same intermediate entropy and expected energy. At a common thermal scale, the whole update's joint entropy decrease is bounded by its total heat budget divided by $k_BT$, without assuming stationarity. The supplement gives the balances and reciprocal two-bit witnesses with explicit interaction energy, heat and work. Action and observation alias the existing states; additional physical registers require further accounting.
+under local detailed balance, with $Q$ positive into the reservoir \cite{horowitz2014,ito2013}. Strict positivity of every mass is sufficient for that condition and is not necessary for it, which matters because the channels an agent executes are sparse: a step whose initial law sits on a single atom satisfies the support condition and fails positivity. A forward path with no reverse, of which deterministic erasure is the standard case, has infinite divergence, and the extended-valued form records that instead of returning the finite number a totalized logarithm supplies. This supplies the thermodynamic constraint for the active branch below. A proved two-substep extension composes actuation with a memory update initialized from its coordinate-swapped final law. It identifies the output with the perception--action channels and cancels the same intermediate entropy and expected energy. At a common thermal scale, the whole update's joint entropy decrease is bounded by its total heat budget divided by $k_BT$, without assuming stationarity. The supplement gives the balances and reciprocal two-bit witnesses with explicit interaction energy, heat and work. Action and observation alias the existing states; additional physical registers require further accounting.
 
 An explicit objective also permits finite policy selection. For a supplied terminal reward and a finite set of deterministic policies, a nonempty set satisfying the complete update's heat budget has a reward maximizer. A two-bit lamp task has a unique feasible optimum that strictly improves on a feasible constant-action baseline; a stronger policy exceeds the budget. Reward, heat and work are evaluated on each policy's actual composed process, with common initial law, channels, energy and reservoir convention. The baseline meets the heat budget while missing the task target, so the objective supplies content that thermodynamics alone does not. This result compares fixed policies for one update.
 
@@ -379,6 +379,8 @@ A store the protocol carries rather than reports supports a different claim. Let
 \end{equation}
 on every transition of positive probability out of a state the protocol reaches. A reading that starts nonnegative and satisfies the second condition at every stage is nonnegative at every state the protocol reaches, at every horizon. Averaging the first identity over the executed paths returns the mean ledger, $\langle\beta\rangle_N=\langle\beta\rangle_0-W^-_{<N}+W^+_{<N}$, so pathwise solvency implies the expected bound Eq.~\eqref{eq:continuing-budget} assumes. The converse fails: a store that spends a unit or idles with equal probability covers its expected draw at both prefixes of a two-stage run, with equality at the second, and is overdrawn on the path of probability $1/4$ that spends twice. An expected allowance is a bound on a mean and not a battery. Two conditions fence sustained operation. If the supply covers each draw as it is made, every horizon is solvent and no bound on cumulative work is needed. If instead $w^--w^+\geq c>0$ on every reachable transition, a reading starting no higher than $\beta_0$ gives $Nc\leq\beta_0$, which is the pathwise form of the store bound and constrains each trajectory rather than a mean. A deterministic spend-and-recharge cycle satisfies neither condition and is solvent at every horizon while the work it has drawn exceeds any declared allowance, so continuing operation is a claim about the supply. None of this requires positive support; the generic store accepts its supply as an input.
 
+Neither the ledger nor the horizon it bounds needs a finite state space. On any state type a reading obeying the first identity of Eq.~\eqref{eq:pathwise-store} telescopes to $\beta_N=\beta_0-W^-_{<N}+W^+_{<N}$, so a nonnegative final reading bounds the cumulative draw, and a uniform net cost $c$ gives $Nc\leq\beta_0$; the expected-work horizon above is that bound read on the sequence of allowances rather than a second argument. What the finite state space is for is the pathwise statement, which quantifies over reachable states instead of following one sequence. Two instances use the room. A real-valued reading whose delivery matches its draw is solvent at every operation, which is what refuelling from outside looks like while the supply is declared rather than derived. And on a countably infinite state space, swapping a source's charge into a buffer is an involution conserving the total, so transferring $n$ units of charge is reversible and costs nothing; preparing that charge is a separate problem, on which this bears not at all.
+
 A finite source can be included in the same state. If its usable energy $R$ pays for each supplied transfer, then on every reachable transition
 \begin{equation}
  R'=R-w^+,\qquad (\beta+R)'=(\beta+R)-w^- .
@@ -399,9 +401,9 @@ The actual mean draw is $1/2$, and claiming a unit on every path violates the
 store ledger. An initially empty source delivers nothing. The indefinitely
 replenished charger cannot have any nonnegative finite source coordinate
 satisfying Eq.~\eqref{eq:finite-source}. This witness models one uncertain
-transfer followed by idling; source preparation, gate-control costs, external
-refuelling and identification with the learning agent's actuator remain
-separate.
+transfer followed by idling; source preparation, gate-control costs and
+identification with the learning agent's actuator remain separate, and the
+external delivery of the trajectory ledger is declared rather than sourced.
 
 The measurement has a register of its own, and clearing it is an executed
 operation. Let the state carry a memory coordinate alongside the register and
@@ -474,8 +476,9 @@ draws nothing, so the run is unfunded rather than halted. And an agent all of
 whose channels have full support cannot be funded at all. A ledgered reading
 that never rises is then constant between every pair of states, in both
 directions, so every net draw is zero, and the witness's restricted support is
-forced by that rather than chosen. Preparing the charge, refuelling it from
-outside and fabricating the gates remain outside this model.
+forced by that rather than chosen. Preparing the charge and fabricating the
+gates remain outside this model, and the declared delivery above is not
+connected to this agent's channels.
 
 Preparation can be modelled by the same constant channel as memory clearing.
 For a strictly positive target $\nu$, Eq.~\eqref{eq:erasure-cost} gives its mean
@@ -571,7 +574,7 @@ The joint witnesses combine a double well, a register, a changing uniform-grid m
 
 The strongest results concern what a coherence measurement leaves unresolved. Different recovery mechanisms share stationary distributions; equal phases permit incompatible local descriptions; and the tested plasticity objective sustains coherence while moving away from its diagnostic structure. These findings make the coupling hypothesis more demanding to test and prevent a successful synchronization model from doing unexplained representational work.
 
-The proposed account identifies a compatible, internally represented state with a conscious episode. Its main explanatory gap is the mechanism that would maintain those relations: compatibility and accuracy at the glued state enter the construction as premises. Their mathematical consequences leave open why cortical activity should acquire or preserve them.
+The proposed account identifies a compatible, internally represented state with a conscious episode. Its main explanatory gap is the mechanism that would maintain those relations: compatibility and accuracy at the glued state enter the construction as premises. Their mathematical consequences leave open why cortical activity should acquire or preserve them. The two halves of that question separate. Carrying patch contents as fields and mixing each with its own observation at gain $\eta$ answers the second: observations that agree across an overlap preserve exact agreement and contract any mismatch to $(1-\eta)^n$ of itself after $n$ of them, while observations differing by $\delta$ leave a residual floor at $\delta$ rather than none. The first half is untouched, because the observations' own agreement is the input to that result, and the contents are real-valued fields identified with no neural variable.
 
 The most informative next step for that connection is a test of whether coordination helps maintain independently measured content agreement. After validating separate decoders and their overlap restrictions, a controlled change in coupling or coordination could test whether agreement deteriorates in the predicted way, with controls for changes in sensory information and decoder quality. Such a result would bear directly on the proposed role of coherence. In parallel, the awakening hypothesis needs its own calibrated geometry--coupling relation and resolved phase dynamics to distinguish a coupling increase from diffusion change or common drive. A favorable recovery trace alone would leave the representational connection open.
 

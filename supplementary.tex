@@ -100,7 +100,7 @@ For a finite controller--world law $p(x,s)$ and a normalized channel $K_x(s'\mid
  P_F(x,s,s')&=p(x,s)K_x(s'\mid s),\\
  P_R(x,s,s')&=p'(x,s')K_x(s\mid s').
 \end{align*}
-Both path laws are normalized. The reverse uses the same autonomous transition channel, started at the forward final distribution. The theorem assumes strictly positive initial masses and transition probabilities. Time-dependent protocols and unidirectional transitions require a corresponding treatment of reversal and support.
+Both path laws are normalized. The reverse uses the same autonomous transition channel, started at the forward final distribution. \texttt{FiniteFeedbackStep.entropy\_\allowbreak balance} assumes strictly positive initial masses and transition probabilities. \texttt{entropy\_\allowbreak balance\_\allowbreak of\_\allowbreak support} assumes only that every forward path of positive probability has positive reverse probability, which is what the expansion uses and which strict positivity implies (\texttt{reversibleSupport\_\allowbreak of\_\allowbreak positive}). Time-dependent protocols and unidirectional transitions require a corresponding treatment of reversal and support.
 
 \texttt{FiniteFeedbackStep.entropy\_\allowbreak balance}
 (\texttt{Phase3\_\allowbreak AgencyThermodynamics.lean}) expands the path log-ratio to obtain
@@ -110,6 +110,18 @@ Both path laws are normalized. The reverse uses the same autonomous transition c
        \log\frac{K_x(s'\mid s)}{K_x(s\mid s')}\ge0.
 \end{equation}
 Gibbs' inequality proves nonnegativity; the balance is derived from these distributions. \texttt{ProbDist.KL\_\allowbreak eq\_\allowbreak klDiv} identifies the finite divergence with Mathlib's measure-theoretic divergence for a positive reference law. The information identity uses the same forward law and its proven initial and final marginals.
+
+Support inclusion is the weaker of the two conditions and the one the identity
+needs. Gibbs' inequality holds under it (\texttt{KL\_\allowbreak nonneg\_\allowbreak of\_\allowbreak support}),
+so zero masses in the initial law or in a transition are permitted and $\Sigma\ge0$
+survives them; this matters because an agent's executed channels are sparse, and
+a step whose initial law sits on a single atom satisfies the support condition
+while failing positivity. What the weaker condition does not do is make every
+channel priceable. A forward path with no reverse --- deterministic erasure is
+the standard case --- has infinite divergence, and
+\texttt{ProbDist.extendedKL} records it as such in $[0,\infty]$ rather than
+returning the finite number the totalized real logarithm would supply. Where
+support does hold, that extended value is the real divergence above.
 
 Local detailed balance is the physical identification
 $q(x,s,s')=k_BT\log[K_x(s'\mid s)/K_x(s\mid s')]$, with heat positive into the reservoir \cite{horowitz2014,ito2013}. It gives
@@ -419,6 +431,18 @@ cycle and
 The flag has probability $1/4$ and is independent of parameter and register
 at each completed reset. Successive cycle laws differ. These are exact
 finite-channel identities, proved in Lean rather than fitted to a simulation.
+Solving the recursion gives the error of that agreement exactly,
+\begin{equation}
+ \frac{65}{127}-J_{3(m+1)}
+   =\left(\frac{65}{127}-\frac{65}{128}\right)\left(\frac1{128}\right)^{m},
+ \label{eq:continuing-limit}
+\end{equation}
+so the executed learner's expected task performance rises to $65/127$
+geometrically from below and stays short of one
+(\texttt{performance\_\allowbreak error}, \texttt{performance\_\allowbreak tendsto}).
+The limit is a property of these channels. Nothing here compares it with an
+optimal policy, and the convergence is of an expectation along completed cycles
+rather than of a realization.
 On the same laws, \texttt{first\_\allowbreak cycle\_\allowbreak work} and
 \texttt{totalWork\_\allowbreak cycles\_\allowbreak lower} give
 \begin{equation}
@@ -429,7 +453,12 @@ On the same laws, \texttt{first\_\allowbreak cycle\_\allowbreak work} and
 The learning stage costs $(\log(5/3))/16$ at every cycle, and reset has
 strictly positive mean heat. Every prefix of the first cycle fits the declared
 $B=4\log3$, while 22 complete cycles exceed it. This is a conservative
-exclusion, not the exact exhaustion time.
+exclusion, not the exact exhaustion time. The same per-cycle floor is
+positive, so the right-hand side of Eq.~\eqref{eq:continuing-cost} exceeds any
+declared allowance at some cycle (\texttt{work\_\allowbreak unbounded}): the
+sequence that converges in Eq.~\eqref{eq:continuing-limit} is one no finite
+store funds to its limit. Reaching that limit is a statement about
+replenishment, not about learning.
 
 Two controls delimit the result. Uniform observations leave chance reward
 at every completed cycle and zero learning-stage heat. Replacing only reset
@@ -1269,6 +1298,49 @@ relaxed hypothesis and the selection returns its glued profile
 (\texttt{trioW\_\allowbreak compatible},
 \texttt{trioW\_\allowbreak glue\_\allowbreak unique}).
 
+\subsection{Contents driven by observation}
+\label{sec:content-dynamics}
+
+The agreement above is a hypothesis on a supplied family. What a mechanism
+would have to do is change the family, so the contents are carried as fields
+$s_i:A\to\mathbb{R}$ on the patches of a declared cover and each patch's field
+is mixed with that patch's observation at gain $\eta\in[0,1]$,
+$s_i\mapsto(1-\eta)s_i+\eta o_i$. Disagreement across an overlap then obeys
+\begin{equation}
+ \varepsilon'\leq(1-\eta)\varepsilon+\eta\delta,
+ \label{eq:content-residual}
+\end{equation}
+with $\varepsilon$ the contents' mismatch and $\delta$ the observations' own
+(\texttt{update\_\allowbreak residual},
+\texttt{Phase5\_\allowbreak Content\-Dynamics}).
+Two consequences follow and no more. Observations that agree on their
+overlaps preserve exact agreement, and contract any initial mismatch to
+$(1-\eta)^{n}\varepsilon$ after $n$ of them, even when the value they agree
+on moves (\texttt{update\_\allowbreak preserves},
+\texttt{run\_\allowbreak residual}). Observations that disagree by $\delta$
+leave a residual floor at $\delta$, which
+Eq.~\eqref{eq:content-residual} charges rather than absorbs.
+
+A readout names which patch to read at each site. Where that choice covers the
+site, the readout is within $\varepsilon$ of every patch that sees it
+(\texttt{readout\_\allowbreak residual}); at $\varepsilon=0$ it extends every
+patch and is the only field that does
+(\texttt{readout\_\allowbreak agrees}, \texttt{readout\_\allowbreak unique}).
+Coverage is a hypothesis of those theorems rather than a property of a
+pre-existing global field, which is the same discipline the selection results
+above follow. The mass profiles of this section are such a family read through
+the coercion, at the same tolerance
+(\texttt{ApproximateGluing.compatible\_\allowbreak pointwise}), so the two
+agreement predicates in the development are one predicate.
+
+This supplies no mechanism by which cortical descriptions come to agree. The
+compatibility of the observations is the input, and no theorem here derives it
+from task reward, phase coherence or a shared target state; the contents are
+real-valued fields identified with no neural variable and with no section of the
+probability sheaf. What it does answer is the narrower half of the question the
+gluing hypothesis raises: given agreeing observations, agreement is preserved
+and disagreement decays at a stated rate.
+
 The scope is narrow in three ways. The state space is finite spatial mass
 profiles, where restriction is functorial; nothing here bears on matching
 marginals of decoded contents \cite{abramsky2011}. Nothing produces the
@@ -1410,6 +1482,9 @@ Finite supply and delivery & \texttt{PathwiseStore.SourceLedgered} identifies su
 A sensor memory and its erasure & \texttt{memoryHeat} is the mean log-ratio heat of a memory channel on a declared memory law. \texttt{memoryHeat\_\allowbreak const} (\texttt{Phase3\_\allowbreak Sensor\allowbreak Memory}) proves that an erasure landing on one law $\nu$ costs $\theta[H(\mu)-H(\nu)]+\theta D_{KL}(\mu\|\nu)$, with \texttt{memoryHeat\_\allowbreak ge\_\allowbreak entropy\_\allowbreak drop} the Gibbs corollary and \texttt{memoryHeat\_\allowbreak self} the matched case. \texttt{MemoryAgent} runs act, record, learn and clear four-periodically on $R\times(M\times\mathit{Env})$ as a \texttt{FiniteProtocol}; \texttt{learn\_\allowbreak register\_\allowbreak independent} proves the register reads the memory alone, \texttt{memoryLaw\_\allowbreak clear} makes the memory autonomous under the erasure while \texttt{memoryLaw\_\allowbreak record} does not, \texttt{clear\_\allowbreak stageHeat\_\allowbreak eq} allocates the stage's heat to its three coordinates, and \texttt{clear\_\allowbreak memoryHeat\_\allowbreak const} is the identity on the agent's executed paths. \texttt{Examples/SensorMemory.lean} bounds the memory's mass in $[7/16,9/16]$ at every clearing from channel masses alone, giving a cost between $(3/16)\log3$ and $(5/16)\log3$ whatever has been learned, and $(1/4)\log3=[(3/4)\log3-\log2]+(1/2)\log(4/3)$ in the first cycle. A blind measurement pays the same, a drift in place of the erasure pays nothing and forgets nothing, a matched memory is free and an over-ordered one absorbs $(1/4)\log3$. Gate fabrication remains separate; prior preparation is treated below & Theorem (conditional) \\ \hline
 A funded clearing & \texttt{PathwiseStore.\allowbreak balance\_\allowbreak le\_\allowbreak of\_\allowbreak stage\_\allowbreak cost} generalizes the reading bound to a stage-dependent cost, with the constant case derived from it; \texttt{sum\_\allowbreak period\_\allowbreak indicator} and \texttt{horizon\_\allowbreak le\_\allowbreak of\_\allowbreak periodic\_\allowbreak cost} give $mc\leq b$ for a charge paid once per period, and \texttt{periodic\_\allowbreak horizon\_\allowbreak le\_\allowbreak of\_\allowbreak finite\_\allowbreak source} states it with the source inside the boundary. \texttt{net\_\allowbreak draw\_\allowbreak eq\_\allowbreak zero\_\allowbreak of\_\allowbreak positive} proves that full support admits no net draw at all. \texttt{MemoryAgent.\allowbreak clearings\_\allowbreak le\_\allowbreak of\_\allowbreak source} applies this to the clear stage of the sensor-memory agent. \texttt{Examples/FundedMemory.lean} carries a charge of three units in the world the same agent acts on, spends one at each clearing (\texttt{charge\_\allowbreak invariant}, \texttt{clear\_\allowbreak spends\_\allowbreak one}), attains the bound at three cycles (\texttt{cycles\_\allowbreak le\_\allowbreak three}) and reads below empty at the sixteenth operation (\texttt{not\_\allowbreak solvent\_\allowbreak four}), while every clearing still costs between $(3/16)\log3$ and $(5/16)\log3$. \texttt{clear\_\allowbreak unfunded} records that an erasure reading only the memory cannot be conditioned on the charge, so the unfunded run continues; \texttt{not\_\allowbreak positive} derives the agent's restricted support. The drawn unit is not identified with the stage's heat. Charge preparation, external refuelling and gate fabrication remain separate & Theorem (conditional) \\ \hline
 Preparing the prior & A constant preparation channel drives the hardware to a positive law without reading it, which is the hypothesis of \texttt{memoryHeat\_\allowbreak const}, so the same heat identity prices it. \texttt{KL\_\allowbreak uniform} (\texttt{Phase3\_\allowbreak Preparation}) gives $D_{KL}(\mu\|\mathrm{unif})=\log|V|-H(\mu)$ with no positivity of $\mu$, so \texttt{memoryHeat\_\allowbreak uniform} is zero at every starting law: a uniform target has zero mean log-ratio heat. \texttt{FiniteProtocol.\allowbreak withPreparation} runs it as stage zero, \texttt{withPreparation\_\allowbreak law\_\allowbreak succ} identifies the shifted run with the original and \texttt{preparation\_\allowbreak meanHeat} is its cost. \texttt{preparation\_\allowbreak parameter\_\allowbreak marginal} and \texttt{preparation\_\allowbreak product} are the two fences: the parameter's marginal is untouched and a constant preparation creates no parameter-hardware correlation. \texttt{Examples/Preparation.lean} prepares the sensor-memory agent's own prior with zero mean heat, charges the whole run through the existing bound, prices the agent's standard state at $(1/4)\log3$ from uniform, evaluates a bias-$\varepsilon$ target at $(1/2-\varepsilon)\log[(1-\varepsilon)/\varepsilon]$ and proves this family unbounded at thermal scale one. The witness changes the initial hardware law, rejects preparing parameter uncertainty or correlation, and rejects the sharp target from the positivity premise. Funding, exact preparation and gate implementation remain separate & Theorem (conditional) \\ \hline
+Resource bounds on a trajectory & \texttt{ResourceTrajectory} (\texttt{Phase3\_\allowbreak ResourceFoundations}) telescopes the ledger $\beta_{n+1}=\beta_n-w^-_n+w^+_n$ on an \emph{arbitrary} state type: \texttt{balance\_\allowbreak sum}, \texttt{draw\_\allowbreak le\_\allowbreak resources} and \texttt{horizon\_\allowbreak bound} use no \texttt{Fintype}, no probability law and no channel, and \texttt{ContinuingProcess.\allowbreak horizon\_\allowbreak le\_\allowbreak of\_\allowbreak cost} is that bound read on the sequence of expected allowances. \texttt{draw\_\allowbreak eq\_\allowbreak energy\_\allowbreak heat\_\allowbreak control} identifies the draw from a conserved boundary carrying stored, bath and installation/control energy; \texttt{draw\_\allowbreak eq\_\allowbreak thermal\_\allowbreak work} substitutes a thermal term only where that term is assumed, and prices no gate. \texttt{transferCharge} is a reversible swap on $\mathbb{N}\times\mathbb{N}$ conserving the total; \texttt{refuel} is a real-valued trajectory solvent at every operation when delivery matches draw. The supply is declared, not derived, and no theorem connects these trajectories to a particular agent's channels & Theorem \\ \hline
+Entropy balance without full support & \texttt{ProbDist.SupportIncluded} replaces strictly positive masses by the condition the expansion uses: every forward path of positive probability has positive reverse probability. \texttt{KL\_\allowbreak nonneg\_\allowbreak of\_\allowbreak support}, \texttt{entropyProduction\_\allowbreak nonneg\_\allowbreak of\_\allowbreak support} and \texttt{entropy\_\allowbreak balance\_\allowbreak of\_\allowbreak support} (\texttt{Phase3\_\allowbreak SupportedThermodynamics}) hold there, and \texttt{reversibleSupport\_\allowbreak of\_\allowbreak positive} places the stronger premise strictly inside the weaker one. A step whose initial law sits on one atom witnesses the gap (\texttt{Examples/AgencyFoundations.lean}). Where a forward path has no reverse, \texttt{ProbDist.extendedKL} returns $\infty$ in $[0,\infty]$ rather than a finite real cost, and agrees with the real divergence where support holds. Equality with Mathlib's measure divergence, and construction of a physical reverse protocol, are separate & Theorem \\ \hline
+Contents driven by observation & \texttt{LocalContent} (\texttt{Phase5\_\allowbreak ContentDynamics}) carries patch contents as real fields and mixes each with that patch's observation at gain $\eta$. \texttt{update\_\allowbreak residual} gives $(1-\eta)\varepsilon+\eta\delta$, \texttt{update\_\allowbreak preserves} exact agreement under agreeing observations, and \texttt{run\_\allowbreak residual} the decay $(1-\eta)^n\varepsilon$. \texttt{readout\_\allowbreak agrees} and \texttt{readout\_\allowbreak unique} make a patch-selecting readout the unique global extension at zero residual, with coverage a hypothesis. \texttt{ApproximateGluing.\allowbreak compatible\_\allowbreak pointwise} reads this section's mass profiles as such a family, so the two agreement predicates are one. The observations' compatibility is an input: nothing derives it from reward, coherence or a shared target, and the contents are identified with no neural variable and no sheaf section & Theorem \\ \hline
 Finite goal-directed control & \texttt{FiniteControlProblem} (\texttt{Phase3\_\allowbreak AgencyThermodynamics}) evaluates terminal reward and both substep costs on the same \texttt{FiniteFeedbackCycle}, with an explicit deterministic policy and shared world and memory channels. \texttt{exists\_optimal} proves finite feasible maximization. \texttt{Examples/AgencyControl.lean} computes every deterministic bit policy's performance, heat and work and proves a unique feasible optimum that strictly improves a declared lamp task. A feasible baseline misses the target; a better-performing policy exceeds the budget; equal final laws can have unequal heat. Objective, reservoir model, initial resource and budget are supplied. This comparison covers fixed policies; adaptation of a policy register is treated separately below & Theorem (conditional) \\ \hline
 Finite learning dynamics & \texttt{FiniteFeedbackStep.iterate} carries successive laws and telescopes entropy and first-law balances. \texttt{Examples/PolicyLearning.lean} proves strictly improving expected lamp reward, geometric convergence to a stationary mixture, positive update heat and bounded cumulative heat from the register's energy loss. Its energy encodes known task values. The limit is suboptimal; individual updates and a different initial preparation can lower reward. Task costs are prospective lamp task expectations. Preparing the register, executing task episodes, implementing the policy readout, cortical identification and the active chain's resource and spatial bridges require separate accounting & Theorem (conditional) \\ \hline
 Learning from observed outcomes & \texttt{FiniteObservationalLearner} (\texttt{Phase3\_\allowbreak ObservationalLearning}) holds an environmental parameter fixed and updates a policy register from the observed outcome of the action its readout executed. Neither the update nor the readout takes the parameter as an argument and the reward enters no channel, so nothing supplies the task's values. Act--observe--update composes into one \texttt{FiniteFeedbackStep}, carrying reward, heat and entropy on the same law. \texttt{Examples/ObservationalLearning.lean} gives every mass of that law at every horizon for a two-action task with an unknown rewarding action, hence strictly improving expected reward $3/4-\frac14(1/2)^n$ from a uniform prior, strict improvement over a frozen register and over an uninformative world under a common allowance, cumulative heat $(\log3/4)[1-(1/2)^N]$ and its equality with external work. \texttt{zero\_\allowbreak work\_\allowbreak needs\_\allowbreak parameter\_\allowbreak independent\_\allowbreak heat} proves that a free relaxation would carry no information about the parameter, so the work is irreducible. The limit is below certainty, each action is executed half the time at every horizon, and a reward-decreasing transition keeps positive probability. Preparing the prior, supplying the work, task episodes beyond the declared updates, fabricating the readout, optimal-policy convergence and cortical identification are separate & Theorem (conditional) \\ \hline

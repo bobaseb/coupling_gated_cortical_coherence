@@ -20,6 +20,38 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-15 — Four scope sentences the foundations narrow
+
+The finite path-law balance is no longer stated with strictly positive masses
+as its premise. The article said "strictly positive forward and reverse path
+probabilities give" the entropy balance and its sign, and the supplement said
+"the theorem assumes strictly positive initial masses and transition
+probabilities". Both now state the condition the expansion actually uses: every
+forward path of positive probability has positive reverse probability. Strict
+positivity implies it and is not implied by it, and the gap is witnessed by a
+step whose initial law sits on a single atom. Where a forward path has no
+reverse, the divergence is infinite and is carried in the extended
+nonnegatives, rather than as whatever finite number a totalized logarithm
+returns.
+
+Two sentences placed external refuelling outside the model. The pathwise store's
+horizon bound needs no finite state space at all: it is a ledger on a trajectory,
+and the expected-work horizon is that bound read on the sequence of allowances.
+A real-valued reading whose delivery matches its draw is solvent at every
+operation. The supply is still declared and still unconnected to any particular
+agent's channels, which is what the rewritten sentences now say instead.
+
+The explanatory-gap paragraph asked why cortical activity should "acquire or
+preserve" compatibility and treated both as open. The second half is now
+answered under a stated hypothesis: patch contents mixed with their own
+observations preserve exact agreement and contract mismatch geometrically, with
+an explicit residual floor when the observations themselves disagree. The first
+half is untouched, and the paragraph says so — the observations' agreement is
+the input to that result.
+
+Specification and validation: `tasks/agency_foundations.md` and the dated
+`tasks/todo.md` record.
+
 ## 2026-09-15 — Preparation enters the agent's law sequence
 
 Preparation of a declared prior is no longer absent from every finite-agent

@@ -1342,6 +1342,21 @@ Thus the acquired advantage remains above chance at every completed cycle
 of the mathematical protocol. The flag returns to probability $1/4$ after
 each reset; the register's changing correlation with the task carries over.
 
+That recursion has a closed solution. Its fixed point is $65/127$, and the
+distance to it shrinks by a factor of $128$ per cycle:
+\[
+ \frac{65}{127}-a_m=\left(\frac{65}{127}-\frac{65}{128}\right)
+   \left(\frac{1}{128}\right)^{m}.
+\]
+So this learner's expected performance climbs to $65/127$ and stops there,
+short of the certainty an optimal player would have. Two cautions come with
+that number. It is an expectation over completed cycles, not a statement
+about any single run; and it belongs to these particular channels, which
+nothing here compares with the best available policy. The cost bound below
+adds a third: reaching the limit takes unboundedly many cycles, and each
+one costs a fixed positive amount, so no finite allowance pays for the
+convergence.
+
 Now give the process an initial work allowance $B$. The remaining allowance
 after $N$ stages is $B-W_{<N}$, where $W_{<N}$ is expected cumulative work.
 A run fits that allowance only if it stays nonnegative at every earlier
@@ -5388,6 +5403,7 @@ Squared-drift plasticity (\S\ref{sec:plasticity}) & Dissipation descent $\ne$ le
 Mesh refinement & Discrete energy $\to$ continuum energy & Theorem (scalar energy only) \\
 No kernel from coarse-graining (\S\ref{sec:nokernel}) & Continuum kernel is an input & Theorem (negative) \\
 Sheaf gluing (\S\ref{sec:sheaf}) & Local $\to$ unique global state & Theorem + instance postulate \\
+Contents driven by observation & Agreeing observations preserve agreement and contract mismatch by $(1-\eta)$ per step & Theorem; the observations' agreement is still an input \\
 Compatibility $\ne$ phase agreement (\S\ref{sec:compat}) & The framework's central distinction & Theorem, with explicit counterexample \\
 Twisted gluing & Weakening to per-patch phases & Theorem; adds nothing (offsets are coboundaries) \\
 Winding numbers, phase lifts & Measured topological obstruction & Theorem + empirical candidate; no link to content \\

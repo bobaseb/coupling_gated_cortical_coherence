@@ -179,11 +179,20 @@ the gate's own reference index rather than against its exit code.
 
 ### Remaining work
 
-Deferred by the authorized scope, and unchanged by this pass: publication
-alignment (`main.tex`, `supplementary.tex`, Table S1, `docs/primer.tex`), the
-rebuilt tracked PDFs, the arXiv submission, and closure of the parent roadmap
-items. Nothing here is written into the publication yet, so no scope sentence in
-it has become false.
+Closure of the parent roadmap items is still open; these are foundations for
+their next reviewable changes.
+
+Publication alignment was deferred by the authorized scope and has since been
+done at the user's request, in a second commit. Four scope sentences were
+rewritten rather than deleted: the article's and the supplement's statements of
+the path-law premise, which said strictly positive masses and now say support
+inclusion; the funded-memory sentence that placed external refuelling outside
+the model; and the explanatory-gap paragraph, whose "preserve" half now has an
+answer under a stated hypothesis while its "acquire" half does not. Table S1
+gained three rows, the supplement a subsection on observation-driven contents
+and the closed form of the continuing learner's recursion, and the primer that
+closed form and a summary row. All three tracked PDFs and the arXiv submission
+were rebuilt in the same commit. Details in `CHANGELOG.md`.
 
 Owed by the foundations themselves:
 
