@@ -43,14 +43,26 @@ read it directly. The fences are signatures
 again: `update` sees neither the parameter nor the action, `readout` and `sense`
 do not see the parameter, and `reward` appears only in `performance`.
 
+`PathwiseStore` is the store the other way round: the reading is a *coordinate
+of the state*, so `Solvent` is a claim about the states the protocol reaches
+rather than about an expectation over them. `solvent_of_funded` derives it from
+a stagewise funding condition, with no positivity anywhere — deterministic gates
+and zero masses are admitted — and `mean_balance_eq` recovers the expected
+ledger from `sum_energyTransfer`, so `totalDraw_le_of_solvent` refines
+`ContinuingProcess` one way only. `solvent_forall_of_replenished` and
+`horizon_le_of_net_cost` are the sufficient and necessary fences on sustained
+operation. `Examples/PathwiseStore.lean` exhibits a store whose expected
+allowance never runs out and which a realized path overdraws, and a
+spend-and-recharge cycle solvent at every horizon whose cumulative draw exceeds
+any allowance.
+
 What this supplies is the bookkeeping of a continuing agent: one law, actual
 influence of the register on the world and an executed reset preparing later
-episodes. The store constrains expected cumulative work at every prefix; it
-does not guarantee a nonnegative battery on every sample path. Initial-law
-preparation, a microscopic store, readout/actuator fabrication and a separate
-observation-memory implementation are supplied or outside the model. The
-composite learning channel is assigned local detailed balance as a physical
-input. Neither optimal-policy convergence nor cortical identification follows.
+episodes. Initial-law preparation, a microscopic or fluctuating model of the
+supply, readout/actuator fabrication and a separate observation-memory
+implementation are supplied or outside the model. The composite learning
+channel is assigned local detailed balance as a physical input. Neither
+optimal-policy convergence nor cortical identification follows.
 -/
 
 namespace PhysicsOfConsciousness
@@ -338,6 +350,242 @@ theorem not_sustains_of_totalWork_gt (N : ℕ) (h : C.stored < C.totalWork N) :
     ¬ C.Sustains N := fun hs => absurd (C.sustains_totalWork_le N hs) (not_le.mpr h)
 
 end ContinuingProcess
+
+/-! ## Reaching a state at all -/
+
+namespace FiniteProtocol
+
+variable {X S : Type*} [Fintype X] [Fintype S] (P : FiniteProtocol X S)
+
+/-- The states the protocol can actually be in after `n` stages. Everything
+below quantifies over these rather than over the type, so a statement about a
+store's reading is a statement about the trajectories the protocol has. -/
+def Reachable (n : ℕ) (z : X × S) : Prop := 0 < (P.law n).p z
+
+/-- Some state is always reached: the law is normalized. -/
+theorem exists_reachable (n : ℕ) : ∃ z, P.Reachable n z := by
+  have hsum : ∑ z, (P.law n).p z ≠ 0 := by rw [(P.law n).sum_one]; norm_num
+  obtain ⟨z, _, hz⟩ := Finset.exists_ne_zero_of_sum_ne_zero hsum
+  exact ⟨z, lt_of_le_of_ne ((P.law n).nonneg z) (Ne.symm hz)⟩
+
+/-- Every state the protocol reaches was reached from one it had already
+reached, by a transition the stage actually executes. The parameter is fixed,
+so the predecessor differs only in the system coordinate. -/
+theorem exists_pred_of_reachable (n : ℕ) (x : X) (t : S)
+    (h : P.Reachable (n + 1) (x, t)) :
+    ∃ s, P.Reachable n (x, s) ∧ 0 < (P.stage n x s).p t := by
+  have hsum : ∑ s, (P.law n).p (x, s) * (P.stage n x s).p t ≠ 0 := by
+    rw [← P.law_succ_apply n (x, t)]
+    exact ne_of_gt h
+  obtain ⟨s, _, hs⟩ := Finset.exists_ne_zero_of_sum_ne_zero hsum
+  exact ⟨s, lt_of_le_of_ne ((P.law n).nonneg (x, s)) (Ne.symm (left_ne_zero_of_mul hs)),
+    lt_of_le_of_ne ((P.stage n x s).nonneg t) (Ne.symm (right_ne_zero_of_mul hs))⟩
+
+end FiniteProtocol
+
+/-! ## A store carried on the trajectory -/
+
+/-- A finite protocol whose state carries the reading of its own work store,
+together with the work each executed transition draws from that store and the
+work a declared supply delivers to it.
+
+`balance` is a coordinate of the state, which is what makes this a pathwise
+account: `Solvent` below is a statement about the states the protocol reaches,
+not about an expectation over them. The supply is declared exactly as
+`ContinuingProcess.stored` is; nothing here derives a power source, and the
+draw need not be the work of any particular thermodynamic model. -/
+structure PathwiseStore (X S : Type*) [Fintype X] [Fintype S] where
+  /-- The operations actually executed. -/
+  protocol : FiniteProtocol X S
+  /-- The store's reading, a coordinate of the state the protocol evolves. -/
+  balance : S → ℝ
+  /-- Work drawn from the store on an executed transition of a stage. -/
+  draw : ℕ → X → S → S → ℝ
+  /-- Work delivered to the store on that same transition: replenishment. -/
+  supply : ℕ → X → S → S → ℝ
+
+namespace PathwiseStore
+
+variable {X S : Type*} [Fintype X] [Fintype S] (B : PathwiseStore X S)
+
+/-- **The reading is the ledger.** On every transition the protocol can
+actually execute, the store's reading falls by the work drawn and rises by the
+work supplied. Off the support nothing is required: a transition that does not
+happen has no cost to record. -/
+def Ledgered : Prop :=
+  ∀ n x s t, B.protocol.Reachable n (x, s) → 0 < (B.protocol.stage n x s).p t →
+    B.balance t = B.balance s - B.draw n x s t + B.supply n x s t
+
+/-- Every transition stage `n` can execute is covered: the draw does not exceed
+what the store holds plus what arrives with that transition. -/
+def Funded (n : ℕ) : Prop :=
+  ∀ x s t, B.protocol.Reachable n (x, s) → 0 < (B.protocol.stage n x s).p t →
+    B.draw n x s t ≤ B.balance s + B.supply n x s t
+
+/-- No state the protocol reaches up to `N` has a negative reading. This is the
+pathwise claim `ContinuingProcess.Sustains` does not make. -/
+def Solvent (N : ℕ) : Prop :=
+  ∀ k ≤ N, ∀ z, B.protocol.Reachable k z → 0 ≤ B.balance z.2
+
+/-- Work drawn over the first `N` stages, in expectation over the actual paths. -/
+noncomputable def totalDraw (N : ℕ) : ℝ :=
+  ∑ k ∈ Finset.range N, (B.protocol.step k).meanHeat (B.draw k)
+
+/-- Work supplied over those same stages, in expectation over the actual paths. -/
+noncomputable def totalSupply (N : ℕ) : ℝ :=
+  ∑ k ∈ Finset.range N, (B.protocol.step k).meanHeat (B.supply k)
+
+/-- The mean reading after `n` stages. -/
+noncomputable def meanBalance (n : ℕ) : ℝ :=
+  ∑ z, (B.protocol.law n).p z * B.balance z.2
+
+theorem solvent_of_le {M N : ℕ} (h : B.Solvent N) (hMN : M ≤ N) : B.Solvent M :=
+  fun k hk => h k (hk.trans hMN)
+
+/-- One stage of solvency. A funded stage cannot take a reachable state with a
+nonnegative reading to a reachable state with a negative one. -/
+theorem solvent_succ (hl : B.Ledgered) (N : ℕ) (hs : B.Solvent N)
+    (hf : B.Funded N) : B.Solvent (N + 1) := by
+  intro k hk z hz
+  rcases Nat.lt_succ_iff_lt_or_eq.1 (Nat.lt_succ_of_le hk) with hk' | rfl
+  · exact hs k (Nat.lt_succ_iff.1 hk') z hz
+  · obtain ⟨s, hsr, hst⟩ := B.protocol.exists_pred_of_reachable N z.1 z.2 hz
+    have hb := hl N z.1 s z.2 hsr hst
+    have hfd := hf z.1 s z.2 hsr hst
+    rw [hb]
+    linarith
+
+/-- **Pathwise solvency.** A ledgered protocol that starts solvent and funds
+every stage never overdraws its store on any trajectory it has. No positivity
+is used: deterministic gates and zero masses are admitted, and the draw may be
+random. -/
+theorem solvent_of_funded (hl : B.Ledgered)
+    (h0 : ∀ z, B.protocol.Reachable 0 z → 0 ≤ B.balance z.2)
+    (hf : ∀ k, B.Funded k) (N : ℕ) : B.Solvent N := by
+  induction N with
+  | zero => intro k hk z hz; exact h0 z (Nat.le_zero.1 hk ▸ hz)
+  | succ N ih => exact B.solvent_succ hl N ih (hf N)
+
+/-- Expectations are taken over the executed paths, so two observables agreeing
+on the transitions a stage can make have the same mean. -/
+theorem _root_.PhysicsOfConsciousness.FiniteFeedbackStep.meanHeat_congr_support
+    {X S : Type*} [Fintype X] [Fintype S] (M : FiniteFeedbackStep X S)
+    {q q' : X → S → S → ℝ}
+    (h : ∀ x s t, 0 < M.initial.p (x, s) → 0 < (M.transition x s).p t →
+      q x s t = q' x s t) : M.meanHeat q = M.meanHeat q' := by
+  unfold FiniteFeedbackStep.meanHeat
+  refine Finset.sum_congr rfl fun z _ => ?_
+  rcases eq_or_lt_of_le (M.forward.nonneg z) with hz | hz
+  · rw [← hz, zero_mul, zero_mul]
+  · have hprod : 0 < M.initial.p (z.1, z.2.1) * (M.transition z.1 z.2.1).p z.2.2 := hz
+    have h1 : 0 < M.initial.p (z.1, z.2.1) := by
+      rcases eq_or_lt_of_le (M.initial.nonneg (z.1, z.2.1)) with h1 | h1
+      · rw [← h1, zero_mul] at hprod; exact absurd hprod (lt_irrefl 0)
+      · exact h1
+    have h2 : 0 < (M.transition z.1 z.2.1).p z.2.2 := by
+      rcases eq_or_lt_of_le ((M.transition z.1 z.2.1).nonneg z.2.2) with h2 | h2
+      · rw [← h2, mul_zero] at hprod; exact absurd hprod (lt_irrefl 0)
+      · exact h2
+    rw [h z.1 z.2.1 z.2.2 h1 h2]
+
+/-- **The expected ledger is a consequence of the pathwise one.** The mean
+reading falls by the work drawn and rises by the work supplied. This is the
+generic bath identity applied to the store's own coordinate, not a second
+calculation. -/
+theorem mean_balance_eq (hl : B.Ledgered) (N : ℕ) :
+    B.meanBalance N = B.meanBalance 0 - B.totalDraw N + B.totalSupply N := by
+  have hE := B.protocol.sum_energyTransfer (fun z => B.balance z.2) N
+  have hstage (k : ℕ) :
+      (B.protocol.step k).meanHeat
+          (B.protocol.energyTransfer fun z => B.balance z.2) =
+        (B.protocol.step k).meanHeat (B.supply k) -
+          (B.protocol.step k).meanHeat (B.draw k) := by
+    rw [(B.protocol.step k).meanHeat_congr_support
+      (q' := fun x s t => B.supply k x s t - B.draw k x s t) ?_]
+    · simp only [FiniteFeedbackStep.meanHeat, mul_sub, Finset.sum_sub_distrib]
+    · intro x s t h1 h2
+      have := hl k x s t h1 h2
+      simp only [FiniteProtocol.energyTransfer]
+      linarith
+  simp only [hstage, Finset.sum_sub_distrib] at hE
+  unfold meanBalance totalDraw totalSupply
+  simp only [FiniteProtocol.law_zero] at hE ⊢
+  linarith
+
+/-- A solvent run has a nonnegative mean reading: the states carrying negative
+readings are exactly the ones it does not reach. -/
+theorem meanBalance_nonneg_of_solvent (N : ℕ) (h : B.Solvent N) {k : ℕ} (hk : k ≤ N) :
+    0 ≤ B.meanBalance k := by
+  refine Finset.sum_nonneg fun z _ => ?_
+  rcases eq_or_lt_of_le ((B.protocol.law k).nonneg z) with hz | hz
+  · rw [← hz, zero_mul]
+  · exact mul_nonneg hz.le (h k hk z hz)
+
+/-- **The refinement, one way.** Pathwise solvency implies the expected bound
+the mean ledger asserts. The converse is false: `Examples/PathwiseStore.lean`
+exhibits a store whose expected allowance never runs out and whose realized
+trajectory overdraws it. -/
+theorem totalDraw_le_of_solvent (hl : B.Ledgered) (N : ℕ) (h : B.Solvent N) :
+    B.totalDraw N ≤ B.meanBalance 0 + B.totalSupply N := by
+  have hm := B.mean_balance_eq hl N
+  have hn := B.meanBalance_nonneg_of_solvent N h le_rfl
+  linarith
+
+/-! ### What replenishment buys, and what it cannot -/
+
+/-- **Sufficient.** A supply that covers each executed draw sustains every
+horizon: the reading never falls, so no bound on cumulative work is needed. -/
+theorem solvent_forall_of_replenished (hl : B.Ledgered)
+    (h0 : ∀ z, B.protocol.Reachable 0 z → 0 ≤ B.balance z.2)
+    (hr : ∀ n x s t, B.protocol.Reachable n (x, s) →
+      0 < (B.protocol.stage n x s).p t → B.draw n x s t ≤ B.supply n x s t)
+    (N : ℕ) : B.Solvent N := by
+  induction N with
+  | zero => intro k hk z hz; exact h0 z (Nat.le_zero.1 hk ▸ hz)
+  | succ N ih =>
+    refine B.solvent_succ hl N ih fun x s t hsr hst => ?_
+    have hb := ih N le_rfl (x, s) hsr
+    have := hr N x s t hsr hst
+    simp only at hb
+    linarith
+
+/-- The reading a protocol can still show after `N` stages, when every executed
+transition draws at least `c` more than it supplies. -/
+theorem balance_le_of_net_cost (hl : B.Ledgered) (c b : ℝ)
+    (hb : ∀ z, B.protocol.Reachable 0 z → B.balance z.2 ≤ b)
+    (hc : ∀ n x s t, B.protocol.Reachable n (x, s) →
+      0 < (B.protocol.stage n x s).p t → c ≤ B.draw n x s t - B.supply n x s t)
+    (N : ℕ) : ∀ z, B.protocol.Reachable N z → B.balance z.2 ≤ b - N * c := by
+  induction N with
+  | zero => intro z hz; simpa using hb z hz
+  | succ N ih =>
+    intro z hz
+    obtain ⟨s, hsr, hst⟩ := B.protocol.exists_pred_of_reachable N z.1 z.2 hz
+    have hprev := ih (z.1, s) hsr
+    have hled := hl N z.1 s z.2 hsr hst
+    have hcost := hc N z.1 s z.2 hsr hst
+    simp only at hprev
+    push_cast
+    rw [hled]
+    linarith
+
+/-- **Necessary.** If every executed transition draws at least `c > 0` more
+than it supplies, a store that starts no higher than `b` sustains at most
+`b / c` stages. This is the pathwise form of `ContinuingProcess.horizon_le_of_cost`,
+and unlike that one it constrains each trajectory. Continuing operation
+therefore requires a supply that keeps up; the model declares such a supply and
+does not derive one. -/
+theorem horizon_le_of_net_cost (hl : B.Ledgered) (c b : ℝ)
+    (hb : ∀ z, B.protocol.Reachable 0 z → B.balance z.2 ≤ b)
+    (hc : ∀ n x s t, B.protocol.Reachable n (x, s) →
+      0 < (B.protocol.stage n x s).p t → c ≤ B.draw n x s t - B.supply n x s t)
+    (N : ℕ) (h : B.Solvent N) : (N : ℝ) * c ≤ b := by
+  obtain ⟨z, hz⟩ := B.protocol.exists_reachable N
+  have h1 := B.balance_le_of_net_cost hl c b hb hc N z hz
+  have h2 := h N le_rfl z hz
+  linarith
+
+end PathwiseStore
 
 /-! ## The agent: action, observation, learning and preparation in sequence -/
 

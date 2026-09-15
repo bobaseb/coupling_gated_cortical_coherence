@@ -895,6 +895,20 @@ because they rank below the A–D items.
       history. *Blocked on the author.*
 - [ ] Add or confirm the journal-required data-availability statement and the
       supplemental-material description. *Blocked on a journal choice.*
+- [ ] **Table 1 of the article overflows its page.** `pdflatex` reports
+      `Float too large for page by 36.47pt on input line 440`, and the
+      consequence is visible in the built PDF: the last line of the caption
+      runs into the page number. The `table` float holding the eight-row
+      summary is taller than `\textheight`, so no placement specifier helps —
+      the fix is structural. `longtable`, as Table S1 already uses, is the
+      obvious candidate; splitting the `Required assumption` column's longest
+      cells is the alternative. This is a defect in a tracked deliverable,
+      which `README.md` and `index.html` link directly, and it predates the
+      2026-09-15 pathwise-store change: that change left the row text alone
+      rather than grow the overflow to 77pt for one sentence, so the table
+      currently omits a result the article's body carries. Fixing the float is
+      the prerequisite for putting it back. Verify by rebuilding and checking
+      that the warning is gone, not only that the page count is unchanged.
 - [ ] Final read of every cited reference and every generated numerical macro
       after the last prose edit. **On hold at the user's request, 2026-09-14.**
       **A1, A2 and F1–F4 were prerequisites and are
@@ -1802,12 +1816,15 @@ submission prerequisite.
       supplied or excluded, not derived. Specification and execution record:
       `tasks/continuing_agent.md` and the dated completion section below.
 - [ ] **Physical preparation and supply beyond the finite model.** Derive
-      preparation of the initial law, model the work store or replenishment
-      on individual trajectories, and account for a separately implemented
-      sensor memory if one is used. The continuing model's declared prior,
-      initial allowance and composite learning-channel reservoir do not
-      establish these. Keep this separate from the register-ledger identity,
-      spatial actuation and cortical identification.
+      preparation of the initial law and account for a separately implemented
+      sensor memory if one is used. The continuing model's declared prior and
+      composite learning-channel reservoir do not establish these. Keep this
+      separate from the register-ledger identity, spatial actuation and
+      cortical identification. *The store's own half is closed:* `PathwiseStore`
+      (2026-09-15) carries the reading as a state coordinate, proves solvency on
+      the trajectories the protocol has, and fences sustained operation from
+      both sides. A microscopic or fluctuating model of the supply itself is not
+      part of that and stays here.
 - [x] **E45Active — a scalar constitutive case.** Completed 2026-09-14:
       `ActuatedCoupling` constructs a spatial density from the named feedback
       step's joint entropy reduction, a supplied nonnegative gain and a supplied
@@ -2830,3 +2847,85 @@ not cover.
 **Recording check.** This section records an unscheduled modelling direction
 and its fences. It adds no Lean declaration, simulation, reference or
 publication claim.
+
+## 2026-09-15 — A store on the trajectory, and what replenishment buys
+
+`PathwiseStore` (`Phase3_ContinuingAgent.lean`) carries a finite protocol, a
+reading `balance` of its work store, and a `draw` and `supply` per transition.
+The reading is a **coordinate of the state**, which is the whole of the design:
+`Reachable n z` is positive mass under the protocol's own law, `Ledgered` says
+the reading falls by the draw and rises by the supply on every transition the
+protocol can execute out of a reachable state, `Funded n` says the draw does not
+exceed what is there plus what arrives, and `Solvent N` says no reachable state
+up to `N` carries a negative reading. Every predicate quantifies over the
+support, so no positivity hypothesis appears anywhere: deterministic gates and
+zero masses are admitted, as they must be for the reversible gates of
+`Examples/RegisterBath.lean`, and the draw itself may be random.
+
+- [x] `FiniteProtocol.exists_reachable` and `exists_pred_of_reachable` are the
+      one structural fact the account needs — some state is always reached, and
+      a reached state was reached from a reached state by a transition of
+      positive mass. `solvent_succ` and `solvent_of_funded` follow.
+- [x] `meanHeat_congr_support` (on `FiniteFeedbackStep`) is the bridge to the
+      mean ledger: expectations are over the executed paths, so observables
+      agreeing on the support have the same mean. `mean_balance_eq` is then
+      `sum_energyTransfer` at the store's own coordinate rather than a second
+      calculation, and with `meanBalance_nonneg_of_solvent` it gives
+      `totalDraw_le_of_solvent`. The refinement runs one way only.
+- [x] `solvent_forall_of_replenished` is sufficient for sustained operation —
+      a supply covering each executed draw sustains every horizon, with no
+      bound on cumulative work — and `horizon_le_of_net_cost`, via
+      `balance_le_of_net_cost`, is necessary: a net draw of at least `c > 0` on
+      every executed transition gives `N * c ≤ b` for a run solvent at `N`. That
+      is the pathwise form of `horizon_le_of_cost` and, unlike it, constrains
+      each trajectory rather than a mean.
+- [x] Two witnesses in `Examples/PathwiseStore.lean` share three readings, `1`,
+      `0` and `-1`. The **gambler** idles or spends a unit with equal
+      probability: `gamblerProcess_totalWork` identifies its draw with the
+      existing mean ledger's work, `gambler_mean_sustains` holds `Sustains 2`
+      with `totalDraw 2 = 1` against a declared store of `1`, and
+      `gambler_not_solvent` exhibits the overdrawn reading at probability `1/4`,
+      with `gambler_not_funded` locating the failure at the second stage.
+      `sustained_not_solvent` states all three at once: the recorded lesson that
+      an expected allowance is not a battery is now a theorem, and the
+      conclusion of `totalDraw_le_of_solvent` holds here with equality while its
+      hypothesis fails. The **charger** spends a unit and is given it back,
+      deterministically: `charger_reach` proves the overdrawn reading
+      unreachable, `charger_funded` and the generic theorem give
+      `charger_solvent` at every horizon, and `charger_totalDraw` evaluates the
+      work drawn over `m` completed cycles as `m`, so `charger_draw_unbounded`
+      exceeds any declared allowance at a horizon that is still solvent. It
+      satisfies neither fence (`charger_not_covered`,
+      `charger_no_uniform_cost`), which is what places it strictly between them,
+      and `unsupplied_not_ledgered` shows its supply is load-bearing.
+
+The red specifications failed before the declarations existed and pass unchanged
+afterwards. The full `lake build` has zero warnings; the default axiom audit
+covers 3,590 declarations in 57 modules with only `propext`, `Classical.choice`
+and `Quot.sound`. `check-leaves`, `check-sorry`, `check-prose`, `check-hedging`,
+`check-tableS1`, `check-figures`, `check-pdf-freshness` and
+`check-arxiv-freshness` pass, as do the 143 existing Python tests. No Python,
+dependency, reference, macro or simulation result changed.
+
+The article gained one paragraph with a two-condition store equation, the
+supplement a four-paragraph set with a Table S1 row, and the primer a subsection
+with a summary-table row. The rebuilt article, supplement and primer have 49, 42
+and 86 pages against 48, 41 and 85, with zero overfull boxes and underfull
+counts matching baseline builds of `HEAD` (2, 0, 29). The 62-page arXiv
+submission compiles from its unpacked archive and passes manifest freshness.
+`git diff --check` passes.
+
+**One thing deliberately not done.** Table 1 of the article was left unchanged.
+Its float already overflows the page at `HEAD` — `Float too large for page by
+36.47pt`, with the caption's last line colliding with the page number — and a
+sentence added to the E34 row grew that to 77pt. The content is carried by the
+new paragraph and by Table S1, which is a longtable and has no such limit. The
+pre-existing overflow is a defect in a tracked deliverable and is worth its own
+change; it is now the third P-item above, which carries the sentence this row
+should regain once the float is fixed.
+
+Out of scope and still open: preparing the initial law, a microscopic or
+fluctuating model of the supply itself, a separately implemented sensor memory
+and its erasure, optimal-policy convergence, and any cortical identification.
+The remaining agency gaps are those first three and local content agreement.
+Specification and execution record: `tasks/pathwise_store.md`.

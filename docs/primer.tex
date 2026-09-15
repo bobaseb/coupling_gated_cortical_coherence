@@ -1372,7 +1372,8 @@ next action.
 
 \scope
 The allowance bounds expected work at each prefix, not a battery on every
-sample path. The initial law and store are supplied resources. Reset prepares
+sample path; \S\ref{sec:pathwise-store} carries the store on the trajectory
+instead. The initial law and store are supplied resources. Reset prepares
 later episodes; preparing the original prior is outside this accounting.
 The observation is marginalized inside the learning channel, so its local
 detailed balance does not derive a separate physical sensor memory or its
@@ -1385,6 +1386,64 @@ balance lead to \id{entropy\_reduction\_le\_stored} and
 \id{horizon\_le\_of\_cost}. \id{Examples/ContinuingAgent.lean} proves the
 cycle law, persistent reward, stage costs, a funded first cycle, finite-store
 exhaustion and the observation/reset controls.}
+
+\subsection{A store you can carry, and one you can only report}
+\label{sec:pathwise-store}
+
+The allowance above is a number outside the process: it is compared against
+an average of the work, so what it bounds is an average. That is weaker than
+it sounds. A store can cover its expected draw at every stage and still be
+overdrawn on a run that actually happens.
+
+Make the store part of the state instead. The state now carries a reading
+$\beta$, and each transition the process can execute draws $w^-$ from the
+store and receives a declared supply $w^+$, with
+\[
+ \beta(\text{after})=\beta(\text{before})-w^-+w^+ .
+\]
+The condition to check is that the draw is covered where it is made:
+$w^-\leq\beta(\text{before})+w^+$ on every transition of positive probability
+out of a state the process reaches. If it holds at every stage, and the
+reading starts nonnegative, then \emph{no state the process ever reaches}
+carries a negative reading. Nothing here needs every transition to have
+positive probability, so a deterministic gate --- the kind
+\S\ref{sec:register-bath} uses --- is allowed, and the draw itself may be
+random.
+
+Averaging the same identity over the executed paths returns the earlier
+bookkeeping: mean reading in, less work drawn, plus work supplied. So the
+pathwise statement implies the expected one. The converse fails, and one
+witness shows how. A store reading $1$ either idles or spends a unit, with
+equal probability; the same from a reading of $0$. Over two stages it draws
+$1$ in expectation against an allowance of $1$, so the expected allowance is
+never exceeded --- and the path that spends twice, which has probability
+$1/4$, ends at $-1$. The allowance was never a battery.
+
+That leaves the question of what keeps a process running. Two conditions
+bracket it. If the supply covers each draw as it is made, every horizon is
+solvent and cumulative work is unbounded without difficulty. If instead every
+executed transition draws at least $c>0$ more than it supplies, then a run
+solvent at $N$ stages satisfies $Nc\leq\beta_0$: the process stops. Between
+them sits the interesting case. A cycle that spends a unit and is then given
+it back satisfies neither condition, is solvent at every horizon, and has
+drawn more work by some horizon than any allowance you care to declare. Its
+supply is doing the work: remove it and the reading no longer records what
+happens to the store at all.
+
+\scope
+The supply is declared, exactly as the initial store was. Nothing here builds
+a battery, derives a power source, or models fluctuations in the supply
+itself. Preparing the initial law, implementing a separate sensor memory and
+charging its erasure, and every cortical identification remain outside this
+model.
+
+\lean{\id{PathwiseStore} and its predicates \id{Ledgered}, \id{Funded} and
+\id{Solvent} live in \id{Phase3\_ContinuingAgent.lean}, with
+\id{solvent\_of\_funded}, \id{mean\_balance\_eq},
+\id{totalDraw\_le\_of\_solvent}, \id{solvent\_forall\_of\_replenished} and
+\id{horizon\_le\_of\_net\_cost}. \id{Examples/PathwiseStore.lean} carries the
+gambler and the charger, including \id{sustained\_not\_solvent},
+\id{charger\_draw\_unbounded} and \id{unsupplied\_not\_ledgered}.}
 
 \subsection{One register's ledger}
 \label{sec:register-ledger}
@@ -5076,6 +5135,7 @@ Finite feedback thermodynamics (\S\ref{sec:agency-heat}, \S\ref{sec:agency-cycle
 Finite policy selection (\S\ref{sec:agency-control}) & Unique feasible optimum improves a declared lamp task & Theorem for specified deterministic policies and an actual-update heat budget; learning and switching excluded \\
 Policy adaptation (\S\ref{sec:policy-learning}) & Expected reward improves toward a stationary mixture; cumulative register heat is finite & Theorem for supplied values, thermal channel and initial preparation; task execution and readout installation excluded \\
 Continuing agent (\S\ref{sec:continuing-agent}) & \raggedright An act--learn--reset sequence retains above-chance reward at positive recurring cost & \raggedright\arraybackslash Theorem for a supplied prior, channels and work store; budgets bound expectations; battery and sensor-memory dynamics excluded \\
+Store on the trajectory (\S\ref{sec:pathwise-store}) & \raggedright A reading carried in the state is solvent on every path a funded process has, and an expected allowance is not a battery & \raggedright\arraybackslash Theorem without positivity; a supply covering each draw sustains any horizon and a uniformly positive net draw stops the process; the supply is declared \\
 Learning from outcomes (\S\ref{sec:observational-learning}) & Expected reward of the executed action rises from $1/2$ toward $3/4$; the work spent is irreducible & Theorem for an unknown parameter, a declared prior and observation-driven updates; preparation, power supply and readout fabrication excluded \\
 Register's bath (\S\ref{sec:register-bath}) & \raggedright A reversible register--bath gate delivers the erasure heat, and a map-indexed budget needs a prepared bath and a work supply & \raggedright\arraybackslash Theorem (negative); positivity, local detailed balance and the ledger identity do not follow from reversibility \\
 KL bound; free-energy critique (\S\ref{sec:fep}) & Blocks ``dissipation $\Rightarrow$ true model'' & Instance postulate; the limit does \emph{not} follow \\

@@ -1,5 +1,25 @@
 # Lessons Learned
 
+- **2026-09-15: Put the resource in the state to make the claim pathwise.**
+  A budget compared against an expectation can only bound an expectation. Adding
+  the store's reading as a *coordinate of the state* makes solvency a statement
+  about the states the protocol reaches, which the existing law recursion
+  already handles: the only new structural fact needed is that a reached state
+  was reached from a reached state. Quantify every predicate over positive mass
+  under the protocol's own law rather than over the type, and no positivity
+  hypothesis is required anywhere — deterministic gates and zero masses are
+  admitted, which a support-restricted statement needs and a positivity-based
+  one excludes.
+
+- **2026-09-15: `norm_num` does not reduce `![a, b, c] 2`; `simp` does.**
+  Passing `Matrix.cons_val` to `norm_num` leaves the application untouched,
+  while `simp [Matrix.cons_val]` rewrites it — `norm_num`'s numeral
+  normalization of the `Fin` index blocks the lemma. On a witness built from
+  vector notation, make `simp [defs, Matrix.cons_val]` the workhorse and add
+  `norm_num` only for the arithmetic that survives it. Relatedly, `fin_cases`
+  takes a free variable, so `fin_cases z.2` is rejected: destructure the pair
+  with `rintro ⟨u, i⟩` first.
+
 - **2026-09-14: Simplify exactly one step of a law recursion.** Putting
   `law_succ_apply` in `simp only` recursively expands every earlier stage it
   can recognize, destroying the intermediate law needed by a uniformity or

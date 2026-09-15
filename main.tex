@@ -369,7 +369,14 @@ a bounded prefix of this protocol. This is accounting in expectation:
 preparation of the initial law, microscopic battery dynamics, fabrication and
 a separate sensor-memory implementation are supplied or outside the model.
 Heat is assigned to the composite learning channel through local detailed
-balance; no pathwise battery guarantee or cortical identification follows.
+balance, and the store bounds a mean; no cortical identification follows.
+
+A store the protocol carries rather than reports supports a different claim. Let the state include the store's reading $\beta$, and let each executed transition draw $w^-$ from it and receive a declared supply $w^+$, with
+\begin{equation}
+ \beta(t)=\beta(s)-w^-(s,t)+w^+(s,t),\qquad w^-(s,t)\leq\beta(s)+w^+(s,t)
+ \label{eq:pathwise-store}
+\end{equation}
+on every transition of positive probability out of a state the protocol reaches. A reading that starts nonnegative and satisfies the second condition at every stage is nonnegative at every state the protocol reaches, at every horizon. Averaging the first identity over the executed paths returns the mean ledger, $\langle\beta\rangle_N=\langle\beta\rangle_0-W^-_{<N}+W^+_{<N}$, so pathwise solvency implies the expected bound Eq.~\eqref{eq:continuing-budget} assumes. The converse fails: a store that spends a unit or idles with equal probability covers its expected draw at both prefixes of a two-stage run, with equality at the second, and is overdrawn on the path of probability $1/4$ that spends twice. An expected allowance is a bound on a mean and not a battery. Two conditions fence sustained operation. If the supply covers each draw as it is made, every horizon is solvent and no bound on cumulative work is needed. If instead $w^--w^+\geq c>0$ on every reachable transition, a reading starting no higher than $\beta_0$ gives $Nc\leq\beta_0$, which is the pathwise form of the store bound and constrains each trajectory rather than a mean. A deterministic spend-and-recharge cycle satisfies neither condition and is solvent at every horizon while the work it has drawn exceeds any declared allowance, so continuing operation is a claim about the supply. None of this requires positive support, and the supply, like the initial store, is declared rather than derived: preparing the initial law, a microscopic or fluctuating model of the supply itself, and a separately implemented sensor memory remain outside the model.
 
 Table~\ref{tab:summary} lists the connecting hypotheses of two branches. The theorem \texttt{chain} uses passive predictive memory; \texttt{chain\_active} uses a specified finite feedback process. Each accepts eight implications and shares the passage from coarse-graining to the phase model and its proposed representational role. In both, the finite register and the field boundary are independent starting objects.
 

@@ -20,6 +20,40 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-15 — A store on the trajectory, and what replenishment buys
+
+Two scope sentences are no longer written. The article said that the continuing
+agent's accounting was in expectation and that no pathwise battery guarantee
+followed; the primer's scope paragraph said the allowance was not a battery on
+every sample path and left it there. A pathwise account now exists, so both
+sentences point at it instead — and the thing they were fencing is now a
+theorem in the other direction: an expected allowance that is never exceeded
+does not imply solvency on the paths the process has, and there is a witness
+where it fails at probability one quarter.
+
+What changed is where the store lives. `ContinuingProcess.stored` is a number
+outside the process, compared against a mean, so what it bounds is a mean.
+`PathwiseStore` carries the store's reading as a coordinate of the state, which
+makes `Solvent` a claim about the states the protocol reaches. Nothing about the
+mean ledger is withdrawn: `mean_balance_eq` derives the expected identity from
+the same pathwise one through `sum_energyTransfer`, and
+`totalDraw_le_of_solvent` shows the pathwise claim implies the expected bound.
+The refinement runs one way only, and the gambler witness is the proof that it
+does.
+
+The replenishment half was previously a fence in prose — "sustained operation is
+a claim about replenishment, which the store does not make" — with nothing on
+either side of it. It now has a sufficient condition, a necessary one, and a
+witness strictly between them whose cumulative draw exceeds any declared
+allowance while it stays solvent at every horizon.
+
+Still not claimed: preparing the initial law, a microscopic or fluctuating model
+of the supply itself, a separately implemented sensor memory and its erasure,
+and every cortical identification. The supply is a declared input, exactly as
+the initial store was.
+
+Recorded in `tasks/pathwise_store.md`; two Lean lessons in `tasks/lessons.md`.
+
 ## 2026-09-14 — The register's bath, and what a map-indexed budget needs
 
 Two scope sentences are no longer written. The article said that deriving the
