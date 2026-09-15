@@ -474,7 +474,7 @@ buys. \texttt{solvent\_\allowbreak forall\_\allowbreak of\_\allowbreak
 replenished} is sufficient --- a supply covering each executed draw sustains
 every horizon --- and \texttt{horizon\_\allowbreak le\_\allowbreak of\_\allowbreak
 net\_\allowbreak cost} is necessary: a net draw of at least $c>0$ on every
-executed transition gives $Nc\leq\beta_0$ for a run solvent at $N$. That is the
+executed transition before $N$ gives $Nc\leq\beta_0$ for a run solvent at $N$. That is the
 pathwise form of \texttt{horizon\_\allowbreak le\_\allowbreak of\_\allowbreak
 cost} and, unlike it, constrains each trajectory.
 
@@ -501,10 +501,63 @@ cost} --- which is what places it strictly between them, and its supply is
 load-bearing: \texttt{unsupplied\_\allowbreak not\_\allowbreak ledgered} shows
 the same protocol and reading, with the supply removed, is not a ledger at all.
 
-The supply is a declared input, exactly as \texttt{ContinuingProcess.stored} is.
-Preparing the initial law, a microscopic or fluctuating model of the supply
-itself, a separately implemented sensor memory and its erasure, and every
-cortical identification remain outside this model.
+The generic supply is an input. A finite source behind it is accounted for
+by the following construction; preparing the initial resources and implementing
+a separate sensor memory remain distinct tasks.
+
+\textit{A finite source and uncertain delivery (\texttt{Examples/\allowbreak
+Finite\allowbreak Supply.lean}).} The source predicate
+\texttt{Source\allowbreak Ledgered}$\,R$ says that the source coordinate's
+loss equals the supply on each reachable transition. The construction
+\texttt{withSource}$\,R$ adds $R$ to the store's reading and sets external
+supply to zero. \texttt{withSource\_\allowbreak ledgered} adds the two
+constituent identities to derive Eq.~\eqref{eq:finite-source};
+\texttt{totalSupply\_\allowbreak eq\_\allowbreak source\_\allowbreak loss}
+telescopes the same source's expected loss. If both readings stay nonnegative,
+\texttt{totalDraw\_\allowbreak le\_\allowbreak initial\_\allowbreak resources}
+gives $W^-_{<N}\leq\langle\beta+R\rangle_0$.
+\texttt{horizon\_\allowbreak le\_\allowbreak of\_\allowbreak finite\_\allowbreak
+source} applies the existing pathwise horizon bound to the combined reading:
+a draw of at least $c>0$ on every executed transition before $N$ and an initial combined
+reading at most $b$ give $Nc\leq b$. Signed supply permits energy returned to
+the source. The transfer identity is a model obligation; no positivity of
+masses or entropy inequality is assumed.
+
+\texttt{direct\_\allowbreak draw\_\allowbreak one} and
+\texttt{direct\_\allowbreak horizon} instantiate the positive-cost bound with
+a unit transferred to a complementary load in one stage, followed by idling.
+\texttt{direct\_\allowbreak not\_\allowbreak uniform\_\allowbreak cost}
+rejects a cost premise extending over every natural-numbered stage. Both
+horizon bounds restrict their cost premise to the finite run: a finite state
+space cannot sustain a uniformly positive net energy loss forever.
+
+The witness has source, buffer and load bits with energy levels $0$ and $1$,
+and a selector bit with degenerate levels. It starts the source charged, the
+buffer and load empty and the selector uniform. A selector-controlled
+source--buffer swap precedes a buffer--load swap; subsequent stages idle.
+\texttt{charge\_\allowbreak involutive} and
+\texttt{deliver\_\allowbreak involutive} prove reversibility, while
+\texttt{charge\_\allowbreak conserves} and
+\texttt{deliver\_\allowbreak conserves} prove total-energy conservation.
+Supply is the source loss and draw is the load gain, so conservation
+discharges the buffer's ledger. \texttt{law\_\allowbreak eq\_\allowbreak coin}
+derives the actual law at every horizon: the initial selector is carried
+through the gates without resampling. After the two gates, a unit reaches the
+load with probability $1/2$ and remains in the source with probability $1/2$.
+\texttt{draw\_\allowbreak two} and \texttt{supply\_\allowbreak one} each give
+$1/2$ in expectation; \texttt{draw\_\allowbreak le\_\allowbreak capacity}
+bounds every horizon by the initial unit of combined energy.
+
+\texttt{forced\_\allowbreak not\_\allowbreak ledgered} rejects a ledger
+claiming a unit at the delivery stage on every path.
+\texttt{empty\_\allowbreak source\_\allowbreak draw} gives zero draw with
+the source initially empty, and
+\texttt{charger\_\allowbreak no\_\allowbreak finite\_\allowbreak source}
+rules out any nonnegative finite source coordinate for the indefinitely
+replenished charger. Solvency after the two gates is idling, and work here is
+energy gained by the ideal load. Preparing the source and selector, controlling
+the gates, external refuelling, sensor-memory erasure and identifying this
+hardware with the learning agent's actuator are outside this finite model.
 
 \textit{Active and passive composition (\texttt{Chain.lean}).}
 The theorem \texttt{chain} uses the passive predictive node; \texttt{chain\_active} uses the article's Eq.~\eqref{eq:active-chain-bound} for a named \texttt{FiniteFeedbackStep} $M$, heat observable $q$, thermal scale $\theta$ and budget $B$. The process's controller has the register's state type. \texttt{E34Active} requires positivity, local detailed balance at that register's temperature and $\langle Q\rangle_M\leq B$, with $B$ the register's heat. The entropy lower bound is derived by \texttt{activeBound\_\allowbreak of\_\allowbreak e34Active}. A lower bound on erasure heat supplies no upper bound for an actuator and equates no operations; the upper-budget allocation comes from a resource model instead. \texttt{RegisterLedger} carries one register's update, its operations as elementary steps controlled by that register, local detailed balance for each at that register's own temperature, and the accounting identity $Q_{\mathrm{reg}}=\sum_i\langle Q\rangle_i$ for the heat its operations deliver to its reservoir. \texttt{opHeat\_\allowbreak nonneg\_\allowbreak of\_\allowbreak compressive} applies the left inequality of the article's Eq.~\eqref{eq:active-chain-bound} to an operation with $H(p')\leq H(p)$, so its share is nonnegative; \texttt{opHeat\_\allowbreak le\_\allowbreak dissipation} then bounds an operation whose companions all compress by $Q_{\mathrm{reg}}$, and \texttt{e34Active\_\allowbreak of\_\allowbreak ledger} turns that bound into the edge. Under Landauer's heat equation, \texttt{ledger\_\allowbreak bathEntropy} exhibits the same total as the register's own bath entropy change. The identity and the compressiveness are the model's physical inputs. Equation~\eqref{eq:finite-update-balance} accounts for both finite update substeps at a common thermal scale; it supplies neither this allocation nor the coupling-convergence implication of E45Active, and the ledger's index labels operations rather than sequencing them into one evolving law.
@@ -1155,7 +1208,8 @@ Figure~\ref{fig:chain} in the main text separates the three requirements and the
 \textbf{Conceptual Claim} & \textbf{Lean 4 Implementation} & \textbf{Status} \\ \hline
 \endhead
 Continuing finite agent & \texttt{FiniteProtocol} sequences different operations on one evolving law. \texttt{ContinuingProcess} bounds total heat and joint entropy reduction by a declared work store plus the system's mean energy drop. \texttt{ContinuingAgent} executes actuation, observation-driven learning and reset; \texttt{Examples/ContinuingAgent.lean} proves persistent above-chance reward, positive recurring cost, a funded first cycle and exclusion of 22 cycles at its declared allowance. Blinding removes the reward advantage; omitting reset reduces later reward. \texttt{Chain.activeBound\_\allowbreak of\_\allowbreak continuing} derives stage budgets when every stage has nonnegative mean heat. The store constrains expectations at every prefix, not individual paths; the prior, store and composite-channel reservoir model are supplied. Sensor-memory implementation, battery dynamics, fabrication, register-ledger identification and cortical interpretation remain separate & Theorem (conditional) \\ \hline
-A store on the trajectory & \texttt{PathwiseStore} (\texttt{Phase3\_\allowbreak ContinuingAgent}) carries the store's reading as a state coordinate, with a draw and a declared supply per transition, so solvency is a claim about the states the protocol reaches. \texttt{solvent\_\allowbreak of\_\allowbreak funded} derives it from a stagewise funding condition through \texttt{exists\_\allowbreak pred\_\allowbreak of\_\allowbreak reachable}, with no positivity and a possibly random draw. \texttt{mean\_\allowbreak balance\_\allowbreak eq} averages the same ledger and \texttt{totalDraw\_\allowbreak le\_\allowbreak of\_\allowbreak solvent} derives the expected bound, one way only. \texttt{solvent\_\allowbreak forall\_\allowbreak of\_\allowbreak replenished} and \texttt{horizon\_\allowbreak le\_\allowbreak of\_\allowbreak net\_\allowbreak cost} are the sufficient and necessary fences on sustained operation. \texttt{Examples/PathwiseStore.lean} witnesses a store whose expected allowance never runs out and which a path of probability $1/4$ overdraws, and a deterministic spend-and-recharge cycle solvent at every horizon whose cumulative draw exceeds any allowance and whose supply is load-bearing. The supply, the initial law, a microscopic model of the supply and a separate sensor memory are declared or outside the model & Theorem (conditional) \\ \hline
+A store on the trajectory & \texttt{PathwiseStore} (\texttt{Phase3\_\allowbreak ContinuingAgent}) carries the store's reading as a state coordinate, with a draw and a declared supply per transition, so solvency is a claim about the states the protocol reaches. \texttt{solvent\_\allowbreak of\_\allowbreak funded} derives it from a stagewise funding condition through \texttt{exists\_\allowbreak pred\_\allowbreak of\_\allowbreak reachable}, with no positivity and a possibly random draw. \texttt{mean\_\allowbreak balance\_\allowbreak eq} averages the same ledger and \texttt{totalDraw\_\allowbreak le\_\allowbreak of\_\allowbreak solvent} derives the expected bound, one way only. \texttt{solvent\_\allowbreak forall\_\allowbreak of\_\allowbreak replenished} and \texttt{horizon\_\allowbreak le\_\allowbreak of\_\allowbreak net\_\allowbreak cost} are the sufficient and necessary fences on sustained operation. \texttt{Examples/PathwiseStore.lean} witnesses a store whose expected allowance never runs out and which a path of probability $1/4$ overdraws, and a deterministic spend-and-recharge cycle solvent at every horizon whose cumulative draw exceeds any allowance and whose supply is load-bearing. The generic supply is an input; finite-source accounting appears below. Initial-law preparation and separate sensor memory remain outside the model & Theorem (conditional) \\ \hline
+Finite supply and delivery & \texttt{PathwiseStore.SourceLedgered} identifies supply with a source coordinate's energy loss on the executed paths. \texttt{withSource\_\allowbreak ledgered} cancels internal replenishment from the combined resource boundary; \texttt{totalDraw\_\allowbreak le\_\allowbreak initial\_\allowbreak resources} bounds draw by the initial combined mean, and \texttt{horizon\_\allowbreak le\_\allowbreak of\_\allowbreak finite\_\allowbreak source} bounds a uniformly positive-cost horizon. \texttt{Examples/FiniteSupply.lean} discharges the identities with energy-conserving reversible gates on source, buffer and load bits, controlled by a uniformly prepared selector. Half the paths deliver a unit and half leave it in the source; an empty source delivers nothing. A forced unit-draw ledger fails, and the unbounded charger admits no nonnegative finite source. Initial preparation, gate control, external refuelling, sensor memory and identification with the learning agent's actuator remain separate & Theorem (conditional) \\ \hline
 Finite goal-directed control & \texttt{FiniteControlProblem} (\texttt{Phase3\_\allowbreak AgencyThermodynamics}) evaluates terminal reward and both substep costs on the same \texttt{FiniteFeedbackCycle}, with an explicit deterministic policy and shared world and memory channels. \texttt{exists\_optimal} proves finite feasible maximization. \texttt{Examples/AgencyControl.lean} computes every deterministic bit policy's performance, heat and work and proves a unique feasible optimum that strictly improves a declared lamp task. A feasible baseline misses the target; a better-performing policy exceeds the budget; equal final laws can have unequal heat. Objective, reservoir model, initial resource and budget are supplied. This comparison covers fixed policies; adaptation of a policy register is treated separately below & Theorem (conditional) \\ \hline
 Finite learning dynamics & \texttt{FiniteFeedbackStep.iterate} carries successive laws and telescopes entropy and first-law balances. \texttt{Examples/PolicyLearning.lean} proves strictly improving expected lamp reward, geometric convergence to a stationary mixture, positive update heat and bounded cumulative heat from the register's energy loss. Its energy encodes known task values. The limit is suboptimal; individual updates and a different initial preparation can lower reward. Task costs are prospective lamp task expectations. Preparing the register, executing task episodes, implementing the policy readout, cortical identification and the active chain's resource and spatial bridges require separate accounting & Theorem (conditional) \\ \hline
 Learning from observed outcomes & \texttt{FiniteObservationalLearner} (\texttt{Phase3\_\allowbreak ObservationalLearning}) holds an environmental parameter fixed and updates a policy register from the observed outcome of the action its readout executed. Neither the update nor the readout takes the parameter as an argument and the reward enters no channel, so nothing supplies the task's values. Act--observe--update composes into one \texttt{FiniteFeedbackStep}, carrying reward, heat and entropy on the same law. \texttt{Examples/ObservationalLearning.lean} gives every mass of that law at every horizon for a two-action task with an unknown rewarding action, hence strictly improving expected reward $3/4-\frac14(1/2)^n$ from a uniform prior, strict improvement over a frozen register and over an uninformative world under a common allowance, cumulative heat $(\log3/4)[1-(1/2)^N]$ and its equality with external work. \texttt{zero\_\allowbreak work\_\allowbreak needs\_\allowbreak parameter\_\allowbreak independent\_\allowbreak heat} proves that a free relaxation would carry no information about the parameter, so the work is irreducible. The limit is below certainty, each action is executed half the time at every horizon, and a reward-decreasing transition keeps positive probability. Preparing the prior, supplying the work, task episodes beyond the declared updates, fabricating the readout, optimal-policy convergence and cortical identification are separate & Theorem (conditional) \\ \hline

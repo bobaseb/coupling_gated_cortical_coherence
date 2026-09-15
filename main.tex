@@ -376,7 +376,31 @@ A store the protocol carries rather than reports supports a different claim. Let
  \beta(t)=\beta(s)-w^-(s,t)+w^+(s,t),\qquad w^-(s,t)\leq\beta(s)+w^+(s,t)
  \label{eq:pathwise-store}
 \end{equation}
-on every transition of positive probability out of a state the protocol reaches. A reading that starts nonnegative and satisfies the second condition at every stage is nonnegative at every state the protocol reaches, at every horizon. Averaging the first identity over the executed paths returns the mean ledger, $\langle\beta\rangle_N=\langle\beta\rangle_0-W^-_{<N}+W^+_{<N}$, so pathwise solvency implies the expected bound Eq.~\eqref{eq:continuing-budget} assumes. The converse fails: a store that spends a unit or idles with equal probability covers its expected draw at both prefixes of a two-stage run, with equality at the second, and is overdrawn on the path of probability $1/4$ that spends twice. An expected allowance is a bound on a mean and not a battery. Two conditions fence sustained operation. If the supply covers each draw as it is made, every horizon is solvent and no bound on cumulative work is needed. If instead $w^--w^+\geq c>0$ on every reachable transition, a reading starting no higher than $\beta_0$ gives $Nc\leq\beta_0$, which is the pathwise form of the store bound and constrains each trajectory rather than a mean. A deterministic spend-and-recharge cycle satisfies neither condition and is solvent at every horizon while the work it has drawn exceeds any declared allowance, so continuing operation is a claim about the supply. None of this requires positive support, and the supply, like the initial store, is declared rather than derived: preparing the initial law, a microscopic or fluctuating model of the supply itself, and a separately implemented sensor memory remain outside the model.
+on every transition of positive probability out of a state the protocol reaches. A reading that starts nonnegative and satisfies the second condition at every stage is nonnegative at every state the protocol reaches, at every horizon. Averaging the first identity over the executed paths returns the mean ledger, $\langle\beta\rangle_N=\langle\beta\rangle_0-W^-_{<N}+W^+_{<N}$, so pathwise solvency implies the expected bound Eq.~\eqref{eq:continuing-budget} assumes. The converse fails: a store that spends a unit or idles with equal probability covers its expected draw at both prefixes of a two-stage run, with equality at the second, and is overdrawn on the path of probability $1/4$ that spends twice. An expected allowance is a bound on a mean and not a battery. Two conditions fence sustained operation. If the supply covers each draw as it is made, every horizon is solvent and no bound on cumulative work is needed. If instead $w^--w^+\geq c>0$ on every reachable transition, a reading starting no higher than $\beta_0$ gives $Nc\leq\beta_0$, which is the pathwise form of the store bound and constrains each trajectory rather than a mean. A deterministic spend-and-recharge cycle satisfies neither condition and is solvent at every horizon while the work it has drawn exceeds any declared allowance, so continuing operation is a claim about the supply. None of this requires positive support; the generic store accepts its supply as an input.
+
+A finite source can be included in the same state. If its usable energy $R$ pays for each supplied transfer, then on every reachable transition
+\begin{equation}
+ R'=R-w^+,\qquad (\beta+R)'=(\beta+R)-w^- .
+ \label{eq:finite-source}
+\end{equation}
+Internal replenishment cancels from the combined ledger. Its expected supply
+is $W^+_{<N}=\langle R\rangle_0-\langle R\rangle_N$, and nonnegative store and
+source readings give $W^-_{<N}\leq\langle\beta+R\rangle_0$. If every executed
+draw before horizon $N$ is at least $c>0$ and the initial combined reading is
+at most $b$, then $Nc\leq b$. A direct transfer of one unit followed by idling
+saturates this bound; the cost premise concerns the finite run.
+Available energy does not guarantee delivery: a finite witness starts a source
+bit charged and its buffer and output load empty, with a uniform selector bit.
+The selector controls a source--buffer swap, followed by a buffer--load swap.
+Both gates are reversible and conserve the three energy bits' total energy.
+Half the paths deliver a unit to the load; half leave that energy in the source.
+The actual mean draw is $1/2$, and claiming a unit on every path violates the
+store ledger. An initially empty source delivers nothing. The indefinitely
+replenished charger cannot have any nonnegative finite source coordinate
+satisfying Eq.~\eqref{eq:finite-source}. This witness models one uncertain
+transfer followed by idling; source preparation, gate-control costs, external
+refuelling, a separate sensor memory and identification with the learning
+agent's actuator remain separate.
 
 Table~\ref{tab:summary} lists the connecting hypotheses of two branches. The theorem \texttt{chain} uses passive predictive memory; \texttt{chain\_active} uses a specified finite feedback process. Each accepts eight implications and shares the passage from coarse-graining to the phase model and its proposed representational role. In both, the finite register and the field boundary are independent starting objects.
 
@@ -427,7 +451,7 @@ Connection & Status & Required assumption \\
 \hline
 E12 & Independent physical premise & A finite-capacity system realizes a field that leaves its vacuum manifold. Capacity and the boundary are independent roots. \\
 E23 & Bridge assumption & The boundary is associated with a finite register whose update leaves states unreachable. \\
-E34 / E34Active & Bridge assumption & Passive: a predictive structure at the register's thermal scale and heat budget, with nonzero wasted memory. Active: positivity, local detailed balance and a register-heat allocation, derived from its ledger identity and other operations' compressiveness. A continuing protocol gives store budgets when stage heats are nonnegative; identifying these with register heat remains an input. A reversible register--bath gate delivers that register's erasure heat and satisfies neither the positivity nor the local-detailed-balance premise, so both stay inputs. \\
+E34 / E34Active & Bridge assumption & Passive: a predictive structure at the register's thermal scale and heat budget, with nonzero wasted memory. Active: positivity, local detailed balance and a register-heat allocation, derived from its ledger identity and other operations' compressiveness. Finite source and store budgets follow their own executed laws; identifying them with register heat remains an input. A reversible register--bath gate realizes erasure without satisfying the positivity or local-detailed-balance premise. \\
 E45 / E45Active & Modelling assumption & Passive: a convergent regime, for hardware holding a declared predictive law. Active: Eq.~\eqref{eq:actuated-coupling} from a supplied gain, profile and meshes; Eq.~\eqref{eq:kernel-limit} from declared response modes. \\
 E56 & Physical commitment & A specified physical field realizes the limiting coupling and satisfies the kernel conditions. \\
 E67 & Physical commitment & That field operates above the synchronization threshold. \\

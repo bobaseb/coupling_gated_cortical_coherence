@@ -1431,11 +1431,10 @@ supply is doing the work: remove it and the reading no longer records what
 happens to the store at all.
 
 \scope
-The supply is declared, exactly as the initial store was. Nothing here builds
-a battery, derives a power source, or models fluctuations in the supply
-itself. Preparing the initial law, implementing a separate sensor memory and
-charging its erasure, and every cortical identification remain outside this
-model.
+The generic supply is an input. The next subsection accounts for a finite
+source behind it. Preparing the initial resources, implementing a separate
+sensor memory and charging its erasure, and every cortical identification
+remain distinct tasks.
 
 \lean{\id{PathwiseStore} and its predicates \id{Ledgered}, \id{Funded} and
 \id{Solvent} live in \id{Phase3\_ContinuingAgent.lean}, with
@@ -1444,6 +1443,59 @@ model.
 \id{horizon\_le\_of\_net\_cost}. \id{Examples/PathwiseStore.lean} carries the
 gambler and the charger, including \id{sustained\_not\_solvent},
 \id{charger\_draw\_unbounded} and \id{unsupplied\_not\_ledgered}.}
+
+\subsection{The source belongs in the budget}
+\label{sec:finite-supply}
+
+Recharging a buffer moves the resource question to whatever charges it. Put
+that source in the state too, with usable energy $R$, and check that each
+transfer into the buffer is energy lost by the source:
+\[
+ R(\text{after})=R(\text{before})-w^+ .
+\]
+Add this to the buffer's ledger. The transfer $w^+$ cancels, leaving
+\[
+ (\beta+R)(\text{after})=(\beta+R)(\text{before})-w^- .
+\]
+If both resources stay nonnegative, the total work drawn cannot exceed their
+initial combined energy in expectation. If every executed stage before $N$
+draws at least $c>0$ and the initial combined reading is at most $b$, then
+$Nc\leq b$. A direct transfer of one unit followed by idling saturates the
+bound. Only the stages of that finite run need have positive cost.
+Moving the source inside the account does not create more energy.
+
+Energy being available is different from its arriving when requested. The
+finite witness has a source, a buffer and an output load, each storing zero
+or one unit, and a selector bit that stores no energy. Initially the source
+is full, the buffer and load empty and the selector uniform. If the selector
+is on, the first gate swaps source and buffer; if it is off, nothing moves.
+The second gate swaps buffer and load. Both gates are reversible and conserve
+the total energy. Half the runs deliver one unit to the load, and half leave
+it in the source. The mean work actually delivered is $1/2$.
+
+Three checks make the resource claim precise. Reporting a unit delivered on
+every run violates the buffer's ledger. Preparing the source empty gives zero
+delivery with the same gates. And the preceding subsection's charger, which
+keeps drawing without bound, cannot have any nonnegative finite source
+coordinate whose loss pays for its supply. Its continuing input has to cross
+that finite resource boundary.
+
+\scope
+This is one uncertain transfer; the selector is prepared once and is carried
+through both gates. Subsequent stages idle. The work is energy deposited in
+an ideal output load, and no heat bath is introduced. Preparing the source and
+selector, controlling the gates, externally refuelling the source, sensor
+memory and identifying this hardware with the learning agent's actuator remain
+separate modelling tasks.
+
+\lean{\id{SourceLedgered}, \id{withSource\_ledgered},
+\id{totalSupply\_eq\_source\_loss},
+\id{totalDraw\_le\_initial\_resources} and
+\id{horizon\_le\_of\_finite\_source} belong to \id{PathwiseStore} in
+\id{Phase3\_ContinuingAgent.lean}. \id{Examples/FiniteSupply.lean} proves
+the gates' reversibility and energy conservation, \id{law\_eq\_coin},
+\id{draw\_two}, \id{undelivered\_mass}, \id{forced\_not\_ledgered},
+\id{empty\_source\_draw} and \id{charger\_no\_finite\_source}.}
 
 \subsection{One register's ledger}
 \label{sec:register-ledger}
@@ -5136,6 +5188,7 @@ Finite policy selection (\S\ref{sec:agency-control}) & Unique feasible optimum i
 Policy adaptation (\S\ref{sec:policy-learning}) & Expected reward improves toward a stationary mixture; cumulative register heat is finite & Theorem for supplied values, thermal channel and initial preparation; task execution and readout installation excluded \\
 Continuing agent (\S\ref{sec:continuing-agent}) & \raggedright An act--learn--reset sequence retains above-chance reward at positive recurring cost & \raggedright\arraybackslash Theorem for a supplied prior, channels and work store; budgets bound expectations; battery and sensor-memory dynamics excluded \\
 Store on the trajectory (\S\ref{sec:pathwise-store}) & \raggedright A reading carried in the state is solvent on every path a funded process has, and an expected allowance is not a battery & \raggedright\arraybackslash Theorem without positivity; a supply covering each draw sustains any horizon and a uniformly positive net draw stops the process; the supply is declared \\
+Finite source (\S\ref{sec:finite-supply}) & \raggedright Internal replenishment cancels when source and store are counted together & \raggedright\arraybackslash Conditional finite-resource bound; reversible gates conserve energy but need not deliver it; preparation and gate control are inputs \\
 Learning from outcomes (\S\ref{sec:observational-learning}) & Expected reward of the executed action rises from $1/2$ toward $3/4$; the work spent is irreducible & Theorem for an unknown parameter, a declared prior and observation-driven updates; preparation, power supply and readout fabrication excluded \\
 Register's bath (\S\ref{sec:register-bath}) & \raggedright A reversible register--bath gate delivers the erasure heat, and a map-indexed budget needs a prepared bath and a work supply & \raggedright\arraybackslash Theorem (negative); positivity, local detailed balance and the ledger identity do not follow from reversibility \\
 KL bound; free-energy critique (\S\ref{sec:fep}) & Blocks ``dissipation $\Rightarrow$ true model'' & Instance postulate; the limit does \emph{not} follow \\

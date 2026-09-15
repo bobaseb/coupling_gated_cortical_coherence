@@ -56,10 +56,20 @@ allowance never runs out and which a realized path overdraws, and a
 spend-and-recharge cycle solvent at every horizon whose cumulative draw exceeds
 any allowance.
 
+`SourceLedgered` identifies that supply with the loss of a source coordinate
+on the same transitions. `withSource` adds its energy to the store's reading,
+so internal replenishment cancels. `totalDraw_le_initial_resources` and
+`horizon_le_of_finite_source` bound work and positive-cost horizons by the
+initial combined resources. `Examples/FiniteSupply.lean` discharges these
+identities with energy-conserving gates on a source, buffer and load: available
+energy does not guarantee delivery, and the unbounded charger cannot have a
+nonnegative finite source satisfying the identity.
+
 What this supplies is the bookkeeping of a continuing agent: one law, actual
 influence of the register on the world and an executed reset preparing later
-episodes. Initial-law preparation, a microscopic or fluctuating model of the
-supply, readout/actuator fabrication and a separate observation-memory
+episodes. The finite source is a separate witness, not the supply of those
+particular learning channels. Initial-law preparation, an externally refuelled
+source, readout/actuator fabrication and a separate observation-memory
 implementation are supplied or outside the model. The composite learning
 channel is assigned local detailed balance as a physical input. Neither
 optimal-policy convergence nor cortical identification follows.
@@ -549,41 +559,131 @@ theorem solvent_forall_of_replenished (hl : B.Ledgered)
     simp only at hb
     linarith
 
-/-- The reading a protocol can still show after `N` stages, when every executed
-transition draws at least `c` more than it supplies. -/
+/-- The reading a protocol can still show after `N` stages, when each executed
+transition before `N` draws at least `c` more than it supplies. The cost is
+restricted to the run: a finite state space cannot sustain a uniformly
+positive net draw at every natural-numbered stage. -/
 theorem balance_le_of_net_cost (hl : B.Ledgered) (c b : ℝ)
     (hb : ∀ z, B.protocol.Reachable 0 z → B.balance z.2 ≤ b)
-    (hc : ∀ n x s t, B.protocol.Reachable n (x, s) →
-      0 < (B.protocol.stage n x s).p t → c ≤ B.draw n x s t - B.supply n x s t)
-    (N : ℕ) : ∀ z, B.protocol.Reachable N z → B.balance z.2 ≤ b - N * c := by
-  induction N with
-  | zero => intro z hz; simpa using hb z hz
-  | succ N ih =>
-    intro z hz
-    obtain ⟨s, hsr, hst⟩ := B.protocol.exists_pred_of_reachable N z.1 z.2 hz
-    have hprev := ih (z.1, s) hsr
-    have hled := hl N z.1 s z.2 hsr hst
-    have hcost := hc N z.1 s z.2 hsr hst
+    (N : ℕ) (hc : ∀ n < N, ∀ x s t, B.protocol.Reachable n (x, s) →
+      0 < (B.protocol.stage n x s).p t → c ≤ B.draw n x s t - B.supply n x s t) :
+    ∀ z, B.protocol.Reachable N z → B.balance z.2 ≤ b - N * c := by
+  suffices ∀ k ≤ N, ∀ z, B.protocol.Reachable k z → B.balance z.2 ≤ b - k * c from
+    this N le_rfl
+  intro k
+  induction k with
+  | zero => intro _ z hz; simpa using hb z hz
+  | succ k ih =>
+    intro hk z hz
+    obtain ⟨s, hsr, hst⟩ := B.protocol.exists_pred_of_reachable k z.1 z.2 hz
+    have hprev := ih ((Nat.le_succ k).trans hk) (z.1, s) hsr
+    have hled := hl k z.1 s z.2 hsr hst
+    have hcost := hc k (lt_of_lt_of_le (Nat.lt_succ_self k) hk) z.1 s z.2 hsr hst
     simp only at hprev
     push_cast
     rw [hled]
     linarith
 
-/-- **Necessary.** If every executed transition draws at least `c > 0` more
-than it supplies, a store that starts no higher than `b` sustains at most
+/-- **Necessary.** If every executed transition before `N` draws at least
+`c > 0` more than it supplies, a store that starts no higher than `b` sustains at most
 `b / c` stages. This is the pathwise form of `ContinuingProcess.horizon_le_of_cost`,
 and unlike that one it constrains each trajectory. Continuing operation
 therefore requires a supply that keeps up; the model declares such a supply and
 does not derive one. -/
 theorem horizon_le_of_net_cost (hl : B.Ledgered) (c b : ℝ)
     (hb : ∀ z, B.protocol.Reachable 0 z → B.balance z.2 ≤ b)
-    (hc : ∀ n x s t, B.protocol.Reachable n (x, s) →
+    (N : ℕ) (hc : ∀ n < N, ∀ x s t, B.protocol.Reachable n (x, s) →
       0 < (B.protocol.stage n x s).p t → c ≤ B.draw n x s t - B.supply n x s t)
-    (N : ℕ) (h : B.Solvent N) : (N : ℝ) * c ≤ b := by
+    (h : B.Solvent N) : (N : ℝ) * c ≤ b := by
   obtain ⟨z, hz⟩ := B.protocol.exists_reachable N
-  have h1 := B.balance_le_of_net_cost hl c b hb hc N z hz
+  have h1 := B.balance_le_of_net_cost hl c b hb N hc z hz
   have h2 := h N le_rfl z hz
   linarith
+
+/-! ### Closing the replenishment boundary with a finite source -/
+
+/-- The source's usable energy falls by exactly what it supplies to the store,
+on the transitions this protocol executes. This is a physical identification
+to check on a model, not a consequence of the store ledger. Signed supply
+permits energy to return to the source. No preparation or external refuelling
+is included. -/
+def SourceLedgered (R : S → ℝ) : Prop :=
+  ∀ n x s t, B.protocol.Reachable n (x, s) → 0 < (B.protocol.stage n x s).p t →
+    R t = R s - B.supply n x s t
+
+/-- Enlarge the resource boundary to include the source. Transfers between
+source and store are internal, so this combined store has zero external supply.
+Its ledger requires both constituent transfer identities. -/
+noncomputable def withSource (R : S → ℝ) : PathwiseStore X S :=
+  ⟨B.protocol, fun s => B.balance s + R s, B.draw, fun _ _ _ _ => 0⟩
+
+/-- Adding the two pathwise ledgers cancels their internal supply. The source
+identity is a hypothesis; no physical source is derived for an arbitrary store. -/
+theorem withSource_ledgered (R : S → ℝ) (hb : B.Ledgered)
+    (hr : B.SourceLedgered R) : (B.withSource R).Ledgered := by
+  intro n x s t hs ht
+  have h1 := hb n x s t hs ht
+  have h2 := hr n x s t hs ht
+  change B.balance t + R t = B.balance s + R s - B.draw n x s t + 0
+  linarith
+
+/-- The same source's loss pays for the cumulative supply. This is first-law
+bookkeeping on the actual law, with no entropy or work-extraction efficiency
+claim. In particular, returned energy contributes negative supply. -/
+theorem totalSupply_eq_source_loss (R : S → ℝ) (hr : B.SourceLedgered R) (N : ℕ) :
+    B.totalSupply N = (∑ z, (B.protocol.law 0).p z * R z.2) -
+      ∑ z, (B.protocol.law N).p z * R z.2 := by
+  let source : PathwiseStore X S :=
+    ⟨B.protocol, R, B.supply, fun _ _ _ _ => 0⟩
+  have hl : source.Ledgered := by
+    intro n x s t hs ht
+    simpa only [source, add_zero] using hr n x s t hs ht
+  have hm := source.mean_balance_eq hl N
+  have hz : source.totalSupply N = 0 := by
+    simp [totalSupply, source, FiniteFeedbackStep.meanHeat]
+  rw [hz, add_zero] at hm
+  change (∑ z, (B.protocol.law N).p z * R z.2) =
+    (∑ z, (B.protocol.law 0).p z * R z.2) - B.totalSupply N at hm
+  linarith
+
+/-- Nonnegative store and source readings imply nonnegative combined resources.
+This does not imply that energy in the source can reach a load when requested. -/
+theorem withSource_solvent (R : S → ℝ) (N : ℕ) (hb : B.Solvent N)
+    (hr : ∀ k ≤ N, ∀ z, B.protocol.Reachable k z → 0 ≤ R z.2) :
+    (B.withSource R).Solvent N := by
+  intro k hk z hz
+  exact add_nonneg (hb k hk z hz) (hr k hk z hz)
+
+/-- **A finite source is part of the budget.** When both resources stay
+nonnegative, all drawn work is bounded by their initial mean sum. This
+requires the source's actual loss to equal the supply; it gives neither
+delivery on demand nor a preparation mechanism for the initial resources. -/
+theorem totalDraw_le_initial_resources (R : S → ℝ) (hb : B.Ledgered)
+    (hr : B.SourceLedgered R) (N : ℕ) (hs : B.Solvent N)
+    (hR : ∀ k ≤ N, ∀ z, B.protocol.Reachable k z → 0 ≤ R z.2) :
+    B.totalDraw N ≤ B.meanBalance 0 + ∑ z, (B.protocol.law 0).p z * R z.2 := by
+  have h := (B.withSource R).totalDraw_le_of_solvent
+    (B.withSource_ledgered R hb hr) N (B.withSource_solvent R N hs hR)
+  simpa [withSource, totalDraw, totalSupply, meanBalance,
+    FiniteFeedbackStep.meanHeat, mul_add, Finset.sum_add_distrib] using h
+
+/-- **Moving the boundary does not create a perpetual source.** A lower bound
+`c` on every executed draw before `N` and an upper bound `b` on the initial combined
+resources give `N*c ≤ b`. The useful horizon bound needs `c > 0`; idling or
+returning work need not exhaust a finite source. No positivity of masses is
+assumed, and energy delivery remains a separate dynamical question. -/
+theorem horizon_le_of_finite_source (R : S → ℝ) (hb : B.Ledgered)
+    (hr : B.SourceLedgered R) (c b : ℝ)
+    (h0 : ∀ z, B.protocol.Reachable 0 z → B.balance z.2 + R z.2 ≤ b)
+    (N : ℕ) (hc : ∀ n < N, ∀ x s t, B.protocol.Reachable n (x, s) →
+      0 < (B.protocol.stage n x s).p t → c ≤ B.draw n x s t)
+    (hs : B.Solvent N)
+    (hR : ∀ k ≤ N, ∀ z, B.protocol.Reachable k z → 0 ≤ R z.2) :
+    (N : ℝ) * c ≤ b := by
+  apply (B.withSource R).horizon_le_of_net_cost
+    (B.withSource_ledgered R hb hr) c b h0 N _ (B.withSource_solvent R N hs hR)
+  intro n hn x s t hs ht
+  simpa only [withSource, sub_zero] using hc n hn x s t hs ht
 
 end PathwiseStore
 

@@ -896,18 +896,16 @@ because they rank below the A–D items.
 - [ ] Add or confirm the journal-required data-availability statement and the
       supplemental-material description. *Blocked on a journal choice.*
 - [ ] **Table 1 of the article overflows its page.** `pdflatex` reports
-      `Float too large for page by 36.47pt on input line 440`, and the
-      consequence is visible in the built PDF: the last line of the caption
-      runs into the page number. The `table` float holding the eight-row
+      `Float too large for page by 22.87pt on input line 464` after the
+      2026-09-15 finite-source row alignment, down from 36.47pt. The `table` float holding the eight-row
       summary is taller than `\textheight`, so no placement specifier helps —
       the fix is structural. `longtable`, as Table S1 already uses, is the
       obvious candidate; splitting the `Required assumption` column's longest
       cells is the alternative. This is a defect in a tracked deliverable,
       which `README.md` and `index.html` link directly, and it predates the
-      2026-09-15 pathwise-store change: that change left the row text alone
-      rather than grow the overflow to 77pt for one sentence, so the table
-      currently omits a result the article's body carries. Fixing the float is
-      the prerequisite for putting it back. Verify by rebuilding and checking
+      2026-09-15 pathwise-store change. The finite-source change fits its
+      resource-accounting summary by shortening the E34 row, but leaves the
+      structural overflow open. Verify by rebuilding and checking
       that the warning is gone, not only that the page count is unchanged.
 - [ ] Final read of every cited reference and every generated numerical macro
       after the last prose edit. **On hold at the user's request, 2026-09-14.**
@@ -1823,8 +1821,16 @@ submission prerequisite.
       cortical identification. *The store's own half is closed:* `PathwiseStore`
       (2026-09-15) carries the reading as a state coordinate, proves solvency on
       the trajectories the protocol has, and fences sustained operation from
-      both sides. A microscopic or fluctuating model of the supply itself is not
-      part of that and stays here.
+      both sides. *A finite source is also closed (2026-09-15):*
+      `SourceLedgered` identifies supply with a source coordinate's loss;
+      including that source in the store bounds draw and positive-cost horizons
+      by the initial combined resources. `Examples/FiniteSupply.lean` derives
+      uncertain delivery through energy-conserving reversible gates on source,
+      buffer and load bits, with a prepared selector. It rejects a forced-work
+      ledger and a finite source for the unbounded charger. Specification:
+      `tasks/finite_supply.md`. Initial-law/source preparation, gate control,
+      external refuelling, a separate sensor memory and connecting this source
+      to the learning agent's actual channels remain open.
 - [x] **E45Active — a scalar constitutive case.** Completed 2026-09-14:
       `ActuatedCoupling` constructs a spatial density from the named feedback
       step's joint entropy reduction, a supplied nonnegative gain and a supplied
@@ -2929,3 +2935,59 @@ fluctuating model of the supply itself, a separately implemented sensor memory
 and its erasure, optimal-policy convergence, and any cortical identification.
 The remaining agency gaps are those first three and local content agreement.
 Specification and execution record: `tasks/pathwise_store.md`.
+
+## 2026-09-15 — A finite source behind replenishment
+
+`PathwiseStore.SourceLedgered R` identifies each supplied transfer with the
+source coordinate's actual energy loss, on the protocol's reachable
+transitions. `withSource R` includes that source in the store's reading and
+sets external supply to zero. `withSource_ledgered` adds the constituent
+identities; `totalSupply_eq_source_loss` telescopes the source's own energy;
+`totalDraw_le_initial_resources` bounds the expected draw by the initial
+combined resources when both remain nonnegative; and
+`horizon_le_of_finite_source` bounds positive-cost finite runs by their initial
+combined capacity. No positivity of masses, entropy inequality or physical
+source for an arbitrary store is assumed or inferred.
+
+The cost premise is restricted to stages before the horizon being bounded.
+Review found that `balance_le_of_net_cost` and `horizon_le_of_net_cost`
+required a uniformly positive net draw at every natural-numbered stage, which
+is impossible for a ledgered coordinate on a finite state space. Their
+induction now uses only `n < N`, and the source theorem reuses it.
+`direct_draw_one` consumes one unit in one stage, `direct_horizon` instantiates
+the positive-cost source bound, and `direct_not_uniform_cost` proves that the
+same run idles afterwards and fails the unbounded premise. This supplies the
+positive-cost non-vacuity that a possibly zero-draw stochastic witness cannot.
+The reusable lesson is recorded in `tasks/lessons.md`.
+
+`Examples/FiniteSupply.lean` carries a source, buffer and output load with bit
+energies zero and one and a selector with degenerate levels. A
+selector-controlled source/buffer swap is followed by a buffer/load swap;
+both gates are involutions and conserve total energy. Supply is the source
+loss, draw is the load gain and conservation discharges the store ledger.
+`law_eq_coin` derives every horizon's actual law from the once-prepared
+selector. From a charged source and empty buffer/load, half the paths deliver
+a unit and half leave it in the source. The mean draw after the two gates and
+the mean supply after the first are each `1/2`, and `draw_le_capacity` bounds
+every horizon by the initial unit. Later stages idle.
+
+`forced_not_ledgered` rejects a claimed unit delivered on every path;
+`empty_source_draw` gives zero delivery from an initially empty source; and
+`charger_no_finite_source` excludes any nonnegative finite source coordinate
+for the previously constructed charger with unbounded cumulative draw.
+Available energy and delivery on demand are distinct claims about this model.
+
+The initial ten specifications failed before the declarations existed. A
+second red run strengthened the source horizon test to bounded cost and added
+the existing horizon theorem and depletion controls; all 14 retained
+specifications pass. Article, supplement, Table S1 and primer now state this
+scope, and their PDFs and the assembled arXiv artifact have been rebuilt.
+Final build and gate results are recorded in `tasks/finite_supply.md`.
+
+This closes the finite-source half of **Physical preparation and supply beyond
+the finite model**, not the entire item. Still open: preparing the initial law
+and charged source, gate control and fabrication, externally refuelled supply,
+a separately implemented sensor memory and its erasure, and identification
+with the learning agent's actual channels. Local content agreement is also
+open. No Python, dependency, reference, generated macro or simulation changed.
+Specification and execution record: `tasks/finite_supply.md`.

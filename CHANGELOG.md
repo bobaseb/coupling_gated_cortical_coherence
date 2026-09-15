@@ -20,6 +20,28 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-15 — A finite source behind replenishment
+
+The resource discussion no longer leaves every microscopic supply model
+outside the development. `PathwiseStore.SourceLedgered` identifies supply
+with a finite source's actual energy loss; including the source in the resource
+boundary cancels internal replenishment and bounds work by the initial combined
+resources. A reversible source/buffer/load witness conserves total energy and
+delivers a unit on only half its paths, so initial capacity is not delivery on
+demand. The earlier unbounded charger cannot have a nonnegative finite source
+coordinate satisfying that identity.
+
+The pathwise horizon bound also has a weaker, realizable premise: positive
+cost is required only before the chosen horizon. Requiring a uniformly
+positive net draw at every natural-numbered stage is impossible for a finite
+state coordinate. A one-stage depletion followed by idling instantiates the
+bounded theorem and rejects the unbounded premise.
+
+Preparation, gate-control costs, external refuelling and sensor memory remain
+open. This finite source is not identified with the observational learner's
+actuator or its heat reservoir. Specification and validation:
+`tasks/finite_supply.md` and the dated `tasks/todo.md` record.
+
 ## 2026-09-15 — A store on the trajectory, and what replenishment buys
 
 Two scope sentences are no longer written. The article said that the continuing

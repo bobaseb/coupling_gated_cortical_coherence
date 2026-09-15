@@ -1,5 +1,17 @@
 # Lessons Learned
 
+- **2026-09-15: A finite-state exhaustion bound needs a finite-horizon cost premise.**
+  A state coordinate on a finite type is bounded below. Requiring its net
+  loss to be at least `c > 0` at every natural-numbered stage, with a ledger
+  valid for all stages, is impossible: induction forces the coordinate below
+  that lower bound. Such a premise makes an otherwise correct horizon bound
+  vacuous in its advertised positive-cost case. Restrict the cost to `n < N`
+  for the horizon being bounded. `balance_le_of_net_cost` and both pathwise
+  horizon results now do so. A control that transfers its unit in one stage
+  and then idles discharges the bounded premise, saturates the bound, and
+  rejects the unbounded premise. Positive-cost non-vacuity needs its own
+  witness; a stochastic model with possible zero draws does not supply one.
+
 - **2026-09-15: Put the resource in the state to make the claim pathwise.**
   A budget compared against an expectation can only bound an expectation. Adding
   the store's reading as a *coordinate of the state* makes solvency a statement
