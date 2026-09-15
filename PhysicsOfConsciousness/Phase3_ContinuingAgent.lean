@@ -393,6 +393,32 @@ theorem exists_pred_of_reachable (n : ℕ) (x : X) (t : S)
 
 end FiniteProtocol
 
+/-- A charge paid once every `p` stages, summed over `m` whole periods. Each
+block `[p*k, p*k + p)` holds exactly one index congruent to `j`, so the total is
+`m * c` however the cost is distributed inside a period. -/
+theorem sum_period_indicator (p j : ℕ) (hj : j < p) (c : ℝ) (m : ℕ) :
+    (∑ n ∈ Finset.range (p * m), if n % p = j then c else 0) = m * c := by
+  induction m with
+  | zero => simp
+  | succ m ih =>
+    have hblock : (∑ n ∈ Finset.Ico (p * m) (p * m + p),
+        if n % p = j then c else 0) = c := by
+      rw [Finset.sum_Ico_eq_sum_range]
+      simp only [Nat.add_sub_cancel_left]
+      have hcongr : ∀ i ∈ Finset.range p,
+          (if (p * m + i) % p = j then c else 0) = if i = j then c else 0 := by
+        intro i hi
+        rw [Finset.mem_range] at hi
+        rw [Nat.mul_add_mod, Nat.mod_eq_of_lt hi]
+      rw [Finset.sum_congr rfl hcongr, Finset.sum_ite_eq' (Finset.range p) j fun _ => c,
+        ite_eq_left (Finset.mem_range.2 hj)]
+    have hsplit : p * (m + 1) = p * m + p := by ring
+    rw [hsplit, Finset.range_eq_Ico,
+      ← Finset.sum_Ico_consecutive _ (Nat.zero_le (p * m)) (Nat.le_add_right (p * m) p),
+      ← Finset.range_eq_Ico, ih, hblock]
+    push_cast
+    ring
+
 /-! ## A store carried on the trajectory -/
 
 /-- A finite protocol whose state carries the reading of its own work store,
@@ -559,17 +585,18 @@ theorem solvent_forall_of_replenished (hl : B.Ledgered)
     simp only at hb
     linarith
 
-/-- The reading a protocol can still show after `N` stages, when each executed
-transition before `N` draws at least `c` more than it supplies. The cost is
-restricted to the run: a finite state space cannot sustain a uniformly
-positive net draw at every natural-numbered stage. -/
-theorem balance_le_of_net_cost (hl : B.Ledgered) (c b : ℝ)
+/-- The reading a protocol can still show after `N` stages, when the executed
+transitions of stage `n` each draw at least `cost n` more than they supply. The
+cost is restricted to the run, and it is a function of the stage: an agent that
+pays at one operation in four is not described by a single constant. -/
+theorem balance_le_of_stage_cost (hl : B.Ledgered) (cost : ℕ → ℝ) (b : ℝ)
     (hb : ∀ z, B.protocol.Reachable 0 z → B.balance z.2 ≤ b)
     (N : ℕ) (hc : ∀ n < N, ∀ x s t, B.protocol.Reachable n (x, s) →
-      0 < (B.protocol.stage n x s).p t → c ≤ B.draw n x s t - B.supply n x s t) :
-    ∀ z, B.protocol.Reachable N z → B.balance z.2 ≤ b - N * c := by
-  suffices ∀ k ≤ N, ∀ z, B.protocol.Reachable k z → B.balance z.2 ≤ b - k * c from
-    this N le_rfl
+      0 < (B.protocol.stage n x s).p t → cost n ≤ B.draw n x s t - B.supply n x s t) :
+    ∀ z, B.protocol.Reachable N z →
+      B.balance z.2 ≤ b - ∑ n ∈ Finset.range N, cost n := by
+  suffices ∀ k ≤ N, ∀ z, B.protocol.Reachable k z →
+      B.balance z.2 ≤ b - ∑ n ∈ Finset.range k, cost n from this N le_rfl
   intro k
   induction k with
   | zero => intro _ z hz; simpa using hb z hz
@@ -580,9 +607,19 @@ theorem balance_le_of_net_cost (hl : B.Ledgered) (c b : ℝ)
     have hled := hl k z.1 s z.2 hsr hst
     have hcost := hc k (lt_of_lt_of_le (Nat.lt_succ_self k) hk) z.1 s z.2 hsr hst
     simp only at hprev
-    push_cast
-    rw [hled]
+    rw [Finset.sum_range_succ, hled]
     linarith
+
+/-- The constant case: a uniform net draw at every executed transition. A finite
+state space cannot sustain one at every natural-numbered stage, so the cost is
+restricted to the run being bounded. -/
+theorem balance_le_of_net_cost (hl : B.Ledgered) (c b : ℝ)
+    (hb : ∀ z, B.protocol.Reachable 0 z → B.balance z.2 ≤ b)
+    (N : ℕ) (hc : ∀ n < N, ∀ x s t, B.protocol.Reachable n (x, s) →
+      0 < (B.protocol.stage n x s).p t → c ≤ B.draw n x s t - B.supply n x s t) :
+    ∀ z, B.protocol.Reachable N z → B.balance z.2 ≤ b - N * c := by
+  intro z hz
+  simpa using B.balance_le_of_stage_cost hl (fun _ => c) b hb N hc z hz
 
 /-- **Necessary.** If every executed transition before `N` draws at least
 `c > 0` more than it supplies, a store that starts no higher than `b` sustains at most
@@ -598,6 +635,51 @@ theorem horizon_le_of_net_cost (hl : B.Ledgered) (c b : ℝ)
   obtain ⟨z, hz⟩ := B.protocol.exists_reachable N
   have h1 := B.balance_le_of_net_cost hl c b hb N hc z hz
   have h2 := h N le_rfl z hz
+  linarith
+
+/-- **A cost paid once per period.** An agent whose stages are not alike draws
+at some of them and not at others, so a bound asking for a positive net draw at
+*every* executed transition reaches it only at `c ≤ 0`. Here stage `j` of each
+period costs at least `c`, the other stages of the period return no more than
+they take, and a run solvent through `m` whole periods gives `m * c ≤ b`. -/
+theorem horizon_le_of_periodic_cost (hl : B.Ledgered) (p j : ℕ) (hj : j < p) (c b : ℝ)
+    (h0 : ∀ z, B.protocol.Reachable 0 z → B.balance z.2 ≤ b) (m : ℕ)
+    (hc : ∀ n < p * m, n % p = j → ∀ x s t, B.protocol.Reachable n (x, s) →
+      0 < (B.protocol.stage n x s).p t → c ≤ B.draw n x s t - B.supply n x s t)
+    (hrest : ∀ n < p * m, n % p ≠ j → ∀ x s t, B.protocol.Reachable n (x, s) →
+      0 < (B.protocol.stage n x s).p t → 0 ≤ B.draw n x s t - B.supply n x s t)
+    (hs : B.Solvent (p * m)) : (m : ℝ) * c ≤ b := by
+  obtain ⟨z, hz⟩ := B.protocol.exists_reachable (p * m)
+  have hcost : ∀ n < p * m, ∀ x s t, B.protocol.Reachable n (x, s) →
+      0 < (B.protocol.stage n x s).p t →
+      (if n % p = j then c else 0) ≤ B.draw n x s t - B.supply n x s t := by
+    intro n hn x s t hsr hst
+    by_cases h : n % p = j
+    · rw [ite_eq_left h]
+      exact hc n hn h x s t hsr hst
+    · rw [ite_eq_right h]
+      exact hrest n hn h x s t hsr hst
+  have h1 := B.balance_le_of_stage_cost hl _ b h0 (p * m) hcost z hz
+  rw [sum_period_indicator p j hj c m] at h1
+  have h2 := hs (p * m) le_rfl z hz
+  linarith
+
+/-- **A store cannot be run down through channels of full support.** If every
+transition of every stage has positive mass then the ledger holds between every
+pair of states in both directions, so the reading is constant and every net draw
+is zero. A fundable agent therefore has restricted support somewhere: the
+witness's failure to be positive is forced, not chosen. -/
+theorem net_draw_eq_zero_of_positive [Nonempty S] (hl : B.Ledgered)
+    (hp : B.protocol.Positive)
+    (hcost : ∀ n x s t, 0 ≤ B.draw n x s t - B.supply n x s t)
+    (n : ℕ) (x : X) (s t : S) : B.draw n x s t = B.supply n x s t := by
+  have hle : ∀ (k : ℕ) (y : X) (u v : S), B.balance v ≤ B.balance u := by
+    intro k y u v
+    have h := hl k y u v (B.protocol.law_positive hp k (y, u)) (hp.2 k y u v)
+    have hc := hcost k y u v
+    linarith
+  have h1 := hl n x s t (B.protocol.law_positive hp n (x, s)) (hp.2 n x s t)
+  have h2 : B.balance t = B.balance s := le_antisymm (hle n x s t) (hle n x t s)
   linarith
 
 /-! ### Closing the replenishment boundary with a finite source -/
@@ -684,6 +766,28 @@ theorem horizon_le_of_finite_source (R : S → ℝ) (hb : B.Ledgered)
     (B.withSource_ledgered R hb hr) c b h0 N _ (B.withSource_solvent R N hs hR)
   intro n hn x s t hs ht
   simpa only [withSource, sub_zero] using hc n hn x s t hs ht
+
+/-- **The periodic horizon, with the source inside the boundary.** The same
+count of whole periods, bounded by the initial combined resources rather than by
+a store alone. Replenishment from the declared source is internal and cancels;
+nothing here prepares that source or refuels it from outside. -/
+theorem periodic_horizon_le_of_finite_source (R : S → ℝ) (hb : B.Ledgered)
+    (hr : B.SourceLedgered R) (p j : ℕ) (hj : j < p) (c b : ℝ)
+    (h0 : ∀ z, B.protocol.Reachable 0 z → B.balance z.2 + R z.2 ≤ b) (m : ℕ)
+    (hc : ∀ n < p * m, n % p = j → ∀ x s t, B.protocol.Reachable n (x, s) →
+      0 < (B.protocol.stage n x s).p t → c ≤ B.draw n x s t)
+    (hrest : ∀ n < p * m, n % p ≠ j → ∀ x s t, B.protocol.Reachable n (x, s) →
+      0 < (B.protocol.stage n x s).p t → 0 ≤ B.draw n x s t)
+    (hs : B.Solvent (p * m))
+    (hR : ∀ k ≤ p * m, ∀ z, B.protocol.Reachable k z → 0 ≤ R z.2) :
+    (m : ℝ) * c ≤ b := by
+  refine (B.withSource R).horizon_le_of_periodic_cost
+    (B.withSource_ledgered R hb hr) p j hj c b h0 m ?_ ?_
+    (B.withSource_solvent R (p * m) hs hR)
+  · intro n hn h x s t hsr hst
+    simpa only [withSource, sub_zero] using hc n hn h x s t hsr hst
+  · intro n hn h x s t hsr hst
+    simpa only [withSource, sub_zero] using hrest n hn h x s t hsr hst
 
 end PathwiseStore
 

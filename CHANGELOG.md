@@ -20,6 +20,33 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-15 — The source that pays for the clearing
+
+Four scope sentences are no longer written. The article, the supplement, Table
+S1 and the primer each said that supplying the work the sensor memory's
+operations draw, and connecting that memory to the finite source, were outside
+the model. One coordinate of the agent's own world now carries the charge those
+operations spend.
+
+The generic half is that the store's reading bound now takes a cost that depends
+on the stage, so an agent paying at one operation in four is describable at all:
+`balance_le_of_stage_cost`, with the constant case derived from it rather than
+proved twice, `sum_period_indicator` and `horizon_le_of_periodic_cost`. The
+obstruction is recorded as a theorem in the same file:
+`net_draw_eq_zero_of_positive` proves that a protocol whose channels all have
+full support admits no net draw at all, so the funded witness's restricted
+support is forced.
+
+Two things the model does not do are stated in all three documents rather than
+repaired. `erase : M → ProbDist M` reads only the memory — the fence that makes
+its cost well defined — so it cannot be conditioned on the charge, and past the
+funded horizon the agent keeps clearing, keeps costing at least `(3/16) log 3`
+and draws nothing: the run is unfunded, not halted. And the unit drawn is a
+declared reading of the state, not the stage's log-ratio heat; identifying them
+needs the reservoir's own energy as a coordinate.
+
+Specification and execution record: `tasks/funded_agent.md`.
+
 ## 2026-09-15 — A sensor memory, and what clearing it costs
 
 Four scope sentences are no longer written. The article said the observation was

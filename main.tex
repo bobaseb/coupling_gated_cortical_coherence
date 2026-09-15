@@ -444,8 +444,39 @@ memory is about. Replacing the clearing by the symmetric drift costs nothing
 and carries the measurement into the next episode, where the erasure returns
 the standard state whatever was written. The four operations are stages of one
 protocol, so Eq.~\eqref{eq:continuing-budget} charges the whole run, clearing
-included. Preparing the prior, fabricating the gates, supplying the work and
-any cortical identification remain outside this model.
+included. Preparing the prior, fabricating the gates and any cortical
+identification remain outside this model.
+
+The work those operations draw can be carried in the same state. Let a
+coordinate $R$ of the agent's own state read a finite charge, let each executed
+transition draw that coordinate's loss, and let the clearing spend at least $c$
+of it while no operation returns any. If the charge starts no higher than $b$
+and stays nonnegative through $m$ complete cycles, then
+\begin{equation}
+ mc\leq b ,
+ \label{eq:funded-horizon}
+\end{equation}
+so a finite source funds finitely many clearings. The bound needs a cost that
+depends on the stage: an agent that pays at one operation in four meets a
+uniform per-transition cost only at $c\leq0$, while a charge paid once in each
+period of $p$ operations sums to $mc$ over $m$ periods however it sits inside
+the period. A witness whose world carries the task flag and a charge of three
+units, one spent at each clearing, attains Eq.~\eqref{eq:funded-horizon} at
+three cycles and reads below empty at the sixteenth operation. Its clearings
+cost between $(3/16)\log3$ and $(5/16)\log3$ throughout, by the marginal bounds
+above, so what the source funds is what Eq.~\eqref{eq:erasure-cost} prices. The
+drawn unit is a declared reading of the state and is not identified with that
+heat.
+
+Two limits here belong to the model rather than to the witness. The clearing is
+a channel of the memory alone, so it cannot be conditioned on the charge: past
+the third cycle the agent still clears, still costs at least $(3/16)\log3$ and
+draws nothing, so the run is unfunded rather than halted. And an agent all of
+whose channels have full support cannot be funded at all. A ledgered reading
+that never rises is then constant between every pair of states, in both
+directions, so every net draw is zero, and the witness's restricted support is
+forced by that rather than chosen. Preparing the charge, refuelling it from
+outside and fabricating the gates remain outside this model.
 
 Table~\ref{tab:summary} lists the connecting hypotheses of two branches. The theorem \texttt{chain} uses passive predictive memory; \texttt{chain\_active} uses a specified finite feedback process. Each accepts eight implications and shares the passage from coarse-graining to the phase model and its proposed representational role. In both, the finite register and the field boundary are independent starting objects.
 

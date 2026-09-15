@@ -515,6 +515,35 @@ theorem le_envLaw_act (n : ℕ) (h : n % 4 = 0) (e' : Env) (a : ℝ)
   rw [G.envLaw_act n h e']
   exact G.le_joint n _ a fun w s => ha _ _ _
 
+/-- The same bound for a *set* of world states. A world with more than one
+coordinate has marginals that no single state's mass sees, and the measurement
+below reads one of them. -/
+theorem envLaw_act_sum_le (n : ℕ) (h : n % 4 = 0) (F : Finset Env) (b : ℝ)
+    (hb : ∀ w a e, (∑ e' ∈ F, (G.actuate w a e).p e') ≤ b) :
+    (∑ e' ∈ F, (G.envLaw (n + 1)).p e') ≤ b := by
+  have hswap : (∑ e' ∈ F, (G.envLaw (n + 1)).p e') =
+      ∑ w, ∑ s, (G.law n).p (w, s) *
+        ∑ e' ∈ F, (G.actuate w (G.readout s.1) s.2.2).p e' := by
+    rw [Finset.sum_congr rfl fun e' _ => G.envLaw_act n h e', Finset.sum_comm]
+    refine Finset.sum_congr rfl fun w _ => ?_
+    rw [Finset.sum_comm]
+    exact Finset.sum_congr rfl fun s _ => (Finset.mul_sum _ _ _).symm
+  rw [hswap]
+  exact G.joint_le n _ b fun w s => hb _ _ _
+
+theorem le_envLaw_act_sum (n : ℕ) (h : n % 4 = 0) (F : Finset Env) (a : ℝ)
+    (ha : ∀ w b e, a ≤ ∑ e' ∈ F, (G.actuate w b e).p e') :
+    a ≤ ∑ e' ∈ F, (G.envLaw (n + 1)).p e' := by
+  have hswap : (∑ e' ∈ F, (G.envLaw (n + 1)).p e') =
+      ∑ w, ∑ s, (G.law n).p (w, s) *
+        ∑ e' ∈ F, (G.actuate w (G.readout s.1) s.2.2).p e' := by
+    rw [Finset.sum_congr rfl fun e' _ => G.envLaw_act n h e', Finset.sum_comm]
+    refine Finset.sum_congr rfl fun w _ => ?_
+    rw [Finset.sum_comm]
+    exact Finset.sum_congr rfl fun s _ => (Finset.mul_sum _ _ _).symm
+  rw [hswap]
+  exact G.le_joint n _ a fun w s => ha _ _ _
+
 /-! ### The clear stage's heat, and the memory's share of it -/
 
 /-- The register's share of a stage's log-ratio heat. -/
@@ -629,6 +658,95 @@ theorem clear_memoryHeat_const (θ : ℝ) (ν : ProbDist M) (hν : ∀ m, 0 < ν
     rw [G.memoryLaw_clear n h m', hc]
     simp only [← Finset.sum_mul, (G.memoryLaw n).sum_one, one_mul]
   rw [G.clear_memoryHeat θ n h, hc, memoryHeat_const θ _ ν hν, hlaw]
+
+
+/-! ### The source these operations draw on -/
+
+/-- The store in which a declared coordinate `src` of the agent's own state pays
+for its operations. The draw on an executed transition is that coordinate's
+loss and the supply is the same quantity, so the source's ledger holds by
+construction and the store itself holds nothing: the energy is in the source.
+
+What `src` is not is derived. It is a declared reading of the agent's state, not
+the log-ratio heat of the stage that moves it; identifying the two needs the
+reservoir's own energy as a coordinate, as in `Examples/RegisterBath.lean`. -/
+noncomputable def drawnStore (src : R × (M × Env) → ℝ) :
+    PathwiseStore W (R × (M × Env)) :=
+  ⟨G.protocol, fun _ => 0, fun _ _ s t => src s - src t, fun _ _ s t => src s - src t⟩
+
+theorem drawnStore_ledgered (src : R × (M × Env) → ℝ) : (G.drawnStore src).Ledgered := by
+  intro n w s t _ _
+  show (0 : ℝ) = 0 - (src s - src t) + (src s - src t)
+  ring
+
+theorem drawnStore_sourceLedgered (src : R × (M × Env) → ℝ) :
+    (G.drawnStore src).SourceLedgered src := by
+  intro n w s t _ _
+  show src t = src s - (src s - src t)
+  ring
+
+/-- The same account with the source inside the boundary, so that the reading is
+the charge the agent still has. -/
+noncomputable def sourceStore (src : R × (M × Env) → ℝ) :
+    PathwiseStore W (R × (M × Env)) := (G.drawnStore src).withSource src
+
+@[simp] theorem sourceStore_balance (src : R × (M × Env) → ℝ) (s : R × (M × Env)) :
+    (G.sourceStore src).balance s = 0 + src s := rfl
+
+theorem sourceStore_ledgered (src : R × (M × Env) → ℝ) : (G.sourceStore src).Ledgered :=
+  (G.drawnStore src).withSource_ledgered src (G.drawnStore_ledgered src)
+    (G.drawnStore_sourceLedgered src)
+
+/-- **A finite source funds finitely many clearings.** A source coordinate that
+never rises on an executed transition, falls by at least `c` at every clear
+stage, starts no higher than `b` and stays nonnegative through `m` complete
+cycles satisfies `m * c ≤ b`. The agent's erasure is the operation
+`memoryHeat_const` prices, and this is the ledger of the energy it draws.
+
+The bound constrains a run that *is* solvent; it does not make the agent stop
+when the charge is gone. `erase : M → ProbDist M` reads nothing but the memory,
+so no channel of this agent can be conditioned on the source. -/
+theorem clearings_le_of_source (src : R × (M × Env) → ℝ) (c b : ℝ)
+    (m : ℕ)
+    (hmono : ∀ n < 4 * m, ∀ w s t, G.protocol.Reachable n (w, s) →
+      0 < (G.stage n w s).p t → src t ≤ src s)
+    (hclear : ∀ n < 4 * m, n % 4 = 3 → ∀ w s t, G.protocol.Reachable n (w, s) →
+      0 < (G.stage n w s).p t → src t ≤ src s - c)
+    (h0 : ∀ z, G.protocol.Reachable 0 z → src z.2 ≤ b)
+    (hs : ∀ k ≤ 4 * m, ∀ z, G.protocol.Reachable k z → 0 ≤ src z.2) :
+    (m : ℝ) * c ≤ b := by
+  refine (G.drawnStore src).periodic_horizon_le_of_finite_source src
+    (G.drawnStore_ledgered src) (G.drawnStore_sourceLedgered src) 4 3 (by norm_num) c b
+    ?_ m ?_ ?_ (fun k _ z _ => le_rfl) hs
+  · intro z hz
+    have := h0 z hz
+    show (0 : ℝ) + src z.2 ≤ b
+    linarith
+  · intro n hn h w s t hsr hst
+    have := hclear n hn h w s t hsr hst
+    show c ≤ src s - src t
+    linarith
+  · intro n hn _ w s t hsr hst
+    have := hmono n hn w s t hsr hst
+    show (0 : ℝ) ≤ src s - src t
+    linarith
+
+/-- **A positive agent draws nothing.** Full support at every stage makes the
+source's reading constant, so an agent all of whose channels can produce every
+state cannot be funded: `net_draw_eq_zero_of_positive`, at this agent's own
+store. The restricted support of a depleting coordinate is forced. -/
+theorem positive_source_never_falls [Nonempty (R × (M × Env))]
+    (src : R × (M × Env) → ℝ) (hp : G.Positive)
+    (hmono : ∀ n w s t, 0 < (G.stage n w s).p t → src t ≤ src s)
+    (n : ℕ) (w : W) (s t : R × (M × Env)) : src t = src s := by
+  have h := (G.sourceStore src).net_draw_eq_zero_of_positive (G.sourceStore_ledgered src)
+    (G.protocol_positive hp) (fun k y u v => by
+      have := hmono k y u v ((G.protocol_positive hp).2 k y u v)
+      show (0 : ℝ) ≤ (src u - src v) - 0
+      linarith) n w s t
+  have h0 : src s - src t = 0 := by
+    simpa [sourceStore, drawnStore, PathwiseStore.withSource] using h
+  linarith
 
 end MemoryAgent
 

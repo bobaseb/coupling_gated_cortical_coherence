@@ -1551,9 +1551,9 @@ the next episode; the erasure returns the standard state whatever was written.
 The four operations are stages of one protocol, so the cumulative entropy
 balance of \S\ref{sec:continuing-agent} charges the whole run including the
 clearing. Local detailed balance at the memory's reservoir is an input, as
-everywhere here. Preparing the prior, fabricating the gates, supplying the work
-these operations draw, connecting this memory to the finite source of
-\S\ref{sec:finite-supply}, and any cortical identification are separate.
+everywhere here. Preparing the prior, fabricating the gates and any cortical
+identification are separate; \S\ref{sec:funded-memory} supplies the source these
+operations draw on.
 
 \lean{\id{memoryHeat}, \id{memoryHeat\_const},
 \id{memoryHeat\_ge\_entropy\_drop} and \id{MemoryAgent} live in
@@ -1563,6 +1563,61 @@ these operations draw, connecting this memory to the finite source of
 \id{erase\_cost}, \id{memMass\_clear\_bounds}, \id{clear\_cost\_floor},
 \id{first\_cost\_decomposes}, \id{blind\_same\_cost}, \id{idle\_clear\_free}
 and \id{over\_ordered\_absorbs}.}
+
+\subsection{Who pays for the clearing}
+\label{sec:funded-memory}
+
+The clearing costs. Nothing so far says where the energy comes from. The store
+of \S\ref{sec:pathwise-store} is carried on the trajectory and the source of
+\S\ref{sec:finite-supply} is a separate three-bit witness; neither runs on the
+agent that does the clearing. Put them on one protocol: let the world the agent
+acts on carry a charge as well as a task flag, and let the operation that
+prepares the next episode spend a unit of it.
+
+The horizon bound of \S\ref{sec:pathwise-store} does not reach this agent as it
+stands, because it asks for a positive net draw at \emph{every} executed
+transition and this agent draws at one operation in four. The fix is to let the
+cost depend on the stage. A charge paid once in each period of $p$ operations
+sums to $mc$ over $m$ periods, however it sits inside the period, so a run that
+is solvent through $m$ cycles and starts no higher than $b$ satisfies
+\[
+ mc\leq b .
+\]
+A finite source funds finitely many clearings. In the witness the charge is
+three units and each clearing spends one, so three cycles are funded, the bound
+is attained, and the reading is below empty at the sixteenth operation. The
+memory channels are the ones of \S\ref{sec:sensor-memory}, so every clearing
+still costs between $(3/16)\log3$ and $(5/16)\log3$: what the source funds is
+what that section prices.
+
+Two things the model does not do are worth stating, because both are properties
+of the model rather than of this witness. First, the erasure is a channel of the
+memory alone --- that was the fence that made its cost well defined --- so it
+cannot be conditioned on the charge. Past the third cycle the agent keeps
+clearing, keeps costing at least $(3/16)\log3$, and draws nothing. The model
+says the run is unfunded, not that it stops. Second, an agent whose channels all
+have full support cannot be funded at all: if every transition is possible then
+a reading that never rises is squeezed between every pair of states in both
+directions, so it is constant and every net draw is zero. The witness's charge
+moves deterministically for that reason, not for convenience.
+
+\scope
+The unit the clearing draws is a declared reading of the agent's state. It is
+not identified with that stage's log-ratio heat; doing so needs the reservoir's
+own energy as a coordinate, as in \S\ref{sec:register-bath}. Preparing the
+charge, refuelling it from outside, fabricating the gates and any cortical
+identification are separate.
+
+\lean{\id{balance\_le\_of\_stage\_cost}, \id{sum\_period\_indicator},
+\id{horizon\_le\_of\_periodic\_cost},
+\id{periodic\_horizon\_le\_of\_finite\_source} and
+\id{net\_draw\_eq\_zero\_of\_positive} live in
+\id{Phase3\_ContinuingAgent.lean}; \id{MemoryAgent.drawnStore},
+\id{clearings\_le\_of\_source} and \id{positive\_source\_never\_falls} in
+\id{Phase3\_SensorMemory.lean}. \id{Examples/FundedMemory.lean} proves
+\id{charge\_invariant}, \id{clear\_spends\_one}, \id{cycles\_le\_three},
+\id{not\_solvent\_four}, \id{clear\_cost\_floor}, \id{clear\_unfunded} and
+\id{not\_positive}.}
 
 \subsection{One register's ledger}
 \label{sec:register-ledger}
@@ -5257,6 +5312,7 @@ Continuing agent (\S\ref{sec:continuing-agent}) & \raggedright An act--learn--re
 Store on the trajectory (\S\ref{sec:pathwise-store}) & \raggedright A reading carried in the state is solvent on every path a funded process has, and an expected allowance is not a battery & \raggedright\arraybackslash Theorem without positivity; a supply covering each draw sustains any horizon and a uniformly positive net draw stops the process; the supply is declared \\
 Finite source (\S\ref{sec:finite-supply}) & \raggedright Internal replenishment cancels when source and store are counted together & \raggedright\arraybackslash Conditional finite-resource bound; reversible gates conserve energy but need not deliver it; preparation and gate control are inputs \\
 Sensor memory (\S\ref{sec:sensor-memory}) & \raggedright Clearing a measurement register costs the entropy removed plus the relative entropy of what it held from the state it is driven to & \raggedright\arraybackslash Theorem for an erasure landing on one declared law; positive at every cycle from channel masses alone; a blind measurement pays the same and a matched memory nothing \\
+Funded clearing (\S\ref{sec:funded-memory}) & \raggedright A charge carried in the agent's own world and spent once per cycle funds $m\leq b/c$ clearings & \raggedright\arraybackslash Theorem for a stage-dependent cost; the erasure cannot be conditioned on the charge, so an exhausted run continues unfunded, and full support admits no net draw at all \\
 Learning from outcomes (\S\ref{sec:observational-learning}) & Expected reward of the executed action rises from $1/2$ toward $3/4$; the work spent is irreducible & Theorem for an unknown parameter, a declared prior and observation-driven updates; preparation, power supply and readout fabrication excluded \\
 Register's bath (\S\ref{sec:register-bath}) & \raggedright A reversible register--bath gate delivers the erasure heat, and a map-indexed budget needs a prepared bath and a work supply & \raggedright\arraybackslash Theorem (negative); positivity, local detailed balance and the ledger identity do not follow from reversibility \\
 KL bound; free-energy critique (\S\ref{sec:fep}) & Blocks ``dissipation $\Rightarrow$ true model'' & Instance postulate; the limit does \emph{not} follow \\

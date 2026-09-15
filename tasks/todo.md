@@ -1838,7 +1838,22 @@ submission prerequisite.
       alone. Specification: `tasks/sensor_memory.md`. Preparing the prior and
       the memory's initial law, gate fabrication and control, supplying the work
       these operations draw, and connecting this memory to the finite source or
-      to the learning agent's channels remain open.
+      to the learning agent's channels remain open. *The work those operations
+      draw now comes from a source in the agent's own state (2026-09-15):*
+      `balance_le_of_stage_cost` admits a cost that depends on the stage, so an
+      agent paying at one operation in four is describable;
+      `horizon_le_of_periodic_cost` and
+      `periodic_horizon_le_of_finite_source` give `m*c <= b` for a charge paid
+      once per period, and `MemoryAgent.clearings_le_of_source` applies that to
+      the clear stage. `net_draw_eq_zero_of_positive` proves that full support
+      admits no net draw at all. `Examples/FundedMemory.lean` carries three
+      units in the world the sensor-memory agent acts on, attains the bound at
+      three cycles and reads below empty at the sixteenth operation, while
+      every clearing still costs between `(3/16)log 3` and `(5/16)log 3`.
+      Specification: `tasks/funded_agent.md`. Preparing the prior, the memory's
+      initial law and the charge; gate fabrication and control; identifying the
+      drawn unit with the stage's own log-ratio heat; and external refuelling
+      remain open.
 - [x] **E45Active — a scalar constitutive case.** Completed 2026-09-14:
       `ActuatedCoupling` constructs a spatial density from the named feedback
       step's joint entropy reduction, a supplied nonnegative gain and a supplied
@@ -3079,3 +3094,88 @@ identifying this memory with the finite source's load or with the learning
 agent's actual channels, and any cortical identification. The remaining agency
 gaps are those and local content agreement. Specification and execution record:
 `tasks/sensor_memory.md`.
+
+## 2026-09-15 — The source that pays for the clearing
+
+`PathwiseStore.balance_le_of_stage_cost` (`Phase3_ContinuingAgent.lean`)
+generalizes the store's reading bound from a constant net cost to a stage
+function, concluding `balance <= b - sum_{n<N} cost n` on every reachable state;
+`balance_le_of_net_cost` is now derived from it rather than proved a second
+time. `sum_period_indicator` evaluates a charge paid at one residue per period
+as `m*c` over `m` periods, `horizon_le_of_periodic_cost` is the horizon bound
+that follows, and `periodic_horizon_le_of_finite_source` states it with the
+source inside the resource boundary. The reason the generalization is needed is
+structural: a four-stage agent draws at one operation in four, so
+`horizon_le_of_net_cost` reaches it only at `c <= 0`.
+
+`net_draw_eq_zero_of_positive` is the matching obstruction. On a `Positive`
+protocol the ledger holds between every pair of states in both directions, so a
+reading that never rises is constant and every net draw is zero. No agent whose
+channels all have full support can be funded by a finite source; the witness's
+restricted support is forced rather than chosen, and
+`MemoryAgent.positive_source_never_falls` carries that to the agent.
+
+`MemoryAgent.drawnStore` is the store whose draw and supply are both a declared
+coordinate's loss, hence `SourceLedgered` at that coordinate by construction,
+and `sourceStore` is its combined boundary.
+`MemoryAgent.clearings_le_of_source` instantiates the periodic bound at the
+clear stage: a source that never rises, falls by at least `c` at every clearing
+before the horizon, starts no higher than `b` and stays nonnegative through `m`
+cycles satisfies `m*c <= b`. `envLaw_act_sum_le` and `le_envLaw_act_sum` bound a
+marginal of a world with more than one coordinate, which the existing pointwise
+bounds do not see.
+
+`Examples/FundedMemory.lean` reuses the measurement, update, erasure and drift
+of `Examples/SensorMemory.lean`, so what the source funds is what
+`memoryHeat_const` prices. Its world is a task flag and a charge index in
+`{0,...,4}` read as `-1,...,3`; only the clear stage's world channel spends.
+`charge_invariant` proves by induction over `exists_pred_of_reachable` that the
+charge after `n` operations is exactly `4 - n/4`, so no joint law is computed
+anywhere: `source_nonincreasing`, `clear_spends_one` and `solvent_twelve` are
+its three corollaries. `cycles_le_three` is the bound at `c = 1`, `b = 3`,
+`m = 3`, attained, and `not_solvent_four` exhibits the reading below empty at
+the sixteenth operation. `clear_cost`, `clear_cost_floor` and
+`clear_cost_ceiling` price every clearing between `(3/16)log 3` and
+`(5/16)log 3` by the same marginal argument as the sensor-memory witness.
+
+Two negatives are recorded rather than repaired. `clear_unfunded` proves that
+from the sixteenth operation every executed clearing draws nothing while the
+floor still prices it: `erase : M -> ProbDist M` reads only the memory --- the
+fence that makes its cost well defined --- so no channel of this agent can be
+conditioned on the charge, and the run past three cycles is unfunded rather than
+halted. `not_positive` derives the agent's restricted support from the generic
+obstruction and the unit spent at the first clearing.
+
+Two red specifications were false as first written and were corrected before
+implementation, both for the non-vacuity reason `tasks/finite_supply.md` already
+records: a ledgered coordinate on a finite state space cannot pay a positive
+cost at every stage. `clearings_le_of_source` now restricts its cost premises to
+`n < 4*m`, and `clear_spends_one` to `n < 16`. `positive_source_never_falls`
+also changed shape, from a hypothesis that already forced a constant reading to
+monotonicity on the transitions the agent executes.
+
+The 19 retained specifications failed before the declarations existed (33
+errors, all absent declarations) and pass unchanged afterwards. The full
+`lake build` has zero warnings; the default axiom audit covers 3,956
+declarations in 61 modules with only `propext`, `Classical.choice` and
+`Quot.sound`, and twenty explicit headline checks agree. All fifteen pre-commit
+hooks pass under `uv --project simulations` at the repository root, as do the
+143 existing Python tests. No Python, dependency, reference, macro or simulation
+result changed.
+
+The article gained two paragraphs and the horizon equation, the supplement four
+paragraphs and a Table S1 row, and the primer a subsection and a summary-table
+row; four scope statements saying the work supply and the connection to the
+finite source were outside the model were rewritten, and are recorded in
+`CHANGELOG.md`. The rebuilt article, supplement and primer have 53, 44 and 88
+pages against 52, 43 and 87, with zero overfull boxes and underfull counts
+matching baseline builds of `HEAD` (2, 0, 29). Table 1 was not touched and its
+recorded 22.86668 pt overflow is unchanged. The 66-page arXiv submission
+compiles from its unpacked archive and passes manifest freshness.
+`git diff --cached --check` passes.
+
+Out of scope and still open: preparing the prior, the memory's initial law and
+the charge itself; fabricating and controlling the gates; identifying the drawn
+unit with the stage's own log-ratio heat; and external refuelling. The remaining
+agency gaps are those and local content agreement. Specification and execution
+record: `tasks/funded_agent.md`.
