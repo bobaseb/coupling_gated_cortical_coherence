@@ -132,7 +132,7 @@ These results characterize the stationary branch (Fig.~\ref{fig:bifurcation}). C
 \label{fig:bifurcation}
 \end{figure}
 
-A spatial version replaces the finite sum by an integral against a kernel $K(x,y)$. The substrate measure has total mass one, making the mean-field strength a kernel average. Applying the scalar threshold to a heterogeneous or signed kernel requires a justified reduction to that mean-field description.
+A spatial version replaces the finite sum by an integral against a kernel $K(x,y)$. The substrate measure has total mass one, making the mean-field strength a kernel average. Applying the scalar threshold to a heterogeneous or signed kernel requires a justified reduction to that mean-field description. Whether such a reduction preserves the organization it describes is itself measurable. Calcium imaging across wakefulness, sleep and anesthesia reports higher network modularity under unconsciousness at single-cell resolution, with spatially intermixed modules, and no consistent modularity difference at mesoscale, with spatially localized ones \cite{kiyooka2026}. A reduction of a cortical kernel has to name the scale at which it claims to hold.
 
 \subsection{Physical identification and calibration}
 \label{sec:scaling}
@@ -195,7 +195,7 @@ Additional controls test the approximations used by the physical model. Time-ste
 
 Public propofol-sedation EEG \cite{bajwa2025} provides an exploratory exercise of the concentration and coherence estimators. The implemented analysis pools channels over 100-ms windows, estimating a spatiotemporal phase distribution. Bipolar and common-reference montages produce different residuals. The bipolar results are compatible with the Bessel relation, but the concentration range is too narrow to distinguish it from its linear approximation at the observed scatter.
 
-An informative recording needs a broader concentration range, estimator calibration that accounts for dependence, and an observation model for source mixing, referencing and temporal pooling. The sleep-recovery hypothesis remains untested by these sedation recordings.
+An informative recording needs a broader concentration range, estimator calibration that accounts for dependence, and an observation model for source mixing, referencing and temporal pooling. The sleep-recovery hypothesis remains untested by these sedation recordings. Public single-cell calcium imaging of mouse cortex supplies the site count and the state coverage they lack, recording thousands of neurons per session with their spatial coordinates across wakefulness, NREM and REM sleep and isoflurane anesthesia \cite{oomoto2026}. Its 7.65\,Hz frame rate lies below the band in which the phase estimators used here operate, so it addresses sites and states rather than the bandwidth those estimators require.
 
 \subsection{A protocol for the awakening experiment}
 \label{sec:protocol}
@@ -321,7 +321,7 @@ The constraint most directly relevant to representation concerns predictive memo
  W_{\mathrm{diss}}\geq k_BT\left[I(X_t;S_t)-I(X_t;S_{t+1})\right].
  \label{eq:predictive}
 \end{equation}
-Under the no-back-action Markov structure $X_t\to S_t\to S_{t+1}$, the bracket is nonnegative \cite{still2012}. The bound limits nonpredictive memory at a given dissipation budget; zero retained information satisfies it too. Relating it to Landauer heat requires that memory waste be bounded by erased entropy at the same thermal scale and heat budget. These distinct information constraints \cite{rosas2026} leave content and learning dynamics to be specified.
+Under the no-back-action Markov structure $X_t\to S_t\to S_{t+1}$, the bracket is nonnegative \cite{still2012}. The bound limits nonpredictive memory at a given dissipation budget; zero retained information satisfies it too. Relating it to Landauer heat requires that memory waste be bounded by erased entropy at the same thermal scale and heat budget. These distinct information constraints \cite{rosas2026} leave content and learning dynamics to be specified. Reading either side of such a trade-off from data is a further problem. In a partially observed signaling model, an agent can estimate information gathered about a hidden signal and the dissipative cost of gathering it from the counting statistics of observed trajectories alone, at finite measurement time and limited resolution \cite{nicoletti2026}. The corresponding cortical estimator is not supplied here.
 
 An acting agent changes its future inputs, so the passive assumption requires justification for the variables and interval considered. A feedback model specifies a policy $A_t\sim\pi(\cdot\mid X_t)$, world dynamics $S_{t+1}\sim K(\cdot\mid S_t,A_t)$, an observation channel and a memory update. For finite states, the exact information balance is
 \begin{equation}
