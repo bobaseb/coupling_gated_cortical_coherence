@@ -6,6 +6,12 @@ prerequisite for publishing the present conditional framework. K1–K5 remain
 complete, R1–R7 retain their scope, and the two existing P-items are unchanged.
 Scheduling these extensions does not report them as proved or implemented.
 
+**Completed and documented 2026-09-16.** N1–N6 are proved and witnessed in
+`7833bbf`; the manuscript, supplement, primer and rebuilt PDFs now reflect
+them. The commit review and publication checks are recorded in
+`tasks/n_manuscript_review.md`. The leaf-checker correctness finding there is
+a separate gate-repair task; no R- or P-item has been closed.
+
 **Replanned 2026-09-15.** The preceding ledger is archived unchanged at
 `_archive/todo_2026-09-15_pre-coupling-budget-replan.md`. It closed A1–A7,
 B1–B6, C1–C4, D1–D2, E1–E4, F1–F6, L1–L4, the five agency items, the three
@@ -585,7 +591,10 @@ Carried from the archived ledger, plus one entry from this replan.
   another attempt to derive it from the current class fields.
 - The formalization paper and audit paper remain viable separate publications.
 - PRX Life presubmission was explicitly declined.
-- The three recorded leaf modules are terminal and are not re-litigated per pass.
+- The three explicitly recorded leaf modules are deliberate terminal results.
+  The separate checker-correctness issue found on 2026-09-16 is recorded in
+  `tasks/n_manuscript_review.md`; the recorded list is not a complete semantic
+  dependency audit.
 - **Coboundary repair as a consensus dynamics.** Least-squares minimisation of
   the discrepancy cochain over 0-cochains on the nerve is Laplacian consensus,
   and the residual it cannot remove is the cycle-space component. It presupposes
@@ -655,8 +664,8 @@ together.
 
 ### 2026-09-16 — N1–N6: the scheduled extensions, in Lean
 
-All six N-items are proved, witnessed and built. The pass added five library
-modules and five witness files; `lake build` is warning-free and the audit
+All six N-items are proved, witnessed and built. The pass added four library
+modules and six witness files; `lake build` is warning-free and the audit
 covers 5,028 declarations in 87 modules resting only on `propext`,
 `Classical.choice` and `Quot.sound`. Every item was run red first against the
 pre-change imports.
@@ -685,8 +694,8 @@ direction and `channel_ne_iff_fiberCount_ne` names the phase-to-world relation
 any positive comparison needs — the readout's fibre counts must differ. §27
 feeds four oscillators and a sign readout to the existing learner and proves the
 composed object *is* `ObservationalLearning.learner`, so its whole trajectory is
-that of a phase-derived channel. The control has the identical order parameter
-`1/4` at every parameter and action and observations independent of the
+that of a phase-derived channel. The control has the identical squared order
+parameter `r² = 1/4` at every parameter and action and observations independent of the
 parameter; its performance is `1/2` at every horizon against the learner's
 `3/4 - (1/4)(1/2)^n`. A constant readout is the phase-independent rejection.
 Coherence separates neither control from the informative case.
@@ -719,9 +728,10 @@ delimits `fieldCorrelation_sited_eq_zero`: the vanishing is about measure-zero
 support, not about finiteness. §26 witnesses it on `[0,4)` with cells of mass one
 and three, twelve units of weight and twelve units of registered correlation
 against the point architecture's zero. `no_forced_gap_of_best_wired` is the
-control for §1–2 of `Phase7_Rigidity`: an architecture whose support contains the
-best distinct pair is optimal at its resource, so the gap `rigid_gap` exhibits is
-forced by the missing wire alone.
+control for §1–2 of `Phase7_Rigidity`: the chosen distinct wired pair must
+dominate every pair, including diagonal pairs, so its correlation must be one.
+That architecture attains the resource bound; finiteness and fixed support
+alone do not force a gap.
 
 **N5 — bounded-error self-reconstruction.** `Phase6_Reconstruction.lean` defines
 an `Encoding` — relevant macrostates, encoder, readout — and `Reconstructs ε`.
@@ -753,8 +763,43 @@ total weight, one fixed and one reallocated by gradient descent; the docstring,
 comments, labels and title now say that and say the script measures no device.
 The figure was regenerated. It is referenced by no `.tex` file.
 
-**Not done, and deliberately.** The manuscript, supplement and primer are
-unchanged at the user's instruction, so Table 1, Table S1 and the implementation
-notes do not yet mention any N-item result, and no PDF was rebuilt. That is the
-remaining work for this pass under AGENTS.md §8. No R- or P-item status changed,
-no reference was added, and no simulation sweep was run.
+**Publication follow-up, completed 2026-09-16.** The Lean-only commit left the
+manuscript, supplement, primer and PDFs unchanged at the user's instruction.
+The subsequent requested alignment is recorded below. No R- or P-item status
+changed, no reference was added, and no simulation sweep was run.
+
+### 2026-09-16 — Review of 7833bbf and publication alignment
+
+- [x] Trace each N-item to its actual theorem hypotheses and witnesses.
+- [x] Update the article's abstract, relevant sections and Table 1; update
+      the supplement's implementation notes and Table S1.
+- [x] Update the companion primer and its status table; rebuild all three
+      tracked PDFs with two LaTeX passes and no new warnings.
+- [x] Rebuild the existing arXiv bundle and compile its unpacked archive.
+- [x] Run the Lean build and axiom audit, publication gates, working-tree
+      PDF dependency checks, citation comparison and rendered-page review.
+- [x] Review the finite-region leaf exemption. Retain it as a documented
+      terminal hardware comparison, distinct from the axiom allowlist.
+- [ ] Repair the leaf detector's false consumers in a separate change.
+      `Phase6_Locality` is masked by unrelated `run` and `ball` tokens;
+      `Phase3_PhaseSensor` is masked by the namespace prefix extracted from
+      a qualified declaration. Add failing regressions before changing the
+      detector, then classify the actual leaves rather than automatically
+      expanding its baseline. See `tasks/n_manuscript_review.md`.
+
+The publication describes normed vector contents with shared overlap
+encoders, phase-derived sensing at matched coherence, installation work on the
+learner's own law, finite positive-mass cell embeddings, reconstruction over a
+declared state family and causal-past limits on responsiveness. It preserves
+the distinction between a necessary energy condition and a coherent
+trajectory, between code counts and physical memory, and between support
+representation and device adequacy. The review also narrows the best-wired
+claim to its actual all-pairs maximum hypothesis.
+
+Validation: `lake build` passes with the audit covering 5,028 declarations in
+87 modules and only the permitted three foundational axioms. All applicable
+publication hooks pass. The PDFs have zero overfull boxes and no LaTeX
+warnings; existing underfull-box counts remain 3, 2 and 31 for article,
+supplement and primer. The arXiv archive compiles to 75 pages. No new
+reference, simulation result, Python implementation or Lean declaration is
+introduced in this alignment.

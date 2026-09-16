@@ -91,9 +91,10 @@ Two conditional mechanisms connect these requirements. Declared actuator modes
 have installation prices, so their stored energy bounds the mean coupling they
 can provide. For those modes, insufficient installed energy excludes a coherent
 stationary branch; the conversion depends on the hardware. Separately, patches
-that read phases through one common Lipschitz encoder have a content-disagreement
-bound determined by coherence. The encoder's scalar output is constant within
-each patch. These results connect specified physical quantities; neither chooses
+that read phases through Lipschitz encoders shared on their overlaps have a
+content-disagreement bound determined by coherence. Their outputs can be
+vectors and vary across sites; overlapping patches must encode a shared site's
+quantity the same way. These results connect specified physical quantities; neither chooses
 a neural decoder or identifies a conscious state.
 
 The cortex is the brain's outer neural sheet. Neurons communicate through
@@ -1330,6 +1331,41 @@ both baselines. Its regressions retain a reward-decreasing transition, an
 unchanged action marginal, a conditional-only informativeness of the outcome and
 the rejection of a reset law.}
 
+\subsection{A phase sensor can inform the learner}
+\label{sec:phase-sensor}
+
+\what
+A sensor needs a rule converting activity into an observation. Here it samples
+one oscillator uniformly and converts its phase into a symbol. If three of four
+oscillators read as success, the probability of observing success is $3/4$.
+The observation law is computed from the phase configuration and readout.
+
+\statement
+In the positive example, a matching action produces three phases at zero and
+one at $\pi$; a mismatching action reverses the counts. Reading zero as success
+produces exactly the observational learner of the preceding subsection.
+A control always has three zeros and one $\pi$, regardless of the task's
+unknown parameter or executed action. Its observations carry no task
+information and its reward stays at $1/2$.
+
+Both populations have the same coherence, $r^2=1/4$, in every case. The
+informative one learns because its phase configuration depends on the task in
+a way its readout can detect. A constant readout destroys that advantage even
+with the informative phase configuration unchanged.
+
+\scope
+The phase law and sampling hardware are supplied. No phase dynamics produces
+the configurations, and greater coherence is not shown to improve learning.
+In general the channel distinguishes two parameters exactly when some readout
+symbol occurs a different number of times at the executed action.
+
+\lean{
+\id{Phase3\_PhaseSensor.lean}: \id{PhaseSensor.channel},
+\id{channel\_ne\_iff\_fiberCount\_ne},
+\id{FiniteObservationalLearner.ofPhaseSensor}.
+\id{Examples/PhaseSensor.lean}, \S27, proves equality with the existing
+learner and the matched-coherence control.}
+
 \subsection{Running another episode costs another episode}
 \label{sec:continuing-agent}
 
@@ -2014,6 +2050,48 @@ identification, and these witnesses identify no cortical substrate.
 \id{Chain.installedEnergy\_required\_by\_chain} derives the necessary energy
 from E56 and E67 for this arrangement. \id{Examples/InstalledCoupling.lean}
 contains the numerical witnesses and the rejections.}
+
+\subsection{The learner pays to install its own coupling}
+\label{sec:learned-installation}
+
+\what
+The learning register can be identified with the actuator's switch. Its
+configuration is the same pair of bits: the unknown parameter and register.
+The mode is occupied when those bits agree. With the mode price and profile
+already specified, the law used to compute reward now also determines stored
+energy and installed coupling.
+
+\statement
+After $n$ updates, this exact example has
+\[
+ U_n=\frac34-\frac14\,2^{-n},\qquad K_n=4U_n=3-2^{-n}.
+\]
+The work of the next update includes the increase in storage and its heat:
+\[
+ \langle W_n\rangle=\frac{1+\log3}{8}\,2^{-n},\qquad
+ W_{<N}=\frac{1+\log3}{4}(1-2^{-N}).
+\]
+The kernel update is likewise averaged over the learner's own executed paths.
+Replacing its final law with an unrelated one gives a different kernel.
+
+The uninformative phase sensor uses the same hardware, prior, update rule and
+work allowance. It stays at $U_n=1/2$, $K_n=2$, with zero mean work.
+At $D=1$ and $\kappa=4$ this is exactly the scalar exclusion line. The learner
+starts there too, and one informative update raises its energy above the line.
+
+\scope
+The energy bound alone gives a necessary condition. The exact coupling formula
+can be compared with the stationary scalar threshold separately; neither
+calculation describes a coherent trajectory. No evolving phase dynamics feeds
+the installed kernel back into the sensor. Work here is an expectation under
+the declared reservoir model, not a demonstration of a physical power source.
+
+\lean{
+\id{Examples/LearnedCoupling.lean}, \S28:
+\id{installedEnergy\_learned}, \id{continuumEnergy\_learned},
+\id{kernel\_update\_on\_executed\_step}, \id{work\_learned},
+\id{cumulative\_work\_learned}, \id{uninformed\_no\_coherence},
+\id{learned\_above\_line}.}
 
 \section{What does not follow: the free-energy reading}
 \label{sec:fep}
@@ -3996,20 +4074,32 @@ has to be a function of the point $(\cos\theta,\sin\theta)$ on the circle; a
 model that reads $\theta$ as a real number is not $2\pi$-periodic and so is not
 a function of the phase at all. In the chord distance on that circle the
 squared separation is exactly $2(1-\cos\Delta)$ --- the same quantity the
-inequality bounds. Let every patch read one assigned oscillator through the
-same scalar encoder, declared Lipschitz at constant $L$. Its output is constant
-within that patch. The resulting observations agree on every overlap to within
-$L\sqrt{2}\,N\sqrt{1-r^{2}}$, with no agreement assumed anywhere. At $r^2=1$
+inequality bounds. Let every patch read one assigned oscillator through an
+encoder that can depend on the site being described. Its output may be a vector,
+such as two coordinates. All encoders must have one common Lipschitz bound $L$,
+and patches meeting at a site must use the same encoder there. The resulting
+observations agree on every overlap in norm to within
+$L\sqrt{2}\,N\sqrt{1-r^{2}}$. At $r^2=1$
 the residual is zero and the agreement is exact, so perfect locking is the
 endpoint of this scale rather than a separate theorem.
+
+Retained vector contents can be mixed with these observations:
+$s_i\mapsto(1-\eta)s_i+\eta o_i$, for $0\leq\eta\leq1$.
+The triangle inequality bounds the next overlap mismatch by
+$(1-\eta)\varepsilon+\eta\delta$ when the current contents and observations
+agree to tolerances $\varepsilon$ and $\delta$. Repeated updates give the
+upper bound $(1-\eta)^n\varepsilon+\delta$. A common nonexpansive linear
+summary preserves agreement, but agreement of one summary can conceal
+disagreement in another vector component.
 
 \scope
 This does not contradict the counterexample that opened the section, and seeing
 why is the point. The counterexample's two mass profiles are chosen
 \emph{independently of the oscillators}; nothing makes them functions of phase,
-so equal phases constrain them not at all. The positive bound needs the common
-encoder and its Lipschitz condition. Different decoders can disagree even at
-equal phase, and arbitrary phase-dependent content is outside this theorem.
+so equal phases constrain them not at all. The positive bound needs shared
+encoders on overlaps and a uniform Lipschitz condition. A formal witness has
+perfectly locked phases and disagreeing vector reports when the shared-encoder
+condition is dropped.
 
 That turns the framework's central distinction into an empirical question
 instead of a modelling convenience. Which kind a neural description is --- how
@@ -4019,20 +4109,60 @@ share the encoder required by the bound.
 
 The encoder and its constant are declared hardware, in the same sense as
 anything else the model supplies. The agreement is derived rather than declared,
-which is the whole point of the section. The contents are real-valued fields
+which is the whole point of the section. The contents are normed vector fields
 identified with no neural variable, and the bound is not tight: two antiphase
 oscillators give a residual of $2\sqrt2$ where the actual disagreement is $2$.
+The scalar case recovers the mass-profile setting only when nonnegative
+initial profiles and observations are supplied. Vector-valued agreement itself
+does not supply local coordinate changes or a probability-sheaf interpretation.
 
 \lean
 \id{Phase4\_KuramotoDynamics.lean}:
 \id{order\_parameter\_r\_sq\_eq\_mean\_cos}, \id{cos\_gap\_le\_of\_coherence},
 \id{circlePoint}, \id{chord}, \id{chord\_le\_of\_coherence},
 \id{chord\_eq\_zero\_of\_phase\_locked}.
-\id{Phase5\_ContentDynamics.lean}: \id{LipschitzEncoder},
-\id{compatible\_of\_coherence}, \id{compatible\_of\_phase\_locked},
-\id{run\_residual\_floor}, \id{run\_residual\_of\_coherence}; the antiphase
+\id{Phase5\_ContentDynamics.lean}: \id{SharedEncoder},
+\id{UniformLipschitzEncoder}, \id{compatible\_of\_shared\_coherence},
+\id{compatible\_of\_shared\_phase\_locked}, \id{compatible\_map},
+\id{run\_residual\_floor}, \id{run\_residual\_of\_shared\_coherence};
+vector witnesses in \id{Examples/VectorContent.lean}, \S22--23; the antiphase
 witness, its computed $r^2=0$ and the disagreement control in
 \id{Examples/AgencyFoundations.lean}.
+
+\subsection{How soon can a patch respond?}
+\label{sec:locality}
+
+\what
+Agreement at one instant says nothing about how quickly a new value reaches a
+patch. In a synchronous network, every site updates from its own state and
+messages from specified neighbours. After $T$ rounds it can depend only on
+initial states within its causal past: sites whose messages can reach it in
+at most $T$ hops.
+
+\statement
+Two initial configurations identical throughout that past produce the same
+local state at round $T$. This is derived from the update rule. If a fresh
+intervention changes a value outside the past, the site cannot distinguish
+the possible values. No report read from its state can be accurate to
+$\varepsilon$ for two values separated by more than $2\varepsilon$.
+The reconstruction inequality of Section~\ref{sec:reconstruction-family}
+makes the last step quantitative.
+
+A three-site line takes two rounds to relay a value from one end to the other.
+The formal example fails after one round and reports exactly after two.
+Cutting the path blocks delivery at every round.
+
+\scope
+A constant report may happen to be right about one fixed world. What fails is
+a guarantee across fresh interventions. Static compatible descriptions remain
+possible. Applying the bound to a brain or computer requires its actual
+communication paths, including memory and sensory routes, and a justified
+deadline.
+
+\lean{
+\id{Phase6\_Locality.lean}: \id{Network.run\_eq\_of\_agree\_on\_ball},
+\id{not\_reconstructs\_of\_outside\_past}.
+\id{Examples/Locality.lean}, \S25, supplies the delay, cut and snapshot controls.}
 
 \section{Where uniqueness comes from}
 
@@ -4453,14 +4583,55 @@ class as the overlap-agreement obligation of Part XI.
 blinded map) and \id{cortexBlind\_not\_determined} (two distinct states with
 identical blinded readings).
 
+\subsection{Reconstructing more than one relevant state}
+\label{sec:reconstruction-family}
+
+\what
+A fixed point says the predictor gets one state exactly right. Sensitivity asks
+whether the same encoding and readout can also distinguish relevant changes.
+Choose a family of macrostates, a metric and an acceptable error
+$\varepsilon$, and require accurate reconstruction throughout that family.
+
+\statement
+If two states $s,t$ receive the same code, their readout is the same state.
+The triangle inequality then gives
+\[
+ d(s,t)\leq d(s,R(E(s)))+d(t,R(E(t))).
+\]
+At least one error is half the separation or larger. Thus states more than
+$2\varepsilon$ apart need different codes if both are reconstructed to
+tolerance $\varepsilon$. A family of $M$ such states needs at least $M$
+codes, and an alphabet of at most $2^b$ codes can serve only $M\leq2^b$.
+
+This applies directly to the avatar: $E$ is its encoding, $R$ its readout,
+and $R\circ E$ the self-prediction map already used in the framework.
+The cortex witness reconstructs its two extreme states within tolerance one
+using a nonconstant, contracting map. Its blinded version fails at tolerance
+$1/2$ even though it has a unique fixed point. Another example needs three
+codes to distinguish three separated states.
+
+\scope
+Accuracy across a family is an additional operational criterion, not a
+consequence of having a Self or UnifiedSelf. It asks for bounded error rather
+than multiple exact fixed points of one contraction. The relevant states and
+metric are declared; the theorem demands no recovery of every microscopic
+hardware state. The code alphabet is a bare type, so a physical interpretation
+of $b$ as memory bits needs a hardware model.
+
+\lean{
+\id{Phase6\_Reconstruction.lean}: \id{dist\_le\_add\_error},
+\id{half\_dist\_le\_max\_error}, \id{Encoding.card\_le\_two\_pow},
+\id{ReflexiveBoundary.dist\_le\_prediction\_residuals}.
+\id{Examples/Reconstruction.lean}, \S24, checks the positive and blinded cases.}
+
 %======================================================================
 \part*{Part XIV. Coupling support, atomless measures, and hardware}
 \addcontentsline{toc}{section}{Part XIV. Coupling support, atomless measures, and hardware}
 %======================================================================
 
-Two formal comparisons bear on the substrate question. Both admit a stronger
-reading than they support, and the manuscript spends more words disowning the
-stronger reading than stating the results.
+Two features of a coupling representation bear on the substrate question:
+which pairs can interact, and whether components occupy points or regions
+under the measure used to evaluate them.
 
 \section{Resource-matched coupling reallocation}
 
@@ -4500,7 +4671,8 @@ The result is resource-matched and not question-begging, but it turns on
 to the best pair is not beaten.} It is a statement about constrained
 optimization, not about biology.
 
-\section{The continuum/discrete separation}
+\section{Point support and finite regions}
+\label{sec:finite-regions}
 
 Ordinary area gives a single point zero area, and any finite list of points
 still has zero area. A finite patch can have positive area. An \emph{atomless}
@@ -4517,8 +4689,30 @@ every phase field and every choice of weights, while a patch-supported kernel
 gives $c\,\mu(U)^2$. So a continuum observable cannot register a finitely-sited
 architecture at all.
 
+Finite components can instead occupy regions with positive mass. Partition the
+substrate into cells with masses $m_i>0$ and spread a finite matrix entry $A_{ij}$
+over its cell pair at density $A_{ij}/(m_i m_j)$. The two masses cancel when
+integrating. With phases constant on each cell,
+\[
+ \iint K=\sum_{i,j}A_{ij},\qquad
+ \iint K(x,y)\cos(\theta_y-\theta_x)
+   =\sum_{i,j}A_{ij}\cos(\theta_j-\theta_i).
+\]
+The embedding preserves both total weight and phase correlation exactly.
+Two intervals of masses one and three witness twelve units of weight and
+twelve units of correlation. The point-supported construction gives zero
+because of its measure-zero support; having finitely many components is
+insufficient to force that result.
+
+There is also a control for the wiring comparison. If the architecture wires
+both directions of a distinct, perfectly correlated pair, allocating all
+weight there attains the upper bound and no valid matrix of the same weight
+beats it. The formal maximum hypothesis includes diagonal pairs, whose
+correlation is one; merely being best among distinct pairs is not sufficient
+for that theorem as stated.
+
 \scope
-This one is a genuine type-level separation, but it is \textbf{not
+The point-supported comparison is \textbf{not
 resource-matched}---a measure-zero substrate carries zero resource in the
 $\mu\otimes\mu$ sense as well. What it establishes is a claim about the
 \emph{model's observable}, not about computational power. And as
@@ -4526,10 +4720,10 @@ Section~\ref{sec:nokernel} noted, it cuts against the framework's own
 coarse-graining step as much as against anything else.
 
 \medskip\noindent
-\textbf{Neither result formalizes manifold structure or lattice geometry.
-Neither establishes that digital hardware cannot approximate field dynamics or
-support consciousness. No biological-versus-artificial conclusion follows from
-either.} The manuscript's identification is, as stated, multiply realizable:
+\textbf{These results establish no biological-versus-artificial distinction
+in computational power or consciousness.} The cell embedding matches coupling weight, not joules; it provides
+no continuous kernel dynamics or refinement limit. The manuscript's identification
+is, as stated, multiply realizable:
 nothing in the sheaf or fixed-point conditions is specific to cortex or to
 electromagnetic coupling, so the substrate claim is carried entirely by E56 and
 E67 and is empirical.
@@ -4540,6 +4734,10 @@ E67 and is empirical.
 \id{rigid\_gap}, \id{exists\_better\_coupling\_allocation};
 \id{fieldCorrelation\_sited\_eq\_zero}, \id{fieldCorrelation\_patchKernel},
 \id{sited\_architecture\_below\_field\_optimum}.
+\id{Phase7\_FiniteRegion.lean}: \id{kernelIntegral\_cellKernel},
+\id{fieldCorrelation\_cellKernel}, \id{cellKernel\_not\_sitedOn},
+\id{no\_forced\_gap\_of\_best\_wired};
+\id{Examples/FiniteRegion.lean}, \S26.
 
 %======================================================================
 \part*{Part XV. Formal method: why the development declares no axioms}
@@ -5338,9 +5536,9 @@ own extension property.
 The reflexive map adds an internal representation of that same state. Under
 restriction-resonance, it restricts the global state to an encoding region and
 reads the encoding back out. A fixed point is accurately reconstructed at the
-level of its modelled variables. Exact reconstruction is an idealization, and
-the manuscript leaves an approximation appropriate to changing neural states
-as a research question.
+level of its modelled variables. Approximate reconstruction has explicit
+residual and code-separation bounds. Choosing a fidelity criterion appropriate
+to changing neural states remains an empirical question.
 
 The self interpretation concerns the perceiver's place in the represented
 situation. Reconstructing a scene alone would not demonstrate a perspective.
@@ -5558,8 +5756,10 @@ Sensor memory (\S\ref{sec:sensor-memory}) & \raggedright Clearing a measurement 
 Funded clearing (\S\ref{sec:funded-memory}) & \raggedright A charge carried in the agent's own world and spent once per cycle funds $m\leq b/c$ clearings & \raggedright\arraybackslash Theorem for a stage-dependent cost; the erasure cannot be conditioned on the charge, so an exhausted run continues unfunded, and full support admits no net draw at all \\
 \raggedright Preparing the prior (\S\ref{sec:preparation}) & \raggedright A constant preparation channel has the same heat identity as erasure; a uniform target has zero mean heat & \raggedright\arraybackslash Theorem for the declared channel; it preserves the parameter marginal and creates no parameter-hardware correlation. Biased bit targets have unbounded heat; exact preparation and implementation costs remain separate \\
 Learning from outcomes (\S\ref{sec:observational-learning}) & Expected reward of the executed action rises from $1/2$ toward $3/4$; the work spent is irreducible & Theorem for an unknown parameter, a declared prior and observation-driven updates; preparation, power supply and readout fabrication excluded \\
+\raggedright Phase sensor (\S\ref{sec:phase-sensor}) & \raggedright Symbol probabilities follow from oscillator counts; equal coherence can carry different task information & \raggedright\arraybackslash Theorem for supplied phase law, sampling and readout; no phase dynamics \\
 Register's bath (\S\ref{sec:register-bath}) & \raggedright A reversible register--bath gate delivers the erasure heat, and a map-indexed budget needs a prepared bath and a work supply & \raggedright\arraybackslash Theorem (negative); positivity, local detailed balance and the ledger identity do not follow from reversibility \\
 Installed energy (\S\ref{sec:installed-energy}) & \raggedright $K\leq\kappa U$ excludes the scalar coherent branch when $\kappa U\leq2D$ & \raggedright\arraybackslash Conditional theorem; hardware sets $\kappa$, installed energy is not heat, and exceeding the line does not guarantee coherence \\
+\raggedright Learning installs coupling (\S\ref{sec:learned-installation}) & \raggedright Reward, kernel and installation work use the same executed law & \raggedright\arraybackslash Exact witness; clears a necessary energy bound, with evolving phase feedback open \\
 KL bound; free-energy critique (\S\ref{sec:fep}) & Blocks ``dissipation $\Rightarrow$ true model'' & Instance postulate; the limit does \emph{not} follow \\
 Squared-drift gradient (\S\ref{sec:sigma}) & A descendable objective for plasticity & Theorem at fixed phases; \emph{not} entropy production \\
 Kuramoto SDE & The physical core & Model \\
@@ -5578,16 +5778,18 @@ Squared-drift plasticity (\S\ref{sec:plasticity}) & Dissipation descent $\ne$ le
 Mesh refinement & Discrete energy $\to$ continuum energy & Theorem (scalar energy only) \\
 No kernel from coarse-graining (\S\ref{sec:nokernel}) & Continuum kernel is an input & Theorem (negative) \\
 Sheaf gluing (\S\ref{sec:sheaf}) & Local $\to$ unique global state & Theorem + instance postulate \\
-Contents driven by observation & Agreeing observations preserve agreement and contract mismatch by $(1-\eta)$ per step; approximate observations add a nondecaying term to the error bound & Theorem; an upper bound on disagreement \\
-Coherence bounds disagreement & $N^2r^2=\sum_{ij}\cos(\theta_i-\theta_j)$ bounds each pair; observations from one shared scalar phase encoder agree to a residual read off $r$ & Theorem; the encoder is declared \\
+Contents driven by observation & \raggedright Vector-valued observations preserve agreement and bound retained mismatch by $(1-\eta)^n\varepsilon+\delta$ & \raggedright\arraybackslash Theorem; an upper bound, with scalar mass profiles a restricted instance \\
+Coherence bounds disagreement & \raggedright Phase order bounds vector-content mismatch under encoders shared on overlaps & \raggedright\arraybackslash Conditional theorem; encoders and uniform Lipschitz constant are declared \\
 Thermodynamics off finite state & Path divergence in $[0,\infty]$ on any measurable space: chain rule, data processing, second law; control over a compact action set & Theorem; the Shannon-entropy form does not generalize \\
 Compatibility $\ne$ phase agreement (\S\ref{sec:compat}) & The framework's central distinction & Theorem, with explicit counterexample \\
 Twisted gluing & Weakening to per-patch phases & Theorem; adds nothing (offsets are coboundaries) \\
 Winding numbers, phase lifts & Measured topological obstruction & Theorem + empirical candidate; no link to content \\
 Banach fixed point & The reflexive self & Conditional theorem; rate is an obligation \\
 Avatar / restriction resonance & Self-model runs through a region & Theorems, positive and negative halves \\
+\raggedright Reconstruction over a family (\S\ref{sec:reconstruction-family}) & \raggedright Separated states require distinct codes; $M\leq2^b$ & \raggedright\arraybackslash Theorem; declared states, metric and tolerance, without a physical memory model \\
+\raggedright Locality and latency (\S\ref{sec:locality}) & \raggedright Interventions outside a causal past cannot be reported accurately by its deadline & \raggedright\arraybackslash Theorem for local synchronous updates; snapshot compatibility remains possible \\
 Rigid wiring suboptimality & Support constraints cost correlation & Theorem; \emph{not} about biology \\
-Atomless / sited separation & Continuum observable ignores finite sites & Theorem; not resource-matched \\
+Point support and finite regions (\S\ref{sec:finite-regions}) & \raggedright Atomless integrals ignore finite points; positive-mass cells preserve finite matrix weight and correlation & \raggedright\arraybackslash Theorems about support representation; no device exclusion \\
 No-axioms methodology (\S\ref{sec:soundness}) & Postulates as instance obligations & Methodological; three refutations recorded \\
 Passive and active chains (\S\ref{sec:chain-theorems}) & Eight hypotheses per branch $\Rightarrow$ the same glued fixed state & Conditional theorems; both jointly satisfiable, budget-to-coupling connection assumed \\
 $(a,r)$ collapse (\S\ref{sec:collapse}) & Parameter-free distributional test & Compatible with EEG; range too narrow to discriminate \\

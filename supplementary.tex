@@ -417,6 +417,43 @@ updates, executing task episodes beyond the declared updates, fabricating the
 readout, convergence to an optimal policy and any cortical identification are
 outside this model.
 
+\subsection{A sensor channel computed from phases}
+\label{sec:supp-phase-sensor}
+
+In \texttt{Phase3\_\allowbreak PhaseSensor.lean}, a \texttt{PhaseSensor}
+declares a phase configuration $\theta(w,a,v)$ for environmental parameter $w$,
+executed action $a$ and oscillator $v$, together with a finite-symbol readout
+$h:\mathbb{R}\to O$. Sampling one of $N>0$ oscillators uniformly gives
+\begin{equation}
+ \Pr(o\mid w,a)=\frac{|\{v:h(\theta(w,a,v))=o\}|}{N}.
+ \label{eq:phase-sensor-channel}
+\end{equation}
+The channel probabilities are derived from those data. The phase law, sampling
+rule and readout remain supplied; a general real-angle readout here is not
+required to satisfy the periodic Lipschitz condition of the content encoders.
+Two parameters give different channels at an action exactly when some symbol's
+fibre counts differ
+(\texttt{channel\_\allowbreak ne\_\allowbreak iff\_\allowbreak fiberCount\_\allowbreak ne}).
+Equal phase configurations give equal channels, and a constant readout
+gives the same deterministic symbol everywhere.
+
+\texttt{FiniteObservationalLearner.ofPhaseSensor} feeds this channel into the
+existing learner without giving its update or action readout access to $w$.
+In \texttt{Examples/\allowbreak PhaseSensor.lean}, \S27, four oscillators take
+phases $0$ or $\pi$, read as success or failure. A matching action gives three
+success symbols and one failure; a mismatching action reverses those counts.
+The resulting learner is proved equal to the learner in
+Section~\ref{sec:supp-observational-learning}, so its entire law and reward
+formula apply. The control always has three success symbols and one failure,
+independently of parameter and action, and keeps expected reward $1/2$.
+Both populations have $r^2=1/4$ for every parameter and action; the informative
+learner strictly outperforms the control after any positive number of updates.
+A constant readout also removes the advantage while preserving the phase law.
+
+These witnesses distinguish information carried by a phase readout from
+coherence. They derive no phase configuration from Kuramoto dynamics and no
+learning advantage from increased coherence.
+
 \section{Repeated operation, memory and energy supply}
 \label{sec:supp-resources}
 
@@ -1270,6 +1307,58 @@ The fixed-phase squared-drift functional in \texttt{Phase8\_\allowbreak Continuo
 
 For a symmetric kernel, antisymmetry of $K(x,y)\sin(\theta_y-\theta_x)$ makes its double integral zero. Thus the mean drift is independent of the phase field. A dynamically phase-locked field attains the associated squared-drift lower bound under the stated hypotheses. The theorem \texttt{phase\_\allowbreak locked\_\allowbreak minimizes\_\allowbreak entropy\_\allowbreak of\_\allowbreak symm} expresses this minimization. A one-way two-site coupling supplies a counterexample without symmetry. These are statements about the objective and its constrained mean, not convergence of joint noisy phase/plasticity dynamics.
 
+\subsection{Learning, installation and work on one executed law}
+\label{sec:supp-learned-installation}
+
+\texttt{Examples/\allowbreak LearnedCoupling.lean}, \S28, identifies the
+observational learner's pair $(w,r)$ with the microscopic actuator's
+configuration. The mode is occupied when the two bits agree; its price is one,
+profile mass is two and conversion factor is $\kappa=4$. The arrangement
+after $n$ updates uses the learner's actual joint law, giving
+\begin{equation}
+ U_n=\frac34-\frac14\,2^{-n},\qquad
+ K_n=4U_n=3-2^{-n}.
+ \label{eq:learned-installation}
+\end{equation}
+\texttt{installedEnergy\_\allowbreak learned} and
+\texttt{continuumEnergy\_\allowbreak learned} prove these exact identities.
+\texttt{kernel\_\allowbreak update\_\allowbreak on\_\allowbreak executed\_\allowbreak step}
+identifies the ensemble-kernel change with the occupancy change averaged over
+that same step's forward paths.
+
+The first law prices the installation on those paths:
+\begin{align}
+ \langle W_n\rangle
+ &=U_{n+1}-U_n+\langle Q_n\rangle
+   =\frac{1+\log3}{8}\,2^{-n},\\
+ W_{<N}&=\frac{1+\log3}{4}(1-2^{-N})
+          \leq B,\qquad B=\frac{1+\log3}{4}.
+ \label{eq:learned-installation-work}
+\end{align}
+Heat is the composite-channel heat of Eq.~\eqref{eq:observational-heat};
+installed energy adds the mode's storage change to the energetically
+degenerate register account. These are formal witness identities, not
+simulation estimates. Work is positive at every update, so identically free
+installation is rejected.
+
+The uninformative sensor control of Section~\ref{sec:supp-phase-sensor} uses
+the same hardware, prior, update rule and allowance. Its joint law stays
+uniform, $U_n=1/2$ and $K_n=2$; transition-log heat vanishes on each path and
+mean installation work is zero. At $D=1$, the scalar field carrying its kernel
+has no coherent stationary branch at any horizon
+(\texttt{uninformed\_\allowbreak no\_\allowbreak coherence}). The learner also
+starts on the exclusion line, and its first update makes
+$\kappa U_n>2D$ (\texttt{learned\_\allowbreak above\_\allowbreak line}).
+Substituting the control's law for the executed final law changes the kernel
+and is explicitly rejected.
+
+The energy bound is necessary; exceeding it alone proves no coherence.
+The exact $K_n$ above permits a separate stationary scalar comparison, but
+neither comparison establishes an evolving coherent field. The sensor phases
+are supplied configurations, and no dynamics feeds the installed kernel back
+into them. The allowance bounds expectations, with preparation, source
+implementation and cortical identification still additional specifications.
+
 \section{Macroscopic Scaling and Kuramoto Phase Synchronization}
 \label{sec:supp-phase}
 We posit a continuous macroscopic coupling description. We model the local phases $\theta_i$ as coupled non-linear oscillators via the Kuramoto model.
@@ -1532,7 +1621,7 @@ Phase synchronization does not imply overlap compatibility. The model represents
 
 \textbf{Theorem 5 (Sheaf-Theoretic Unity):} Given the sheafification of finite spatial measures over a continuous substrate $X$, local measures that agree on all spatial intersections $U \cap V$ uniquely glue into a global spatial measure. The overlap agreement is an independent physical hypothesis; phase-locking does not imply it. This is not a theorem about arbitrary probability marginals over decoded contents, for which compatible overlaps need not determine a unique global joint distribution \cite{abramsky2011}.
 
-\textit{Lean 4 Implementation (\texttt{Phase5\_\allowbreak GlobalSection.lean}):} The headline gluing theorem separates two inputs. The class field \texttt{Thermodynamic\-Cover.\allowbreak thermodynamic\_\allowbreak equilibrium} places the phase field at the potential minimum, while \texttt{LocalSection\-Synchronization.\allowbreak section\_\allowbreak agrees\_\allowbreak of\_\allowbreak phase\_\allowbreak eq} independently requires equal-phase patches to agree on overlaps. The second supplies the compatible family consumed by this sheaf theorem. The scalar content models below give conditions for agreement of their own local fields; they do not discharge this class field for an arbitrary cover.
+\textit{Lean 4 Implementation (\texttt{Phase5\_\allowbreak GlobalSection.lean}):} The headline gluing theorem separates two inputs. The class field \texttt{Thermodynamic\-Cover.\allowbreak thermodynamic\_\allowbreak equilibrium} places the phase field at the potential minimum, while \texttt{LocalSection\-Synchronization.\allowbreak section\_\allowbreak agrees\_\allowbreak of\_\allowbreak phase\_\allowbreak eq} independently requires equal-phase patches to agree on overlaps. The second supplies the compatible family consumed by this sheaf theorem. The vector-content models below give conditions for agreement of their own local fields; they do not discharge this class field for an arbitrary cover.
 
 What the second one says can be stated without the sheaf: on a discrete substrate two patch sections have the same restriction to their overlap exactly when they assign the same mass to every site they share (\texttt{restrict\_\allowbreak eq\_\allowbreak iff\_\allowbreak densityOn\_\allowbreak eqOn}), so the hypothesis is that patches at a common phase carry a common local density where they meet. It excludes data the rest of the structure admits: a two-patch cover of the three-site substrate at one phase, with profiles differing at the shared site, satisfies every other requirement and fails this one (\texttt{overlap\_\allowbreak agreement\_\allowbreak fails}). It does not require patches to agree away from their overlaps --- the three-patch witness carries three pairwise-different profiles.
 
@@ -1620,7 +1709,8 @@ relaxed hypothesis and the selection returns its glued profile
 
 The agreement above is a hypothesis on a supplied family. What a mechanism
 would have to do is change the family, so the contents are carried as fields
-$s_i:A\to\mathbb{R}$ on the patches of a declared cover and each patch's field
+$s_i:A\to E$ in a real normed vector space $E$ on the patches of a declared
+cover. Disagreement at a shared site is $\|s_i(x)-s_j(x)\|$, and each patch's field
 is mixed with that patch's observation at gain $\eta\in[0,1]$,
 $s_i\mapsto(1-\eta)s_i+\eta o_i$. Disagreement across an overlap then obeys
 \begin{equation}
@@ -1630,13 +1720,13 @@ $s_i\mapsto(1-\eta)s_i+\eta o_i$. Disagreement across an overlap then obeys
 with $\varepsilon$ the contents' mismatch and $\delta$ the observations' own
 (\texttt{update\_\allowbreak residual},
 \texttt{Phase5\_\allowbreak Content\-Dynamics}).
-Two consequences follow and no more. Observations that agree on their
+Observations that agree on their
 overlaps preserve exact agreement, and contract any initial mismatch to
 $(1-\eta)^{n}\varepsilon$ after $n$ of them, even when the value they agree
 on moves (\texttt{update\_\allowbreak preserves},
-\texttt{run\_\allowbreak residual}). Observations that disagree by $\delta$
-leave a residual floor at $\delta$, which
-Eq.~\eqref{eq:content-residual} charges rather than absorbs.
+\texttt{run\_\allowbreak residual}). Observations agreeing only to tolerance
+$\delta$ contribute that tolerance to the upper bound in
+Eq.~\eqref{eq:content-residual}.
 
 A readout names which patch to read at each site. Where that choice covers the
 site, the readout is within $\varepsilon$ of every patch that sees it
@@ -1645,10 +1735,17 @@ patch and is the only field that does
 (\texttt{readout\_\allowbreak agrees}, \texttt{readout\_\allowbreak unique}).
 Coverage is a hypothesis of those theorems rather than a property of a
 pre-existing global field, which is the same discipline the selection results
-above follow. The mass profiles of this section are such a family read through
-the coercion, at the same tolerance
+above follow. The nonnegative mass profiles are the scalar case $E=\mathbb{R}$,
+read through the coercion at the same tolerance
 (\texttt{ApproximateGluing.compatible\_\allowbreak pointwise}), so the two
-agreement predicates in the development are one predicate.
+agreement predicates coincide on those profiles.
+
+\texttt{compatible\_\allowbreak real} and \texttt{update\_\allowbreak real}
+identify the scalar instances. A common nonexpansive linear map preserves
+compatibility (\texttt{compatible\_\allowbreak map}); the converse fails.
+\texttt{Examples/\allowbreak VectorContent.lean}, \S22, supplies a
+nonconstant two-component family with a unique extension and two vectors
+whose first projections agree while their second components disagree.
 
 Observations agreeing only to $\delta$ are covered by the same recursion.
 Iterating Eq.~\eqref{eq:content-residual} bounds disagreement by
@@ -1658,12 +1755,12 @@ decays for $\eta>0$, while the bound retains $\delta$. This is an upper bound;
 it does not assert that the actual disagreement reaches that value. The next
 subsection supplies a condition under which the observations themselves agree.
 
-The contents remain real-valued fields identified with no neural variable and
+The contents remain vector-valued fields identified with no neural variable and
 with no section of the probability sheaf.
 
 The selection results concern nonnegative spatial mass profiles on a finite
-substrate, while these updates act on real-valued local fields. Using the
-updates as a dynamics of mass profiles requires observations and initial
+substrate, while these updates act on normed-space-valued local fields. Using
+the scalar instance as a dynamics of mass profiles requires observations and initial
 profiles that preserve nonnegativity. Neither construction concerns matching
 marginals of decoded contents \cite{abramsky2011}, or selects a cover, decoder
 or weights. Theorem~5, the \texttt{ThermodynamicCover} instances and the
@@ -1672,9 +1769,9 @@ composed chain retain their exact agreement hypothesis.
 \subsection{Agreement acquired from coherence}
 \label{sec:coherence-agreement}
 
-What makes two patches observe compatibly is the coordination of the
-oscillators they read. The order parameter of Sec.~\ref{sec:content-dynamics}'s
-population is not merely correlated with agreement; it bounds it.
+For declared encoders that agree as functions on overlaps, phase coherence
+bounds observation disagreement. The shared-encoder hypothesis specifies how
+two patches describe the same quantity; coherence constrains their inputs.
 
 Write $N$ for the number of oscillators and $r$ for the order parameter. The
 identity
@@ -1704,21 +1801,27 @@ $\lVert\cdot\rVert^2=2(1-\cos\Delta)$, and Eq.~\eqref{eq:cos-gap} becomes
  \mathrm{chord}(\theta_i,\theta_j)\le\sqrt{2}\,N\sqrt{1-r^{2}}
  \label{eq:chord-bound}
 \end{equation}
-(\texttt{chord\_\allowbreak le\_\allowbreak of\_\allowbreak coherence}). Each
-patch reads one oscillator through the same scalar encoder $e$, declared
-Lipschitz at constant $L$ in that metric by \texttt{Lipschitz\-Encoder}.
-The observation $o_i(x)=e(\cos\theta_i,\sin\theta_i)$ is constant on its patch;
-for a general assignment of oscillators to patches, $i$ denotes the assigned
-oscillator. These observations are compatible at residual
+(\texttt{chord\_\allowbreak le\_\allowbreak of\_\allowbreak coherence}). Patch
+$i$ reads oscillator $v(i)$ through an encoder $e_{i,x}$ taking circle points
+to $E$. Require one uniform Lipschitz constant $L$ and
+\[
+ x\in U_i\cap U_j\quad\Longrightarrow\quad e_{i,x}=e_{j,x}.
+\]
+These are \texttt{UniformLipschitzEncoder} and \texttt{SharedEncoder}.
+Observations can vary across sites:
+\[
+ o_i(x)=e_{i,x}(\cos\theta_{v(i)},\sin\theta_{v(i)}).
+\]
+The resulting family is compatible at residual
 $L\sqrt{2}\,N\sqrt{1-r^{2}}$
-(\texttt{compatible\_\allowbreak of\_\allowbreak coherence},
-\texttt{Phase5\_\allowbreak Content\-Dynamics.lean}). No compatibility premise
-appears anywhere in that statement: the residual is computed from the phases.
+(\texttt{compatible\_\allowbreak of\_\allowbreak shared\_\allowbreak coherence},
+\texttt{Phase5\_\allowbreak Content\-Dynamics.lean}). The residual is computed
+from the phases using the supplied equality of encoders on overlaps.
 At $r^{2}=1$ it is zero and the observations agree exactly
-(\texttt{compatible\_\allowbreak of\_\allowbreak phase\_\allowbreak locked}), so
-perfect locking is this scale's endpoint rather than a separate case, and the
-readout results of Sec.~\ref{sec:content-dynamics} apply to a family nothing
-assumed to be compatible.
+(\texttt{compatible\_\allowbreak of\_\allowbreak shared\_\allowbreak phase\_\allowbreak locked}).
+The one-encoder theorems are special cases with $e_{i,x}=e$. A uniform bound on
+the phase residual over successive observations gives
+\texttt{run\_\allowbreak residual\_\allowbreak of\_\allowbreak shared\_\allowbreak coherence}.
 
 The result is fenced on both sides. Two antiphase oscillators have $r^{2}=0$,
 computed through Eq.~\eqref{eq:order-mean-cos} rather than asserted, and at that
@@ -1728,12 +1831,44 @@ returning a vacuous zero residual. The bound is also not tight there: it gives
 $2\sqrt{2}$ where the actual disagreement is $2$, which is the $N^{2}$ of
 Eq.~\eqref{eq:cos-gap} being paid.
 
-The encoder and its constant are declared hardware, in the same sense as the
-actuator's mode profiles. The agreement is not declared: it is derived from the
-phases, which is what separates this result from the residual bound above.
-Identifying these scalar contents with neural variables, and testing whether
+The shared-encoder obligation is substantive:
+\texttt{Examples/\allowbreak VectorContent.lean}, \S23, supplies a
+site-dependent family that agrees at perfect locking, and a locked population
+whose reports disagree by a unit when that obligation is dropped. The encoders,
+uniform Lipschitz bound and common content coordinates are declared hardware
+data. Identifying these vector contents with neural variables, and testing whether
 their agreement matters for experience, remain the empirical work of
 Sec.~\ref{sec:content-dynamics}'s closing scope.
+
+\subsection{Local communication and timely responsiveness}
+\label{sec:supp-locality}
+
+\texttt{Phase6\_\allowbreak Locality.lean} defines a synchronous
+\texttt{Network}: each update uses the site's own state and messages from its
+declared neighbourhood. Its causal past $B_T(v)$ contains the sites whose
+initial states can reach $v$ in at most $T$ rounds.
+\texttt{run\_\allowbreak eq\_\allowbreak of\_\allowbreak agree\_\allowbreak on\_\allowbreak ball}
+proves that initial configurations agreeing on $B_T(v)$ give the same state
+at $v$ after $T$ rounds. Locality follows from the update construction.
+The regional version uses the union of the sites' causal pasts.
+
+A fresh intervention changes the initial state at $w$ while leaving the
+baseline elsewhere fixed. If $w\notin B_T(v)$, all such interventions yield
+the same code at $v$. Reading a report from that code therefore cannot
+reconstruct two possible intervention values more than $2\varepsilon$ apart
+to tolerance $\varepsilon$
+(\texttt{not\_\allowbreak reconstructs\_\allowbreak of\_\allowbreak outside\_\allowbreak past}).
+This consumes the reconstruction inequality in
+Section~\ref{sec:supp-reconstruction-family}. The report reads only the local
+state, and accuracy is required over the declared intervention family.
+
+\texttt{Examples/\allowbreak Locality.lean}, \S25, gives a three-site line:
+a value is unavailable at the reading site after one round and exact after
+two. A cut path never delivers it; a constant report fails responsiveness over
+separated values. A report correct for one fixed world remains possible.
+Thus the theorem limits guaranteed response by a deadline and leaves static
+gluing intact. Physical communication paths, round durations and relevant
+deadlines require a separate model of the implementation.
 
 \section{Reflexive Topology and the Self}
 \label{sec:supp-self}
@@ -1825,6 +1960,45 @@ At $q=1$, \texttt{cortexIdentity} instead takes the whole substrate as its avata
 (\texttt{cortex\_\allowbreak nonexpansive\_\allowbreak not\_\allowbreak unique}).
 This control establishes the failure of nonexpansive uniqueness on the same metric; it is not a model of compression into a proper local region.
 
+\subsection{Bounded-error reconstruction over relevant macrostates}
+\label{sec:supp-reconstruction-family}
+
+\texttt{Phase6\_\allowbreak Reconstruction.lean} separates the data of an
+\texttt{Encoding}---a relevant state family, encoder $E:S\to C$ and readout
+$R:C\to S$---from the predicate \texttt{Reconstructs} $\varepsilon$:
+$d(s,R(E(s)))\leq\varepsilon$ for every relevant $s$.
+If $E(s)=E(t)$, the triangle inequality gives
+\begin{equation}
+ d(s,t)\leq d(s,R(E(s)))+d(t,R(E(t))).
+ \label{eq:supp-reconstruction-split}
+\end{equation}
+\texttt{dist\_\allowbreak le\_\allowbreak add\_\allowbreak error} proves the
+sum bound and \texttt{half\_\allowbreak dist\_\allowbreak le\_\allowbreak max\_\allowbreak error}
+puts at least half the separation into one of the two errors.
+Consequently the encoder is injective on any reconstructed finite family
+pairwise more than $2\varepsilon$ apart. If it has $M$ members and the code
+alphabet has at most $2^b$ elements, then $M\leq2^b$
+(\texttt{Encoding.card\_\allowbreak le\_\allowbreak two\_\allowbreak pow}).
+
+For a \texttt{ReflexiveBoundary}, take $E=\texttt{auto\_resonance}$ and
+$R=\texttt{readout}$. Their composite is \texttt{predict}, so
+\texttt{dist\_\allowbreak le\_\allowbreak prediction\_\allowbreak residuals}
+constrains the existing self-prediction map. No contraction, completeness or
+restriction-resonance premise is used in this inequality.
+A constant encoder or constant readout fails reconstruction on two relevant
+states separated by more than $2\varepsilon$, despite the composite having a
+unique fixed point.
+
+\texttt{Examples/\allowbreak Reconstruction.lean}, \S24, reconstructs the
+cortex's two extreme states within tolerance one using a nonconstant encoder
+and a contracting map. Its blinded boundary fails at tolerance $1/2$.
+A separate three-state example rejects a two-code alphabet at that tolerance
+and succeeds with three codes. These are additional operational criteria on
+candidate implementations, not consequences of \texttt{Self} or
+\texttt{UnifiedSelf}. The relevant macrostates, metric and fidelity are
+declared, and $b$ counts distinguishable codes; physical bits, channel
+capacity and delivery times need further hardware assumptions.
+
 \subsection{What a biological interpretation must add}
 
 The readout, its contraction law and the restriction-resonance condition are choices or hypotheses of a model. No field dynamics here produces them. The squared-drift objective is absent from the fixed-point result, so its minimizer is not identified with the self-model's fixed point.
@@ -1840,7 +2014,51 @@ Two mathematical comparisons distinguish a restriction on wiring support from a 
 
 \textit{Lean 4 Implementation (\texttt{Phase7\_\allowbreak Rigidity.lean}):} Two results specify the scope of the comparison. \emph{(i) Rigidity as a support constraint.} \texttt{RealizableIn S R A} says $A$ is a valid coupling meeting resource budget $R$ and vanishing on every pair the architecture has no wire for --- weights tunable, wiring fixed. \texttt{totalCorrelation\_\allowbreak le\_\allowbreak of\_\allowbreak realizable} proves no realizable coupling exceeds $R\cdot M$ when $M$ bounds phase correlation over the wired pairs, and \texttt{exists\_\allowbreak realizable\_\allowbreak pair} attains it. \texttt{rigid\_\allowbreak is\_\allowbreak strictly\_\allowbreak suboptimal} then \emph{derives} \texttt{is\_\allowbreak strictly\_\allowbreak suboptimal} for every realizable coupling, whenever some pair $(k,l)$ the wiring misses has correlation exceeding $M$: the hypothesis Theorem 7 would otherwise have to assume is a consequence of the wiring pattern. \texttt{rigid\_\allowbreak gap} gives the quantitative form, a gain of at least $R\,(\cos(\theta_l-\theta_k) - M) > 0$ at equal budget. \texttt{Examples}~\S8 witnesses this on three sites wired only to the maximally anti-correlated pair, where the gap is exactly $2$, and runs \texttt{exists\_\allowbreak better\_\allowbreak coupling\_\allowbreak allocation} on it with no assumed hypothesis. \emph{(ii) Continuity as a measure-theoretic distinction.} \texttt{fieldCorrelation} integrates a kernel against $\mu\otimes\mu$ as in the spatial coupling model. A finitely-sited architecture is a \texttt{Finset X}; \texttt{fieldCorrelation\_\allowbreak sited\_\allowbreak eq\_\allowbreak zero} proves that on an atomless substrate such a kernel contributes exactly zero, for every phase field and every choice of weights, while \texttt{fieldCorrelation\_\allowbreak patchKernel} gives $c\,\mu(U)^2$ for a patch. \texttt{sited\_\allowbreak architecture\_\allowbreak below\_\allowbreak field\_\allowbreak optimum} combines them; \texttt{Examples}~\S8 instantiates it on $\mathbb{R}$ with a thousand units of weight at the origin against the unit interval.
 
-\textbf{Scope caveat.} Result (i) is resource-matched and not question-begging, but it turns on fixed wiring support, not on continuity: an architecture wired to the best pair is not beaten. Result (ii) is a genuine type-level separation but is \emph{not} resource-matched, since a measure-zero substrate carries zero resource in the $\mu\otimes\mu$ sense as well; what it establishes is that the continuum coupling energy cannot register a finitely-sited architecture at all, which is a claim about the model's observable rather than about computational power. Neither result formalizes manifold structure or lattice geometry. Neither result establishes that digital hardware cannot approximate field dynamics or support consciousness.
+\subsection{Finite regions preserve the discrete observable}
+\label{sec:supp-finite-region}
+
+\texttt{Phase7\_\allowbreak FiniteRegion.lean} embeds a finite matrix $A$
+in a \texttt{KernelMesh} whose cells $C_i$ have positive masses
+$m_i=\mu(C_i)$ under a finite measure. Put
+\[
+ K(x,y)=\frac{A_{ij}}{m_i m_j},\qquad
+ \theta(x)=\theta_i\quad(x\in C_i,\ y\in C_j).
+\]
+Integration of a function of cell indices is its mass-weighted sum
+(\texttt{integral\_\allowbreak locate\_\allowbreak pair}), hence
+\begin{align}
+ \iint K(x,y)\,d\mu(y)\,d\mu(x)&=\sum_{i,j}A_{ij},\\
+ \iint K(x,y)\cos(\theta(y)-\theta(x))\,d\mu(y)\,d\mu(x)
+   &=\sum_{i,j}A_{ij}\cos(\theta_j-\theta_i).
+ \label{eq:finite-region-preservation}
+\end{align}
+These are \texttt{kernelIntegral\_\allowbreak cellKernel} and
+\texttt{fieldCorrelation\_\allowbreak cellKernel}. Symmetry and
+nonnegativity are preserved, and a zero matrix diagonal makes each
+within-cell block zero. On an atomless substrate, a reconstruction with
+nonzero correlation cannot be supported on finitely many points
+(\texttt{cellKernel\_\allowbreak not\_\allowbreak sitedOn}).
+
+\texttt{Examples/\allowbreak FiniteRegion.lean}, \S26, uses Lebesgue measure
+on $[0,4)$, cells of masses one and three, and a matrix with total weight
+twelve. Both the embedded weight and correlation equal twelve exactly.
+Thus finite point support and finitely many positive-mass regions have
+different consequences for the same integral.
+
+The same module supplies a control for the wiring gap:
+\texttt{no\_\allowbreak forced\_\allowbreak gap\_\allowbreak of\_\allowbreak best\_\allowbreak wired}
+constructs an optimal allocation when the support contains both directions of
+a distinct pair whose correlation bounds every pair, including diagonal
+pairs. This hypothesis forces the chosen pair's correlation to be one.
+The three-site witness wires the perfectly correlated pair and attains the
+resource bound, so no disadvantage is forced by fixed wiring itself.
+
+The matched resource in the cell embedding is total coupling weight; pricing
+it as energy requires hardware data. The embedding is piecewise constant,
+with no continuity, dynamical approximation or refinement limit established
+here. Point-supported vanishing is about measure-zero support, and the strict
+wiring gap requires the specified missing pair. Neither result excludes
+digital hardware from approximating field dynamics or supporting consciousness.
 
 \section{Claims and their Lean identifiers}
 \renewcommand{\thetable}{S\arabic{table}}
@@ -1871,8 +2089,12 @@ A funded clearing & \texttt{PathwiseStore.\allowbreak balance\_\allowbreak le\_\
 Preparing the prior & A constant preparation channel drives the hardware to a positive law without reading it, which is the hypothesis of \texttt{memoryHeat\_\allowbreak const}, so the same heat identity prices it. \texttt{KL\_\allowbreak uniform} (\texttt{Phase3\_\allowbreak Preparation}) gives $D_{KL}(\mu\|\mathrm{unif})=\log|V|-H(\mu)$ with no positivity of $\mu$, so \texttt{memoryHeat\_\allowbreak uniform} is zero at every starting law: a uniform target has zero mean log-ratio heat. \texttt{FiniteProtocol.\allowbreak withPreparation} runs it as stage zero, \texttt{withPreparation\_\allowbreak law\_\allowbreak succ} identifies the shifted run with the original and \texttt{preparation\_\allowbreak meanHeat} is its cost. \texttt{preparation\_\allowbreak parameter\_\allowbreak marginal} and \texttt{preparation\_\allowbreak product} are the two fences: the parameter's marginal is untouched and a constant preparation creates no parameter-hardware correlation. \texttt{Examples/Preparation.lean} prepares the sensor-memory agent's own prior with zero mean heat, charges the whole run through the existing bound, prices the agent's standard state at $(1/4)\log3$ from uniform, evaluates a bias-$\varepsilon$ target at $(1/2-\varepsilon)\log[(1-\varepsilon)/\varepsilon]$ and proves this family unbounded at thermal scale one. The witness changes the initial hardware law, rejects preparing parameter uncertainty or correlation, and rejects the sharp target from the positivity premise. Funding, exact preparation and gate implementation remain separate & Theorem (conditional) \\ \hline
 Resource bounds on a trajectory & \texttt{ResourceTrajectory} (\texttt{Phase3\_\allowbreak ResourceFoundations}) telescopes the ledger $\beta_{n+1}=\beta_n-w^-_n+w^+_n$ on an \emph{arbitrary} state type: \texttt{balance\_\allowbreak sum}, \texttt{draw\_\allowbreak le\_\allowbreak resources} and \texttt{horizon\_\allowbreak bound} use no \texttt{Fintype}, no probability law and no channel, and \texttt{ContinuingProcess.\allowbreak horizon\_\allowbreak le\_\allowbreak of\_\allowbreak cost} is that bound read on the sequence of expected allowances. \texttt{draw\_\allowbreak eq\_\allowbreak energy\_\allowbreak heat\_\allowbreak control} identifies the draw from a conserved boundary carrying stored, bath and installation/control energy; \texttt{draw\_\allowbreak eq\_\allowbreak step\_\allowbreak heat} closes that identification on a named channel: the bath coordinate's gain is the mean heat of the step the stage runs, and local detailed balance makes the ledger's heat term $\theta$ times \emph{that step's own} \texttt{bathEntropy} rather than any real written as a logarithm. \texttt{draw\_\allowbreak ge\_\allowbreak entropy\_\allowbreak reduction} is the resulting Landauer bound: the work drawn, net of stored and control energy, is at least $\theta$ times the entropy the step removes, under support inclusion rather than full positivity. \texttt{transferCharge} is a reversible swap on $\mathbb{N}\times\mathbb{N}$ conserving the total, and \texttt{sharp\_\allowbreak preparation\_\allowbreak extendedKL\_\allowbreak top} is why it cannot also \emph{make} a sharp charge: a channel driving every state to one target has no reverse path from that target, so its path divergence is $\infty$ and no finite cost exists for it, while a channel stopping short of sharp is an ordinary priced step. \texttt{SourceDelivery} identifies delivery with a source coordinate's loss on an arbitrary state type; \texttt{horizon\_\allowbreak le\_\allowbreak of\_\allowbreak sourced\_\allowbreak delivery} adds the source's initial content to the store's in one horizon bound, and \texttt{no\_\allowbreak finite\_\allowbreak source\_\allowbreak sustains} shows a run at strictly positive cost with a nonnegative source cannot continue indefinitely, so \texttt{refuel}'s sustaining hypothesis is the declaration of a supply outside the boundary. Gate fabrication and control work are charged to an observable and never priced, and no theorem connects these trajectories to a particular agent's channels & Theorem \\ \hline
 Entropy balance without full support & \texttt{ProbDist.SupportIncluded} replaces strictly positive masses by the condition the expansion uses: every forward path of positive probability has positive reverse probability. \texttt{KL\_\allowbreak nonneg\_\allowbreak of\_\allowbreak support}, \texttt{entropyProduction\_\allowbreak nonneg\_\allowbreak of\_\allowbreak support} and \texttt{entropy\_\allowbreak balance\_\allowbreak of\_\allowbreak support} (\texttt{Phase3\_\allowbreak SupportedThermodynamics}) hold there, and \texttt{reversibleSupport\_\allowbreak of\_\allowbreak positive} places the stronger premise strictly inside the weaker one. A step whose initial law sits on one atom witnesses the gap (\texttt{Examples/AgencyFoundations.lean}). Where a forward path has no reverse, \texttt{ProbDist.extendedKL} returns $\infty$ in $[0,\infty]$ rather than a finite real cost, and agrees with the real divergence where support holds. \texttt{extendedKL\_\allowbreak eq\_\allowbreak klDiv} and \texttt{extendedKL\_\allowbreak eq\_\allowbreak klDiv\_\allowbreak of\_\allowbreak missing} (\texttt{Phase3\_\allowbreak MeasureFeedback}) identify it with Mathlib's measure divergence on \emph{both} branches, the finite one under a positive reference law and the infinite one wherever an atom is missing, so the finite convention is the measure-theoretic one restricted rather than a second definition beside it. Construction of a physical reverse protocol remains separate & Theorem \\ \hline
-Contents driven by observation & \texttt{LocalContent} (\texttt{Phase5\_\allowbreak ContentDynamics}) carries patch contents as real fields and mixes each with that patch's observation at gain $\eta$. \texttt{update\_\allowbreak residual} gives $(1-\eta)\varepsilon+\eta\delta$, \texttt{update\_\allowbreak preserves} exact agreement under agreeing observations, and \texttt{run\_\allowbreak residual} the decay $(1-\eta)^n\varepsilon$. \texttt{readout\_\allowbreak agrees} and \texttt{readout\_\allowbreak unique} make a patch-selecting readout the unique global extension at zero residual, with coverage a hypothesis. \texttt{ApproximateGluing.\allowbreak compatible\_\allowbreak pointwise} reads this section's mass profiles as such a family, so the two agreement predicates are one. \texttt{run\_\allowbreak residual\_\allowbreak floor} generalizes the decay to observations agreeing only to $\delta$, giving the upper bound $(1-\eta)^n\varepsilon+\delta$; its nondecaying term need not be attained. The observations' own compatibility is supplied by the coherence row below rather than assumed here. The contents are identified with no neural variable and no sheaf section & Theorem \\ \hline
-Coherence produces content agreement & The order parameter is the mean pairwise phase cosine: \texttt{order\_\allowbreak parameter\_\allowbreak r\_\allowbreak sq\_\allowbreak eq\_\allowbreak mean\_\allowbreak cos} (\texttt{Phase4\_\allowbreak KuramotoDynamics}) proves $N^2r^2=\sum_{ij}\cos(\theta_i-\theta_j)$, and since every summand of $1-\cos$ is nonnegative a single pair is bounded by the whole double sum (\texttt{cos\_\allowbreak gap\_\allowbreak le\_\allowbreak of\_\allowbreak coherence}): a global mean bounds each local difference, with a conservative factor $N^2$ from this summand estimate. \texttt{chord\_\allowbreak le\_\allowbreak of\_\allowbreak coherence} states it in the chord metric on the circle, in which \texttt{LipschitzEncoder} declares an encoder's constant; a phase is read as a circle point, so an encoder is a function of the phase rather than of a representative of it. \texttt{compatible\_\allowbreak of\_\allowbreak coherence} (\texttt{Phase5\_\allowbreak ContentDynamics}) then \emph{derives} overlap compatibility for observations made through one shared scalar Lipschitz encoder, each constant on its patch, with a residual computed from the order parameter and no compatibility premise, and \texttt{compatible\_\allowbreak of\_\allowbreak phase\_\allowbreak locked} gives exact agreement at $r^2=1$, so the exact case is this scale's endpoint rather than a separate hypothesis. \texttt{Examples/AgencyFoundations.lean} computes $r^2=0$ for two antiphase oscillators through the identity, and fences the result: at that coherence the two patches demonstrably disagree, so no vacuous zero residual is being returned. The encoder and its constant are declared hardware, and identifying these contents with neural variables remains empirical & Theorem \\ \hline
+Contents driven by observation & \texttt{LocalContent} (\texttt{Phase5\_\allowbreak ContentDynamics}) carries fields in a real normed vector space. \texttt{update\_\allowbreak residual} bounds the next mismatch by $(1-\eta)\varepsilon+\eta\delta$; \texttt{run\_\allowbreak residual\_\allowbreak floor} gives $(1-\eta)^n\varepsilon+\delta$. Zero residual and coverage give a unique patch-selecting extension. \texttt{compatible\_\allowbreak map} preserves agreement under a common nonexpansive linear map, with the converse rejected in \texttt{Examples/\allowbreak VectorContent.lean}, \S22. Scalar fields are the $E=\mathbb{R}$ instance; the mass-profile bridge additionally requires nonnegativity. Observation agreement is an input unless derived from the encoder hypotheses below; neural and probability-sheaf identifications remain separate & Theorem \\ \hline
+Coherence bounds vector-content disagreement & \texttt{compatible\_\allowbreak of\_\allowbreak shared\_\allowbreak coherence} (\texttt{Phase5\_\allowbreak ContentDynamics}) uses the pointwise chord estimate to give residual $L\sqrt{2}N\sqrt{1-r^2}$. Site-dependent encoders must be equal as functions on every overlap (\texttt{SharedEncoder}) and uniformly Lipschitz. Exact locking gives exact agreement; \texttt{run\_\allowbreak residual\_\allowbreak of\_\allowbreak shared\_\allowbreak coherence} propagates a uniform residual bound through observation updates. A common scalar encoder is a special case. \texttt{Examples/\allowbreak VectorContent.lean}, \S23, proves disagreement at perfect locking without the shared-encoder premise. The bound has conservative population-size dependence and assumes common content coordinates & Theorem (conditional) \\ \hline
+Phase-derived task observations & \texttt{PhaseSensor.channel} (\texttt{Phase3\_\allowbreak PhaseSensor}) computes symbol probabilities as fractions of a supplied phase population. \texttt{channel\_\allowbreak ne\_\allowbreak iff\_\allowbreak fiberCount\_\allowbreak ne} characterizes distinguishability. \texttt{Examples/\allowbreak PhaseSensor.lean}, \S27, identifies the sensor-fed learner with the existing observational learner and gives an uninformative control with the same $r^2=1/4$ at every parameter and action. Only the informative case improves reward. Phase law, sampling and readout are inputs; no phase dynamics or coherence-driven learning advantage follows & Theorem (conditional) \\ \hline
+Learning installs coupling & \texttt{Examples/\allowbreak LearnedCoupling.lean}, \S28, puts the learner's law on the declared actuator. \texttt{installedEnergy\_\allowbreak learned} gives $U_n=3/4-2^{-n}/4$; \texttt{kernel\_\allowbreak update\_\allowbreak on\_\allowbreak executed\_\allowbreak step} and \texttt{work\_\allowbreak learned} compute the kernel change and work on its paths. Cumulative work stays within $(1+\log3)/4$. The matched control stays at $U=1/2$ with zero mean work and is excluded from the coherent scalar branch at $\kappa=4$, $D=1$. The learner clears the necessary energy line after one update; evolving phase feedback and physical identification remain open & Theorem (conditional) \\ \hline
+Reconstruction requires distinguishable codes & \texttt{Phase6\_\allowbreak Reconstruction}: equal codes force errors summing to at least the states' distance. \texttt{Encoding.card\_\allowbreak le\_\allowbreak two\_\allowbreak pow} gives $M\leq2^b$ for a reconstructed family pairwise more than $2\varepsilon$ apart. \texttt{ReflexiveBoundary.dist\_\allowbreak le\_\allowbreak prediction\_\allowbreak residuals} applies the bound to the existing self-prediction map. \texttt{Examples/\allowbreak Reconstruction.lean}, \S24, gives a contracting positive control and a blinded fixed-point rejection. This is an additional criterion on a declared family, metric and tolerance; code count is not a physical memory model & Theorem \\ \hline
+Locality limits timely responsiveness & \texttt{Network.run\_\allowbreak eq\_\allowbreak of\_\allowbreak agree\_\allowbreak on\_\allowbreak ball} (\texttt{Phase6\_\allowbreak Locality}) derives causal-past indistinguishability from local synchronous updates. \texttt{not\_\allowbreak reconstructs\_\allowbreak of\_\allowbreak outside\_\allowbreak past} uses the reconstruction bound to exclude accurate reports across separated interventions outside that past by the specified round. \texttt{Examples/\allowbreak Locality.lean}, \S25, checks a delay line, a cut path and coincidental accuracy for one world. Snapshot gluing remains possible; physical paths and deadlines are inputs & Theorem (conditional) \\ \hline
 Thermodynamics and control off finite state & \texttt{MeasureFeedbackStep} (\texttt{Phase3\_\allowbreak MeasureFeedback}) carries an initial probability measure and a Markov kernel on \emph{any} measurable space, with entropy production the divergence of the forward path law from the time-reversed one valued in $[0,\infty]$. Nonnegativity is then structural rather than derived, \texttt{entropyProduction\_\allowbreak eq\_\allowbreak top} keeps absolute irreversibility as $\infty$ with no positivity or finiteness hypothesis, and \texttt{path\_\allowbreak divergence\_\allowbreak splits} is the chain rule: the divergence separates into a term in the two initial laws and a term in the two channels compared on the forward law. \texttt{entropyProduction\_\allowbreak map\_\allowbreak le} is data processing --- coarse-graining by any measurable observable cannot increase production --- and \texttt{initial\_\allowbreak divergence\_\allowbreak le\_\allowbreak entropyProduction} the second law in divergence form. \texttt{MeasureControlProblem.\allowbreak exists\_\allowbreak optimal} selects a maximizing action over a finite permitted set with no \texttt{Fintype} on the state at all, and \texttt{exists\_\allowbreak optimal\_\allowbreak compact} over a compact one, discharging continuity rather than replacing it by finiteness. Witnesses sit on $\mathbb{N}$, where a definite jump has infinite production and a stationary step none, and on $\mathbb{R}$, where the initial law is a Gaussian assigning zero to every singleton --- a law no \texttt{ProbDist} can carry. The \emph{Shannon-entropy} form of the balance is not generalized: it needs a reference measure, and differential entropy is not entropy & Theorem \\ \hline
 Finite goal-directed control & \texttt{FiniteControlProblem} (\texttt{Phase3\_\allowbreak AgencyThermodynamics}) evaluates terminal reward and both substep costs on the same \texttt{FiniteFeedbackCycle}, with an explicit deterministic policy and shared world and memory channels. \texttt{exists\_optimal} proves finite feasible maximization. \texttt{Examples/AgencyControl.lean} computes every deterministic bit policy's performance, heat and work and proves a unique feasible optimum that strictly improves a declared lamp task. A feasible baseline misses the target; a better-performing policy exceeds the budget; equal final laws can have unequal heat. Objective, reservoir model, initial resource and budget are supplied. This comparison covers fixed policies; adaptation of a policy register is treated separately below & Theorem (conditional) \\ \hline
 Finite learning dynamics & \texttt{FiniteFeedbackStep.iterate} carries successive laws and telescopes entropy and first-law balances. \texttt{Examples/PolicyLearning.lean} proves strictly improving expected lamp reward, geometric convergence to a stationary mixture, positive update heat and bounded cumulative heat from the register's energy loss. Its energy encodes known task values. The limit is suboptimal; individual updates and a different initial preparation can lower reward. Task costs are prospective lamp task expectations. Preparing the register, executing task episodes, implementing the policy readout, cortical identification and the active chain's resource and spatial bridges require separate accounting & Theorem (conditional) \\ \hline
@@ -1901,7 +2123,7 @@ Phase synchronization to Unity & Sheaf-theoretic gluing (\texttt{Phase5}) over a
 Reflexive Topology (the Self) & Banach fixed point and residual bound $d(s,s_*)\leq\varepsilon/(1-q)$ for a self-prediction map (\texttt{Phase6}); metric, completeness and the Lipschitz law at $q=e^{-(K-K_c)\tau/2}$ are hypotheses, discharged on the three-site witness. Displacement errors add before division by $1-q$; the witness attains the bound, and nonexpansiveness alone permits distinct fixed points. Coherence yields $K>K_c$; it does not prove the Lipschitz law. \texttt{E89} supplies that law and identifies the glued state with the fixed point & Conditional theorem + modelling postulate (witnessed) \\ \hline
 Kuramoto Lyapunov descent & Descent chained to the minimum characterization by the rotating frame (\texttt{Phase4\_\allowbreak RotatingFrame}); identical frequencies & Theorem \\ \hline
 Kuramoto dynamics run & The initial value problem is well posed on all of $\mathbb{R}$: the field is globally Lipschitz and globally bounded (\texttt{kuramotoField\_\allowbreak lipschitz}, \texttt{kuramotoField\_\allowbreak norm\_\allowbreak le}), and through every state at every instant passes exactly one trajectory, defined for all time (\texttt{kuramoto\_\allowbreak cauchy\_\allowbreak problem}). Along \emph{every} trajectory of a zero-frequency system the dynamic potential converges (\texttt{dynamic\_\allowbreak potential\_\allowbreak tendsto}) and the total dissipation $\int_0^\infty \sum_i \dot\theta_i^2$ is finite, equal to the potential's total drop (\texttt{dissipation\_\allowbreak integral\_\allowbreak tendsto}). The motion stops: Barbalat's lemma is proved here, Mathlib lacking it, and applied, so $\sum_i \dot\theta_i^2 \to 0$ along every trajectory (\texttt{velocity\_\allowbreak sq\_\allowbreak tendsto\_\allowbreak zero}). Where it stops is proved under an initial-data condition: if the phases start within a quarter turn and the potential excess starts below $a/2$, where $a>0$ bounds the coupling below, the trajectory converges to a phase-locked configuration that is a \emph{global} minimiser, with $r^2=1$ (\texttt{kuramoto\_\allowbreak tendsto\_\allowbreak global\_\allowbreak minimum}), by a Polyak--\L{}ojasiewicz estimate rather than a LaSalle principle. Unconditionally this is false --- splay and twisted states are equilibria --- so the condition cannot be removed. Witnessed on three sites, where no closed form exists (\texttt{Examples}~\S17) & Theorem (conditional) \\ \hline
-Continuous vs. Rigid Topology & Fixed wiring support at matched resource (\texttt{Phase7\_\allowbreak Rigidity}), deriving the suboptimality Phase 7 assumed; typed continuum/discrete separation & Theorem \\ \hline
+Wiring support and finite-region coupling & \texttt{rigid\_\allowbreak gap} (\texttt{Phase7\_\allowbreak Rigidity}) gives a strict resource-matched disadvantage when a better-correlated pair is unwired. \texttt{Phase7\_\allowbreak FiniteRegion} preserves a matrix's total weight and phase correlation under a positive-mass cell embedding (\texttt{kernelIntegral\_\allowbreak cellKernel}, \texttt{fieldCorrelation\_\allowbreak cellKernel}). Point-supported vanishing under an atomless measure is therefore not a consequence of having finitely many components. \texttt{no\_\allowbreak forced\_\allowbreak gap\_\allowbreak of\_\allowbreak best\_\allowbreak wired} gives an optimal wired allocation under its global pairwise maximum hypothesis, including diagonal pairs; the chosen distinct pair must then have correlation one. No energy pricing, dynamics or device exclusion follows & Theorem \\ \hline
 Critical Coupling Threshold ($K_c = 2D$) & Self-consistency equation (\texttt{Phase8\_\allowbreak SelfConsistency}): at or below $K_c$, threshold included, only $r = 0$ solves it; above $K_c$ \emph{exactly one} $r > 0$ does (\texttt{supercritical\_\allowbreak fixed\_\allowbreak point\_\allowbreak existsUnique}), so the non-negative solutions are $\{0\}$ below and $\{0, r\}$ above; that $r$ tends to $0$ as $K \downarrow K_c$ and increases strictly with $K$ (\texttt{coherent\_\allowbreak branch\_\allowbreak strictMono}); that it does so at the mean-field rate $r^2/(K-K_c) \to 1/D$, i.e.\ $\beta = 1/2$ (\texttt{Phase8\_\allowbreak CriticalExponent}: \texttt{coherent\_\allowbreak solution\_\allowbreak critical\_\allowbreak exponent}, witnessed by \texttt{coherentBranch\_\allowbreak critical\_\allowbreak exponent}); a solution is a density reproducing its own order parameter. The von Mises density enters this claim by classification rather than by hypothesis: \texttt{Phase8\_\allowbreak FokkerPlanck} classifies the stationary densities of the equation and \texttt{supercritical\_\allowbreak stationary\_\allowbreak existsUnique} restates the bifurcation in those terms. Conditional still on no link to a trajectory and on no finite-$N$ limit & Theorem (conditional) \\ \hline
 Stationary densities and linear stability & \texttt{Phase8\_\allowbreak FokkerPlanck}: a periodic gradient drift carries no stationary current (\texttt{stationary\_\allowbreak current\_\allowbreak zero}), so the positive normalized stationary densities for the cosine drift are exactly von Mises (\texttt{stationary\_\allowbreak iff\_\allowbreak vonMises}). \texttt{Phase8\_\allowbreak Linearization} expands the current exactly and gives each Fourier mode of the uniform state its rate, $K/2-D$ at the first harmonic and $-Dn^2$ above, so a growing mode exists exactly above $2D$ (\texttt{incoherent\_\allowbreak instability\_\allowbreak iff}). \texttt{Phase8\_\allowbreak CoherentStability} proves the coherent branch's gap inequality transverse to its rotation orbit with a positive rate (\texttt{coherent\_\allowbreak linear\_\allowbreak stability}), the orbit direction having zero rate (\texttt{rotation\_\allowbreak generator\_\allowbreak zero}), on a strict moment inequality derived from a Riccati identity rather than assumed. At the coherent state current dissipation is zero while the phase-averaged squared drift is positive (\texttt{stationary\_\allowbreak current\_\allowbreak separation}). No evolution equation is solved, no semigroup or operator closure is built, no nonlinear stability or selection follows, and the stochastic differential equation is not connected to the Fokker--Planck equation & Theorem \\ \hline
 Conditional composition & \texttt{Chain.lean}: \texttt{chain} and \texttt{chain\_active} each take eight named hypotheses, a \texttt{ThermodynamicCover} and a \texttt{ReflexiveBoundary}, and conclude \texttt{UnifiedSelf} through the shared downstream proof. \texttt{E89} supplies the Lipschitz law and identifies the particular glued section with a fixed point; Banach supplies uniqueness. \texttt{E34} requires a passive predictive structure with the register's temperature, heat and nonzero waste. \texttt{E34Active} supplies physical premises and a heat allocation for the named finite feedback process; its entropy bound is derived, and \texttt{e34Active\_\allowbreak of\_\allowbreak ledger} derives the allocation itself inside one register's resource ledger. \texttt{E45} is discharged for named hardware holding a declared predictive system's own joint law. \texttt{E45Active} is discharged for a scalar actuation law with supplied gain, profile and regular meshes, whose limit is bounded using the named process's heat budget, and for a microscopic arrangement whose product-space kernel is built from occupancies that step changes. \texttt{E78} requires the supplied cover to be reached by relaxation at coupling at least $K$. \texttt{chain\_hypotheses\_jointly\_satisfiable} and \texttt{chain\_active\_\allowbreak hypotheses\_\allowbreak jointly\_\allowbreak satisfiable} witness the two branches with distinct toy components. The active witnesses reject a zero heat budget, an incompatible energy limit, a compressive operation above the register's whole dissipation and a ledger whose other operation draws heat out of the reservoir. Joint satisfiability establishes no common microscopic mechanism; the actuated witness ties the scalar density to the process through a supplied constitutive law and the microscopic witness ties a kernel to it through declared hardware, while mesh regularity supplies convergence in both. \texttt{E12} is equivalent to its conclusion, so the first two links are independent roots. The supplied structures' physical fields and the representational assumptions remain additional inputs & Conditional theorem with eight named hypotheses \\ \hline

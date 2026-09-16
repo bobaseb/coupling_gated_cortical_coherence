@@ -20,6 +20,27 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-16 — Publication scope after the six formal extensions
+
+The publication's scalar-only content description is replaced by the proved
+normed-vector result, including site-dependent encoders that agree as functions
+on overlaps and share a uniform Lipschitz bound. It also reports the
+phase-derived observation channel, installation work on the learner's own law,
+bounded-error reconstruction across a declared state family and causal-past
+limits on timely reports.
+
+The hardware comparison now includes the exact finite-region embedding:
+finitely many positive-mass cells preserve matrix weight and correlation, so
+the point-support theorem cannot exclude finitely many components in general.
+The no-gap control is stated with its actual maximum hypothesis, including
+diagonal pairs; the distinct wired pair must have correlation one.
+
+Both status tables and the primer are aligned, all three tracked PDFs are
+rebuilt, and the existing arXiv bundle is refreshed. The justified finite-region
+leaf exemption is retained. A separate false-consumer defect in the leaf
+checker is documented in `tasks/n_manuscript_review.md`; no gate or Lean
+statement is altered by this publication update.
+
 ## 2026-09-16 — The hardware comparison illustration described devices
 
 `simulations/hardware_comparison.py` plotted two finite coupling matrices under
