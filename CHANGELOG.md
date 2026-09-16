@@ -20,6 +20,26 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-16 — The hardware comparison illustration described devices
+
+`simulations/hardware_comparison.py` plotted two finite coupling matrices under
+the title "Hardware Strict Inequality: Continuous Beats Rigid", labelled them
+"Rigid Hardware (Fixed Topology)" and "Continuous Biological Field (Adaptive)",
+and its docstring said it compared GPU with biological coupling. It compares
+neither. Both systems are `N x N` matrices on the same oscillators, started from
+the same phases at the same total coupling weight; one is held fixed and one is
+reallocated by gradient descent on the Kuramoto potential and renormalised. The
+script measures no device, and no continuous field appears in it. The docstring,
+comments, labels, title and figure now say that. The illustration is not
+evidence about physical hardware and is referenced by no publication file.
+
+The continuous/discrete distinction the old title borrowed belongs to the
+measure-theoretic comparison, and it is about the measure of a kernel's support:
+`Phase7_FiniteRegion` shows that finitely many *cells* of positive mass register
+their whole discrete coupling in the continuum functional, so the vanishing in
+`fieldCorrelation_sited_eq_zero` is not a statement about finitely many
+components.
+
 ## 2026-09-16 — Content-agreement bounds and manuscript structure
 
 The content-dynamics exposition described the retained disagreement as reaching

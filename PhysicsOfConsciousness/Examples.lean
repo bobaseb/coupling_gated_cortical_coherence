@@ -21,6 +21,7 @@
     `Examples/AgencyControl.lean` -- finite budgeted policy selection
     `Examples/PolicyLearning.lean` -- thermal policy adaptation and its costs
     `Examples/ObservationalLearning.lean` -- learning an unknown task from outcomes
+    `Examples/PhaseSensor.lean` §27 -- that learner's observations, from phases
     `Examples/ContinuingAgent.lean` -- sequenced episodes and a finite work allowance
     `Examples/ContinuingLimit.lean` -- that learner's rate, limit and unbounded work
     `Examples/RegisterBudget.lean` -- one register's operations and its heat ledger
@@ -33,10 +34,15 @@
     `Examples/ActuatedCoupling.lean` -- a feedback step's scalar coupling amplitude
     `Examples/MicroscopicCoupling.lean` -- a thermal switch's installed spatial mode
     `Examples/InstalledCoupling.lean` -- installed energy bounds its scalar mean-field coupling
+    `Examples/LearnedCoupling.lean` §28 -- one process: learning, its coupling and its work
     `Examples/Phase4.lean`  §7, §15, §16, §17
     `Examples/Phase5.lean`  §13, §14, §17.1, §20 (overlap agreement)
+    `Examples/VectorContent.lean` §22 (vector contents), §23 (the overlap encoder)
     `Examples/Phase6.lean`  §10
+    `Examples/Reconstruction.lean` §24 (bounded-error self-reconstruction)
+    `Examples/Locality.lean` §25 (a delay line and its deadline)
     `Examples/Phase7.lean`  §8
+    `Examples/FiniteRegion.lean` §26 (finite cells in the continuum functional)
     `Examples/Phase8.lean`  §5, §9, §12, §20 (continuum operator), §21 (stationary
       equation and both stability branches)
     `Examples/AgencyFoundations.lean` -- regressions for the agency foundations
@@ -131,6 +137,7 @@ import PhysicsOfConsciousness.Examples.AgencyCycle
 import PhysicsOfConsciousness.Examples.AgencyControl
 import PhysicsOfConsciousness.Examples.PolicyLearning
 import PhysicsOfConsciousness.Examples.ObservationalLearning
+import PhysicsOfConsciousness.Examples.PhaseSensor
 import PhysicsOfConsciousness.Examples.ContinuingAgent
 import PhysicsOfConsciousness.Examples.ContinuingLimit
 import PhysicsOfConsciousness.Examples.RegisterBudget
@@ -143,9 +150,14 @@ import PhysicsOfConsciousness.Examples.Preparation
 import PhysicsOfConsciousness.Examples.ActuatedCoupling
 import PhysicsOfConsciousness.Examples.MicroscopicCoupling
 import PhysicsOfConsciousness.Examples.InstalledCoupling
+import PhysicsOfConsciousness.Examples.LearnedCoupling
 import PhysicsOfConsciousness.Examples.Phase4
 import PhysicsOfConsciousness.Examples.Phase5
 import PhysicsOfConsciousness.Examples.Phase6
 import PhysicsOfConsciousness.Examples.Phase7
+import PhysicsOfConsciousness.Examples.FiniteRegion
 import PhysicsOfConsciousness.Examples.Phase8
 import PhysicsOfConsciousness.Examples.AgencyFoundations
+import PhysicsOfConsciousness.Examples.VectorContent
+import PhysicsOfConsciousness.Examples.Reconstruction
+import PhysicsOfConsciousness.Examples.Locality

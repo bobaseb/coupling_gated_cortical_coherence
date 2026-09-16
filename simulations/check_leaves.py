@@ -79,6 +79,19 @@ ALLOWED_LEAVES: dict[str, str] = {
         "carry phase — a modelling decision, not a formalization step, and not "
         "one to be taken to close this gate"
     ),
+    "Phase7_FiniteRegion.lean": (
+        "deliberate, and terminal by content. The module's results delimit "
+        "another module's theorem: `cellKernel_not_sitedOn` says that the "
+        "vanishing in `Phase7_Rigidity`'s `fieldCorrelation_sited_eq_zero` is "
+        "about measure-zero support rather than about finitely many "
+        "components, and `no_forced_gap_of_best_wired` says that the gap in "
+        "`rigid_gap` is forced by the missing wire alone. A delimitation has "
+        "nothing downstream to feed: its consumers are the reader of the "
+        "theorem it bounds and the witnesses of `Examples/FiniteRegion.lean`. "
+        "Routing it into `chain` would assert that a cortical architecture is "
+        "a finite cell reconstruction, which is a physical identification this "
+        "development does not make"
+    ),
 }
 
 DECL_RE = re.compile(

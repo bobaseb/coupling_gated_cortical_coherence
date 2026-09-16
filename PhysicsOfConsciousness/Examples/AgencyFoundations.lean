@@ -249,7 +249,7 @@ theorem proj_lipschitz : LipschitzEncoder proj 1 := by
   intro a b
   rw [one_mul]
   unfold proj circlePoint chord
-  rw [← Real.sqrt_sq_eq_abs]
+  rw [Real.norm_eq_abs, ← Real.sqrt_sq_eq_abs]
   exact Real.sqrt_le_sqrt (by nlinarith [sq_nonneg (Real.sin a - Real.sin b)])
 
 /-- Two antiphase oscillators. -/

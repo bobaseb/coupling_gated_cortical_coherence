@@ -179,9 +179,12 @@ noncomputable def frozen : FiniteObservationalLearner W R A O :=
 @[simp] theorem frozen_transition (w : W) (r : R) : L.frozen.transition w r = ProbDist.dirac r :=
   ProbDist.bind_const _ _
 
-/-- A frozen register reproduces its own law at every horizon, so its expected
-reward is the prior's and no observation can change it. -/
-@[simp] theorem frozen_law (n : ℕ) : L.frozen.law n = L.prior := by
+/-- **A learner whose composite channel returns the register unchanged keeps its
+prior.** The hypothesis is on the act--observe--update composite, not on the
+update rule in isolation: a learner with a perfectly ordinary update rule and an
+observation that never varies satisfies it. -/
+theorem law_eq_prior_of_transition_dirac
+    (h : ∀ w r, L.transition w r = ProbDist.dirac r) (n : ℕ) : L.law n = L.prior := by
   induction n with
   | zero => rfl
   | succ n ih =>
@@ -189,9 +192,21 @@ reward is the prior's and no observation can change it. -/
     apply ProbDist.ext
     funext z
     simp only [FiniteFeedbackStep.final, FiniteFeedbackStep.iterate_transition,
-      step_transition, frozen_transition, ProbDist.dirac_apply, mul_ite, mul_one,
+      step_transition, h, ProbDist.dirac_apply, mul_ite, mul_one,
       mul_zero, Finset.sum_ite_eq, Finset.mem_univ, ite_true, Prod.mk.eta]
     rfl
+
+/-- Such a learner's expected reward is the prior's at every horizon. -/
+theorem performance_const_of_transition_dirac
+    (h : ∀ w r, L.transition w r = ProbDist.dirac r) (n : ℕ) :
+    L.performance n = L.performance 0 := by
+  unfold performance
+  rw [L.law_eq_prior_of_transition_dirac h n, L.law_eq_prior_of_transition_dirac h 0]
+
+/-- A frozen register reproduces its own law at every horizon, so its expected
+reward is the prior's and no observation can change it. -/
+@[simp] theorem frozen_law (n : ℕ) : L.frozen.law n = L.prior :=
+  L.frozen.law_eq_prior_of_transition_dirac (fun w r => L.frozen_transition w r) n
 
 theorem frozen_performance (n : ℕ) : L.frozen.performance n = L.frozen.performance 0 := by
   unfold performance
