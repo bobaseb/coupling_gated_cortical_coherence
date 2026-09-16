@@ -5463,8 +5463,12 @@ $10$~kHz, at $0.3$--$0.6$~S/m, an order of magnitude set by the conductivity of
 saline diluted into that volume fraction \citep{barbour2017}. At a fixed
 transmembrane current density, then, a larger $\alpha$ means a smaller
 extracellular field: the space contracts on awakening and $K$ should rise. That
-is an effective-medium argument, so it fixes a sign and not a magnitude, and it
-says nothing about how a heterogeneous field aggregates into a single $K$.
+is an effective-medium argument, so it fixes a sign and not a magnitude. How a
+heterogeneous field aggregates into a single $K$ is answered separately, by the
+row-sum rule the manuscript's spatial control measures: over decay lengths from
+\reductionDecayMin{} to \reductionDecayMax~mm the reduced threshold sits within
+\reductionRuleSpread{} of what a uniform control returns on the same sheet, and
+what displaces it is frequency heterogeneity rather than spatial reach.
 Neither the monotonic relation
 between extracellular geometry and coupling, nor its role in human sleep
 inertia, follows from the cited physiology; the model requires both to be
@@ -5604,10 +5608,14 @@ descriptions would challenge the unity clause; unified experience without the
 specified self-encoding would challenge the reflexive requirement. Absence of
 report alone cannot establish absence of experience.
 
-The compatibility observable is specified but not implemented, and the neural
-self-encoding has yet to be identified. The supplement details what a
-compatibility measurement needs; the manuscript explains how that measurement
-would enter a dissociation test.
+The compatibility observable is specified and exercised on constructed data,
+where it separates built-in incompatibility from built-in compatibility at
+$\mathrm{AUC}=\overlapIncompatibleAuc$ and its two silent failures are caught by
+per-patch diagnostics rather than by the statistic itself. It has no neural
+instantiation, and the neural self-encoding has yet to be identified. The
+supplement details what a compatibility measurement needs and what the
+implementation separates; the manuscript explains how that measurement would
+enter a dissociation test.
 
 \subsection{Three components}
 
@@ -5795,7 +5803,7 @@ Passive and active chains (\S\ref{sec:chain-theorems}) & Eight hypotheses per br
 $(a,r)$ collapse (\S\ref{sec:collapse}) & Parameter-free distributional test & Compatible with EEG; range too narrow to discriminate \\
 Sleep-inertia recovery & Conditional prediction requiring dynamics and mechanism identification & \textbf{Untested} \\
 Rate calibration $\gamma$ (\S\ref{sec:gamma}) & Converts field estimate to coupling & \textbf{Not derivable}; the sharpest open limitation \\
-Compatibility observable & Needed for dissociation tests & \textbf{Specified, not implemented} \\
+Compatibility observable & Needed for dissociation tests & \textbf{Validated on constructed data}; no neural instantiation \\
 Unity / selfhood identification & What the object is taken to be & \textbf{Philosophical commitment}, argued not proved \\
 \hline
 \end{longtable}

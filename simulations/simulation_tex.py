@@ -491,6 +491,195 @@ def _followup_macros() -> list[str]:
     ]
 
 
+def _largest_usable_bin_count(rows: list[JsonObject], dependence: float) -> tuple[int, float]:
+    """Return the coarsest-passing bin count at a dependence, with its concentration floor.
+
+    The estimator is usable at a bin count when some scanned concentration clears
+    the floor rule; the published count clears none, so what the protocol needs is
+    the largest count that does. Reading the largest rather than the smallest keeps
+    the answer a relaxation of the current design rather than a different design.
+    """
+    usable = [
+        (cast(int, row["bins"]), cast(float, row["a_min"]))
+        for row in rows
+        if row["a_min"] is not None and cast(float, row["dependence"]) == dependence
+    ]
+    if not usable:
+        raise ValueError(f"no scanned bin count is usable at dependence {dependence}")
+    return max(usable, key=lambda pair: pair[0])
+
+
+def _design_macros() -> list[str]:
+    """Emit what the proposed site count and bin count can discriminate (N7)."""
+    data = _read_json(FIGURES / "collapse_design" / "collapse_design_summary.json")
+    observed = cast(JsonObject, data["observed_range"])
+    rejection = cast(JsonObject, data["rejection_cases"])
+    required = cast(dict[str, int], observed["sites_required_by_dependence"])
+    bins, floor = _largest_usable_bin_count(cast(list[JsonObject], data["bin_sensitivity"]), 0.0)
+    if rejection["protocol_sites_independent_a_min"] is not None:
+        raise ValueError("the protocol site count now clears the floor; rewrite the sentence")
+    return [
+        _macro("designProtocolSites", observed["protocol_sites"]),
+        _macro("designPublishedBins", data["bins"]),
+        _macro("designUsableBins", bins),
+        _macro("designUsableConcentration", f"{floor:.1f}"),
+        _macro("designObservedMax", f"{cast(float, observed['observed_max']):.3f}"),
+        _macro("designSitesIndependent", required["0"]),
+        _macro("designSitesHalfClustered", required["0.5"]),
+        _macro("designSitesClustered", required["1"]),
+        _macro("designSitesPerCluster", data["sites_per_cluster"]),
+    ]
+
+
+def _spatial_and_heterogeneous_legs(
+    legs: dict[str, JsonObject],
+) -> tuple[list[JsonObject], list[JsonObject]]:
+    """Split the reduction's legs into the spatial kernels and the detuned controls.
+
+    The uniform leg carries no decay length and is the control the spatial ones
+    are read against, so it belongs to neither group.
+    """
+    spatial = [
+        leg
+        for leg in legs.values()
+        if leg["decay_mm"] is not None and cast(float, leg["frequency_sigma"]) == 0.0
+    ]
+    heterogeneous = [leg for leg in legs.values() if cast(float, leg["frequency_sigma"]) > 0.0]
+    return spatial, heterogeneous
+
+
+def _reduction_macros() -> list[str]:
+    """Emit the aggregation rule's measured accuracy and what displaces it (N8)."""
+    data = _read_json(FIGURES / "spatial_reduction" / "spatial_reduction_summary.json")
+    legs = cast(dict[str, JsonObject], data["legs"])
+    validation = cast(JsonObject, data["mean_field_validation"])
+    control = cast(float, legs["mean_field"]["threshold_ratio"])
+    spatial, heterogeneous = _spatial_and_heterogeneous_legs(legs)
+    ratios = [cast(float, leg["threshold_ratio"]) for leg in spatial]
+    decays = [cast(float, leg["decay_mm"]) for leg in spatial]
+    neighbours = [cast(float, leg["effective_neighbours"]) for leg in spatial]
+    windows = [cast(float, leg["threshold_ratio_low"]) for leg in spatial]
+    detuned = [cast(float, leg["threshold_ratio"]) for leg in heterogeneous]
+    spread = max(abs(ratio - control) for ratio in ratios)
+    return [
+        _macro("reductionDecayMin", f"{min(decays):.1f}"),
+        _macro("reductionDecayMax", f"{max(decays):.1f}"),
+        _macro("reductionNeighbourMin", f"{min(neighbours):.0f}"),
+        _macro("reductionNeighbourMax", f"{max(neighbours):.0f}"),
+        _macro("reductionRatioMin", f"{min(ratios):.3f}"),
+        _macro("reductionRatioMax", f"{max(ratios):.3f}"),
+        _macro("reductionMeanFieldRatio", f"{control:.3f}"),
+        _macro("reductionRuleSpread", f"{spread:.3f}"),
+        _macro("reductionWindowLow", f"{min(windows):.3f}"),
+        _macro("reductionFrequencySd", f"{cast(float, heterogeneous[0]['frequency_sigma']):.1f}"),
+        _macro("reductionHeterogeneousRatio", f"{min(detuned):.2f}"),
+        _macro("reductionBranchResidual", f"{cast(float, validation['residual_max_abs']):.4f}"),
+        _macro("reductionBranchPoints", validation["supercritical_points"]),
+    ]
+
+
+def _compatibility_macros() -> list[str]:
+    """Emit the overlap estimator's separation, its two silent failures and its limit (N9)."""
+    data = _read_json(FIGURES / "compatibility_estimator" / "compatibility_estimator_summary.json")
+    baseline = {
+        cast(str, row["configuration"]): row for row in cast(list[JsonObject], data["baseline"])
+    }
+    controls = {
+        cast(str, row["control"]): row
+        for row in cast(list[JsonObject], data["silent_failure_controls"])
+    }
+    if not all(row["statistic_alone_is_fooled"] for row in controls.values()):
+        raise ValueError("a silent failure no longer fools the statistic; rewrite the sentence")
+    if not all(row["rejected_by_diagnostic"] for row in controls.values()):
+        raise ValueError("a diagnostic no longer catches its silent failure; rewrite the sentence")
+    phase = cast(JsonObject, data["phase_carried_content"])
+    if phase["bound_separates_the_models"]:
+        raise ValueError("the phase bound now separates the models; rewrite the sentence")
+    compatible = baseline["single_valued"]
+    incompatible = baseline["disagreeing"]
+    shrinkage = cast(JsonObject, controls["shrinkage_toward_shared_prior"]["assessment"])
+    bias = cast(JsonObject, controls["independent_per_region_bias"]["assessment"])
+    honest = cast(float, controls["shrinkage_toward_shared_prior"]["honest_null_statistic"])
+    return [
+        _macro("overlapTrials", data["trials"]),
+        _macro("overlapSites", data["overlap"]),
+        _macro("overlapDecodingError", f"{cast(float, data['decoding_error']):.1f}"),
+        _macro("overlapCompatibleAuc", f"{cast(float, compatible['auc_against_null']):.3f}"),
+        _macro("overlapIncompatibleAuc", f"{cast(float, incompatible['auc_against_null']):.3f}"),
+        _macro("overlapIncompatibleZ", f"{cast(float, incompatible['z_against_null']):.0f}"),
+        _macro("overlapShrinkageStatistic", f"{cast(float, shrinkage['statistic']):.4f}"),
+        _macro("overlapBiasStatistic", f"{cast(float, bias['statistic']):.4f}"),
+        _macro("overlapHonestStatistic", f"{honest:.4f}"),
+        _macro("overlapPhaseShareBuilt", f"{cast(float, phase['phase_derived_share']):.3f}"),
+        _macro("overlapPhaseShareFree", f"{cast(float, phase['phase_free_share']):.3f}"),
+        _macro("overlapPhaseBoundBuilt", f"{cast(float, phase['phase_derived_bound']):.3f}"),
+        _macro("overlapPhaseBoundFree", f"{cast(float, phase['phase_free_bound']):.3f}"),
+        _macro("overlapWorstUsableError", f"{cast(float, data['worst_usable_error']):.1f}"),
+        _macro("overlapSmallestTerritory", data["smallest_usable_overlap"]),
+    ]
+
+
+def _quasistatic_macros() -> list[str]:
+    """Emit the rate the quasi-static reading requires and where it is unavailable (N12)."""
+    data = _read_json(FIGURES / "quasistatic_error" / "quasistatic_error_summary.json")
+    manuscript = cast(JsonObject, data["manuscript"])
+    delay = cast(JsonObject, data["bifurcation_delay"])
+    crossing = cast(JsonObject, cast(JsonObject, data["legs"])["crossing"])
+    runs = cast(list[JsonObject], crossing["runs"])
+    cited = cast(list[float], manuscript["cited_ratio_range"])
+    if crossing["admissible_speed"] is not None:
+        raise ValueError("the crossing leg now admits a speed; rewrite the sentence")
+    terminal = [cast(float, run["terminal_error"]) for run in runs]
+    speeds = [cast(float, run["speed"]) for run in runs]
+    return [
+        _macro("quasistaticRatioMin", f"{cited[0]:.0f}"),
+        _macro("quasistaticRatioMax", rf"{cited[1] / 1000:.0f}\times10^{{3}}"),
+        _macro(
+            "quasistaticTrackableAtMaxRatio",
+            f"{cast(float, manuscript['trackable_delta_at_fast_end']):g}",
+        ),
+        _macro(
+            "quasistaticTrackableAtMinRatio",
+            f"{cast(float, manuscript['trackable_delta_at_slow_end']):g}",
+        ),
+        _macro("quasistaticCrossingSpeedMin", f"{min(speeds):g}"),
+        _macro("quasistaticCrossingSpeedMax", f"{max(speeds):g}"),
+        _macro("quasistaticCrossingResidualMin", f"{min(terminal):.3f}"),
+        _macro("quasistaticCrossingResidualMax", f"{max(terminal):.3f}"),
+        _macro("quasistaticSeedOrder", f"{cast(float, delay['seed_order']):.4f}"),
+        _macro("quasistaticExponentAll", f"{cast(float, delay['exponent']):.3f}"),
+        _macro("quasistaticExponentUncensored", f"{cast(float, delay['uncensored_exponent']):.3f}"),
+        _macro("quasistaticSpeedCount", len(cast(list[float], delay["speeds"]))),
+        _macro("quasistaticUncensoredCount", len(cast(list[float], delay["uncensored_speeds"]))),
+    ]
+
+
+def _fluctuating_macros() -> list[str]:
+    """Emit which statistic of a varying coupling the threshold is read against (N13)."""
+    data = _read_json(FIGURES / "fluctuating_coupling" / "fluctuating_coupling_summary.json")
+    fast = cast(JsonObject, data["fast_limit"])
+    slow = cast(JsonObject, data["slow_limit"])
+    rejection = cast(JsonObject, data["mean_substitution_rejection"])
+    strongest = cast(JsonObject, rejection["strongest"])
+    config = cast(JsonObject, data["config"])
+    return [
+        _macro("noiseFastTau", f"{cast(float, fast['correlation_time']):g}"),
+        _macro("noiseSlowTau", f"{cast(float, slow['correlation_time']):g}"),
+        _macro("noiseFastMeanGap", f"{cast(float, fast['worst_mean_substitution_gap']):.3f}"),
+        _macro("noiseFastQuasiGap", f"{cast(float, fast['worst_quasi_static_gap']):.3f}"),
+        _macro("noiseSlowMeanGap", f"{cast(float, slow['worst_mean_substitution_gap']):.3f}"),
+        _macro("noiseSlowQuasiGap", f"{cast(float, slow['worst_quasi_static_gap']):.3f}"),
+        _macro("noiseSlowDrives", slow["drives"]),
+        _macro("noiseRefusals", rejection["count"]),
+        _macro("noiseStrongestMean", f"{cast(float, strongest['mean']):g}"),
+        _macro("noiseStrongestAmplitude", f"{cast(float, strongest['amplitude']):g}"),
+        _macro("noiseStrongestTau", f"{cast(float, strongest['correlation_time']):g}"),
+        _macro("noiseStrongestOrder", f"{cast(float, strongest['measured_order']):.4f}"),
+        _macro("noiseStrongestSpread", f"{cast(float, strongest['order_spread']):.4f}"),
+        _macro("noiseSeedOrder", f"{cast(float, config['seed_order']):g}"),
+    ]
+
+
 def generate_simulation_tex(output: Path) -> None:
     """Write all completed simulation macros from compact saved results."""
     chaos_summary = cast(
@@ -533,6 +722,21 @@ def generate_simulation_tex(output: Path) -> None:
         "",
         "% F5/F6: bounded follow-up studies",
         *_followup_macros(),
+        "",
+        "% N7: what the collapse design can discriminate",
+        *_design_macros(),
+        "",
+        "% N8: the spatial reduction of the scalar threshold",
+        *_reduction_macros(),
+        "",
+        "% N9: the overlap-compatibility estimator",
+        *_compatibility_macros(),
+        "",
+        "% N12: the quasi-static residual as a function of rate",
+        *_quasistatic_macros(),
+        "",
+        "% N13: a fluctuating coupling and the threshold",
+        *_fluctuating_macros(),
     ]
     output.write_text("\n".join(lines) + "\n", encoding="utf-8")
 

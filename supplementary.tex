@@ -2462,7 +2462,9 @@ The comparisons have specific scope. The squared-drift functional is not a varia
 
 \subsection{Assumptions}
 
-The effective coupling must depend on extracellular geometry through a separately calibrated relation. The stationary ansatz assumes identical frequencies in a rotating frame and positive phase diffusion. The square-root temporal onset additionally requires a nonzero crossing speed and adiabatic branch tracking, which critical slowing down limits near threshold. The theorem does not prove dynamical selection. Finite-size fluctuations require an operational escape criterion above the fluctuation floor; neither an exactly flat observable foot nor an infinite initial slope is guaranteed.
+The effective coupling must depend on extracellular geometry through a separately calibrated relation. The stationary ansatz assumes identical frequencies in a rotating frame and positive phase diffusion. The square-root temporal onset additionally requires a nonzero crossing speed and adiabatic branch tracking, which critical slowing down limits near threshold. At the crossing itself that tracking is unavailable at any rate: on a leg symmetric about $K_c$ the terminal quasi-static residual runs from $\quasistaticCrossingResidualMin$ to $\quasistaticCrossingResidualMax$ across every scanned rate from $\quasistaticCrossingSpeedMin$ to $\quasistaticCrossingSpeedMax$, so slowing the crossing does not reduce it and no speed there is admissible. The theorem does not prove dynamical selection. Finite-size fluctuations require an operational escape criterion above the fluctuation floor; neither an exactly flat observable foot nor an infinite initial slope is guaranteed.
+
+A coupling that fluctuates rather than ramps is read against a statistic of $K(t)$ that the fluctuation rate selects. At correlation time $\noiseFastTau$, substituting the mean coupling reproduces the measured order to $\noiseFastMeanGap$ where substituting the quasi-static average $\mathbb{E}[r_{\rm ss}(K)]$ is wrong by $\noiseFastQuasiGap$; at correlation time $\noiseSlowTau$ with a drive that stays on one side of threshold the two exchange roles, at $\noiseSlowMeanGap$ and $\noiseSlowQuasiGap$ over \noiseSlowDrives{} drives. A slow drive that crosses admits neither. Mean-coupling substitution is refused in \noiseRefusals{} of the scanned drives, and in the strongest case --- telegraph coupling of mean $\noiseStrongestMean$, amplitude $\noiseStrongestAmplitude$ and correlation time $\noiseStrongestTau$ --- the measured order is $\noiseStrongestOrder$ where $r_{\rm ss}$ of the mean coupling is exactly zero, above the seed $\noiseSeedOrder$ the run started from. Its spread across replicas is $\noiseStrongestSpread$, the size of the effect itself: such a drive is not self-averaging over one run.
 
 \subsection{Finite-ramp numerical check}
 
@@ -2473,8 +2475,13 @@ escape is defined as the first of three consecutive sampled points at $r\geq
 0.2$ after $K_c$.  The fastest leg is right-censored: only $\rampFastEscaped/\rampReplicas$ replicas
 escape before $K=2.5$.  All replicas escape at the three slower speeds, with
 mean delays $\Delta K=\rampDelaySlowOne$, $\rampDelaySlowTwo$ and $\rampDelaySlowThree$.  Their log--log fit gives
-$\Delta K\propto v^{\rampDelayExponent}$, near the predicted exponent $1/2$ at this
-resolution.  At fixed $v=10^{-2}$ the delay is monotonic in $N$, increasing
+$\Delta K\propto v^{\rampDelayExponent}$.  The same delay measured in the
+deterministic mean-field limit, seeded at threshold at the finite-$N$ fluctuation
+floor $\quasistaticSeedOrder$, returns $\quasistaticExponentAll$ over
+\quasistaticSpeedCount{} speeds and $\quasistaticExponentUncensored$ over the
+\quasistaticUncensoredCount{} this fit uses, so the shortfall from $1/2$ outlives
+the removal of finite-$N$ sampling and belongs to the delay estimator rather than
+to the ensemble.  At fixed $v=10^{-2}$ the delay is monotonic in $N$, increasing
 from $\rampNDelayOne$ through $\rampNDelayTwo$ to $\rampNDelayThree$ as $N$ increases from $500$ through
 $2000$ to $8000$. The corresponding ratios $\Delta K / \sqrt{\ln N}$ are $\rampNScaledDelayOne$, $\rampNScaledDelayTwo$ and $\rampNScaledDelayThree$, which do not collapse to a size-independent constant. At $N=500$, individual replicas reach $r=\rampNPrecriticalMaxOne$ before $K_c$, while at $N=8000$ they reach only $\rampNPrecriticalMaxThree$; the absolute criterion $r \geq 0.2$ therefore fires almost immediately at the smallest size. The control demonstrates the protocol hazard warned of in the main text's measurement protocol: a fixed absolute criterion meeting a size-dependent critical fluctuation floor.
 
@@ -2553,7 +2560,7 @@ The full commitment proposes that unity and reflexivity occur together in consci
 \label{sec:supp-overlap-test}
 \label{sec:compatibility-protocol}
 
-The main article's compatibility requirement needs a neural observable distinct from phase order. This section specifies that measurement: decoded local descriptions, restrictions to shared domains, uncertainty under decoding noise, and validation on examples with known compatibility. The specification is not implemented here.
+The main article's compatibility requirement needs a neural observable distinct from phase order. This section specifies that measurement: decoded local descriptions, restrictions to shared domains, uncertainty under decoding noise, and validation on examples with known compatibility. An implementation of the specification on constructed data is reported below; no recording is analysed.
 
 \subsection{Three components}
 
@@ -2568,6 +2575,14 @@ The main article's compatibility requirement needs a neural observable distinct 
 A decoder that shrinks both regional posteriors toward a shared prior reports compatibility whatever the regions encode, having replaced two local descriptions with one global one. A decoder carrying independent per-region bias reports incompatibility whatever the regions encode. These are opposite failures of the same component, neither is visible in the compatibility statistic itself, and both are why the constructed-answer validation above is a requirement rather than a refinement.
 
 The third is circularity. A compatibility statistic computed from phases measures phase agreement, which the counterexample shows can coexist with incompatible local descriptions. E78 connects coherence to a supplied cover's relaxation; the cover's own compatibility field supplies overlap agreement. A statistic for that agreement must use the local descriptions and their restrictions.
+
+\subsection{What the implemented estimator separates}
+
+The three components above are instantiated on constructed data: per-site distributions restricted to the shared sites, equality of the restricted tuples as the compatibility relation, and a dependence-aware null built from two decoders of the same content. Over \overlapTrials{} trials on an overlap of \overlapSites{} sites at decoding error \overlapDecodingError, the statistic separates constructed incompatibility from constructed compatibility at $\mathrm{AUC}=\overlapIncompatibleAuc$ against $\overlapCompatibleAuc$ under the null, a departure of $\overlapIncompatibleZ$ null standard deviations. Separation survives to decoding error \overlapWorstUsableError{} and to a shared territory of \overlapSmallestTerritory{} sites.
+
+The two silent failures are exhibited rather than assumed. A decoder shrinking both posteriors toward a shared prior drives the statistic to \overlapShrinkageStatistic{} on incompatible content, and independent per-region bias drives it to \overlapBiasStatistic{} on compatible content, against \overlapHonestStatistic{} for honest decoders under the null: each manufactures the answer the other suppresses, and the statistic alone reports both. Both are rejected by the accompanying per-patch diagnostics, which is what makes those diagnostics a requirement rather than a refinement.
+
+Circularity is separated by measurement rather than by argument. On content built from the phase, the phase carries a share \overlapPhaseShareBuilt{} of the content entropy against \overlapPhaseShareFree{} when it is not, so the share distinguishes the two models; the phase-derived bound does not, reading \overlapPhaseBoundBuilt{} and \overlapPhaseBoundFree{} on the two. On the constructed counterexample --- phase-locked patches whose local descriptions disagree --- a phase-derived statistic reports compatibility where the content statistic reports incompatibility. No phase-derived quantity substitutes for the restricted local descriptions.
 
 \subsection{Scope}
 
@@ -2599,7 +2614,7 @@ returns $\hat a = A^{-1}(r)$ identically. The pair $(\hat a, r)$ would then lie 
 $r = I_1(a)/I_0(a)$ for any input whatsoever, including phases drawn from a distribution that is not
 von Mises, and the collapse would be an algebraic identity rather than a test. The implemented regression is unweighted, so it uses the log-density shape rather than defining concentration by inversion of the first trigonometric moment. Other weighting rules are different estimators and are not assumed equivalent to maximum likelihood.
 
-The pseudocount biases the estimator, so its null residual must be calibrated at the sample size and dependence structure of the intended measurement. The exploratory bins contain \eegPooledSamples{} phase values, but the proposed spatial protocol permits only 100 sites. At \eegCalibrationSmallSamples{} independent samples, \eegCalibrationReplicas{} von Mises draws with true $a=\eegCalibrationConcentration$ return mean $\hat a=\eegCalibrationAMean$ and mean residual $\eegCalibrationResidualMean$ with standard deviation $\eegCalibrationResidualSd$. A large residual at that count can therefore be estimator bias rather than evidence against the density relation. Independence in this calibration is itself optimistic for EEG; a spatial experiment must use a dependence-aware null.
+The pseudocount biases the estimator, so its null residual must be calibrated at the sample size and dependence structure of the intended measurement. The exploratory bins contain \eegPooledSamples{} phase values, but the proposed spatial protocol permits only \designProtocolSites{} sites. At \eegCalibrationSmallSamples{} independent samples, \eegCalibrationReplicas{} von Mises draws with true $a=\eegCalibrationConcentration$ return mean $\hat a=\eegCalibrationAMean$ and mean residual $\eegCalibrationResidualMean$ with standard deviation $\eegCalibrationResidualSd$. A large residual at that count can therefore be estimator bias rather than evidence against the density relation. Independence in this calibration is itself optimistic for EEG, and a dependence-aware null prices that optimism: clearing the bias floor over the observed concentration range takes \designSitesIndependent{} sites when they are independent, \designSitesHalfClustered{} at half clustering and \designSitesClustered{} when each shares a mean with \designSitesPerCluster{} neighbours. The pooled exploratory geometry reaches the last of these; the proposed spatial protocol reaches none of them.
 
 The estimator also separates synthetic non-von-Mises alternatives from correctly sampled high-count von Mises data. This confirms that the choice of unweighted log-density regression avoids the maximum-likelihood tautology; it does not calibrate a low-count or dependent neural measurement.
 

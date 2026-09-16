@@ -20,6 +20,47 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-16 — Three claims the closed numerical extensions withdraw
+
+N7-N9 and N12-N13 each measured something a published sentence asserted without
+one, and each deferred its publication alignment on the same reasoning. The
+alignment pass is now made, and three of the eight sentences it touches were
+claims that are no longer made.
+
+**The proposed awakening protocol's site count was said to need calibration; it
+needs replacing.** The estimator at 100 sites and its published 40 bins clears
+the bias floor at no scanned concentration and no dependence. Twenty-four bins
+or fewer clear it from `a = 1.5` upward under independent sites, and the
+observed ceiling is `a = 0.542`, below that. Discriminating over the observed
+range takes 3,000 independent sites, rising to 31,000 when sites share a mean in
+groups of ten. The sentence asking for calibration of a 100-site minimum is
+replaced by what the calibration returned.
+
+**`ΔK ∝ v^0.443` was read as "near the predicted exponent 1/2 at this
+resolution".** Resolution is not what the shortfall was. The same delay measured
+in the deterministic mean-field limit, seeded at the finite-`N` fluctuation
+floor, returns `0.447` over four speeds and `0.418` over the three the published
+fit used. The shortfall outlives the removal of finite-`N` sampling, so it
+belongs to the delay estimator rather than to the ensemble, and the sentence no
+longer attributes it to resolution.
+
+**The recovery argument read a crossing of `K_c` as an onset.** On a leg
+symmetric about `K_c` the terminal quasi-static residual is `0.393` at every
+scanned rate from `10⁻⁴` to `1`. Slowing the crossing does not reduce it and no
+speed there is admissible, so branch tracking is unattainable exactly where that
+argument used it. The assumptions section says so rather than limiting the
+concern to critical slowing down near threshold.
+
+The other five sentences gain what they lacked rather than withdrawing
+anything: the row-sum aggregation rule behind the scalar threshold and its
+measured cost, the dependence-aware site counts behind the calibration called
+optimistic for EEG, the compatibility observable's implementation on constructed
+data, the time-scale ratio behind "evolves more slowly than phase dynamics", and
+the statistic of a fluctuating coupling that `K_c` is read against. Every
+numeral is a generated macro read from a saved summary; `simulation_tex.py`
+gained five groups and its drift test gained a check that the five emit nothing
+the publication does not cite.
+
 ## 2026-09-16 — The leaf gate reported consumers that did not exist
 
 `simulations/check_leaves.py` claimed that every phase module outside its

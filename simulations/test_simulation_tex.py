@@ -1,11 +1,14 @@
+import re
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import cast
 
 from simulation_tex import (
     _effective_coupling,
     _first_sustained_index,
     _geometric_grid_ratio,
+    _largest_usable_bin_count,
     _scientific_upper_bound,
     _shared_coherent_length,
     generate_simulation_tex,
@@ -59,7 +62,35 @@ class SimulationTexTest(unittest.TestCase):
         self.assertIn(r"\newcommand{\spatialSharedCoherentDecay}{0.01467}", content)
         self.assertIn(r"\newcommand{\spatialSharedCoarseOrder}{0.6176}", content)
         self.assertIn(r"\newcommand{\spatialSharedRefinedOrder}{0.2687}", content)
+        self.assertIn(r"\newcommand{\designUsableBins}{24}", content)
+        self.assertIn(r"\newcommand{\designSitesIndependent}{3000}", content)
+        self.assertIn(r"\newcommand{\designSitesClustered}{31000}", content)
+        self.assertIn(r"\newcommand{\reductionRuleSpread}{0.003}", content)
+        self.assertIn(r"\newcommand{\reductionMeanFieldRatio}{0.750}", content)
+        self.assertIn(r"\newcommand{\reductionHeterogeneousRatio}{1.53}", content)
+        self.assertIn(r"\newcommand{\overlapIncompatibleAuc}{0.990}", content)
+        self.assertIn(r"\newcommand{\overlapShrinkageStatistic}{0.0146}", content)
+        self.assertIn(r"\newcommand{\overlapPhaseShareBuilt}{1.000}", content)
+        self.assertIn(r"\newcommand{\quasistaticExponentAll}{0.447}", content)
+        self.assertIn(r"\newcommand{\quasistaticExponentUncensored}{0.418}", content)
+        self.assertIn(r"\newcommand{\quasistaticCrossingResidualMin}{0.393}", content)
+        self.assertIn(r"\newcommand{\quasistaticCrossingResidualMax}{0.393}", content)
+        self.assertIn(r"\newcommand{\noiseFastMeanGap}{0.035}", content)
+        self.assertIn(r"\newcommand{\noiseSlowQuasiGap}{0.020}", content)
+        self.assertIn(r"\newcommand{\noiseRefusals}{25}", content)
         self.assertNotIn(r"\rampOnsetPinnedOne", content)
+        # A macro nobody cites is a dead entry in this file and in its drift test.
+        # Scoped to the five groups read from the N7-N13 summaries: the older
+        # groups carry uncited entries of their own, and deciding each one's fate
+        # is a separate pass from the one that added these.
+        published = Path(__file__).parents[1]
+        prose = (published / "main.tex").read_text(encoding="utf-8") + (
+            published / "supplementary.tex"
+        ).read_text(encoding="utf-8")
+        groups = ("design", "reduction", "overlap", "quasistatic", "noise")
+        emitted = re.findall(r"\\newcommand\{\\([A-Za-z]+)\}", content)
+        uncited = [name for name in emitted if name.startswith(groups) and f"\\{name}" not in prose]
+        self.assertEqual(uncited, [], f"generated but never cited: {uncited}")
 
     def test_committed_macros_match_saved_results(self) -> None:
         with TemporaryDirectory() as directory:
@@ -94,6 +125,21 @@ class DerivedQuantityTest(unittest.TestCase):
     def test_shared_length_rejects_an_onset_the_other_sheet_never_samples(self) -> None:
         with self.assertRaises(ValueError):
             _shared_coherent_length([1.0, 2.0], [0.1, 0.9], [1.0, 4.0], [0.1, 0.9])
+
+    def test_largest_usable_bin_count_reads_the_coarsest_passing_design(self) -> None:
+        rows: list[dict[str, object]] = [
+            {"bins": 6, "dependence": 0.0, "a_min": 1.5},
+            {"bins": 24, "dependence": 0.0, "a_min": 1.5},
+            {"bins": 40, "dependence": 0.0, "a_min": None},
+            {"bins": 40, "dependence": 1.0, "a_min": 2.0},
+        ]
+        self.assertEqual(_largest_usable_bin_count(rows, 0.0), (24, 1.5))
+
+    def test_largest_usable_bin_count_rejects_a_dependence_nothing_clears(self) -> None:
+        with self.assertRaises(ValueError):
+            _largest_usable_bin_count(
+                [cast(dict[str, object], {"bins": 40, "dependence": 0.0, "a_min": None})], 0.0
+            )
 
     def test_scientific_bound_rounds_away_from_the_value_it_bounds(self) -> None:
         # The publication states these as "at most", so truncation would overclaim.
