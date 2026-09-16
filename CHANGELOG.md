@@ -20,6 +20,31 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-16 — Content-agreement bounds and manuscript structure
+
+The content-dynamics exposition described the retained disagreement as reaching
+the observation tolerance exactly. `run_residual_floor` proves an upper bound,
+`(1-η)^n ε + δ`; it does not prove that the actual disagreement attains that
+value. The supplement and primer now distinguish the bound from the realized
+disagreement. Likewise, the factor `N²` in the pointwise phase-gap estimate
+comes from bounding one summand by the whole sum; the proof establishes no
+optimality for that dependence on population size.
+
+The coherence-to-content statement uses one common scalar Lipschitz encoder,
+with each patch reading one oscillator and holding that observation constant
+across the patch. Merely saying that content depends on phase omits these
+conditions: different decoders can disagree at the same phase. The main text,
+supplement and primer now state the common-encoder requirement. Real-valued
+content dynamics and nonnegative mass-profile selection are also distinguished.
+No formal statement changes.
+
+The main article places the installed-energy condition beside the phase
+threshold and the content mechanisms beside compatibility. Supporting agency
+models are summarized by their consequences, with their separate assumptions
+and equations organized in the supplement. All eight connecting hypotheses per
+branch remain explicit. The editorial pass is recorded in
+`tasks/structural_rewrite.md`.
+
 ## 2026-09-15 — Installed energy reaches the scalar coherence threshold
 
 The K ledger described an installed product-space kernel whose continuum

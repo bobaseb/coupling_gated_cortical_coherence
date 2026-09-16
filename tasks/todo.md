@@ -73,6 +73,14 @@ and stationary-density consequences, and K4 supplies the witnesses and
 rejections. K5 aligns the publication, primer and rebuilt deliverables.
 The pass is recorded in `tasks/k_completion.md`.
 
+**Editorial follow-up completed 2026-09-16.** The main article now integrates
+the installed-energy condition with coherence and the scalar content bounds
+with compatibility, while the detailed agency models have separate technical
+sections in the supplement. Main source length is 5,841 whitespace words
+(including TeX), and the rebuilt main PDF is 39 pages. Scope clarifications,
+preservation checks and rebuilt deliverables are recorded in
+`tasks/structural_rewrite.md`. This pass changes no R- or P-item status.
+
 R-items are the carried-forward research programme and are unbounded. P-items
 are submission mechanics and are blocked on someone else.
 

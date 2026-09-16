@@ -87,6 +87,15 @@ collective timing; compatible local descriptions can form one global state;
 and an encoding within that state can reconstruct it. The second and third
 requirements need objects and assumptions beyond the phase model.
 
+Two conditional mechanisms connect these requirements. Declared actuator modes
+have installation prices, so their stored energy bounds the mean coupling they
+can provide. For those modes, insufficient installed energy excludes a coherent
+stationary branch; the conversion depends on the hardware. Separately, patches
+that read phases through one common Lipschitz encoder have a content-disagreement
+bound determined by coherence. The encoder's scalar output is constant within
+each patch. These results connect specified physical quantities; neither chooses
+a neural decoder or identifies a conscious state.
+
 The cortex is the brain's outer neural sheet. Neurons communicate through
 electrical activity, including brief pulses called spikes; a population rhythm
 is repeated activity across a group of cells. EEG, or electroencephalography,
@@ -134,6 +143,14 @@ Each uses eight connecting hypotheses and supplied structures, and they share
 the passage from coarse-graining to the same fixed state. Their conclusion
 and its identification with experience have different statuses:
 the first is conditional mathematics, the second a philosophical commitment.
+
+The main article presents the installation condition with the phase threshold,
+then recovery tests, compatible content and self-reconstruction. Its agency
+summary points to separate technical models in the supplement: feedback
+balances, policy selection and learning, repeated operation and resources, and
+the bridges to coupling. This primer follows the mathematical prerequisites and
+explains those models individually. Their different stores, reservoirs and
+encoders should be identified only where a model explicitly connects them.
 
 \subsection{Nine nodes, two thermodynamic branches}
 
@@ -3921,8 +3938,8 @@ patch containing it and the selection is $(2,1,3)$. Those two selections are
 exactly $\varepsilon$ apart, so the bound is attained and cannot be improved.
 
 \scope
-The tolerance costs existence. For every positive
-$\varepsilon$ that family has no global profile at all: patches $0$ and $1$
+At positive tolerance an exact extension need not exist. For every positive
+$\varepsilon$ that family has no global profile restricting exactly to all its patches: patches $0$ and $1$
 both see the right-hand site and report $3+\varepsilon$ and $3$ there. So
 selection is a \emph{choice} among states rather than an extension of the data,
 and a different choice of weights gives a different unified state. Uniqueness
@@ -3970,17 +3987,18 @@ nonnegative things is at least any one of them, so for \emph{every} pair
 \[
  1-\cos(\theta_i-\theta_j)\;\le\;N^{2}\bigl(1-r^{2}\bigr).
 \]
-A single global number bounds every individual phase gap. The $N^{2}$ is the
-price: one oscillator out of $N$ placed badly shifts $r$ by only $O(1/N)$, so
-buying a pointwise guarantee with a population average cannot be cheap.
+A single global number bounds every individual phase gap. The factor $N^{2}$
+comes from comparing one summand with the entire sum. It can make this estimate
+weak in large populations; the theorem does not show that this factor is optimal.
 
 Now the content. A phase is an angle, so a content that is a function of phase
 has to be a function of the point $(\cos\theta,\sin\theta)$ on the circle; a
 model that reads $\theta$ as a real number is not $2\pi$-periodic and so is not
 a function of the phase at all. In the chord distance on that circle the
 squared separation is exactly $2(1-\cos\Delta)$ --- the same quantity the
-inequality bounds. An encoder declared Lipschitz at constant $L$ therefore
-gives contents that agree on every overlap to within
+inequality bounds. Let every patch read one assigned oscillator through the
+same scalar encoder, declared Lipschitz at constant $L$. Its output is constant
+within that patch. The resulting observations agree on every overlap to within
 $L\sqrt{2}\,N\sqrt{1-r^{2}}$, with no agreement assumed anywhere. At $r^2=1$
 the residual is zero and the agreement is exact, so perfect locking is the
 endpoint of this scale rather than a separate theorem.
@@ -3989,16 +4007,15 @@ endpoint of this scale rather than a separate theorem.
 This does not contradict the counterexample that opened the section, and seeing
 why is the point. The counterexample's two mass profiles are chosen
 \emph{independently of the oscillators}; nothing makes them functions of phase,
-so equal phases constrain them not at all. The new bound applies exactly when
-the content does read the phase. The two results fence each other: coherence
-buys agreement for content that reads the phase and buys nothing for content
-that does not.
+so equal phases constrain them not at all. The positive bound needs the common
+encoder and its Lipschitz condition. Different decoders can disagree even at
+equal phase, and arbitrary phase-dependent content is outside this theorem.
 
 That turns the framework's central distinction into an empirical question
 instead of a modelling convenience. Which kind a neural description is --- how
 much of its content is carried by phase and how much is free of it --- is
-something a decoder study can ask, and the answer decides whether coordination
-can be doing the work the account wants from it.
+something a decoder study can ask. It must also test whether the local readings
+share the encoder required by the bound.
 
 The encoder and its constant are declared hardware, in the same sense as
 anything else the model supplies. The agreement is derived rather than declared,
@@ -5561,8 +5578,8 @@ Squared-drift plasticity (\S\ref{sec:plasticity}) & Dissipation descent $\ne$ le
 Mesh refinement & Discrete energy $\to$ continuum energy & Theorem (scalar energy only) \\
 No kernel from coarse-graining (\S\ref{sec:nokernel}) & Continuum kernel is an input & Theorem (negative) \\
 Sheaf gluing (\S\ref{sec:sheaf}) & Local $\to$ unique global state & Theorem + instance postulate \\
-Contents driven by observation & Agreeing observations preserve agreement and contract mismatch by $(1-\eta)$ per step, onto the observations' own floor & Theorem; the floor does not decay \\
-Coherence bounds disagreement & $N^2r^2=\sum_{ij}\cos(\theta_i-\theta_j)$, so one pair obeys $1-\cos\le N^2(1-r^2)$; phase-derived contents agree to a residual read off $r$ & Theorem; the encoder is declared, the agreement is not \\
+Contents driven by observation & Agreeing observations preserve agreement and contract mismatch by $(1-\eta)$ per step; approximate observations add a nondecaying term to the error bound & Theorem; an upper bound on disagreement \\
+Coherence bounds disagreement & $N^2r^2=\sum_{ij}\cos(\theta_i-\theta_j)$ bounds each pair; observations from one shared scalar phase encoder agree to a residual read off $r$ & Theorem; the encoder is declared \\
 Thermodynamics off finite state & Path divergence in $[0,\infty]$ on any measurable space: chain rule, data processing, second law; control over a compact action set & Theorem; the Shannon-entropy form does not generalize \\
 Compatibility $\ne$ phase agreement (\S\ref{sec:compat}) & The framework's central distinction & Theorem, with explicit counterexample \\
 Twisted gluing & Weakening to per-patch phases & Theorem; adds nothing (offsets are coboundaries) \\
