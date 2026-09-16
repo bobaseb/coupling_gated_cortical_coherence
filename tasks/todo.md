@@ -1,5 +1,12 @@
 # Physics of Consciousness — scheduled extensions and research
 
+**R-items triaged 2026-09-16.** Every R-item was assessed for whether it is
+reachable in this repository and for what closing it would buy. Three tractable
+aspects move into the scheduled bucket as N7–N9; the R-items they came from stay
+open on the residues that need measurements this repository does not have. The
+triage, and the reason each of the other nine stays unscheduled, is recorded in
+the R preamble. This pass changes no claim, proof, numeral or deliverable.
+
 **Follow-up scheduled 2026-09-16.** N1–N6 below are bounded extensions of the
 current results; R8–R12 record the broader research directions. None is a
 prerequisite for publishing the present conditional framework. K1–K5 remain
@@ -94,14 +101,20 @@ preservation checks and rebuilt deliverables are recorded in
 `tasks/structural_rewrite.md`. This pass changes no R- or P-item status.
 
 N-items are the scheduled follow-up: each has a concrete result, witnesses and
-a stopping point. R-items require broader theory, new physical identifications
-or empirical work. P-items are submission mechanics and are blocked on someone
-else. The N- and R-items do not reopen publication readiness.
+a stopping point. N1–N6 are Lean extensions and are complete. N7–N9 were added
+2026-09-16 and are numerical: they are the aspects of R4, R2 and R6 that need no
+measurement this repository lacks, and they are ordered by effort, ascending.
+R-items require broader theory, new physical identifications or empirical work.
+P-items are submission mechanics and are blocked on someone else. The N- and
+R-items do not reopen publication readiness.
 
 Take one item at a time. N3 consumes N2's specified observation mechanism; N6
 can reuse N5's indistinguishability bound. N1, N4 and N5 can be completed
-independently. The completed K pass followed K1 before K2 because the latter
-names the quantity the former identifies.
+independently. Among the numerical items N7 is independent, N8 produces the
+regime statement R8's reduction criterion would consume, and N9 may use N1's
+normed-space extension for its content model but does not require it. The
+completed K pass followed K1 before K2 because the latter names the quantity the
+former identifies.
 
 ## Standing constraints for the completed K pass
 
@@ -264,14 +277,26 @@ pass, and the rebuilt PDFs are in the same commit as the sources.
 
 ## N — Scheduled follow-up, not publication prerequisites
 
-**Intent and acceptance rule.** Connect existing constructions or remove an
-unnecessary restriction. A completed item must supply a new consequence or
-discharge a previously separate modelling obligation for a declared mechanism;
-renaming an assumed conclusion or adding an unused structure is insufficient.
-Write failing Lean specifications first, retain nondegenerate witnesses and
-rejection cases, and require the warning-free build and axiom audit. Changes to
-published claims include the matching prose, tables and rebuilt tracked PDFs.
-No production sweep or new empirical result is required by these items.
+**Intent and acceptance rule for N1–N6.** Connect existing constructions or
+remove an unnecessary restriction. A completed item must supply a new
+consequence or discharge a previously separate modelling obligation for a
+declared mechanism; renaming an assumed conclusion or adding an unused
+structure is insufficient. Write failing Lean specifications first, retain
+nondegenerate witnesses and rejection cases, and require the warning-free build
+and axiom audit. Changes to published claims include the matching prose, tables
+and rebuilt tracked PDFs. No production sweep or new empirical result is
+required by these items.
+
+**Intent and acceptance rule for N7–N9.** These are numerical and each needs a
+new design, so each gets a written specification before any run. A completed
+item must supply a saved summary, a generated macro for every numeral that
+reaches the publication, and at least one rejection case the estimator or
+comparison is required to fail. None may be closed on a specification —
+publishing what an observable must satisfy already failed to close R6 once. A
+negative result closes its item: if the quantity does not separate at the stated
+sensitivity, the reportable finding is that it does not. Regenerating a macro
+must never rerun a production sweep (AGENTS.md §3) and no new hand-typed
+numerals enter the publication.
 
 ### N1 — Content agreement for vector-valued observations
 
@@ -437,13 +462,148 @@ shared memory, host feedback and alternative sensory paths onto this graph,
 and choosing a biologically meaningful deadline, belong to R9. No universal
 GPU or biological verdict is part of the theorem.
 
+### N7 — The concentration range that makes the collapse a test
+
+- [ ] Compute the range of concentrations over which $r = I_1(a)/I_0(a)$ is
+      separated from its tangent by more than the estimator's own residual
+      floor, as a function of $a$ and of sample count. A1's corrected
+      separation figure is the input to this, not the answer: the figure shows
+      that the curve and its tangent differ, and the requirement is the range
+      and count at which a measurement can tell them apart.
+- [ ] Replace the independent-sample calibration with a dependence-aware null at
+      the site count the proposed spatial protocol permits. The supplement
+      already records that the existing calibration assumes independence and
+      calls that optimistic for EEG; declare a dependence model, generate
+      correlated phase samples, and report how the residual mean and standard
+      deviation move relative to `\eegCalibrationResidualMean` and
+      `\eegCalibrationResidualSd`.
+- [ ] State the result as a design specification — concentration range, sample
+      count and maximum tolerable dependence at which a measurement would
+      distinguish the von Mises relation from a linear approximation — and
+      report where the existing ds005620 range sits against it, without
+      re-analysing that data.
+
+**Win and stop.** The manuscript concedes that the observed concentration range
+does not separate the Bessel curve from a linear approximation and does not say
+what range would. Say what range would. This is arithmetic on the Bessel ratio
+plus a synthetic null; it is not a calibration of the observation model against
+sources, which needs source mixing, pooling and coverage on real recordings and
+stays in R4. Do not fit $\gamma$, do not re-run the empirical collapse pipeline,
+and do not convert the specification into a claim that cortex occupies the
+required range. If a defensible dependence model makes the requirement
+unreachable at achievable counts, that is the finding and it is reportable, not
+a parameter to relax until the requirement is met.
+
+### N8 — Sensitivity of the threshold to the spatial reduction
+
+- [ ] State the aggregation rule explicitly: how a spatially decaying kernel
+      reduces to the scalar coupling entering `critical_coupling D = 2 * D`,
+      including the row normalization, the effective population count and the
+      sign convention, and where double-counting of population size after
+      normalization is excluded.
+- [ ] Compare the spatial model against that scalar approximation across the
+      declared `FERMI_LAM_MIN`–`FERMI_LAM_MAX` range at identical natural
+      frequencies, so the von Mises self-consistency curve is a legitimate
+      validation target. `spatial_kernel.py` uses non-zero Gaussian frequencies
+      and its own header says the curve is not a target for it; an
+      identical-frequency leg is what makes the threshold comparison meaningful.
+      Report the discrepancy in threshold location with sensitivity bounds over
+      the range.
+- [ ] Conclude with either a stated regime restriction under which $K_c = 2D$
+      survives the spatial reduction, or the finding that it does not over the
+      declared range. Include a frequency-heterogeneity leg showing what the
+      identical-frequency restriction is carrying, so the restriction is
+      measured rather than assumed.
+
+**Win and stop.** $K_c = 2D$ is the headline and it is proved for a scalar
+coupling at identical frequencies. S2 fixed total coupling while varying range
+and, as B4 and C3 established, measures no coupling; nothing currently bounds
+the error of the reduction the threshold claim depends on. Bound it. This does
+not estimate the cortical interaction kernel, the effective population size or
+the decay range from data — that is R2's remaining half and it waits on R1.
+Carrying $K_c = 2D$ over unchanged is permitted only with a stated reason, and
+the declared range is not to be narrowed until the reduction passes.
+
+### N9 — A compatibility estimator validated against constructed answers
+
+- [ ] Specify the restriction map for decoded local distributions on a shared
+      sub-territory: equality of overlap marginals, with global extension and
+      uniqueness tested or assumed separately rather than imported from
+      `restrict_eq_iff_densityOn_eqOn`, which is the finite-spatial-measure
+      statement and not a statement about probability laws.
+- [ ] Build the compatibility statistic with a stated null and dependence-aware
+      uncertainty — overlapping territories supply dependent samples — and
+      measure its sensitivity on configurations whose compatibility is
+      constructed rather than inferred, including the one the formalization
+      already exhibits: a single common phase with densities that disagree
+      where the patches meet (`overlap_agreement_fails`).
+- [ ] Run the three silent-failure controls. A decoder shrinking both regional
+      posteriors toward a shared prior must be rejected as manufacturing
+      compatibility; a decoder with independent per-region bias must be
+      rejected as manufacturing incompatibility; and a statistic computed from
+      phases must fail the constructed counterexample it is required to fail.
+      Report degradation under decoding error and coverage limits.
+- [ ] Report what fraction of a decoded content the phase carries, on content
+      built to be a function of local phase and on content built to be free of
+      it. `compatible_of_coherence` bounds overlap disagreement only for the
+      first, so an observable that cannot separate the two cases does not
+      decide the question the account needs decided.
+
+**Win and stop.** The compatibility clause has no observable at all — not a
+poorly calibrated one, none — and it is the only edge no competing
+noisy-coupling account also motivates. Stop at synthetic and constructed data.
+This does not validate on neural recordings: that needs multi-region data with
+overlapping receptive territories and a decodable content variable, which this
+repository does not have and which resting scalp ds005620 cannot supply. It does
+not derive compatibility from coherence, does not select a cover, and does not
+identify the content model with neural variables; those stay in R6 and R11. An
+implemented estimator that cannot separate the constructed cases at realistic
+decoding quality is a reportable limit on the framework's testability, not a
+reason to relax the statistic until it separates.
+
 ## R — Research programme
 
-R1–R7 are reproduced from the archived ledger without change of content;
-consult `_archive/todo_2026-09-15_pre-coupling-budget-replan.md` for the full
-completion criteria, the R1 documented-limitation disposition and the R6
-specification record. R8–R12 were added on 2026-09-16. Placement after the
-scheduled items reflects scope, not scientific importance or publication need.
+R1–R7 were reproduced from the archived ledger without change of content until
+the 2026-09-16 triage below, which narrows R2, R4 and R6 and leaves the other
+four as they stand; consult
+`_archive/todo_2026-09-15_pre-coupling-budget-replan.md` for the full completion
+criteria, the R1 documented-limitation disposition and the R6 specification
+record. R8–R12 were added on 2026-09-16. Placement after the scheduled items
+reflects scope, not scientific importance or publication need.
+
+**Triaged 2026-09-16.** Each item was assessed for reach in this repository and
+for what closing it would buy. R4, R2 and R6 each had an aspect needing no
+measurement this repository lacks; those are now N7, N8 and N9, and the three
+items are narrowed below to the residues that do need one. The remaining nine
+stay unscheduled for stated reasons rather than by default.
+
+R1, R3 and R5 wait on measurements nobody here can make: simultaneous
+recordings under a controlled perturbation, a geometry observable checked
+against independently estimated coupling, and an awakening comparison whose
+stationary-observation half F6 already answered negatively.
+
+R7 is closable and should not be closed. Pricing `C` means declaring a hardware
+model with prices, which relocates the input rather than discharging it, and
+because `C` is subtracted on the right of `draw_ge_entropy_reduction` a large
+control budget already weakens the bound. Leaving it visible is the stronger
+statement, so closing R7 would buy presentation and cost honesty.
+
+R9 and R12 each carry an explicit trap — the hardware criterion must not be
+chosen to guarantee a negative verdict, and another uncalibrated finite-support
+no-go theorem is not the deliverable. Both would also close on specification
+alone, which is the failure R6 already demonstrates. Cheap progress on either is
+worse than none.
+
+R8, R10 and R11 are genuinely in reach and are unscheduled on cost and payoff,
+not on feasibility. N1–N6 supply everything R8 builds on, but it contains the
+unbounded dynamical mean-field programme and its payoff lands mainly on the
+formalization paper; it is the natural item to open after N8, whose regime
+statement its reduction criterion would consume. R10 deflates itself — the
+standard identity is not a substantial new bridge — and only its
+misspecified-model separation of inference-within-the-model from environmental
+accuracy has teeth; that is the piece to lift out if FEP is addressed at all.
+R11 feeds N9's content model without being needed by it, and cannot fix cover
+selection, which remains the deepest conditional.
 
 - [ ] **R1 — Calibrate effective coupling and phase diffusion in consistent
       units.** Not closable in this repository; carries a documented-limitation
@@ -452,12 +612,20 @@ scheduled items reflects scope, not scientific importance or publication need.
       of a test whose content is the ratio of coupling to diffusion.
 - [ ] **R2 — Validate spatial aggregation and the mean-field approximation.**
       B4 and C3 sharpen what S2 does and does not show and are inputs to this.
+      *Narrowed 2026-09-16:* bounding the error of the reduction to the scalar
+      threshold model is scheduled as N8. What stays here is estimating the
+      cortical interaction kernel, effective population size and decay range
+      from data, which waits on R1.
 - [ ] **R3 — Calibrate extracellular geometry against coupling and recovery
       time.**
 - [ ] **R4 — Calibrate the phase-observation model and uncertainty.** A1 is a
       small piece of this: the concentration range the EEG data occupy does not
       separate $I_1/I_0$ from its tangent, and the separation figure must be
       right before the required range can be stated.
+      *Narrowed 2026-09-16:* stating that range, and replacing the
+      independent-sample null with a dependence-aware one, is scheduled as N7.
+      What stays here is calibrating the observation model against sources —
+      source mixing, pooling and coverage on real recordings.
 - [ ] **R5 — Test awakening recovery against competing mechanisms.** B1, B2 and
       B3 all constrain how such a test may be analysed and should be settled
       first.
@@ -472,6 +640,13 @@ scheduled items reflects scope, not scientific importance or publication need.
       phase is exactly what determines whether coordination can do the work the
       account wants from it. Identifying the contents with neural variables is
       the same task and is not separate from this item.
+      *Narrowed 2026-09-16:* the synthetic core — restriction map, statistic
+      with a null, constructed-answer validation, the three silent-failure
+      controls and the phase-carried fraction — is scheduled as N9. What stays
+      here is validation on controlled neural data and the identification of the
+      contents with neural variables. Neither is reachable from resting scalp
+      EEG, so R6 keeps a documented-limitation branch of the same shape as R1's
+      even once N9 closes.
 - [ ] **R7 — Price gate fabrication and control, and implement the preparation
       channel microscopically.** These are the two residues of the physical
       supply item, and they are recorded here rather than left as open agency
@@ -504,7 +679,8 @@ scheduled items reflects scope, not scientific importance or publication need.
       variables. Include ongoing costs only through an explicit maintenance
       mechanism: exhaustion of a fuel source need not remove previously
       installed coupling. Connects N2–N3 to R2/R4 and contains the recorded
-      dynamical mean-field / propagation-of-chaos programme.
+      dynamical mean-field / propagation-of-chaos programme. N8's regime
+      statement is an input to the reduction criterion, so open this after it.
 - [ ] **R9 — Empirical hardware adequacy and conditional consciousness tests.**
       Identify a physical property the proposed conscious mechanism actually
       requires, then test specified GPU systems and biological comparators
@@ -538,8 +714,8 @@ scheduled items reflects scope, not scientific importance or publication need.
       decoders and restriction/coordinate maps on overlaps, and determine which
       components are controlled by phase and which need independent dynamics.
       Extend compatibility and reconstruction only with those maps and metrics
-      declared. Connect to R6's observable and to the recorded cover-selection
-      question; agreement, useful prediction and truth about the environment
+      declared. Connect to N9's estimator, to R6's remaining empirical half and
+      to the recorded cover-selection question; agreement, useful prediction and truth about the environment
       remain different claims. Arbitrary neural embeddings and a biological
       choice of cover are not consequences of the normed-space extension.
 - [ ] **R12 — Test physical realization of the proposed coupling mechanism.**
@@ -583,7 +759,8 @@ Carried from the archived ledger, plus one entry from this replan.
   author decision about venue and not a task. See also the standing entry that
   the formalization paper and audit paper remain viable separate publications.
 - The dynamical mean-field limit / propagation-of-chaos programme is tracked
-  under R8, alongside R2's validation of the spatial reduction; S4 cannot close it.
+  under R8, alongside R2's validation of the spatial reduction; S4 cannot close
+  it. N8 carries only the reduction-error half of R2 and does not touch this.
 - Enlarging the local state space so that phase, or an independent transition
   datum, is part of it would give `Phase5_TwistedGluing` a non-vacuous consumer.
   That is a physical modelling choice, not a way to close a leaf gate.
