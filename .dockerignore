@@ -1,0 +1,10 @@
+.git/
+.lake/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.venv/
+__pycache__/
+simulations/.venv/
+simulations/cache_ds005620/
+arxiv_submit/

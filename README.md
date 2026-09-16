@@ -119,6 +119,23 @@ those summaries, so a quoted number cannot drift from the run that produced it.
 See [`simulations/README.md`](simulations/README.md) for the gate scripts and
 the data policy.
 
+### 🐳 Docker (Optional)
+
+While managing dependencies natively with `uv` (for Python) and `elan` (for Lean) is preferred, a Docker environment is provided for those who prefer to run the Lean, LaTeX, and Python code in a containerized environment.
+
+```bash
+# Build and start the container in the background
+docker compose up -d
+
+# Open a shell inside the container
+docker compose exec app bash
+
+# Once inside, you can run commands normally:
+lake build
+cd simulations && uv sync --group dev && uv run pytest
+pdflatex main.tex
+```
+
 ### 🔁 Off this machine
 
 Both halves are checked on someone else's computer as well as the author's.
