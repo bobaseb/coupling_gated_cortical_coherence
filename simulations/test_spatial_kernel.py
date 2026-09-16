@@ -1,7 +1,10 @@
 import unittest
 from typing import cast
 
+import hypothesis.strategies as st
 import numpy as np
+from hypothesis import given, settings
+from hypothesis.extra.numpy import arrays
 
 from spatial_kernel import (
     SpatialConfig,
@@ -128,6 +131,46 @@ class SpatialKernelTest(unittest.TestCase):
         self.assertEqual(first.final_phases.shape, (12, 12))
         self.assertFalse(hasattr(first, "phase_history"))
         self.assertAlmostEqual(first.time[-1], 0.4)
+
+
+class SpatialKernelPropertyTest(unittest.TestCase):
+    @given(
+        st.integers(min_value=4, max_value=24).filter(lambda x: x % 2 == 0),
+        st.floats(min_value=0.1, max_value=10.0),
+        st.floats(min_value=0.1, max_value=100.0),
+    )
+    @settings(deadline=None)
+    def test_property_kernel_invariants(
+        self, side: int, decay_grid: float, coupling: float
+    ) -> None:
+        kernel = build_kernel(side=side, decay_grid=decay_grid, coupling=coupling)
+        self.assertEqual(kernel.shape, (side, side))
+        self.assertEqual(kernel[0, 0], 0.0)
+        self.assertAlmostEqual(float(np.sum(kernel)) / coupling, 1.0, places=5)
+        reflected = np.roll(np.flip(kernel, axis=(0, 1)), shift=(1, 1), axis=(0, 1))
+        np.testing.assert_allclose(kernel, reflected, atol=1e-10)
+
+    @given(
+        arrays(dtype=float, shape=(4, 4), elements=st.floats(min_value=-np.pi, max_value=np.pi)),
+        st.floats(min_value=0.5, max_value=5.0),
+        st.floats(min_value=1.0, max_value=10.0),
+    )
+    @settings(deadline=None, max_examples=20)
+    def test_property_fft_coupling_matches_explicit_sum(
+        self, phases: np.ndarray, decay: float, coupling: float
+    ) -> None:
+        kernel = build_kernel(side=4, decay_grid=decay, coupling=coupling)
+        fft_drift = coupling_drift(phases, np.fft.fft2(kernel))
+        direct = np.zeros_like(phases)
+        for row in range(4):
+            for column in range(4):
+                for delta_row in range(4):
+                    for delta_column in range(4):
+                        neighbour = phases[(row - delta_row) % 4, (column - delta_column) % 4]
+                        direct[row, column] += kernel[delta_row, delta_column] * np.sin(
+                            neighbour - phases[row, column]
+                        )
+        np.testing.assert_allclose(fft_drift, direct, atol=1e-10)
 
 
 if __name__ == "__main__":

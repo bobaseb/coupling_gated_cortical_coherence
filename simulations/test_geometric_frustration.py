@@ -3,7 +3,9 @@ import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+import hypothesis.strategies as st
 import numpy as np
+from hypothesis import given, settings
 
 from geometric_frustration import (
     Config,
@@ -128,6 +130,34 @@ class FrustrationTest(unittest.TestCase):
     def test_negative_synaptic_strength_cannot_reverse_dale_signs(self) -> None:
         with self.assertRaisesRegex(ValueError, "nonnegative"):
             balanced_network(100, 0.2, -1, 42)
+
+
+class GeometricFrustrationPropertyTest(unittest.TestCase):
+    @given(
+        st.integers(min_value=20, max_value=200),
+        st.floats(min_value=0.05, max_value=0.95),
+        st.floats(min_value=0.1, max_value=10.0),
+        st.integers(min_value=0, max_value=1000),
+    )
+    @settings(deadline=None, max_examples=20)
+    def test_property_balanced_network_invariants(
+        self, n: int, probability: float, positive_sum: float, seed: int
+    ) -> None:
+        try:
+            matrix = balanced_network(n, probability, positive_sum, seed)
+        except ValueError as e:
+            if "denser configuration" in str(e):
+                import hypothesis
+
+                hypothesis.assume(False)
+                return
+            raise
+        np.testing.assert_allclose(matrix.sum(axis=1), 0.0, atol=1e-10)
+        np.testing.assert_allclose(np.maximum(matrix, 0).sum(axis=1), positive_sum, atol=1e-10)
+        np.testing.assert_array_equal(np.diag(matrix), 0.0)
+        n_excitatory = int(0.8 * n)
+        self.assertTrue(np.all(matrix[:, :n_excitatory] >= 0.0))
+        self.assertTrue(np.all(matrix[:, n_excitatory:] <= 0.0))
 
 
 if __name__ == "__main__":

@@ -1,7 +1,9 @@
 import unittest
 from typing import cast
 
+import hypothesis.strategies as st
 import numpy as np
+from hypothesis import given, settings
 
 import fluctuating_coupling as fc
 from quasistatic_error import stationary_order
@@ -148,6 +150,24 @@ class SweepTest(unittest.TestCase):
         for key in ("fast_limit", "slow_limit", "crossover", "mean_substitution_rejection"):
             self.assertIn(key, summary)
         self.assertEqual(len(cast(list[object], summary["drives"])), len(drives))
+
+
+class FluctuatingCouplingPropertyTest(unittest.TestCase):
+    @given(st.floats(min_value=0.1, max_value=5.0), st.floats(min_value=0.0, max_value=2.0))
+    @settings(deadline=None)
+    def test_property_quasi_static_average_telegraph(self, mean: float, amplitude: float) -> None:
+        drive = fc.Drive("telegraph", mean, amplitude, 1.0)
+        expected = 0.5 * (
+            stationary_order(mean - amplitude, 1.0) + stationary_order(mean + amplitude, 1.0)
+        )
+        self.assertAlmostEqual(fc.quasi_static_average(drive, 1.0), expected, places=7)
+
+    @given(st.floats(min_value=0.01, max_value=100.0))
+    @settings(deadline=None)
+    def test_property_horizon_logic(self, correlation_time: float) -> None:
+        drive = fc.Drive("telegraph", 2.0, 0.5, correlation_time)
+        expected = max(CONFIG.min_horizon, CONFIG.horizon_factor * correlation_time)
+        self.assertAlmostEqual(fc.horizon(drive, CONFIG), expected)
 
 
 if __name__ == "__main__":

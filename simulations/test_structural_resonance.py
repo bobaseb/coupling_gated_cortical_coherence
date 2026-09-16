@@ -3,7 +3,10 @@
 import unittest
 from typing import Any
 
+import hypothesis.strategies as st
 import numpy as np
+from hypothesis import given, settings
+from hypothesis.extra.numpy import arrays
 
 from structural_resonance import (
     Config,
@@ -223,6 +226,56 @@ class StructuralResonanceTest(unittest.TestCase):
             simulate(Config(dt=-1.0), "gradient")
         with self.assertRaises(ValueError):
             simulate(Config(n=12, steps=50), "orthogonal")
+
+
+class StructuralResonancePropertyTest(unittest.TestCase):
+    @given(
+        arrays(
+            dtype=float,
+            shape=st.shared(st.integers(min_value=2, max_value=10), key="n").map(lambda n: (n, n)),
+            elements=st.floats(
+                allow_nan=False, allow_infinity=False, min_value=-1e4, max_value=1e4
+            ),
+        ).filter(
+            lambda x: (
+                float(
+                    np.maximum((x + x.T) / 2, 0.0).sum() - np.trace(np.maximum((x + x.T) / 2, 0.0))
+                )
+                > 1e-4
+            )
+        ),
+        st.floats(min_value=1e-2, max_value=1e4, allow_nan=False, allow_infinity=False),
+    )
+    @settings(deadline=None)
+    def test_property_projection_preserves_resources(self, matrix: Any, total: float) -> None:
+        result = project(matrix, total)
+        # Numerical stability: use relative check for sum if total is large
+        self.assertAlmostEqual(float(result.sum()) / total, 1.0, places=4)
+        self.assertTrue(np.all(result >= 0))
+        np.testing.assert_array_equal(result.diagonal(), 0.0)
+        np.testing.assert_allclose(result, result.T, rtol=1e-5, atol=1e-8)
+
+    @given(
+        arrays(
+            dtype=float,
+            shape=st.shared(st.integers(min_value=2, max_value=15), key="n_nodes"),
+            elements=st.floats(
+                allow_nan=False, allow_infinity=False, min_value=-1e3, max_value=1e3
+            ),
+        ),
+        arrays(
+            dtype=float,
+            shape=st.shared(st.integers(min_value=2, max_value=15), key="n_nodes"),
+            elements=st.floats(
+                allow_nan=False, allow_infinity=False, min_value=-1e3, max_value=1e3
+            ),
+        ),
+    )
+    @settings(deadline=None)
+    def test_property_symmetric_gradient_is_symmetric(self, theta: Any, velocity: Any) -> None:
+        gradient = symmetric_gradient(theta, velocity)
+        np.testing.assert_allclose(gradient, gradient.T, rtol=1e-5, atol=1e-8)
+        np.testing.assert_array_equal(gradient.diagonal(), 0.0)
 
 
 if __name__ == "__main__":

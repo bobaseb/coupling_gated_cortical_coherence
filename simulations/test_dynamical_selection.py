@@ -2,7 +2,10 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+import hypothesis.strategies as st
 import numpy as np
+from hypothesis import given, settings
+from hypothesis.extra.numpy import arrays
 
 from dynamical_selection import (
     SelectionConfig,
@@ -120,6 +123,45 @@ class DynamicalSelectionTest(unittest.TestCase):
         self.assertEqual(
             saved, ["selection_dt_control_dt0.005.npz", "selection_dt_control_dt0.01.npz"]
         )
+
+
+class DynamicalSelectionPropertyTest(unittest.TestCase):
+    @given(
+        arrays(
+            dtype=float,
+            shape=st.tuples(
+                st.integers(min_value=1, max_value=10), st.integers(min_value=2, max_value=20)
+            ),
+            elements=st.floats(min_value=-10.0, max_value=10.0),
+        ),
+        st.floats(min_value=-10.0, max_value=10.0),
+    )
+    @settings(deadline=None, max_examples=20)
+    def test_property_mean_field_drift_matches_explicit_pair_sum(
+        self, phases: np.ndarray, coupling: float
+    ) -> None:
+        reduced = mean_field_drift(phases, coupling)
+        explicit = np.empty_like(phases)
+        for replica in range(phases.shape[0]):
+            for oscillator in range(phases.shape[1]):
+                explicit[replica, oscillator] = coupling * np.mean(
+                    np.sin(phases[replica] - phases[replica, oscillator])
+                )
+        np.testing.assert_allclose(reduced, explicit, atol=1e-12)
+
+    @given(
+        arrays(
+            dtype=float,
+            shape=st.integers(min_value=1, max_value=10),
+            elements=st.floats(min_value=0.0, max_value=10.0),
+        ),
+        st.floats(min_value=0.1, max_value=5.0),
+    )
+    @settings(deadline=None)
+    def test_property_theoretical_growth_rate(self, coupling: np.ndarray, diffusion: float) -> None:
+        rates = theoretical_growth_rate(coupling, diffusion=diffusion)
+        expected = (coupling - 2.0 * diffusion) / 2.0
+        np.testing.assert_allclose(rates, expected, atol=1e-12)
 
 
 if __name__ == "__main__":

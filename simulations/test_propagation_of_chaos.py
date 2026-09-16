@@ -2,7 +2,10 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+import hypothesis.strategies as st
 import numpy as np
+from hypothesis import given, settings
+from hypothesis.extra.numpy import arrays
 
 from propagation_of_chaos import (
     ChaosConfig,
@@ -134,6 +137,36 @@ class PropagationOfChaosTest(unittest.TestCase):
         self.assertIn(r"\newcommand{\chaosSuperCorrelationMax}{0.520}", content)
         self.assertIn(r"\newcommand{\chaosBesselResidual}{0.00191}", content)
         self.assertIn(r"\newcommand{\chaosRuntimeSeconds}{14.00}", content)
+
+
+class ChaosPropertyTest(unittest.TestCase):
+    @given(
+        arrays(
+            dtype=float,
+            shape=st.shared(st.integers(min_value=2, max_value=50), key="n"),
+            elements=st.floats(min_value=-np.pi, max_value=np.pi),
+        ),
+        arrays(
+            dtype=float,
+            shape=st.shared(st.integers(min_value=2, max_value=50), key="n"),
+            elements=st.floats(min_value=-np.pi, max_value=np.pi),
+        ),
+    )
+    @settings(deadline=None)
+    def test_property_circular_correlation_symmetry(
+        self, first: np.ndarray, second: np.ndarray
+    ) -> None:
+        if len(set(np.round(first, 4))) > 1 and len(set(np.round(second, 4))) > 1:
+            self.assertAlmostEqual(
+                circular_correlation(first, second), circular_correlation(second, first), places=10
+            )
+
+    @given(st.floats(min_value=-np.pi, max_value=np.pi), st.floats(min_value=0.1, max_value=10.0))
+    @settings(deadline=None)
+    def test_property_von_mises_density_is_positive(
+        self, theta: float, concentration: float
+    ) -> None:
+        self.assertGreater(von_mises_density(np.array([theta]), concentration)[0], 0.0)
 
 
 if __name__ == "__main__":

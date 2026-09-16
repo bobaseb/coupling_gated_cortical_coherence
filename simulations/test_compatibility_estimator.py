@@ -2,7 +2,10 @@ import unittest
 from dataclasses import replace
 from typing import cast
 
+import hypothesis.strategies as st
 import numpy as np
+from hypothesis import given, settings
+from hypothesis.extra.numpy import arrays
 
 import compatibility_estimator as estimator
 
@@ -181,6 +184,30 @@ class AucTest(unittest.TestCase):
         high = np.arange(10.0) + 100.0
         self.assertAlmostEqual(estimator.auc(high, low), 1.0)
         self.assertAlmostEqual(estimator.auc(low, low.copy()), 0.5)
+
+
+class CompatibilityEstimatorPropertyTest(unittest.TestCase):
+    @given(
+        arrays(
+            dtype=float,
+            shape=st.integers(min_value=1, max_value=50),
+            elements=st.floats(min_value=-1000.0, max_value=1000.0),
+        ),
+        arrays(
+            dtype=float,
+            shape=st.integers(min_value=1, max_value=50),
+            elements=st.floats(min_value=-1000.0, max_value=1000.0),
+        ),
+    )
+    @settings(deadline=None)
+    def test_property_auc_symmetry_and_bounds(
+        self, positive: np.ndarray, negative: np.ndarray
+    ) -> None:
+        score = estimator.auc(positive, negative)
+        self.assertGreaterEqual(score, 0.0)
+        self.assertLessEqual(score, 1.0)
+        reverse = estimator.auc(negative, positive)
+        self.assertAlmostEqual(score + reverse, 1.0, places=5)
 
 
 if __name__ == "__main__":

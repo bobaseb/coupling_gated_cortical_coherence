@@ -1,6 +1,8 @@
 import unittest
 
+import hypothesis.strategies as st
 import numpy as np
+from hypothesis import given, settings
 
 import collapse_design as design
 import empirical_collapse as collapse
@@ -123,6 +125,13 @@ class SpecificationTest(unittest.TestCase):
         low, high = collapse.OBSERVED_CONCENTRATION_RANGE
         self.assertLess(design.tangent_gap(high), 0.01)
         self.assertLess(low, high)
+
+
+class BesselGeometryPropertyTest(unittest.TestCase):
+    @given(st.floats(min_value=0.01, max_value=20.0))
+    @settings(deadline=None)
+    def test_property_inverse_bessel_ratio(self, a: float) -> None:
+        self.assertAlmostEqual(design.inverse_bessel_ratio(design.bessel_ratio(a)), a, places=4)
 
 
 if __name__ == "__main__":

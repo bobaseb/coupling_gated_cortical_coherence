@@ -1,6 +1,8 @@
 import unittest
 
+import hypothesis.strategies as st
 import numpy as np
+from hypothesis import given
 
 import quasistatic_error as qe
 
@@ -159,6 +161,18 @@ class DelayTest(unittest.TestCase):
             qe.fit_exponent(np.array([1.0]), np.array([1.0]))
         with self.assertRaises(ValueError):
             qe.fit_exponent(np.array([1.0, 0.0]), np.array([1.0, 1.0]))
+
+
+class StationaryBranchPropertyTest(unittest.TestCase):
+    @given(st.floats(min_value=-100.0, max_value=2.0))
+    def test_property_branch_is_zero_at_and_below_threshold(self, coupling: float) -> None:
+        self.assertEqual(qe.stationary_order(coupling, 1.0), 0.0)
+
+    @given(st.floats(min_value=2.0001, max_value=100.0))
+    def test_property_branch_is_positive_above_threshold(self, coupling: float) -> None:
+        order = qe.stationary_order(coupling, 1.0)
+        self.assertGreater(order, 0.0)
+        self.assertLess(order, 1.0)
 
 
 if __name__ == "__main__":
