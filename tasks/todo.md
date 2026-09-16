@@ -768,10 +768,21 @@ Carried from the archived ledger, plus one entry from this replan.
   another attempt to derive it from the current class fields.
 - The formalization paper and audit paper remain viable separate publications.
 - PRX Life presubmission was explicitly declined.
-- The three explicitly recorded leaf modules are deliberate terminal results.
-  The separate checker-correctness issue found on 2026-09-16 is recorded in
-  `tasks/n_manuscript_review.md`; the recorded list is not a complete semantic
-  dependency audit.
+- **The eight recorded leaf modules are deliberate terminal results, and
+  wiring them is not scheduled.** Five are limitative or generalizing by
+  content — `Phase5_PhaseLifts`, `Phase5_TwistedGluing`, `Phase6_Locality`,
+  `Phase7_FiniteRegion` and `Phase3_PhaseSensor` — and a sixth,
+  `Phase3_MeasureFeedback`, is a generalization whose dependency cannot run
+  back into the finite theory. `Phase3_Preparation` prices a stage the chain's
+  edges do not mention. Giving any of them a consumer means asserting a
+  physical identification or adding a claim, not closing a gate, and the
+  classification with each module's reason is in
+  `tasks/leaf_detector_repair.md`. One entry has a trigger: delete
+  `Phase3_LandauerBridge` from `ALLOWED_LEAVES` if E34's identification
+  `(nonpredictiveInfo μ κ).toReal ≤ erasedEntropy t` is ever supplied, because
+  the exemption rests on that edge staying a named hypothesis. Since the
+  2026-09-16 repair the list is a dependency-based audit — imports and resolved
+  constants — rather than a textual one, strict where it is inexact.
 - **Coboundary repair as a consensus dynamics.** Least-squares minimisation of
   the discrepancy cochain over 0-cochains on the nerve is Laplacian consensus,
   and the residual it cannot remove is the cycle-space component. It presupposes
@@ -957,12 +968,10 @@ changed, no reference was added, and no simulation sweep was run.
       PDF dependency checks, citation comparison and rendered-page review.
 - [x] Review the finite-region leaf exemption. Retain it as a documented
       terminal hardware comparison, distinct from the axiom allowlist.
-- [ ] Repair the leaf detector's false consumers in a separate change.
-      `Phase6_Locality` is masked by unrelated `run` and `ball` tokens;
-      `Phase3_PhaseSensor` is masked by the namespace prefix extracted from
-      a qualified declaration. Add failing regressions before changing the
-      detector, then classify the actual leaves rather than automatically
-      expanding its baseline. See `tasks/n_manuscript_review.md`.
+- [x] Repair the leaf detector's false consumers in a separate change.
+      `Phase6_Locality` was masked by unrelated `run` and `ball` tokens;
+      `Phase3_PhaseSensor` by the namespace prefix extracted from a qualified
+      declaration. Done in the pass below.
 
 The publication describes normed vector contents with shared overlap
 encoders, phase-derived sensing at matched coherence, installation work on the
@@ -980,3 +989,30 @@ warnings; existing underfull-box counts remain 3, 2 and 31 for article,
 supplement and primer. The arXiv archive compiles to 75 pages. No new
 reference, simulation result, Python implementation or Lean declaration is
 introduced in this alignment.
+
+### 2026-09-16 — Leaf detector repaired and the leaf set classified
+
+- [x] Add failing regressions for the three false-consumer shapes, for the
+      real consumers that must keep counting, and for the exclusions the
+      rewrite has to preserve. `simulations/test_check_leaves.py`, 19 tests.
+- [x] Make consumption an actual dependency: only an importer (direct or
+      transitive) can consume; a declaration carries its enclosing
+      namespaces; a spelling that does not resolve uniquely resolves to
+      nothing. Every remaining inaccuracy is in the strict direction.
+- [x] Classify the eight leaves the repaired detector reports. The three
+      recorded entries stand. The five the false consumers had hidden —
+      `Phase3_LandauerBridge`, `Phase3_MeasureFeedback`, `Phase3_PhaseSensor`,
+      `Phase3_Preparation` and `Phase6_Locality` — are each recorded with the
+      content that makes them terminal, read against the module they bound
+      and against `Chain.lean`.
+
+The pass is recorded in `tasks/leaf_detector_repair.md`. `Phase3_LandauerBridge`
+is the entry to delete if E34's physical identification is ever supplied; it is
+the chain's stated discharge route for that edge and its exemption rests on the
+edge staying a named hypothesis.
+
+Validation: the repaired gate exits 0 with eight recorded leaves. The full
+Python suite passes (162 tests), as do `ruff`, `mypy --strict`, `bandit`,
+`vulture`, `xenon` and `tach`. No Lean file, publication source, tracked PDF,
+figure, reference or axiom allowlist is touched, so no chain edge and no R- or
+P-item changes status.

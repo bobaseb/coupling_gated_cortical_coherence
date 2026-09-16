@@ -20,6 +20,31 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-16 — The leaf gate reported consumers that did not exist
+
+`simulations/check_leaves.py` claimed that every phase module outside its
+three-entry baseline had at least one theorem used elsewhere. It was matching
+unqualified tokens anywhere in the tree, so five modules were credited with
+consumers that Lean would never have resolved: a shared final segment
+(`run`, `ball`), a namespace prefix mistaken for the declaration that lives in
+it (`PredictiveDissipation` for `PredictiveDissipation.ofLandauer`), and field
+names as common as `final`, `forward` and `snd`.
+
+Consumption now means an actual dependency — only a file that imports the
+module, directly or transitively, can reference its constants; a declaration
+carries its enclosing namespaces; and a spelling two visible constants share
+credits neither. The remaining inaccuracies are all in the strict direction:
+the gate can ask for a decision about a module that is used, and can no longer
+report a dead module as used, which is the failure it exists to catch.
+
+The repaired detector reports eight leaves rather than three.
+`Phase3_LandauerBridge`, `Phase3_MeasureFeedback`, `Phase3_PhaseSensor`,
+`Phase3_Preparation` and `Phase6_Locality` are terminal today, each for the
+reason now recorded beside it; `tasks/leaf_detector_repair.md` carries the
+classification. No Lean statement, chain edge or publication sentence changes:
+what changes is that the gate's report is now about the development rather than
+about its vocabulary.
+
 ## 2026-09-16 — Publication scope after the six formal extensions
 
 The publication's scalar-only content description is replaced by the proved
