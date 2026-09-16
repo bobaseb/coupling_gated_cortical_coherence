@@ -26,9 +26,8 @@ uv sync --group dev
 uv run pytest
 ```
 
-125 tests, no production sweep among them; they exercise the estimators,
-analysis and report generators on small fixtures and run in about a minute and a
-half.
+214 tests, no production sweep among them; they exercise the estimators,
+analysis and report generators on small fixtures and run in about two minutes.
 
 ## Repository gates
 
@@ -62,6 +61,23 @@ already had in prose:
 `exact = true`, so an import no rule permits fails the commit and so does a rule
 no import uses — the file cannot drift from the code in either direction.
 
+## The numerical extensions
+
+Three modules answer questions the manuscript leaves open about what its own
+observables can measure. Each writes one summary under `figures/`, and
+`numerical_extensions_report.py` turns the three summaries into figures and
+`figures/NUMERICAL_EXTENSIONS_REPORT.md` without rerunning anything.
+
+| Module | Question | Command |
+| :--- | :--- | :--- |
+| `collapse_design.py` | At what concentration, sample count and between-site dependence could a measurement tell `I_1/I_0` from its tangent? | `uv run python collapse_design.py` |
+| `spatial_reduction.py` | How far does reducing a spatially decaying kernel to one scalar move the threshold `K_c = 2D`? | `uv run python spatial_reduction.py` |
+| `compatibility_estimator.py` | Can an observable of the compatibility clause separate compatibility from incompatibility on data whose answer is constructed? | `uv run python compatibility_estimator.py` |
+
+Each carries a `--smoke` flag that runs the same code path at reduced cost, and
+each records at least one case it is required to fail: a specification nothing
+fails measures nothing.
+
 ## Data
 
 The exploratory EEG analysis uses OpenNeuro dataset
@@ -86,7 +102,8 @@ each sweep; that is the trade this project makes deliberately, and it is why the
 EEG cache above is the one output that is *not* tracked.
 
 Where a sweep has a matching report module — `dynamic_ramp`,
-`structural_resonance`, `geometric_frustration` — the sweep writes only data,
+`structural_resonance`, `geometric_frustration`, and the three numerical
+extensions through `numerical_extensions_report` — the sweep writes only data,
 and the figures and the `REPORT.md` are built afterwards from the saved
 `.npz` and `summary.json` by a second command that integrates nothing. A lost or
 restyled figure then costs a second of plotting rather than the sweep behind it.

@@ -65,6 +65,10 @@ depends_on = ["geometric_frustration_report"]
 path = "followup_report"
 layer = "report"
 
+[[modules]]
+path = "numerical_extensions_report"
+layer = "report"
+
 # -- analysis ---------------------------------------------------------------
 [[modules]]
 path = "dynamic_ramp_analysis"
@@ -72,6 +76,15 @@ layer = "analysis"
 
 [[modules]]
 path = "empirical_collapse"
+layer = "analysis"
+
+[[modules]]
+path = "collapse_design"
+layer = "analysis"
+depends_on = ["empirical_collapse"]
+
+[[modules]]
+path = "compatibility_estimator"
 layer = "analysis"
 
 # -- simulation -------------------------------------------------------------
@@ -95,6 +108,11 @@ depends_on = ["geometric_frustration"]
 [[modules]]
 path = "spatial_kernel"
 layer = "simulation"
+
+[[modules]]
+path = "spatial_reduction"
+layer = "simulation"
+depends_on = ["spatial_kernel"]
 
 [[modules]]
 path = "structural_resonance"

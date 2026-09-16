@@ -19,6 +19,14 @@ them. The commit review and publication checks are recorded in
 `tasks/n_manuscript_review.md`. The leaf-checker correctness finding there is
 a separate gate-repair task; no R- or P-item has been closed.
 
+**N7–N9 measured 2026-09-16.** The three numerical items are run, saved and
+reported in `tasks/numerical_extensions.md`; every N-item in this ledger is now
+closed. Their **publication alignment is deliberately not part of that pass**:
+no numeral has reached `main.tex` or `supplementary.tex`, no macro has been
+generated and `simulation_results.tex` is unchanged, so the four sentences the
+measurements bear on are listed at the end of that file for a later editorial
+pass. R2, R4 and R6 keep the residues the 2026-09-16 triage left them.
+
 **Replanned 2026-09-15.** The preceding ledger is archived unchanged at
 `_archive/todo_2026-09-15_pre-coupling-budget-replan.md`. It closed A1–A7,
 B1–B6, C1–C4, D1–D2, E1–E4, F1–F6, L1–L4, the five agency items, the three
@@ -103,7 +111,10 @@ preservation checks and rebuilt deliverables are recorded in
 N-items are the scheduled follow-up: each has a concrete result, witnesses and
 a stopping point. N1–N6 are Lean extensions and are complete. N7–N9 were added
 2026-09-16 and are numerical: they are the aspects of R4, R2 and R6 that need no
-measurement this repository lacks, and they are ordered by effort, ascending.
+measurement this repository lacks. They are complete as measurements and their
+publication alignment is outstanding; they were run in one pass rather than in
+the ascending-effort order they were written in, because none consumed another's
+output.
 R-items require broader theory, new physical identifications or empirical work.
 P-items are submission mechanics and are blocked on someone else. The N- and
 R-items do not reopen publication readiness.
@@ -464,20 +475,20 @@ GPU or biological verdict is part of the theorem.
 
 ### N7 — The concentration range that makes the collapse a test
 
-- [ ] Compute the range of concentrations over which $r = I_1(a)/I_0(a)$ is
+- [x] Compute the range of concentrations over which $r = I_1(a)/I_0(a)$ is
       separated from its tangent by more than the estimator's own residual
       floor, as a function of $a$ and of sample count. A1's corrected
       separation figure is the input to this, not the answer: the figure shows
       that the curve and its tangent differ, and the requirement is the range
       and count at which a measurement can tell them apart.
-- [ ] Replace the independent-sample calibration with a dependence-aware null at
+- [x] Replace the independent-sample calibration with a dependence-aware null at
       the site count the proposed spatial protocol permits. The supplement
       already records that the existing calibration assumes independence and
       calls that optimistic for EEG; declare a dependence model, generate
       correlated phase samples, and report how the residual mean and standard
       deviation move relative to `\eegCalibrationResidualMean` and
       `\eegCalibrationResidualSd`.
-- [ ] State the result as a design specification — concentration range, sample
+- [x] State the result as a design specification — concentration range, sample
       count and maximum tolerable dependence at which a measurement would
       distinguish the von Mises relation from a linear approximation — and
       report where the existing ds005620 range sits against it, without
@@ -496,12 +507,12 @@ a parameter to relax until the requirement is met.
 
 ### N8 — Sensitivity of the threshold to the spatial reduction
 
-- [ ] State the aggregation rule explicitly: how a spatially decaying kernel
+- [x] State the aggregation rule explicitly: how a spatially decaying kernel
       reduces to the scalar coupling entering `critical_coupling D = 2 * D`,
       including the row normalization, the effective population count and the
       sign convention, and where double-counting of population size after
       normalization is excluded.
-- [ ] Compare the spatial model against that scalar approximation across the
+- [x] Compare the spatial model against that scalar approximation across the
       declared `FERMI_LAM_MIN`–`FERMI_LAM_MAX` range at identical natural
       frequencies, so the von Mises self-consistency curve is a legitimate
       validation target. `spatial_kernel.py` uses non-zero Gaussian frequencies
@@ -509,7 +520,7 @@ a parameter to relax until the requirement is met.
       identical-frequency leg is what makes the threshold comparison meaningful.
       Report the discrepancy in threshold location with sensitivity bounds over
       the range.
-- [ ] Conclude with either a stated regime restriction under which $K_c = 2D$
+- [x] Conclude with either a stated regime restriction under which $K_c = 2D$
       survives the spatial reduction, or the finding that it does not over the
       declared range. Include a frequency-heterogeneity leg showing what the
       identical-frequency restriction is carrying, so the restriction is
@@ -526,24 +537,24 @@ the declared range is not to be narrowed until the reduction passes.
 
 ### N9 — A compatibility estimator validated against constructed answers
 
-- [ ] Specify the restriction map for decoded local distributions on a shared
+- [x] Specify the restriction map for decoded local distributions on a shared
       sub-territory: equality of overlap marginals, with global extension and
       uniqueness tested or assumed separately rather than imported from
       `restrict_eq_iff_densityOn_eqOn`, which is the finite-spatial-measure
       statement and not a statement about probability laws.
-- [ ] Build the compatibility statistic with a stated null and dependence-aware
+- [x] Build the compatibility statistic with a stated null and dependence-aware
       uncertainty — overlapping territories supply dependent samples — and
       measure its sensitivity on configurations whose compatibility is
       constructed rather than inferred, including the one the formalization
       already exhibits: a single common phase with densities that disagree
       where the patches meet (`overlap_agreement_fails`).
-- [ ] Run the three silent-failure controls. A decoder shrinking both regional
+- [x] Run the three silent-failure controls. A decoder shrinking both regional
       posteriors toward a shared prior must be rejected as manufacturing
       compatibility; a decoder with independent per-region bias must be
       rejected as manufacturing incompatibility; and a statistic computed from
       phases must fail the constructed counterexample it is required to fail.
       Report degradation under decoding error and coverage limits.
-- [ ] Report what fraction of a decoded content the phase carries, on content
+- [x] Report what fraction of a decoded content the phase carries, on content
       built to be a function of local phase and on content built to be free of
       it. `compatible_of_coherence` bounds overlap disagreement only for the
       first, so an observable that cannot separate the two cases does not
@@ -615,7 +626,11 @@ selection, which remains the deepest conditional.
       *Narrowed 2026-09-16:* bounding the error of the reduction to the scalar
       threshold model is scheduled as N8. What stays here is estimating the
       cortical interaction kernel, effective population size and decay range
-      from data, which waits on R1.
+      from data, which waits on R1. *N8 closed 2026-09-16* with the reduction
+      rule stated and its error bounded: the threshold survives the reduction
+      over the declared decay range, and frequency heterogeneity rather than
+      spatial structure is what the identical-frequency restriction carries.
+      That bounds nothing about cortex, which is the half named above.
 - [ ] **R3 — Calibrate extracellular geometry against coupling and recovery
       time.**
 - [ ] **R4 — Calibrate the phase-observation model and uncertainty.** A1 is a
@@ -625,7 +640,10 @@ selection, which remains the deepest conditional.
       *Narrowed 2026-09-16:* stating that range, and replacing the
       independent-sample null with a dependence-aware one, is scheduled as N7.
       What stays here is calibrating the observation model against sources —
-      source mixing, pooling and coverage on real recordings.
+      source mixing, pooling and coverage on real recordings. *N7 closed
+      2026-09-16.* Its result constrains the protocol R4 would have to design:
+      at 100 sites the published estimator settings separate nothing, and the
+      first fix is the bin count rather than the concentration.
 - [ ] **R5 — Test awakening recovery against competing mechanisms.** B1, B2 and
       B3 all constrain how such a test may be analysed and should be settled
       first.
@@ -646,7 +664,10 @@ selection, which remains the deepest conditional.
       here is validation on controlled neural data and the identification of the
       contents with neural variables. Neither is reachable from resting scalp
       EEG, so R6 keeps a documented-limitation branch of the same shape as R1's
-      even once N9 closes.
+      even once N9 closes. *N9 closed 2026-09-16* with an observable that
+      separates constructed compatibility from constructed incompatibility and
+      two decoder diagnostics without which it does not. The branch above is
+      unchanged: nothing here was validated on a recording.
 - [ ] **R7 — Price gate fabrication and control, and implement the preparation
       channel microscopically.** These are the two residues of the physical
       supply item, and they are recorded here rather than left as open agency
@@ -1016,3 +1037,44 @@ Python suite passes (162 tests), as do `ruff`, `mypy --strict`, `bandit`,
 `vulture`, `xenon` and `tach`. No Lean file, publication source, tracked PDF,
 figure, reference or axiom allowlist is touched, so no chain edge and no R- or
 P-item changes status.
+
+### 2026-09-16 — N7–N9: the numerical extensions
+
+- [x] N7: calibrate the estimator's own residual floor against the tangent gap,
+      under a declared two-level cluster dependence model, and read the design
+      specification off the calibration.
+- [x] N8: state the row-sum aggregation rule, validate the threshold estimator
+      on the model the threshold is proved for, and measure the error the
+      reduction introduces over the declared decay range.
+- [x] N9: build the restriction map and statistic, validate them on constructed
+      answers, and run the three silent-failure controls.
+- [x] Regressions, the report module, the architecture entries and the gates.
+
+The pass is recorded in `tasks/numerical_extensions.md`, which carries the
+findings, the mutation checks that stand in for the red half of AGENTS.md §1,
+and the four publication sentences the measurements bear on.
+
+Three findings are worth carrying here because they change what a later pass may
+claim. **The proposed hundred-site spatial protocol cannot discriminate the
+Bessel relation from its linear approximation at any concentration** with the
+estimator as published; the first fix is a bin count of 24 or fewer, not a
+larger concentration, and the observed ds005620 ceiling needs 3,000 independent
+sites rising to 31,000 under full clustering. **`K_c = 2D` survives the spatial
+reduction** across 0.1–0.3 mm — a two-sheet crossing puts the mean-field
+threshold at 0.956 × 2D and the three spatial legs at 0.850, 1.013 and 0.940,
+while a 1.5 rad/s frequency spread moves it to 3.0 × 2D, so heterogeneity rather
+than spatial structure is what the identical-frequency restriction holds back.
+**A compatibility observable exists and needs two diagnostics to be trusted**: a
+per-region bias mild enough to keep the modal label passes both the information
+and the accuracy floors while manufacturing incompatibility, and only a
+calibration check catches it.
+
+Validation: `ruff`, `ruff format`, `mypy --strict`, `bandit`, `vulture`, `xenon`
+and `tach` pass over 60 source files; the Python suite passes at 214 tests, 52
+of them new. No Lean file, publication source, tracked PDF, reference or axiom
+allowlist is touched, so no chain edge changes status, and the two P-items are
+unchanged. The publication alignment for these three items remains open and is
+the only outstanding part of them; `CHANGELOG.md` gets its entry in that pass
+rather than this one, because the sentence N7 shows to be incomplete —
+`supplementary.tex` on what a discriminating awakening experiment must span — is
+still being made and has not yet been withdrawn.
