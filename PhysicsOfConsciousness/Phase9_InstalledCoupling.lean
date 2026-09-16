@@ -1,4 +1,5 @@
 import PhysicsOfConsciousness.Phase3_LocalActuator
+import PhysicsOfConsciousness.Phase3_ContinuingAgent
 import PhysicsOfConsciousness.Phase9_EMIdentification
 
 /-!
@@ -66,6 +67,48 @@ arrangement above the line that does not exhibit the transition.
 remains a physical commitment, stated in `Chain.E56` and discharged by nothing
 here. These theorems constrain a declared arrangement; no object in them
 denotes cortex.
+
+## The fuel form of the same no-go
+
+K3 bounds coherence by the energy *standing in* the installed modes. It says
+nothing about where that energy came from, so an arrangement can satisfy it
+with an installed energy nobody could have paid for. `PathwiseStore` is the
+other half of that account: a store carried as a coordinate of the protocol's
+own state, drawn down by each executed transition and replenished by a declared
+source. Until `totalDraw_eq_installation` the two halves shared no theorem —
+`PathwiseStore` appeared in no file that installs a kernel.
+
+The bridge is an identification, not a construction: a store whose `draw` at
+every stage *is* `LocalActuator.pathWork` has a cumulative draw that
+`FiniteProtocol.sum_first_law` already telescopes into the installed-energy
+change plus the run's heat. `installedEnergy_le_resources` then reads
+`totalDraw_le_initial_resources` backwards — a solvent run funded by a finite
+source cannot have installed more than that source held — and
+`PricedArrangement.no_coherence_of_funded_source` feeds the result to K3. The
+conclusion is a **fuel** no-go: a source too small does not reach the threshold
+at any horizon.
+
+Three things it does not say. The heat term enters only through
+`0 ≤ meanHeat`, so the bound is loose by exactly the heat the run delivered and
+is not an equality. `κ` is still declared hardware data, so this relocates the
+same input K2 and R7 relocate rather than discharging it. And the direction is
+unchanged: a *sufficient* source supplies no coherence, for the reason
+`converse_rejected` gives.
+
+## What a run-level no-go needs, and what it must not be weakened to
+
+`no_coherence_of_run` is the stagewise corollary: an evolving arrangement whose
+installed energy satisfies `κ Uₙ ≤ 2 D` at *every* stage exhibits the transition
+at none of them. The hypothesis is a supremum over stages and cannot be softened
+to a mean — `Examples/EvolvingCoupling.lean` exhibits a stage sequence whose mean
+installed energy is subcritical and one of whose stages exhibits the transition.
+
+`installedEnergy_congr` is why a spent source does not undo an installation:
+installed energy is a functional of the actuator and the configuration law, and
+of nothing else. A store's reading is not among its arguments, so no balance
+falling to zero moves it. Decay would require a declared maintenance channel —
+a stage whose executed transitions lower the occupancies — and this development
+declares none. Naming the missing mechanism is all that is claimed here.
 -/
 
 open MeasureTheory Filter Topology
@@ -347,10 +390,212 @@ theorem PricedArrangement.stationary_eq_incoherent_of_installedEnergy
 
 end MeanField
 
+/-! ## A funded installation: what the source caps -/
+
+section Funded
+
+variable {M X S I : Type*} [Fintype X] [Fintype S] [Fintype I]
+
+omit [Fintype X] [Fintype S] in
+/-- The actuator's path work at a fixed stage observable *is* the protocol's
+work with the stored energy as the common energy. Both sides are
+`E (x, t) - E (x, s) + q k x s t`; naming them separately is the only reason
+this needs stating. -/
+theorem LocalActuator.pathWork_eq_protocolWork (A : LocalActuator M X S I)
+    (q : ℕ → X → S → S → ℝ) (k : ℕ) :
+    A.pathWork (q k) = protocolWork A.storedEnergy q k := rfl
+
+/-- **The cumulative draw of an installing run is its installed-energy change
+plus its heat.** This is `FiniteProtocol.sum_first_law` read through the store:
+the hypothesis identifies the work each executed transition takes from the store
+with the work that transition's installation requires, and nothing else is
+assumed about either. -/
+theorem PathwiseStore.totalDraw_eq_installation (A : LocalActuator M X S I)
+    (B : PathwiseStore X S) (q : ℕ → X → S → S → ℝ)
+    (hdraw : ∀ k, B.draw k = A.pathWork (q k)) (N : ℕ) :
+    B.totalDraw N =
+      (∑ z, (B.protocol.law N).p z * A.storedEnergy z) -
+        (∑ z, (B.protocol.law 0).p z * A.storedEnergy z) +
+        ∑ k ∈ Finset.range N, (B.protocol.step k).meanHeat (q k) := by
+  have h := B.protocol.sum_first_law A.storedEnergy q N
+  unfold PathwiseStore.totalDraw
+  simp_rw [hdraw, A.pathWork_eq_protocolWork q]
+  exact h
+
+/-- **A finite source caps the installed energy at every horizon.**
+
+`totalDraw_le_initial_resources` bounds the work a solvent run can have drawn
+by the resources it started with; `totalDraw_eq_installation` says what that
+work went into. The heat enters only by its sign, so the bound is loose by the
+heat the run delivered — an installation that dissipates reaches *less* than
+this cap, never more.
+
+The initial law, the store's initial reading and the source are declared, as
+they are everywhere in `Phase3_ContinuingAgent`; nothing here prepares or
+refuels any of them. -/
+theorem PathwiseStore.installedEnergy_le_resources (A : LocalActuator M X S I)
+    (B : PathwiseStore X S) (q : ℕ → X → S → S → ℝ) (R : S → ℝ) (N : ℕ)
+    (hdraw : ∀ k, B.draw k = A.pathWork (q k))
+    (hq : ∀ k < N, 0 ≤ (B.protocol.step k).meanHeat (q k))
+    (hb : B.Ledgered) (hr : B.SourceLedgered R) (hs : B.Solvent N)
+    (hR : ∀ k ≤ N, ∀ z, B.protocol.Reachable k z → 0 ≤ R z.2) :
+    (∑ z, (B.protocol.law N).p z * A.storedEnergy z) ≤
+      (∑ z, (B.protocol.law 0).p z * A.storedEnergy z) + B.meanBalance 0 +
+        ∑ z, (B.protocol.law 0).p z * R z.2 := by
+  have h1 := B.totalDraw_le_initial_resources R hb hr N hs hR
+  have h2 := B.totalDraw_eq_installation A q hdraw N
+  have h3 : 0 ≤ ∑ k ∈ Finset.range N, (B.protocol.step k).meanHeat (q k) :=
+    Finset.sum_nonneg fun k hk => hq k (Finset.mem_range.1 hk)
+  linarith
+
+/-- **Nothing installed comes back out by itself.** If no transition stage `n`
+can execute lowers the stored energy, the installed energy does not fall across
+that stage. The proof is termwise on the executed paths: the next law's mass at
+`(x, t)` is the previous law's mass at `(x, s)` carried through the channel, and
+every term compares `storedEnergy (x, s)` with `storedEnergy (x, t)` at the same
+nonnegative weight. -/
+theorem LocalActuator.storedEnergy_mono_of_stage (A : LocalActuator M X S I)
+    (P : FiniteProtocol X S) (n : ℕ)
+    (h : ∀ x s t, 0 < (P.law n).p (x, s) → 0 < (P.stage n x s).p t →
+      A.storedEnergy (x, s) ≤ A.storedEnergy (x, t)) :
+    (∑ z, (P.law n).p z * A.storedEnergy z) ≤
+      ∑ z, (P.law (n + 1)).p z * A.storedEnergy z := by
+  have hlhs : (∑ z, (P.law n).p z * A.storedEnergy z) =
+      ∑ x, ∑ s, ∑ t, (P.law n).p (x, s) * (P.stage n x s).p t * A.storedEnergy (x, s) := by
+    rw [Fintype.sum_prod_type]
+    refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun s _ => ?_
+    rw [← Finset.sum_mul, ← Finset.mul_sum, (P.stage n x s).sum_one, mul_one]
+  have hrhs : (∑ z, (P.law (n + 1)).p z * A.storedEnergy z) =
+      ∑ x, ∑ s, ∑ t, (P.law n).p (x, s) * (P.stage n x s).p t * A.storedEnergy (x, t) := by
+    rw [Fintype.sum_prod_type]
+    rw [Finset.sum_congr rfl fun x (_ : x ∈ Finset.univ) =>
+      Finset.sum_congr rfl fun t (_ : t ∈ Finset.univ) => by
+        rw [P.law_succ_apply n (x, t), Finset.sum_mul]]
+    exact Finset.sum_congr rfl fun x _ => Finset.sum_comm
+  rw [hlhs, hrhs]
+  refine Finset.sum_le_sum fun x _ => Finset.sum_le_sum fun s _ => Finset.sum_le_sum fun t _ => ?_
+  rcases eq_or_lt_of_le ((P.law n).nonneg (x, s)) with hl | hl
+  · rw [← hl, zero_mul, zero_mul, zero_mul]
+  rcases eq_or_lt_of_le ((P.stage n x s).nonneg t) with hs | hs
+  · rw [← hs, mul_zero, zero_mul, zero_mul]
+  exact mul_le_mul_of_nonneg_left (h x s t hl hs) (mul_nonneg hl.le hs.le)
+
+/-- **A decay needs a maintenance channel.** Contrapositive of the previous
+theorem: an installed energy that falls across a stage identifies an executed
+transition that lowers the stored energy — a stage of the protocol that
+*uninstalls*.
+
+This development declares no such stage. That is the whole of the claim: the
+mechanism is named and left unsupplied, which is also why exhaustion of a source
+does not undo an installation. A store's reading is not an occupancy. -/
+theorem LocalActuator.exists_lowering_of_installedEnergy_lt (A : LocalActuator M X S I)
+    (P : FiniteProtocol X S) (n : ℕ)
+    (h : (∑ z, (P.law (n + 1)).p z * A.storedEnergy z) <
+      ∑ z, (P.law n).p z * A.storedEnergy z) :
+    ∃ x s t, 0 < (P.law n).p (x, s) ∧ 0 < (P.stage n x s).p t ∧
+      A.storedEnergy (x, t) < A.storedEnergy (x, s) := by
+  by_contra hc
+  push Not at hc
+  exact absurd (A.storedEnergy_mono_of_stage P n
+    fun x s t hl hs => hc x s t hl hs) (not_le.2 h)
+
+/-- **Installed energy is a functional of the law.** Two arrangements with the
+same actuator and the same configuration law have the same installed energy,
+whatever else differs between them — in particular, whatever their stores hold.
+
+This is the sense in which *exhaustion does not uninstall*: a store's reading is
+not an argument of `installedEnergy`, so a balance falling to zero cannot move
+it. A decay would have to come from a stage whose executed transitions lower the
+occupancies, and this development declares no such maintenance channel. -/
+theorem KernelArrangement.installedEnergy_congr [TopologicalSpace M] [CompactSpace M]
+    [MeasurableSpace M] [BorelSpace M] [SecondCountableTopology M]
+    (A A' : KernelArrangement M X S I) (hact : A.actuator = A'.actuator)
+    (hlaw : A.law = A'.law) : A.installedEnergy = A'.installedEnergy := by
+  unfold KernelArrangement.installedEnergy
+  rw [hact, hlaw]
+
+end Funded
+
+section FundedMeanField
+
+variable {M X S I : Type*} [MeasureSpace M] [TopologicalSpace M] [CompactSpace M]
+  [BorelSpace M] [SecondCountableTopology M] [Fintype X] [Fintype S] [Fintype I]
+  [IsProbabilityMeasure (MeasureSpace.volume : Measure M)]
+
+/--
+**N10 — the fuel no-go.** A run funded by a declared finite source, whose store
+pays exactly the installation work of the transitions it executes, cannot reach
+the coherence threshold at any horizon its resources could not have paid for.
+
+K3 asks for the installed energy; this asks for the fuel, and the composition is
+`installedEnergy_le_resources`. What changes is the side of the ledger the
+hypothesis sits on — `hcap` mentions the initial law, the store's initial
+reading and the source, and mentions no energy standing anywhere at stage `N`.
+
+**One direction only, still.** A sufficient source does not supply coherence,
+for the same reason a sufficient installed energy does not; `κ` remains declared
+hardware data, so this relocates that input rather than discharging it; and the
+bound is loose by the run's heat. -/
+theorem PricedArrangement.no_coherence_of_funded_source
+    (A : PricedArrangement M X S I) (B : PathwiseStore X S) (sys : StochasticNeuralField M)
+    (q : ℕ → X → S → S → ℝ) (R : S → ℝ) (N : ℕ)
+    (hvol : A.volume = (MeasureSpace.volume : Measure M)) (hker : sys.K = A.kernel)
+    (hlaw : A.law = B.protocol.law N)
+    (hdraw : ∀ k, B.draw k = A.actuator.pathWork (q k))
+    (hq : ∀ k < N, 0 ≤ (B.protocol.step k).meanHeat (q k))
+    (hb : B.Ledgered) (hr : B.SourceLedgered R) (hs : B.Solvent N)
+    (hR : ∀ k ≤ N, ∀ z, B.protocol.Reachable k z → 0 ≤ R z.2)
+    (hcap : A.couplingPerEnergy *
+        ((∑ z, (B.protocol.law 0).p z * A.actuator.storedEnergy z) + B.meanBalance 0 +
+          ∑ z, (B.protocol.law 0).p z * R z.2) ≤ critical_coupling sys.D) :
+    ¬ exhibits_phase_transition sys ∧
+    (∀ r : ℝ, 0 ≤ r → r = selfConsistency (mean_field_coupling sys) sys.D r → r = 0) ∧
+    ¬ ∃ n : ℕ, 0 < n ∧
+      0 < FokkerPlanck.incoherentRate sys.D (mean_field_coupling sys) n := by
+  refine A.no_coherence_of_installedEnergy sys hvol hker (le_trans ?_ hcap)
+  have hle := B.installedEnergy_le_resources A.actuator q R N hdraw hq hb hr hs hR
+  have hU : A.installedEnergy = ∑ z, (B.protocol.law N).p z * A.actuator.storedEnergy z := by
+    rw [KernelArrangement.installedEnergy, hlaw]
+  rw [hU]
+  exact mul_le_mul_of_nonneg_left hle A.couplingPerEnergy_pos.le
+
+/--
+**N11 — the run-level no-go.** An evolving arrangement subcritical at *every*
+stage exhibits the transition at none of them.
+
+The hypothesis is a supremum over stages. It cannot be weakened to a mean:
+`Examples/EvolvingCoupling.lean` exhibits a stage sequence whose mean installed
+energy is subcritical and one of whose stages does exhibit the transition, so
+the mean-substituted statement is false rather than merely unproved.
+
+This is a statement about the stationary problem each stage poses, one stage at a
+time. It licenses nothing about the phase trajectory: kernel convergence implies
+neither trajectory convergence nor preservation of the threshold along a run. -/
+theorem PricedArrangement.no_coherence_of_run
+    (A : ℕ → PricedArrangement M X S I) (sys : ℕ → StochasticNeuralField M)
+    (hvol : ∀ n, (A n).volume = (MeasureSpace.volume : Measure M))
+    (hker : ∀ n, (sys n).K = (A n).kernel)
+    (hU : ∀ n, (A n).couplingPerEnergy * (A n).installedEnergy ≤ critical_coupling (sys n).D)
+    (n : ℕ) :
+    ¬ exhibits_phase_transition (sys n) ∧
+    (∀ r : ℝ, 0 ≤ r → r = selfConsistency (mean_field_coupling (sys n)) (sys n).D r → r = 0) ∧
+    ¬ ∃ k : ℕ, 0 < k ∧
+      0 < FokkerPlanck.incoherentRate (sys n).D (mean_field_coupling (sys n)) k :=
+  (A n).no_coherence_of_installedEnergy (sys n) (hvol n) (hker n) (hU n)
+
+end FundedMeanField
+
 #print axioms KernelArrangement.continuumEnergy_eq_modes
 #print axioms KernelArrangement.continuumEnergy_eq_mean_field_coupling
 #print axioms PricedArrangement.continuumEnergy_le_installedEnergy
 #print axioms PricedArrangement.no_coherence_of_installedEnergy
 #print axioms PricedArrangement.stationary_eq_incoherent_of_installedEnergy
+#print axioms PathwiseStore.totalDraw_eq_installation
+#print axioms PathwiseStore.installedEnergy_le_resources
+#print axioms LocalActuator.storedEnergy_mono_of_stage
+#print axioms LocalActuator.exists_lowering_of_installedEnergy_lt
+#print axioms KernelArrangement.installedEnergy_congr
+#print axioms PricedArrangement.no_coherence_of_funded_source
+#print axioms PricedArrangement.no_coherence_of_run
 
 end PhysicsOfConsciousness

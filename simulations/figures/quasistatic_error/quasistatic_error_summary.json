@@ -1,0 +1,892 @@
+{
+  "bifurcation_delay": {
+    "coupling_excess": [
+      0.9450000000000003,
+      0.30290000000000017,
+      0.1005600000000002,
+      0.04417749999999998
+    ],
+    "escape_level": 0.2,
+    "exponent": 0.44695660275252297,
+    "published_exponent": 0.443,
+    "seed_order": 0.022360679774997897,
+    "speeds": [
+      0.1,
+      0.01,
+      0.001,
+      0.0001
+    ],
+    "uncensored_exponent": 0.4180490688901757,
+    "uncensored_speeds": [
+      0.01,
+      0.001,
+      0.0001
+    ]
+  },
+  "config": {
+    "delay_span": 1.5,
+    "diffusion": 1.0,
+    "dt": 0.005,
+    "leg_width": 0.2,
+    "n_harmonics": 24,
+    "samples": 200,
+    "start_offset": 0.02,
+    "tolerance": 0.005
+  },
+  "controls": {
+    "frozen_comparison": {
+      "0.0001": 0.08136874303336183,
+      "0.000316228": 0.0812564199903586,
+      "0.001": 0.08089913389421788,
+      "0.00316228": 0.07974426937558876,
+      "0.01": 0.07581230469042655,
+      "0.0316228": 0.06196567920958418,
+      "0.1": 0.040335058562590564,
+      "0.316228": 0.027478848517216825,
+      "1": 0.022482431092790134
+    },
+    "frozen_leg": "supercritical_0.4",
+    "frozen_rejected": true,
+    "stationary_drift": 1.1102230246251565e-16,
+    "step_halving": 4.401815262733422e-06
+  },
+  "criterion": [
+    {
+      "admissible_speed": null,
+      "delta": 0.0,
+      "leg": "crossing",
+      "required_ratio": null
+    },
+    {
+      "admissible_speed": 0.01,
+      "delta": 0.05,
+      "leg": "subcritical_0.05",
+      "required_ratio": 200.0
+    },
+    {
+      "admissible_speed": 0.001,
+      "delta": 0.05,
+      "leg": "supercritical_0.05",
+      "required_ratio": 2000.0
+    },
+    {
+      "admissible_speed": 0.01,
+      "delta": 0.1,
+      "leg": "subcritical_0.1",
+      "required_ratio": 200.0
+    },
+    {
+      "admissible_speed": 0.001,
+      "delta": 0.1,
+      "leg": "supercritical_0.1",
+      "required_ratio": 2000.0
+    },
+    {
+      "admissible_speed": 0.01,
+      "delta": 0.2,
+      "leg": "subcritical_0.2",
+      "required_ratio": 200.0
+    },
+    {
+      "admissible_speed": 0.0031622776601683794,
+      "delta": 0.2,
+      "leg": "supercritical_0.2",
+      "required_ratio": 632.4555320336758
+    },
+    {
+      "admissible_speed": 0.03162277660168379,
+      "delta": 0.4,
+      "leg": "subcritical_0.4",
+      "required_ratio": 63.24555320336759
+    },
+    {
+      "admissible_speed": 0.0031622776601683794,
+      "delta": 0.4,
+      "leg": "supercritical_0.4",
+      "required_ratio": 632.4555320336758
+    },
+    {
+      "admissible_speed": 0.03162277660168379,
+      "delta": 0.8,
+      "leg": "subcritical_0.8",
+      "required_ratio": 63.24555320336759
+    },
+    {
+      "admissible_speed": 0.01,
+      "delta": 0.8,
+      "leg": "supercritical_0.8",
+      "required_ratio": 200.0
+    }
+  ],
+  "headline_legs": [
+    "subcritical",
+    "supercritical",
+    "crossing"
+  ],
+  "legs": {
+    "crossing": {
+      "admissible_speed": null,
+      "delta": 0.0,
+      "end": 2.2,
+      "required_ratio": null,
+      "runs": [
+        {
+          "max_error": 0.4094617561637746,
+          "max_error_coupling": 2.196,
+          "speed": 0.0001,
+          "terminal_error": 0.39344134408437936
+        },
+        {
+          "max_error": 0.4049683843532356,
+          "max_error_coupling": 2.193716217801604,
+          "speed": 0.00031622776601683794,
+          "terminal_error": 0.3934418026949073
+        },
+        {
+          "max_error": 0.39712292851263825,
+          "max_error_coupling": 2.192,
+          "speed": 0.001,
+          "terminal_error": 0.39343984418177724
+        },
+        {
+          "max_error": 0.39301331906783876,
+          "max_error_coupling": 2.198446985181216,
+          "speed": 0.0031622776601683794,
+          "terminal_error": 0.3934452731028864
+        },
+        {
+          "max_error": 0.39206542891447405,
+          "max_error_coupling": 2.198,
+          "speed": 0.01,
+          "terminal_error": 0.3934495716877945
+        },
+        {
+          "max_error": 0.3921489996245127,
+          "max_error_coupling": 2.198446985181216,
+          "speed": 0.03162277660168379,
+          "terminal_error": 0.3934304507264526
+        },
+        {
+          "max_error": 0.39167579080055875,
+          "max_error_coupling": 2.198,
+          "speed": 0.1,
+          "terminal_error": 0.39341248787964295
+        },
+        {
+          "max_error": 0.39203263595006765,
+          "max_error_coupling": 2.198446985181216,
+          "speed": 0.31622776601683794,
+          "terminal_error": 0.39340315120895164
+        },
+        {
+          "max_error": 0.38895954511171116,
+          "max_error_coupling": 2.1950000000000003,
+          "speed": 1.0,
+          "terminal_error": 0.39340007572080543
+        }
+      ],
+      "start": 1.8,
+      "worst_residual": 0.4094617561637746,
+      "worst_residual_coupling": 2.196,
+      "worst_residual_speed": 0.0001
+    },
+    "subcritical_0.05": {
+      "admissible_speed": 0.01,
+      "delta": 0.05,
+      "end": 1.95,
+      "required_ratio": 200.0,
+      "runs": [
+        {
+          "max_error": 0.019987486498195987,
+          "max_error_coupling": 1.75,
+          "speed": 0.0001,
+          "terminal_error": 1.4348735112800802e-67
+        },
+        {
+          "max_error": 0.019987486498195987,
+          "max_error_coupling": 1.75,
+          "speed": 0.00031622776601683794,
+          "terminal_error": 5.015972756662638e-23
+        },
+        {
+          "max_error": 0.019987486498195987,
+          "max_error_coupling": 1.75,
+          "speed": 0.001,
+          "terminal_error": 6.112917860547638e-09
+        },
+        {
+          "max_error": 0.019987486498195987,
+          "max_error_coupling": 1.75,
+          "speed": 0.0031622776601683794,
+          "terminal_error": 0.000174017490681039
+        },
+        {
+          "max_error": 0.019987486498195987,
+          "max_error_coupling": 1.75,
+          "speed": 0.01,
+          "terminal_error": 0.004457868587918976
+        },
+        {
+          "max_error": 0.019987486498195987,
+          "max_error_coupling": 1.75,
+          "speed": 0.03162277660168379,
+          "terminal_error": 0.01243461661264648
+        },
+        {
+          "max_error": 0.019987486498195987,
+          "max_error_coupling": 1.75,
+          "speed": 0.1,
+          "terminal_error": 0.01720476146940835
+        },
+        {
+          "max_error": 0.019987486498195987,
+          "max_error_coupling": 1.75,
+          "speed": 0.31622776601683794,
+          "terminal_error": 0.01906786470701311
+        },
+        {
+          "max_error": 0.019987486498195987,
+          "max_error_coupling": 1.75,
+          "speed": 1.0,
+          "terminal_error": 0.019696611468365672
+        }
+      ],
+      "start": 1.75,
+      "worst_residual": 0.019987486498195987,
+      "worst_residual_coupling": 1.75,
+      "worst_residual_speed": 0.0001
+    },
+    "subcritical_0.1": {
+      "admissible_speed": 0.01,
+      "delta": 0.1,
+      "end": 1.9,
+      "required_ratio": 200.0,
+      "runs": [
+        {
+          "max_error": 0.019984988730820177,
+          "max_error_coupling": 1.7,
+          "speed": 0.0001,
+          "terminal_error": 2.7685045630215628e-89
+        },
+        {
+          "max_error": 0.019984988730820177,
+          "max_error_coupling": 1.7,
+          "speed": 0.00031622776601683794,
+          "terminal_error": 6.817911429533645e-30
+        },
+        {
+          "max_error": 0.019984988730820177,
+          "max_error_coupling": 1.7,
+          "speed": 0.001,
+          "terminal_error": 4.119512002059025e-11
+        },
+        {
+          "max_error": 0.019984988730820177,
+          "max_error_coupling": 1.7,
+          "speed": 0.0031622776601683794,
+          "terminal_error": 3.580875664130895e-05
+        },
+        {
+          "max_error": 0.019984988730820177,
+          "max_error_coupling": 1.7,
+          "speed": 0.01,
+          "terminal_error": 0.0027043836653695484
+        },
+        {
+          "max_error": 0.019984988730820177,
+          "max_error_coupling": 1.7,
+          "speed": 0.03162277660168379,
+          "terminal_error": 0.010617068278051608
+        },
+        {
+          "max_error": 0.019984988730820177,
+          "max_error_coupling": 1.7,
+          "speed": 0.1,
+          "terminal_error": 0.016366086939183608
+        },
+        {
+          "max_error": 0.019984988730820177,
+          "max_error_coupling": 1.7,
+          "speed": 0.31622776601683794,
+          "terminal_error": 0.018770000921928886
+        },
+        {
+          "max_error": 0.019984988730820177,
+          "max_error_coupling": 1.7,
+          "speed": 1.0,
+          "terminal_error": 0.0195983998157397
+        }
+      ],
+      "start": 1.7,
+      "worst_residual": 0.019984988730820177,
+      "worst_residual_coupling": 1.7,
+      "worst_residual_speed": 0.0001
+    },
+    "subcritical_0.2": {
+      "admissible_speed": 0.01,
+      "delta": 0.2,
+      "end": 1.8,
+      "required_ratio": 200.0,
+      "runs": [
+        {
+          "max_error": 0.019979994128555396,
+          "max_error_coupling": 1.6,
+          "speed": 0.0001,
+          "terminal_error": 1.030470277030534e-132
+        },
+        {
+          "max_error": 0.019979994128555396,
+          "max_error_coupling": 1.6,
+          "speed": 0.00031622776601683794,
+          "terminal_error": 1.2594767755754565e-43
+        },
+        {
+          "max_error": 0.019979994128555396,
+          "max_error_coupling": 1.6,
+          "speed": 0.001,
+          "terminal_error": 1.8706426096147853e-15
+        },
+        {
+          "max_error": 0.019979994128555396,
+          "max_error_coupling": 1.6,
+          "speed": 0.0031622776601683794,
+          "terminal_error": 1.5160897648610767e-06
+        },
+        {
+          "max_error": 0.019979994128555396,
+          "max_error_coupling": 1.6,
+          "speed": 0.01,
+          "terminal_error": 0.0009951113541783393
+        },
+        {
+          "max_error": 0.019979994128555396,
+          "max_error_coupling": 1.6,
+          "speed": 0.03162277660168379,
+          "terminal_error": 0.00773972136444041
+        },
+        {
+          "max_error": 0.019979994128555396,
+          "max_error_coupling": 1.6,
+          "speed": 0.1,
+          "terminal_error": 0.014809304266593055
+        },
+        {
+          "max_error": 0.019979994128555396,
+          "max_error_coupling": 1.6,
+          "speed": 0.31622776601683794,
+          "terminal_error": 0.01818814902193367
+        },
+        {
+          "max_error": 0.019979994128555396,
+          "max_error_coupling": 1.6,
+          "speed": 1.0,
+          "terminal_error": 0.019403441926244776
+        }
+      ],
+      "start": 1.6,
+      "worst_residual": 0.019979994128555396,
+      "worst_residual_coupling": 1.6,
+      "worst_residual_speed": 0.0001
+    },
+    "subcritical_0.4": {
+      "admissible_speed": 0.03162277660168379,
+      "delta": 0.4,
+      "end": 1.6,
+      "required_ratio": 63.24555320336759,
+      "runs": [
+        {
+          "max_error": 0.019970008653975784,
+          "max_error_coupling": 1.4000000000000001,
+          "speed": 0.0001,
+          "terminal_error": 1.4270369441513214e-219
+        },
+        {
+          "max_error": 0.019970008653975784,
+          "max_error_coupling": 1.4000000000000001,
+          "speed": 0.00031622776601683794,
+          "terminal_error": 4.296951044101025e-71
+        },
+        {
+          "max_error": 0.019970008653975784,
+          "max_error_coupling": 1.4000000000000001,
+          "speed": 0.001,
+          "terminal_error": 3.856513988355934e-24
+        },
+        {
+          "max_error": 0.019970008653975784,
+          "max_error_coupling": 1.4000000000000001,
+          "speed": 0.0031622776601683794,
+          "terminal_error": 2.717127477310233e-09
+        },
+        {
+          "max_error": 0.019970008653975784,
+          "max_error_coupling": 1.4000000000000001,
+          "speed": 0.01,
+          "terminal_error": 0.00013469985025872956
+        },
+        {
+          "max_error": 0.019970008653975784,
+          "max_error_coupling": 1.4000000000000001,
+          "speed": 0.03162277660168379,
+          "terminal_error": 0.00411254078431366
+        },
+        {
+          "max_error": 0.019970008653975784,
+          "max_error_coupling": 1.4000000000000001,
+          "speed": 0.1,
+          "terminal_error": 0.012125670573622543
+        },
+        {
+          "max_error": 0.019970008653975784,
+          "max_error_coupling": 1.4000000000000001,
+          "speed": 0.31622776601683794,
+          "terminal_error": 0.017077959373180223
+        },
+        {
+          "max_error": 0.019970008653975784,
+          "max_error_coupling": 1.4000000000000001,
+          "speed": 1.0,
+          "terminal_error": 0.019019320181791703
+        }
+      ],
+      "start": 1.4000000000000001,
+      "worst_residual": 0.019970008653975784,
+      "worst_residual_coupling": 1.4000000000000001,
+      "worst_residual_speed": 0.0001
+    },
+    "subcritical_0.8": {
+      "admissible_speed": 0.03162277660168379,
+      "delta": 0.8,
+      "end": 1.2,
+      "required_ratio": 63.24555320336759,
+      "runs": [
+        {
+          "max_error": 0.01995005262463705,
+          "max_error_coupling": 1.0,
+          "speed": 0.0001,
+          "terminal_error": 1.48e-321
+        },
+        {
+          "max_error": 0.01995005262463705,
+          "max_error_coupling": 1.0,
+          "speed": 0.00031622776601683794,
+          "terminal_error": 4.9992013890921624e-126
+        },
+        {
+          "max_error": 0.01995005262463705,
+          "max_error_coupling": 1.0,
+          "speed": 0.001,
+          "terminal_error": 1.6386226266173218e-41
+        },
+        {
+          "max_error": 0.01995005262463705,
+          "max_error_coupling": 1.0,
+          "speed": 0.0031622776601683794,
+          "terminal_error": 8.72522542391535e-15
+        },
+        {
+          "max_error": 0.01995005262463705,
+          "max_error_coupling": 1.0,
+          "speed": 0.01,
+          "terminal_error": 2.4674428897516307e-06
+        },
+        {
+          "max_error": 0.01995005262463705,
+          "max_error_coupling": 1.0,
+          "speed": 0.03162277660168379,
+          "terminal_error": 0.0011608827520416176
+        },
+        {
+          "max_error": 0.01995005262463705,
+          "max_error_coupling": 1.0,
+          "speed": 0.1,
+          "terminal_error": 0.008128770550253633
+        },
+        {
+          "max_error": 0.01995005262463705,
+          "max_error_coupling": 1.0,
+          "speed": 0.31622776601683794,
+          "terminal_error": 0.01505662491020117
+        },
+        {
+          "max_error": 0.01995005262463705,
+          "max_error_coupling": 1.0,
+          "speed": 1.0,
+          "terminal_error": 0.01827372170580365
+        }
+      ],
+      "start": 1.0,
+      "worst_residual": 0.01995005262463705,
+      "worst_residual_coupling": 1.0,
+      "worst_residual_speed": 0.0001
+    },
+    "supercritical_0.05": {
+      "admissible_speed": 0.001,
+      "delta": 0.05,
+      "end": 2.25,
+      "required_ratio": 2000.0,
+      "runs": [
+        {
+          "max_error": 0.01999418185828189,
+          "max_error_coupling": 2.05,
+          "speed": 0.0001,
+          "terminal_error": 0.0002915739546380802
+        },
+        {
+          "max_error": 0.01999418185828189,
+          "max_error_coupling": 2.05,
+          "speed": 0.00031622776601683794,
+          "terminal_error": 0.0009300295043955242
+        },
+        {
+          "max_error": 0.02022670681723099,
+          "max_error_coupling": 2.085,
+          "speed": 0.001,
+          "terminal_error": 0.0030256425375146945
+        },
+        {
+          "max_error": 0.04415792782934619,
+          "max_error_coupling": 2.1137515176289945,
+          "speed": 0.0031622776601683794,
+          "terminal_error": 0.010801316611736056
+        },
+        {
+          "max_error": 0.08670602985632353,
+          "max_error_coupling": 2.167,
+          "speed": 0.01,
+          "terminal_error": 0.05976117495053529
+        },
+        {
+          "max_error": 0.15145168696005173,
+          "max_error_coupling": 2.2492234925906076,
+          "speed": 0.03162277660168379,
+          "terminal_error": 0.15160610752189663
+        },
+        {
+          "max_error": 0.19356289241969188,
+          "max_error_coupling": 2.2489999999999997,
+          "speed": 0.1,
+          "terminal_error": 0.19419792368356653
+        },
+        {
+          "max_error": 0.20652877991489746,
+          "max_error_coupling": 2.2476423537605235,
+          "speed": 0.31622776601683794,
+          "terminal_error": 0.20828857339706844
+        },
+        {
+          "max_error": 0.20896114418428452,
+          "max_error_coupling": 2.2449999999999997,
+          "speed": 1.0,
+          "terminal_error": 0.21270880684660126
+        }
+      ],
+      "start": 2.05,
+      "worst_residual": 0.20896114418428452,
+      "worst_residual_coupling": 2.2449999999999997,
+      "worst_residual_speed": 1.0
+    },
+    "supercritical_0.1": {
+      "admissible_speed": 0.001,
+      "delta": 0.1,
+      "end": 2.3000000000000003,
+      "required_ratio": 2000.0,
+      "runs": [
+        {
+          "max_error": 0.019988573323171444,
+          "max_error_coupling": 2.1,
+          "speed": 0.0001,
+          "terminal_error": 0.00020839776960807077
+        },
+        {
+          "max_error": 0.019988573323171444,
+          "max_error_coupling": 2.1,
+          "speed": 0.00031622776601683794,
+          "terminal_error": 0.0006630327795626445
+        },
+        {
+          "max_error": 0.019988573323171444,
+          "max_error_coupling": 2.1,
+          "speed": 0.001,
+          "terminal_error": 0.002137568973614723
+        },
+        {
+          "max_error": 0.022648611401058116,
+          "max_error_coupling": 2.1577748128512764,
+          "speed": 0.0031622776601683794,
+          "terminal_error": 0.007265907320091469
+        },
+        {
+          "max_error": 0.0497042132742726,
+          "max_error_coupling": 2.206,
+          "speed": 0.01,
+          "terminal_error": 0.03178686992307517
+        },
+        {
+          "max_error": 0.0968113753835495,
+          "max_error_coupling": 2.2925827095042544,
+          "speed": 0.03162277660168379,
+          "terminal_error": 0.09678218082210577
+        },
+        {
+          "max_error": 0.13981404532565422,
+          "max_error_coupling": 2.299,
+          "speed": 0.1,
+          "terminal_error": 0.14032686385513232
+        },
+        {
+          "max_error": 0.1552425206141857,
+          "max_error_coupling": 2.2976423537605237,
+          "speed": 0.31622776601683794,
+          "terminal_error": 0.1567615056001993
+        },
+        {
+          "max_error": 0.1589040533725256,
+          "max_error_coupling": 2.295,
+          "speed": 1.0,
+          "terminal_error": 0.1621373351013095
+        }
+      ],
+      "start": 2.1,
+      "worst_residual": 0.1589040533725256,
+      "worst_residual_coupling": 2.295,
+      "worst_residual_speed": 1.0
+    },
+    "supercritical_0.2": {
+      "admissible_speed": 0.0031622776601683794,
+      "delta": 0.2,
+      "end": 2.4000000000000004,
+      "required_ratio": 632.4555320336758,
+      "runs": [
+        {
+          "max_error": 0.01997693373203996,
+          "max_error_coupling": 2.2,
+          "speed": 0.0001,
+          "terminal_error": 0.0001199260751969522
+        },
+        {
+          "max_error": 0.01997693373203996,
+          "max_error_coupling": 2.2,
+          "speed": 0.00031622776601683794,
+          "terminal_error": 0.00038060663832328867
+        },
+        {
+          "max_error": 0.01997693373203996,
+          "max_error_coupling": 2.2,
+          "speed": 0.001,
+          "terminal_error": 0.0012165132546967383
+        },
+        {
+          "max_error": 0.01997693373203996,
+          "max_error_coupling": 2.2,
+          "speed": 0.0031622776601683794,
+          "terminal_error": 0.003993463494541327
+        },
+        {
+          "max_error": 0.023201694851856414,
+          "max_error_coupling": 2.294,
+          "speed": 0.01,
+          "terminal_error": 0.014660639149355559
+        },
+        {
+          "max_error": 0.05078374903521299,
+          "max_error_coupling": 2.372660360245194,
+          "speed": 0.03162277660168379,
+          "terminal_error": 0.04992495656750329
+        },
+        {
+          "max_error": 0.08573589005237742,
+          "max_error_coupling": 2.399,
+          "speed": 0.1,
+          "terminal_error": 0.08609820718855976
+        },
+        {
+          "max_error": 0.10162740870015874,
+          "max_error_coupling": 2.397642353760524,
+          "speed": 0.31622776601683794,
+          "terminal_error": 0.10280783784418712
+        },
+        {
+          "max_error": 0.1061725817232454,
+          "max_error_coupling": 2.395,
+          "speed": 1.0,
+          "terminal_error": 0.1086836662724131
+        }
+      ],
+      "start": 2.2,
+      "worst_residual": 0.1061725817232454,
+      "worst_residual_coupling": 2.395,
+      "worst_residual_speed": 1.0
+    },
+    "supercritical_0.4": {
+      "admissible_speed": 0.0031622776601683794,
+      "delta": 0.4,
+      "end": 2.6,
+      "required_ratio": 632.4555320336758,
+      "runs": [
+        {
+          "max_error": 0.019951547382789148,
+          "max_error_coupling": 2.4,
+          "speed": 0.0001,
+          "terminal_error": 5.180293910822531e-05
+        },
+        {
+          "max_error": 0.019951547382789148,
+          "max_error_coupling": 2.4,
+          "speed": 0.00031622776601683794,
+          "terminal_error": 0.00016412598211146268
+        },
+        {
+          "max_error": 0.019951547382789148,
+          "max_error_coupling": 2.4,
+          "speed": 0.001,
+          "terminal_error": 0.0005214120782521814
+        },
+        {
+          "max_error": 0.019951547382789148,
+          "max_error_coupling": 2.4,
+          "speed": 0.0031622776601683794,
+          "terminal_error": 0.0016762765968812987
+        },
+        {
+          "max_error": 0.019951547382789148,
+          "max_error_coupling": 2.4,
+          "speed": 0.01,
+          "terminal_error": 0.0056082412820435135
+        },
+        {
+          "max_error": 0.020509174539633523,
+          "max_error_coupling": 2.553686694284183,
+          "speed": 0.03162277660168379,
+          "terminal_error": 0.01945486676288588
+        },
+        {
+          "max_error": 0.04087101943440974,
+          "max_error_coupling": 2.5989999999999998,
+          "speed": 0.1,
+          "terminal_error": 0.041085487409879495
+        },
+        {
+          "max_error": 0.05315536903275264,
+          "max_error_coupling": 2.5976423537605235,
+          "speed": 0.31622776601683794,
+          "terminal_error": 0.053941697455253235
+        },
+        {
+          "max_error": 0.057266499154633554,
+          "max_error_coupling": 2.5949999999999998,
+          "speed": 1.0,
+          "terminal_error": 0.058938114879679926
+        }
+      ],
+      "start": 2.4,
+      "worst_residual": 0.057266499154633554,
+      "worst_residual_coupling": 2.5949999999999998,
+      "worst_residual_speed": 1.0
+    },
+    "supercritical_0.8": {
+      "admissible_speed": 0.01,
+      "delta": 0.8,
+      "end": 3.0,
+      "required_ratio": 200.0,
+      "runs": [
+        {
+          "max_error": 0.019891748531745357,
+          "max_error_coupling": 2.8,
+          "speed": 0.0001,
+          "terminal_error": 1.5704608072986126e-05
+        },
+        {
+          "max_error": 0.019891748531745357,
+          "max_error_coupling": 2.8,
+          "speed": 0.00031622776601683794,
+          "terminal_error": 4.9722065703972085e-05
+        },
+        {
+          "max_error": 0.019891748531745357,
+          "max_error_coupling": 2.8,
+          "speed": 0.001,
+          "terminal_error": 0.00015743535031731426
+        },
+        {
+          "max_error": 0.019891748531745357,
+          "max_error_coupling": 2.8,
+          "speed": 0.0031622776601683794,
+          "terminal_error": 0.0005011732548526604
+        },
+        {
+          "max_error": 0.019891748531745357,
+          "max_error_coupling": 2.8,
+          "speed": 0.01,
+          "terminal_error": 0.0016152896506664849
+        },
+        {
+          "max_error": 0.019891748531745357,
+          "max_error_coupling": 2.8,
+          "speed": 0.03162277660168379,
+          "terminal_error": 0.0054040384246887285
+        },
+        {
+          "max_error": 0.019891748531745357,
+          "max_error_coupling": 2.8,
+          "speed": 0.1,
+          "terminal_error": 0.013683285745600848
+        },
+        {
+          "max_error": 0.019891748531745357,
+          "max_error_coupling": 2.8,
+          "speed": 0.31622776601683794,
+          "terminal_error": 0.019157048301144508
+        },
+        {
+          "max_error": 0.020001548039033645,
+          "max_error_coupling": 2.9949999999999997,
+          "speed": 1.0,
+          "terminal_error": 0.020903159135898575
+        }
+      ],
+      "start": 2.8,
+      "worst_residual": 0.020001548039033645,
+      "worst_residual_coupling": 2.9949999999999997,
+      "worst_residual_speed": 1.0
+    }
+  },
+  "manuscript": {
+    "cited_ratio_range": [
+      600.0,
+      60000.0
+    ],
+    "geometry_seconds": [
+      60.0,
+      600.0
+    ],
+    "phase_seconds": [
+      0.01,
+      0.1
+    ],
+    "reading": "the cited ratio is what 'evolves more slowly than phase dynamics' would have to mean; the trackable distance is how close to threshold it reaches",
+    "trackable_delta_at_fast_end": 0.05,
+    "trackable_delta_at_slow_end": 0.8,
+    "worst_ratio_by_delta": {
+      "0": null,
+      "0.05": 2000.0,
+      "0.1": 2000.0,
+      "0.2": 632.4555320336758,
+      "0.4": 632.4555320336758,
+      "0.8": 200.0
+    }
+  },
+  "scope": "mean-field quasi-static residual of one declared ramp family; no cortical coupling trajectory is calibrated",
+  "source": "quasistatic_error.py",
+  "speeds": [
+    0.0001,
+    0.00031622776601683794,
+    0.001,
+    0.0031622776601683794,
+    0.01,
+    0.03162277660168379,
+    0.1,
+    0.31622776601683794,
+    1.0
+  ]
+}

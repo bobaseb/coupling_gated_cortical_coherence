@@ -20,12 +20,31 @@ them. The commit review and publication checks are recorded in
 a separate gate-repair task; no R- or P-item has been closed.
 
 **N7–N9 measured 2026-09-16.** The three numerical items are run, saved and
-reported in `tasks/numerical_extensions.md`; every N-item in this ledger is now
-closed. Their **publication alignment is deliberately not part of that pass**:
+reported in `tasks/numerical_extensions.md`; N1–N9 are all closed. Their **publication alignment is deliberately not part of that pass**:
 no numeral has reached `main.tex` or `supplementary.tex`, no macro has been
 generated and `simulation_results.tex` is unchanged, so the four sentences the
-measurements bear on are listed at the end of that file for a later editorial
-pass. R2, R4 and R6 keep the residues the 2026-09-16 triage left them.
+measurements bear on are listed at the end of that file, and are tracked as
+open work in **section M** below. R2, R4 and R6 keep the residues the
+2026-09-16 triage left them.
+
+**R8 triaged 2026-09-16.** N8's regime statement was the input R8's reduction
+criterion waited on, so R8 was assessed the way R2, R4 and R6 were. Four
+reachable aspects are registered below as N10–N13 — two Lean, two numerical —
+and R8 is narrowed to the residue. That triage pass scheduled and changed no
+claim, proof, numeral or deliverable; the four items were closed later the same
+day and their pass records are at the end of this file.
+
+**N10–N13 closed 2026-09-16.** The two Lean items are proved and witnessed in
+`Examples/FundedCoupling.lean` (§29) and `Examples/EvolvingCoupling.lean` (§30),
+with their general statements in `Phase9_InstalledCoupling.lean`; the two
+numerical items are run, saved and reported in
+`tasks/coupling_rate_extensions.md`. Every N-item is now closed. As with N7–N9,
+**publication alignment is deliberately not part of either pass**: no numeral has
+reached `main.tex` or `supplementary.tex`, no macro has been generated, and the
+sentences the measurements bear on are listed at the end of that file. Together
+with N7–N9's, they are now **section M** below — eight sentences, open and
+actionable here, so that two deferrals are tracked rather than merely explained.
+R8 keeps the residue the 2026-09-16 triage left it.
 
 **Replanned 2026-09-15.** The preceding ledger is archived unchanged at
 `_archive/todo_2026-09-15_pre-coupling-budget-replan.md`. It closed A1–A7,
@@ -114,10 +133,15 @@ a stopping point. N1–N6 are Lean extensions and are complete. N7–N9 were add
 measurement this repository lacks. They are complete as measurements and their
 publication alignment is outstanding; they were run in one pass rather than in
 the ascending-effort order they were written in, because none consumed another's
-output.
-R-items require broader theory, new physical identifications or empirical work.
-P-items are submission mechanics and are blocked on someone else. The N- and
-R-items do not reopen publication readiness.
+output. N10–N13 were added 2026-09-16 from R8 — N10 and N11 Lean, N12 and N13
+numerical, each pair being a result and the fence that keeps it honest — and are
+complete, with the same publication alignment outstanding.
+M-items are the publication alignment N7–N9 and N12–N13 both deferred: eight
+sentences, actionable here, and the only open work that changes what the
+publication says. R-items require broader theory, new physical identifications
+or empirical work. P-items are submission mechanics and are blocked on someone
+else. The N- and R-items do not reopen publication readiness; the M-items are
+where their findings reach it.
 
 Take one item at a time. N3 consumes N2's specified observation mechanism; N6
 can reuse N5's indistinguishability bound. N1, N4 and N5 can be completed
@@ -572,6 +596,182 @@ implemented estimator that cannot separate the constructed cases at realistic
 decoding quality is a reportable limit on the framework's testability, not a
 reason to relax the statistic until it separates.
 
+**Intent and acceptance rule for N10–N13.** These are R8's reachable parts,
+scheduled 2026-09-16 and not started. N10 and N11 are Lean and inherit the
+N1–N6 rule: a new consequence or a discharged modelling obligation, failing
+specifications first, nondegenerate witnesses and rejection cases, a
+warning-free build and the axiom audit. N12 and N13 are numerical and inherit
+the N7–N9 rule: a written design before any run, a saved summary, a generated
+macro for every numeral that reaches the publication, and at least one case the
+comparison is required to fail. A negative result closes its item.
+
+Two constraints are specific to this group. **The stationary problem is not a
+trajectory claim.** N10 and N11 are about the stationary self-consistency
+problem the installed kernel poses at each stage; neither licenses a statement
+about the phase trajectory, which is what R8 keeps. And **no item may quietly
+substitute a mean for a supremum**: that substitution is exactly what N11 fences
+and N13 measures, so an item that assumes it has assumed its own conclusion.
+
+### N10 — A finite source that cannot fund coherence
+
+- [x] Give the arrangement of `Examples/LearnedCoupling.lean` a `PathwiseStore`,
+      identifying its `draw` with `hardware.pathWork` — both have shape
+      `X → S → S → ℝ` — so that the cumulative draw *is* the installation work
+      the example already computes. `PathwiseStore` currently appears in
+      `Examples/FiniteSupply.lean`, `Examples/FundedMemory.lean` and
+      `Phase3_SensorMemory.lean` and in no file that installs a kernel; this
+      bridge does not exist.
+- [x] Compose `totalDraw_le_initial_resources` with `installation_first_law` to
+      bound `installedEnergy` at every stage of a run funded by a declared
+      source, then feed that bound to
+      `PricedArrangement.no_coherence_of_installedEnergy`. The result is a
+      **fuel** no-go where K3 gives an installed-energy one: a source too small
+      cannot reach the threshold at any horizon.
+- [x] Retain a witness on both sides — a source too small for the threshold, and
+      a rejection in which the source suffices and the learner does cross, for
+      which `learned_above_line` is already the control — together with the
+      rejection of a run that installs without drawing.
+
+**Win and stop.** Two obstructions are known and are the reason this item is
+written rather than attempted casually. `work_learned n = (1 + log 3)/8 ·
+(1/2)^n` decays geometrically and `cumulative_work_learned_le` caps the whole
+infinite run at `allowance`, so `horizon_le_of_net_cost` with a uniform `c > 0`
+does not apply; use `balance_le_of_stage_cost`, whose cost is a sequence and
+whose conclusion is `≤ b − ∑ cost n`. And `net_draw_eq_zero_of_positive` forces
+any fundable protocol to have restricted support, so a positive-support
+protocol will not carry this. The conclusion is a no-go in one direction only: a
+sufficient source does not supply coherence. `κ` stays declared hardware data,
+so this bound relocates the same input K2 and R7 relocate, and the item must say
+so rather than claim the fuel bound discharges it.
+
+### N11 — The evolving kernel's no-go needs a supremum, not a mean
+
+- [x] State and prove the run-level no-go: if `κ Uₙ ≤ 2D` at every stage of an
+      evolving arrangement then no stage exhibits the transition. This is a
+      stagewise corollary and its value is entirely in what the next bullet
+      shows it cannot be weakened to.
+- [x] Exhibit the fence. A stage sequence whose *mean* installed energy is
+      subcritical and which still has a supercritical stage makes the
+      mean-substituted no-go false. The existing numbers make this
+      constructible: `installedEnergy_learned n = 3/4 − (1/4)(1/2)^n` with
+      `κ = 4` and `2D = 2` puts the threshold at `U = 1/2`.
+- [x] Prove that exhaustion does not uninstall: a run whose source is spent
+      keeps its installed energy, because `storedEnergy` is a coordinate of the
+      configuration and no structure in the development decays it. Identify the
+      declared maintenance channel a decay would require, and do not supply one
+      — naming the missing mechanism is the deliverable.
+
+**Win and stop.** Connect the supply ledger to the threshold at the level of the
+run rather than the stage. This establishes nothing about the phase trajectory,
+does not make the stagewise no-go into a dynamical statement, and does not model
+maintenance; a maintenance mechanism is a physical commitment and belongs to R8.
+Kernel convergence still implies neither trajectory convergence nor preservation
+of the threshold, and this item is where that is made precise rather than where
+it is repaired.
+
+### N12 — The error of the quasi-static reduction, as a function of rate
+
+- [x] Measure `r(t) − r_ss(K(t))` pointwise for a coupling varying at controlled
+      rate, on legs that stay **entirely subcritical**, **entirely
+      supercritical** and crossing. Only the last is covered today: every
+      `dynamic_ramp` leg is confined to `K_c ± 0.5` and always crosses, and no
+      module computes this residual at all.
+- [x] State the criterion. Report the rate at which the quasi-static error stays
+      under a declared tolerance as a function of distance from threshold, and
+      how that admissible rate collapses as the threshold is approached. The
+      existing `ΔK ∝ v^0.443` bifurcation delay must come out as the threshold
+      limit of the same measurement, not as a separate result.
+- [x] Read the answer against the sentence that needs it. `main.tex:182`
+      motivates coupling that "evolves more slowly than phase dynamics" and
+      nothing quantifies that anywhere; say what "more slowly" has to mean, and
+      report whether the extracellular-geometry time scales the same passage
+      cites fall inside it.
+
+**Win and stop.** N8 bounded the kernel-to-scalar step of the reduction; this is
+the scalar-to-stationary step, and together they are the reduction the threshold
+claim depends on. `bifurcation.coherent_r` costs about 49 ms per call, so it
+must be precomputed on a `K`-grid and interpolated rather than called pointwise;
+`recovery_mechanisms.branch_concentration` is the microsecond alternative and is
+a same-layer import needing a `depends_on` edge. There is no shared integrator
+in the repository — `dynamic_ramp._advance` is the structural template, not an
+importable one. This does not calibrate a cortical coupling trajectory, and a
+rate that cortex is claimed to satisfy is not part of the deliverable.
+
+### N13 — A fluctuating coupling and the threshold
+
+- [x] Drive the phase dynamics with a random `K(t)` — a telegraph process and an
+      Ornstein–Uhlenbeck one, declared and distinguished. No coupling anywhere
+      in this repository fluctuates: every one is a constant scalar, a linear
+      deterministic ramp, or a deterministically updated matrix.
+- [x] Ask which statistic of the coupling controls coherence, and expect the
+      mean to fail. `r_ss` is identically zero below threshold and leaves the
+      axis with infinite slope above it, so a subcritical mean with
+      supercritical excursions can order. Report mean order against mean
+      coupling, fluctuation amplitude and correlation time.
+- [x] Recover both limits and the crossover between them: fast fluctuation,
+      where substituting the mean coupling is valid, and slow fluctuation, where
+      the quasi-static average of `r_ss` is. Retain the rejection the item
+      exists for — a regime in which mean-coupling substitution is refused.
+
+**Win and stop.** This is the numerical counterpart of N11's fence, and the pair
+is the point: the Lean item says the no-go needs a supremum and this one shows
+what goes wrong when a mean is used instead. Stop at a scalar coupling driven by
+a declared noise process. It does not model what makes a cortical coupling
+fluctuate, does not fit an amplitude or a correlation time to data, and supplies
+no dynamical mean-field limit — a finite-`N` sweep cannot close the programme
+R8 keeps, and must not be described as closing it.
+
+## M — Publication alignment, open and actionable here
+
+**Eight sentences in the publication are waiting on measurements this repository
+already has.** N7–N9 and N12–N13 each deferred their publication alignment, for
+the same stated reason and on the same terms: a macro is required for every
+numeral that *reaches* the publication, and none of theirs does yet, so
+generating macros nobody cites would put dead entries into a generated file and
+into its drift test. That reasoning is sound for each pass on its own and it
+does not survive being repeated — two deferrals with nothing tracking them is
+how a numeral that contradicts a published sentence stays published. This
+section is what tracks them. Unlike the P-items below, nothing here is blocked
+on anyone else.
+
+The sentences, with the item that bears on each:
+
+| From | Sentence |
+| :--- | :--- |
+| N7 | `supplementary.tex` on what a discriminating awakening experiment must span — the estimator as published cannot discriminate at the 100 sites the protocol permits at *any* concentration, and the first fix is a bin count of 24 or fewer |
+| N7 | the same section's independent calibration, called optimistic for EEG — the requirement at the observed concentration rises from 3,000 to 31,000 sites between independence and full clustering |
+| N8 | `K_c = 2D` is stated for a scalar coupling with no aggregation rule; N8 supplies the row-sum rule, the ±0.08 error bound over the declared decay range, and the measurement that frequency heterogeneity rather than spatial structure is what the identical-frequency restriction holds back |
+| N9 | the compatibility clause is recorded as having no observable; N9 supplies one, its two required diagnostics, and the limit that no phase-derived statistic substitutes for it |
+| N12 | `main.tex:182` motivates coupling that "evolves more slowly than phase dynamics" and quantifies nothing; N12 supplies the required time-scale ratio and the reading of the cited geometry against it |
+| N12 | `supplementary.tex` reports `ΔK ∝ v^0.443` as "near the predicted exponent 1/2 at this resolution"; N12 supplies the deterministic threshold limit of the same measurement, `0.447` over four speeds and `0.418` over three |
+| N12 | the recovery section reads a crossing of `K_c` as an onset; N12 shows the quasi-static residual on a leg symmetric about `K_c` is rate-independent, so branch tracking is unattainable exactly where that argument uses it |
+| N13 | nothing says which statistic of a varying coupling `K_c` is read against; N13 supplies the mean in the fast limit, the quasi-static average in the slow non-crossing limit, and neither for a slow crossing drive |
+
+**Acceptance rule.** Every numeral that reaches either publication file is a
+generated macro read from a saved summary (AGENTS.md §3) — no hand-typed
+numerals, and regenerating must not rerun a sweep. Withdrawn claims go to
+`CHANGELOG.md`, which is the pass that earns the entry the four preceding passes
+deliberately did not write. The three tracked PDFs are rebuilt in the same
+commit as their sources (AGENTS.md §6), and `prepare_arxiv.sh` is re-run or
+`arxiv_submit/` removed (AGENTS.md §7).
+
+- [ ] **M1 — Generate the macros.** Extend `simulations/simulation_tex.py` to
+      read `collapse_design`, `spatial_reduction`, `compatibility_estimator`,
+      `quasistatic_error` and `fluctuating_coupling` summaries, emit a macro for
+      each numeral the rewritten sentences will cite, and extend
+      `test_simulation_tex.py`'s drift test to cover them. Emit a macro only for
+      a numeral a sentence actually uses: an unused macro is the dead entry this
+      section exists to avoid creating.
+- [ ] **M2 — Rewrite the eight sentences**, in present tense and with no
+      drafting-history narration (AGENTS.md §5, and `check_prose.py` enforces
+      it). Three of them — the awakening-experiment span, the `v^0.443` reading
+      and the onset crossing — are claims that become false or incomplete, so
+      each needs its replacement written rather than deleted.
+- [ ] **M3 — Close the artifacts.** Rebuild `main.pdf`, `supplementary.pdf` and
+      `docs/primer.pdf`, check the primer's explanation still matches what the
+      manuscript now says, refresh or remove the built arXiv submission, and
+      write the `CHANGELOG.md` entry naming the claims withdrawn.
+
 ## R — Research programme
 
 R1–R7 were reproduced from the archived ledger without change of content until
@@ -700,8 +900,25 @@ selection, which remains the deepest conditional.
       variables. Include ongoing costs only through an explicit maintenance
       mechanism: exhaustion of a fuel source need not remove previously
       installed coupling. Connects N2–N3 to R2/R4 and contains the recorded
-      dynamical mean-field / propagation-of-chaos programme. N8's regime
-      statement is an input to the reduction criterion, so open this after it.
+      dynamical mean-field / propagation-of-chaos programme.
+      *Narrowed 2026-09-16, after N8 supplied the regime statement this item was
+      waiting on:* four aspects needed no measurement this repository lacks and
+      were closed the same day as N10–N13 — the supply-to-threshold composition,
+      the run-level no-go and its supremum fence, the error of the quasi-static
+      reduction against the rate of change, and a fluctuating coupling read
+      against its own mean. What stays here is everything those four are fenced
+      away from. **Genuine phase dynamics on the common process:** the
+      development has no continuous-time phase evolution and N2's phase law is a
+      supplied regime, so N10–N13 concern the stationary problem each stage
+      poses and no trajectory. **The dynamical mean-field limit, branch
+      selection and a closed Markov model** for the retained variables;
+      `propagation_of_chaos.py` already found that supercritical lab-frame pair
+      correlation does not decay in `N`, which is compatible with a conditional
+      propagation of chaos it did not measure, and that residue is this item's
+      rather than N13's. **Maintenance as a physical mechanism** rather than a
+      declared channel: N11 names the missing channel and is forbidden from
+      supplying one, because what decays an installed coupling is a commitment
+      about hardware.
 - [ ] **R9 — Empirical hardware adequacy and conditional consciousness tests.**
       Identify a physical property the proposed conscious mechanism actually
       requires, then test specified GPU systems and biological comparators
@@ -1078,3 +1295,154 @@ the only outstanding part of them; `CHANGELOG.md` gets its entry in that pass
 rather than this one, because the sentence N7 shows to be incomplete —
 `supplementary.tex` on what a discriminating awakening experiment must span — is
 still being made and has not yet been withdrawn.
+
+### 2026-09-16 — R8 triaged and its reachable parts scheduled
+
+- [x] Assess R8 against what this repository can reach, now that N8 has
+      supplied the regime statement its reduction criterion was waiting on.
+- [x] Register the reachable aspects as N10–N13 with acceptance rules, the
+      obstructions already known, and the stopping point of each.
+- [x] Narrow R8 in place to the residue and say what each remaining part is
+      waiting on.
+
+**Nothing was proved, run or measured.** No Lean file, Python module,
+publication source, tracked PDF, figure, reference, macro or axiom allowlist is
+touched; this pass adds four unstarted items to the ledger and rewrites one
+research item's scope note.
+
+Three findings from the assessment are recorded in the items themselves because
+they would otherwise be rediscovered at cost. **The supply-to-coherence bridge
+does not exist:** `PathwiseStore` appears in `Examples/FiniteSupply.lean`,
+`Examples/FundedMemory.lean` and `Phase3_SensorMemory.lean`, and in no file that
+installs a kernel, so the composition from a finite source through cumulative
+draw and installed energy to K3's no-go is absent rather than merely unstated.
+**Two obstructions block the obvious route to it:** `work_learned` decays
+geometrically and `cumulative_work_learned_le` caps the whole infinite run, so
+the uniform-cost horizon bound does not apply and `balance_le_of_stage_cost` is
+the one that does; and `net_draw_eq_zero_of_positive` forces any fundable
+protocol to have restricted support. **The quasi-static reduction error has
+never been measured:** every `dynamic_ramp` leg is confined to `K_c ± 0.5` and
+always crosses threshold, nothing computes `r(t) − r_ss(K(t))` pointwise, and no
+coupling anywhere in the repository fluctuates — so `main.tex:182`'s "evolves
+more slowly than phase dynamics" is unquantified by anything, which is what N12
+exists to fix.
+
+R1, R3, R5, R7 and R9–R12 keep the dispositions the earlier triage gave them,
+the two P-items are unchanged, and no chain edge moves.
+
+### 2026-09-16 — N10–N11: the supply-to-coherence bridge, in Lean
+
+- [x] N10: identify a `PathwiseStore`'s draw with `LocalActuator.pathWork`,
+      compose the cumulative draw with `installation_first_law` and feed the
+      result to K3, with witnesses on both sides.
+- [x] N11: state the run-level no-go, exhibit the fence that stops it being
+      weakened to a mean, and say what a decay of an installed coupling would
+      require.
+- [x] The axiom audit, the leaf gate and the `sorry` gate.
+
+**The bridge that did not exist now does.** `PathwiseStore` appeared in no file
+that installs a kernel; `PathwiseStore.totalDraw_eq_installation` is the
+identification, and it is an identification rather than a construction — a
+store whose `draw` at every stage *is* the actuator's path work has a cumulative
+draw that `FiniteProtocol.sum_first_law` already telescopes into the
+installed-energy change plus the run's heat.
+`PathwiseStore.installedEnergy_le_resources` reads
+`totalDraw_le_initial_resources` backwards, and
+`PricedArrangement.no_coherence_of_funded_source` is the fuel no-go: a run
+funded by a declared finite source cannot reach the threshold at any horizon its
+resources could not have paid for. `Examples/FundedCoupling.lean` §29 discharges
+every hypothesis on a three-level installation funded by a source of `3/8`,
+where the threshold needs `1/2`, and the cap is attained exactly at the second
+stage, so the bound is not loose by a margin it invented.
+
+**Three findings are worth carrying here.** First, **the learner of §28 cannot
+be funded by any finite source at all.** `net_draw_eq_zero_of_positive` forces
+its supply to match every draw, which the triage had predicted; what the triage
+had not predicted is that `SourceLedgered` is unsatisfiable outright —
+`no_source_funds_learner` shows the two readings of `R true - R false` differ by
+`2 (1 + log 3)`, because closing the switch costs `1 + log 3` when the register
+comes to match the parameter and returns as much when it comes to differ. The
+fuel no-go is therefore silent about the learner, which is the right outcome and
+not a gap: `learned_above_line` puts it above the threshold from its first
+update, and a bound whose hypotheses it satisfied would contradict that.
+
+Second, **the identification of draw with path work is what carries the bound.**
+`free_installation_rejected` exhibits a store that is ledgered, solvent at every
+horizon and carries a source ledger, and whose run installs `3/8` out of initial
+resources of zero. It fails exactly one hypothesis.
+
+Third, **a decay of an installed coupling has a named mechanism and this
+development has none of it.** `LocalActuator.storedEnergy_mono_of_stage` says an
+installed energy cannot fall across a stage none of whose executed transitions
+lowers an occupancy, and
+`LocalActuator.exists_lowering_of_installedEnergy_lt` is the contrapositive: a
+decay identifies a stage that *uninstalls*. `KernelArrangement.installedEnergy_congr`
+says a store's reading is not an argument of `installedEnergy`, which is the
+sense in which exhaustion does not uninstall. Naming the maintenance channel and
+not supplying one is the whole of the claim; supplying one is a physical
+commitment and stays in R8.
+
+**The fence.** `Examples/EvolvingCoupling.lean` §30 carries both sides.
+`approach` is an arrangement whose installed energy rises strictly at every
+stage towards the threshold and never reaches it, so `no_coherence_of_run`
+applies at every horizon. `fence` is four stages of the same hardware whose mean
+installed energy is `47/128` — `κ` times it is `47/32` against a threshold of
+`2` — and whose first stage exhibits the transition, at mean-field coupling
+`23/8`. A no-go with a mean substituted for the supremum would prove a falsehood
+on that sequence. Neither says anything about the phase trajectory.
+
+Validation: `lake build` completes warning-free and the axiom audit reports
+5,149 declarations in 89 modules resting only on `propext`, `Classical.choice`
+and `Quot.sound` — 121 declarations and 2 modules more than before. The leaf
+gate reports the same eight recorded leaves and the `sorry` gate covers 93
+sources. No publication source, tracked PDF, figure, reference, macro or axiom
+allowlist is touched, so no chain edge moves and no R- or P-item changes status.
+
+### 2026-09-16 — N12–N13: the rate and the fluctuation of an evolving coupling
+
+- [x] N12: measure the quasi-static residual on subcritical, supercritical and
+      crossing legs, state the admissible-rate criterion, recover the published
+      bifurcation-delay exponent, and read the answer against `main.tex:182`.
+- [x] N13: drive the same equation with a telegraph and an Ornstein–Uhlenbeck
+      coupling, recover both limits and the crossover, and retain the regime in
+      which mean-coupling substitution is refused.
+- [x] Regressions, the report module, the architecture entries and the gates.
+- [x] Open **M1–M3** for the publication alignment this pass and the N7–N9 pass
+      both deferred, so that two deferrals are tracked as work rather than
+      explained twice in prose.
+
+The pass is recorded in `tasks/coupling_rate_extensions.md`, which carries the
+findings, the controls that stand in for the red half of AGENTS.md §1, and the
+four publication sentences the measurements bear on. Those four and N7–N9's four
+are now section M of this ledger.
+
+Four findings are worth carrying here because they change what a later pass may
+claim. **At the threshold itself there is no admissible rate**: on a leg
+symmetric about `K_c` the terminal quasi-static residual is `0.3934` at every
+one of nine speeds spanning four decades, because the exponential suppression below
+threshold and the amplification above cancel exactly. A slower ramp does not
+help, so "slowly enough to track the branch" is unattainable precisely where the
+recovery argument uses it. **Away from the threshold the criterion is a required
+ratio of coupling to phase time scales** — `2000` at `|K-K_c| = 0.05` above
+threshold, `632` at `0.2`, `200` at `0.8`, and three to ten times less demanding
+below threshold at the same distance — and the geometry and phase time scales
+`main.tex:182` cites give a ratio between `600` and `60,000`, which meets every
+scanned leg from `0.8` at the slow end and `0.05` at the fast end. **The
+published `ΔK ∝ v^0.443` is the threshold limit of this same measurement**: the
+deterministic run seeded at threshold at the finite-`N` fluctuation floor fits
+`v^0.447` over the four published speeds and `v^0.418` over the three the
+published fit used. **Mean-coupling substitution is refused in 25 of 168
+drives**, but the refusal is a finite-horizon effect and saying so is part of the
+result — the long-run growth rate of a small order is linear in `K`, so the
+asymptotic onset threshold is at the mean after all, and at four times the
+measured horizon the strongest rejection falls from `0.0924` to `0.0392`. What
+the mean fails to predict is the order on a horizon, and a recovery measurement
+is made on a horizon.
+
+Validation: `ruff`, `ruff format`, `mypy --strict`, `bandit`, `vulture`, `xenon`
+and `tach` pass over `simulations/`; the Python suite passes at 257 tests, 43 of
+them new. No Lean file, publication source, tracked PDF, reference or axiom
+allowlist is touched, so no chain edge changes status and the two P-items are
+unchanged. `CHANGELOG.md` gets no entry: it lists claims that were made and are
+no longer made, and the eight sentences these measurements bear on are still
+being made. The entry belongs to M3, which withdraws them.

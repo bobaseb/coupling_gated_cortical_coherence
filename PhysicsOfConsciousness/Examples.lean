@@ -35,6 +35,8 @@
     `Examples/MicroscopicCoupling.lean` -- a thermal switch's installed spatial mode
     `Examples/InstalledCoupling.lean` -- installed energy bounds its scalar mean-field coupling
     `Examples/LearnedCoupling.lean` §28 -- one process: learning, its coupling and its work
+    `Examples/FundedCoupling.lean` §29 -- a finite source that cannot fund coherence
+    `Examples/EvolvingCoupling.lean` §30 -- a run's no-go needs a supremum, not a mean
     `Examples/Phase4.lean`  §7, §15, §16, §17
     `Examples/Phase5.lean`  §13, §14, §17.1, §20 (overlap agreement)
     `Examples/VectorContent.lean` §22 (vector contents), §23 (the overlap encoder)
@@ -151,6 +153,8 @@ import PhysicsOfConsciousness.Examples.ActuatedCoupling
 import PhysicsOfConsciousness.Examples.MicroscopicCoupling
 import PhysicsOfConsciousness.Examples.InstalledCoupling
 import PhysicsOfConsciousness.Examples.LearnedCoupling
+import PhysicsOfConsciousness.Examples.FundedCoupling
+import PhysicsOfConsciousness.Examples.EvolvingCoupling
 import PhysicsOfConsciousness.Examples.Phase4
 import PhysicsOfConsciousness.Examples.Phase5
 import PhysicsOfConsciousness.Examples.Phase6

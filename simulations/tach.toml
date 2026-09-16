@@ -69,6 +69,10 @@ layer = "report"
 path = "numerical_extensions_report"
 layer = "report"
 
+[[modules]]
+path = "coupling_rate_report"
+layer = "report"
+
 # -- analysis ---------------------------------------------------------------
 [[modules]]
 path = "dynamic_ramp_analysis"
@@ -126,6 +130,16 @@ depends_on = ["structural_resonance"]
 [[modules]]
 path = "recovery_mechanisms"
 layer = "simulation"
+
+[[modules]]
+path = "quasistatic_error"
+layer = "simulation"
+depends_on = ["recovery_mechanisms"]
+
+[[modules]]
+path = "fluctuating_coupling"
+layer = "simulation"
+depends_on = ["quasistatic_error"]
 
 [[modules]]
 path = "propagation_of_chaos"

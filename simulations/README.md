@@ -78,6 +78,23 @@ Each carries a `--smoke` flag that runs the same code path at reduced cost, and
 each records at least one case it is required to fail: a specification nothing
 fails measures nothing.
 
+## The rate extensions
+
+Two further modules ask what an *evolving* coupling does to a threshold proved
+for a fixed one. Both integrate the same mean-field harmonic ladder —
+`quasistatic_error` writes it and `fluctuating_coupling` drives it along a
+replica axis — and `coupling_rate_report.py` turns the two summaries into
+figures and `figures/COUPLING_RATE_REPORT.md` without rerunning anything.
+
+| Module | Question | Command |
+| :--- | :--- | :--- |
+| `quasistatic_error.py` | How fast may `K` move before `r(t)` stops tracking `r_ss(K(t))`, and how does the admissible rate collapse at the threshold? | `uv run python quasistatic_error.py` |
+| `fluctuating_coupling.py` | Which statistic of a randomly varying `K(t)` controls coherence — its mean, or the quasi-static average of the branch? | `uv run python fluctuating_coupling.py` |
+
+Both carry `--smoke` and both retain the case they are required to fail: a
+residual measured against a branch that has quietly stopped updating, and a
+coupling whose mean says there is no order where there is.
+
 ## Data
 
 The exploratory EEG analysis uses OpenNeuro dataset
