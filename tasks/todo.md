@@ -81,5 +81,5 @@ them withdrawing a claim, and `CHANGELOG.md` carries those three. `main.pdf`,
 compatibility statements and its aggregation sentence are updated to match.
 
 **Still open from the ledger `0505cac` truncated:** the R research programme
-(R1-R7) and the P items were deleted along with this section and are not
-restored here.
+(R1-R12) is restored in `tasks/research_programme.md`. The P submission-readiness
+items and the pass records remain in `dde1a36:tasks/todo.md`.
