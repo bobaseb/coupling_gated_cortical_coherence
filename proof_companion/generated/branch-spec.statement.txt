@@ -1,0 +1,7 @@
+∀ {D K : ℝ},
+  0 < D →
+    2 * D < K →
+      0 < PhysicsOfConsciousness.coherentBranch D K ∧
+        PhysicsOfConsciousness.coherentBranch D K ≤ 1 ∧
+          PhysicsOfConsciousness.coherentBranch D K =
+            PhysicsOfConsciousness.selfConsistency K D (PhysicsOfConsciousness.coherentBranch D K)

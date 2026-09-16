@@ -1,0 +1,18 @@
+∀ {X : TopCat} [inst : MeasurableSpace ↑X] [inst_1 : BorelSpace ↑X] {I : Type u}
+  (cover : I → TopologicalSpace.Opens ↑X),
+  iSup cover = ⊤ →
+    ∀ (s : (i : I) → (PhysicsOfConsciousness.probabilityPresheaf X).obj (Opposite.op (cover i))),
+      (∀ (i j : I),
+          (CategoryTheory.ConcreteCategory.hom
+                ((PhysicsOfConsciousness.probabilityPresheaf X).map (CategoryTheory.homOfLE ⋯).op))
+              (s i) =
+            (CategoryTheory.ConcreteCategory.hom
+                ((PhysicsOfConsciousness.probabilityPresheaf X).map (CategoryTheory.homOfLE ⋯).op))
+              (s j)) →
+        ∃! g,
+          ∀ (i : I),
+            (CategoryTheory.ConcreteCategory.hom
+                  ((PhysicsOfConsciousness.probabilityPresheaf X).map
+                    (CategoryTheory.homOfLE ⋯).op))
+                g =
+              s i

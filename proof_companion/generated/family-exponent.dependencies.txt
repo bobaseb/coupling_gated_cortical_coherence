@@ -1,0 +1,4 @@
+PhysicsOfConsciousness.coherent_iff_sRatio_eq
+PhysicsOfConsciousness.selfConsistency
+PhysicsOfConsciousness.vonMisesSRatio
+PhysicsOfConsciousness.vonMisesSRatio_second_order

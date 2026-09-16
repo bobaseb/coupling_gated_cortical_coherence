@@ -1,0 +1,14 @@
+∀ {X : TopCat} [inst : MeasureTheory.MeasureSpace ↑X] [inst_1 : BorelSpace ↑X]
+  [inst_2 : PhysicsOfConsciousness.TriangulatedManifold ↑X]
+  [inst_3 : MetricSpace PhysicsOfConsciousness.GlobalSection]
+  [CompleteSpace PhysicsOfConsciousness.GlobalSection]
+  (kernel : PhysicsOfConsciousness.StochasticNeuralField ↑X) {E : ℕ → ℝ} {L K D τ : ℝ},
+  PhysicsOfConsciousness.Chain.CoarseGrains E L →
+    0 < τ →
+      ∀ (T : PhysicsOfConsciousness.ThermodynamicCover X)
+        (rb : PhysicsOfConsciousness.ReflexiveBoundary X),
+        PhysicsOfConsciousness.Chain.E56 kernel E L K D →
+          PhysicsOfConsciousness.Chain.E67 L K D →
+            PhysicsOfConsciousness.Chain.E78 K D T →
+              PhysicsOfConsciousness.Chain.E89 K D τ T rb →
+                PhysicsOfConsciousness.Chain.UnifiedSelf rb

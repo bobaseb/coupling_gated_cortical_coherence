@@ -1,0 +1,7 @@
+∀ {α : Type u_1} {l : Filter α} {K r : α → ℝ} {D : ℝ},
+  0 < D →
+    Filter.Tendsto K l (𝓝 (2 * D)) →
+      Filter.Tendsto r l (𝓝 0) →
+        (∀ᶠ (x : α) in l,
+            2 * D < K x ∧ 0 < r x ∧ r x = PhysicsOfConsciousness.selfConsistency (K x) D (r x)) →
+          Filter.Tendsto (fun x => r x ^ 2 / (K x - 2 * D)) l (𝓝 (1 / D))

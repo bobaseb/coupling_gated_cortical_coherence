@@ -1,0 +1,3 @@
+PhysicsOfConsciousness.probabilityPresheaf
+PhysicsOfConsciousness.probability_is_sheaf
+PhysicsOfConsciousness.sheaf_glue_unique

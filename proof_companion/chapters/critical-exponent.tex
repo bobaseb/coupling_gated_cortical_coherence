@@ -1,0 +1,106 @@
+\section{The stationary critical exponent}
+Write
+\[
+ E(a)=\frac{\int_0^{2\pi}\sin^2\theta\,e^{a\cos\theta}\,d\theta}
+             {\int_0^{2\pi}e^{a\cos\theta}\,d\theta}.
+\]
+This is \texttt{vonMisesSRatio}. Its denominator is strictly positive.
+
+\subsection{The second-order expansion}
+\begin{claim}
+As $a\to0$,
+\[
+ E(a)=\frac12-\frac{a^2}{16}+o(a^2).
+\]
+\end{claim}
+\begin{proof}
+The previously proved differentiability results give $E\in C^2$,
+$E(0)=1/2$, $E'(0)=0$, and $E''(0)=-1/8$. Taylor's theorem with a little-o
+remainder yields
+$E(a)=E(0)+E'(0)a+E''(0)a^2/2+o(a^2)$.
+Substituting those values gives the claimed polynomial. The Lean proof applies
+the general Taylor theorem, identifies its second iterated derivative using
+the derivative lemmas, and simplifies its Taylor polynomial.
+\end{proof}
+\formal{second-order}
+\scope The asserted remainder is $o(a^2)$. This statement supplies no
+fourth-order remainder estimate.
+
+\subsection{An arbitrary family approaching threshold}
+\begin{claim}
+Let $D>0$, let $\ell$ be a filter on an index type, and let $K_x,r_x$ be
+real-valued functions on that type. Suppose $K_x\to2D$, $r_x\to0$ along
+$\ell$, and eventually
+\[
+ K_x>2D,\qquad r_x>0,\qquad
+ r_x=\operatorname{selfConsistency}(K_x,D,r_x).
+\]
+Then $r_x^2/(K_x-2D)\to1/D$ along $\ell$.
+\end{claim}
+\begin{proof}
+Set $a_x=K_xr_x/D$ and write
+\[
+ E(a)=\frac12-\frac{a^2}{16}+a^2q(a).
+\]
+The previous expansion gives $q(a)\to0$ as $a\to0$, taking the quotient
+with Lean's totalised division at zero. The assumed limits imply $a_x\to0$,
+hence $q(a_x)\to0$.
+
+For an index satisfying the eventual hypotheses, positivity gives
+$a_x\ne0$ and $K_x-2D\ne0$. The previously proved reformulation of the
+self-consistency equation gives $E(a_x)=D/K_x$. Substituting the expansion
+and rearranging yields
+\[
+ K_x-2D=K_xa_x^2\bigl(1/8-2q(a_x)\bigr),\qquad
+ \frac{r_x^2}{K_x-2D}
+ =\frac{D^2}{K_x^3\bigl(1/8-2q(a_x)\bigr)}.
+\]
+The denominator in the last expression tends to
+$(2D)^3/8=D^3>0$. The quotient therefore tends to $D^2/D^3=1/D$.
+The equality of the quotients holds eventually, which transfers this limit
+to the desired expression.
+\end{proof}
+\formal{family-exponent}
+\scope Convergence to zero and eventual stationarity are hypotheses. This
+general statement allows the bottom filter, where its eventual and convergence
+conditions are vacuous. A concrete branch supplies the substantive application
+below. The claim establishes stationary asymptotics, with no time evolution
+or stability conclusion.
+
+\subsection{A branch that satisfies the hypotheses}
+For $D>0$ and $K>2D$, define $r_*(D,K)$ by choosing the coherent solution from
+the theorem that proves existence and uniqueness in $(0,1]$.
+The Lean function \texttt{coherentBranch} uses this choice in that regime
+and returns zero outside it.
+
+\begin{claim}
+If $D>0$ and $K>2D$, then $0<r_*(D,K)\leq1$ and
+\[
+r_*(D,K)=\operatorname{selfConsistency}(K,D,r_*(D,K)).
+\]
+\end{claim}
+\begin{proof}
+The two inequalities on $D,K$ select the positive branch of the definition.
+The specification of the chosen witness is exactly positivity, the bound by
+one, and the fixed-point equation supplied by the existence theorem.
+\end{proof}
+\formal{branch-spec}
+
+\begin{claim}
+For fixed $D>0$, as $K$ decreases to $2D$ through $K>2D$,
+\[
+ \frac{r_*(D,K)^2}{K-2D}\longrightarrow\frac1D.
+\]
+\end{claim}
+\begin{proof}
+Apply the family theorem to the right-hand neighbourhood filter of $2D$,
+with the identity function for $K$. The previously proved
+\texttt{coherentBranch\_tendsto\_zero} supplies the limit of $r_*$ at the
+threshold. Membership in the right-hand neighbourhood gives $K>2D$
+eventually, and the branch specification supplies positivity and stationarity
+there. These are all the hypotheses of the family theorem.
+\end{proof}
+\formal{branch-exponent}
+\scope The approach filter on the real line is nontrivial, and the branch
+provides actual coherent solutions. This removes the vacuity issue in this
+application. The conclusion still concerns stationary solutions.

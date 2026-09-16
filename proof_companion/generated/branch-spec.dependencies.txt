@@ -1,0 +1,8 @@
+PhysicsOfConsciousness.coherentBranch
+PhysicsOfConsciousness.coherentBranch._proof_1
+PhysicsOfConsciousness.coherentBranch.eq_1
+PhysicsOfConsciousness.critical_coupling
+PhysicsOfConsciousness.critical_coupling._proof_1
+PhysicsOfConsciousness.critical_coupling.eq_1
+PhysicsOfConsciousness.selfConsistency
+PhysicsOfConsciousness.supercritical_fixed_point_existsUnique

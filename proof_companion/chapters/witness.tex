@@ -1,0 +1,27 @@
+\section{A concrete nonconstant family and its trace}
+On the three-site type with sites left, mid, and right, the development defines
+the nonnegative mass profile
+\[
+ d_t=\bigl(\max(1+\cos t,0),\ 1,\ \max(2+\cos t,0)\bigr).
+\]
+The use of $\max$ expresses \texttt{Real.toNNReal}; these are nonnegative
+spatial masses, without a normalisation requirement.
+
+\begin{claim}
+$d_0\ne d_\pi$.
+\end{claim}
+\begin{proof}
+Suppose the profiles were equal. Evaluating at the left site would equate
+$\max(1+\cos0,0)=2$ and $\max(1+\cos\pi,0)=0$, a contradiction.
+\end{proof}
+\formal{nonconstant-witness}
+\scope This witnesses nonconstant dependence on phase for this particular
+family. It does not assert that every thermodynamic cover has such dependence,
+or that this family models a biological substrate.
+
+\subsection{Before and after the actual tactics}\label{sec:witness-trace}
+The following excerpt is generated from the saved elaboration data for this
+proof. It selects the contradiction assumption, the evaluation at the left
+site, and the simplification that closes the goal. The complete nested records,
+including wrappers sharing source spans, remain in \nolinkurl{data/witness.json}.
+\VerbatimInput{generated/witness-trace.txt}

@@ -1,0 +1,8 @@
+∀ {α : Type u_1} {ι : Type u_2} [inst : Fintype α] [inst_1 : Fintype ι] {U : ι → Set α}
+  {w s : ι → α → NNReal} {ε : NNReal},
+  PhysicsOfConsciousness.ApproximateGluing.IsPartition U w →
+    PhysicsOfConsciousness.ApproximateGluing.Compatible U s ε →
+      ∀ (i : ι),
+        PhysicsOfConsciousness.ApproximateGluing.profileDist (U i)
+            (PhysicsOfConsciousness.ApproximateGluing.select w s) (s i) ≤
+          ↑ε

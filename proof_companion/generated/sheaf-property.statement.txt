@@ -1,0 +1,2 @@
+∀ {X : TopCat} [inst : MeasurableSpace ↑X] [inst_1 : BorelSpace ↑X],
+  TopCat.Presheaf.IsSheaf (PhysicsOfConsciousness.probabilityPresheaf X)

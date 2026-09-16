@@ -1,0 +1,112 @@
+\section{Exact and approximate gluing}\label{sec:gluing}
+
+\subsection{The sheaf used by the development}
+Let $X$ be a topological space with the measurable and Borel structure required
+by the formal statement. Let $F_0$ assign to an open subset its finite spatial
+measures, with restriction maps. The Lean definition
+\texttt{probabilityPresheaf} denotes the sheafification $F$ of $F_0$.
+Despite that identifier, the initial local data are unnormalised finite
+measures; mass one is not part of this definition.
+
+\begin{claim}
+$F$ is a sheaf.
+\end{claim}
+\begin{proof}
+Sheafification returns a sheaf together with its sheaf-property proof.
+Projecting that proof establishes the claim for $F$.
+\end{proof}
+\formal{sheaf-property}
+\scope This result uses the sheafification construction. It supplies no
+physical mechanism for producing compatible local data.
+
+\subsection{Compatible local sections have a unique extension}
+\begin{claim}
+Let $F$ be any sheaf of types on $X$, and let $(U_i)_{i\in I}$ be an open
+cover of $X$. Suppose $s_i\in F(U_i)$ and
+\[
+ s_i|_{U_i\cap U_j}=s_j|_{U_i\cap U_j}\qquad(i,j\in I).
+\]
+Then exactly one $g\in F(X)$ satisfies $g|_{U_i}=s_i$ for every $i$.
+\end{claim}
+\begin{proof}
+The unique-gluing form of the sheaf condition gives a section on
+$\bigcup_i U_i$, with the specified restrictions, unique among sections there.
+The cover equality identifies that union with $X$. Transport the section along
+this equality. Functoriality of the restriction maps shows that its restriction
+to each $U_i$ is $s_i$.
+
+Conversely, transport any competing section on $X$ back to the union. Its
+restrictions are again the $s_i$, so the uniqueness supplied by the sheaf
+condition identifies it with the first section. Transporting forward gives the
+required equality on $X$. In the Lean proof, equality of the relevant inclusion
+maps uses the fact that morphisms between opens form a subsingleton.
+\end{proof}
+\formal{sheaf-gluing}
+
+\begin{claim}
+The same conclusion holds for the development's sheafified spatial measures.
+\end{claim}
+\begin{proof}
+Apply the preceding claim to $F=\texttt{probabilityPresheaf}$ and use the
+sheaf property established above. The compatible family and cover equality
+are exactly the hypotheses of this application.
+\end{proof}
+\formal{probability-gluing}
+\scope This proof is a direct term applying a previous theorem. It has no
+tactic history; the extracted statement and proof dependencies still cover it.
+
+\subsection{What equilibrium contributes}
+A thermodynamic cover supplies local sections $s_i$, phases $\theta_i$, and a
+finite, symmetric, strictly positive coupling matrix. Its structure includes
+two substantive conditions: the phase configuration globally minimises the
+reduced Kuramoto potential, and
+\[
+ \cos(\theta_i-\theta_j)=1
+ \quad\Longrightarrow\quad
+ s_i|_{U_i\cap U_j}=s_j|_{U_i\cap U_j}.
+\]
+The second condition is an obligation on the supplied local data.
+
+\begin{claim}
+A thermodynamic cover determines a unique global section with its prescribed
+local restrictions.
+\end{claim}
+\begin{proof}
+The theorem characterising global minima of the reduced Kuramoto potential
+implies phase locking for the cover: $\cos(\theta_i-\theta_j)=1$ for every pair.
+The overlap-agreement field then makes the local sections compatible. Apply
+the spatial-measure gluing theorem to the cover and that compatible family.
+\end{proof}
+\formal{thermodynamic-gluing}
+\scope This argument consumes the supplied equilibrium and overlap conditions.
+The existence of a physical system satisfying them is a separate matter.
+
+\subsection{Approximate agreement gives a controlled selection}
+Let the site set and patch index set be finite. Let $s_i(x)\geq0$ be local
+mass profiles represented as functions on the ambient sites. Let
+$w_i(x)\geq0$ satisfy $w_i(x)=0$ outside $U_i$ and
+$\sum_i w_i(x)=1$ at every site. Assume that for $x\in U_i\cap U_j$,
+$|s_i(x)-s_j(x)|\leq\varepsilon$, where $\varepsilon\geq0$.
+
+\begin{claim}
+The selected profile $g(x)=\sum_j w_j(x)s_j(x)$ satisfies
+$\sup_{x\in U_i}|g(x)-s_i(x)|\leq\varepsilon$ for every patch $i$.
+\end{claim}
+\begin{proof}
+Fix $x\in U_i$. Every nonzero weight $w_j(x)$ has $x\in U_j$, so its profile
+is within $\varepsilon$ of $s_i(x)$. Normalisation and the triangle inequality
+therefore give
+\[
+ |g(x)-s_i(x)|
+ =\left|\sum_j w_j(x)(s_j(x)-s_i(x))\right|
+ \leq\sum_j w_j(x)\varepsilon=\varepsilon.
+\]
+The terms with zero weight contribute zero. The uniform metric on the finite
+patch converts these pointwise bounds into the displayed profile-distance
+bound. Lean isolates the weighted inequality in its helper
+\texttt{weighted\_dist\_le} and then applies it at each site.
+\end{proof}
+\formal{approximate-gluing}
+\scope The profiles need not have total mass one. The result provides an
+approximation in the specified uniform mass metric, and assumes the overlap
+bounds and the subordinate normalised weights.

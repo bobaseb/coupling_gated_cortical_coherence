@@ -1,0 +1,7 @@
+PhysicsOfConsciousness.contDiff_two_vonMisesSRatio
+PhysicsOfConsciousness.deriv_sRatioDeriv_zero
+PhysicsOfConsciousness.deriv_vonMisesSRatio
+PhysicsOfConsciousness.sRatioDeriv
+PhysicsOfConsciousness.sRatioDeriv_zero
+PhysicsOfConsciousness.vonMisesSRatio
+PhysicsOfConsciousness.vonMisesSRatio_zero

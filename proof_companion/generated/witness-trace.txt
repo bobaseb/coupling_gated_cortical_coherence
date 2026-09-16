@@ -1,0 +1,24 @@
+SOURCE LINE 101: intro h
+BEFORE
+⊢ richDensity 0 ≠ richDensity Real.pi
+AFTER
+h : richDensity 0 = richDensity Real.pi
+⊢ False
+
+SOURCE LINE 102: have hl := congrFun h Site.left
+BEFORE
+h : richDensity 0 = richDensity Real.pi
+⊢ False
+AFTER
+h : richDensity 0 = richDensity Real.pi
+hl : richDensity 0 Site.left = richDensity Real.pi Site.left
+⊢ False
+
+SOURCE LINE 103: simp [richDensity] at hl
+BEFORE
+h : richDensity 0 = richDensity Real.pi
+hl : richDensity 0 Site.left = richDensity Real.pi Site.left
+⊢ False
+AFTER
+No goals remain.
+

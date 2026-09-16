@@ -1,0 +1,105 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=25mm]{geometry}
+\usepackage{fontspec}
+\defaultfontfeatures[\rmfamily,\sffamily]{Ligatures=Common}
+\setmainfont{TeX Gyre Pagella}
+\setmonofont{DejaVu Sans Mono}[Scale=0.80]
+% The monospaced font lacks these two symbols used by Lean's notation.
+% XeTeX changes font for the original Unicode characters, preserving copy/paste.
+\newfontfamily\leanSymbolFont{FreeSerif}[Scale=0.80]
+\newXeTeXintercharclass\LeanSymbols
+\XeTeXcharclass"2964=\LeanSymbols
+\XeTeXcharclass"1D4DD=\LeanSymbols
+\XeTeXinterchartoks 0 \LeanSymbols={\begingroup\leanSymbolFont}
+\XeTeXinterchartoks \LeanSymbols 0={\endgroup}
+\XeTeXinterchartoks 4095 \LeanSymbols={\begingroup\leanSymbolFont}
+\XeTeXinterchartoks \LeanSymbols 4095={\endgroup}
+\XeTeXinterchartokenstate=1
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\definecolor{linkblue}{HTML}{245878}
+\usepackage{fvextra}
+\fvset{fontsize=\footnotesize,breaklines=true,breakanywhere=true,
+  breakautoindent=false,breakindent=0pt}
+\usepackage{xurl}
+\usepackage[colorlinks=true,linkcolor=linkblue,urlcolor=linkblue]{hyperref}
+\setlength{\emergencystretch}{3em}
+\newtheorem{claim}{Claim}[section]
+\newcommand{\formal}[1]{\par\smallskip\noindent
+  \textit{Extracted Lean statement: Appendix~\ref{decl:#1}.}\par\smallskip}
+\newcommand{\scope}{\par\smallskip\noindent\textbf{Scope.} }
+\input{generated/metadata.tex}
+\title{Proof companion\\\large Coupling-gated cortical coherence}
+\author{A companion to the repository's Lean development}
+\date{First coverage stage: 16 September 2026}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+This document presents mathematical explanations of
+\CompanionTheoremCount{} selected Lean results from
+\CompanionModuleCount{} source modules. It places the assumptions and the
+argument of each result beside an appendix generated from Lean's elaborated
+statements. The saved extraction also contains
+\CompanionTacticRecordCount{} nested tactic records, their before/after goal
+states, proof dependencies, and the fields of project structures reached through
+statement types. The mathematical prose is an editorial draft checked against
+the source during preparation; Lean verifies the formal proofs, not this prose.
+\end{abstract}
+
+\tableofcontents
+
+\section{Reading and auditing the companion}
+The first coverage stage follows four kinds of argument: exact and approximate
+gluing, the critical exponent of stationary coherent solutions, the conditional
+composition of the framework, and a concrete nonconstant family. The selection
+is explicit in \nolinkurl{selection.json}. Each of its declarations has an
+extracted statement in the appendix, including implicit type and instance
+parameters. Definitions and hypotheses abbreviated in the mathematics are
+spelled out where they carry substantive content.
+
+The prose groups rewrites and elementary algebra into mathematical steps.
+Full tactic histories remain in the JSON snapshots under \nolinkurl{data/};
+Section~\ref{sec:witness-trace} displays a small actual trace. A nested tactic
+record is an elaboration event, so its count includes wrappers and macro
+expansions. It is not a count of independent mathematical steps.
+
+Three distinctions guide the reading. A theorem can depend on physical
+conditions supplied as structure fields. A formally valid conditional theorem
+can have hypotheses that require separate witnesses. A dependency on a named
+definition does not establish an empirical interpretation of that definition.
+The examples below keep these distinctions visible.
+
+The extractor rejects elaboration errors and checks that each selected result's
+axioms are drawn only from \texttt{propext}, \texttt{Classical.choice}, and
+\texttt{Quot.sound}. This is a check of logical dependencies. It does not remove
+the hypotheses in the statement or the obligations carried by its structures.
+
+\input{chapters/gluing.tex}
+\input{chapters/critical-exponent.tex}
+\input{chapters/chain.tex}
+\input{chapters/witness.tex}
+
+\clearpage
+\appendix
+\section{Extracted statements and direct project dependencies}
+\label{sec:formal}
+The following text is generated from elaborated Lean expressions. Universe
+parameter names, complete dependency lists including Mathlib, source excerpts,
+and goal states are retained in the JSON snapshots. Pretty-printing uses Lean's
+mathematical notation and can suppress implicit arguments at applications;
+the quantified hypotheses of the declaration remain in the displayed type.
+Dependency lists here show direct project constants in the proof term. They
+are not a minimal set of assumptions or a transitive explanation of every lemma.
+\input{generated/declarations.tex}
+
+\section{Two extracted physical obligations}
+These projection types are extracted from the structures used by the gluing
+results. They show the equilibrium and overlap-agreement obligations described
+in Section~\ref{sec:gluing}. The snapshots contain the other encountered
+structure fields as well. The exporter follows project statement types and
+parent fields; it does not claim a complete semantic expansion through every
+definition body or every Mathlib structure.
+\VerbatimInput{generated/physical-fields.txt}
+\end{document}

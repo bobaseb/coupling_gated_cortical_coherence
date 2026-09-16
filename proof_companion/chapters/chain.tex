@@ -1,0 +1,79 @@
+\section{What the conditional chain composes}
+The chain uses a common topological and measured substrate, its sheaf of
+global sections, a supplied complete metric on those sections, a neural field,
+a thermodynamic cover $T$, and a reflexive boundary with prediction map $P$.
+The precise type and instance parameters are printed in the appendix.
+
+\subsection{The common downstream argument}
+Suppose a sequence of energies coarse-grains to $L$, the elapsed parameter
+$\tau$ is positive, and the following named implications hold:
+\begin{itemize}
+\item $E56$: coarse-graining implies $D>0$, $K\geq0$, $L=K$, and an
+identification of the supplied field with the parameters $K,D$.
+\item $E67$: those scalar conditions imply $K>2D$.
+\item $E78$: a coherent order parameter implies that the supplied cover is
+reached by the specified relaxation at a coupling at least $K$.
+\item $E89$: that reachability supplies a section $s$ which restricts to the
+local data of $T$, is fixed by $P$, and comes with the stated Lipschitz bound
+on $P$ at \texttt{resonanceRate}$(K,D,\tau)$.
+\end{itemize}
+
+\begin{claim}
+There is a global section compatible with a thermodynamic cover which is the
+unique fixed point of the prediction map.
+\end{claim}
+\begin{proof}
+Apply $E56$ to the coarse-graining hypothesis and $E67$ to its scalar
+conclusion. The supercritical existence theorem supplies a coherent order
+parameter. Apply $E78$ and then $E89$ to obtain the section $s$, its local
+restrictions, the Lipschitz bound, and $P(s)=s$.
+
+The section $s$ makes the space of global sections nonempty. The theorem
+\nolinkurl{self_of_coherent_order_parameter}, using completeness, the
+Lipschitz bound, coherence, and $\tau>0$, applies the contraction argument to
+obtain a unique fixed point $p$. Since $s$ is fixed, uniqueness gives $s=p$.
+Every fixed point $t$ equals $p$ and hence $s$. Pair $s$ with the supplied
+cover $T$ and its known restriction equations. This is exactly the predicate
+\texttt{UnifiedSelf}.
+\end{proof}
+\formal{downstream-chain}
+\scope The identity between the glued section and a fixed section is supplied
+in $E89$; the contraction argument proves uniqueness. The concrete-field
+conjunct of $E56$ is retained as an input constraint but is not used by this
+proof's downstream fixed-point argument. The source also establishes a local
+\texttt{Unity} fact which the concluding construction does not reference.
+Its constants can still occur in the unnormalised proof term; a syntactic
+dependency list alone therefore does not identify minimal premises.
+
+\subsection{The passive composition}
+The passive chain additionally supplies a finite nonempty register, its
+statistical-mechanics instance and update, a field and vacuum set, and measurable
+carrier types for predictive information. Its remaining named implications are:
+\begin{itemize}
+\item $E12$: the capacity bound implies that the field leaves the vacuum set.
+\item $E23$: leaving that set implies the register update is not surjective.
+\item $E34$: dissipation supplies a predictive-dissipation structure whose
+thermal scale and dissipated work match the register's temperature and heat,
+and whose nonpredictive information is strictly positive.
+\item $E45$: the predictive bound implies the chosen coarse-graining statement.
+\end{itemize}
+
+\begin{claim}
+Under $E12$ through $E89$ and the stated structural hypotheses, the passive
+chain concludes \texttt{UnifiedSelf} for the supplied reflexive boundary.
+\end{claim}
+\begin{proof}
+Finiteness gives the capacity bound. Apply $E12$ to obtain vacuum departure,
+then $E23$ to obtain a nonsurjective update. The proved dissipation theorem,
+using the supplied statistical-mechanics structure, gives positive heat.
+Apply $E34$ and retain its predictive-dissipation witness $R$. The bound
+associated with $R$ gives the predictive node. Apply $E45$ to obtain
+coarse-graining and then invoke the downstream claim with $E56$ through $E89$.
+\end{proof}
+\formal{passive-chain}
+\scope The eight named implications remain hypotheses. Conditions inside
+the statistical-mechanics, thermodynamic-cover, and other structures are
+additional obligations. The equalities and positivity in $E34$ constrain
+which witness is admitted, while the passage through $E45$ uses its
+predictive structure. The conclusion has no predicate asserting experience
+or biological implementation.

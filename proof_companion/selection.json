@@ -1,0 +1,42 @@
+[
+  {
+    "id": "gluing",
+    "module": "PhysicsOfConsciousness.Phase5_GlobalSection",
+    "source": "PhysicsOfConsciousness/Phase5_GlobalSection.lean",
+    "declarations": [
+      {"id": "sheaf-property", "name": "PhysicsOfConsciousness.probability_is_sheaf"},
+      {"id": "sheaf-gluing", "name": "PhysicsOfConsciousness.sheaf_glue_unique"},
+      {"id": "probability-gluing", "name": "PhysicsOfConsciousness.probability_glue_unique"},
+      {"id": "thermodynamic-gluing", "name": "PhysicsOfConsciousness.global_section_from_thermodynamics"},
+      {"id": "approximate-gluing", "name": "PhysicsOfConsciousness.ApproximateGluing.select_close"}
+    ]
+  },
+  {
+    "id": "critical-exponent",
+    "module": "PhysicsOfConsciousness.Phase8_CriticalExponent",
+    "source": "PhysicsOfConsciousness/Phase8_CriticalExponent.lean",
+    "declarations": [
+      {"id": "second-order", "name": "PhysicsOfConsciousness.vonMisesSRatio_second_order"},
+      {"id": "family-exponent", "name": "PhysicsOfConsciousness.coherent_solution_critical_exponent"},
+      {"id": "branch-spec", "name": "PhysicsOfConsciousness.coherentBranch_spec"},
+      {"id": "branch-exponent", "name": "PhysicsOfConsciousness.coherentBranch_critical_exponent"}
+    ]
+  },
+  {
+    "id": "chain",
+    "module": "PhysicsOfConsciousness.Chain",
+    "source": "PhysicsOfConsciousness/Chain.lean",
+    "declarations": [
+      {"id": "downstream-chain", "name": "PhysicsOfConsciousness.Chain.chain_from_coarseGrains"},
+      {"id": "passive-chain", "name": "PhysicsOfConsciousness.Chain.chain"}
+    ]
+  },
+  {
+    "id": "witness",
+    "module": "PhysicsOfConsciousness.Examples.Phase5",
+    "source": "PhysicsOfConsciousness/Examples/Phase5.lean",
+    "declarations": [
+      {"id": "nonconstant-witness", "name": "PhysicsOfConsciousness.Examples.richDensity_not_const"}
+    ]
+  }
+]

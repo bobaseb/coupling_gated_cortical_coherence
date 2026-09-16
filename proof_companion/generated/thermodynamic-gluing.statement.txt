@@ -1,0 +1,9 @@
+∀ {X : TopCat} [inst : MeasurableSpace ↑X] [inst_1 : BorelSpace ↑X]
+  [inst_2 : PhysicsOfConsciousness.TriangulatedManifold ↑X]
+  [T : PhysicsOfConsciousness.ThermodynamicCover X],
+  ∃! s,
+    ∀ (i : PhysicsOfConsciousness.LocalSectionSynchronization.I X),
+      (CategoryTheory.ConcreteCategory.hom
+            ((PhysicsOfConsciousness.probabilityPresheaf X).map (CategoryTheory.homOfLE ⋯).op))
+          s =
+        PhysicsOfConsciousness.LocalSectionSynchronization.sync_to_section i

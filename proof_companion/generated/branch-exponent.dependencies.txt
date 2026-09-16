@@ -1,0 +1,5 @@
+PhysicsOfConsciousness.coherentBranch
+PhysicsOfConsciousness.coherentBranch_spec
+PhysicsOfConsciousness.coherentBranch_tendsto_zero
+PhysicsOfConsciousness.coherent_solution_critical_exponent
+PhysicsOfConsciousness.selfConsistency

@@ -15,6 +15,9 @@
 
 [**Read the Paper**](main.pdf) | [**Math Supplement**](supplementary.pdf) | [**Maths Primer**](docs/primer.pdf) | [**Project Website**](https://bobaseb.github.io/coupling_gated_cortical_coherence/)
 
+[**Lean Proof Companion**](proof_companion/README.md) — mathematical explanations,
+extracted statements, and tactic traces; initial coverage of 12 results.
+
 </div>
 
 <hr />

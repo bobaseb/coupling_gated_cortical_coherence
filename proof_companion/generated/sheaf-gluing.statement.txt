@@ -1,0 +1,11 @@
+∀ {X : TopCat} {F : (TopologicalSpace.Opens ↑X)ᵒᵖ ⥤ Type u},
+  TopCat.Presheaf.IsSheaf F →
+    ∀ {I : Type u} (cover : I → TopologicalSpace.Opens ↑X),
+      iSup cover = ⊤ →
+        ∀ (s : (i : I) → F.obj (Opposite.op (cover i))),
+          (∀ (i j : I),
+              (CategoryTheory.ConcreteCategory.hom (F.map (CategoryTheory.homOfLE ⋯).op)) (s i) =
+                (CategoryTheory.ConcreteCategory.hom (F.map (CategoryTheory.homOfLE ⋯).op)) (s j)) →
+            ∃! g,
+              ∀ (i : I),
+                (CategoryTheory.ConcreteCategory.hom (F.map (CategoryTheory.homOfLE ⋯).op)) g = s i

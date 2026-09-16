@@ -102,3 +102,6 @@ jobs:
       # evidence rather than only the absence of a failure.
       - name: Build, and audit the axiom footprint
         run: lake build
+
+      - name: Proof companion extraction and rendering regressions
+        run: bash proof_companion/run.sh test

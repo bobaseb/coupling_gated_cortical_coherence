@@ -1,0 +1,27 @@
+PhysicsOfConsciousness.ThermodynamicCover.thermodynamic_equilibrium
+∀ {X : TopCat} {inst : MeasurableSpace ↑X} {inst_1 : BorelSpace ↑X}
+  {inst_2 : PhysicsOfConsciousness.TriangulatedManifold ↑X}
+  [self : PhysicsOfConsciousness.ThermodynamicCover X]
+  (theta : PhysicsOfConsciousness.LocalSectionSynchronization.I X → ℝ),
+  PhysicsOfConsciousness.kuramoto_potential_dynamic
+      { omega := fun x => 0, A := PhysicsOfConsciousness.ThermodynamicCover.A, symm := ⋯ }
+      PhysicsOfConsciousness.LocalSectionSynchronization.phase ≤
+    PhysicsOfConsciousness.kuramoto_potential_dynamic
+      { omega := fun x => 0, A := PhysicsOfConsciousness.ThermodynamicCover.A, symm := ⋯ } theta
+
+PhysicsOfConsciousness.LocalSectionSynchronization.section_agrees_of_phase_eq
+∀ {X : TopCat} {inst : MeasurableSpace ↑X} {inst_1 : BorelSpace ↑X}
+  {inst_2 : PhysicsOfConsciousness.TriangulatedManifold ↑X}
+  [self : PhysicsOfConsciousness.LocalSectionSynchronization X]
+  (i j : PhysicsOfConsciousness.LocalSectionSynchronization.I X),
+  Real.cos
+        (PhysicsOfConsciousness.LocalSectionSynchronization.phase i -
+          PhysicsOfConsciousness.LocalSectionSynchronization.phase j) =
+      1 →
+    (CategoryTheory.ConcreteCategory.hom
+          ((PhysicsOfConsciousness.probabilityPresheaf X).map (CategoryTheory.homOfLE ⋯).op))
+        (PhysicsOfConsciousness.LocalSectionSynchronization.sync_to_section i) =
+      (CategoryTheory.ConcreteCategory.hom
+          ((PhysicsOfConsciousness.probabilityPresheaf X).map (CategoryTheory.homOfLE ⋯).op))
+        (PhysicsOfConsciousness.LocalSectionSynchronization.sync_to_section j)
+

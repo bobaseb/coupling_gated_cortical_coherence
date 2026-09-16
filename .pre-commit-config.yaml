@@ -129,3 +129,10 @@ repos:
         language: system
         files: \.lean$
         pass_filenames: false
+
+      - id: check-proof-companion
+        name: proof companion sources, extraction, and PDF are current
+        entry: bash proof_companion/run.sh check
+        language: system
+        files: ^(proof_companion/|PhysicsOfConsciousness/|PhysicsOfConsciousness\.lean$|lean-toolchain$|lake-manifest\.json$|lakefile\.toml$)
+        pass_filenames: false

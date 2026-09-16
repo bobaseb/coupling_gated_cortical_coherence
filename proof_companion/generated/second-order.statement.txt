@@ -1,0 +1,1 @@
+(fun a => PhysicsOfConsciousness.vonMisesSRatio a - (1 / 2 - a ^ 2 / 16)) =o[𝓝 0] fun a => a ^ 2

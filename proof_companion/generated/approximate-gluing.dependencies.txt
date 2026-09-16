@@ -1,0 +1,5 @@
+PhysicsOfConsciousness.ApproximateGluing.Compatible
+PhysicsOfConsciousness.ApproximateGluing.IsPartition
+PhysicsOfConsciousness.ApproximateGluing.profileDist
+PhysicsOfConsciousness.ApproximateGluing.profileDist_le_iff
+PhysicsOfConsciousness.ApproximateGluing.select
