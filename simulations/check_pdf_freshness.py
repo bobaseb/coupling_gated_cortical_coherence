@@ -50,6 +50,7 @@ DOCUMENTS: tuple[tuple[str, str], ...] = (
     ("main.pdf", "main.tex"),
     ("supplementary.pdf", "supplementary.tex"),
     ("docs/primer.pdf", "docs/primer.tex"),
+    ("proof_companion/companion.pdf", "proof_companion/companion.tex"),
 )
 
 # The advisory pair: the publication, and the companion that explains it.
