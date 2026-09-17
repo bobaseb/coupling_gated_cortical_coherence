@@ -14,14 +14,14 @@ and three of these are the second kind.
 Two further sections of that ledger are not restored here and remain in
 `dde1a36:tasks/todo.md`: **P — Submission readiness** (two open items on author
 affiliation and the journal data-availability statement) and the **Pass records**,
-whose substance is in `CHANGELOG.md` and the `_archive/` ledgers.
+whose substance is in `CHANGELOG.md` and the ledgers under `d3ecbfd:_archive/`.
 
 ## R — Research programme
 
 R1–R7 were reproduced from the archived ledger without change of content until
 the 2026-09-16 triage below, which narrows R2, R4 and R6 and leaves the other
 four as they stand; consult
-`_archive/todo_2026-09-15_pre-coupling-budget-replan.md` for the full completion
+`d3ecbfd:_archive/todo_2026-09-15_pre-coupling-budget-replan.md` for the full completion
 criteria, the R1 documented-limitation disposition and the R6 specification
 record. R8–R12 were added on 2026-09-16. Placement after the scheduled items
 reflects scope, not scientific importance or publication need.

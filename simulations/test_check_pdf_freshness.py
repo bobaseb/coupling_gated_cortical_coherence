@@ -124,22 +124,14 @@ class GateTest(unittest.TestCase):
         self.assertFalse(check_pdf_freshness.companion_is_untouched({"docs/primer.tex"}))
 
     def test_documents_are_the_tracked_deliverables(self) -> None:
-        """A renamed or dropped deliverable must fail here rather than go unchecked.
-
-        ``_archive/`` is excluded: what is in there is kept as it was and is not
-        rebuilt from anything in the tree.
-        """
-        tracked = [
-            pdf
-            for pdf in subprocess.run(  # noqa: S603  # nosec B603 B607 -- fixed argv
-                ["git", "ls-files", "*.pdf"],  # noqa: S607
-                cwd=repo_root.REPO,
-                capture_output=True,
-                text=True,
-                check=True,
-            ).stdout.split()
-            if not pdf.startswith("_archive/")
-        ]
+        """A renamed or dropped deliverable must fail here rather than go unchecked."""
+        tracked = subprocess.run(  # noqa: S603  # nosec B603 B607 -- fixed argv
+            ["git", "ls-files", "*.pdf"],  # noqa: S607
+            cwd=repo_root.REPO,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.split()
 
         self.assertEqual(sorted(pdf for pdf, _ in check_pdf_freshness.DOCUMENTS), sorted(tracked))
 

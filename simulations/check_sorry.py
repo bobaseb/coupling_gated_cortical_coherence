@@ -20,8 +20,7 @@ sweep is too slow to be useful:
 **Comments are stripped before searching**, on the same principle as
 ``check_leaves.py``: ``Axioms.lean`` §5 discusses removed postulates in prose,
 and a gate that counted prose would fail on the record of its own success.
-``_archive/`` is excluded -- it is superseded material, kept as history, and
-nothing builds it.
+``.lake/`` is excluded -- it is build output and nothing in it is our source.
 
 Run: python simulations/check_sorry.py
 
@@ -35,7 +34,7 @@ from pathlib import Path
 
 from repo_root import REPO
 
-EXCLUDED_DIRS = {"_archive", ".lake"}
+EXCLUDED_DIRS = {".lake"}
 
 BLOCK_COMMENT_RE = re.compile(r"/-.*?-/", re.DOTALL)
 LINE_COMMENT_RE = re.compile(r"--.*$", re.MULTILINE)

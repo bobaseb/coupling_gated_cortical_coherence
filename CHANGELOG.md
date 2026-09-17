@@ -9,8 +9,11 @@ is addressed to a reader of the paper, who has never seen a previous draft and
 should not have to.
 
 Two things this file is not. It is not the complete record — that is
-`tasks/todo.md` and its archives under `_archive/`, which carry the pass records
-in full, and the Lean docstrings, which carry the technical half. And it is not
+`tasks/todo.md` and the pass ledgers, which carry the pass records in full, and
+the Lean docstrings, which carry the technical half. The ledgers were removed
+from the working tree when the repository was prepared for publication and are
+read out of git history, `d3ecbfd:_archive/`, in the `rev:path` form used for
+`dde1a36:tasks/todo.md` in `tasks/research_programme.md`. And it is not
 a list of everything that changed; it lists **claims that were made and are no
 longer made**, which is a much shorter list and the only one worth being able to
 find.
@@ -1274,7 +1277,7 @@ what its own localized self-encoding reconstructs.
 `K_c = 2D`, read off the substrate. `1/2` was a fact about a map defined to
 average with a baseline, not a claim about a substrate.
 
-**Record:** `_archive/todo_2026-08-31_pre-composability-replan.md`, W5.
+**Record:** `d3ecbfd:_archive/todo_2026-08-31_pre-composability-replan.md`, W5.
 
 ---
 
@@ -1304,8 +1307,8 @@ instance had already supplied.
 `probability_glue_unique`, and the old field `sync_to_section_eq` is a theorem
 about it.
 
-**Record:** `_archive/todo_2026-08-31_pre-composability-replan.md`, W1; and the
-O19 record in `_archive/todo_2026-08-30_pre-strategic-replan.md`.
+**Record:** `d3ecbfd:_archive/todo_2026-08-31_pre-composability-replan.md`, W1; and the
+O19 record in `d3ecbfd:_archive/todo_2026-08-30_pre-strategic-replan.md`.
 
 ---
 
@@ -1329,7 +1332,7 @@ claim about biology, with four conditions that would falsify it. The field is
 claimed to be modulatory in its effect on individual neurons and integrative in
 its spatial reach, which is what the evidence supports.
 
-**Record:** `_archive/todo_2026-08-31_pre-composability-replan.md`, W3.
+**Record:** `d3ecbfd:_archive/todo_2026-08-31_pre-composability-replan.md`, W3.
 
 ---
 
@@ -1346,7 +1349,7 @@ frustrated regime; its theorems describe the unfrustrated one.
 **Claimed now:** the scope is stated rather than the capacity. This is the
 deepest objection the framework faces and it is recorded as open, not closed.
 
-**Record:** `_archive/todo_2026-08-31_pre-composability-replan.md`, W3, and the
+**Record:** `d3ecbfd:_archive/todo_2026-08-31_pre-composability-replan.md`, W3, and the
 standing note in `tasks/todo.md`.
 
 ---
@@ -1374,7 +1377,7 @@ immediately a bound on the nonpredictive memory. This is weaker than the old
 claim and it is what is true. The old KL bound is retained, since it is
 consistent and yields `σ ≥ 0`; no limit may be read off it.
 
-**Record:** `_archive/todo_2026-08-31_pre-composability-replan.md`, W4.
+**Record:** `d3ecbfd:_archive/todo_2026-08-31_pre-composability-replan.md`, W4.
 
 ---
 
@@ -1411,7 +1414,7 @@ general rule — a postulate about a symbol must bind that symbol, or it is a
 constraint on every model including the ones that refute it — is stated in the
 paper as a methodological finding, because it is one.
 
-**Record:** `_archive/todo_2026-08-30_pre-strategic-replan.md`; the manuscript's
+**Record:** `d3ecbfd:_archive/todo_2026-08-30_pre-strategic-replan.md`; the manuscript's
 soundness section states the mathematics.
 
 ---
@@ -1446,7 +1449,7 @@ record of why the earliest witness was empty. The Lévy–Prokhorov metric named
 `Phase6`'s header is *not* what is constructed: on a discrete substrate the
 ε-thickening of a set is the set itself for ε < 1.
 
-**Record:** `_archive/todo_2026-08-30_pre-strategic-replan.md`; the manuscript's
+**Record:** `d3ecbfd:_archive/todo_2026-08-30_pre-strategic-replan.md`; the manuscript's
 soundness section states the three mathematical findings.
 
 ## 2026-09-15 — Table 1 as a longtable, and the final citation and macro read
