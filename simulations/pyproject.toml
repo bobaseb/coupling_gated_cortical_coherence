@@ -16,11 +16,13 @@ dependencies = [
 dev = [
     "bandit>=1.9.4",
     "hypothesis>=6.168.0",
+    "mutmut>=3.8.0",
     "mypy>=2.3.1",
     "pre-commit>=4.6.2",
     "pytest>=8.4.2",
     "radon>=6.0.1",
     "ruff>=0.16.5",
+    "setuptools>=84.0.0",
     "tach>=0.35.0",
     "vulture>=2.16",
     "xenon>=0.9.3",
@@ -28,8 +30,9 @@ dev = [
 
 [tool.vulture]
 # `uv run vulture .` from this directory would otherwise walk `.venv`,
-# where a site-packages file exceeds the AST recursion limit.
-exclude = [".venv/"]
+# where a site-packages file exceeds the AST recursion limit. `mutants/` is the
+# tree `mutmut` writes, ~20k generated functions that are dead by construction.
+exclude = [".venv/", ".venv_new/", "mutants/"]
 
 [tool.ruff]
 line-length = 100
@@ -41,6 +44,12 @@ ignore = []
 [tool.mypy]
 strict = true
 disallow_untyped_defs = true
+# The commit hooks run these tools over this whole directory, so each one has to
+# be told about `mutants/`: `mutmut` fills it with a rewritten copy of every
+# source file, and type-checking twenty thousand generated mutants on the way
+# into a commit would cost minutes and say nothing about the code being
+# committed. The same goes for the second virtualenv the mutation runs use.
+exclude = ["^mutants/", "^\\.venv"]
 
 
 [[tool.mypy.overrides]]
@@ -50,3 +59,17 @@ module = [
     "sympy.*",
 ]
 ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+norecursedirs = [
+    "mutants",
+    "*.egg",
+    ".*",
+    "_darcs",
+    "build",
+    "CVS",
+    "dist",
+    "node_modules",
+    "venv",
+    "{arch}",
+]

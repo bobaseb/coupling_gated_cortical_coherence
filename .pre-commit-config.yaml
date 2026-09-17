@@ -15,9 +15,11 @@ repos:
         pass_filenames: false
       - id: bandit
         name: bandit
-        # `-x ./.venv`: without it bandit walks site-packages, which is slow
-        # and reports other people's code.
-        entry: bash -c 'cd simulations && uv run bandit -r . -x ./.venv'
+        # `-x`: without it bandit walks site-packages, which is slow and
+        # reports other people's code, and `mutants/` -- the copy of this tree
+        # that mutmut rewrites -- which is neither committed nor code anyone
+        # wrote.
+        entry: bash -c 'cd simulations && uv run bandit -r . -x ./.venv,./.venv_new,./mutants'
         language: system
         types: [python]
         pass_filenames: false
@@ -29,7 +31,7 @@ repos:
         pass_filenames: false
       - id: xenon
         name: xenon
-        entry: bash -c 'cd simulations && uv run xenon --max-absolute B --max-modules B --max-average A .'
+        entry: bash -c 'cd simulations && uv run xenon --max-absolute B --max-modules B --max-average A --exclude "mutants/*,.venv/*,.venv_new/*" .'
         language: system
         types: [python]
         pass_filenames: false
