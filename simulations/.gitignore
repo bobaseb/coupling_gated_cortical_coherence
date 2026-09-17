@@ -1,2 +1,6 @@
 # S3 download cache for ds005620 EEG data — ~400 MB per subject
 cache_ds005620/
+# mutmut copies this whole directory into mutants/ and rewrites it per run.
+# It has to be ignored, or mutmut git change detection reads its own output back
+# as changed input and invalidates the cache on every run.
+mutants/
