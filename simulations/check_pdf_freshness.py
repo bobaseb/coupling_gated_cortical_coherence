@@ -43,7 +43,8 @@ import subprocess  # nosec B404 -- fixed argv below, no shell
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parent.parent
+from repo_root import REPO
+
 
 # Tracked deliverable, and the root source it is built from.
 DOCUMENTS: tuple[tuple[str, str], ...] = (

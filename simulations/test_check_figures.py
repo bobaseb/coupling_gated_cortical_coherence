@@ -12,6 +12,7 @@ from pathlib import Path
 
 import check_figures
 import check_pdf_freshness
+import repo_root
 
 
 class FigureUseTest(unittest.TestCase):
@@ -65,9 +66,7 @@ class FigureUseTest(unittest.TestCase):
 
     def test_the_publication_itself_prints_each_figure_once(self) -> None:
         """The gate on the real sources, which is what runs on commit."""
-        self.assertEqual(
-            check_figures.repeated(check_figures.printings(check_pdf_freshness.REPO)), []
-        )
+        self.assertEqual(check_figures.repeated(check_figures.printings(repo_root.REPO)), [])
 
 
 if __name__ == "__main__":

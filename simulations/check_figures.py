@@ -36,7 +36,8 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from check_pdf_freshness import PUBLICATION, REPO, figure_uses
+from check_pdf_freshness import PUBLICATION, figure_uses
+from repo_root import REPO
 
 GUIDANCE = """
 A figure printed twice is printed twice on arXiv (AGENTS.md section 7).

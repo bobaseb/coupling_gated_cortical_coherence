@@ -13,6 +13,7 @@ import unittest
 from pathlib import Path
 
 import check_pdf_freshness
+import repo_root
 
 
 class DependencyTest(unittest.TestCase):
@@ -132,7 +133,7 @@ class GateTest(unittest.TestCase):
             pdf
             for pdf in subprocess.run(  # noqa: S603  # nosec B603 B607 -- fixed argv
                 ["git", "ls-files", "*.pdf"],  # noqa: S607
-                cwd=check_pdf_freshness.REPO,
+                cwd=repo_root.REPO,
                 capture_output=True,
                 text=True,
                 check=True,

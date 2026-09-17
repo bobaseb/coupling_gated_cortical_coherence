@@ -33,7 +33,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parent.parent
+from repo_root import REPO
+
 EXCLUDED_DIRS = {"_archive", ".lake"}
 
 BLOCK_COMMENT_RE = re.compile(r"/-.*?-/", re.DOTALL)

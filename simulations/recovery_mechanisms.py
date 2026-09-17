@@ -21,9 +21,11 @@ from numpy.typing import NDArray
 from scipy.optimize import brentq, minimize_scalar
 from scipy.special import i0e, i1e
 
+from repo_root import REPO
+
 Array = NDArray[np.float64]
 ROOT = Path(__file__).resolve().parent / "figures" / "recovery_mechanisms"
-DESIGN = Path(__file__).resolve().parents[1] / "tasks" / "f5_f6_design.md"
+DESIGN = REPO / "tasks" / "f5_f6_design.md"
 FAMILIES = ("coupling", "diffusion", "shared_drive")
 Fits = dict[str, dict[str, float]]
 

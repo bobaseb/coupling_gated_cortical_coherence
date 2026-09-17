@@ -171,33 +171,44 @@ path = "fermi_estimate_check"
 layer = "theory"
 
 # -- gate -------------------------------------------------------------------
+# Locating the repository is the one thing every gate does before it reads a
+# document, and `mutmut` relocates the tree it does it from, so the answer lives
+# in one module rather than in a directory count repeated in each gate.
+[[modules]]
+path = "repo_root"
+layer = "gate"
+
 [[modules]]
 path = "check_prose"
 layer = "gate"
+depends_on = ["repo_root"]
 
 [[modules]]
 path = "check_hedging"
 layer = "gate"
-depends_on = ["check_prose"]
+depends_on = ["check_prose", "repo_root"]
 
 [[modules]]
 path = "check_pdf_freshness"
 layer = "gate"
+depends_on = ["repo_root"]
 
 [[modules]]
 path = "check_figures"
 layer = "gate"
-depends_on = ["check_pdf_freshness"]
+depends_on = ["check_pdf_freshness", "repo_root"]
 
 [[modules]]
 path = "check_arxiv_freshness"
 layer = "gate"
-depends_on = ["check_pdf_freshness"]
+depends_on = ["check_pdf_freshness", "repo_root"]
 
 [[modules]]
 path = "check_tableS1"
 layer = "gate"
+depends_on = ["repo_root"]
 
 [[modules]]
 path = "check_leaves"
 layer = "gate"
+depends_on = ["repo_root"]

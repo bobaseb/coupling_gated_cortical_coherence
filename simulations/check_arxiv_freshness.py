@@ -39,7 +39,8 @@ import hashlib
 import sys
 from pathlib import Path
 
-from check_pdf_freshness import PUBLICATION, REPO, dependencies
+from check_pdf_freshness import PUBLICATION, dependencies
+from repo_root import REPO
 
 SUBMISSION = "arxiv_submit"
 MANIFEST = f"{SUBMISSION}/BUILD_MANIFEST"

@@ -45,6 +45,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from check_prose import excerpt
+from repo_root import REPO
 
 FILES: tuple[str, ...] = ("main.tex", "supplementary.tex")
 
@@ -205,8 +206,7 @@ def report(path: Path, hits: list[Hit]) -> None:
 
 def _targets(names: list[str]) -> list[Path]:
     """The files named on the command line, or the publication by default."""
-    root = Path(__file__).resolve().parent.parent
-    return [Path(name) for name in names] or [root / name for name in FILES]
+    return [Path(name) for name in names] or [REPO / name for name in FILES]
 
 
 def _report_all(targets: list[Path]) -> int | None:

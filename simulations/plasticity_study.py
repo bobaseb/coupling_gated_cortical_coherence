@@ -12,6 +12,7 @@ from typing import Any
 
 import numpy as np
 
+from repo_root import REPO
 from structural_resonance import (
     Array,
     Config,
@@ -21,7 +22,7 @@ from structural_resonance import (
 )
 
 ROOT = Path(__file__).resolve().parent / "figures" / "plasticity_study"
-DESIGN = Path(__file__).resolve().parents[1] / "tasks" / "f5_f6_design.md"
+DESIGN = REPO / "tasks" / "f5_f6_design.md"
 RATES = (0.01, 0.05, 0.2)
 INTERVALS = (0.05, 0.5)
 TUNING_SEED = 20260910

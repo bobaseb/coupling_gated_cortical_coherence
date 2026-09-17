@@ -13,9 +13,9 @@ Exit 0 if the checks pass, 1 otherwise.
 
 import re
 import sys
-from pathlib import Path
 
-REPO = Path(__file__).resolve().parent.parent
+from repo_root import REPO
+
 CHAIN = REPO / "PhysicsOfConsciousness" / "Chain.lean"
 SUPP = REPO / "supplementary.tex"
 

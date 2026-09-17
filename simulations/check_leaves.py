@@ -60,7 +60,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parent.parent
+from repo_root import REPO
+
 LEAN_DIR = REPO / "PhysicsOfConsciousness"
 
 # Modules whose declarations need not be consumed by anything else:

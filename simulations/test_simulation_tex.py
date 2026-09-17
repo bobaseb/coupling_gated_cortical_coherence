@@ -4,6 +4,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import cast
 
+from repo_root import REPO
 from simulation_tex import (
     _effective_coupling,
     _first_sustained_index,
@@ -83,7 +84,7 @@ class SimulationTexTest(unittest.TestCase):
         # Scoped to the five groups read from the N7-N13 summaries: the older
         # groups carry uncited entries of their own, and deciding each one's fate
         # is a separate pass from the one that added these.
-        published = Path(__file__).parents[1]
+        published = REPO
         prose = (published / "main.tex").read_text(encoding="utf-8") + (
             published / "supplementary.tex"
         ).read_text(encoding="utf-8")

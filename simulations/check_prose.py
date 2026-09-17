@@ -28,6 +28,8 @@ import re
 import sys
 from pathlib import Path
 
+from repo_root import REPO
+
 # Each pattern is a way of saying "this used to be different", and each is
 # justified rather than dumped into one regex.
 PATTERNS: list[tuple[str, str]] = [
@@ -93,8 +95,7 @@ def report(path: Path, hits: list[tuple[int, str, str, str]]) -> None:
 
 def main(argv: list[str]) -> int:
     """Check every named file, or the two publication files by default."""
-    root = Path(__file__).resolve().parent.parent
-    targets = [Path(a) for a in argv[1:]] or [root / name for name in FILES]
+    targets = [Path(a) for a in argv[1:]] or [REPO / name for name in FILES]
     total = 0
     for path in targets:
         if not path.exists():
