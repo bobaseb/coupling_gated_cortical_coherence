@@ -156,11 +156,56 @@ class DelayTest(unittest.TestCase):
         delays = np.asarray([qe.threshold_delay(float(speed), CONFIG) for speed in speeds])
         self.assertAlmostEqual(qe.fit_exponent(speeds, delays), qe.RAMP_DELAY_EXPONENT, places=1)
 
+    def test_the_fit_recovers_an_exact_power_law(self) -> None:
+        """A slope the fit has to return exactly, rather than to one decimal.
+
+        The published-fit test above compares against `RAMP_DELAY_EXPONENT` to
+        `places=1`, a tolerance of 0.05 that most arithmetic errors fit inside:
+        14 of 29 mutants in this function survived the suite. On a constructed
+        power law `delay = 3 * speed ** -0.75` the answer is known in closed
+        form, so the fit can be held to floating-point agreement instead.
+        """
+        speeds = np.array([0.01, 0.02, 0.05, 0.1])
+        delays = 3.0 * speeds**-0.75
+
+        self.assertAlmostEqual(qe.fit_exponent(speeds, delays), -0.75, places=12)
+
+    def test_two_points_are_enough_to_fit(self) -> None:
+        """The stated minimum has to be accepted, not just the comfortable case.
+
+        `speeds.size < 2` is a boundary, and a fit given four points never tests
+        it: mutants raising it to `<= 2` or `< 3` reject the documented minimum
+        and no other test here notices.
+        """
+        speeds = np.array([0.01, 0.1])
+        delays = 3.0 * speeds**-0.75
+
+        self.assertAlmostEqual(qe.fit_exponent(speeds, delays), -0.75, places=12)
+
     def test_an_exponent_fit_refuses_degenerate_input(self) -> None:
-        with self.assertRaises(ValueError):
+        """Each guard, matched on its own message.
+
+        Matching the message is what makes these cases distinguishing rather
+        than decorative. `assertRaises(ValueError)` alone cannot tell this
+        function's refusal from numpy blowing up on `log(0)` further down, so a
+        mutant that widens `<= 0.0` to `< 0.0` still "raises ValueError" and
+        survives -- and so does one that replaces the message with nothing.
+        """
+        matching = "at least two matching points"
+        positive = "strictly positive points"
+
+        with self.assertRaisesRegex(ValueError, matching):
             qe.fit_exponent(np.array([1.0]), np.array([1.0]))
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, matching):
+            qe.fit_exponent(np.array([1.0, 2.0, 3.0]), np.array([1.0, 2.0]))
+        with self.assertRaisesRegex(ValueError, positive):
             qe.fit_exponent(np.array([1.0, 0.0]), np.array([1.0, 1.0]))
+        with self.assertRaisesRegex(ValueError, positive):
+            qe.fit_exponent(np.array([1.0, -2.0]), np.array([1.0, 2.0]))
+        with self.assertRaisesRegex(ValueError, positive):
+            qe.fit_exponent(np.array([1.0, 2.0]), np.array([1.0, 0.0]))
+        with self.assertRaisesRegex(ValueError, positive):
+            qe.fit_exponent(np.array([1.0, 2.0]), np.array([1.0, -1.0]))
 
 
 class StationaryBranchPropertyTest(unittest.TestCase):

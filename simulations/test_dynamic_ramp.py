@@ -17,6 +17,74 @@ from dynamic_ramp import (
 
 
 class DynamicRampTest(unittest.TestCase):
+    def test_the_integrator_reproduces_the_recorded_trajectory(self) -> None:
+        """Pin what the dynamics produce, not just that they are deterministic.
+
+        The reproducibility assertions above compare one run against another, so
+        any change to the integrator satisfies them: both runs make the same
+        change. The coupling assertions read `state.couplings`, which
+        `_advance` does not write -- the schedule is recorded by the sampler,
+        alongside the dynamics rather than by them. Between them they leave the
+        drift, the noise scale, the time base and the phase wrapping unpinned,
+        and mutation testing found that out: reversing the ramp direction,
+        dropping `dt` from the noise scale, or wrapping phases on `2/pi` instead
+        of `2*pi` all left this file passing.
+
+        These expected values come from the integrator as written. That makes a
+        deliberate change to the dynamics a two-line edit -- the code and this
+        array -- which is the point: right now such a change costs nothing and
+        says nothing.
+        """
+        config = RampConfig(
+            n_oscillators=64,
+            n_replicas=3,
+            diffusion=0.2,
+            ramp_speed=0.4,
+            coupling_half_window=0.2,
+            dt=0.02,
+            sample_every=5,
+            seed=1729,
+        )
+
+        result = simulate_ramp(config)
+
+        np.testing.assert_allclose(
+            result.order_mean,
+            [
+                0.087656,
+                0.097129,
+                0.116877,
+                0.110800,
+                0.103871,
+                0.103416,
+                0.111525,
+                0.097664,
+                0.095649,
+                0.090785,
+                0.094078,
+            ],
+            rtol=0,
+            atol=5e-7,
+        )
+        np.testing.assert_allclose(
+            result.concentration_mean,
+            [
+                0.194018,
+                0.228204,
+                0.165380,
+                0.191090,
+                0.225318,
+                0.168783,
+                0.221622,
+                0.137061,
+                0.190067,
+                0.126816,
+                0.209713,
+            ],
+            rtol=0,
+            atol=5e-7,
+        )
+
     def test_simulation_is_reproducible_and_crosses_critical_coupling(self) -> None:
         config = RampConfig(
             n_oscillators=64,

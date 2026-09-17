@@ -147,6 +147,42 @@ class IntegrationTest(unittest.TestCase):
         strong = reduction.steady_order(config, reduction.build_uniform_kernel(16, 8.0), 1)
         self.assertLess(weak, 0.2)
         self.assertGreater(strong, 0.8)
+        # The bounds above leave a wide band of behaviour, and `steady_order`
+        # integrates: drift, noise scale, step and wrapping all sit inside it.
+        # Mutation testing put 29 of 79 mutants through that band, so the run is
+        # pinned as well as bracketed. Seeded, so these are exact.
+        self.assertAlmostEqual(weak, 0.059711583, places=7)
+        self.assertAlmostEqual(strong, 0.966552876, places=7)
+
+    def test_the_integration_schedule_and_frequency_spread_are_exercised(self) -> None:
+        """Reach the branches the default config leaves dead.
+
+        `steady_order` is only ever called here at `frequency_sigma = 0`, so the
+        frequency-draw branch never runs and anything inside it is unreachable
+        rather than untested. The sampling schedule is similarly incidental:
+        at the default cadence `stride` is comfortably above one and
+        `first_sample` is a multiple of it, so `max(1, ...)` and
+        `(step - first_sample) % stride` cannot be told from `max(2, ...)` and
+        `(step + first_sample) % stride`. Each case below breaks one of those
+        coincidences, and all three are seeded and therefore exact.
+        """
+        kernel = reduction.build_uniform_kernel(16, 8.0)
+
+        spread = reduction.ReductionConfig(
+            side=16, total_time=20.0, samples=10, frequency_sigma=0.3
+        )
+        self.assertAlmostEqual(reduction.steady_order(spread, kernel, 1), 0.966097070, places=7)
+
+        # stride == 1, so `max(1, ...)` is load-bearing.
+        unit_stride = reduction.ReductionConfig(side=16, total_time=2.0, samples=100)
+        self.assertAlmostEqual(
+            reduction.steady_order(unit_stride, kernel, 1), 0.927370715, places=7
+        )
+
+        # stride == 3 with first_sample not a multiple of it, so the sign in
+        # `(step - first_sample) % stride` decides which steps are sampled.
+        offset = reduction.ReductionConfig(side=16, total_time=2.0, samples=30)
+        self.assertAlmostEqual(reduction.steady_order(offset, kernel, 1), 0.925655848, places=7)
 
     def test_the_production_grid_brackets_the_scalar_threshold(self) -> None:
         grid = reduction.production_couplings()

@@ -156,10 +156,19 @@ class ChaosPropertyTest(unittest.TestCase):
     def test_property_circular_correlation_symmetry(
         self, first: np.ndarray, second: np.ndarray
     ) -> None:
+        # The guard counts distinct floats, but degeneracy is circular: [-pi, pi]
+        # is two values and one angle, so samples that pass it can still centre
+        # to all-zero sines and be refused. Refusal is symmetric too -- it is a
+        # property of the centred samples, not of the argument order -- so the
+        # degenerate branch asserts that rather than returning from the test.
         if len(set(np.round(first, 4))) > 1 and len(set(np.round(second, 4))) > 1:
-            self.assertAlmostEqual(
-                circular_correlation(first, second), circular_correlation(second, first), places=10
-            )
+            try:
+                forward = circular_correlation(first, second)
+            except ValueError:
+                with self.assertRaises(ValueError):
+                    circular_correlation(second, first)
+                return
+            self.assertAlmostEqual(forward, circular_correlation(second, first), places=10)
 
     @given(st.floats(min_value=-np.pi, max_value=np.pi), st.floats(min_value=0.1, max_value=10.0))
     @settings(deadline=None)
