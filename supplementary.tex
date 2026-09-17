@@ -51,7 +51,7 @@ The following routes connect the article to the detailed results:
 \end{itemize}
 Table~S1 maps claims to Lean declarations. Witnesses demonstrate their hypotheses on the named models; they need not share a physical implementation. Source code and saved numerical summaries are maintained at \url{https://github.com/bobaseb/coupling_gated_cortical_coherence}.
 
-\section{Macroscopic Scaling and Kuramoto Phase Synchronization}
+\section{Macroscopic scaling and Kuramoto phase synchronization}
 \label{sec:supp-phase}
 We posit a continuous macroscopic coupling description. We model the local phases $\theta_i$ as coupled non-linear oscillators via the Kuramoto model.
 
@@ -317,7 +317,7 @@ One field of the structure is deliberately left free and is marked \texttt{[MODE
 
 That the choice is nonetheless a physical input is stated as a theorem rather than left as a remark: \S6 exhibits a second instance over the same triangulation, tensor and regions, differing only in that field, for which the partition identity again holds while every edge weight differs (\texttt{gridThermo\_\allowbreak magnitude\_\allowbreak matters}). The remaining constraint, non-negativity, is the discrete shadow of an energy condition and is what makes the induced couplings a legal Kuramoto coupling.
 
-\section{Global Sections and the Unity of Consciousness}
+\section{Global sections and the unity of consciousness}
 \label{sec:supp-compatibility}
 Phase synchronization does not imply overlap compatibility. The model represents global consistency by gluing compatible local descriptions; its identification with conscious unity remains a separate stipulation.
 
@@ -605,7 +605,7 @@ Thus the theorem limits guaranteed response by a deadline and leaves static
 gluing intact. Physical communication paths, round durations and relevant
 deadlines require a separate model of the implementation.
 
-\section{Reflexive Topology and the Self}
+\section{Reflexive topology and the self}
 \label{sec:supp-self}
 Self-representation is an additional relation between the glued global state and an encoding within it. The model specifies an encoding and readout whose composite fixes that state; contraction gives uniqueness. A dissipation bound imposes neither the encoding nor its accuracy.
 
@@ -847,7 +847,7 @@ measurement separates none of the three.  This exhibits finite sampled escape to
 coherent branch; it proves no stability or dynamical-selection theorem.
 
 Second, 1,000 ensembles were swept from $N=\chaosNMin$ to $N=\chaosNMax$ at
-$K=1$ and $K=3$.  In the subcritical control, mean order fell from
+$K=1$ and $K=3$ (Fig.~\ref{fig:propagation-of-chaos}).  In the subcritical control, mean order fell from
 \chaosSubOrderLowN{} to \chaosSubOrderHighN{} and absolute circular pair
 correlation from \chaosSubCorrelationLowN{} to \chaosSubCorrelationHighN.
 The matched-sample sliced joint--product distance changed only from
@@ -1423,12 +1423,13 @@ A finite stochastic control asks whether fixing total coupling while shortening 
 
 Rerunning the transition band and the lengths above it on a $\spatialRefinedSide\times\spatialRefinedSide$ sheet of the same extent --- half the spacing, so a given physical length spans twice as many cells --- leaves the boundary at \spatialRefinedCriticalDecay~mm, \spatialRefinedBoundaryRatio{} times its coarse value and \spatialRefinedCriticalDecayCells{} spacings on the finer grid. The operational crossing is thus nearly unchanged under this one refinement. Two threshold interpolants agreeing is not convergence of the dynamics they interpolate between: at \spatialSharedCoherentDecay~mm, the shortest sampled length from which both sheets stay coherent, steady order is \spatialSharedCoarseOrder{} on the coarse sheet against \spatialSharedRefinedOrder{} on the finer one, and the refined crossing is still only \spatialRefinedCriticalDecayCells{} cells wide. The transition-local trajectories are metastable and non-monotone on both sheets, so that number is an operational boundary rather than a critical-point estimate with statistical precision.
 
-At the empirical controls 0.1, 0.2 and 0.3~mm, steady $r$ was respectively \spatialOrderOne, \spatialOrderTwo{} and \spatialOrderThree, and winding-defect density was at most $\spatialDefectMaximum$. From 0.1~mm out to the sweep's longest range \spatialPlateauMax~mm, which is \spatialPlateauExtentRatio times the sheet's extent, steady order spans only \spatialPlateauSpread, so the empirical band sits inside a saturated plateau rather than near a boundary. Thus this finite, single-seed parameter sweep does not show fragmentation in the empirical decay-length band. It neither measures cortex nor proves a transition, and it leaves seed dependence and the near-boundary metastability unresolved.
+At the empirical controls 0.1, 0.2 and 0.3~mm (Fig.~\ref{fig:spatial-kernel}), steady $r$ was respectively \spatialOrderOne, \spatialOrderTwo{} and \spatialOrderThree, and winding-defect density was at most $\spatialDefectMaximum$. From 0.1~mm out to the sweep's longest range \spatialPlateauMax~mm, which is \spatialPlateauExtentRatio times the sheet's extent, steady order spans only \spatialPlateauSpread, so the empirical band sits inside a saturated plateau rather than near a boundary. Thus this finite, single-seed parameter sweep does not show fragmentation in the empirical decay-length band. It neither measures cortex nor proves a transition, and it leaves seed dependence and the near-boundary metastability unresolved.
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.96\linewidth]{simulations/figures/spatial_kernel/spatial_kernel_sweep.png}
 \caption{Finite-sheet heuristic evidence under a row-normalised spatial kernel. The left panel shows global order traces and the $1/\sqrt{N}$ finite-size floor; the right compares steady order and wrapped plaquette winding-defect density across physical decay lengths. The shaded band is 0.1--0.3~mm. This sampled simulation establishes no general transition or biological identification.}
+\label{fig:spatial-kernel}
 \end{figure}
 
 \subsection{Critics}
@@ -1496,7 +1497,7 @@ here. Point-supported vanishing is about measure-zero support, and the strict
 wiring gap requires the specified missing pair. Neither result excludes
 digital hardware from approximating field dynamics or supporting consciousness.
 
-\section{Symmetry Breaking and the Emergence of Boundaries}
+\section{Symmetry breaking and the emergence of boundaries}
 A boundary is one of the physical structures the broader composition assumes. Under the stated vacuum and connectedness hypotheses, a field reaching two vacuum components must leave the vacuum somewhere. Relating that locus to a finite information-processing register is a separate physical premise; the result supplies neither a general condition for agency nor a derivation of the cortical coupling model.
 
 Let $\mathcal{M}$ be a pseudo-Riemannian manifold representing spacetime, and let $\phi: \mathcal{M} \to \mathcal{V}$ be a physical field mapping to a vacuum manifold $\mathcal{V}$ (the space of energy minima). Let $G$ be a continuous symmetry group acting on $\mathcal{V}$.
@@ -1514,7 +1515,7 @@ Separately, \texttt{spontaneous\_\allowbreak symmetry\_\allowbreak breaking} sho
 
 \texttt{Examples}~\S11.1 then supplies the witness for the $\pi_0$ theorem on the same well. The vacuum manifold is \emph{computed} there, \texttt{wellVacuum\_\allowbreak eq} proving $\texttt{DynamicalVacuum}\ V = \{-1,1\}$ exactly rather than merely containing both minima --- which matters, because a larger vacuum set might have been connected --- and \texttt{wellVacuum\_\allowbreak separated} proves the disconnection in the form the theorem consumes, by the observation that a preconnected subset of $\mathbb{R}$ spanning $-1$ and $1$ contains $0$, which is not a minimum. \texttt{wellV\_\allowbreak domain\_\allowbreak wall} is the resulting statement about \emph{every} continuous field on \emph{any} connected substrate reaching both minima. Non-emptiness of that class is checked separately rather than assumed: the clipped identity on $\mathbb{R}$ satisfies the hypotheses, and \texttt{kink\_\allowbreak zero\_\allowbreak notMem} locates its forced wall at the origin. These results concern vacuum membership and domain walls; they construct no conserved quantity.
 
-\section{The Thermodynamic Constraint: Landauer's Principle}
+\section{The thermodynamic constraint: Landauer's principle}
 For a finite effective register, the number of distinguishable histories that can be retained is bounded. This does not imply that every update erases. The capacity theorem states that a distribution on a finite state space $X$ carries at most $\log|X|$ nats, with equality only at the uniform law (\texttt{shannon\_\allowbreak entropy\_\allowbreak eq\_\allowbreak log\_\allowbreak card\_\allowbreak iff}), and a perturbation stream of length $k$ over an alphabet $P$ with $|P|^k > |X|$ therefore cannot be recorded injectively (\texttt{absorb\_\allowbreak not\_\allowbreak injective}), whatever the update map is and even when every individual step of it is reversible.
 
 Let the global phase space $\Omega = \Omega_{sys} \times \Omega_{bath}$ undergo globally reversible Hamiltonian dynamics, modeled as an injective mapping $f: \Omega \to \Omega$.

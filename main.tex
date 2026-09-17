@@ -57,13 +57,15 @@ How could activity distributed across cortex support one experience? A field acc
 
 We distinguish three requirements. \emph{Coherence} concerns collective phase order. \emph{Compatibility} concerns whether local descriptions agree where their domains overlap. \emph{Self-representation} concerns whether the resulting state carries an accurate internal reconstruction of itself. We propose the latter two relations as formal correlates of conscious unity and a minimal self; their interpretation requires evidence beyond the phase model.
 
+Unity has been approached differently elsewhere: integrated information theory treats integration and exclusion as constitutive \cite{tononi2016}, global-workspace accounts tie availability to broadcast \cite{baars1997,dehaene2014}, and predictive-processing accounts derive both from a hierarchical generative model \cite{friston2010}. Here the three requirements are kept apart rather than derived from one another, so that each carries its own assumptions and admits its own measurement; Section~\ref{sec:scope} returns to the comparison.
+
 Consider reaching for a cup. A visual description of its location and a description of the hand's relation to it can agree about where the cup is while contributing different contents. Synchronizing the two processes would leave disagreement about that shared quantity unresolved. An internal representation must additionally locate the perceiver within the represented situation. This example motivates the requirements; the mathematical constructions use spatial measures and fields in real normed vector spaces, whose identification with perceptual content is a further modelling task.
 
 The mathematical contribution is to specify connections between these requirements and the assumptions each connection needs. A declared actuator's stored energy bounds its mean coupling. Phase encoders shared on overlaps convert phase order into a bound on content disagreement. Compatible spatial measures have a unique global extension; approximate agreement controls a specified global selection. A contracting reconstruction makes that extension its unique fixed point only if it accurately reconstructs the extension. Accuracy across a family of states imposes a further condition on the information retained by the encoding.
 
 The empirical contribution is to identify what observations can decide. Stationary phase distributions can be shared by stronger coupling, weaker diffusion and a matched common drive. Finite ramps change the observable onset. Coherent adaptation can lose alignment with a designated environmental template, and a compatibility estimator needs diagnostics that distinguish content from decoder artifacts. These findings determine the measurements needed to test the proposed connections.
 
-Sections~\ref{sec:field}--\ref{sec:self} develop the three requirements together (Fig.~\ref{fig:chain}). Section~\ref{sec:observations} examines their observables, before Section~\ref{sec:prediction} develops the cortical hypothesis and an awakening experiment. The hypothesis is that extracellular contraction increases field-mediated coupling; its direction, rate and relation to recovery require independent calibration. Section~\ref{sec:chain} states the thermodynamic composition and all eight connecting hypotheses per branch. Supporting models of feedback, learning and resource supply have distinct state spaces and assumptions. Supplemental Material organizes their constructions and controls behind the claims they support.
+Sections~\ref{sec:field}--\ref{sec:self} develop the three requirements together (Fig.~\ref{fig:chain}). Section~\ref{sec:chain} composes them, stating the thermodynamic constraints and all eight connecting hypotheses per branch; its supporting models of feedback, learning and resource supply have distinct state spaces and assumptions. Section~\ref{sec:observations} then examines what the observables can establish, before Section~\ref{sec:prediction} develops the cortical hypothesis and an awakening experiment. The hypothesis is that extracellular contraction increases field-mediated coupling; its direction, rate and relation to recovery require independent calibration. Supplemental Material organizes the constructions and controls behind the claims they support.
 
 \begin{figure}[htbp]
 \centering
@@ -169,7 +171,7 @@ For overlapping patches $U$ and $V$, compatibility means that restricting either
 
 In the cup example, visual and reaching descriptions must express a shared quantity, such as cup location, in common coordinates. Restriction retains that quantity while dropping details particular to each description. Agreement permits surface appearance and hand configuration to contribute to one situation. The mathematical counterexample assigns the same phase to every patch while two local mass profiles disagree on a shared site. Those profiles have no common extension. Because they are chosen independently of phase, synchrony places no constraint on their disagreement.
 
-This distinction limits the biological interpretation. Receptive territories and content domains must be related to spatial patches, and the descriptions must support the required extension. Matching overlap marginals of decoded probability laws need not determine a unique global joint distribution \cite{abramsky2011}. The spatial-measure result supplies a precise construction; applying it to perceptual content requires a justified content model.
+This distinction limits the biological interpretation. Receptive territories and content domains must be related to spatial patches, and the descriptions must support the required extension. Matching overlap marginals of decoded probability laws need not determine a unique global joint distribution \cite{abramsky2011}.
 
 \subsection{When coherence does constrain content}
 \label{sec:content-connection}
@@ -190,13 +192,15 @@ Content and observation discrepancies bounded by $\varepsilon$ and $\delta$ give
  \varepsilon_n\leq(1-\eta)^n\varepsilon_0+\delta.
  \label{eq:main-content-retention}
 \end{equation}
-Thus agreeing observations preserve exact compatibility and, for $\eta>0$, reduce an initial mismatch. Approximate observations leave a nondecaying term in the error bound. Taking a uniform bound on Eq.~\eqref{eq:main-content-coherence} connects this update to the phase process. These are mechanisms for specified vector contents in shared coordinates; their neural meaning and relevance to experience remain to be established.
+Thus agreeing observations preserve exact compatibility and, for $\eta>0$, reduce an initial mismatch. Approximate observations leave a nondecaying term in the error bound. Taking a uniform bound on Eq.~\eqref{eq:main-content-coherence} connects this update to the phase process.
 
 \subsection{What approximate agreement determines}
 
 Exact gluing requires exact restrictions. For nonnegative profiles on a finite substrate, suppose every overlap discrepancy is at most $\varepsilon$ in uniform distance. Weights that vanish outside their patches and sum to one at each site select a global profile by weighted averaging. The selection lies within $\varepsilon$ of each patch there, and any two such selections differ by at most $\varepsilon$, independently of cover multiplicity. An $L$-Lipschitz readout consequently varies by at most $L\varepsilon$ across selections.
 
-At zero tolerance, the selection is the unique exact extension. At every positive tolerance there are families with no exact extension; selection then gives an approximation whose dependence on weights is bounded. Supplemental Material gives a three-site witness attaining the bound. The mass-profile construction uses the scalar case of the content dynamics and additionally requires nonnegativity of the initial profiles and observations. The general vector result supplies no identification with the spatial-measure sheaf. Neither construction selects the neural cover or decoder.
+At zero tolerance, the selection is the unique exact extension. At every positive tolerance there are families with no exact extension; selection then gives an approximation whose dependence on weights is bounded. Supplemental Material gives a three-site witness attaining the bound. The mass-profile construction uses the scalar case of the content dynamics and additionally requires nonnegativity of the initial profiles and observations. The general vector result supplies no identification with the spatial-measure sheaf.
+
+These constructions concern declared objects: a specified cover, contents valued in a normed space, and encoders related on overlaps. They select neither the neural cover nor the decoder. Identifying their contents with perceptual content, and establishing that the identification bears on experience, is a further modelling task; Section~\ref{sec:observations} sets out what a measurement of it would have to establish.
 
 \section{Self-representation: a state that models itself}
 \label{sec:self}
@@ -210,7 +214,7 @@ Compatibility gives a global state. Reflexivity relates it to an encoding within
 \end{equation}
 The region and readout are fixed across the state space. If $F$ contracts and fixes the section $s_*$ formed from the local descriptions, Banach's theorem makes $s_*$ its unique fixed point \cite{banach1922}. The formal bridge E89 supplies the contraction and $F(s_*)=s_*$; restriction resonance is separate. Supercritical coupling makes the stipulated factor $q=e^{-(K-2D)\tau/2}$ less than one for $\tau>0$. Constructing a map with that factor remains a modelling obligation.
 
-In the cup example, the global state includes the represented scene and the perceiver's relation to it. A local encoding must retain enough information for the readout to recover that modelled state; cup position alone would be insufficient if hand configuration and viewpoint could not be reconstructed. Here \emph{prediction} names a reconstruction map. Interpreting it as temporal neural prediction requires dynamics.
+In the cup example, the global state includes the represented scene and the perceiver's relation to it. A local encoding must retain enough information for the readout to recover that modelled state; cup position alone would be insufficient if hand configuration and viewpoint could not be reconstructed.
 
 For the same map with Lipschitz factor $q<1$, approximate reconstruction gives
 \begin{equation}
@@ -219,7 +223,7 @@ For the same map with Lipschitz factor $q<1$, approximate reconstruction gives
  d(s,s_*)\leq\frac{\varepsilon}{1-q}.
  \label{eq:approximate-self}
 \end{equation}
-At the stipulated rate this radius grows as $2\varepsilon/((K-2D)\tau)$ near threshold, for fixed positive $\varepsilon$ and $\tau$. Exact uniqueness survives while the error guarantee weakens. A biological interpretation must specify the represented variables, metric and acceptable fidelity; changing readouts need a further model.
+At the stipulated rate this radius grows as $2\varepsilon/((K-2D)\tau)$ near threshold, for fixed positive $\varepsilon$ and $\tau$. Exact uniqueness survives while the error guarantee weakens.
 
 \subsection{Reconstruction across a family of states}
 \label{sec:reconstruction-family}
@@ -232,18 +236,111 @@ Sensitivity can be required quantitatively. Declare relevant macrostates, an enc
 \end{equation}
 Thus $M$ relevant states pairwise more than $2\varepsilon$ apart require at least $M$ distinguishable codes; an alphabet of at most $2^b$ codes requires $M\leq2^b$. Applied to the reflexive boundary, $E$ is its local encoding and $R\circ E$ is the existing self-prediction map.
 
-This is an additional accuracy criterion on a family, with no requirement for multiple exact fixed points. A blind encoder or constant readout fails it for separated states despite having a unique fixed point. The family, metric and tolerance are inputs; interpreting the code count as physical memory capacity requires a hardware model.
+This is an additional accuracy criterion on a family, with no requirement for multiple exact fixed points. A blind encoder or constant readout fails it for separated states despite having a unique fixed point.
 
 \subsection{Agreement after a change takes communication}
 
 Snapshot compatibility does not specify how quickly descriptions respond when a shared quantity changes. In a synchronous network whose updates read only the site's own state and declared neighbours' messages, two initial configurations agreeing on a site's causal past through $T$ rounds produce the same state there at round $T$. If two fresh interventions outside that past require reports separated by more than $2\varepsilon$, no report from that site can be within $\varepsilon$ of both. This follows from the reconstruction bound in Section~\ref{sec:reconstruction-family}.
 
-A three-site delay line witnesses failure after one round and exact reporting after two; cutting the path prevents delivery at every round. A report may still happen to be correct about one fixed world. The bound concerns responsiveness across interventions. Applying it requires a justified communication graph, observation paths and deadline.
+A three-site delay line witnesses failure after one round and exact reporting after two; cutting the path prevents delivery at every round. A report may still happen to be correct about one fixed world. The bound concerns responsiveness across interventions.
+
+Throughout this section \emph{prediction} names a reconstruction map; reading it as temporal neural prediction would require dynamics. The relevant family of states, the metric, the tolerance, the communication graph and the deadline are all declared inputs, as are the represented variables and the fidelity counted as accurate. Reading the resulting code count as physical memory capacity requires a hardware model, and a readout that varies with the state requires a further one.
+
+\section{Thermodynamics and composition}
+\label{sec:chain}
+
+The phase and representation results concern coupling, content disagreement and reconstruction error. Thermodynamics constrains the physical operations that could implement them. Finite-register capacity obeys $H(p)\leq\log|X|$; erasure heat depends on specified system--bath assumptions \cite{landauer1961,norton2005,shenker2000}. A separate boundary result concerns a field reaching disconnected vacuum components \cite{kibble1976}. The composition connects these objects through the explicit hypotheses in Table~\ref{tab:summary}.
+
+\subsection{Feedback changes the information constraint}
+
+For passive memory $X_t$ driven by an environmental signal $S_t$, the predictive bound is
+\begin{equation}
+ W_{\mathrm{diss}}\geq k_BT\left[I(X_t;S_t)-I(X_t;S_{t+1})\right].
+ \label{eq:predictive}
+\end{equation}
+The Markov structure $X_t\to S_t\to S_{t+1}$ makes the bracket nonnegative \cite{still2012}. Zero retained information also satisfies it, so a task and a learning rule require additional specification. Relating this bound to Landauer heat requires a common thermal scale and budget, and memory waste bounded by erased entropy.
+
+An acting agent changes the signal it will receive. Specify policy, world, observation and memory-update channels. For their finite laws,
+\begin{equation}
+\begin{split}
+ I(X_t;S_t)-I(X_t;S_{t+1})
+ ={}&I(X_t;S_t\mid S_{t+1})\\
+ &-I(X_t;S_{t+1}\mid S_t).
+\end{split}
+\label{eq:feedback-information}
+\end{equation}
+The second conditional term vanishes in the passive model. With feedback, the signed difference can be negative as action creates correlations with the future. A causal reading requires an environmental state sufficient to describe the relevant dynamics.
+
+For a controlled substep, the active thermodynamic bound instead uses the joint entropy. Forward and reverse path laws give
+$\Sigma=D_{KL}(P_F\|P_R)=\Delta H(X,S)+\langle Q\rangle/\theta\geq0$
+under local detailed balance, with $\theta=k_BT>0$ and heat positive into the reservoir \cite{horowitz2014,ito2013}. Every forward path of positive probability must have a positive-probability reverse for this finite identity. A missing reverse gives infinite divergence. The supplement develops the support conditions and composes actuation with memory updates on their shared intermediate law.
+
+\subsection{Learning and repeated operation need explicit resources}
+
+The finite examples distinguish selecting a feasible policy, relaxing a register toward an encoded reward, and learning an unknown task from observations. The observational learner acquires correlation with an environmental parameter while its action marginal stays uniform. A continuing model executes actuation, observation-driven learning and reset in sequence, preserving above-chance performance at a positive work cost per cycle.
+
+A phase-derived sensor makes the informational distinction concrete: an informative readout and a blind control have the same phase order but different learning performance. Attaching the learner's register to the actuator of Section~\ref{sec:installation} ties reward, installed kernel and work to its own executed law. The learning witness rises above the necessary installed-energy bound while its matched control remains on the exclusion line. These finite constructions, detailed in Supplemental Material, leave the evolving feedback between phase dynamics, installation and sensing to be specified.
+
+For that model, common energy $E$, thermal scale $\theta$, local detailed balance and positive support at each stage give
+\begin{equation}
+ \theta[H(p_0)-H(p_N)]\leq Q_{<N}
+ =W_{<N}+\langle E\rangle_0-\langle E\rangle_N
+ \leq B+\langle E\rangle_0-\langle E\rangle_N,
+ \label{eq:continuing-budget}
+\end{equation}
+where expected cumulative work stays within the supplied allowance $B$ at every prefix. This bounds expectations. Separate constructions track a store on each trajectory, include finite sources, charge sensor clearing and prepend preparation. They specify when a mean allowance represents an available resource; an expected budget alone permits overdrawn paths.
+
+These constructions establish costs for their declared processes. A finite source with a positive net cost permits only finitely many funded cycles, while continuing operation requires replenishment. Register--bath witnesses also distinguish actual bath-energy transfer from transition-log heat. Identifying a work store, an erasure budget and the installation energy of Section~\ref{sec:installation} requires physical relations that these separate models do not supply automatically.
+
+\subsection{What the composition establishes}
+
+The passive theorem \texttt{chain} and feedback theorem \texttt{chain\_active} each accept eight connecting implications (Table~\ref{tab:summary}). In the active branch, a named substep at the register's thermal scale satisfies
+\begin{equation}
+ \theta>0,\qquad \theta[H(p)-H(p')]\leq\langle Q\rangle\leq B,
+ \label{eq:active-chain-bound}
+\end{equation}
+with $B$ the register's heat. The upper allocation follows from a ledger whose operations deliver that total heat to one reservoir and whose other operations do not increase joint entropy. Those ledger assumptions are physical inputs. Neither Landauer's lower bound nor microscopic reversibility supplies them.
+
+\begingroup
+\nolinenumbers
+\singlespacing
+\small
+\setlength{\LTcapwidth}{\linewidth}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.14\linewidth}>{\raggedright\arraybackslash}p{0.20\linewidth}>{\raggedright\arraybackslash}p{0.56\linewidth}}
+\caption{Connecting hypotheses, eight per branch, and the installed-energy consequence. The branches share E12, E23 and E56--E89. Exact overlap compatibility and the encoding--readout structure are additional inputs. Supplemental Material, Table~S1, maps the node-level results.}
+\label{tab:summary}\\
+\hline
+Connection & Status & Required assumption \\
+\hline
+\endfirsthead
+\multicolumn{3}{l}{\small\itshape Table \thetable\ (continued)}\\
+\hline
+Connection & Status & Required assumption \\
+\hline
+\endhead
+\hline
+\endfoot
+E12 & Physical premise & A finite-capacity system realizes a field leaving its vacuum manifold. Capacity and boundary are independent roots. \\
+E23 & Bridge assumption & The boundary is associated with a finite register whose update leaves states unreachable. \\
+E34 / E34Active & Bridge assumption & Passive: predictive memory at the register's thermal scale and heat budget, with nonzero waste. Active: positive paths, local detailed balance and allocation of register heat to the named substep; the allocation uses the ledger identity and other operations' compressiveness. \\
+E45 / E45Active & Modelling assumption & Convergent spatial coupling energies. Declared mode hardware supplies a kernel limit for either branch. A learning witness computes installation and work from its own executed law. Refinement and physical identifications remain inputs. \\
+E56 & Physical commitment & A specified physical field realizes the limiting coupling and satisfies the kernel conditions. \\
+E67 & Physical commitment & That field operates above the synchronization threshold. \\
+E78 & Bridge assumption & Coherence relaxes the supplied cover at coupling at least the named mean-field value. Shared phase encoders bound vector-content mismatch; the exact cover and timely responsiveness remain separate requirements. \\
+E89 & Modelling assumption & A map mediated by local self-encoding fixes the glued section and has the stipulated Lipschitz factor $q<1$. Reconstruction over a declared family imposes an additional code-separation criterion. \\
+Installed energy & Conditional theorem & Under Section~\ref{sec:installation}'s occupancy and mode-price conditions, E56 and E67 require $U_{\mathrm{inst}}>2D/\kappa$. The learning witness clears this necessary bound; its matched control does not. Neither physical premise follows. \\
+\end{longtable}
+\endgroup
+
+
+Both branches also take a thermodynamic cover carrying exact overlap compatibility and a reflexive boundary specifying encoding and readout. They conclude \texttt{UnifiedSelf}: the glued section is the unique fixed point of self-prediction. Compatibility and accuracy at that section enter as premises; uniqueness follows. Identifying encoding with restriction needs the separate resonance condition of Eq.~\eqref{eq:selfmap}.
+
+Joint witnesses combine a register, boundary, refining mesh and small spatial cover; active witnesses add controlled thermal updates and a priced installation. They establish satisfiability under their stated identifications. Mesh convergence follows from refinement data, and the witnesses establish no common cortical mechanism. Supplemental Material maps the claims to their Lean declarations and records the counterexamples. The development declares no additional axioms beyond its libraries' foundational axioms.
 
 \section{What the observations establish}
 \label{sec:observations}
 
-The three requirements concern different objects: phase dynamics, local descriptions and internal encodings. Their observables must retain these distinctions. The following controls show which mechanisms remain indistinguishable, which temporal approximations fail, and what independent content measurements must establish.
+The composition holds under its premises. Whether observation can establish those premises is a separate question, and the three requirements it connects concern different objects: phase dynamics, local descriptions and internal encodings. Their observables must retain these distinctions. The following controls show which mechanisms remain indistinguishable, which temporal approximations fail, and what independent content measurements must establish.
 
 \subsection{Stationary distributions leave the mechanism undetermined}
 \label{sec:identifiability}
@@ -361,98 +458,11 @@ The physical test has six requirements:
 
 Failure of the concentration--coherence relation over an informative range constrains the density model. Failure of the calibrated geometry--coupling association constrains the physical gate. Better prediction of independent recovery by a competing mechanism counts against its proposed role. A favorable outcome still leaves the content of coordinated activity to be explained.
 
-\section{Thermodynamics and composition}
-\label{sec:chain}
-
-The phase and representation results concern coupling, content disagreement and reconstruction error. Thermodynamics constrains the physical operations that could implement them. Finite-register capacity obeys $H(p)\leq\log|X|$; erasure heat depends on specified system--bath assumptions \cite{landauer1961,norton2005,shenker2000}. A separate boundary result concerns a field reaching disconnected vacuum components \cite{kibble1976}. The composition connects these objects through the explicit hypotheses in Table~\ref{tab:summary}.
-
-\subsection{Feedback changes the information constraint}
-
-For passive memory $X_t$ driven by an environmental signal $S_t$, the predictive bound is
-\begin{equation}
- W_{\mathrm{diss}}\geq k_BT\left[I(X_t;S_t)-I(X_t;S_{t+1})\right].
- \label{eq:predictive}
-\end{equation}
-The Markov structure $X_t\to S_t\to S_{t+1}$ makes the bracket nonnegative \cite{still2012}. Zero retained information also satisfies it, so a task and a learning rule require additional specification. Relating this bound to Landauer heat requires a common thermal scale and budget, and memory waste bounded by erased entropy.
-
-An acting agent changes the signal it will receive. Specify policy, world, observation and memory-update channels. For their finite laws,
-\begin{equation}
-\begin{split}
- I(X_t;S_t)-I(X_t;S_{t+1})
- ={}&I(X_t;S_t\mid S_{t+1})\\
- &-I(X_t;S_{t+1}\mid S_t).
-\end{split}
-\label{eq:feedback-information}
-\end{equation}
-The second conditional term vanishes in the passive model. With feedback, the signed difference can be negative as action creates correlations with the future. A causal reading requires an environmental state sufficient to describe the relevant dynamics.
-
-For a controlled substep, the active thermodynamic bound instead uses the joint entropy. Forward and reverse path laws give
-$\Sigma=D_{KL}(P_F\|P_R)=\Delta H(X,S)+\langle Q\rangle/\theta\geq0$
-under local detailed balance, with $\theta=k_BT>0$ and heat positive into the reservoir \cite{horowitz2014,ito2013}. Every forward path of positive probability must have a positive-probability reverse for this finite identity. A missing reverse gives infinite divergence. The supplement develops the support conditions and composes actuation with memory updates on their shared intermediate law.
-
-\subsection{Learning and repeated operation need explicit resources}
-
-The finite examples distinguish selecting a feasible policy, relaxing a register toward an encoded reward, and learning an unknown task from observations. The observational learner acquires correlation with an environmental parameter while its action marginal stays uniform. A continuing model executes actuation, observation-driven learning and reset in sequence, preserving above-chance performance at a positive work cost per cycle.
-
-A phase-derived sensor makes the informational distinction concrete: an informative readout and a blind control have the same phase order but different learning performance. Attaching the learner's register to the actuator of Section~\ref{sec:installation} ties reward, installed kernel and work to its own executed law. The learning witness rises above the necessary installed-energy bound while its matched control remains on the exclusion line. These finite constructions, detailed in Supplemental Material, leave the evolving feedback between phase dynamics, installation and sensing to be specified.
-
-For that model, common energy $E$, thermal scale $\theta$, local detailed balance and positive support at each stage give
-\begin{equation}
- \theta[H(p_0)-H(p_N)]\leq Q_{<N}
- =W_{<N}+\langle E\rangle_0-\langle E\rangle_N
- \leq B+\langle E\rangle_0-\langle E\rangle_N,
- \label{eq:continuing-budget}
-\end{equation}
-where expected cumulative work stays within the supplied allowance $B$ at every prefix. This bounds expectations. Separate constructions track a store on each trajectory, include finite sources, charge sensor clearing and prepend preparation. They specify when a mean allowance represents an available resource; an expected budget alone permits overdrawn paths.
-
-These constructions establish costs for their declared processes. A finite source with a positive net cost permits only finitely many funded cycles, while continuing operation requires replenishment. Register--bath witnesses also distinguish actual bath-energy transfer from transition-log heat. Identifying a work store, an erasure budget and the installation energy of Section~\ref{sec:installation} requires physical relations that these separate models do not supply automatically.
-
-\subsection{What the composition establishes}
-
-The passive theorem \texttt{chain} and feedback theorem \texttt{chain\_active} each accept eight connecting implications (Table~\ref{tab:summary}). In the active branch, a named substep at the register's thermal scale satisfies
-\begin{equation}
- \theta>0,\qquad \theta[H(p)-H(p')]\leq\langle Q\rangle\leq B,
- \label{eq:active-chain-bound}
-\end{equation}
-with $B$ the register's heat. The upper allocation follows from a ledger whose operations deliver that total heat to one reservoir and whose other operations do not increase joint entropy. Those ledger assumptions are physical inputs. Neither Landauer's lower bound nor microscopic reversibility supplies them.
-
-\begingroup
-\nolinenumbers
-\singlespacing
-\small
-\setlength{\LTcapwidth}{\linewidth}
-\begin{longtable}{>{\raggedright\arraybackslash}p{0.14\linewidth}>{\raggedright\arraybackslash}p{0.20\linewidth}>{\raggedright\arraybackslash}p{0.56\linewidth}}
-\caption{Connecting hypotheses, eight per branch, and the installed-energy consequence. The branches share E12, E23 and E56--E89. Exact overlap compatibility and the encoding--readout structure are additional inputs. Supplemental Material, Table~S1, maps the node-level results.}
-\label{tab:summary}\\
-\hline
-Connection & Status & Required assumption \\
-\hline
-\endfirsthead
-\multicolumn{3}{l}{\small\itshape Table \thetable\ (continued)}\\
-\hline
-Connection & Status & Required assumption \\
-\hline
-\endhead
-\hline
-\endfoot
-E12 & Physical premise & A finite-capacity system realizes a field leaving its vacuum manifold. Capacity and boundary are independent roots. \\
-E23 & Bridge assumption & The boundary is associated with a finite register whose update leaves states unreachable. \\
-E34 / E34Active & Bridge assumption & Passive: predictive memory at the register's thermal scale and heat budget, with nonzero waste. Active: positive paths, local detailed balance and allocation of register heat to the named substep; the allocation uses the ledger identity and other operations' compressiveness. \\
-E45 / E45Active & Modelling assumption & Convergent spatial coupling energies. Declared mode hardware supplies a kernel limit for either branch. A learning witness computes installation and work from its own executed law. Refinement and physical identifications remain inputs. \\
-E56 & Physical commitment & A specified physical field realizes the limiting coupling and satisfies the kernel conditions. \\
-E67 & Physical commitment & That field operates above the synchronization threshold. \\
-E78 & Bridge assumption & Coherence relaxes the supplied cover at coupling at least the named mean-field value. Shared phase encoders bound vector-content mismatch; the exact cover and timely responsiveness remain separate requirements. \\
-E89 & Modelling assumption & A map mediated by local self-encoding fixes the glued section and has the stipulated Lipschitz factor $q<1$. Reconstruction over a declared family imposes an additional code-separation criterion. \\
-Installed energy & Conditional theorem & Under Section~\ref{sec:installation}'s occupancy and mode-price conditions, E56 and E67 require $U_{\mathrm{inst}}>2D/\kappa$. The learning witness clears this necessary bound; its matched control does not. Neither physical premise follows. \\
-\end{longtable}
-\endgroup
-
-
-Both branches also take a thermodynamic cover carrying exact overlap compatibility and a reflexive boundary specifying encoding and readout. They conclude \texttt{UnifiedSelf}: the glued section is the unique fixed point of self-prediction. Compatibility and accuracy at that section enter as premises; uniqueness follows. Identifying encoding with restriction needs the separate resonance condition of Eq.~\eqref{eq:selfmap}.
-
-Joint witnesses combine a register, boundary, refining mesh and small spatial cover; active witnesses add controlled thermal updates and a priced installation. They establish satisfiability under their stated identifications. Mesh convergence follows from refinement data, and the witnesses establish no common cortical mechanism. Supplemental Material maps the claims to their Lean declarations and records the counterexamples. The development declares no additional axioms beyond its libraries' foundational axioms.
-
 \section{Discussion}
+
+Stated positively, and granting the premises collected in Table~\ref{tab:summary}, the account runs as follows. Extracellular contraction on awakening raises endogenous field amplitude and with it the effective coupling between cortical oscillators. Once that coupling passes $2D$, a coherent phase branch exists and the population settles onto it. Encoders shared where cortical territories overlap turn that phase order into agreement about the quantities the territories describe in common, so the local descriptions glue: there is one state of which each is a restriction. Part of that state encodes the state itself, and a readout of that part reconstructs it accurately enough, and sensitively enough across the states that matter, to make it the unique state the system models itself as being. On this account the glued state is what makes distributed activity one situation, and its accurate self-reconstruction is what gives that situation a perspective.
+
+Every step of that description is conditional, and its conditions are the subject of what follows.
 
 \subsection{Unity and a minimal self as empirical commitments}
 \label{sec:commitment}
@@ -474,6 +484,7 @@ The next physical requirement is a calibrated geometry--coupling relation and re
 The separation results explain why these measurements must be independent. A stationary distribution leaves several recovery mechanisms indistinguishable. Equal phase order can accompany incompatible descriptions or different task information. The tested plasticity rule preserves coherence while losing its designated template. Each finding concerns the specified model and observable; their role is to delimit the evidence needed for the proposed connections.
 
 \subsection{Explanatory scope}
+\label{sec:scope}
 
 Integrated-information, global-workspace and predictive-processing accounts organize unity, access and modelling differently \cite{tononi2016,baars1997,dehaene2014,friston2010}. The present proposal contributes a candidate physical interaction and conditional relations between local content and self-encoding. Gluing and reconstruction permit multiple substrates; the electromagnetic commitment enters through physical calibration. The formalization checks implications under their hypotheses, and its witnesses establish realizability on declared models. They do not together supply a cortical agent.
 
