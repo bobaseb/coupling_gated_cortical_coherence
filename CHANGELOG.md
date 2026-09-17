@@ -20,6 +20,30 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-17 — Recovery benchmark and measurement scope
+
+The square-root time expression is written explicitly for the stationary branch
+evaluated at a changing coupling, `r_ss(K(t))`. Reading it as a recovery trace
+requires a tracking approximation; the threshold crossing alone supplies no
+observable recovery latency. The supplement's claim that tracking is unavailable
+at any rate is restricted to the scanned rates, initialization and tolerance.
+The illustrative geometry/phase time-scale ranges are identified as modelling
+inputs, not measured cortical coupling rates. Fluctuating-coupling findings are
+explicitly finite-horizon observations, with no shifted asymptotic threshold
+claimed.
+
+The awakening protocol now states the dependence-aware calibration requirement
+instead of retaining a 100-site minimum beside evidence of its failure. The
+primer is aligned, including its account of the delay exponent and its status
+table: the stationary von Mises density is classified in Lean, not assumed.
+
+The article develops coherence, compatibility and reconstruction before the
+observational limits and cortical test. The supplement follows that order,
+placing detailed agency/resource models behind the composition and retaining
+all formal results and numerical controls. Supplementary theorem references
+are automatic after reordering. No proof, reference or numerical artifact is
+added; the editorial record is `tasks/manuscript_integration.md`.
+
 ## 2026-09-16 — Three claims the closed numerical extensions withdraw
 
 N7-N9 and N12-N13 each measured something a published sentence asserted without

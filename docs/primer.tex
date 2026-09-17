@@ -145,13 +145,14 @@ the passage from coarse-graining to the same fixed state. Their conclusion
 and its identification with experience have different statuses:
 the first is conditional mathematics, the second a philosophical commitment.
 
-The main article presents the installation condition with the phase threshold,
-then recovery tests, compatible content and self-reconstruction. Its agency
-summary points to separate technical models in the supplement: feedback
-balances, policy selection and learning, repeated operation and resources, and
-the bridges to coupling. This primer follows the mathematical prerequisites and
-explains those models individually. Their different stores, reservoirs and
-encoders should be identified only where a model explicitly connects them.
+The main article develops coherence and its installation condition, compatible
+content, and self-reconstruction together. It then examines what their
+observables can establish before developing the cortical hypothesis and an
+awakening experiment. The supplement follows that order, with the detailed
+agency and resource models supporting the final composition. This primer
+follows the mathematical prerequisites and explains those models individually.
+Their different stores, reservoirs and encoders should be identified only where
+a model explicitly connects them.
 
 \subsection{Nine nodes, two thermodynamic branches}
 
@@ -2789,8 +2790,9 @@ $m$ and height $b$ to be found. One then checks whether that form satisfies the
 problem. Calling a form an ansatz does not prove it, and does not mean it is
 an arbitrary guess: an equation or symmetry can motivate the choice.
 
-Here the stationary ansatz proposes a circular probability density proportional
-to $e^{a\cos(\theta-\psi)}$. The cosine is largest at $\psi$, so positive
+The proposed circular density is proportional to
+$e^{a\cos(\theta-\psi)}$. In the stated stationary model this form can be
+derived, as the next subsection explains. The cosine is largest at $\psi$, so positive
 $a$ weights nearby angles more heavily. At $a=0$ every angle gets equal
 weight; increasing $a$ concentrates the distribution around $\psi$. The
 quantity $a$ is called its \emph{concentration}. It is different from $r$:
@@ -2868,8 +2870,8 @@ with diffusion. Every distributional prediction the framework makes flows from
 it.
 
 \statement
-For identical frequencies in the rotating frame, the assumed stationary
-density is the one above with
+For identical frequencies in the rotating frame, the positive normalized
+stationary density has the form above with
 \begin{equation}
  a=\frac{Kr}{D},\qquad r=R(a):=\frac{I_1(a)}{I_0(a)} .
  \label{eq:selfcons}
@@ -3264,16 +3266,19 @@ tracking; in thermodynamics the same word can instead mean no heat exchange.
 
 \statement
 If the coupling $K(t)$ rises through $\Kc$ at time $t_0$ with non-zero speed
-$\dot K(t_0)>0$, and the phase distribution \emph{tracks} the coherent
-stationary branch, then substituting $K(t)-\Kc\approx\dot K(t_0)(t-t_0)$ into
-\eqref{eq:onset} gives
+$\dot K(t_0)>0$, substituting $K(t)-\Kc\approx\dot K(t_0)(t-t_0)$ into
+\eqref{eq:onset} gives the stationary benchmark at fixed $D$:
 \begin{equation}
- r(t)\;\sim\;\sqrt{\frac{\dot K(t_0)}{D}}\;(t-t_0)^{1/2},
+ r_{\mathrm{ss}}(K(t))\;\sim\;\sqrt{\frac{\dot K(t_0)}{D}}\;(t-t_0)^{1/2},
  \qquad t>t_0 .
  \label{eq:recovery}
 \end{equation}
-The ideal picture is a flat subthreshold interval followed by a continuous
-square-root onset.
+This is the stationary branch evaluated along a moving control. Observed
+coherence follows it only where the phase distribution can track that branch.
+The mean-field crossing control starts near its initial stationary density and
+crosses symmetrically about $\Kc$. None of its scanned rates meets the declared
+tracking tolerance under that initialization. Slowing the crossing therefore
+does not by itself justify using this benchmark as a recovery time course.
 
 \scope
 Four qualifications, each of which the manuscript raises before a referee
@@ -3283,10 +3288,11 @@ could.
 \item \textbf{No saturation follows.} Where the curve goes after onset requires
 a specified subsequent coupling trajectory. Monotone coupling alone does not
 determine a logistic or any unique sigmoid.
-\item \textbf{Latency is not parameter-free.} The onset time is fixed by
-$K(t_0)=\Kc$ only if $K(t)$ is \emph{independently} known. When coupling is
-inferred from the same coherence trace, the prediction of latency is
-circular.
+\item \textbf{Latency needs measured dynamics.} An independently known $K(t)$
+locates the stationary threshold crossing. The time at which an observed
+coherence criterion is reached additionally depends on the dynamics and its
+initial state. Inferring coupling from that same coherence trace cannot supply
+an independent prediction of latency.
 \item \textbf{Critical slowing down.} Near a continuous transition, relaxation
 times diverge, so the adiabatic (branch-tracking) assumption is worst exactly
 where the prediction is sharpest.
@@ -3425,8 +3431,12 @@ consecutive samples at $r\ge0.2$ after threshold:
 replicas escape before $K=2.5$.
 \item The three slower ramps give mean coupling delays $\rampDelaySlowOne$,
 $\rampDelaySlowTwo$ and $\rampDelaySlowThree$, whose log--log fit is
-$\Delta K\propto v^{\rampDelayExponent}$---near the predicted exponent $1/2$
-at this resolution.
+$\Delta K\propto v^{\rampDelayExponent}$. A deterministic mean-field control
+seeded at the finite-population fluctuation floor gives
+$\quasistaticExponentAll$ over \quasistaticSpeedCount{} speeds and
+$\quasistaticExponentUncensored$ over the \quasistaticUncensoredCount{} used
+in that fit. The shortfall from $1/2$ persists without finite-population
+sampling and cannot be attributed to that sampling alone.
 \item At fixed $v=10^{-2}$ the delay grows with population size
 ($\rampNDelayOne$, $\rampNDelayTwo$, $\rampNDelayThree$ at $N=500$, $2000$,
 $8000$). However, dividing the delays by $\sqrt{\log N}$ does not give a
@@ -5207,9 +5217,9 @@ Four limits, and the third is the one that matters most.
 \begin{enumerate}[leftmargin=*]
 \item \textbf{The estimand is not what the protocol asks for.} 62 channels
 pooled over a 100~ms window estimates a \emph{spatiotemporal} distribution, not
-an instantaneous spatial one---a departure forced by channel count, and one
-that any scalp implementation will face. Pooling is required because the
-independent log-density estimator needs at least 100 phase samples.
+an instantaneous spatial one---a departure forced by channel count. Adequate
+precision depends on concentration, binning and dependence; the spatial design
+calibration below requires many more sites over the observed concentration range.
 \item \textbf{Referencing is a material analysis choice}, not a preprocessing
 detail. Bipolar and common-reference give different answers.
 \item \textbf{The concentration range is too narrow to be informative about the
@@ -5276,15 +5286,21 @@ astrocytic signal indicates the extracellular volume fraction $\alpha$; its mapp
 to effective coupling must be established separately, with its own uncertainty.
 The conductivity argument below supplies the expected sign of that mapping and
 nothing more.
-\item \textbf{Adequate spatial resolution.} At least 100 spatial samples per
-estimate, $r$ by resultant length and $a$ by unweighted log-density regression.
-With fewer sites, pooling over time changes the estimand---and must be stated
-as such.
+\item \textbf{Calibrated spatial resolution.} Estimate $r$ by resultant length
+and $a$ by unweighted log-density regression. At \designProtocolSites{} sites
+the tested \designPublishedBins{}-bin estimator fails the bias-floor criterion
+at every scanned concentration. At the observed ceiling
+$a=\designObservedMax$, the scanned designs require
+\designSitesIndependent{} independent sites, rising to
+\designSitesClustered{} under the declared clustering model. These counts are
+specific to the estimator and dependence model; the recording design needs
+its own calibration. Pooling over time changes the spatial estimand.
 \item \textbf{An independent recovery endpoint.} Behavioural recovery measured
 separately from the phase trace, so latency is not defined by the signal whose
 latency is at issue.
-\item \textbf{A predeclared onset criterion}, fixed above the finite-size floor
-before unblinding, chosen knowing that a finite ramp smears the cusp.
+\item \textbf{A predeclared dynamical onset criterion}, fixed above the
+finite-size floor before unblinding and evaluated under the measured coupling
+trajectory, including ramp speed or fluctuations.
 \item \textbf{Model comparison under matched observation.} Against exponential,
 flexible sigmoidal and other slow-recovery models under identical temporal
 filtering and observation noise. Latency alone cannot distinguish the
@@ -5777,7 +5793,7 @@ Picard--Lindel\"of, global & Trajectories exist and are unique & Theorem on all 
 Barbalat's lemma & Motion stops & Proved here (absent from Mathlib) \\
 \L{}ojasiewicz estimate (\S\ref{sec:convergence}) & Locates the limit & Theorem, conditional on initial data \\
 Propagation of chaos (\S\ref{sec:chaos}) & Would link finite $N$ to mean field & \textbf{Open}; not closed by any theorem \\
-von Mises density (\S\ref{sec:vonmises}) & The stationary phase law & Starting assumption in Lean; stationary algebra checked symbolically and numerically \\
+von Mises density (\S\ref{sec:vonmises}) & The stationary phase law & Theorem classifying positive normalized stationary densities for the specified cosine drift \\
 Threshold $\Kc=2D$ (\S\ref{sec:threshold}) & Coupling gate for coherence & Theorem about a stationary density \\
 Fold-and-cross uniqueness (\S\ref{sec:fold}) & Exactly one coherent branch & Theorem; no differentiation used \\
 Critical exponent $\beta=1/2$ (\S\ref{sec:exponent}) & Square-root onset & Theorem; filter-indexed, with witness \\
