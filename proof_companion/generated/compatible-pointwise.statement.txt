@@ -1,0 +1,4 @@
+∀ {α : Type u_1} {ι : Type u_2} [inst : Fintype α] {U : ι → Set α} {s : ι → α → NNReal}
+  {ε : NNReal},
+  PhysicsOfConsciousness.ApproximateGluing.Compatible U s ε →
+    PhysicsOfConsciousness.LocalContent.Compatible U (fun i x => ↑(s i x)) ↑ε

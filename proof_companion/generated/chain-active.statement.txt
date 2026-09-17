@@ -1,0 +1,24 @@
+∀ {X : TopCat} [inst : MeasureTheory.MeasureSpace ↑X] [inst_1 : BorelSpace ↑X]
+  [inst_2 : PhysicsOfConsciousness.TriangulatedManifold ↑X]
+  [inst_3 : MetricSpace PhysicsOfConsciousness.GlobalSection]
+  [CompleteSpace PhysicsOfConsciousness.GlobalSection]
+  (kernel : PhysicsOfConsciousness.StochasticNeuralField ↑X) {sys : Type u_1} [inst_5 : Fintype sys]
+  [inst_6 : DecidableEq sys] [Nonempty sys]
+  [inst_8 : PhysicsOfConsciousness.StatisticalMechanics sys] (upd : sys → sys) {Y : Type u_2}
+  {V : Type u_3} (vac : Set V) (phi : Y → V) {S : Type u_4} [inst_9 : Fintype S] [Nonempty S]
+  (M : PhysicsOfConsciousness.FiniteFeedbackStep sys S) (q : sys → S → S → ℝ) (E : ℕ → ℝ) (L : ℝ)
+  {K D τ : ℝ},
+  0 < τ →
+    ∀ (T : PhysicsOfConsciousness.ThermodynamicCover X)
+      (rb : PhysicsOfConsciousness.ReflexiveBoundary X),
+      PhysicsOfConsciousness.Chain.E12 sys vac phi →
+        PhysicsOfConsciousness.Chain.E23 vac phi upd →
+          PhysicsOfConsciousness.Chain.E34Active upd M q →
+            PhysicsOfConsciousness.Chain.E45Active M
+                (PhysicsOfConsciousness.Thermodynamics.temperature sys) q
+                (PhysicsOfConsciousness.heat_dissipation upd) E L →
+              PhysicsOfConsciousness.Chain.E56 kernel E L K D →
+                PhysicsOfConsciousness.Chain.E67 L K D →
+                  PhysicsOfConsciousness.Chain.E78 K D T →
+                    PhysicsOfConsciousness.Chain.E89 K D τ T rb →
+                      PhysicsOfConsciousness.Chain.UnifiedSelf rb

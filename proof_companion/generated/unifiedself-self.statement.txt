@@ -1,0 +1,4 @@
+∀ {X : TopCat} [inst : MeasurableSpace ↑X] [inst_1 : BorelSpace ↑X]
+  [inst_2 : PhysicsOfConsciousness.TriangulatedManifold ↑X]
+  {rb : PhysicsOfConsciousness.ReflexiveBoundary X},
+  PhysicsOfConsciousness.Chain.UnifiedSelf rb → PhysicsOfConsciousness.Chain.Self rb

@@ -1,0 +1,7 @@
+PhysicsOfConsciousness.Chain.ActiveBound
+PhysicsOfConsciousness.FiniteFeedbackStep
+PhysicsOfConsciousness.FiniteFeedbackStep.final
+PhysicsOfConsciousness.FiniteFeedbackStep.initial
+PhysicsOfConsciousness.FiniteFeedbackStep.meanHeat
+PhysicsOfConsciousness.ProbDist.p
+PhysicsOfConsciousness.shannon_entropy

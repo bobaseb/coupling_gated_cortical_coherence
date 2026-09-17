@@ -1,0 +1,6 @@
+PhysicsOfConsciousness.Chain.ActiveBound.entropy_budget
+PhysicsOfConsciousness.Chain.activeBound_of_feedback
+PhysicsOfConsciousness.FiniteFeedbackStep
+PhysicsOfConsciousness.FiniteFeedbackStep.LocalDetailedBalance
+PhysicsOfConsciousness.FiniteFeedbackStep.Positive
+PhysicsOfConsciousness.FiniteFeedbackStep.meanHeat

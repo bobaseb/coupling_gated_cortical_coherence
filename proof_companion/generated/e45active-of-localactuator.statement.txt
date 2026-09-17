@@ -1,0 +1,8 @@
+∀ {M : Type u_1} {X : Type u_2} {S : Type u_3} {I : Type u_4} [inst : TopologicalSpace M]
+  [inst_1 : CompactSpace M] [inst_2 : MeasurableSpace M] [inst_3 : BorelSpace M]
+  [inst_4 : SecondCountableTopology M] [inst_5 : Fintype X] [inst_6 : Fintype S]
+  [inst_7 : Fintype I] (A : PhysicsOfConsciousness.KernelArrangement M X S I)
+  (P : PhysicsOfConsciousness.FiniteFeedbackStep X S),
+  A.law = P.final →
+    ∀ (θ : ℝ) (q : X → S → S → ℝ) (budget : ℝ),
+      PhysicsOfConsciousness.Chain.E45Active P θ q budget A.energy A.continuumEnergy

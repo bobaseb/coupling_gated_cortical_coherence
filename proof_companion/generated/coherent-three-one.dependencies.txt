@@ -1,0 +1,4 @@
+PhysicsOfConsciousness.Chain.coherent_of_supercritical
+PhysicsOfConsciousness.critical_coupling
+PhysicsOfConsciousness.critical_coupling._proof_1
+PhysicsOfConsciousness.critical_coupling.eq_1

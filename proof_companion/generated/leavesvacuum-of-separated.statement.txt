@@ -1,0 +1,6 @@
+∀ {Y : Type u_1} {V : Type u_2} [inst : TopologicalSpace Y] [PreconnectedSpace Y]
+  [inst_2 : TopologicalSpace V] (vac : Set V) (phi : Y → V),
+  Continuous phi →
+    ∀ (y₁ y₂ : Y),
+      (∀ (S : Set V), IsPreconnected S → S ⊆ vac → phi y₁ ∈ S → phi y₂ ∉ S) →
+        PhysicsOfConsciousness.Chain.LeavesVacuum vac phi

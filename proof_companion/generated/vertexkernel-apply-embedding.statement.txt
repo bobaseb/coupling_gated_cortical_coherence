@@ -1,0 +1,14 @@
+∀ {M : Type u_1} [inst : TopologicalSpace M] [inst_1 : DecidableEq M]
+  (TM : PhysicsOfConsciousness.TriangulatedManifold M)
+  [inst_2 : Fintype (PhysicsOfConsciousness.TriangulatedManifold.V M)]
+  [DecidableEq (PhysicsOfConsciousness.TriangulatedManifold.V M)],
+  Function.Injective PhysicsOfConsciousness.TriangulatedManifold.embedding →
+    ∀
+      (w :
+        PhysicsOfConsciousness.TriangulatedManifold.V M →
+          PhysicsOfConsciousness.TriangulatedManifold.V M → ℝ)
+      (u v : PhysicsOfConsciousness.TriangulatedManifold.V M),
+      PhysicsOfConsciousness.Chain.vertexKernel TM w
+          (PhysicsOfConsciousness.TriangulatedManifold.embedding u)
+          (PhysicsOfConsciousness.TriangulatedManifold.embedding v) =
+        w u v

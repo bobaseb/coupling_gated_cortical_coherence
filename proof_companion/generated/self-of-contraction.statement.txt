@@ -1,0 +1,9 @@
+∀ {X : TopCat} [inst : MeasurableSpace ↑X] [inst_1 : BorelSpace ↑X]
+  [Nonempty PhysicsOfConsciousness.GlobalSection]
+  [inst_3 : MetricSpace PhysicsOfConsciousness.GlobalSection]
+  [CompleteSpace PhysicsOfConsciousness.GlobalSection] {K D τ : ℝ},
+  0 < τ →
+    PhysicsOfConsciousness.critical_coupling D < K →
+      ∀ (rb : PhysicsOfConsciousness.ReflexiveBoundary X),
+        LipschitzWith (PhysicsOfConsciousness.resonanceRate K D τ) rb.predict →
+          PhysicsOfConsciousness.Chain.Self rb

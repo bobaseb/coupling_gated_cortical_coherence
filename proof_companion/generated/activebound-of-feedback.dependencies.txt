@@ -1,0 +1,9 @@
+PhysicsOfConsciousness.FiniteFeedbackStep
+PhysicsOfConsciousness.FiniteFeedbackStep.LocalDetailedBalance
+PhysicsOfConsciousness.FiniteFeedbackStep.Positive
+PhysicsOfConsciousness.FiniteFeedbackStep.final
+PhysicsOfConsciousness.FiniteFeedbackStep.heat_bound
+PhysicsOfConsciousness.FiniteFeedbackStep.initial
+PhysicsOfConsciousness.FiniteFeedbackStep.meanHeat
+PhysicsOfConsciousness.ProbDist.p
+PhysicsOfConsciousness.shannon_entropy

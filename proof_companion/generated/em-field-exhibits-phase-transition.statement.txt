@@ -1,0 +1,7 @@
+∀ {M : Type u_1} [inst : MeasureTheory.MeasureSpace M] [inst_1 : TopologicalSpace M]
+  [inst_2 : MeasureTheory.IsProbabilityMeasure MeasureTheory.volume]
+  (kernel : PhysicsOfConsciousness.StochasticNeuralField M) {E : ℕ → ℝ} {L K D : ℝ},
+  PhysicsOfConsciousness.Chain.E56 kernel E L K D →
+    PhysicsOfConsciousness.Chain.E67 L K D →
+      PhysicsOfConsciousness.Chain.CoarseGrains E L →
+        PhysicsOfConsciousness.exhibits_phase_transition kernel

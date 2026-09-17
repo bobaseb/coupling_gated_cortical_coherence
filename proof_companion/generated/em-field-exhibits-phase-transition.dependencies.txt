@@ -1,0 +1,7 @@
+PhysicsOfConsciousness.Chain.CoarseGrains
+PhysicsOfConsciousness.Chain.E56
+PhysicsOfConsciousness.Chain.E67
+PhysicsOfConsciousness.Chain.FieldRealizes
+PhysicsOfConsciousness.IsEMFieldCoupling
+PhysicsOfConsciousness.StochasticNeuralField
+PhysicsOfConsciousness.exhibits_phase_transition_of_isEMFieldCoupling

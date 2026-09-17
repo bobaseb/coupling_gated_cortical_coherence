@@ -1,0 +1,4 @@
+¬PhysicsOfConsciousness.Chain.E45Active
+    PhysicsOfConsciousness.Examples.ActuatedField.normalized.step 1
+    PhysicsOfConsciousness.Examples.ActuatedField.normalized.heat (Real.log 2)
+    PhysicsOfConsciousness.Examples.ActuatedField.normalized.energy 0

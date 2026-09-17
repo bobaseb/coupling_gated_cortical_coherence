@@ -4,13 +4,19 @@
 [Coverage table](generated/coverage.tsv) · [Implementation specification](SPEC.md)
 
 This directory owns the whole exercise of making the repository's Lean proofs
-readable and auditable as mathematics. The first coverage stage is a pilot of
-**12 results in four modules**. The long-term scope is the project's own
-development, with Mathlib results identified as dependencies rather than expanded
-into a second copy of Mathlib.
+readable and auditable as mathematics. The second coverage stage covers
+**116 results in four modules**. Three of them — `Chain`, `Phase5_GlobalSection`
+and `Phase8_CriticalExponent` — are covered **completely**: every theorem they
+declare has an extracted statement, so the appendix shows what those modules
+contain rather than only what the prose discusses. The fourth contributes a
+single witness. The long-term scope is the project's own development, with
+Mathlib results identified as dependencies rather than expanded into a second
+copy of Mathlib.
 
 The current document explains exact and approximate gluing, the stationary
-critical exponent, the passive conditional chain, and a nonconstant witness.
+critical exponent, the passive conditional chain, the witnesses and
+counterexamples that fence that chain, the no-go result separating discrete
+meshes from continuum kernels, and a nonconstant witness.
 Its formal appendix is generated from Lean; the mathematical explanations in
 `chapters/` are editorial drafts prepared against the source proofs. The current
 tool **does not automatically translate arbitrary Lean proofs into English**.
@@ -36,18 +42,29 @@ Lean's verification of the source does not certify the prose translation.
 Term proofs remain covered even when their tactic array is empty. Missing or
 imported selections, elaboration errors, and selected results using axioms outside
 `propext`, `Classical.choice`, and `Quot.sound` fail extraction. The four saved
-snapshots contain **1,357 nested tactic records**, including wrapper and macro
-events; these are not 1,357 independent mathematical steps.
+snapshots contain **4,338 nested tactic records**, including wrapper and macro
+events; these are not 4,338 independent mathematical steps.
+
+`GenerateSelection.lean` proposes candidates for the selection by enumerating the
+**elaborated environment** — never by matching regular expressions against source,
+which `SPEC.md` rules out. It walks the project's own modules, drops names Lean
+generated rather than an author wrote, and emits module, name, kind, source line
+and whether a docstring is present. It only proposes: curation stays editorial,
+and `Extract.lean` re-elaborates whatever is selected.
 
 `render.sh` generates the formal appendix, coverage table, selected physical
 fields, and a real three-step witness trace from those snapshots. Its output is
-deterministic. The full histories remain in JSON so the PDF stays readable.
+deterministic. The full histories remain in JSON so the PDF stays readable. It
+reads each snapshot **once per module** rather than once per selected
+declaration; re-parsing a multi-megabyte snapshot per declaration is what stopped
+rendering scaling past the twelve-result pilot.
 
 ## Layout
 
 | Path | Purpose |
 |---|---|
 | `Extract.lean` | Lean-native extraction against the pinned compiler |
+| `GenerateSelection.lean` | Proposes selection candidates from the elaborated environment |
 | `selection.json` | Exact module/declaration selection and stable document IDs |
 | `data/*.json` | Saved elaboration snapshots; no simulation results |
 | `data/*MANIFEST.sha256` | Source/toolchain and snapshot fingerprints |
@@ -130,8 +147,11 @@ new Lean inputs, changed snapshots, changed generated statements, and a changed 
 
 ## Extending coverage
 
-1. Add a module and its fully qualified declarations to `selection.json`, giving
-   every declaration a unique, filesystem-safe document ID.
+1. List candidates with
+   `lake env lean --run proof_companion/GenerateSelection.lean`, then add a module
+   and its fully qualified declarations to `selection.json`, giving every
+   declaration a unique, filesystem-safe document ID. Document IDs already in use
+   are cited by `chapters/` and must not be renamed.
 2. Run `extract` and inspect the statements, dependency lists, and relevant
    structure fields. A theorem name or its docstring is not the specification.
 3. Add an explanation to `chapters/` and include it from `companion.tex`. Use
@@ -147,9 +167,12 @@ follows the selection file.
 
 ## Current limits and next stages
 
-- **Coverage is selected, not complete.** There is no whole-library coverage
-  claim. Anonymous examples are inventoried but do not yet receive their own
-  elaborated-statement/proof records or mathematical explanations.
+- **Coverage is selected, not complete.** Three modules are complete; the
+  development has about 3,000 declarations in 88 files, so there is no
+  whole-library coverage claim. Anonymous examples are inventoried but do not yet
+  receive their own elaborated-statement/proof records or mathematical
+  explanations. Most extracted statements carry no prose: the appendix is a
+  complete record for those three modules, the explanations are not.
 - **The prose is editorial.** Automatic step narration, grouping and review
   are future work. First compare a generated explanation against the curated
   examples here, including term proofs and assumptions carried by fields.

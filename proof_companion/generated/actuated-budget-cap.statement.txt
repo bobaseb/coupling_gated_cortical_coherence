@@ -1,0 +1,3 @@
+PhysicsOfConsciousness.Examples.ActuatedField.normalized.continuumLimit ≤
+  PhysicsOfConsciousness.Examples.ActuatedField.normalized.gain * Real.log 2 *
+    PhysicsOfConsciousness.Examples.ActuatedField.profileMass

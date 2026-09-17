@@ -1,0 +1,8 @@
+PhysicsOfConsciousness.Chain.E45Active
+PhysicsOfConsciousness.Chain.thermalAgency_activeBound
+PhysicsOfConsciousness.Examples.MicroscopicCoupling.continuumEnergy
+PhysicsOfConsciousness.Examples.MicroscopicCoupling.continuumEnergy_eq
+PhysicsOfConsciousness.Examples.MicroscopicCoupling.meshEnergy
+PhysicsOfConsciousness.Examples.MicroscopicCoupling.spatial_limit
+PhysicsOfConsciousness.Examples.ThermalAgency.actuation
+PhysicsOfConsciousness.Examples.ThermalAgency.heat

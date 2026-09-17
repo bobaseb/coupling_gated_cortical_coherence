@@ -1,0 +1,9 @@
+∀ {Xs : Type u_1} {S : Type u_2} [inst : Fintype Xs] [inst_1 : Fintype S] [Nonempty S]
+  (M : PhysicsOfConsciousness.FiniteFeedbackStep Xs S),
+  M.Positive →
+    ∀ (θ : ℝ),
+      0 < θ →
+        ∀ (q : Xs → S → S → ℝ),
+          M.LocalDetailedBalance θ q →
+            ∀ (budget : ℝ),
+              M.meanHeat q ≤ budget → PhysicsOfConsciousness.Chain.ActiveBound M θ q budget

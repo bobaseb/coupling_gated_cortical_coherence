@@ -1,0 +1,1 @@
+HasDerivAt PhysicsOfConsciousness.sRatioDeriv (-1 / 8) 0

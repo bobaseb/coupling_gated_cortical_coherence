@@ -1,0 +1,7 @@
+∀ {M : Type u_1} {Xs : Type u_2} {S : Type u_3} [inst : PseudoMetricSpace M]
+  [inst_1 : MeasurableSpace M] [inst_2 : Fintype Xs] [inst_3 : Fintype S]
+  (A : PhysicsOfConsciousness.ActuatedCoupling M Xs S) {budget : ℝ},
+  PhysicsOfConsciousness.Chain.ActiveBound A.step A.temperature A.heat budget →
+    0 ≤ ∫ (x : M) in A.region, A.base x ∂A.volume →
+      A.continuumLimit ≤
+        A.gain * (budget / A.temperature) * ∫ (x : M) in A.region, A.base x ∂A.volume

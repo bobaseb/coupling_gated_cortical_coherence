@@ -1,0 +1,3 @@
+∀ (s : PhysicsOfConsciousness.GlobalSection),
+  PhysicsOfConsciousness.Examples.cortexReflexive.predict s = s →
+    s = PhysicsOfConsciousness.Examples.cortexState

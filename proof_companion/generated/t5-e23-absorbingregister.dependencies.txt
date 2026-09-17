@@ -1,0 +1,5 @@
+PhysicsOfConsciousness.Chain.LeavesVacuum
+PhysicsOfConsciousness.Chain.witness_not_surjective
+PhysicsOfConsciousness.DynamicalVacuum
+PhysicsOfConsciousness.Examples.kink
+PhysicsOfConsciousness.Examples.wellV

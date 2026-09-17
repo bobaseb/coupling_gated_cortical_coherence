@@ -1,0 +1,5 @@
+PhysicsOfConsciousness.IsRegularTriangulation
+PhysicsOfConsciousness.TriangulatedManifold
+PhysicsOfConsciousness.TriangulatedManifold.V
+PhysicsOfConsciousness.TriangulatedManifold.edge_region
+PhysicsOfConsciousness.mesh_refinement_convergence

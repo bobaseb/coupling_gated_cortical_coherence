@@ -1,0 +1,9 @@
+∀ {M : Type u_1} [inst : TopologicalSpace M] [inst_1 : MeasurableSpace M] [inst_2 : DecidableEq M]
+  (TM : PhysicsOfConsciousness.TriangulatedManifold M)
+  [inst_3 : Fintype (PhysicsOfConsciousness.TriangulatedManifold.V M)]
+  (w :
+    PhysicsOfConsciousness.TriangulatedManifold.V M →
+      PhysicsOfConsciousness.TriangulatedManifold.V M → ℝ)
+  (μ : MeasureTheory.Measure M) [MeasureTheory.NullSingletonClass μ] (theta : M → ℝ),
+  PhysicsOfConsciousness.fieldCorrelation μ theta (PhysicsOfConsciousness.Chain.vertexKernel TM w) =
+    0

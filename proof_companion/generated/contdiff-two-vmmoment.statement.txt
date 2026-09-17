@@ -1,0 +1,1 @@
+∀ (n : ℕ), ContDiff ℝ 2 (PhysicsOfConsciousness.vmMoment n)

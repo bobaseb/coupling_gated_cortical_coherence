@@ -1,0 +1,2 @@
+∀ {M : Type u_1} [inst : MeasureTheory.MeasureSpace M] [inst_1 : TopologicalSpace M] (omega : M → ℝ)
+  (K : M → M → ℝ) (tau : ℝ), Nonempty (PhysicsOfConsciousness.ContinuousNeuralField M)

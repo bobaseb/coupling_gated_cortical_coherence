@@ -4,11 +4,82 @@
     "module": "PhysicsOfConsciousness.Phase5_GlobalSection",
     "source": "PhysicsOfConsciousness/Phase5_GlobalSection.lean",
     "declarations": [
-      {"id": "sheaf-property", "name": "PhysicsOfConsciousness.probability_is_sheaf"},
-      {"id": "sheaf-gluing", "name": "PhysicsOfConsciousness.sheaf_glue_unique"},
-      {"id": "probability-gluing", "name": "PhysicsOfConsciousness.probability_glue_unique"},
-      {"id": "thermodynamic-gluing", "name": "PhysicsOfConsciousness.global_section_from_thermodynamics"},
-      {"id": "approximate-gluing", "name": "PhysicsOfConsciousness.ApproximateGluing.select_close"}
+      {
+        "id": "sheaf-property",
+        "name": "PhysicsOfConsciousness.probability_is_sheaf"
+      },
+      {
+        "id": "sheaf-gluing",
+        "name": "PhysicsOfConsciousness.sheaf_glue_unique"
+      },
+      {
+        "id": "probability-gluing",
+        "name": "PhysicsOfConsciousness.probability_glue_unique"
+      },
+      {
+        "id": "a-symm",
+        "name": "PhysicsOfConsciousness.ThermodynamicCover.A_symm"
+      },
+      {
+        "id": "a-pos",
+        "name": "PhysicsOfConsciousness.ThermodynamicCover.A_pos"
+      },
+      {
+        "id": "thermodynamic-equilibrium",
+        "name": "PhysicsOfConsciousness.ThermodynamicCover.thermodynamic_equilibrium"
+      },
+      {
+        "id": "phase-locked",
+        "name": "PhysicsOfConsciousness.ThermodynamicCover.phase_locked"
+      },
+      {
+        "id": "thermodynamic-gluing",
+        "name": "PhysicsOfConsciousness.global_section_from_thermodynamics"
+      },
+      {
+        "id": "sync-to-section-eq",
+        "name": "PhysicsOfConsciousness.ThermodynamicCover.sync_to_section_eq"
+      },
+      {
+        "id": "invariantmeasure-unique",
+        "name": "PhysicsOfConsciousness.ThermodynamicCover.invariantMeasure_unique"
+      },
+      {
+        "id": "profiledist-le-iff",
+        "name": "PhysicsOfConsciousness.ApproximateGluing.profileDist_le_iff"
+      },
+      {
+        "id": "compatible-pointwise",
+        "name": "PhysicsOfConsciousness.ApproximateGluing.compatible_pointwise"
+      },
+      {
+        "id": "covers",
+        "name": "PhysicsOfConsciousness.ApproximateGluing.IsPartition.covers"
+      },
+      {
+        "id": "select-eq-of-eqon",
+        "name": "PhysicsOfConsciousness.ApproximateGluing.select_eq_of_eqOn"
+      },
+      {
+        "id": "approximate-gluing",
+        "name": "PhysicsOfConsciousness.ApproximateGluing.select_close"
+      },
+      {
+        "id": "select-dist-le",
+        "name": "PhysicsOfConsciousness.ApproximateGluing.select_dist_le"
+      },
+      {
+        "id": "approximate-diameter-le",
+        "name": "PhysicsOfConsciousness.ApproximateGluing.approximate_diameter_le"
+      },
+      {
+        "id": "select-glue-unique",
+        "name": "PhysicsOfConsciousness.ApproximateGluing.select_glue_unique"
+      },
+      {
+        "id": "feature-dist-le",
+        "name": "PhysicsOfConsciousness.ApproximateGluing.feature_dist_le"
+      }
     ]
   },
   {
@@ -16,10 +87,90 @@
     "module": "PhysicsOfConsciousness.Phase8_CriticalExponent",
     "source": "PhysicsOfConsciousness/Phase8_CriticalExponent.lean",
     "declarations": [
-      {"id": "second-order", "name": "PhysicsOfConsciousness.vonMisesSRatio_second_order"},
-      {"id": "family-exponent", "name": "PhysicsOfConsciousness.coherent_solution_critical_exponent"},
-      {"id": "branch-spec", "name": "PhysicsOfConsciousness.coherentBranch_spec"},
-      {"id": "branch-exponent", "name": "PhysicsOfConsciousness.coherentBranch_critical_exponent"}
+      {
+        "id": "hasderivat-vmmoment",
+        "name": "PhysicsOfConsciousness.hasDerivAt_vmMoment"
+      },
+      {
+        "id": "vmmoment-zero-zero",
+        "name": "PhysicsOfConsciousness.vmMoment_zero_zero"
+      },
+      {
+        "id": "vmmoment-one-zero",
+        "name": "PhysicsOfConsciousness.vmMoment_one_zero"
+      },
+      {
+        "id": "vmmoment-two-zero",
+        "name": "PhysicsOfConsciousness.vmMoment_two_zero"
+      },
+      {
+        "id": "vmmoment-three-zero",
+        "name": "PhysicsOfConsciousness.vmMoment_three_zero"
+      },
+      {
+        "id": "vmmoment-four-zero",
+        "name": "PhysicsOfConsciousness.vmMoment_four_zero"
+      },
+      {
+        "id": "differentiable-vmmoment",
+        "name": "PhysicsOfConsciousness.differentiable_vmMoment"
+      },
+      {
+        "id": "deriv-vmmoment",
+        "name": "PhysicsOfConsciousness.deriv_vmMoment"
+      },
+      {
+        "id": "contdiff-two-vmmoment",
+        "name": "PhysicsOfConsciousness.contDiff_two_vmMoment"
+      },
+      {
+        "id": "vonmisessratio-eq-moments",
+        "name": "PhysicsOfConsciousness.vonMisesSRatio_eq_moments"
+      },
+      {
+        "id": "contdiff-two-vonmisessratio",
+        "name": "PhysicsOfConsciousness.contDiff_two_vonMisesSRatio"
+      },
+      {
+        "id": "hasderivat-vonmisessratio",
+        "name": "PhysicsOfConsciousness.hasDerivAt_vonMisesSRatio"
+      },
+      {
+        "id": "sratioderiv-zero",
+        "name": "PhysicsOfConsciousness.sRatioDeriv_zero"
+      },
+      {
+        "id": "hasderivat-sratioderiv-zero",
+        "name": "PhysicsOfConsciousness.hasDerivAt_sRatioDeriv_zero"
+      },
+      {
+        "id": "deriv-vonmisessratio",
+        "name": "PhysicsOfConsciousness.deriv_vonMisesSRatio"
+      },
+      {
+        "id": "deriv-sratioderiv-zero",
+        "name": "PhysicsOfConsciousness.deriv_sRatioDeriv_zero"
+      },
+      {
+        "id": "second-order",
+        "name": "PhysicsOfConsciousness.vonMisesSRatio_second_order"
+      },
+      {
+        "id": "family-exponent",
+        "name": "PhysicsOfConsciousness.coherent_solution_critical_exponent"
+      },
+      {
+        "id": "branch-spec",
+        "name": "PhysicsOfConsciousness.coherentBranch_spec"
+      },
+      {
+        "id": "coherentbranch-tendsto-zero",
+        "name": "PhysicsOfConsciousness.coherentBranch_tendsto_zero"
+      },
+      {
+        "id": "branch-exponent",
+        "name": "PhysicsOfConsciousness.coherentBranch_critical_exponent"
+      }
     ]
   },
   {
@@ -27,8 +178,306 @@
     "module": "PhysicsOfConsciousness.Chain",
     "source": "PhysicsOfConsciousness/Chain.lean",
     "declarations": [
-      {"id": "downstream-chain", "name": "PhysicsOfConsciousness.Chain.chain_from_coarseGrains"},
-      {"id": "passive-chain", "name": "PhysicsOfConsciousness.Chain.chain"}
+      {
+        "id": "unifiedself-self",
+        "name": "PhysicsOfConsciousness.Chain.unifiedSelf_self"
+      },
+      {
+        "id": "capacity",
+        "name": "PhysicsOfConsciousness.Chain.capacity"
+      },
+      {
+        "id": "activebound-of-feedback",
+        "name": "PhysicsOfConsciousness.Chain.activeBound_of_feedback"
+      },
+      {
+        "id": "activebound-of-continuing",
+        "name": "PhysicsOfConsciousness.Chain.activeBound_of_continuing"
+      },
+      {
+        "id": "continuing-stage-activebound",
+        "name": "PhysicsOfConsciousness.Chain.continuing_stage_activeBound"
+      },
+      {
+        "id": "entropy-budget",
+        "name": "PhysicsOfConsciousness.Chain.ActiveBound.entropy_budget"
+      },
+      {
+        "id": "leavesvacuum-of-separated",
+        "name": "PhysicsOfConsciousness.Chain.leavesVacuum_of_separated"
+      },
+      {
+        "id": "dissipates-of-not-surjective",
+        "name": "PhysicsOfConsciousness.Chain.dissipates_of_not_surjective"
+      },
+      {
+        "id": "predictivebound-of-nonempty",
+        "name": "PhysicsOfConsciousness.Chain.predictiveBound_of_nonempty"
+      },
+      {
+        "id": "coarsegrains-of-meshrefinement",
+        "name": "PhysicsOfConsciousness.Chain.coarseGrains_of_meshRefinement"
+      },
+      {
+        "id": "coherent-of-supercritical",
+        "name": "PhysicsOfConsciousness.Chain.coherent_of_supercritical"
+      },
+      {
+        "id": "supercritical-of-coherent",
+        "name": "PhysicsOfConsciousness.Chain.supercritical_of_coherent"
+      },
+      {
+        "id": "unity-of-cover",
+        "name": "PhysicsOfConsciousness.Chain.unity_of_cover"
+      },
+      {
+        "id": "nonempty-globalsection-of-unity",
+        "name": "PhysicsOfConsciousness.Chain.nonempty_globalSection_of_unity"
+      },
+      {
+        "id": "self-of-contraction",
+        "name": "PhysicsOfConsciousness.Chain.self_of_contraction"
+      },
+      {
+        "id": "self-of-coherent-order-parameter",
+        "name": "PhysicsOfConsciousness.Chain.self_of_coherent_order_parameter"
+      },
+      {
+        "id": "e45active-of-actuatedcoupling",
+        "name": "PhysicsOfConsciousness.Chain.e45Active_of_actuatedCoupling"
+      },
+      {
+        "id": "actuated-limit-le-budget",
+        "name": "PhysicsOfConsciousness.Chain.actuated_limit_le_budget"
+      },
+      {
+        "id": "e45active-of-localactuator",
+        "name": "PhysicsOfConsciousness.Chain.e45Active_of_localActuator"
+      },
+      {
+        "id": "e45-of-localactuator",
+        "name": "PhysicsOfConsciousness.Chain.e45_of_localActuator"
+      },
+      {
+        "id": "activebound-of-e34active",
+        "name": "PhysicsOfConsciousness.Chain.activeBound_of_e34Active"
+      },
+      {
+        "id": "e34active-of-ledger",
+        "name": "PhysicsOfConsciousness.Chain.e34Active_of_ledger"
+      },
+      {
+        "id": "dissipation-of-unreachable",
+        "name": "PhysicsOfConsciousness.Chain.dissipation_of_unreachable"
+      },
+      {
+        "id": "downstream-chain",
+        "name": "PhysicsOfConsciousness.Chain.chain_from_coarseGrains"
+      },
+      {
+        "id": "passive-chain",
+        "name": "PhysicsOfConsciousness.Chain.chain"
+      },
+      {
+        "id": "chain-active",
+        "name": "PhysicsOfConsciousness.Chain.chain_active"
+      },
+      {
+        "id": "coherent-three-one",
+        "name": "PhysicsOfConsciousness.Chain.coherent_three_one"
+      },
+      {
+        "id": "e67-three-one",
+        "name": "PhysicsOfConsciousness.Chain.e67_three_one"
+      },
+      {
+        "id": "e56-of-eq",
+        "name": "PhysicsOfConsciousness.Chain.e56_of_eq"
+      },
+      {
+        "id": "em-field-exhibits-phase-transition",
+        "name": "PhysicsOfConsciousness.Chain.em_field_exhibits_phase_transition"
+      },
+      {
+        "id": "installedenergy-required-by-chain",
+        "name": "PhysicsOfConsciousness.Chain.installedEnergy_required_by_chain"
+      },
+      {
+        "id": "below-installation-rejects-supercritical-edge",
+        "name": "PhysicsOfConsciousness.Chain.below_installation_rejects_supercritical_edge"
+      },
+      {
+        "id": "e34-booleraser",
+        "name": "PhysicsOfConsciousness.Chain.e34_boolEraser"
+      },
+      {
+        "id": "coarsegrains-const",
+        "name": "PhysicsOfConsciousness.Chain.coarseGrains_const"
+      },
+      {
+        "id": "cortexcoherent",
+        "name": "PhysicsOfConsciousness.Chain.cortexCoherent"
+      },
+      {
+        "id": "cortexhasself-of-coherent",
+        "name": "PhysicsOfConsciousness.Chain.cortexHasSelf_of_coherent"
+      },
+      {
+        "id": "cortexhasself-of-coherent-eq",
+        "name": "PhysicsOfConsciousness.Chain.cortexHasSelf_of_coherent_eq"
+      },
+      {
+        "id": "witness-not-surjective",
+        "name": "PhysicsOfConsciousness.Chain.witness_not_surjective"
+      },
+      {
+        "id": "cortexvolume-apply",
+        "name": "PhysicsOfConsciousness.Chain.cortexVolume_apply"
+      },
+      {
+        "id": "instisprobabilitymeasurecarriercortexvolume",
+        "name": "PhysicsOfConsciousness.Chain.instIsProbabilityMeasureCarrierCortexVolume"
+      },
+      {
+        "id": "cortexvolume-singleton-le",
+        "name": "PhysicsOfConsciousness.Chain.cortexVolume_singleton_le"
+      },
+      {
+        "id": "cortexneuralfield-isemfieldcoupling",
+        "name": "PhysicsOfConsciousness.Chain.cortexNeuralField_isEMFieldCoupling"
+      },
+      {
+        "id": "cortexneuralfield-exhibits-phase-transition",
+        "name": "PhysicsOfConsciousness.Chain.cortexNeuralField_exhibits_phase_transition"
+      },
+      {
+        "id": "not-isemfieldcoupling-of-zero-kernel",
+        "name": "PhysicsOfConsciousness.Chain.not_isEMFieldCoupling_of_zero_kernel"
+      },
+      {
+        "id": "t5-e12-doublewell",
+        "name": "PhysicsOfConsciousness.Chain.t5_e12_doubleWell"
+      },
+      {
+        "id": "t5-e23-absorbingregister",
+        "name": "PhysicsOfConsciousness.Chain.t5_e23_absorbingRegister"
+      },
+      {
+        "id": "t5-refiningenergy-tendsto",
+        "name": "PhysicsOfConsciousness.Chain.t5_refiningEnergy_tendsto"
+      },
+      {
+        "id": "t5-refiningenergy-moves",
+        "name": "PhysicsOfConsciousness.Chain.t5_refiningEnergy_moves"
+      },
+      {
+        "id": "t5-e45-refiningmesh",
+        "name": "PhysicsOfConsciousness.Chain.t5_e45_refiningMesh"
+      },
+      {
+        "id": "chain-hypotheses-jointly-satisfiable",
+        "name": "PhysicsOfConsciousness.Chain.chain_hypotheses_jointly_satisfiable"
+      },
+      {
+        "id": "continuousneuralfield-free",
+        "name": "PhysicsOfConsciousness.Chain.continuousNeuralField_free"
+      },
+      {
+        "id": "vertexkernel-sitedon",
+        "name": "PhysicsOfConsciousness.Chain.vertexKernel_sitedOn"
+      },
+      {
+        "id": "vertexkernel-apply-embedding",
+        "name": "PhysicsOfConsciousness.Chain.vertexKernel_apply_embedding"
+      },
+      {
+        "id": "vertexkernel-fieldcorrelation-eq-zero",
+        "name": "PhysicsOfConsciousness.Chain.vertexKernel_fieldCorrelation_eq_zero"
+      },
+      {
+        "id": "active-entropy-budget",
+        "name": "PhysicsOfConsciousness.Chain.active_entropy_budget"
+      },
+      {
+        "id": "thermalagency-e34active",
+        "name": "PhysicsOfConsciousness.Chain.thermalAgency_e34Active"
+      },
+      {
+        "id": "thermalagency-activebound",
+        "name": "PhysicsOfConsciousness.Chain.thermalAgency_activeBound"
+      },
+      {
+        "id": "thermalagency-zero-budget-rejected",
+        "name": "PhysicsOfConsciousness.Chain.thermalAgency_zero_budget_rejected"
+      },
+      {
+        "id": "thermalagency-wrong-limit-rejected",
+        "name": "PhysicsOfConsciousness.Chain.thermalAgency_wrong_limit_rejected"
+      },
+      {
+        "id": "thermalagency-e45active",
+        "name": "PhysicsOfConsciousness.Chain.thermalAgency_e45Active"
+      },
+      {
+        "id": "chain-active-hypotheses-jointly-satisfiable",
+        "name": "PhysicsOfConsciousness.Chain.chain_active_hypotheses_jointly_satisfiable"
+      },
+      {
+        "id": "registerbudget-e34active",
+        "name": "PhysicsOfConsciousness.Chain.registerBudget_e34Active"
+      },
+      {
+        "id": "registerbudget-activebound",
+        "name": "PhysicsOfConsciousness.Chain.registerBudget_activeBound"
+      },
+      {
+        "id": "chain-active-budget-jointly-satisfiable",
+        "name": "PhysicsOfConsciousness.Chain.chain_active_budget_jointly_satisfiable"
+      },
+      {
+        "id": "actuated-activebound",
+        "name": "PhysicsOfConsciousness.Chain.actuated_activeBound"
+      },
+      {
+        "id": "actuated-budget-cap",
+        "name": "PhysicsOfConsciousness.Chain.actuated_budget_cap"
+      },
+      {
+        "id": "actuated-no-gain-free-budget-cap",
+        "name": "PhysicsOfConsciousness.Chain.actuated_no_gain_free_budget_cap"
+      },
+      {
+        "id": "actuated-wrong-limit-rejected",
+        "name": "PhysicsOfConsciousness.Chain.actuated_wrong_limit_rejected"
+      },
+      {
+        "id": "chain-active-actuated-jointly-satisfiable",
+        "name": "PhysicsOfConsciousness.Chain.chain_active_actuated_jointly_satisfiable"
+      },
+      {
+        "id": "microscopic-e45active",
+        "name": "PhysicsOfConsciousness.Chain.microscopic_e45Active"
+      },
+      {
+        "id": "microscopic-wrong-limit-rejected",
+        "name": "PhysicsOfConsciousness.Chain.microscopic_wrong_limit_rejected"
+      },
+      {
+        "id": "microscopic-e45",
+        "name": "PhysicsOfConsciousness.Chain.microscopic_e45"
+      },
+      {
+        "id": "microscopic-e45-scrambled",
+        "name": "PhysicsOfConsciousness.Chain.microscopic_e45_scrambled"
+      },
+      {
+        "id": "microscopic-passive-wrong-limit-rejected",
+        "name": "PhysicsOfConsciousness.Chain.microscopic_passive_wrong_limit_rejected"
+      },
+      {
+        "id": "chain-active-microscopic-jointly-satisfiable",
+        "name": "PhysicsOfConsciousness.Chain.chain_active_microscopic_jointly_satisfiable"
+      }
     ]
   },
   {
@@ -36,7 +485,10 @@
     "module": "PhysicsOfConsciousness.Examples.Phase5",
     "source": "PhysicsOfConsciousness/Examples/Phase5.lean",
     "declarations": [
-      {"id": "nonconstant-witness", "name": "PhysicsOfConsciousness.Examples.richDensity_not_const"}
+      {
+        "id": "nonconstant-witness",
+        "name": "PhysicsOfConsciousness.Examples.richDensity_not_const"
+      }
     ]
   }
 ]

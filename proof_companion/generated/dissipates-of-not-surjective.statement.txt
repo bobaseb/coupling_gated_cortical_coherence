@@ -1,0 +1,3 @@
+∀ {sys : Type u_1} [inst : Fintype sys] [inst_1 : DecidableEq sys] [Nonempty sys]
+  [inst_3 : PhysicsOfConsciousness.StatisticalMechanics sys] (t : sys → sys),
+  ¬Function.Surjective t → PhysicsOfConsciousness.Chain.Dissipates t

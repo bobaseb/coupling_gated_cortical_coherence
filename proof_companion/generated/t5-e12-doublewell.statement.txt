@@ -1,0 +1,3 @@
+PhysicsOfConsciousness.Chain.E12 Bool
+  (PhysicsOfConsciousness.DynamicalVacuum PhysicsOfConsciousness.Examples.wellV)
+  PhysicsOfConsciousness.Examples.kink

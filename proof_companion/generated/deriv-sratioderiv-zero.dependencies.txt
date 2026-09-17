@@ -1,0 +1,2 @@
+PhysicsOfConsciousness.hasDerivAt_sRatioDeriv_zero
+PhysicsOfConsciousness.sRatioDeriv

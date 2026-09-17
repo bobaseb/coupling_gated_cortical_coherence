@@ -1,0 +1,5 @@
+∀ {sys : Type u_1} {S : Type u_2} {n : ℕ} [inst : Fintype sys] [inst_1 : Fintype S] [Nonempty S]
+  [inst_3 : PhysicsOfConsciousness.Thermodynamics sys]
+  (L : PhysicsOfConsciousness.RegisterLedger sys S n) (a : Fin n),
+  (∀ (i : Fin n), i ≠ a → L.Compressive i) →
+    PhysicsOfConsciousness.Chain.E34Active L.update (L.step a) (L.heat a)

@@ -1,0 +1,5 @@
+∀ {X : TopCat} {inst : MeasurableSpace ↑X} {inst_1 : BorelSpace ↑X}
+  {inst_2 : PhysicsOfConsciousness.TriangulatedManifold ↑X}
+  [self : PhysicsOfConsciousness.ThermodynamicCover X]
+  (i j : PhysicsOfConsciousness.LocalSectionSynchronization.I X),
+  PhysicsOfConsciousness.ThermodynamicCover.A i j = PhysicsOfConsciousness.ThermodynamicCover.A j i

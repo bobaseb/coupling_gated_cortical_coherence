@@ -1,0 +1,6 @@
+∀ {α : Type u_1} {ι : Type u_2} [inst : Fintype α] {U : ι → Set α} {s : ι → α → NNReal}
+  {g h : α → NNReal} {δ : NNReal},
+  (∀ (x : α), ∃ i, x ∈ U i) →
+    (∀ (i : ι), PhysicsOfConsciousness.ApproximateGluing.profileDist (U i) g (s i) ≤ ↑δ) →
+      (∀ (i : ι), PhysicsOfConsciousness.ApproximateGluing.profileDist (U i) h (s i) ≤ ↑δ) →
+        dist g h ≤ 2 * ↑δ

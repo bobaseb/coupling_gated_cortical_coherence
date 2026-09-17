@@ -1,0 +1,3 @@
+PhysicsOfConsciousness.Chain.ActiveBound
+  (PhysicsOfConsciousness.Examples.RegisterBudget.cycle.step 0) 1
+  (PhysicsOfConsciousness.Examples.RegisterBudget.cycle.heat 0) (Real.log 2)

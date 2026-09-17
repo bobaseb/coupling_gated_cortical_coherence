@@ -1,0 +1,2 @@
+∀ (s : Set PhysicsOfConsciousness.Examples.Site),
+  MeasureTheory.volume s = 3⁻¹ * MeasureTheory.Measure.count s

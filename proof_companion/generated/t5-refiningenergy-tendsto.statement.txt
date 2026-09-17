@@ -1,0 +1,1 @@
+Filter.Tendsto PhysicsOfConsciousness.Chain.t5_refiningEnergy Filter.atTop (𝓝 3)

@@ -1,0 +1,4 @@
+PhysicsOfConsciousness.Chain.e34Active_of_ledger
+PhysicsOfConsciousness.Examples.RegisterBudget.act_others_compressive
+PhysicsOfConsciousness.Examples.RegisterBudget.cycle
+PhysicsOfConsciousness.Examples.boolThermo

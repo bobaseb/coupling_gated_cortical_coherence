@@ -1,0 +1,3 @@
+PhysicsOfConsciousness.deriv_vmMoment
+PhysicsOfConsciousness.differentiable_vmMoment
+PhysicsOfConsciousness.vmMoment

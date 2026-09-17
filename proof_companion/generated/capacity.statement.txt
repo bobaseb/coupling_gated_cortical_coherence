@@ -1,0 +1,1 @@
+∀ (sys : Type u_1) [inst : Fintype sys] [Nonempty sys], PhysicsOfConsciousness.Chain.Capacity sys

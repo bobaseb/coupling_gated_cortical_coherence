@@ -1,0 +1,3 @@
+PhysicsOfConsciousness.ApproximateGluing.Compatible
+PhysicsOfConsciousness.ApproximateGluing.profileDist
+PhysicsOfConsciousness.ApproximateGluing.profileDist_le_iff

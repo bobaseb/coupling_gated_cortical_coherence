@@ -1,0 +1,3 @@
+∀ {α : Type u_1} [inst : Fintype α] {U : Set α} {f g : α → NNReal} {ε : ℝ},
+  0 ≤ ε →
+    (PhysicsOfConsciousness.ApproximateGluing.profileDist U f g ≤ ε ↔ ∀ x ∈ U, dist (f x) (g x) ≤ ε)

@@ -1,0 +1,3 @@
+∀ {X : TopCat} [inst : MeasurableSpace ↑X] [inst_1 : BorelSpace ↑X]
+  [inst_2 : PhysicsOfConsciousness.TriangulatedManifold ↑X],
+  PhysicsOfConsciousness.Chain.Unity X → Nonempty PhysicsOfConsciousness.GlobalSection

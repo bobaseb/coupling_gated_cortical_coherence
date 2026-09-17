@@ -1,0 +1,9 @@
+PhysicsOfConsciousness.vmMoment
+PhysicsOfConsciousness.vmMoment.eq_1
+PhysicsOfConsciousness.vonMisesS
+PhysicsOfConsciousness.vonMisesS.eq_1
+PhysicsOfConsciousness.vonMisesSRatio
+PhysicsOfConsciousness.vonMisesSRatio.eq_1
+PhysicsOfConsciousness.vonMisesWeight
+PhysicsOfConsciousness.vonMisesZ
+PhysicsOfConsciousness.vonMisesZ_pos

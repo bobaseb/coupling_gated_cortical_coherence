@@ -1,0 +1,11 @@
+∀ {M : Type u_1} {X : Type u_2} {S : Type u_3} {I : Type u_4} [inst : MeasureTheory.MeasureSpace M]
+  [inst_1 : TopologicalSpace M] [inst_2 : CompactSpace M] [inst_3 : BorelSpace M]
+  [inst_4 : SecondCountableTopology M] [inst_5 : Fintype X] [inst_6 : Fintype S]
+  [inst_7 : Fintype I] (A : PhysicsOfConsciousness.PricedArrangement M X S I)
+  (sys : PhysicsOfConsciousness.StochasticNeuralField M),
+  A.volume = MeasureTheory.volume →
+    sys.K = A.kernel →
+      ∀ {K D : ℝ},
+        PhysicsOfConsciousness.Chain.E56 sys A.energy A.continuumEnergy K D →
+          PhysicsOfConsciousness.Chain.E67 A.continuumEnergy K D →
+            PhysicsOfConsciousness.critical_coupling D / A.couplingPerEnergy < A.installedEnergy

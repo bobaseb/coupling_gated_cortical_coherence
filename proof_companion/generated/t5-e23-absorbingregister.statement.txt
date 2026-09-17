@@ -1,0 +1,3 @@
+PhysicsOfConsciousness.Chain.E23
+  (PhysicsOfConsciousness.DynamicalVacuum PhysicsOfConsciousness.Examples.wellV)
+  PhysicsOfConsciousness.Examples.kink fun x => true

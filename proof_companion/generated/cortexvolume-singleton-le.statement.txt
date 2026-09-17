@@ -1,0 +1,1 @@
+∀ (y : PhysicsOfConsciousness.Examples.Site), (MeasureTheory.volume {y}).toReal ≤ 1 / 2

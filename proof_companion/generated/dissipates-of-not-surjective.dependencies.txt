@@ -1,0 +1,2 @@
+PhysicsOfConsciousness.StatisticalMechanics
+PhysicsOfConsciousness.finite_phase_space_dissipates

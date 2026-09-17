@@ -1,0 +1,8 @@
+∀ {sys : Type u_1} {S : Type u_2} [inst : Fintype sys] [inst_1 : Fintype S] [Nonempty S]
+  [inst_3 : PhysicsOfConsciousness.Thermodynamics sys] (upd : sys → sys)
+  (M : PhysicsOfConsciousness.FiniteFeedbackStep sys S) (q : sys → S → S → ℝ),
+  PhysicsOfConsciousness.Chain.E34Active upd M q →
+    PhysicsOfConsciousness.Chain.Dissipates upd →
+      PhysicsOfConsciousness.Chain.ActiveBound M
+        (PhysicsOfConsciousness.Thermodynamics.temperature sys) q
+        (PhysicsOfConsciousness.heat_dissipation upd)

@@ -1,0 +1,6 @@
+∀ {Xs : Type u_1} {S : Type u_2} [inst : Fintype Xs] [inst_1 : Fintype S]
+  {M : PhysicsOfConsciousness.FiniteFeedbackStep Xs S} {θ : ℝ} {q : Xs → S → S → ℝ} {budget : ℝ},
+  PhysicsOfConsciousness.Chain.ActiveBound M θ q budget →
+    PhysicsOfConsciousness.shannon_entropy M.initial.p -
+        PhysicsOfConsciousness.shannon_entropy M.final.p ≤
+      budget / θ

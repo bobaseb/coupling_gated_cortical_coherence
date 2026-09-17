@@ -1,0 +1,18 @@
+∀ {M : Type u} [inst : PseudoMetricSpace M] [inst_1 : MeasurableSpace M]
+  (μ : MeasureTheory.Measure M) (f : M → ℝ) {S : Set M},
+  UniformContinuous f →
+    μ S ≠ ∞ →
+      MeasureTheory.IntegrableOn f S μ →
+        ∀ (TM : ℕ → PhysicsOfConsciousness.TriangulatedManifold M)
+          [inst_2 : (n : ℕ) → Fintype (PhysicsOfConsciousness.TriangulatedManifold.V M)]
+          [inst_3 : (n : ℕ) → LinearOrder (PhysicsOfConsciousness.TriangulatedManifold.V M)],
+          (∀ (n : ℕ), PhysicsOfConsciousness.IsRegularTriangulation (TM n) S) →
+            ∀ (m : ℕ → ℝ),
+              Filter.Tendsto m Filter.atTop (𝓝 0) →
+                (∀ (n : ℕ) (u v : PhysicsOfConsciousness.TriangulatedManifold.V M),
+                    ∀ x ∈ PhysicsOfConsciousness.TriangulatedManifold.edge_region u v,
+                      ∀ y ∈ PhysicsOfConsciousness.TriangulatedManifold.edge_region u v,
+                        dist x y ≤ m n) →
+                  PhysicsOfConsciousness.Chain.CoarseGrains
+                    (fun n => PhysicsOfConsciousness.discreteEnergy (TM n) μ f)
+                    (∫ (x : M) in S, f x ∂μ)

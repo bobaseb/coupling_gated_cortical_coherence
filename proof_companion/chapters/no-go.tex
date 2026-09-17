@@ -1,0 +1,96 @@
+\section{Why the discrete mesh reaches no continuum kernel}\label{sec:no-go}
+The framework's figure routes the coarse-graining node into the field node, and
+the natural reading is that discrete couplings coarse-grain to a continuous
+kernel. Three results in the development say that this passage does not exist,
+and locate the obstruction one level earlier than a limit theorem would.
+
+\subsection{The target structure constrains nothing}
+A \texttt{ContinuousNeuralField} over a substrate $M$ carries a drift
+$\omega:M\to\mathbb{R}$, a kernel $K:M\times M\to\mathbb{R}$, and a timescale
+$\tau\in\mathbb{R}$, with no conditions relating them.
+
+\begin{claim}
+For any $\omega$, $K$ and $\tau$ whatsoever, a \texttt{ContinuousNeuralField}
+over $M$ exists.
+\end{claim}
+\begin{proof}
+The three data are exactly the structure's fields, so the anonymous constructor
+supplies the required inhabitant.
+\end{proof}
+\formal{continuousneuralfield-free}
+\scope A constructor taking a mesh to such a field would therefore typecheck
+with a kernel unrelated to that mesh, and its proof would be a definitional
+unfolding. The statement records that the edge would carry no information, not
+that a limit fails to converge.
+
+\subsection{The candidate kernel does carry the weights}
+Write $\mathrm{emb}$ for a triangulation's vertex embedding into $M$ and $w$ for
+its edge weights. The induced kernel places each weight at its embedded pair,
+\[
+  \mathrm{vertexKernel}(x,y)=\sum_{u}\sum_{v}
+    \bigl[\,x=\mathrm{emb}\,u \ \wedge\ y=\mathrm{emb}\,v\,\bigr]\;w(u,v),
+\]
+and vanishes off the image of the vertex set.
+
+\begin{claim}
+The kernel is sited on the finite set $\mathrm{emb}[V]$: if $x\notin
+\mathrm{emb}[V]$ then $\mathrm{vertexKernel}(x,y)=0$ for every $y$.
+\end{claim}
+\begin{proof}
+Fix such an $x$ and any $y$. Every summand carries the condition
+$x=\mathrm{emb}\,u$; were it met for some $u$, $x$ would lie in the image. So
+each summand is zero, and both sums vanish.
+\end{proof}
+\formal{vertexkernel-sitedon}
+
+\begin{claim}
+If $\mathrm{emb}$ is injective, then
+$\mathrm{vertexKernel}(\mathrm{emb}\,u,\mathrm{emb}\,v)=w(u,v)$.
+\end{claim}
+\begin{proof}
+Injectivity makes $\mathrm{emb}\,u=\mathrm{emb}\,b$ fail for $b\neq u$, so the
+outer sum reduces to its $u$th term, and the inner sum to its $v$th by the same
+argument. That term is $w(u,v)$.
+\end{proof}
+\formal{vertexkernel-apply-embedding}
+\scope This is what stops the next result from being a statement about a kernel
+that was zero from the outset. At embedded pairs the kernel takes precisely the
+value the triangulation assigns.
+
+\subsection{The no-go}
+The field results are stated through the coupling functional
+\[
+  \mathrm{fieldCorrelation}(\mu,\theta,K)
+    =\int_M\!\Bigl(\int_M K(x,y)\,\cos\bigl(\theta(y)-\theta(x)\bigr)\,d\mu(y)\Bigr)d\mu(x).
+\]
+
+\begin{claim}
+On a substrate whose measure has no atoms,
+$\mathrm{fieldCorrelation}(\mu,\theta,\mathrm{vertexKernel})=0$ --- for every
+weight assignment and every phase field.
+\end{claim}
+\begin{proof}
+By the siting claim the inner integral vanishes for each $x$ outside the finite
+set $\mathrm{emb}[V]$. A finite set is a finite union of singletons, and no
+singleton carries mass, so that set is null. The outer integral of a function
+supported in a null set is zero.
+\end{proof}
+\formal{vertexkernel-fieldcorrelation-eq-zero}
+\scope The weights are unconstrained and the phase field is arbitrary, so no
+choice of triangulation data evades the conclusion. The obstruction is that the
+discrete data occupies a null set, not that the weights are small.
+
+\subsection{What this locates}
+The coarse-graining theorem converges a discrete coupling \emph{energy} --- one
+real number per triangulation --- to an integral over the substrate, and the
+edge-weight sum reaches the same scalar. Both integrate the pair structure away,
+while a continuum kernel is a function of two points. Spreading the weights over
+cells rather than vertices would require a product-structured decomposition of
+$M\times M$; the triangulation's edge regions are subsets of $M$ alone.
+
+\scope These statements bound what the development establishes, not what is
+physically the case. A different construction relating discrete and continuum
+couplings is not excluded; what is excluded is that this kernel, on an atomless
+substrate, registers in this functional. The chain accordingly identifies the
+coarse-graining limit with a mean-field coupling \emph{constant}, and no
+continuum kernel enters it.

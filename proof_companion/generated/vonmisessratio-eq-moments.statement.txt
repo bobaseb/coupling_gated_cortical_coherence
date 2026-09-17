@@ -1,0 +1,3 @@
+∀ (a : ℝ),
+  PhysicsOfConsciousness.vonMisesSRatio a =
+    1 - PhysicsOfConsciousness.vmMoment 2 a / PhysicsOfConsciousness.vmMoment 0 a

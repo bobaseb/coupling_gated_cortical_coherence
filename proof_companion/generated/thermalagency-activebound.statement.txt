@@ -1,0 +1,2 @@
+PhysicsOfConsciousness.Chain.ActiveBound PhysicsOfConsciousness.Examples.ThermalAgency.actuation 1
+  PhysicsOfConsciousness.Examples.ThermalAgency.heat (Real.log 2)

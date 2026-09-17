@@ -1,0 +1,4 @@
+PhysicsOfConsciousness.Chain.E45Active
+PhysicsOfConsciousness.Chain.thermalAgency_activeBound
+PhysicsOfConsciousness.Examples.ThermalAgency.actuation
+PhysicsOfConsciousness.Examples.ThermalAgency.heat

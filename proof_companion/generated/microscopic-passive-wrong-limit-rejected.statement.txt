@@ -1,0 +1,2 @@
+¬PhysicsOfConsciousness.Chain.E45 Bool Bool Bool
+    PhysicsOfConsciousness.Examples.MicroscopicCoupling.remembered.energy 0

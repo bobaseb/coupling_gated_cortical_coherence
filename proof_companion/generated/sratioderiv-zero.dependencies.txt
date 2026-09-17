@@ -1,0 +1,2 @@
+PhysicsOfConsciousness.sRatioDeriv
+PhysicsOfConsciousness.vmMoment

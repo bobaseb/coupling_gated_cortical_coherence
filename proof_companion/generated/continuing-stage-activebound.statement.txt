@@ -1,0 +1,4 @@
+∀ k < 3,
+  PhysicsOfConsciousness.Chain.ActiveBound
+    (PhysicsOfConsciousness.Examples.Continuing.agent.protocol.step k) 1
+    (PhysicsOfConsciousness.Examples.Continuing.agent.protocol.stageHeat 1 k) (4 * Real.log 3)

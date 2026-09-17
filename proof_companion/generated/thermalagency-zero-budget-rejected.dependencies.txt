@@ -1,0 +1,10 @@
+PhysicsOfConsciousness.Chain.ActiveBound
+PhysicsOfConsciousness.Examples.ThermalAgency.actuation
+PhysicsOfConsciousness.Examples.ThermalAgency.actuation_cost_positive
+PhysicsOfConsciousness.Examples.ThermalAgency.heat
+PhysicsOfConsciousness.FiniteFeedbackStep.entropyProduction
+PhysicsOfConsciousness.FiniteFeedbackStep.final
+PhysicsOfConsciousness.FiniteFeedbackStep.initial
+PhysicsOfConsciousness.FiniteFeedbackStep.meanHeat
+PhysicsOfConsciousness.ProbDist.p
+PhysicsOfConsciousness.shannon_entropy

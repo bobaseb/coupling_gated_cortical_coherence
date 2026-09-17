@@ -1,0 +1,9 @@
+∀ {M : Type u_1} {X : Type u_2} {S : Type u_3} {Sg' : Type u_4} {I : Type u_5}
+  [inst : TopologicalSpace M] [inst_1 : CompactSpace M] [inst_2 : MeasurableSpace M]
+  [inst_3 : BorelSpace M] [inst_4 : SecondCountableTopology M] [inst_5 : Fintype X]
+  [inst_6 : Fintype S] [inst_7 : Fintype I] [inst_8 : MeasurableSpace X]
+  [MeasurableSingletonClass X] [inst_10 : MeasurableSpace S] [MeasurableSingletonClass S]
+  [inst_12 : MeasurableSpace Sg'] (A : PhysicsOfConsciousness.KernelArrangement M X S I)
+  (R : PhysicsOfConsciousness.PredictiveDissipation X S Sg'),
+  PhysicsOfConsciousness.PredictiveDissipation.joint Sg' = A.law.toMeasure →
+    PhysicsOfConsciousness.Chain.E45 X S Sg' A.energy A.continuumEnergy

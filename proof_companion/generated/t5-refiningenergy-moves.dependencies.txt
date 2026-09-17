@@ -1,0 +1,8 @@
+PhysicsOfConsciousness.Chain.cortexMeasureSpace._proof_2
+PhysicsOfConsciousness.Chain.t5_refiningEnergy
+PhysicsOfConsciousness.Chain.t5_refiningEnergy._proof_1
+PhysicsOfConsciousness.Examples.gridTriangulation
+PhysicsOfConsciousness.Examples.instFintypeGridV
+PhysicsOfConsciousness.Examples.tent_energy_one
+PhysicsOfConsciousness.Examples.tent_energy_two
+PhysicsOfConsciousness.discreteEnergy

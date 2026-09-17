@@ -1,0 +1,4 @@
+PhysicsOfConsciousness.Chain.vertexKernel
+PhysicsOfConsciousness.TriangulatedManifold
+PhysicsOfConsciousness.TriangulatedManifold.V
+PhysicsOfConsciousness.TriangulatedManifold.embedding

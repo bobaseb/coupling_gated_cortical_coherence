@@ -1,0 +1,4 @@
+∀ {Xs : Type u_1} {Sg : Type u_2} {Sg' : Type u_3} [inst : MeasurableSpace Xs]
+  [inst_1 : MeasurableSpace Sg] [inst_2 : MeasurableSpace Sg'],
+  Nonempty (PhysicsOfConsciousness.PredictiveDissipation Xs Sg Sg') →
+    PhysicsOfConsciousness.Chain.PredictiveBound Xs Sg Sg'

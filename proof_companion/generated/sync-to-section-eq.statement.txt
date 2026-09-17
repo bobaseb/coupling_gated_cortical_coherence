@@ -1,0 +1,8 @@
+∀ {X : TopCat} [inst : MeasurableSpace ↑X] [inst_1 : BorelSpace ↑X]
+  [inst_2 : PhysicsOfConsciousness.TriangulatedManifold ↑X]
+  (T : PhysicsOfConsciousness.ThermodynamicCover X)
+  (i : PhysicsOfConsciousness.LocalSectionSynchronization.I X),
+  PhysicsOfConsciousness.LocalSectionSynchronization.sync_to_section i =
+    (CategoryTheory.ConcreteCategory.hom
+        ((PhysicsOfConsciousness.probabilityPresheaf X).map (CategoryTheory.homOfLE ⋯).op))
+      T.invariantMeasure

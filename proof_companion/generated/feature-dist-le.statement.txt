@@ -1,0 +1,10 @@
+∀ {α : Type u_1} {ι : Type u_2} [inst : Fintype α] [inst_1 : Fintype ι] {U : ι → Set α}
+  {w v s : ι → α → NNReal} {ε : NNReal} {Y : Type u_3} [inst_2 : PseudoMetricSpace Y] {L : NNReal}
+  {F : (α → NNReal) → Y},
+  LipschitzWith L F →
+    PhysicsOfConsciousness.ApproximateGluing.IsPartition U w →
+      PhysicsOfConsciousness.ApproximateGluing.IsPartition U v →
+        PhysicsOfConsciousness.ApproximateGluing.Compatible U s ε →
+          dist (F (PhysicsOfConsciousness.ApproximateGluing.select w s))
+              (F (PhysicsOfConsciousness.ApproximateGluing.select v s)) ≤
+            ↑L * ↑ε

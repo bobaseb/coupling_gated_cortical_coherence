@@ -1,0 +1,1 @@
+PhysicsOfConsciousness.vmMoment 3 0 = 0

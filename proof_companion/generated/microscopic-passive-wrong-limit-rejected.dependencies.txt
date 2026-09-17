@@ -1,0 +1,7 @@
+PhysicsOfConsciousness.Chain.E45
+PhysicsOfConsciousness.Chain.predictiveBound_of_nonempty
+PhysicsOfConsciousness.Examples.MicroscopicCoupling.remembered
+PhysicsOfConsciousness.Examples.MicroscopicCoupling.remembered_limit
+PhysicsOfConsciousness.Examples.frozenSystem
+PhysicsOfConsciousness.KernelArrangement.energy
+PhysicsOfConsciousness.PredictiveDissipation

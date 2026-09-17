@@ -1,0 +1,9 @@
+PhysicsOfConsciousness.ActuatedCoupling
+PhysicsOfConsciousness.ActuatedCoupling.continuumLimit
+PhysicsOfConsciousness.ActuatedCoupling.heat
+PhysicsOfConsciousness.ActuatedCoupling.step
+PhysicsOfConsciousness.ActuatedCoupling.temperature
+PhysicsOfConsciousness.Chain.ActiveBound
+PhysicsOfConsciousness.Chain.actuated_activeBound
+PhysicsOfConsciousness.Examples.ActuatedField.normalized
+PhysicsOfConsciousness.Examples.ActuatedField.normalized_limit

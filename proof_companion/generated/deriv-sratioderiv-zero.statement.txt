@@ -1,0 +1,1 @@
+deriv PhysicsOfConsciousness.sRatioDeriv 0 = -1 / 8

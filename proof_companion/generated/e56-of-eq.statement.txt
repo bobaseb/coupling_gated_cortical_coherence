@@ -1,0 +1,4 @@
+∀ {M : Type u_1} [inst : MeasureTheory.MeasureSpace M] [inst_1 : TopologicalSpace M]
+  (kernel : PhysicsOfConsciousness.StochasticNeuralField M) (E : ℕ → ℝ),
+  Nonempty (PhysicsOfConsciousness.IsEMFieldCoupling kernel 3 1) →
+    PhysicsOfConsciousness.Chain.E56 kernel E 3 3 1

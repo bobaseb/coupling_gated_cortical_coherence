@@ -1,0 +1,9 @@
+PhysicsOfConsciousness.Chain.activeBound_of_e34Active
+PhysicsOfConsciousness.Chain.dissipates_of_not_surjective
+PhysicsOfConsciousness.Chain.registerBudget_e34Active
+PhysicsOfConsciousness.Chain.witness_not_surjective
+PhysicsOfConsciousness.Examples.RegisterBudget.cycle
+PhysicsOfConsciousness.Examples.boolStatMech
+PhysicsOfConsciousness.Examples.boolThermo
+PhysicsOfConsciousness.RegisterLedger.heat
+PhysicsOfConsciousness.RegisterLedger.step

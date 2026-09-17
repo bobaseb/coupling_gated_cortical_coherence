@@ -1,0 +1,8 @@
+PhysicsOfConsciousness.Chain.E45
+PhysicsOfConsciousness.Chain.e45_of_localActuator
+PhysicsOfConsciousness.Examples.MicroscopicCoupling.frozen_law
+PhysicsOfConsciousness.Examples.MicroscopicCoupling.remembered
+PhysicsOfConsciousness.Examples.MicroscopicCoupling.remembered_continuumEnergy
+PhysicsOfConsciousness.Examples.frozenSystem
+PhysicsOfConsciousness.KernelArrangement.continuumEnergy
+PhysicsOfConsciousness.KernelArrangement.energy

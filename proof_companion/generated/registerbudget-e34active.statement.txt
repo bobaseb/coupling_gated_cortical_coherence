@@ -1,0 +1,3 @@
+PhysicsOfConsciousness.Chain.E34Active PhysicsOfConsciousness.Examples.RegisterBudget.cycle.update
+  (PhysicsOfConsciousness.Examples.RegisterBudget.cycle.step 0)
+  (PhysicsOfConsciousness.Examples.RegisterBudget.cycle.heat 0)

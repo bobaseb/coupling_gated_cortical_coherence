@@ -1,0 +1,2 @@
+PhysicsOfConsciousness.is_prob_dist
+PhysicsOfConsciousness.shannon_entropy_le_log_card

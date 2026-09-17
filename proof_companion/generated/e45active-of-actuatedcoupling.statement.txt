@@ -1,0 +1,5 @@
+∀ {M : Type u_1} {Xs : Type u_2} {S : Type u_3} [inst : PseudoMetricSpace M]
+  [inst_1 : MeasurableSpace M] [inst_2 : Fintype Xs] [inst_3 : Fintype S]
+  (A : PhysicsOfConsciousness.ActuatedCoupling M Xs S) (budget : ℝ),
+  PhysicsOfConsciousness.Chain.E45Active A.step A.temperature A.heat budget A.energy
+    A.continuumLimit

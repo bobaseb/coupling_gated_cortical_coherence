@@ -1,0 +1,6 @@
+PhysicsOfConsciousness.Chain.vertexKernel
+PhysicsOfConsciousness.Chain.vertexKernel_sitedOn
+PhysicsOfConsciousness.TriangulatedManifold
+PhysicsOfConsciousness.TriangulatedManifold.V
+PhysicsOfConsciousness.TriangulatedManifold.embedding
+PhysicsOfConsciousness.fieldCorrelation_sited_eq_zero

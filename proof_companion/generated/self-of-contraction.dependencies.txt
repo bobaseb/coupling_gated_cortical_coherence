@@ -1,0 +1,6 @@
+PhysicsOfConsciousness.GlobalSection
+PhysicsOfConsciousness.ReflexiveBoundary
+PhysicsOfConsciousness.ReflexiveBoundary.predict
+PhysicsOfConsciousness.critical_coupling
+PhysicsOfConsciousness.resonanceRate
+PhysicsOfConsciousness.self_of_supercritical

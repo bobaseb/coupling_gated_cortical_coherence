@@ -1,0 +1,12 @@
+∀ {X : Type u_1} {S : Type u_2} [inst : Fintype X] [inst_1 : Fintype S] [Nonempty S]
+  (M : PhysicsOfConsciousness.FiniteFeedbackStep X S),
+  M.Positive →
+    ∀ (θ : ℝ),
+      0 < θ →
+        ∀ (q : X → S → S → ℝ),
+          M.LocalDetailedBalance θ q →
+            ∀ (budget : ℝ),
+              M.meanHeat q ≤ budget →
+                PhysicsOfConsciousness.shannon_entropy M.initial.p -
+                    PhysicsOfConsciousness.shannon_entropy M.final.p ≤
+                  budget / θ

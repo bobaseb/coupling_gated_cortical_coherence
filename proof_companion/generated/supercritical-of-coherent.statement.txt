@@ -1,0 +1,4 @@
+∀ {K D : ℝ},
+  0 < D →
+    0 ≤ K →
+      PhysicsOfConsciousness.Chain.Coherent K D → PhysicsOfConsciousness.critical_coupling D < K

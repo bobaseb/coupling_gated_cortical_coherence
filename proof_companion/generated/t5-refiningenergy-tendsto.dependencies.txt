@@ -1,0 +1,6 @@
+PhysicsOfConsciousness.Chain.t5_refiningEnergy
+PhysicsOfConsciousness.Examples.gridTriangulation
+PhysicsOfConsciousness.Examples.grid_mesh_refinement
+PhysicsOfConsciousness.Examples.instFintypeGridV
+PhysicsOfConsciousness.Examples.tent_uniformContinuous
+PhysicsOfConsciousness.discreteEnergy

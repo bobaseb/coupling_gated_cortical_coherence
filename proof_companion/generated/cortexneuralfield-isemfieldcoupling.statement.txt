@@ -1,0 +1,2 @@
+Nonempty
+  (PhysicsOfConsciousness.IsEMFieldCoupling PhysicsOfConsciousness.Chain.cortexNeuralField 3 1)

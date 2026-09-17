@@ -1,0 +1,5 @@
+∀ {α : Type u_1} {ι : Type u_2} [inst : Fintype α] [inst_1 : Fintype ι] {U : ι → Set α}
+  {w s : ι → α → NNReal},
+  PhysicsOfConsciousness.ApproximateGluing.IsPartition U w →
+    PhysicsOfConsciousness.ApproximateGluing.Compatible U s 0 →
+      ∃! g, ∀ (i : ι), Set.EqOn g (s i) (U i)

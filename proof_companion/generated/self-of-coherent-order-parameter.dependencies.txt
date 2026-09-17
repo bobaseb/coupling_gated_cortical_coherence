@@ -1,0 +1,7 @@
+PhysicsOfConsciousness.Chain.Coherent
+PhysicsOfConsciousness.Chain.self_of_contraction
+PhysicsOfConsciousness.Chain.supercritical_of_coherent
+PhysicsOfConsciousness.GlobalSection
+PhysicsOfConsciousness.ReflexiveBoundary
+PhysicsOfConsciousness.ReflexiveBoundary.predict
+PhysicsOfConsciousness.resonanceRate

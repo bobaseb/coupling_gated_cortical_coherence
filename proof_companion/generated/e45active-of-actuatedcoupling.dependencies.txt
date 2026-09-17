@@ -1,0 +1,6 @@
+PhysicsOfConsciousness.ActuatedCoupling
+PhysicsOfConsciousness.ActuatedCoupling.actuated_coarseGrains
+PhysicsOfConsciousness.ActuatedCoupling.heat
+PhysicsOfConsciousness.ActuatedCoupling.step
+PhysicsOfConsciousness.ActuatedCoupling.temperature
+PhysicsOfConsciousness.Chain.ActiveBound

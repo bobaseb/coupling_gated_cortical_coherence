@@ -1,0 +1,2 @@
+∀ (n : ℕ) (a : ℝ),
+  HasDerivAt (PhysicsOfConsciousness.vmMoment n) (PhysicsOfConsciousness.vmMoment (n + 1) a) a

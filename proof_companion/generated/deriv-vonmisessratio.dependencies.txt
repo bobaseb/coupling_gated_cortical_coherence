@@ -1,0 +1,3 @@
+PhysicsOfConsciousness.hasDerivAt_vonMisesSRatio
+PhysicsOfConsciousness.sRatioDeriv
+PhysicsOfConsciousness.vonMisesSRatio

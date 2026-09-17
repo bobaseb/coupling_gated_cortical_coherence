@@ -1,0 +1,9 @@
+∀ {M : Type u_1} [inst : TopologicalSpace M] [inst_1 : DecidableEq M]
+  (TM : PhysicsOfConsciousness.TriangulatedManifold M)
+  [inst_2 : Fintype (PhysicsOfConsciousness.TriangulatedManifold.V M)]
+  (w :
+    PhysicsOfConsciousness.TriangulatedManifold.V M →
+      PhysicsOfConsciousness.TriangulatedManifold.V M → ℝ),
+  PhysicsOfConsciousness.SitedOn
+    (Finset.image PhysicsOfConsciousness.TriangulatedManifold.embedding Finset.univ)
+    (PhysicsOfConsciousness.Chain.vertexKernel TM w)

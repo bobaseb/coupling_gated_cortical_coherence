@@ -1,0 +1,1 @@
+PhysicsOfConsciousness.sRatioDeriv 0 = 0

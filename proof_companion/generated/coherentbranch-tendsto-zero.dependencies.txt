@@ -1,0 +1,7 @@
+PhysicsOfConsciousness.coherentBranch
+PhysicsOfConsciousness.coherentBranch_spec
+PhysicsOfConsciousness.coherent_branch_continuous_at_threshold
+PhysicsOfConsciousness.critical_coupling
+PhysicsOfConsciousness.critical_coupling._proof_1
+PhysicsOfConsciousness.critical_coupling.eq_1
+PhysicsOfConsciousness.selfConsistency

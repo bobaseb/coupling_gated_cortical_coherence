@@ -1,0 +1,4 @@
+PhysicsOfConsciousness.Chain.ActiveBound
+PhysicsOfConsciousness.Chain.t5_refiningEnergy_tendsto
+PhysicsOfConsciousness.Examples.ThermalAgency.actuation
+PhysicsOfConsciousness.Examples.ThermalAgency.heat

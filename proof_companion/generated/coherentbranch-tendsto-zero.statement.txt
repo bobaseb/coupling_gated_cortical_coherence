@@ -1,0 +1,1 @@
+∀ {D : ℝ}, 0 < D → Filter.Tendsto (PhysicsOfConsciousness.coherentBranch D) (𝓝[>] (2 * D)) (𝓝 0)

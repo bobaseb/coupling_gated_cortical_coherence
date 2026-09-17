@@ -1,0 +1,7 @@
+PhysicsOfConsciousness.Chain.PredictiveBound
+PhysicsOfConsciousness.KernelArrangement
+PhysicsOfConsciousness.KernelArrangement.coarseGrains
+PhysicsOfConsciousness.KernelArrangement.law
+PhysicsOfConsciousness.PredictiveDissipation
+PhysicsOfConsciousness.PredictiveDissipation.joint
+PhysicsOfConsciousness.ProbDist.toMeasure

@@ -1,0 +1,1 @@
+PhysicsOfConsciousness.vmMoment 4 0 = 3 * π / 4

@@ -1,0 +1,8 @@
+PhysicsOfConsciousness.Chain.activeBound_of_e34Active
+PhysicsOfConsciousness.Chain.dissipates_of_not_surjective
+PhysicsOfConsciousness.Chain.thermalAgency_e34Active
+PhysicsOfConsciousness.Chain.witness_not_surjective
+PhysicsOfConsciousness.Examples.ThermalAgency.actuation
+PhysicsOfConsciousness.Examples.ThermalAgency.heat
+PhysicsOfConsciousness.Examples.boolStatMech
+PhysicsOfConsciousness.Examples.boolThermo

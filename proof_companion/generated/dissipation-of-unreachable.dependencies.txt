@@ -1,0 +1,6 @@
+PhysicsOfConsciousness.Chain.Capacity
+PhysicsOfConsciousness.Chain.Dissipates
+PhysicsOfConsciousness.Chain.capacity
+PhysicsOfConsciousness.Chain.dissipates_of_not_surjective
+PhysicsOfConsciousness.StatisticalMechanics
+PhysicsOfConsciousness.StatisticalMechanics.toThermodynamics

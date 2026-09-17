@@ -1,0 +1,1 @@
+∀ (n : ℕ), Differentiable ℝ (PhysicsOfConsciousness.vmMoment n)

@@ -1,0 +1,3 @@
+PhysicsOfConsciousness.Chain.E34Active (fun x => true)
+  PhysicsOfConsciousness.Examples.ThermalAgency.actuation
+  PhysicsOfConsciousness.Examples.ThermalAgency.heat

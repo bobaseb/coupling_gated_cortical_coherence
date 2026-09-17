@@ -1,0 +1,1 @@
+∀ (L : ℝ), PhysicsOfConsciousness.Chain.CoarseGrains (fun x => L) L

@@ -1,0 +1,6 @@
+PhysicsOfConsciousness.contDiff_two_vmMoment
+PhysicsOfConsciousness.vmMoment
+PhysicsOfConsciousness.vonMisesSRatio
+PhysicsOfConsciousness.vonMisesSRatio_eq_moments
+PhysicsOfConsciousness.vonMisesZ
+PhysicsOfConsciousness.vonMisesZ_pos

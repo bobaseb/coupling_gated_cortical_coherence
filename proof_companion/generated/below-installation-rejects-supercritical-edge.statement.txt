@@ -1,0 +1,6 @@
+∀ {K : ℝ},
+  PhysicsOfConsciousness.Chain.E56 PhysicsOfConsciousness.Examples.InstalledCoupling.belowField
+      PhysicsOfConsciousness.Examples.InstalledCoupling.below.energy
+      PhysicsOfConsciousness.Examples.InstalledCoupling.below.continuumEnergy K 1 →
+    ¬PhysicsOfConsciousness.Chain.E67
+        PhysicsOfConsciousness.Examples.InstalledCoupling.below.continuumEnergy K 1

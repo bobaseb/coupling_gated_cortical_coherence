@@ -1,0 +1,101 @@
+\section{That the chain is not vacuous, and what it still does not say}
+\label{sec:satisfiability}
+Both chain theorems are conditional: each accepts eight named implications and
+concludes \texttt{UnifiedSelf}. A conditional theorem whose hypotheses nothing
+satisfies proves nothing about anything, so the development supplies witnesses
+discharging all eight at once, and --- separately --- counterexamples showing
+that the same hypotheses cannot be met by substituting an arbitrary target.
+
+\subsection{All eight arrows on one substrate}
+\begin{claim}
+There are a double well, an absorbing register, an erasing update, a refining
+mesh, and a field and cover over the type \texttt{Cortex} that satisfy $E12$
+through $E89$ simultaneously; hence \texttt{UnifiedSelf} holds for the supplied
+reflexive boundary.
+\end{claim}
+\begin{proof}
+Apply the passive chain to those components. The first four arrows are supplied
+by their witnesses; $E56$ is discharged by the numerals $D=1$, $K=3$, $L=3$
+together with the identification of the supplied field, $E67$ by evaluating the
+critical coupling and comparing $3>2$, $E78$ by the cover's reachability at
+coupling three, and $E89$ by the constructed section, its restriction equations,
+the Lipschitz bound and the fixed-point equation.
+\end{proof}
+\formal{chain-hypotheses-jointly-satisfiable}
+\scope The components are separate toy constructions sharing one index type.
+Their simultaneous satisfaction establishes that the hypotheses are consistent,
+and identifies no physical mechanism common to a double well, a register, a mesh
+and a cortical cover. In particular nothing here interprets \texttt{Cortex} as
+cortex.
+
+\subsection{Four active branches, not one}
+The active chain replaces the passive predictive node with a heat-budget node.
+The development discharges its hypotheses four times over, at increasing
+physical specificity: with a noisy actuator, with that actuator held to a named
+register budget, with a process-dependent actuated field, and with a kernel
+built from mode occupancies on a product space.
+\formal{chain-active-hypotheses-jointly-satisfiable}
+\formal{chain-active-budget-jointly-satisfiable}
+\formal{chain-active-actuated-jointly-satisfiable}
+\formal{chain-active-microscopic-jointly-satisfiable}
+\scope Only the arrow feeding coarse-graining differs between them; every
+downstream input is unchanged. That four arrangements discharge the same
+obligations is evidence that the obligations are weak, not that the arrangements
+agree about a mechanism.
+
+\subsection{The obligations are not free}
+Two kinds of rejection fence the active node. The first concerns the budget.
+
+\begin{claim}
+The actuator does not satisfy \texttt{ActiveBound} at budget $0$.
+\end{claim}
+\begin{proof}
+\texttt{ActiveBound} requires the process's cost to lie below the budget. The
+actuator's cost is positive, and a positive real is not at most zero.
+\end{proof}
+\formal{thermalagency-zero-budget-rejected}
+
+The second concerns the limit. Each convergence arrow says that, \emph{given}
+the bound, a named energy sequence tends to a named target. Since the bound
+genuinely holds for these processes, the arrow can be applied, and the target is
+then pinned by uniqueness of limits.
+
+\begin{claim}
+The active convergence arrow fails for the constant-zero energy sequence at
+target $3$; for the actuated sequence at target $0$; and for the microscopic
+sequence at target $0$. The passive arrow likewise fails for the remembered
+sequence at target $0$.
+\end{claim}
+\begin{proof}
+In each case supply the arrow with the bound that does hold, obtaining
+convergence of the sequence to the stated target. The same sequence is already
+known to converge --- the constant sequence to $0$, the others to their computed
+spatial limits. Uniqueness of limits in $\mathbb{R}$ equates the two values, and
+the resulting numerical identity is false.
+\end{proof}
+\formal{thermalagency-wrong-limit-rejected}
+\formal{actuated-wrong-limit-rejected}
+\formal{microscopic-wrong-limit-rejected}
+\formal{microscopic-passive-wrong-limit-rejected}
+\scope These are rejections rather than vacuous implications precisely because
+the premise is inhabited in each case. They show that the convergence arrows
+constrain which energy sequence and which limit may be supplied; they do not
+show that any particular sequence is the physically correct one. Choosing it
+remains a modelling obligation outside the theorem.
+
+\subsection{The passive edge does not pick out its hardware}
+\begin{claim}
+Two different declared systems over the same joint law --- one retaining its
+memory, one scrambling it --- discharge the identical passive convergence edge.
+\end{claim}
+\begin{proof}
+Each supplies the joint law that the edge's construction requires, and the
+convergence itself is the same spatial fact about the shared energy sequence.
+Neither proof consults the system's efficiency.
+\end{proof}
+\formal{microscopic-e45}
+\formal{microscopic-e45-scrambled}
+\scope The edge is therefore insensitive to how well the hardware preserves
+what it stores. No configuration law, partition or efficiency is selected by
+discharging it, which bounds how much the passage through this node can be read
+as a claim about physical implementation.

@@ -1,0 +1,1 @@
+∀ (a : ℝ), HasDerivAt PhysicsOfConsciousness.vonMisesSRatio (PhysicsOfConsciousness.sRatioDeriv a) a

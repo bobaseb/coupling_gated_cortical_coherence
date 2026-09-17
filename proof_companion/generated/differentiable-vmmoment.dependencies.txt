@@ -1,0 +1,2 @@
+PhysicsOfConsciousness.hasDerivAt_vmMoment
+PhysicsOfConsciousness.vmMoment

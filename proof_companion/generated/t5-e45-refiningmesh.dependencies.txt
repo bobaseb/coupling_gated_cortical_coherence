@@ -1,0 +1,2 @@
+PhysicsOfConsciousness.Chain.PredictiveBound
+PhysicsOfConsciousness.Chain.t5_refiningEnergy_tendsto

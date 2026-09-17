@@ -1,0 +1,4 @@
+PhysicsOfConsciousness.Chain.ActiveBound
+  PhysicsOfConsciousness.Examples.ActuatedField.normalized.step
+  PhysicsOfConsciousness.Examples.ActuatedField.normalized.temperature
+  PhysicsOfConsciousness.Examples.ActuatedField.normalized.heat (Real.log 2)
