@@ -1,0 +1,7 @@
+PhysicsOfConsciousness.KernelMesh
+PhysicsOfConsciousness.KernelMesh.energy
+PhysicsOfConsciousness.KernelMesh.energy_eq_integral
+PhysicsOfConsciousness.KernelMesh.kernel
+PhysicsOfConsciousness.KernelMesh.kernel_tendsto
+PhysicsOfConsciousness.KernelMesh.snap
+PhysicsOfConsciousness.KernelMesh.snap_measurable

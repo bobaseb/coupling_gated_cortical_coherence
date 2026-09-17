@@ -1255,13 +1255,15 @@ open Examples in
 example : E45 Bool Bool Bool t5_refiningEnergy 3 := t5_e45_refiningMesh
 
 open Examples in
-/-- **All eight arrows, at once, on one substrate.**
+/-- **All eight arrows, at once, in one composition.**
 
 `#print axioms chain_hypotheses_jointly_satisfiable` reports only the three, so
 the witness is as sound as the conditional theorem whose hypotheses it
-discharges. The name remains limited to satisfiability: concrete non-trivial
-edge witnesses do not identify the double well, register, mesh and cortical
-cover as one physical mechanism. -/
+discharges. The components are separate toy constructions over different state
+spaces; the field, cover and reflexive boundary share the three-site `Cortex`.
+The name remains limited to satisfiability: concrete non-trivial edge witnesses
+do not identify the double well, register, mesh and cortical cover as one
+physical mechanism. -/
 theorem chain_hypotheses_jointly_satisfiable : UnifiedSelf (X := Cortex) cortexReflexive :=
   chain (X := Cortex) (kernel := cortexNeuralField) (sys := Bool) (fun _ => true)
     (vac := DynamicalVacuum wellV) (phi := kink) Bool Bool Bool
@@ -1277,49 +1279,31 @@ theorem chain_hypotheses_jointly_satisfiable : UnifiedSelf (X := Cortex) cortexR
     (fun _ => ⟨cortexState, (fun _ => rfl),
       cortexPredict_lipschitz_rate, cortexPredict_fixed⟩)
 
-/-! ## 9. The n5 → n7 edge: why there is not one
+/-! ## 9. Scalar refinement, vertex support, and the cell-pair alternative
 
-The figure routes n5 into n7 through n6, and the natural question is whether the
-coarse-graining theorem could produce the structure the field results are stated
-over — a `ContinuousNeuralField.ofMeshLimit`. The attempt was made and it fails,
-twice over, and neither failure is the recorded blocker (the dynamical mean-field
-limit, propagation of chaos).
+`mesh_refinement_convergence` converges a scalar coupling energy. Its edge
+regions lie in `M`, so that theorem does not recover a function on `M × M`.
+Merely constructing a `ContinuousNeuralField` would add no relation to the mesh:
+the structure accepts any drift, kernel and timescale (`continuousNeuralField_free`).
 
-**First: the structure asks for nothing, so a constructor would prove nothing.**
-`ContinuousNeuralField M` is three fields — `omega : M → ℝ`, `K : M → M → ℝ`,
-`tau : ℝ` — and no conditions. `ofMeshLimit` would typecheck with *any* kernel
-whatever, including one unrelated to the mesh, so it would be an edge whose proof
-is a definitional unfolding: precisely the manufactured edge this module exists to
-avoid. `continuousNeuralField_free` below records this as a statement rather than
-as a remark.
+Placing the weights at embedded vertex pairs does preserve each weight, but
+`vertexKernel_fieldCorrelation_eq_zero` proves that this particular kernel has
+zero continuum correlation under an atomless measure. The obstruction concerns
+point support, not finite hardware or every discrete-to-continuum construction.
 
-**Second, and this is the real finding: the coarse-graining theorem does not
-produce a kernel.** `mesh_refinement_convergence` converges the discrete coupling
-*energy* — one real number per triangulation — to `∫_S f dμ`, and
-`total_weight_eq_setIntegral` sums the edge weights to the same scalar. Both
-integrate the pair structure away. `ContinuousNeuralField.K` is a function of two
-continuum points, and nothing in the development produces one from discrete data:
-`TriangulatedManifold.edge_region` is a subset of `M`, not of `M × M`, so the
-discrete side has no product structure to pass to the limit.
+`KernelMesh` supplies the alternative product structure. It extends sampled
+weights over cell pairs, and `KernelMesh.kernel_tendsto` and `energy_tendsto`
+prove convergence to a specified continuous kernel and its integral. The
+microscopic actuator builds that kernel from declared profiles and occupancies;
+`microscopic_e45Active` uses the resulting spatial limit. The kernel is supplied
+by the hardware law, not recovered from a scalar limit or a heat bound.
 
-**And the obvious repair is blocked by a theorem.** The natural candidate kernel
-places each discrete weight at its pair of embedded vertices. `vertexKernel` is
-that kernel, and `vertexKernel_fieldCorrelation_eq_zero` shows it carries
-*exactly zero* continuum coupling energy on any substrate whose measure has no
-atoms — whatever weights the triangulation carries. A finite set is null, and the
-continuum functional cannot see it. This is the same fact as the hardware
-comparison's `fieldCorrelation_sited_eq_zero` (Derivation 8) arriving from the
-other direction: there it says discrete hardware registers nothing in the field;
-here it says a discretization's kernel registers nothing either.
-
-So the gap between n5 and n7 is one level earlier than recorded. It is not that
-the dynamics fail to pass to the limit; it is that **no kernel survives the
-passage at all**, because the theorem that does the coarse-graining is about a
-scalar. `E56` is where this lands in `chain`: the empirical commitment identifies
-the coarse-graining limit `L` with the mean-field coupling *constant* `K`, a real
-number, and the continuum kernel never enters the chain. That is the honest
-shape, and it is smaller than the manuscript's "discrete couplings coarse-grain to
-a continuous kernel" suggests.
+`E56` takes a concrete field and relates its kernel average to `L = K`. Its
+kernel conditions constrain the input and are used by
+`em_field_exhibits_phase_transition`. The downstream fixed-point proof consumes
+only the scalar conjunct. These distinctions preserve the vertex-supported
+no-go while avoiding the broader, incorrect claim that no kernel enters the
+development or the chain's hypotheses.
 -/
 
 /-- **`ContinuousNeuralField` constrains nothing.** Any drift, any kernel and any
@@ -1369,15 +1353,19 @@ theorem vertexKernel_apply_embedding {M : Type*} [TopologicalSpace M] [Decidable
     simp [hne]
   · intro h; exact absurd (Finset.mem_univ u) h
 
-/-- **The no-go for the n5 → n7 edge.** A triangulation's weights, placed at its
-vertices, contribute exactly zero to the continuum coupling energy on any
-substrate whose measure has no atoms — whatever the weights are and whatever the
-phase field does.
+/-- **The no-go for the vertex-supported kernel.** A triangulation's weights,
+placed at its vertices, contribute exactly zero to the continuum coupling energy
+on any substrate whose measure has no atoms — whatever the weights are and
+whatever the phase field does.
 
 The discrete data lives on a finite set, the finite set is null, and the
-functional the field theorems are stated in ignores null sets. Spreading the
-weights over cells instead would need a product-structured decomposition of
-`M × M`, and `TriangulatedManifold.edge_region` provides only subsets of `M`. -/
+functional the field theorems are stated in ignores null sets. What is excluded
+is this kernel, on an atomless substrate, in this functional. Spreading the
+weights over cell pairs instead escapes the argument, and `KernelMesh` is that
+construction: its cells carry positive mass, and `KernelMesh.energy_tendsto`
+converges the resulting energies to the integral of a supplied continuous
+kernel. A triangulation alone does not supply those cells —
+`TriangulatedManifold.edge_region` provides subsets of `M`, not of `M × M`. -/
 theorem vertexKernel_fieldCorrelation_eq_zero {M : Type*} [TopologicalSpace M]
     [MeasurableSpace M] [DecidableEq M] (TM : TriangulatedManifold M) [Fintype TM.V]
     (w : TM.V → TM.V → ℝ) (μ : Measure M) [NullSingletonClass μ] (theta : M → ℝ) :

@@ -1,6 +1,7 @@
 -- This module serves as the root of the `PhysicsOfConsciousness` library.
 -- Import modules here that should be built as part of the library.
 import PhysicsOfConsciousness.Phase1_Primitives
+import PhysicsOfConsciousness.Phase1_MeasureGluing
 import PhysicsOfConsciousness.Phase1_PhaseSpaceCapacity
 import PhysicsOfConsciousness.Phase2_SimplicialBridge
 import PhysicsOfConsciousness.Phase2_MeshConvergence

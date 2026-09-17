@@ -5,18 +5,20 @@
 
 This directory owns the whole exercise of making the repository's Lean proofs
 readable and auditable as mathematics. The second coverage stage covers
-**116 results in four modules**. Three of them — `Chain`, `Phase5_GlobalSection`
-and `Phase8_CriticalExponent` — are covered **completely**: every theorem they
-declare has an extracted statement, so the appendix shows what those modules
-contain rather than only what the prose discusses. The fourth contributes a
-single witness. The long-term scope is the project's own development, with
+**129 results in seven modules**. Four of them — `Chain`,
+`Phase5_GlobalSection`, `Phase8_CriticalExponent` and `Phase1_MeasureGluing` —
+are covered **completely**: every theorem they declare has an extracted
+statement, so the appendix shows what those modules contain rather than only
+what the prose discusses. The remaining three contribute selected witnesses and
+convergence results. The long-term scope is the project's own development, with
 Mathlib results identified as dependencies rather than expanded into a second
 copy of Mathlib.
 
 The current document explains exact and approximate gluing, the stationary
 critical exponent, the passive conditional chain, the witnesses and
-counterexamples that fence that chain, the no-go result separating discrete
-meshes from continuum kernels, and a nonconstant witness.
+counterexamples that fence that chain, the no-go for the vertex-supported
+kernel beside the cell-pair construction that avoids it, and a nonconstant
+witness.
 Its formal appendix is generated from Lean; the mathematical explanations in
 `chapters/` are editorial drafts prepared against the source proofs. The current
 tool **does not automatically translate arbitrary Lean proofs into English**.
@@ -41,9 +43,9 @@ Lean's verification of the source does not certify the prose translation.
 
 Term proofs remain covered even when their tactic array is empty. Missing or
 imported selections, elaboration errors, and selected results using axioms outside
-`propext`, `Classical.choice`, and `Quot.sound` fail extraction. The four saved
-snapshots contain **4,338 nested tactic records**, including wrapper and macro
-events; these are not 4,338 independent mathematical steps.
+`propext`, `Classical.choice`, and `Quot.sound` fail extraction. The seven saved
+snapshots contain **4,973 nested tactic records**, including wrapper and macro
+events; these are not 4,973 independent mathematical steps.
 
 `GenerateSelection.lean` proposes candidates for the selection by enumerating the
 **elaborated environment** — never by matching regular expressions against source,
@@ -86,7 +88,7 @@ binary and LaTeX sources are installed but the `xelatex` launcher is absent.
 It does not install packages or change the system TeX configuration.
 
 ```sh
-# Re-elaborate the four selected modules; refresh saved data and fingerprints.
+# Re-elaborate the seven selected modules; refresh saved data and fingerprints.
 bash proof_companion/run.sh extract
 
 # Regenerate the appendix and trace from saved JSON. Does not invoke Lean.
@@ -167,12 +169,12 @@ follows the selection file.
 
 ## Current limits and next stages
 
-- **Coverage is selected, not complete.** Three modules are complete; the
+- **Coverage is selected, not complete.** Four modules are complete; the
   development has about 3,000 declarations in 88 files, so there is no
   whole-library coverage claim. Anonymous examples are inventoried but do not yet
   receive their own elaborated-statement/proof records or mathematical
   explanations. Most extracted statements carry no prose: the appendix is a
-  complete record for those three modules, the explanations are not.
+  complete record for those four modules, the explanations are not.
 - **The prose is editorial.** Automatic step narration, grouping and review
   are future work. First compare a generated explanation against the curated
   examples here, including term proofs and assumptions carried by fields.

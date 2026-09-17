@@ -81,6 +81,58 @@ the spatial-measure gluing theorem to the cover and that compatible family.
 \scope This argument consumes the supplied equilibrium and overlap conditions.
 The existence of a physical system satisfying them is a separate matter.
 
+\subsection{When the section represents an actual finite measure}
+Let $(U_i)_{i\in I}$ be a finite measurable cover of $X$ and let $\mu_i$ be
+finite measures, extended by zero outside their patches if necessary. Assume
+\[
+ \mu_i|_{U_i\cap U_j}=\mu_j|_{U_i\cap U_j}\qquad(i,j\in I).
+\]
+These are equalities of actual measures, before sheafification.
+
+\begin{claim}
+There is a unique finite measure $\nu$ whose restriction to each $U_i$ is
+$\mu_i|_{U_i}$.
+\end{claim}
+\begin{proof}
+Order the finite index set and put
+$D_i=U_i\setminus\bigcup_{j<i}U_j$. The $D_i$ are measurable, disjoint,
+cover $X$, and satisfy $D_i\subseteq U_i$. Define
+$\nu=\sum_i\mu_i|_{D_i}$, a finite sum of finite measures.
+On $U_k\cap D_i$, overlap agreement identifies $\mu_i$ with $\mu_k$.
+Thus $\nu|_{U_k}=\sum_i\mu_k|_{U_k\cap D_i}=\mu_k|_{U_k}$.
+Two measures with these restrictions agree on the covering pieces, hence
+are equal.
+\end{proof}
+\formal{finite-measure-gluing}
+
+\begin{claim}
+If a thermodynamic cover's local sections are the sheaf images of such
+compatible finite measures, its glued section is the image of $\nu$.
+\end{claim}
+\begin{proof}
+The sheafification map preserves restrictions. The equality of actual
+measure restrictions therefore makes the image of $\nu$ restrict to every
+supplied local section. Uniqueness of the sheaf gluing identifies this image
+with \texttt{ThermodynamicCover.invariantMeasure}.
+\end{proof}
+\formal{measure-representation}
+\scope The cover already has a finite patch index. Compatible finite-measure
+representatives are explicit additional data; no general inverse to
+sheafification is assumed. Local finite measures can always be extended by
+zero to the ambient space and recovered on their patches
+(\texttt{measureOnOpen\_map\_subtype}). No mass-one normalization is imposed.
+
+On the real line, the patches $(-\infty,1)$ and $(-1,\infty)$ carry
+$\delta_{-2}+\delta_0$ and $\delta_0+\delta_2$, respectively. They agree on
+the overlap, and their unique extension is
+$\delta_{-2}+\delta_0+\delta_2$, with total mass three.
+\formal{measure-witness-extension}
+\formal{measure-witness-mass}
+By contrast, singleton patches at every natural number, each requiring mass
+one, have no finite-measure extension: any such measure would equal counting
+measure, whose total mass is infinite.
+\formal{infinite-measure-obstruction}
+
 \subsection{Approximate agreement gives a controlled selection}
 Let the site set and patch index set be finite. Let $s_i(x)\geq0$ be local
 mass profiles represented as functions on the ambient sites. Let

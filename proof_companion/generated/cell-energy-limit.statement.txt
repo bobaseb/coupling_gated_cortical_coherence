@@ -1,0 +1,7 @@
+∀ {M : Type u_1} [inst : MeasurableSpace M] [inst_1 : TopologicalSpace M] [CompactSpace M]
+  [SecondCountableTopology M] [BorelSpace M] (G : ℕ → PhysicsOfConsciousness.KernelMesh M)
+  (μ : MeasureTheory.Measure M) [MeasureTheory.IsFiniteMeasure μ] (K : M → M → ℝ),
+  Continuous (Function.uncurry K) →
+    (∀ (x : M), Filter.Tendsto (fun n => (G n).snap x) Filter.atTop (𝓝 x)) →
+      Filter.Tendsto (fun n => (G n).energy μ K) Filter.atTop
+        (𝓝 (∫ (z : M × M), K z.1 z.2 ∂μ.prod μ))

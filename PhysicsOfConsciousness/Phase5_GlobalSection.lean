@@ -1,4 +1,5 @@
 import PhysicsOfConsciousness.Phase4_MacroscopicScaling
+import PhysicsOfConsciousness.Phase1_MeasureGluing
 import PhysicsOfConsciousness.Phase5_ContentDynamics
 import Mathlib.CategoryTheory.Sites.Sheaf
 import Mathlib.Topology.Category.TopCat.Basic
@@ -254,6 +255,105 @@ theorem ThermodynamicCover.invariantMeasure_unique (T : ThermodynamicCover X)
       = T.sync_to_section i) :
     s = T.invariantMeasure :=
   (@global_section_from_thermodynamics X _ _ _ T).choose_spec.2 s hs
+
+section MeasureRepresentation
+
+open Set
+
+omit [TriangulatedManifold ↥X]
+
+/-- Restrict an actual finite spatial measure to an open subset, without
+renormalizing its mass. -/
+noncomputable def measureOnOpen (μ : FiniteMeasure X) (U : Opens X) : FiniteMeasure U :=
+  FiniteMeasure.comap Subtype.val μ
+
+/-- Every local finite measure can be extended by zero to the ambient space
+and recovered on its patch. Ambient representatives add no outside-patch data
+requirement to finite-measure gluing. -/
+theorem measureOnOpen_map_subtype (U : Opens X) (μ : FiniteMeasure U) :
+    measureOnOpen (μ.map (Subtype.val : U → X)) U = μ := by
+  apply FiniteMeasure.toMeasure_injective
+  exact (MeasurableEmbedding.subtype_coe U.isOpen.measurableSet).comap_map (μ : Measure U)
+
+/-- The global sheaf section represented by a finite measure. This map alone
+asserts neither surjectivity onto all sections nor mass-one normalization. -/
+noncomputable def globalSectionOfMeasure (μ : FiniteMeasure X) : GlobalSection (X := X) :=
+  (TopCat.Presheaf.toSheafify (probabilityPresheaf_pre X)).app (op ⊤)
+    (measureOnOpen μ ⊤)
+
+/-- Restriction of measures agrees with the original presheaf's restriction. -/
+theorem measureOnOpen_restrict (μ : FiniteMeasure X) {U V : Opens X} (h : V ≤ U) :
+    (probabilityPresheaf_pre X).map (homOfLE h).op (measureOnOpen μ U) =
+      measureOnOpen μ V := by
+  apply FiniteMeasure.toMeasure_injective
+  change ((μ : Measure X).comap (Subtype.val : U → X)).comap
+    (fun x : V => (⟨x.val, h x.property⟩ : U)) = (μ : Measure X).comap Subtype.val
+  exact Measure.comap_comap (inc_is_measurable_embedding X h).measurableSet_image'
+    Subtype.val_injective (MeasurableEmbedding.subtype_coe U.isOpen.measurableSet).measurableSet_image' (μ : Measure X)
+
+/-- Sheafification preserves the restrictions of an actual finite measure. -/
+theorem globalSectionOfMeasure_restrict (μ : FiniteMeasure X) (U : Opens X) :
+    (probabilityPresheaf X).map (homOfLE (le_top : U ≤ ⊤)).op (globalSectionOfMeasure μ) =
+      (TopCat.Presheaf.toSheafify (probabilityPresheaf_pre X)).app (op U) (measureOnOpen μ U) := by
+  have h := congrArg (fun f => f (measureOnOpen μ ⊤))
+    ((TopCat.Presheaf.toSheafify (probabilityPresheaf_pre X)).naturality
+      (homOfLE (le_top : U ≤ ⊤)).op)
+  change _ = (probabilityPresheaf X).map (homOfLE (le_top : U ≤ ⊤)).op
+    (globalSectionOfMeasure μ) at h
+  exact h.symm.trans (congrArg (fun m : FiniteMeasure U =>
+    (TopCat.Presheaf.toSheafify (probabilityPresheaf_pre X)).app (op U) m)
+    (measureOnOpen_restrict μ (le_top : U ≤ ⊤)))
+
+/-- Equality as restricted measures suffices for equality of patch measures.
+No converse from equality of sheaf germs is used. -/
+theorem measureOnOpen_eq_of_restrict_eq {μ ν : FiniteMeasure X} (U : Opens X)
+    (h : (μ : Measure X).restrict U = (ν : Measure X).restrict U) :
+    measureOnOpen μ U = measureOnOpen ν U := by
+  apply FiniteMeasure.toMeasure_injective
+  have he : MeasurableEmbedding (Subtype.val : U → X) := MeasurableEmbedding.subtype_coe U.isOpen.measurableSet
+  have hpre : (Subtype.val : U → X) ⁻¹' (U : Set X) = univ := by
+    ext x
+    simp
+  have h' := congrArg (fun m : Measure X => m.comap (Subtype.val : U → X)) h
+  simpa only [he.comap_restrict, hpre, Measure.restrict_univ, measureOnOpen, FiniteMeasure.toMeasure_comap] using h'
+
+/-- A thermodynamic cover with compatible finite-measure representatives glues
+to the sheaf image of an actual finite measure. Its raw measure restrictions
+uniquely determine that measure by `SpatialMeasure.finite_glue_unique`.
+
+The finite family is already supplied by the cover. The hypotheses additionally
+supply local finite-measure representatives and their agreement as measures;
+this is not a representation theorem for arbitrary sections on arbitrary spaces.
+The representative measures' values outside their respective patches are unused,
+so local measures extended by zero provide the same data. No global measure,
+normalization, or biological interpretation is assumed. -/
+theorem ThermodynamicCover.existsUnique_measure_representation
+    [TriangulatedManifold X] (T : ThermodynamicCover X)
+    (μ : T.I → FiniteMeasure X)
+    (hcompat : ∀ i j, (μ i : Measure X).restrict (T.cover i ∩ T.cover j) =
+      (μ j : Measure X).restrict (T.cover i ∩ T.cover j))
+    (hlocal : ∀ i, T.sync_to_section i =
+      (probabilityPresheaf X).map (homOfLE (le_top : T.cover i ≤ ⊤)).op
+        (globalSectionOfMeasure (μ i))) :
+    ∃! ν : FiniteMeasure X,
+      (∀ i, (ν : Measure X).restrict (T.cover i) =
+        (μ i : Measure X).restrict (T.cover i)) ∧
+      globalSectionOfMeasure ν = T.invariantMeasure := by
+  let := T.I_fintype
+  have hcover : ⋃ i, (T.cover i : Set X) = univ := by
+    simpa only [Opens.coe_iSup, Opens.coe_top] using
+      congrArg (fun U : Opens X => (U : Set X)) T.is_cover
+  obtain ⟨ν, hν, huniq⟩ := SpatialMeasure.finite_glue_unique
+    (fun i => (T.cover i : Set X)) (fun i => (T.cover i).isOpen.measurableSet)
+    hcover μ hcompat
+  refine ⟨ν, ⟨hν, T.invariantMeasure_unique _ ?_⟩, fun ξ hξ => huniq ξ hξ.1⟩
+  intro i
+  rw [hlocal i, globalSectionOfMeasure_restrict, globalSectionOfMeasure_restrict,
+    measureOnOpen_eq_of_restrict_eq (T.cover i) (hν i)]
+
+#print axioms ThermodynamicCover.existsUnique_measure_representation
+
+end MeasureRepresentation
 
 /-! ## Approximate gluing by selection on a finite spatial substrate
 

@@ -1,0 +1,6 @@
+∀ (ν : MeasureTheory.FiniteMeasure ℝ),
+  (∀ (i : Bool),
+      (↑ν).restrict (PhysicsOfConsciousness.Examples.MeasureGluing.patch i) =
+        (↑(PhysicsOfConsciousness.Examples.MeasureGluing.localMeasure i)).restrict
+          (PhysicsOfConsciousness.Examples.MeasureGluing.patch i)) →
+    ν = PhysicsOfConsciousness.Examples.MeasureGluing.glued

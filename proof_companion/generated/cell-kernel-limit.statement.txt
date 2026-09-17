@@ -1,0 +1,5 @@
+∀ {M : Type u_1} [inst : MeasurableSpace M] [inst_1 : TopologicalSpace M]
+  (G : ℕ → PhysicsOfConsciousness.KernelMesh M) (K : M → M → ℝ),
+  Continuous (Function.uncurry K) →
+    (∀ (x : M), Filter.Tendsto (fun n => (G n).snap x) Filter.atTop (𝓝 x)) →
+      ∀ (x y : M), Filter.Tendsto (fun n => (G n).kernel K x y) Filter.atTop (𝓝 (K x y))

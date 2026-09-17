@@ -59,8 +59,8 @@ the source during preparation; Lean verifies the formal proofs, not this prose.
 The explained arguments are of six kinds: exact and approximate gluing, the
 critical exponent of stationary coherent solutions, the conditional composition
 of the framework, the witnesses and counterexamples that fence that composition,
-a no-go result separating discrete meshes from continuum kernels, and a concrete
-nonconstant family. The selection is explicit in \nolinkurl{selection.json}.
+a no-go for the vertex-supported kernel beside the cell-pair construction that
+avoids it, and a concrete nonconstant family. The selection is explicit in \nolinkurl{selection.json}.
 Each of its declarations has an extracted statement in the appendix, including
 implicit type and instance parameters. Definitions and hypotheses abbreviated in
 the mathematics are spelled out where they carry substantive content.
@@ -69,9 +69,10 @@ The selection follows a stated rule rather than a list of favourites. Three
 modules --- the chain and the two analytic results it consumes --- are covered
 \emph{completely}: every theorem they declare has an extracted statement here,
 so a reader can see what those modules contain and not only what the prose
-chose to discuss. One further module contributes a single witness. Coverage of
-the rest of the development remains selected, and the coverage table records
-exactly which declarations are present.
+chose to discuss. The finite-measure gluing module is covered completely on the
+same rule. Three further modules contribute selected witnesses and convergence
+results. Coverage of the rest of the development remains selected, and the
+coverage table records exactly which declarations are present.
 
 The prose groups rewrites and elementary algebra into mathematical steps.
 Full tactic histories remain in the JSON snapshots under \nolinkurl{data/};

@@ -20,6 +20,62 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-17 — Sheafification, and a no-go stated one level too wide
+
+Two claims are withdrawn, both about what a construction in the development
+reaches.
+
+**Sheafification is not a measure representation theorem.** The supplement's
+gluing result said that compatible local measures over a continuous substrate
+"uniquely glue into a global spatial measure", and `tasks/lessons.md` recorded
+that `TopCat.Presheaf.sheafify` transforms the presheaf of finite measures into
+the sheaf of Radon measures, "fully capturing the semantics" of the glued
+object. It does not. Sheafification constructs locally representable germ
+families; identifying one with a finite or Radon measure is a separate theorem
+with its own topological and finiteness hypotheses, and inverting it on an
+arbitrary space is not available at all.
+
+What is proved now is the measure statement itself.
+`SpatialMeasure.finite_glue_unique` (`Phase1_MeasureGluing.lean`) glues actual
+finite measures on a finite measurable cover by disjointification — order the
+patches, keep the part of each not already assigned, sum the restrictions — and
+their restrictions determine the extension uniquely.
+`ThermodynamicCover.existsUnique_measure_representation` identifies that
+measure's sheaf image with the cover's `invariantMeasure`, given compatible
+finite-measure representatives of the supplied local sections as explicit extra
+data. The finiteness that matters is of the cover and the local masses, not of
+the substrate: the witness glues two Dirac pairs on overlapping open half-lines
+of ℝ and counts the shared atom once. Unit mass at every natural number, on the
+singleton cover, has no finite-measure extension, so the finite-cover
+hypothesis is not decoration. Nothing here normalizes the mass or interprets it
+as content.
+
+**The kernel no-go was stated about the development, not about the kernel.**
+`Chain.lean` §9 said that no kernel survives the passage from the discrete mesh
+to the continuum and that no continuum kernel enters the chain.
+`Phase2_KernelMesh` builds one: sampled weights extended over whole cell pairs,
+converging pointwise (`KernelMesh.kernel_tendsto`) and under the integral
+(`KernelMesh.energy_tendsto`) to a supplied continuous kernel, with
+`microscopic_e45Active` feeding that spatial limit into the active chain. The
+surviving no-go is the narrower one it was always proved from: the
+*vertex-supported* kernel carries exactly zero continuum coupling energy on an
+atomless substrate, because finitely many points are null. That obstruction is
+about point support, not about every discrete-to-continuum construction, and
+the kernel the chain receives is supplied by the hardware law rather than
+recovered from a scalar limit.
+
+Two smaller scope sentences go with them. The eight-arrow witness composes toy
+components over *different* state spaces — only the field, cover and reflexive
+boundary share the three-site `Cortex` — rather than standing "on one
+substrate". And the four active arrangements are four arrangements, not a
+sequence of increasing physical specificity: the register-budget one changes
+`E34Active`, the actuated and microscopic ones change `E45Active`.
+
+The publication, the primer, the proof companion's gluing and no-go chapters
+and the matching Lean docstrings are aligned; the companion's selection gains
+the measure-gluing module, its witness and the cell-pair kernel results. No
+axiom is added and no existing Lean statement is weakened.
+
 ## 2026-09-17 — Recovery benchmark and measurement scope
 
 The square-root time expression is written explicitly for the stationary branch

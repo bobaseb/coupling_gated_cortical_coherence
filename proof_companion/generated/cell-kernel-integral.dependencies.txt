@@ -1,0 +1,9 @@
+PhysicsOfConsciousness.KernelMesh
+PhysicsOfConsciousness.KernelMesh.cell
+PhysicsOfConsciousness.KernelMesh.energy
+PhysicsOfConsciousness.KernelMesh.energy_eq_integral._simp_2
+PhysicsOfConsciousness.KernelMesh.kernel
+PhysicsOfConsciousness.KernelMesh.locate
+PhysicsOfConsciousness.KernelMesh.locate_measurable
+PhysicsOfConsciousness.KernelMesh.sample
+PhysicsOfConsciousness.KernelMesh.size

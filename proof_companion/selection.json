@@ -79,6 +79,26 @@
       {
         "id": "feature-dist-le",
         "name": "PhysicsOfConsciousness.ApproximateGluing.feature_dist_le"
+      },
+      {
+        "id": "measure-zero-extension",
+        "name": "PhysicsOfConsciousness.measureOnOpen_map_subtype"
+      },
+      {
+        "id": "measure-restriction",
+        "name": "PhysicsOfConsciousness.measureOnOpen_restrict"
+      },
+      {
+        "id": "measure-section-restriction",
+        "name": "PhysicsOfConsciousness.globalSectionOfMeasure_restrict"
+      },
+      {
+        "id": "measure-patch-equality",
+        "name": "PhysicsOfConsciousness.measureOnOpen_eq_of_restrict_eq"
+      },
+      {
+        "id": "measure-representation",
+        "name": "PhysicsOfConsciousness.ThermodynamicCover.existsUnique_measure_representation"
       }
     ]
   },
@@ -488,6 +508,59 @@
       {
         "id": "nonconstant-witness",
         "name": "PhysicsOfConsciousness.Examples.richDensity_not_const"
+      }
+    ]
+  },
+  {
+    "id": "measure-gluing",
+    "module": "PhysicsOfConsciousness.Phase1_MeasureGluing",
+    "source": "PhysicsOfConsciousness/Phase1_MeasureGluing.lean",
+    "declarations": [
+      {
+        "id": "finite-measure-gluing",
+        "name": "PhysicsOfConsciousness.SpatialMeasure.finite_glue_unique"
+      },
+      {
+        "id": "infinite-measure-obstruction",
+        "name": "PhysicsOfConsciousness.SpatialMeasure.no_finite_measure_of_unit_atoms"
+      }
+    ]
+  },
+  {
+    "id": "measure-witness",
+    "module": "PhysicsOfConsciousness.Examples.MeasureGluing",
+    "source": "PhysicsOfConsciousness/Examples/MeasureGluing.lean",
+    "declarations": [
+      {
+        "id": "measure-witness-extension",
+        "name": "PhysicsOfConsciousness.Examples.MeasureGluing.extension_eq"
+      },
+      {
+        "id": "measure-witness-mass",
+        "name": "PhysicsOfConsciousness.Examples.MeasureGluing.glued_mass"
+      },
+      {
+        "id": "measure-witness-distinct",
+        "name": "PhysicsOfConsciousness.Examples.MeasureGluing.local_measures_differ"
+      }
+    ]
+  },
+  {
+    "id": "kernel-mesh",
+    "module": "PhysicsOfConsciousness.Phase2_KernelMesh",
+    "source": "PhysicsOfConsciousness/Phase2_KernelMesh.lean",
+    "declarations": [
+      {
+        "id": "cell-kernel-integral",
+        "name": "PhysicsOfConsciousness.KernelMesh.energy_eq_integral"
+      },
+      {
+        "id": "cell-kernel-limit",
+        "name": "PhysicsOfConsciousness.KernelMesh.kernel_tendsto"
+      },
+      {
+        "id": "cell-energy-limit",
+        "name": "PhysicsOfConsciousness.KernelMesh.energy_tendsto"
       }
     ]
   }

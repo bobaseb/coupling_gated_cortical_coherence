@@ -1,0 +1,4 @@
+∀ {X : TopCat} [inst : MeasurableSpace ↑X] [BorelSpace ↑X] {μ ν : MeasureTheory.FiniteMeasure ↑X}
+  (U : TopologicalSpace.Opens ↑X),
+  (↑μ).restrict ↑U = (↑ν).restrict ↑U →
+    PhysicsOfConsciousness.measureOnOpen μ U = PhysicsOfConsciousness.measureOnOpen ν U

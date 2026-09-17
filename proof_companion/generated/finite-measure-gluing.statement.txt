@@ -1,0 +1,6 @@
+∀ {X : Type u_1} {I : Type u_2} [inst : MeasurableSpace X] [Fintype I] (U : I → Set X),
+  (∀ (i : I), MeasurableSet (U i)) →
+    ⋃ i, U i = Set.univ →
+      ∀ (μ : I → MeasureTheory.FiniteMeasure X),
+        (∀ (i j : I), (↑(μ i)).restrict (U i ∩ U j) = (↑(μ j)).restrict (U i ∩ U j)) →
+          ∃! ν, ∀ (i : I), (↑ν).restrict (U i) = (↑(μ i)).restrict (U i)

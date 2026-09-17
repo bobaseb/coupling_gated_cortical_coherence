@@ -1,0 +1,3 @@
+∀ {M : Type u_1} [inst : MeasurableSpace M] (G : PhysicsOfConsciousness.KernelMesh M)
+  (μ : MeasureTheory.Measure M) [MeasureTheory.IsFiniteMeasure μ] (K : M → M → ℝ),
+  G.energy μ K = ∫ (z : M × M), G.kernel K z.1 z.2 ∂μ.prod μ

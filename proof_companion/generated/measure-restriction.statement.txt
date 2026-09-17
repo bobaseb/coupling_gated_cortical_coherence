@@ -1,0 +1,6 @@
+∀ {X : TopCat} [inst : MeasurableSpace ↑X] [inst_1 : BorelSpace ↑X]
+  (μ : MeasureTheory.FiniteMeasure ↑X) {U V : TopologicalSpace.Opens ↑X} (h : V ≤ U),
+  (CategoryTheory.ConcreteCategory.hom
+        ((PhysicsOfConsciousness.probabilityPresheaf_pre X).map (CategoryTheory.homOfLE h).op))
+      (PhysicsOfConsciousness.measureOnOpen μ U) =
+    PhysicsOfConsciousness.measureOnOpen μ V

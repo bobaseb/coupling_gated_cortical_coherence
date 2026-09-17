@@ -1,8 +1,9 @@
-\section{Why the discrete mesh reaches no continuum kernel}\label{sec:no-go}
-The framework's figure routes the coarse-graining node into the field node, and
-the natural reading is that discrete couplings coarse-grain to a continuous
-kernel. Three results in the development say that this passage does not exist,
-and locate the obstruction one level earlier than a limit theorem would.
+\section{The vertex-supported obstruction and the cell-pair construction}\label{sec:no-go}
+The scalar mesh-refinement theorem does not reconstruct a continuum kernel.
+Its vertex-supported candidate contributes zero to the continuum coupling
+functional on an atomless substrate. This obstruction concerns that particular
+representation. The development also provides a cell-pair construction which
+converges to a specified continuous kernel.
 
 \subsection{The target structure constrains nothing}
 A \texttt{ContinuousNeuralField} over a substrate $M$ carries a drift
@@ -88,9 +89,25 @@ while a continuum kernel is a function of two points. Spreading the weights over
 cells rather than vertices would require a product-structured decomposition of
 $M\times M$; the triangulation's edge regions are subsets of $M$ alone.
 
-\scope These statements bound what the development establishes, not what is
-physically the case. A different construction relating discrete and continuum
-couplings is not excluded; what is excluded is that this kernel, on an atomless
-substrate, registers in this functional. The chain accordingly identifies the
-coarse-graining limit with a mean-field coupling \emph{constant}, and no
-continuum kernel enters it.
+\subsection{The positive construction and its input}
+\texttt{KernelMesh} supplies a finite measurable partition and one sample per
+cell. It extends each sampled pair value over the whole cell pair.
+\texttt{KernelMesh.kernel\_tendsto} proves pointwise convergence to a supplied
+continuous kernel when the samples approach their points;
+\texttt{KernelMesh.energy\_tendsto} passes the limit through the integral under
+compactness, second countability and finite measure. The microscopic actuator
+provides one such kernel from declared mode profiles and occupancies. These
+results are in \nolinkurl{Phase2_KernelMesh.lean} and
+\nolinkurl{Phase3_LocalActuator.lean}. The cell-pair integral identity and the
+two convergence results are included in the extracted appendix.
+\formal{cell-kernel-integral}
+\formal{cell-kernel-limit}
+\formal{cell-energy-limit}
+
+\scope The vertex-supported no-go does not obstruct this cell-pair construction.
+Its limiting kernel is specified by the hardware model, rather than inferred
+from a scalar energy alone. The chain receives a concrete field through $E56$,
+whose kernel conditions constrain the admissible input. The downstream
+fixed-point proof uses only the scalar part of $E56$; the field conditions are
+consumed separately by \texttt{em\_field\_exhibits\_phase\_transition}.
+Identifying that field with cortex remains a physical modelling obligation.

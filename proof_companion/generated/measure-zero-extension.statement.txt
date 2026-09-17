@@ -1,0 +1,3 @@
+∀ {X : TopCat} [inst : MeasurableSpace ↑X] [BorelSpace ↑X] (U : TopologicalSpace.Opens ↑X)
+  (μ : MeasureTheory.FiniteMeasure ↥U),
+  PhysicsOfConsciousness.measureOnOpen (μ.map Subtype.val) U = μ

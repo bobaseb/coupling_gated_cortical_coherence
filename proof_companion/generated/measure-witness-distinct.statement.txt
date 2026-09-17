@@ -1,0 +1,2 @@
+PhysicsOfConsciousness.Examples.MeasureGluing.localMeasure false ≠
+  PhysicsOfConsciousness.Examples.MeasureGluing.localMeasure true

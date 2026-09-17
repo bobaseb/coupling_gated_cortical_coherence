@@ -6,7 +6,7 @@ satisfies proves nothing about anything, so the development supplies witnesses
 discharging all eight at once, and --- separately --- counterexamples showing
 that the same hypotheses cannot be met by substituting an arbitrary target.
 
-\subsection{All eight arrows on one substrate}
+\subsection{All eight arrows in one composition}
 \begin{claim}
 There are a double well, an absorbing register, an erasing update, a refining
 mesh, and a field and cover over the type \texttt{Cortex} that satisfy $E12$
@@ -22,7 +22,8 @@ coupling three, and $E89$ by the constructed section, its restriction equations,
 the Lipschitz bound and the fixed-point equation.
 \end{proof}
 \formal{chain-hypotheses-jointly-satisfiable}
-\scope The components are separate toy constructions sharing one index type.
+\scope The components are separate toy constructions with different state spaces.
+The field, cover and reflexive boundary share the three-site substrate.
 Their simultaneous satisfaction establishes that the hypotheses are consistent,
 and identifies no physical mechanism common to a double well, a register, a mesh
 and a cortical cover. In particular nothing here interprets \texttt{Cortex} as
@@ -30,18 +31,20 @@ cortex.
 
 \subsection{Four active branches, not one}
 The active chain replaces the passive predictive node with a heat-budget node.
-The development discharges its hypotheses four times over, at increasing
-physical specificity: with a noisy actuator, with that actuator held to a named
+The development discharges its hypotheses with four arrangements: with a noisy
+actuator, with that actuator held to a named
 register budget, with a process-dependent actuated field, and with a kernel
 built from mode occupancies on a product space.
 \formal{chain-active-hypotheses-jointly-satisfiable}
 \formal{chain-active-budget-jointly-satisfiable}
 \formal{chain-active-actuated-jointly-satisfiable}
 \formal{chain-active-microscopic-jointly-satisfiable}
-\scope Only the arrow feeding coarse-graining differs between them; every
-downstream input is unchanged. That four arrangements discharge the same
-obligations is evidence that the obligations are weak, not that the arrangements
-agree about a mechanism.
+\scope The register-budget arrangement changes $E34Active$: its heat allocation
+is derived from the register's ledger. The actuated and microscopic arrangements
+change $E45Active$, the arrow feeding coarse-graining, using process-dependent
+spatial energies. All four retain the same downstream field, cover and boundary.
+They demonstrate several ways to satisfy the hypotheses; they do not identify
+one common physical mechanism.
 
 \subsection{The obligations are not free}
 Two kinds of rejection fence the active node. The first concerns the budget.

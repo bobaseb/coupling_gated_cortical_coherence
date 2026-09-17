@@ -1,0 +1,9 @@
+∀ {X : TopCat} [inst : MeasurableSpace ↑X] [inst_1 : BorelSpace ↑X]
+  (μ : MeasureTheory.FiniteMeasure ↑X) (U : TopologicalSpace.Opens ↑X),
+  (CategoryTheory.ConcreteCategory.hom
+        ((PhysicsOfConsciousness.probabilityPresheaf X).map (CategoryTheory.homOfLE ⋯).op))
+      (PhysicsOfConsciousness.globalSectionOfMeasure μ) =
+    (CategoryTheory.ConcreteCategory.hom
+        ((TopCat.Presheaf.toSheafify (PhysicsOfConsciousness.probabilityPresheaf_pre X)).app
+          (Opposite.op U)))
+      (PhysicsOfConsciousness.measureOnOpen μ U)

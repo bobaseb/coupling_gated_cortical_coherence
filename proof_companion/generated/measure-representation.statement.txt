@@ -1,0 +1,21 @@
+∀ {X : TopCat} [inst : MeasurableSpace ↑X] [inst_1 : BorelSpace ↑X]
+  [inst_2 : PhysicsOfConsciousness.TriangulatedManifold ↑X]
+  (T : PhysicsOfConsciousness.ThermodynamicCover X)
+  (μ : PhysicsOfConsciousness.LocalSectionSynchronization.I X → MeasureTheory.FiniteMeasure ↑X),
+  (∀ (i j : PhysicsOfConsciousness.LocalSectionSynchronization.I X),
+      (↑(μ i)).restrict
+          (↑(PhysicsOfConsciousness.LocalSectionSynchronization.cover i) ∩
+            ↑(PhysicsOfConsciousness.LocalSectionSynchronization.cover j)) =
+        (↑(μ j)).restrict
+          (↑(PhysicsOfConsciousness.LocalSectionSynchronization.cover i) ∩
+            ↑(PhysicsOfConsciousness.LocalSectionSynchronization.cover j))) →
+    (∀ (i : PhysicsOfConsciousness.LocalSectionSynchronization.I X),
+        PhysicsOfConsciousness.LocalSectionSynchronization.sync_to_section i =
+          (CategoryTheory.ConcreteCategory.hom
+              ((PhysicsOfConsciousness.probabilityPresheaf X).map (CategoryTheory.homOfLE ⋯).op))
+            (PhysicsOfConsciousness.globalSectionOfMeasure (μ i))) →
+      ∃! ν,
+        (∀ (i : PhysicsOfConsciousness.LocalSectionSynchronization.I X),
+            (↑ν).restrict ↑(PhysicsOfConsciousness.LocalSectionSynchronization.cover i) =
+              (↑(μ i)).restrict ↑(PhysicsOfConsciousness.LocalSectionSynchronization.cover i)) ∧
+          PhysicsOfConsciousness.globalSectionOfMeasure ν = T.invariantMeasure
