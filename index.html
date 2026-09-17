@@ -141,6 +141,30 @@
             background: #2980b9;
             text-decoration: none;
         }
+
+        .button-secondary {
+            background: var(--secondary-color);
+        }
+
+        .button-secondary:hover {
+            background: #1a252f;
+        }
+
+        .button-pending {
+            background: transparent;
+            color: #7f8c8d;
+            border: 1px dashed #b0bec5;
+            cursor: default;
+            font-weight: normal;
+        }
+
+        .link-note {
+            font-size: 0.95rem;
+            color: #555;
+            max-width: 760px;
+            margin: 1.25rem auto 0 auto;
+            text-align: left;
+        }
     </style>
 </head>
 <body>
@@ -153,7 +177,7 @@
     <div class="container">
         <h2>Abstract</h2>
         <div class="abstract">
-            A field account of cortical coordination holds that spatially distributed neural processes are coupled in part through the endogenous extracellular electromagnetic field. We ask what such an account must assume to reach a globally consistent, self-referential state, and what it predicts before it gets there. Its physical core is a noisy mean-field phase model whose coupling drifts through a synchronization threshold. If recovery of coherence after sleep is gated by that crossing, it is not free to take an arbitrary time course. For as long as the phase distribution tracks the stationary branch, it must show a square-root onset and a von Mises concentration&ndash;coherence relation with no fitted shape parameter. Simulations bound that constraint rather than confirm it. A Lean&nbsp;4 formalization composes finite information capacity, Landauer's bound, the noisy Kuramoto transition, sheaf gluing and Banach's theorem into one conditional theorem, isolating the eight hypotheses it consumes. We defend as a philosophical commitment, not a theorem, the identification of the glued section with the unity of a conscious episode and of its reflexive fixed point with a minimal self.
+            How could coordinated cortical activity support one internally represented situation? We distinguish coherence, agreement between local contents, and accurate self-reconstruction, and develop conditional connections among them. Declared actuator modes give a necessary installed-energy condition for a coherent stationary branch. Phase encoders shared on overlaps bound content disagreement; compatible spatial measures form one global state. A contracting reconstruction that fixes this state makes it the unique fixed point, while accuracy across a state family requires distinguishable encodings. Lean&nbsp;4 checks the results and their composition under explicit connecting hypotheses. Numerical controls delimit their observational use: finite ramps delay coherence, distinct mechanisms share stationary phase distributions, and content agreement requires independently validated decoders. We propose the global state and its internal reconstruction as correlates of unity and a minimal self. An extracellular-field hypothesis links awakening to increasing coupling. Its test requires calibrated geometry and phase dynamics, together with measurements of content agreement, self-encoding and experience.
         </div>
 
         <h2>What this is, and what it is not</h2>
@@ -199,11 +223,20 @@
         <center>
             <a href="main.pdf" class="button">Read the Full Paper</a>
             <a href="supplementary.pdf" class="button" style="background-color: var(--secondary-color);">View Mathematical Supplement</a>
+            <span class="button button-pending" aria-disabled="true">arXiv &mdash; forthcoming</span>
+            <br>
+            <a href="docs/primer.pdf" class="button button-secondary">Maths Primer</a>
+            <a href="proof_companion/companion.pdf" class="button button-secondary">Lean Proof Companion</a>
         </center>
+        <p class="link-note">The primer explains, from the ground up, the mathematics both documents
+        use, for readers coming from cognitive neuroscience, machine learning or philosophy of mind;
+        where it differs from the paper or the supplement, those are authoritative. The proof
+        companion renders the Lean development as readable mathematics, so a claim made here can be
+        checked against the statement that was actually proved.</p>
     </div>
 
     <div class="footer">
-        <p><strong>AI Assistance Declaration:</strong> This project was heavily AI-assisted, across the Lean 4 development, the simulation and analysis code, and the drafting and revision of both documents. Several assistants were used in an interleaved way throughout: the Google Antigravity CLI (Gemini 3.1, Claude 4.6 Opus, Claude 4.6 Sonnet), the OpenAI Codex CLI (Astra, Terra, Luna, Sol), Claude Code (Claude Opus 5), Gemini Pro through its web interface, and Fable (Claude Opus 4) through OpenRouter, accessed with the Hermes CLI. Because they were used in combination and in alternation, no part of the work is attributable to any one of them, and none is claimed to be. The author is responsible for all content.</p>
+        <p><strong>AI Assistance Declaration:</strong> This project was heavily AI-assisted, across the Lean 4 development, the simulation and analysis code, and the drafting and revision of both documents. Several assistants were used in an interleaved way throughout: Google's Antigravity CLI (Gemini 3.1 Pro, Claude 4.6 Opus, Claude 4.6 Sonnet), OpenAI's Codex CLI (GPT-6 Astra; GPT-5.6 Terra, Luna and Sol), Claude Code (Claude Opus 5), Gemini Pro through its web interface, and Anthropic's Fable and DeepSeek v4 Flash through OpenRouter, accessed with the Hermes CLI. Because they were used in combination and in alternation, no part of the work is attributable to any one of them, and none is claimed to be. The author is responsible for all content.</p>
         <p>&copy; 2026 Physics of Consciousness Project.</p>
     </div>
 
