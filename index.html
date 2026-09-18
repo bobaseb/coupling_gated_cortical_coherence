@@ -42,6 +42,17 @@
             opacity: 0.9;
         }
 
+        header p.byline {
+            margin: 1.25rem 0 0 0;
+            font-size: 0.95rem;
+            opacity: 0.85;
+        }
+
+        header p.byline a {
+            color: white;
+            text-decoration: underline;
+        }
+
         .container {
             max-width: 900px;
             margin: -2rem auto 2rem auto;
@@ -73,6 +84,25 @@
             border-radius: 4px;
         }
 
+        .example {
+            background: #fff8ec;
+            border-left: 4px solid #e67e22;
+            padding: 1.25rem 1.5rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+        }
+
+        .example strong {
+            color: #b9650a;
+        }
+
+        .nav {
+            text-align: center;
+            padding-bottom: 2rem;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid #eaeaea;
+        }
+
         .derivation-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -98,6 +128,92 @@
             color: var(--accent-color);
         }
 
+        .flow {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: stretch;
+            gap: 0.75rem;
+            margin: 1.5rem 0 0.75rem 0;
+        }
+
+        .flow-step {
+            flex: 1 1 200px;
+            background: #fafafa;
+            border: 1px solid #eaeaea;
+            border-radius: 6px;
+            padding: 1.25rem;
+        }
+
+        .flow-step h4 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            color: var(--accent-color);
+        }
+
+        .flow-step p {
+            margin: 0 0 0.5rem 0;
+        }
+
+        .flow-step p.needs {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 0;
+        }
+
+        .flow-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #b0bec5;
+            flex: 0 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .flow {
+                flex-direction: column;
+            }
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        .caption-note {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        table.hyp-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.92rem;
+        }
+
+        table.hyp-table th,
+        table.hyp-table td {
+            text-align: left;
+            padding: 0.6rem 0.75rem;
+            border-bottom: 1px solid #eaeaea;
+            vertical-align: top;
+        }
+
+        table.hyp-table th {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--accent-color);
+            white-space: nowrap;
+        }
+
+        table.hyp-table td.status {
+            white-space: nowrap;
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
         .lean-badge {
             display: inline-block;
             background-color: #27ae60;
@@ -115,7 +231,7 @@
             color: #666;
             font-size: 0.9rem;
         }
-        
+
         a {
             color: var(--accent-color);
             text-decoration: none;
@@ -124,7 +240,7 @@
         a:hover {
             text-decoration: underline;
         }
-        
+
         .button {
             display: inline-block;
             background: var(--accent-color);
@@ -136,7 +252,7 @@
             text-decoration: none;
             transition: background 0.2s;
         }
-        
+
         .button:hover {
             background: #2980b9;
             text-decoration: none;
@@ -172,16 +288,63 @@
     <header>
         <h1>Coupling-gated cortical coherence</h1>
         <p class="subtitle">What a field theory of conscious unity must assume, and what it predicts</p>
+        <p class="byline">Sebastian Bobadilla-Suarez &middot; Independent Researcher &middot;
+        <a href="https://orcid.org/0000-0002-5951-0772">ORCID 0000-0002-5951-0772</a> &middot;
+        <a href="mailto:sebastian.bobadilla.s@gmail.com">sebastian.bobadilla.s@gmail.com</a></p>
     </header>
 
     <div class="container">
+
+        <div class="nav">
+            <center>
+                <a href="main.pdf" class="button">Read the Full Paper</a>
+                <a href="supplementary.pdf" class="button button-secondary">View Mathematical Supplement</a>
+                <span class="button button-pending" aria-disabled="true">arXiv &mdash; forthcoming</span>
+                <br>
+                <a href="docs/primer.pdf" class="button button-secondary">Maths Primer</a>
+                <a href="proof_companion/companion.pdf" class="button button-secondary">Lean Proof Companion</a>
+            </center>
+            <p class="link-note">The primer explains, from the ground up, the mathematics both documents
+            use, for readers coming from cognitive neuroscience, machine learning or philosophy of mind;
+            where it differs from the paper or the supplement, those are authoritative. The proof
+            companion renders the Lean development as readable mathematics, so a claim made here can be
+            checked against the statement that was actually proved.</p>
+        </div>
+
         <h2>Abstract</h2>
         <div class="abstract">
             How could coordinated cortical activity support one internally represented situation? We distinguish coherence, agreement between local contents, and accurate self-reconstruction, and develop conditional connections among them. Declared actuator modes give a necessary installed-energy condition for a coherent stationary branch. Phase encoders shared on overlaps bound content disagreement; compatible spatial measures form one global state. A contracting reconstruction that fixes this state makes it the unique fixed point, while accuracy across a state family requires distinguishable encodings. Lean&nbsp;4 checks the results and their composition under explicit connecting hypotheses. Numerical controls delimit their observational use: finite ramps delay coherence, distinct mechanisms share stationary phase distributions, and content agreement requires independently validated decoders. We propose the global state and its internal reconstruction as correlates of unity and a minimal self. An extracellular-field hypothesis links awakening to increasing coupling. Its test requires calibrated geometry and phase dynamics, together with measurements of content agreement, self-encoding and experience.
         </div>
 
+        <h2>The problem</h2>
+        <p>A field account of cortical coordination holds that distributed neural processes are partly coordinated through the brain's own endogenous extracellular electromagnetic field. Even granting that such coordination succeeds, a further question stays open: what makes the coordinated activity a description of <em>one</em> situation, seen from <em>one</em> point of view?</p>
+        <div class="example">
+            <strong>Reaching for a cup.</strong> A visual estimate of the cup's location and a felt estimate of the hand's position relative to it can be perfectly synchronized in time while still disagreeing about where the cup actually is &mdash; phase-locking the two processes does not resolve that disagreement, only comparing what each one reports does. And full agreement about the cup's location still says nothing about where the reacher stands in relation to it: a description of the situation must also locate the perceiver within it, and reconstruct that location accurately.
+        </div>
+        <p>The paper pulls apart three things "unity" is sometimes taken to mean, and develops conditional connections between them rather than deriving one from another:</p>
+        <div class="flow">
+            <div class="flow-step">
+                <h4>Coherence</h4>
+                <p>Collective phase order in a population of coupled oscillators.</p>
+                <p class="needs">Needs: calibrated coupling and diffusion, above the threshold K<sub>c</sub>&nbsp;=&nbsp;2D.</p>
+            </div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step">
+                <h4>Compatibility</h4>
+                <p>Local descriptions glued into one global state, agreeing everywhere their domains overlap.</p>
+                <p class="needs">Needs: a specified cover, and local states that agree on every overlap.</p>
+            </div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step">
+                <h4>Self-representation</h4>
+                <p>That glued state accurately reconstructing itself through an internal encoding and readout.</p>
+                <p class="needs">Needs: a contracting map that fixes the glued state as the state it reconstructs.</p>
+            </div>
+        </div>
+        <p class="caption-note">Each arrow is a proposed connection, not an automatic one: phase coherence alone supplies neither agreement between local descriptions nor an accurate self-model. We propose the glued state as a correlate of conscious unity and its accurate self-reconstruction as a correlate of a minimal self &mdash; a philosophical identification, argued for but not proved by the mathematics.</p>
+
         <h2>What this is, and what it is not</h2>
-        <p>Nothing here derives consciousness from first principles. The construction is a <strong>conditional chain of nine nodes</strong>, and the eight arrows between them are assumptions rather than results: one independent physical premise, three formalization gaps, two modelling assumptions and two physical commitments. A common toy model satisfies all eight, which establishes that their conjunction is consistent&mdash;not that cortex realizes it. The article is meant to be judged in three separable parts: a prediction that can be tested, a composition that can be checked, and an identification that can be argued about.</p>
+        <p>Nothing here derives consciousness from first principles. The construction is a <strong>conditional chain of nine nodes</strong>, and the eight arrows between them are assumptions rather than results: one independent physical premise, three bridge assumptions, two modelling assumptions and two physical commitments. A common toy model satisfies all eight, which establishes that their conjunction is consistent&mdash;not that cortex realizes it. The article is meant to be judged in three separable parts: a prediction that can be tested, a composition that can be checked, and an identification that can be argued about.</p>
 
         <div class="derivation-grid">
             <div class="card">
@@ -197,42 +360,106 @@
                 <p>Dissipation bounds nonpredictive memory. The bound specifies no learning rule and does not require the internal representation to reproduce environmental geometry&mdash;a point one of our simulations makes concretely and negatively.</p>
             </div>
             <div class="card">
-                <h4>4. Coupling-gated coherence</h4>
+                <h4>4. Continuum coupling</h4>
+                <p>Replace the discrete sum of couplings with an integral against a kernel built from installed response modes with finite installation prices. Averaging that kernel over its own configuration law bounds mean coupling by installed energy: coherence on the scalar branch needs installed energy above <em>2D/&kappa;</em>. The reduction from spatial kernel to scalar coupling is a separate, checked approximation.</p>
+            </div>
+            <div class="card">
+                <h4>5. Field identification</h4>
+                <p>Nothing so far says which physical quantity supplies that installed kernel. Identifying it with a specific field&mdash;here, the endogenous extracellular electromagnetic field&mdash;and asserting that the identified field clears the coherence threshold are two further, independent physical commitments, not consequences of the energy bound.</p>
+            </div>
+            <div class="card">
+                <h4>6. Coupling-gated coherence</h4>
                 <p>Above a threshold <em>K<sub>c</sub></em>&nbsp;=&nbsp;2<em>D</em> the noisy mean-field phase model has a unique coherent stationary branch with square-root onset. This is a statement about the stationary solutions; dynamical selection is not proved.</p>
             </div>
             <div class="card">
-                <h4>5. Compatibility, not synchrony</h4>
+                <h4>7. Compatibility, not synchrony</h4>
                 <p>Phases can agree everywhere while the local probabilistic descriptions they carry remain incompatible on their overlaps. The sheaf condition marks that difference and glues compatible local states into a unique global section.</p>
             </div>
             <div class="card">
-                <h4>6. The reflexive fixed point</h4>
+                <h4>8. The reflexive fixed point</h4>
                 <p>A self-prediction map restricts a global state to a region encoding it and reads that encoding back out. Where the map contracts, Banach's theorem gives a unique fixed point&mdash;a state whose self-model is accurate about the state it models.</p>
             </div>
         </div>
 
-        <h2>What the simulations restrict</h2>
+        <h3>The eight connecting assumptions</h3>
+        <p>The arrows between the nodes above are Table&nbsp;1 of the manuscript: eight explicit hypotheses that the Lean development takes as arguments to its composition theorem.</p>
+        <div class="table-wrap">
+            <table class="hyp-table">
+                <thead>
+                    <tr><th>Connects</th><th>Status</th><th>What it assumes</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Capacity &rarr; boundary</td>
+                        <td class="status">Physical premise</td>
+                        <td>A finite-capacity system also realizes a field that must leave a disconnected vacuum manifold. Capacity and boundary are independent roots of the chain, not one derived from the other.</td>
+                    </tr>
+                    <tr>
+                        <td>Boundary &rarr; erasure</td>
+                        <td class="status">Bridge assumption</td>
+                        <td>The boundary corresponds to a finite register whose update discards information&mdash;a many-to-one map, not a one-to-one one.</td>
+                    </tr>
+                    <tr>
+                        <td>Erasure &rarr; predictive bound</td>
+                        <td class="status">Bridge assumption</td>
+                        <td>The discarded information is priced at the register's thermal scale and heat budget; the active (learning) branch further allocates that heat to a named substep.</td>
+                    </tr>
+                    <tr>
+                        <td>Predictive bound &rarr; continuum coupling</td>
+                        <td class="status">Modelling assumption</td>
+                        <td>Discrete spatial coupling energies converge as the network is refined; a declared hardware model supplies the limiting kernel.</td>
+                    </tr>
+                    <tr>
+                        <td>Continuum coupling &rarr; field</td>
+                        <td class="status">Physical commitment</td>
+                        <td>A specified physical field&mdash;here, the endogenous extracellular electromagnetic field&mdash;realizes that limiting coupling.</td>
+                    </tr>
+                    <tr>
+                        <td>Field &rarr; coherence</td>
+                        <td class="status">Physical commitment</td>
+                        <td>The identified field operates above the synchronization threshold K<sub>c</sub>&nbsp;=&nbsp;2D.</td>
+                    </tr>
+                    <tr>
+                        <td>Coherence &rarr; compatibility</td>
+                        <td class="status">Bridge assumption</td>
+                        <td>Phase encoders shared across a specified cover bound content disagreement; the cover itself and timely responsiveness are separate requirements.</td>
+                    </tr>
+                    <tr>
+                        <td>Compatibility &rarr; self</td>
+                        <td class="status">Modelling assumption</td>
+                        <td>A self-prediction map built from local self-encoding contracts, with Lipschitz factor q&nbsp;&lt;&nbsp;1, and fixes the glued state.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="caption-note">A toy three-site cortex in the Lean development satisfies all eight at once, which shows their conjunction is consistent&mdash;not that cortex realizes it.</p>
+
+        <h2 id="simulations">What the simulations restrict</h2>
         <p>The numerical controls bound the hypothesis rather than support it, and two of the results transfer well beyond this framework. <strong>Ramp speed sets the apparent onset exponent</strong>: an exponent fitted to a driven recovery trace reports the drive at least as much as the mechanism, so any analysis reading a critical exponent off a driven transition needs an independently known ramp rate. And <strong>squared-drift plasticity does not learn structure</strong>: coupling updates that descend the objective preserve coherence while moving away from the generating structure, below the level of a shuffled-label comparison, which is evidence against the common intuition that dissipation minimization implies representational learning.</p>
+
+        <h2>The awakening prediction</h2>
+        <p>The framework's one empirical commitment is that part of effective cortical coupling is carried by the endogenous extracellular electromagnetic field, and that this coupling rises as the brain wakes. The proposed control variable is extracellular geometry: the fluid-filled space between cells expands during sleep and contracts on waking&mdash;one study reports a rise from roughly 0.14 to 0.23 of tissue volume during sleep&mdash;and a smaller extracellular fraction raises tissue conductivity. At fixed transmembrane current, higher conductivity means a smaller field, so the argument runs in reverse on waking: contraction of that space should raise field amplitude and, other factors held fixed, raise effective coupling. This gives a direction, not a rate; the size of the effect and its relation to actual recovery both require measurement.</p>
+        <p>Crossing the coherence threshold does not by itself supply a recovery latency. As <a href="#simulations">the ramp-speed control above</a> shows, a driven crossing near threshold departs from the stationary square-root law, and by how much depends on a ramp rate that is not yet known independently for cortex. A usable test of the awakening hypothesis therefore needs six things measured together, not the threshold read off a single trace:</p>
+        <ol>
+            <li><strong>Coupling and diffusion in the same units</strong>, estimated from resolved phase dynamics, with endogenous coupling separated from any external drive.</li>
+            <li><strong>Geometry calibrated to coupling</strong>, since the conductivity argument by itself supplies only the expected direction.</li>
+            <li><strong>Calibrated phase measurements</strong>, with concentration and resultant length estimated using a site count chosen for the concentrations actually observed; pooling across time changes what is being estimated.</li>
+            <li><strong>An independent recovery endpoint</strong>, measured separately from the phase trace itself.</li>
+            <li><strong>A predeclared dynamical onset criterion</strong>, set above the finite-size noise floor rather than fitted after the fact.</li>
+            <li><strong>Matched comparison</strong> against rival mechanisms&mdash;coupling increase, diffusion change, a common external drive, and alternative recovery models&mdash;under the same observation and filtering assumptions.</li>
+        </ol>
+        <p>Each half of the hypothesis is separately falsifiable. A failure of the concentration&ndash;coherence relation over an informative range would constrain the density model; a failure of the calibrated geometry&ndash;coupling relation would constrain the physical gate; a competing mechanism that predicts recovery better would count against coupling's proposed role. And a favorable outcome on every count would still leave the content of coordinated activity&mdash;what the cup example turns on&mdash;unexplained.</p>
 
         <h2>On hardware</h2>
         <p>Two formal results bear on the substrate question and are easy to over-read. At matched coupling resource, a fixed wiring support that excludes a better-correlated pair can be suboptimal&mdash;a statement about constrained optimization, not about biology. On an atomless substrate, a kernel supported on finitely many points contributes zero to the chosen continuum coupling integral; that is a property of the measure and the observable, and it cuts against this framework's own coarse-graining step as much as against anything else. <strong>No conclusion about artificial consciousness follows.</strong> Nothing in the sheaf or fixed-point conditions is specific to cortex or to electromagnetic coupling: that substrate claim is empirical and is carried entirely by two named hypotheses.</p>
+        <p>Applied to a large language model running on GPUs, the same three requirements apply rather than being ruled out in advance. Coherence would need a calibrated physical coupling and a noise regime for whatever substrate is proposed&mdash;an attention matrix or a shared clock does not supply that on its own. Compatibility would need independently identified local descriptions that agree on shared content, which digital representations are not barred from satisfying; common timing and fluent output do not establish it either way. Self-representation would need an internal encoding and readout that contracts and fixes the same global state at a declared fidelity, and a constant readout that discards its input shows why uniqueness alone is not enough. These are open physical and representational questions, not resolved ones, and they constrain the cortical proposal exactly as much as any digital one.</p>
+
+        <h2>How this compares</h2>
+        <p>Other accounts tie unity to a single organizing principle: integrated information theory to integration and exclusion, global-workspace accounts to broadcast availability, predictive-processing accounts to a shared hierarchical generative model. This account keeps coherence, compatibility and self-representation apart instead, so each carries its own assumptions and its own measurement&mdash;at the cost of not explaining why the three would go together. Its distinctive contribution is a candidate physical mechanism, field-mediated coupling, and the conditional relations linking that mechanism to content agreement and self-encoding. It does not explain why meeting these conditions would be accompanied by experience at all.</p>
 
         <h2>Formal Verification in Lean 4</h2>
         <span class="lean-badge">Verified with Lean 4</span>
         <p>The development declares no axioms of its own: physical postulates are hypotheses or fields of models, each discharged by an explicit witness. What formalization adds is not certainty about the physics but that the assumption list cannot be lost&mdash;type-checking forbids reading a theorem about a stationary density as a claim about a trajectory, or agreement of phases as compatibility of representations. It does not make the assumptions true.</p>
-        
-        <center>
-            <a href="main.pdf" class="button">Read the Full Paper</a>
-            <a href="supplementary.pdf" class="button" style="background-color: var(--secondary-color);">View Mathematical Supplement</a>
-            <span class="button button-pending" aria-disabled="true">arXiv &mdash; forthcoming</span>
-            <br>
-            <a href="docs/primer.pdf" class="button button-secondary">Maths Primer</a>
-            <a href="proof_companion/companion.pdf" class="button button-secondary">Lean Proof Companion</a>
-        </center>
-        <p class="link-note">The primer explains, from the ground up, the mathematics both documents
-        use, for readers coming from cognitive neuroscience, machine learning or philosophy of mind;
-        where it differs from the paper or the supplement, those are authoritative. The proof
-        companion renders the Lean development as readable mathematics, so a claim made here can be
-        checked against the statement that was actually proved.</p>
     </div>
 
     <div class="footer">

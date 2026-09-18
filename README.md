@@ -3,6 +3,10 @@
 # 🌌 Coupling-gated cortical coherence
 **What a field theory of conscious unity must assume, and what it predicts**
 
+Sebastian Bobadilla-Suarez &middot; Independent Researcher &middot;
+[ORCID 0000-0002-5951-0772](https://orcid.org/0000-0002-5951-0772) &middot;
+[sebastian.bobadilla.s@gmail.com](mailto:sebastian.bobadilla.s@gmail.com)
+
 <br />
 
 [![Lean 4 Verified](https://img.shields.io/badge/Lean_4-Verified-27ae60?style=for-the-badge&logo=lean)](https://leanprover.github.io/)
