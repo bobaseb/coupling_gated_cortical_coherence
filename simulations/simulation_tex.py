@@ -12,6 +12,7 @@ import numpy as np
 from dynamic_ramp_analysis import fit_power_law
 from dynamic_ramp_report import SPEEDS, LegMetrics, _load_leg, _metrics, _size_metrics
 from empirical_collapse import tangent_separation
+from fermi_estimate_check import FERMI_LAM_MIN
 from propagation_of_chaos import Summary, write_tex_macros
 
 
@@ -204,6 +205,40 @@ def _spatial_macros() -> list[str]:
         ],
         _macro("spatialDefectMaximum", rf"{mantissa}\times10^{{{int(exponent)}}}"),
         *_spatial_refinement_macros(critical_decay_mm, decays, orders),
+    ]
+
+
+def _wave_macros() -> list[str]:
+    """Read the twisted-state sweep: where a winding field survives, and what r reports."""
+    data = _read_json(FIGURES / "travelling_wave" / "travelling_wave_summary.json")
+    decays = cast(list[float], data["decay_mm"])
+    retained = cast(list[int], data["retained_winding"])
+    twisted = cast(list[float], data["steady_global_order"])
+    local = cast(list[float], data["steady_local_order"])
+    control = cast(list[float], data["control_global_order"])
+    gaps = cast(list[float], data["steady_coherence_gap"])
+    defects = cast(list[float], data["steady_defect_density"])
+    config = cast(JsonObject, data["config"])
+    spacing_mm = cast(float, config["extent_mm"]) / cast(int, config["side"])
+
+    boundary_mm = cast(float, data["retention_boundary_mm"])
+    held = [index for index, value in enumerate(retained) if value != 0]
+    lost = [index for index, value in enumerate(retained) if value == 0]
+    band = decays.index(FERMI_LAM_MIN)
+
+    return [
+        _macro("waveBoundary", f"{boundary_mm:.4f}"),
+        _macro("waveBoundaryCells", f"{boundary_mm / spacing_mm:.1f}"),
+        _macro("waveRetainedMax", f"{decays[held[-1]]:.4f}"),
+        _macro("waveLostMin", f"{decays[lost[0]]:.4f}"),
+        _macro("waveRetainedCount", len(held)),
+        _macro("waveSampleCount", len(decays)),
+        _macro("waveBandOrder", f"{twisted[band]:.4f}"),
+        _macro("waveBandLocalOrder", f"{local[band]:.4f}"),
+        _macro("waveBandControlOrder", f"{control[band]:.4f}"),
+        _macro("waveGapMax", f"{max(gaps):.4f}"),
+        _macro("waveControlGapMax", f"{max(gaps[index] for index in lost):.4f}"),
+        _macro("waveDefectMaximum", f"{max(defects):.6f}"),
     ]
 
 
@@ -703,6 +738,9 @@ def generate_simulation_tex(output: Path) -> None:
         "",
         "% S2: spatial kernel",
         *_spatial_macros(),
+        "",
+        "% S2b: a winding state on the same sheet",
+        *_wave_macros(),
         "",
         "% S3: dynamical selection",
         *_selection_macros(),

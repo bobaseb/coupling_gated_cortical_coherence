@@ -370,6 +370,15 @@ Delayed passage through a noisy bifurcation \cite{berglund2002} makes the appare
 
 Additional controls address integration bias, population size and spatial or signed coupling. The refined signed-network crossing bracket $K_{\mathrm{eff}}/D\in[\frustrationBracketMin,\frustrationBracketMax]$ contains $2$. These are finite numerical regimes, with full parameters and controls in Supplemental Material; they supply no cortical calibration.
 
+\subsection{A winding state leaves the order parameter ambiguous}
+\label{sec:wave}
+
+The order parameter $r$ is indifferent to where a phase sits in space, so a field winding once across a periodic sheet has $r=0$ while every patch of it stays locked. Such a field is not an artificial construction here: on a torus a twist is stationary for any isotropic symmetric kernel at identical frequencies, because the coupling term is odd in the separation against a kernel even in it. It satisfies the positivity and identical-frequency hypotheses, and violates only the quarter-turn initial spread that the convergence result additionally requires before placing the limit at the uniform state.
+
+On the sheet of Section~\ref{sec:field}'s spatial control, a twist survives below an interpolated decay length of \waveBoundary~mm and unwinds above it, a boundary interior to the 0.1--0.3~mm band. At 0.1~mm the same sheet at the same coupling, diffusion and kernel reaches $r=\waveBandControlOrder$ from a uniform start and $r=\waveBandOrder$ from a twisted one, both stationary, with patch-local order \waveBandLocalOrder{} and no winding defect. At fixed $K$ the observable therefore takes two values spanning nearly its whole range: $K$ does not determine $r$, and a low resultant does not by itself distinguish weak coupling from a travelling wave.
+
+This qualifies what a phase trace can establish. An onset criterion stated in $r$ alone registers a change of basin as readily as a change of coupling, so the protocol of Section~\ref{sec:protocol} needs a spatial observable beside the resultant. Supplemental Material gives the sweep, its uniform control and the limits of both.
+
 \subsection{Coherent adaptation can lose environmental alignment}
 \label{sec:plasticity}
 
@@ -452,7 +461,7 @@ The physical test has six requirements:
 \item \textbf{Geometry calibrated to coupling.} Validate the geometry observable and its relation to effective coupling, with uncertainty. The conductivity argument supplies only the expected direction.
 \item \textbf{Calibrated phase measurements.} Estimate $r$ by resultant length and $a$ by unweighted regression of log density on centered cosine. Choose site count and binning from a dependence-aware calibration over the intended concentration range. The tested designs require thousands of sites at the observed concentrations; temporal pooling changes the spatial estimand.
 \item \textbf{An independent recovery endpoint.} Measure behavioral recovery separately from phase organization.
-\item \textbf{A predeclared dynamical onset criterion.} Set a coherence threshold above the finite-size floor and evaluate its latency under the measured coupling trajectory, including ramp speed or fluctuations.
+\item \textbf{A predeclared dynamical onset criterion.} Set a coherence threshold above the finite-size floor and evaluate its latency under the measured coupling trajectory, including ramp speed or fluctuations. Record a spatial observable beside the resultant, since a winding field reports a low resultant at coupling that sustains local order (Section~\ref{sec:wave}).
 \item \textbf{Matched model comparison.} Compare coupling increase, diffusion change, common drive and alternative recovery models under the same observation and filtering assumptions.
 \end{enumerate}
 

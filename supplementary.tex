@@ -1432,6 +1432,26 @@ At the empirical controls 0.1, 0.2 and 0.3~mm (Fig.~\ref{fig:spatial-kernel}), s
 \label{fig:spatial-kernel}
 \end{figure}
 
+\subsection{What the order parameter reports for a winding state}
+\label{sec:supp-wave}
+
+The coherence observable is the global resultant $r=|N^{-1}\sum_i e^{i\theta_i}|$, invariant under a global phase shift and otherwise indifferent to where a phase sits on the sheet. A field winding once across a periodic sheet has $r=0$ while every patch of it stays locked, so the quantity in which the threshold $K_c=2D$ is stated does not by itself separate a travelling wave from incoherence.
+
+Such a field is not a perturbation of this model. On a torus the twisted state $\theta(x)=2\pi qx/L$ is stationary for any isotropic symmetric kernel at identical frequencies: $K(x-y)\sin(\theta_y-\theta_x)$ is odd in the separation against a kernel even in it, so the drift cancels pair by pair and vanishes exactly. It satisfies both positivity and the identical-frequency hypothesis, and \texttt{velocity\_\allowbreak tendsto\_\allowbreak zero}, which assumes only the latter, holds of it trivially --- its velocity is zero throughout. What a twist violates is the quarter-turn initial spread $|\theta_i-\theta_j|\leq\pi/2$ that \texttt{kuramoto\_\allowbreak tendsto\_\allowbreak global\_\allowbreak minimum} additionally requires before placing the limit at the potential's global minimum, where $r=1$. A twist spans the whole circle and lies outside that basin hypothesis. The relation is therefore the one positivity already illustrates: \emph{that} the motion stops is settled without the hypothesis, and \emph{where} it stops is settled only inside a declared basin.
+
+The same sheet, kernel and integrator as the preceding control measure how far that basin reaches, at identical frequencies so the zero-detuning hypothesis holds. Over \waveSampleCount{} decay lengths the twist survives at \waveRetainedCount{} of them; between the longest length retaining it, \waveRetainedMax~mm, and the shortest losing it, \waveLostMin~mm, the interpolated boundary is \waveBoundary~mm, or \waveBoundaryCells{} lattice spacings. That boundary falls inside the 0.1--0.3~mm band which, for the uniform initial condition of the preceding control, is interior to a plateau. The two are consistent: the plateau records where a uniform state stays ordered, the boundary where a winding one survives, and a sweep from one initial condition constrains neither claim about the other.
+
+What the observable reports there is the point. At 0.1~mm the sheet reaches $r=\waveBandControlOrder$ from a uniform start and $r=\waveBandOrder$ from a twisted one --- both stationary, at the same coupling, diffusion and kernel. Patch-local order in the twisted state is \waveBandLocalOrder{} and winding-defect density is at most \waveDefectMaximum{} at every sampled length, so the low resultant records a wave rather than fragmentation. At fixed $K$ the observable thus takes two values spanning nearly its whole range, and $K$ alone does not determine $r$. Each length runs twice, once twisted and once uniform; the uniform control's gap between patch-local and global order is at most \waveControlGapMax{} wherever the twist is lost, so the largest gap the twisted runs show, \waveGapMax, is not an artefact of the patch estimator.
+
+Three limits. These runs use identical frequencies, where the preceding control carries a quenched spread of 1.5~rad\,s$^{-1}$, so their patch-local order is not comparable with its steady order. A twist imposed as an initial condition measures the stability of a basin, not the probability that dynamics enters one. And nothing here identifies a cortical decay length, establishes a transition, or connects a winding sector to content.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.96\linewidth]{simulations/figures/travelling_wave/travelling_wave_sweep.png}
+\caption{A winding phase field on the sheet of Fig.~\ref{fig:spatial-kernel}, at identical frequencies. The left panel shows global order (solid) against patch-local order (dashed) for a subset of decay lengths; the right compares the twisted and uniform initial conditions across lengths, with the shaded 0.1--0.3~mm band and the interpolated retention boundary. Below that boundary the two initial conditions reach different stationary values of $r$ at the same coupling. This sampled simulation establishes no transition and no biological identification.}
+\label{fig:travelling-wave}
+\end{figure}
+
 \subsection{Critics}
 
 The longest-standing objection is that the fields are too weak to matter, pressed from within the field-theoretic camp by Pockett herself \cite{pockett2012, pockett2002}. V\"or\"oslakos and colleagues found that applied current is shunted through scalp, delivering fields at or below $1$ V/m in cortex \cite{voroslakos2018}. That is a bound on \emph{applied} rather than endogenous fields, but it constrains how much causal work a field of that magnitude can do, and is the reason we do not claim the field drives spiking.
