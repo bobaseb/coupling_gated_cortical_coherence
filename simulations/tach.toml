@@ -119,6 +119,11 @@ layer = "simulation"
 depends_on = ["spatial_kernel"]
 
 [[modules]]
+path = "travelling_wave"
+layer = "simulation"
+depends_on = ["spatial_kernel"]
+
+[[modules]]
 path = "structural_resonance"
 layer = "simulation"
 

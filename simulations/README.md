@@ -95,6 +95,26 @@ Both carry `--smoke` and both retain the case they are required to fail: a
 residual measured against a branch that has quietly stopped updating, and a
 coupling whose mean says there is no order where there is.
 
+## The wave extension
+
+The article's coherence observable is the global resultant
+`r = |mean exp(i theta)|`, which is blind to where a phase sits on the sheet. A
+field that winds once across the sheet has `r = 0` while every patch of it stays
+locked, so the one number the threshold `K_c = 2D` is stated in cannot tell a
+travelling wave from incoherence.
+
+| Module | Question | Command |
+| :--- | :--- | :--- |
+| `travelling_wave.py` | Does the sheet sustain a winding phase field, and what does the global order parameter report while it does? | `uv run python travelling_wave.py` |
+
+A twisted initial condition imposes the winding at identical frequencies, so the
+run sits inside *both* hypotheses the Lean convergence results carry — positive
+symmetric coupling (`ThermodynamicCover.A_pos`) and zero detuning
+(`hw : forall i, sys.omega i = 0`). `--detuning` drops only the second. The
+module carries `--smoke` and retains the case it is required to fail: the `q = 0`
+baseline, where the local and global observables must agree. A gap there would
+mean the patch estimator was measuring its own window rather than the field.
+
 ## Data
 
 The exploratory EEG analysis uses OpenNeuro dataset
