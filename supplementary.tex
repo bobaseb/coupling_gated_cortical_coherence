@@ -1116,7 +1116,7 @@ deformation and coherence ranges overlap, not between arms equated by
 construction.
 
 The learning rate is selected by a sweep from $\plasticitySweepLowRate$ to
-$\plasticitySweepHighRate$ on one seed, reported in the run's \texttt{REPORT.md}:
+$\plasticitySweepHighRate$ on one seed:
 the post-update objective's second-half mean falls from
 $\plasticitySweepLowDissipation$ at the smallest rate to a minimum at
 $\plasticitySweepBestRate$ and rises again to
@@ -1219,9 +1219,9 @@ system that holds the objective below its frozen counterpart while it runs.
 
 A reduction at the sampled instant and a reduction maintained between updates
 are different quantities, and the second is the one a claim that a coupling
-update minimizes the objective needs. A bounded study measures it, on a design
-fixed before the runs were made and recorded in the repository at
-\texttt{tasks/f5\_f6\_design.md}, whose digest the saved summary carries.
+update minimizes the objective needs. A bounded study measures it using a design
+fixed before execution, with the grid, estimators, selection criteria and stop
+rule specified below.
 
 The substrate is the one above: $N=100$, $D=0.1$, total coupling $400$,
 physical duration $400$, and the same initialization, frequencies, projection

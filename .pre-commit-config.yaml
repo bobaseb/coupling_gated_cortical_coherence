@@ -42,16 +42,17 @@ repos:
         types: [python]
         pass_filenames: false
 
-      # The publication is not a changelog: AGENTS.md section 5. Unlike the
+      # Publication prose stands alone: AGENTS.md section 5. Reject drafting
+      # history and references to internal Markdown notes. Unlike the
       # hooks above this one is not about Python -- it reads the two .tex files
       # that make up the publication, so it selects on `files` rather than on
       # `types: [python]`. The supplement is part of the publication and is
       # covered identically.
       - id: check-prose
-        name: the publication is not a changelog
+        name: publication prose has no drafting history or markdown references
         entry: bash -c 'cd simulations && uv run python check_prose.py'
         language: system
-        files: ^(main|supplementary)\.tex$
+        files: ^((main|supplementary)\.tex|simulations/(test_)?check_prose\.py)$
         pass_filenames: false
 
       # Disclaimer and reader-instruction language. Advisory: unlike

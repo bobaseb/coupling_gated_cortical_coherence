@@ -483,6 +483,15 @@ The next physical requirement is a calibrated geometry--coupling relation and re
 
 The separation results explain why these measurements must be independent. A stationary distribution leaves several recovery mechanisms indistinguishable. Equal phase order can accompany incompatible descriptions or different task information. The tested plasticity rule preserves coherence while losing its designated template. Each finding concerns the specified model and observable; their role is to delimit the evidence needed for the proposed connections.
 
+\subsection{GPUs and the limits of no-go claims}
+\label{sec:gpu}
+
+For implementations on graphics processing units (GPUs), the hardware results in Supplemental Material (``Coupling support and continuum observables'') identify two conditional obstructions. At a fixed positive budget of nonnegative coupling weights, an architecture restricted to specified wired pairs is strictly outperformed if an unwired pair has higher phase correlation than every wired pair. Separately, a kernel supported on finitely many points contributes zero to the continuum correlation integral under an atomless measure. This second result concerns support of measure zero; the same representation also has zero integrated coupling weight.
+
+Both obstructions depend on how the architecture is represented. Wiring both directions of a perfectly correlated pair allows an optimal allocation at the same coupling budget. Representing finite components by positive-mass cells $C_i$, with coupling density $A_{ij}/[\mu(C_i)\mu(C_j)]$ and phases constant on each cell, preserves the discrete total coupling weight and phase correlation exactly. These constructions match coupling weights; an energy comparison requires hardware costs, and a dynamical comparison requires an implementation model. The results therefore give no general no-go theorem for GPU consciousness. Applying the framework to a GPU requires identifying its physical realization of coupling, content compatibility and self-reconstruction.
+
+A narrower argument against \emph{human-like} consciousness in GPU-based large language models (LLMs) concerns their organization. A neuroscientific assessment of text-only LLMs identifies differences in embodied sensory interaction, thalamocortical organization and the biological regulation that connects perception and action to survival \cite{aru2023}. We take the absence of these mechanisms as evidence against a human-like form of consciousness in the assessed systems, conditional on their causal relevance to experience. This is an inference from biological evidence and a theory of its relevance. Experiments also report workspace-like internal representations in some LLMs \cite{gurnee2026}, so missing biological features and functional similarities must be evaluated together. Within the present framework, fluent self-description would need independent tests of content compatibility and accurate self-reconstruction across states. The evidential argument concerns specified systems and mechanisms; GPU execution alone does not decide it.
+
 \subsection{Explanatory scope}
 \label{sec:scope}
 
@@ -492,7 +501,7 @@ The explanatory question is whether the specified relations occur in neural acti
 
 \section*{Data and code availability}
 
-The Lean development, simulation scripts, tests and saved numerical summaries are maintained in the \href{https://github.com/bobaseb/coupling_gated_cortical_coherence}{manuscript source repository}. Publication simulation values are generated from saved summaries without rerunning production sweeps. The exploratory EEG analysis uses OpenNeuro dataset ds005620 \cite{bajwa2025}; preprocessing and selection are described in Supplemental Material. The repository contains the reproducible analysis and does not redistribute the raw recordings.
+The Lean development, simulation scripts, tests and saved numerical summaries are maintained in the GitHub repository \href{https://github.com/bobaseb/coupling_gated_cortical_coherence}{\nolinkurl{bobaseb/coupling_gated_cortical_coherence}}. Publication simulation values are generated from saved summaries without rerunning production sweeps. The exploratory EEG analysis uses OpenNeuro dataset ds005620 \cite{bajwa2025}; preprocessing and selection are described in Supplemental Material. The repository contains the reproducible analysis and does not redistribute the raw recordings.
 
 \section*{Funding and competing interests}
 

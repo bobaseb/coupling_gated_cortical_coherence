@@ -1,4 +1,4 @@
-"""Gate: the publication is not a changelog.
+"""Gate: publication prose stands alone, without drafting history or Markdown references.
 
 ``main.tex`` and ``supplementary.tex`` state the theory's current state only. A
 reader of the paper has never seen a previous draft, so a sentence that only
@@ -20,6 +20,11 @@ escape hatch with twenty, and the gate erodes to nothing. Where a pattern below
 has a legitimate non-autobiographical use -- a sequence that is no longer
 monotone, a quantity previously defined in the same document -- the fix is to
 reword the sentence, not to widen the gate.
+
+Internal Markdown filenames and links also send readers outside the publication
+for content it must state itself. Reject their extensions even inside LaTeX
+markup and URL targets. Lean theorem names and source files remain valid formal
+references, and the code-availability section can link the repository itself.
 """
 
 from __future__ import annotations
@@ -30,8 +35,8 @@ from pathlib import Path
 
 from repo_root import REPO
 
-# Each pattern is a way of saying "this used to be different", and each is
-# justified rather than dumped into one regex.
+# Each pattern identifies drafting history or a reference to internal notes,
+# with a reason so the report explains what needs rewriting.
 PATTERNS: list[tuple[str, str]] = [
     # Direct appeals to a version of the document the reader cannot see.
     (r"earlier draft", "names a version of this document the reader has never seen"),
@@ -48,17 +53,24 @@ PATTERNS: list[tuple[str, str]] = [
     (r"withdraw", "covers withdraw/withdrawn/withdraws: retraction narration"),
     (r"retract", "covers retract/retracted/retraction"),
     (r"misdiagnos", "covers misdiagnosis/misdiagnosed"),
+    # Match the extension so escaped underscores and path markup cannot hide it.
+    (r"\.(?:md|markdown)\b", "references a Markdown file instead of stating the content"),
 ]
 
 FILES: tuple[str, ...] = ("main.tex", "supplementary.tex")
 
 GUIDANCE = """
-The publication is not a changelog (AGENTS.md section 5).
+The publication must stand alone (AGENTS.md section 5).
 
-Each hit above is a sentence that asks the reader to remember a draft they have
-never seen. Rewrite it as a present-tense statement of scope, or delete it. The
-mathematical content of a correction is permanent and stays; whose correction it
-was does not.
+Drafting-history hits ask the reader to remember a draft they have never seen.
+Rewrite them as present-tense statements of scope, or delete them. The
+mathematical content of a correction is permanent and stays; whose correction
+it was does not.
+
+Markdown-file references send the reader to internal notes. State the relevant
+methods or results in the publication and keep file provenance in the
+repository. Lean theorem names and .lean source references are allowed, as is
+the repository link in code availability.
 
 Destinations for what is removed: CHANGELOG.md for what a reader of the
 repository needs, a Lean docstring where the content is technical, tasks/ for the
@@ -105,7 +117,7 @@ def main(argv: list[str]) -> int:
         total += len(hits)
         report(path, hits)
     if total:
-        print(f"\ncheck_prose: {total} drafting-history marker(s).")
+        print(f"\ncheck_prose: {total} publication-prose violation(s).")
         print(GUIDANCE)
         return 1
     return 0

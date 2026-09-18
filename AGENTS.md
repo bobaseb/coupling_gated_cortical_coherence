@@ -44,6 +44,7 @@ If Python code is introduced to this repository, the following tooling MUST be c
 `main.tex` and `supplementary.tex` state the theory's current state only. The supplement is part of the publication and this rule covers it identically.
 
 - **No drafting-history narration.** No "earlier drafts claimed X", no "we had recorded Y; that was a misdiagnosis", no "this is no longer assumed", and **no appendix or supplementary section collecting such material**.
+- **No internal Markdown references.** State methods and results in the publication instead of referring to `.md` or `.markdown` filenames or links, including design notes and generated reports. Lean theorem names and `.lean` source references are allowed, and code availability may link the repository itself. The same `check-prose` gate enforces this rule in both publication files.
 - **The test** is not "is this about our past" but: *does this sentence still make sense to a reader who has never seen a previous draft?* A refutation of an axiom shape is a permanent mathematical fact and stays. "Earlier drafts of this work declared five axioms" is autobiography and goes.
 - **Rewrite, do not delete blindly.** Each site becomes a present-tense statement of scope, or is removed once its content is recoverable from one of the destinations below.
 - **Where it goes instead:** `CHANGELOG.md` for what a reader of the repository needs; a Lean docstring where the content is technical; `tasks/todo.md` for the working record, whose superseded ledgers are read out of git history rather than kept in the tree.
