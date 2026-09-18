@@ -35,6 +35,7 @@ FloatArray = NDArray[np.float64]
 IntArray = NDArray[np.int64]
 
 PRODUCTION_OUTPUT = FIGURES / "travelling_wave"
+DISORDERED_OUTPUT = FIGURES / "travelling_wave_disordered"
 
 
 @dataclass(frozen=True)
@@ -48,6 +49,7 @@ class WaveConfig:
     diffusion: float = 0.5
     winding_q: int = 0
     detuning_rad_s: float = 0.0
+    frequency_sigma: float = 0.0
     patch_mm: float = 0.2
     dt: float = 0.01
     steps: int = 20_000
@@ -96,6 +98,8 @@ def _validate(config: WaveConfig) -> None:
         raise ValueError("step counts must be positive")
     if config.diffusion < 0.0 or config.patch_mm <= 0.0:
         raise ValueError("diffusion must be non-negative and the patch radius positive")
+    if config.frequency_sigma < 0.0:
+        raise ValueError("the quenched frequency spread must be non-negative")
 
 
 def _wrap(angle: FloatArray) -> FloatArray:
@@ -127,6 +131,20 @@ def detuning_field(side: int, detuning_rad_s: float) -> FloatArray:
     column = np.arange(side, dtype=float)
     profile = detuning_rad_s * np.sin(2.0 * np.pi * column / side)
     return np.broadcast_to(profile, (side, side)).copy()
+
+
+def frequency_field(config: WaveConfig, rng: np.random.Generator) -> FloatArray:
+    """Return natural frequencies: the periodic detuning plus quenched disorder.
+
+    Disorder is drawn before the trajectory, so a twisted run and its uniform
+    control at one seed see the same frozen frequencies and the same noise.
+    Any nonzero spread leaves the identical-frequency hypothesis, under which a
+    twist is no longer stationary; whether it survives anyway is the question.
+    """
+    field = detuning_field(config.side, config.detuning_rad_s)
+    if config.frequency_sigma == 0.0:
+        return field
+    return field + rng.normal(0.0, config.frequency_sigma, size=field.shape)
 
 
 def patch_cells(config: WaveConfig) -> int:
@@ -192,7 +210,7 @@ def simulate_wave(config: WaveConfig) -> WaveResult:
     _validate(config)
     rng = np.random.default_rng(config.seed)
     phases = twisted_phases(config.side, config.winding_q)
-    frequencies = detuning_field(config.side, config.detuning_rad_s)
+    frequencies = frequency_field(config, rng)
     decay_grid = config.decay_mm * config.side / config.extent_mm
     kernel_fft = np.fft.fft2(build_kernel(config.side, decay_grid, config.coupling))
     noise_scale = np.sqrt(2.0 * config.diffusion * config.dt)
@@ -318,6 +336,42 @@ def run_sweep(config: WaveConfig, decay_lengths: FloatArray, output: Path) -> Wa
     return summary
 
 
+def run_seed_control(
+    config: WaveConfig, decay_lengths: FloatArray, seeds: list[int], output: Path
+) -> dict[str, object]:
+    """Repeat the twisted runs over frozen disorder realisations.
+
+    Quenched frequencies are drawn once per seed, so with a nonzero spread each
+    seed is a different frozen landscape and retention could belong to one
+    sample rather than to the model. Each seed checkpoints in its own directory,
+    leaving the single-seed sweep's paths untouched.
+    """
+    retained: list[list[int]] = []
+    orders: list[list[float]] = []
+    for seed in seeds:
+        fields = {**asdict(config), "seed": int(seed)}
+        results = [
+            _resume(WaveConfig(**{**fields, "decay_mm": float(decay)}), output / f"seed_{seed}")
+            for decay in decay_lengths
+        ]
+        retained.append([item.axis_winding[-1][1] for item in results])
+        orders.append([_steady_mean(item.global_order) for item in results])
+        print(f"seed={seed} kept={retained[-1]}", flush=True)
+    payload: dict[str, object] = {
+        "config": asdict(config),
+        "decay_mm": np.asarray(decay_lengths, dtype=float).tolist(),
+        "seeds": list(seeds),
+        "retained_winding": retained,
+        "steady_global_order": orders,
+        "retained_total": sum(1 for row in retained for value in row if value != 0),
+        "run_total": len(seeds) * len(decay_lengths),
+        "scope": "finite-N heuristic evidence; no theorem or biological measurement",
+    }
+    output.mkdir(parents=True, exist_ok=True)
+    (output / "travelling_wave_seeds.json").write_text(json.dumps(payload, indent=2) + "\n")
+    return payload
+
+
 def _save_summary(output: Path, config: WaveConfig, summary: WaveSummary) -> None:
     output.mkdir(parents=True, exist_ok=True)
     payload = {
@@ -398,24 +452,50 @@ def production_decay_lengths() -> FloatArray:
     )
 
 
+def seed_control_lengths() -> FloatArray:
+    """Sample the lengths that retain the twist under the published spread."""
+    return np.asarray([FERMI_LAM_MIN, 0.125, 0.134590])
+
+
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--smoke", action="store_true", help="run a reduced deterministic sweep")
     parser.add_argument("--detuning", type=float, default=0.0, help="periodic detuning amplitude")
-    parser.add_argument("--output", type=Path, default=PRODUCTION_OUTPUT)
+    parser.add_argument(
+        "--frequency-sigma",
+        type=float,
+        default=0.0,
+        help="quenched Gaussian frequency spread, in rad/s",
+    )
+    parser.add_argument(
+        "--seeds",
+        type=int,
+        nargs="+",
+        default=None,
+        help="run the seed control over these seeds instead of the decay sweep",
+    )
+    parser.add_argument("--output", type=Path, default=None)
     return parser.parse_args()
 
 
 def main() -> None:
     args = _parse_args()
+    fields = {
+        "winding_q": 1,
+        "detuning_rad_s": args.detuning,
+        "frequency_sigma": args.frequency_sigma,
+    }
     config = (
-        WaveConfig(
-            side=32, steps=2_000, sample_every=200, winding_q=1, detuning_rad_s=args.detuning
-        )
+        WaveConfig(side=32, steps=2_000, sample_every=200, **fields)
         if args.smoke
-        else WaveConfig(winding_q=1, detuning_rad_s=args.detuning)
+        else WaveConfig(**fields)
     )
-    run_sweep(config, production_decay_lengths(), args.output)
+    default = DISORDERED_OUTPUT if args.frequency_sigma > 0.0 else PRODUCTION_OUTPUT
+    output = args.output or default
+    if args.seeds:
+        run_seed_control(config, seed_control_lengths(), args.seeds, output)
+        return
+    run_sweep(config, production_decay_lengths(), output)
 
 
 if __name__ == "__main__":

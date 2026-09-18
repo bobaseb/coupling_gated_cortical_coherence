@@ -242,6 +242,44 @@ def _wave_macros() -> list[str]:
     ]
 
 
+def _wave_disordered_macros() -> list[str]:
+    """Read the same sweep under the published quenched frequency spread."""
+    output = FIGURES / "travelling_wave_disordered"
+    data = _read_json(output / "travelling_wave_summary.json")
+    seeds = _read_json(output / "travelling_wave_seeds.json")
+    decays = cast(list[float], data["decay_mm"])
+    retained = cast(list[int], data["retained_winding"])
+    twisted = cast(list[float], data["steady_global_order"])
+    local = cast(list[float], data["steady_local_order"])
+    control = cast(list[float], data["control_global_order"])
+    defects = cast(list[float], data["steady_defect_density"])
+    config = cast(JsonObject, data["config"])
+
+    held = [index for index, value in enumerate(retained) if value != 0]
+    band = decays.index(FERMI_LAM_MIN)
+    mantissa, exponent = f"{max(defects[index] for index in held):.1e}".split("e")
+    orders = [
+        value for row in cast(list[list[float]], seeds["steady_global_order"]) for value in row
+    ]
+
+    return [
+        _macro("waveSpread", f"{cast(float, config['frequency_sigma']):.1f}"),
+        _macro("waveSpreadBoundary", f"{cast(float, data['retention_boundary_mm']):.4f}"),
+        _macro("waveSpreadRetainedCount", len(held)),
+        _macro("waveSpreadBandOrder", f"{twisted[band]:.4f}"),
+        _macro("waveSpreadBandLocalOrder", f"{local[band]:.4f}"),
+        _macro("waveSpreadBandControlOrder", f"{control[band]:.4f}"),
+        _macro("waveSpreadDefectMaximum", rf"{mantissa}\times10^{{{int(exponent)}}}"),
+        _macro("waveSpreadShortDecay", f"{decays[0]:.4f}"),
+        _macro("waveSpreadShortControl", f"{control[0]:.4f}"),
+        _macro("waveSeedCount", len(cast(list[int], seeds["seeds"]))),
+        _macro("waveSeedRetained", cast(int, seeds["retained_total"])),
+        _macro("waveSeedTotal", cast(int, seeds["run_total"])),
+        _macro("waveSeedOrderMin", f"{min(orders):.4f}"),
+        _macro("waveSeedOrderMax", f"{max(orders):.4f}"),
+    ]
+
+
 def _selection_macros() -> list[str]:
     data = _read_json(FIGURES / "dynamical_selection" / "dynamical_selection_summary.json")
     orders = cast(list[float], data["regime_final_order"])
@@ -741,6 +779,9 @@ def generate_simulation_tex(output: Path) -> None:
         "",
         "% S2b: a winding state on the same sheet",
         *_wave_macros(),
+        "",
+        "% S2c: the same winding state under the published frequency spread",
+        *_wave_disordered_macros(),
         "",
         "% S3: dynamical selection",
         *_selection_macros(),

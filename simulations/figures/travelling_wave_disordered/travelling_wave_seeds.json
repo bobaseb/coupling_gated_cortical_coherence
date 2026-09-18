@@ -1,0 +1,64 @@
+{
+  "config": {
+    "side": 128,
+    "extent_mm": 2.0,
+    "decay_mm": 0.2,
+    "coupling": 8.0,
+    "diffusion": 0.5,
+    "winding_q": 1,
+    "detuning_rad_s": 0.0,
+    "frequency_sigma": 1.5,
+    "patch_mm": 0.2,
+    "dt": 0.01,
+    "steps": 20000,
+    "sample_every": 100,
+    "seed": 20260918
+  },
+  "decay_mm": [
+    0.1,
+    0.125,
+    0.13459
+  ],
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "retained_winding": [
+    [
+      1,
+      1,
+      1
+    ],
+    [
+      1,
+      1,
+      1
+    ],
+    [
+      1,
+      1,
+      1
+    ]
+  ],
+  "steady_global_order": [
+    [
+      0.014140784083162706,
+      0.017309714230765275,
+      0.020677922940929003
+    ],
+    [
+      0.04113282968774373,
+      0.047923959342140214,
+      0.0569544002956403
+    ],
+    [
+      0.009153897402592141,
+      0.011820061150299457,
+      0.014421983774432455
+    ]
+  ],
+  "retained_total": 9,
+  "run_total": 9,
+  "scope": "finite-N heuristic evidence; no theorem or biological measurement"
+}

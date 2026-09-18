@@ -15,10 +15,12 @@ from travelling_wave import (
     axis_winding,
     coherence_gap,
     detuning_field,
+    frequency_field,
     global_order,
     local_order,
     patch_cells,
     retention_boundary,
+    run_seed_control,
     run_sweep,
     simulate_wave,
     twisted_phases,
@@ -110,6 +112,24 @@ class SimulationTest(unittest.TestCase):
         self.assertLess(coherence_gap(result), 0.01)
 
 
+class DisorderTest(unittest.TestCase):
+    def test_zero_spread_leaves_the_detuning_untouched(self) -> None:
+        config = WaveConfig(side=8, detuning_rad_s=1.5, frequency_sigma=0.0)
+        rng = np.random.default_rng(0)
+
+        np.testing.assert_array_equal(frequency_field(config, rng), detuning_field(8, 1.5))
+
+    def test_disorder_is_frozen_across_matched_runs(self) -> None:
+        """A twisted run and its control at one seed must see the same frequencies."""
+        twisted = WaveConfig(side=8, detuning_rad_s=0.5, frequency_sigma=1.5, winding_q=1)
+        control = WaveConfig(side=8, detuning_rad_s=0.5, frequency_sigma=1.5, winding_q=0)
+
+        np.testing.assert_array_equal(
+            frequency_field(twisted, np.random.default_rng(11)),
+            frequency_field(control, np.random.default_rng(11)),
+        )
+
+
 class SweepTest(unittest.TestCase):
     def test_sweep_runs_the_twist_against_its_uniform_control(self) -> None:
         config = WaveConfig(
@@ -152,7 +172,54 @@ class SweepTest(unittest.TestCase):
         self.assertIsNone(retention_boundary(decay, np.array([0, 0, 0, 0])))
 
 
+class SeedControlTest(unittest.TestCase):
+    def test_seed_control_keeps_each_realisation_in_its_own_checkpoints(self) -> None:
+        config = WaveConfig(
+            side=16,
+            winding_q=1,
+            frequency_sigma=1.5,
+            diffusion=0.0,
+            dt=0.02,
+            steps=40,
+            sample_every=20,
+            patch_mm=0.3,
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory)
+            payload = run_seed_control(config, np.asarray([0.05, 0.2]), [1, 2], output)
+            saved = json.loads((output / "travelling_wave_seeds.json").read_text())
+            seed_dirs = sorted(item.name for item in output.glob("seed_*"))
+
+        self.assertEqual(seed_dirs, ["seed_1", "seed_2"])
+        self.assertEqual(payload["run_total"], 4)
+        self.assertEqual(len(cast(list[object], saved["retained_winding"])), 2)
+        self.assertLessEqual(cast(int, saved["retained_total"]), 4)
+
+
 class WavePropertyTest(unittest.TestCase):
+    @given(
+        st.floats(min_value=0.1, max_value=5.0),
+        st.floats(min_value=-3.0, max_value=3.0),
+        st.integers(min_value=0, max_value=100),
+    )
+    @settings(deadline=None, max_examples=30)
+    def test_property_disorder_scales_linearly_about_the_detuning(
+        self, sigma: float, detuning: float, seed: int
+    ) -> None:
+        """At one seed the drawn spread is the same sample scaled by sigma."""
+        base = detuning_field(8, detuning)
+        single = frequency_field(
+            WaveConfig(side=8, detuning_rad_s=detuning, frequency_sigma=sigma),
+            np.random.default_rng(seed),
+        )
+        doubled = frequency_field(
+            WaveConfig(side=8, detuning_rad_s=detuning, frequency_sigma=2.0 * sigma),
+            np.random.default_rng(seed),
+        )
+
+        np.testing.assert_allclose(doubled - base, 2.0 * (single - base), atol=1e-9)
+
     @given(PHASES, st.integers(min_value=1, max_value=3))
     @settings(deadline=None, max_examples=30)
     def test_property_local_order_dominates_global_order(

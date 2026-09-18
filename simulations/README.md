@@ -110,10 +110,20 @@ travelling wave from incoherence.
 A twisted initial condition imposes the winding at identical frequencies, so the
 run sits inside *both* hypotheses the Lean convergence results carry — positive
 symmetric coupling (`ThermodynamicCover.A_pos`) and zero detuning
-(`hw : forall i, sys.omega i = 0`). `--detuning` drops only the second. The
-module carries `--smoke` and retains the case it is required to fail: the `q = 0`
-baseline, where the local and global observables must agree. A gap there would
-mean the patch estimator was measuring its own window rather than the field.
+(`hw : forall i, sys.omega i = 0`). What a twist does violate is the quarter-turn
+initial spread that `kuramoto_tendsto_global_minimum` additionally requires, so
+the sweep measures how far the uniform state's basin actually reaches.
+
+`--frequency-sigma` adds the quenched spread the `spatial_kernel` sweep carries,
+which leaves the identical-frequency hypothesis and writes to its own output
+directory; `--seeds` then repeats the retained lengths over frozen disorder
+realisations, each checkpointing under its own `seed_*/` so the single-seed paths
+stay valid. `--detuning` supplies a periodic frequency profile instead.
+
+The module carries `--smoke` and retains the case it is required to fail: the
+`q = 0` baseline, where the local and global observables must agree. A gap there
+would mean the patch estimator was measuring its own window rather than the
+field.
 
 ## Data
 
