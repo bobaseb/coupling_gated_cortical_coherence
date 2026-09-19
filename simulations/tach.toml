@@ -175,6 +175,11 @@ layer = "theory"
 path = "fermi_estimate_check"
 layer = "theory"
 
+[[modules]]
+path = "energy_budget_check"
+layer = "theory"
+depends_on = ["fermi_estimate_check"]
+
 # -- gate -------------------------------------------------------------------
 # Locating the repository is the one thing every gate does before it reads a
 # document, and `mutmut` relocates the tree it does it from, so the answer lives

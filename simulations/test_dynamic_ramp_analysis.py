@@ -7,6 +7,7 @@ from dynamic_ramp_analysis import (
     fit_onset_exponent,
     fit_power_law,
     replica_escape_couplings,
+    split_span_exponents,
 )
 
 
@@ -19,6 +20,54 @@ class DynamicRampAnalysisTest(unittest.TestCase):
 
         self.assertAlmostEqual(fit.exponent, 0.5, places=12)
         self.assertAlmostEqual(fit.prefactor, 3.0, places=12)
+
+    def test_an_exact_power_law_has_a_degenerate_slope_interval(self) -> None:
+        """No scatter, no interval width: the interval measures the scatter."""
+        x = np.geomspace(1e-4, 1e-1, 20)
+
+        fit = fit_power_law(x, 3.0 * x**0.5)
+
+        self.assertAlmostEqual(fit.exponent_low, 0.5, places=8)
+        self.assertAlmostEqual(fit.exponent_high, 0.5, places=8)
+
+    def test_the_slope_interval_brackets_the_slope_and_widens_with_scatter(self) -> None:
+        x = np.geomspace(1e-4, 1e-1, 8)
+        noise = np.array([1.05, 0.95, 1.04, 0.96, 1.03, 0.97, 1.02, 0.98])
+
+        tight = fit_power_law(x, 3.0 * x**0.5 * (1.0 + (noise - 1.0) / 10.0))
+        loose = fit_power_law(x, 3.0 * x**0.5 * noise)
+
+        for fit in (tight, loose):
+            self.assertLess(fit.exponent_low, fit.exponent)
+            self.assertLess(fit.exponent, fit.exponent_high)
+        self.assertLess(
+            tight.exponent_high - tight.exponent_low,
+            loose.exponent_high - loose.exponent_low,
+        )
+
+    def test_two_points_leave_no_residual_degree_of_freedom(self) -> None:
+        x = np.array([1e-3, 1e-1])
+
+        fit = fit_power_law(x, 3.0 * x**0.5)
+
+        self.assertTrue(np.isnan(fit.exponent_low))
+        self.assertTrue(np.isnan(fit.exponent_high))
+
+    def test_split_span_agrees_on_an_exact_law_and_separates_a_drifting_one(self) -> None:
+        x = np.geomspace(1e-4, 1e-1, 8)
+
+        fast, slow = split_span_exponents(x, 3.0 * x**0.5)
+        self.assertAlmostEqual(fast.exponent, slow.exponent, places=8)
+
+        # A curved trace in log-log: the halves must not agree.
+        curved = np.exp(0.5 * np.log(x) + 0.05 * np.log(x) ** 2)
+        fast, slow = split_span_exponents(x, curved)
+        self.assertGreater(abs(fast.exponent - slow.exponent), 0.1)
+
+    def test_split_span_refuses_a_sweep_it_cannot_halve(self) -> None:
+        x = np.array([1e-3, 1e-2, 1e-1])
+        with self.assertRaises(ValueError):
+            split_span_exponents(x, 3.0 * x**0.5)
 
     def test_escape_requires_sustained_crossing_of_fixed_order_level(self) -> None:
         coupling = np.array([2.0, 2.1, 2.2, 2.3, 2.4])

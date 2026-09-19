@@ -7,7 +7,10 @@
   round one is the causal-past theorem rather than a property of this readout.
   The controls fence the three ways the result could be trivial: a cut path
   never delivers, a constant report never satisfies responsiveness, and a report
-  that is right about one fixed world stays right about it.
+  that is right about one fixed world stays right about it. The same deadline
+  separates two claims about the reading region's contents rather than about a
+  report: at round one they are not the value the world was given, and at round
+  two they are.
 -/
 
 import PhysicsOfConsciousness.Phase6_Locality
@@ -104,6 +107,48 @@ theorem const_report_fails (T : ℕ) (r : ℝ) :
     ¬ (worldEncoding line base 2 id 0 T (fun _ => r) values).Reconstructs 1 :=
   Encoding.not_reconstructs_of_const_readout (fun _ => rfl) zero_mem ten_mem values_separated
 
+/-! ### What the region holds, and when
+
+The results above are about a *report*: a readout at the near end, and whether it
+can be accurate. These two are about the region's contents, with no report, no
+tolerance and no metric on the state. The declared reference is that the reading
+region holds the value the world was given; restriction resonance is the claim
+that it does.
+
+At round one it does not, and the obstruction is the same causal past. At round
+two it does. The deadline is what separates them. -/
+
+/-- The reading region: the near end alone. -/
+def readRegion : Finset (Fin 3) := {0}
+
+theorem mem_readRegion {v : Fin 3} (hv : v ∈ readRegion) : v = 0 := by
+  simpa [readRegion] using hv
+
+/-- **The region does not hold the world's value at round one.** Not "the report
+is wrong": the near end is in the same state in both worlds, so its contents are
+not the value the world was given, for either of two values it might have been
+given. -/
+theorem no_resonance_at_one :
+    ¬ Resonates (regionReading line base 2 id readRegion 1) (fun q _ => q) := by
+  refine not_resonates_regionReading_of_outside_past line base id _ ?_ (q := 0) (q' := 10) ?_
+  · intro v hv
+    rw [mem_readRegion hv]
+    exact far_notMem_one
+  · intro h
+    have h0 := congrFun h ⟨0, Finset.mem_singleton_self 0⟩
+    norm_num at h0
+
+/-- **The positive control: one more round and it does.** The reference is met
+exactly, so the rejection above is about the deadline and not about the
+reference. -/
+theorem resonance_at_two :
+    Resonates (regionReading line base 2 id readRegion 2) (fun q _ => q) := by
+  intro q
+  funext v
+  show line.run (intervene base 2 id q) 2 v.1 = q
+  rw [mem_readRegion v.2]
+  exact read_two q
+
 /-! ### The cut path
 
 The same three sites with the middle link removed. No number of rounds brings
@@ -153,6 +198,8 @@ theorem cut_no_guarantee (T : ℕ) (report : ℝ → ℝ) :
 #print axioms const_report_fails
 #print axioms cut_ball_zero
 #print axioms cut_no_guarantee
+#print axioms no_resonance_at_one
+#print axioms resonance_at_two
 
 end Locality
 end Examples

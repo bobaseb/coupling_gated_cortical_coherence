@@ -37,11 +37,18 @@ copy_in() {  # copy_in <repo-relative path> [destination directory]
   sources+=("$src")
 }
 
-# 1. Sources and the generated macro files the article \inputs.
+# 1. Sources and the generated macro files the article \inputs. The macro
+#    files are read out of the \input lines rather than listed here, on the
+#    same principle as the figures below: a generated file added to either
+#    document is packed with no edit to this script, and one that stops being
+#    \input stops being packed. `references` is copied above, so it drops out
+#    of the derived list by the existence test.
 for f in main.tex supplementary.tex references.tex; do copy_in "$f"; done
-for f in simulations/fermi_params.tex simulations/simulation_results.tex; do
-  copy_in "$f" "$OUT/simulations"
-done
+while IFS= read -r inp; do
+  [ -f "$inp.tex" ] || { echo "\\input{$inp} has no source file" >&2; exit 1; }
+  case "$inp" in */*) copy_in "$inp.tex" "$OUT/${inp%/*}" ;; *) ;; esac
+done < <(grep -ho '\\input{[^}]*}' main.tex supplementary.tex |
+  sed 's/.*{\(.*\)}/\1/' | sort -u)
 copy_in arxiv_assets/neurips_2026.sty
 
 # 2. Figures, resolved the way \graphicspath{{simulations/}{./}} resolves them.

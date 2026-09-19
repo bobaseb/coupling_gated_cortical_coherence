@@ -8,7 +8,10 @@
   and the blinded avatar of `cortexBlind` — which has a unique fixed point —
   reconstructs neither to within a half. A three-level family then exercises the
   counting half: three states two apart need three codes, and one bit does not
-  suffice.
+  suffice. A last family exercises the region rather than the avatar: two states
+  that agree at the shared site and differ by two elsewhere, which the one-site
+  avatar region cannot resolve, so the resonant boundary fails to reconstruct
+  them and a boundary that does reconstruct them fails resonance.
 -/
 
 import PhysicsOfConsciousness.Phase6_Reconstruction
@@ -192,6 +195,123 @@ theorem tripleCode_nonconstant : tripleCode (lvl 0) ≠ tripleCode (lvl 4) := by
   have h42 : lvl 4 ≠ lvl 2 := lvl_ne (by norm_num)
   simp [tripleCode, h40, h42]
 
+/-! ### The region is what has to resolve the family
+
+The two halves above are about the *avatar*: a blind encoder fails the criterion,
+a faithful one meets it. This half is about the *region*, and it is the criterion
+of `Phase6_Reconstruction.lean` §"When restriction resonance fails" on the
+substrate that already exists.
+
+The baseline and the uniform profile at the same level agree at the shared site —
+the whole of `avatarPatch` — and differ by two at the two sites the avatar cannot
+see. No encoding chosen on this region can change that, so a boundary over
+`avatarPatch` reads the field or resolves this family, never both.
+
+Both halves are exhibited. `cortexReflexive` is resonant
+(`cortexReflexive_resonant`), and therefore does not reconstruct the family to
+within a half. `cortexCheat` does reconstruct it, exactly, by reporting a code
+that is a function of the state rather than of the region — and is therefore not
+resonant. Neither is a defect of its read-out; the quantity that decides is where
+the region sits. -/
+
+/-- The baseline and the uniform profile at level two carry the same section over
+the avatar region: both put mass two at the shared site. Stated for the region
+rather than for a boundary, because it is what every boundary over `avatarPatch`
+inherits. -/
+theorem restrict_avatarPatch_cortexState_eq_lvl :
+    (probabilityPresheaf Cortex).map (homOfLE (le_top : avatarPatch ≤ ⊤)).op cortexState
+      = (probabilityPresheaf Cortex).map (homOfLE (le_top : avatarPatch ≤ ⊤)).op (lvl 2) := by
+  refine densityOn_injective fun x hx => ?_
+  have hxm : x = Site.mid := hx
+  subst hxm
+  rw [densityOn_restrict (le_top : avatarPatch ≤ ⊤) cortexState Site.mid hx,
+    densityOn_restrict (le_top : avatarPatch ≤ ⊤) (lvl 2) Site.mid hx,
+    Phi_cortexState, lvl, Phi_sectionOfMass]
+  norm_num
+
+/-- …and they are two apart, because they differ by two off the avatar region. -/
+theorem dist_cortexState_lvl : dist cortexState (lvl 2) = 2 := by
+  refine le_antisymm ?_ ?_
+  · rw [gs_dist_eq, dist_pi_le_iff (by norm_num)]
+    intro x
+    rw [Phi_cortexState, lvl, Phi_sectionOfMass, NNReal.dist_eq]
+    split_ifs <;> push_cast <;> norm_num
+  · have h := dist_le_pi_dist (density cortexState) (density (lvl 2)) Site.left
+    rw [← gs_dist_eq, Phi_cortexState,
+      show density (lvl 2) = fun _ => (2 : ℝ≥0) from Phi_sectionOfMass _] at h
+    simpa [NNReal.dist_eq] using h
+
+theorem cortexState_ne_lvl : cortexState ≠ lvl 2 := by
+  intro h
+  have := dist_cortexState_lvl
+  rw [h, dist_self] at this
+  norm_num at this
+
+/-- The declared family the avatar region cannot resolve. -/
+noncomputable def offAvatarFamily : Set (GlobalSection (X := Cortex)) :=
+  {cortexState, lvl 2}
+
+/-- **A resonant boundary over this region does not reconstruct this family.**
+`cortexReflexive` reports the field's own restriction, the two relevant states
+have the same restriction, and they are two apart; so no read-out on
+`avatarPatch` recovers both to within a half.
+
+The theorem consumed is the criterion in contrapositive: resonance and accuracy
+on a family the region identifies are incompatible. -/
+theorem cortexReflexive_not_reconstructs_offAvatar :
+    ¬ (cortexReflexive.encoding offAvatarFamily).Reconstructs (1/2) := by
+  intro hrec
+  refine ReflexiveBoundary.not_isRestrictionResonance_of_reconstructs cortexReflexive
+    offAvatarFamily (s := cortexState) (t := lvl 2) hrec (Or.inl rfl) (Or.inr rfl) ?_
+    restrict_avatarPatch_cortexState_eq_lvl cortexReflexive_resonant
+  rw [dist_cortexState_lvl]
+  norm_num
+
+open scoped Classical in
+/-- A boundary over the same region whose avatar writes a code chosen by the
+state rather than read off the region: mass one for the uniform profile, mass
+zero otherwise. A legal `ReflexiveBoundary` — the structure constrains neither
+map — and the read-out inverts the code exactly. -/
+noncomputable def cortexCheat : ReflexiveBoundary Cortex where
+  avatar_region := avatarPatch
+  auto_resonance := fun s => sectionOfMassOn avatarPatch fun _ => if s = lvl 2 then 1 else 0
+  readout := fun a => if avatarRead a = 1 then lvl 2 else cortexState
+
+open scoped Classical in
+theorem avatarRead_cortexCheat (s : GlobalSection (X := Cortex)) :
+    avatarRead (cortexCheat.auto_resonance s) = if s = lvl 2 then 1 else 0 :=
+  densityOn_sectionOfMassOn avatarPatch _ Site.mid memAvatarPatch
+
+open scoped Classical in
+/-- The cheat's self-prediction map: it returns the state its code names. -/
+theorem cortexCheat_predict (s : GlobalSection (X := Cortex)) :
+    cortexCheat.predict s = if s = lvl 2 then lvl 2 else cortexState := by
+  show (if avatarRead (cortexCheat.auto_resonance s) = 1 then lvl 2 else cortexState) = _
+  rw [avatarRead_cortexCheat]
+  by_cases h : s = lvl 2 <;> simp [h]
+
+/-- **The cheat reconstructs the family exactly.** Both relevant states are
+returned by the read-out of their own codes, so the criterion is met at tolerance
+zero. -/
+theorem cortexCheat_reconstructs : (cortexCheat.encoding offAvatarFamily).Reconstructs 0 := by
+  classical
+  intro s hs
+  rcases hs with rfl | rfl
+  · show dist cortexState (cortexCheat.predict cortexState) ≤ 0
+    simp [cortexCheat_predict, cortexState_ne_lvl]
+  · show dist (lvl 2) (cortexCheat.predict (lvl 2)) ≤ 0
+    simp [cortexCheat_predict]
+
+/-- **…and is therefore not reading the field.** The same criterion, used the
+other way: accuracy on a family the region identifies refutes restriction
+resonance. The avatar's code is a function of the state, and the region is not. -/
+theorem cortexCheat_not_resonant : ¬ cortexCheat.IsRestrictionResonance := by
+  refine ReflexiveBoundary.not_isRestrictionResonance_of_reconstructs cortexCheat
+    offAvatarFamily (s := cortexState) (t := lvl 2) cortexCheat_reconstructs
+    (Or.inl rfl) (Or.inr rfl) ?_ restrict_avatarPatch_cortexState_eq_lvl
+  rw [dist_cortexState_lvl]
+  norm_num
+
 #print axioms error_cortexState
 #print axioms error_cortexSilent
 #print axioms selfEncoding_reconstructs
@@ -204,6 +324,11 @@ theorem tripleCode_nonconstant : tripleCode (lvl 0) ≠ tripleCode (lvl 4) := by
 #print axioms no_bit_reconstruction
 #print axioms tripleEncoding_reconstructs
 #print axioms tripleCode_nonconstant
+#print axioms restrict_avatarPatch_cortexState_eq_lvl
+#print axioms dist_cortexState_lvl
+#print axioms cortexReflexive_not_reconstructs_offAvatar
+#print axioms cortexCheat_reconstructs
+#print axioms cortexCheat_not_resonant
 
 end ReflexiveSelf
 

@@ -24,6 +24,25 @@ the declared metric. Two theorems follow, and both are triangle inequalities.
   so `M ≤` the number of codes, and an alphabet of at most `2 ^ b` values forces
   `M ≤ 2 ^ b` (`card_le_two_pow`).
 
+## When the code is supposed to be a restriction
+
+The reflexive boundary asks a second question of the same data: whether the code
+the avatar writes *is* the field's own restriction to the avatar region
+(`IsRestrictionResonance`). `Resonates` names that shape on bare maps, and the
+two questions turn out to constrain each other. Accuracy forces the encoder to
+separate states that are far apart, so under resonance it forces the *region* to
+separate them — `restrictToAvatar` must be injective on any family of relevant
+states pairwise more than `2 ε` apart. Where the region identifies two such
+states, resonance and accuracy cannot both hold
+(`not_isRestrictionResonance_of_reconstructs`).
+
+This is a demand on the substrate rather than on the mechanism: which states a
+region reads the same way is fixed before any encoding is chosen, so no read-out
+repairs it. It runs one way — a region that does resolve the family is not
+thereby resonant, and nothing here constructs an avatar.
+`Phase6_Locality.lean` supplies the same failure with a deadline in place of a
+tolerance.
+
 ## Scope
 
 `b` counts *distinguishable codes*. Reading it as bits of physical memory, as a
@@ -43,6 +62,44 @@ which is the precise sense in which a fixed point is not a reconstruction.
 -/
 
 namespace PhysicsOfConsciousness.Reconstruction
+
+/-! ## Resonance, as agreement with a declared reference
+
+`ReflexiveBoundary.IsRestrictionResonance` says the avatar's code *is* the
+field's own restriction to the avatar region. Written out it is agreement
+between two maps out of the state space, and nothing in the argument below needs
+either of them to be a presheaf restriction, so the shape is named here and the
+instances supply the reference: `restrictToAvatar` at the end of this file, and a
+reading region's state at a declared round in `Phase6_Locality`.
+
+The point of the general form is what it makes checkable. `Resonates E ρ`
+forces the two maps to *confuse the same pairs of states*, so a mismatch in
+either direction refutes it, and a mismatch is a statement about which states
+each map separates rather than about the values either one takes. That is how
+resonance is refuted without ever evaluating the encoder. -/
+
+/-- The encoder writes what the reference reports. -/
+def Resonates {S C : Type*} (E ρ : S → C) : Prop := ∀ s, E s = ρ s
+
+/-- Under resonance the encoder and the reference confuse the same pairs. Both
+failure criteria below are this equivalence read backwards. -/
+theorem eq_iff_of_resonates {S C : Type*} {E ρ : S → C} (h : Resonates E ρ) (s t : S) :
+    E s = E t ↔ ρ s = ρ t := by rw [h s, h t]
+
+/-- **A code blind where the reference is not.** Two states the encoder gives the
+same code and the reference separates refute resonance. No metric, no accuracy
+requirement and no property of the readout: the hypothesis is that the encoding
+region distinguishes a pair the code does not. -/
+theorem not_resonates_of_confuses {S C : Type*} {E ρ : S → C} {s t : S}
+    (hE : E s = E t) (hrho : ρ s ≠ ρ t) : ¬ Resonates E ρ :=
+  fun h => hrho (((h s).symm.trans hE).trans (h t))
+
+/-- **A code that splits what the reference cannot.** The mirror image, and the
+half that carries the reconstruction argument: accuracy forces the encoder to
+separate states the reference may be too coarse to tell apart. -/
+theorem not_resonates_of_splits {S C : Type*} {E ρ : S → C} {s t : S}
+    (hE : E s ≠ E t) (hrho : ρ s = ρ t) : ¬ Resonates E ρ :=
+  fun h => hE (((h s).trans hrho).trans (h t).symm)
 
 variable {S C : Type*} [PseudoMetricSpace S]
 
@@ -148,6 +205,45 @@ theorem card_le_two_pow [Fintype C] [DecidableEq S] {ε : ℝ} {b : ℕ}
     (hsep : ∀ s ∈ F, ∀ t ∈ F, s ≠ t → 2 * ε < dist s t) :
     F.card ≤ 2 ^ b :=
   (card_le_card_codes hrec hF hsep).trans hb
+
+/-! ### Accuracy against a coarse reference
+
+The two questions this file asks of the same data — does the mechanism *recover*
+the declared macrostates, and is its code the state's own restriction — are not
+independent. Accuracy forces the encoder to separate states that are far apart,
+so it forces the reference to separate them too. A reference that cannot is a
+region too coarse for the family, and the two demands are then incompatible
+whatever the readout does. -/
+
+/-- **A reference too coarse for the family the mechanism must resolve.**
+Reconstructing two relevant states more than `2 * ε` apart makes their codes
+differ, so a reference map that identifies them is not the code the encoder
+writes.
+
+Which of the two hypotheses is the substrate's is the content: `hrho` is a
+property of the reference alone — on a reflexive boundary, of the avatar region —
+and it is refutable by exhibiting two macrostates the region reads the same way. -/
+theorem not_resonates_of_reconstructs {ρ : S → C} {ε : ℝ} {s t : S}
+    (hrec : Enc.Reconstructs ε) (hs : s ∈ Enc.relevant) (ht : t ∈ Enc.relevant)
+    (hsep : 2 * ε < dist s t) (hrho : ρ s = ρ t) :
+    ¬ Resonates Enc.encode ρ :=
+  not_resonates_of_splits
+    (encode_ne_of_separated Enc.encode Enc.readout (hrec s hs) (hrec t ht) hsep) hrho
+
+/-- **What resonance costs the reference.** Read forwards rather than as a
+refutation: a resonant mechanism that reconstructs a pairwise-separated family
+has a reference map that is injective on it. The resolution demanded is the
+*reference's*, not the readout's — for a reflexive boundary, a property of the
+avatar region and the substrate, fixed before any encoding is chosen. -/
+theorem injOn_of_resonates {ρ : S → C} {ε : ℝ}
+    (hres : Resonates Enc.encode ρ) (hrec : Enc.Reconstructs ε)
+    {F : Set S} (hF : F ⊆ Enc.relevant)
+    (hsep : ∀ s ∈ F, ∀ t ∈ F, s ≠ t → 2 * ε < dist s t) :
+    Set.InjOn ρ F := by
+  intro s hs t ht hst
+  refine encode_injOn_of_separated hrec hF hsep hs ht ?_
+  rw [hres s, hres t]
+  exact hst
 
 /-- **A mechanism whose answer does not move reconstructs at most one of two
 separated states.** The hypothesis is on the composite: whatever the readout
@@ -258,6 +354,101 @@ theorem blinded_not_reconstructs [MetricSpace (GlobalSection (X := X))]
     ¬ ((rb.constResonance a₀).encoding relevant).Reconstructs ε :=
   Encoding.not_reconstructs_of_const (c := a₀) (fun _ => rfl) hs ht hsep
 
+/-! ### When restriction resonance fails
+
+`IsRestrictionResonance` is `Resonates` for the two maps the boundary already
+carries, so the criteria above apply to it verbatim. What they add to
+`constResonance_not_isRestrictionResonance` is generality in two directions.
+That theorem refutes resonance for a boundary *built* by blinding another one;
+these refute it for any boundary at all, from a property of the avatar region
+that a substrate either has or does not.
+
+The second direction is the one E89 feels. E89 asks for a contraction with a
+declared fixed point, and Banach supplies uniqueness; neither says the avatar
+region resolves the states the self-model is supposed to be about. Under
+resonance, accuracy on a separated family forces `restrictToAvatar` itself to be
+injective there (`restrictToAvatar_injOn_of_isRestrictionResonance`), which is a
+demand on the region and the substrate rather than on the readout, and is fixed
+before any avatar is chosen. Where the region fails it, resonance and accuracy
+cannot both hold (`not_isRestrictionResonance_of_reconstructs`): a boundary on
+that region either misses states it must distinguish or reports something other
+than what the region holds. The bound runs one way — nothing here says a region
+that does resolve the family carries a resonant avatar, or that one exists. -/
+
+/-- Restriction resonance is resonance of the avatar's write against the
+region's own restriction. Definitional; it is stated so that the criteria proved
+for bare maps are visibly criteria about this predicate. -/
+theorem isRestrictionResonance_iff_resonates (rb : ReflexiveBoundary X) :
+    rb.IsRestrictionResonance ↔ Resonates rb.auto_resonance rb.restrictToAvatar := Iff.rfl
+
+/-- **An avatar blind where its region is not.** Two field states the avatar
+encodes identically and the avatar region separates refute resonance. No metric
+and no fixed point are involved. -/
+theorem not_isRestrictionResonance_of_avatar_confuses (rb : ReflexiveBoundary X)
+    {s t : GlobalSection (X := X)}
+    (hauto : rb.auto_resonance s = rb.auto_resonance t)
+    (hrestrict : rb.restrictToAvatar s ≠ rb.restrictToAvatar t) :
+    ¬ rb.IsRestrictionResonance :=
+  not_resonates_of_confuses hauto hrestrict
+
+/-- **An avatar that separates what its region cannot.** The mirror image: an
+avatar reporting a difference the field does not carry on the avatar region is
+reporting something other than the field. -/
+theorem not_isRestrictionResonance_of_region_blind (rb : ReflexiveBoundary X)
+    {s t : GlobalSection (X := X)}
+    (hauto : rb.auto_resonance s ≠ rb.auto_resonance t)
+    (hrestrict : rb.restrictToAvatar s = rb.restrictToAvatar t) :
+    ¬ rb.IsRestrictionResonance :=
+  not_resonates_of_splits hauto hrestrict
+
+/-- **A constant avatar on any boundary.** `constResonance_not_isRestrictionResonance`
+is this for the boundary `constResonance` builds; the hypothesis here is that the
+write happens to be constant, however the boundary was arrived at. -/
+theorem not_isRestrictionResonance_of_const_avatar (rb : ReflexiveBoundary X)
+    {a₀ : (probabilityPresheaf X).obj (op rb.avatar_region)}
+    (hconst : ∀ s, rb.auto_resonance s = a₀)
+    {s t : GlobalSection (X := X)}
+    (hrestrict : rb.restrictToAvatar s ≠ rb.restrictToAvatar t) :
+    ¬ rb.IsRestrictionResonance :=
+  not_isRestrictionResonance_of_avatar_confuses rb ((hconst s).trans (hconst t).symm) hrestrict
+
+/-- **A region too coarse for the states the boundary must resolve.** If the
+boundary reconstructs two relevant field states more than `2 * ε` apart, and the
+avatar region reads them the same way, it is not resonant.
+
+This is the criterion a substrate decides. `hrestrict` mentions neither the
+avatar's write nor its read-out: it says the region holds the same section in
+two states the mechanism is required to tell apart, which is a fact about where
+the region sits. Accuracy is then incompatible with the avatar reporting what
+the region holds. -/
+theorem not_isRestrictionResonance_of_reconstructs [MetricSpace (GlobalSection (X := X))]
+    (rb : ReflexiveBoundary X) (relevant : Set (GlobalSection (X := X))) {ε : ℝ}
+    {s t : GlobalSection (X := X)}
+    (hrec : (rb.encoding relevant).Reconstructs ε)
+    (hs : s ∈ relevant) (ht : t ∈ relevant) (hsep : 2 * ε < dist s t)
+    (hrestrict : rb.restrictToAvatar s = rb.restrictToAvatar t) :
+    ¬ rb.IsRestrictionResonance :=
+  Encoding.not_resonates_of_reconstructs (Enc := rb.encoding relevant) hrec hs ht hsep hrestrict
+
+/-- **What a resonant boundary demands of its region.** The same statement read
+forwards: under resonance, reconstructing a pairwise-separated family at
+tolerance `ε` forces the region's restriction map to be injective on that family.
+
+E89 supplies a Lipschitz law and a fixed point, and this is what it does not
+supply: the resolution is the avatar region's, and a region that identifies two
+relevant macrostates cannot be made to work by any choice of encoding or
+read-out. The converse fails — a region resolving the family need carry no
+resonant avatar. -/
+theorem restrictToAvatar_injOn_of_isRestrictionResonance
+    [MetricSpace (GlobalSection (X := X))] (rb : ReflexiveBoundary X)
+    (relevant : Set (GlobalSection (X := X))) {ε : ℝ}
+    (hres : rb.IsRestrictionResonance)
+    (hrec : (rb.encoding relevant).Reconstructs ε)
+    {F : Set (GlobalSection (X := X))} (hF : F ⊆ relevant)
+    (hsep : ∀ s ∈ F, ∀ t ∈ F, s ≠ t → 2 * ε < dist s t) :
+    Set.InjOn rb.restrictToAvatar F :=
+  Encoding.injOn_of_resonates (Enc := rb.encoding relevant) hres hrec hF hsep
+
 #print axioms Reconstruction.dist_le_add_error
 #print axioms Reconstruction.half_dist_le_max_error
 #print axioms Reconstruction.Encoding.encode_injOn_of_separated
@@ -269,6 +460,15 @@ theorem blinded_not_reconstructs [MetricSpace (GlobalSection (X := X))]
 #print axioms dist_le_prediction_residuals
 #print axioms half_dist_le_max_prediction_residual
 #print axioms blinded_not_reconstructs
+#print axioms Reconstruction.not_resonates_of_confuses
+#print axioms Reconstruction.not_resonates_of_splits
+#print axioms Reconstruction.Encoding.not_resonates_of_reconstructs
+#print axioms Reconstruction.Encoding.injOn_of_resonates
+#print axioms not_isRestrictionResonance_of_avatar_confuses
+#print axioms not_isRestrictionResonance_of_region_blind
+#print axioms not_isRestrictionResonance_of_const_avatar
+#print axioms not_isRestrictionResonance_of_reconstructs
+#print axioms restrictToAvatar_injOn_of_isRestrictionResonance
 
 end ReflexiveBoundary
 end PhysicsOfConsciousness

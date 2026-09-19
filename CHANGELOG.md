@@ -23,6 +23,40 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-19 — A Fermi estimate that was generated and never stated
+
+`simulations/fermi_estimate_check.py` computes a coupling estimate for cortex —
+the neurons within one LFP decay length, the ephaptic phase shift each
+contributes, and the ratio of the resulting `K` to a Lorentzian half-width `γ`,
+read against the noiseless threshold `K_c/γ = 2` — and wrote all of it into
+`fermi_params.tex` as 29 macros. Three were ever cited. The other 26 were
+maintained, regenerated and unread.
+
+**They are no longer generated**, and the reason is not that they were unused.
+`K` there is a neuron count times a time times a frequency, so it is a pure
+number, while a coupling in the stochastic model is an inverse time. The rate
+that closes the gap is the persistence of a field-induced timing shift, and the
+supplement's rate-calibration subsection already argues that the field
+measurement does not fix it: three candidate persistence rules are available and
+they do not agree. Emitting `K/γ` would have published one of them silently.
+The calculator is unchanged and still prints the estimate; what changed is that
+the publication's macro file carries only the measured quantities the
+publication states.
+
+One arithmetic defect went with it. `\fermiKGammaCons`, the macro named for the
+conservative parameter set, took the shift from the default set: it returned
+`5.7` where the declared conservative shift gives `4.2`. The script's own
+conservative scenario never had the bug, so only the TeX path was wrong, and
+nothing published quoted either number.
+
+**The gate.** `simulations/test_generated_macros.py` now checks every generated
+macro file two ways — that the committed file equals what its generator writes,
+and that every macro it defines is cited by `main.tex` or `supplementary.tex`.
+A calculator may compute more than the publication quotes; what it emits is what
+the publication states.
+
+---
+
 ## 2026-09-19 — The extra dimension was never where the spiral was
 
 One claim is withdrawn, and what it deferred to is now settled negatively.

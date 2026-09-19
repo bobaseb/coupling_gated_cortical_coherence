@@ -511,3 +511,167 @@ reach, both for stated reasons rather than for want of effort.
   the modelling commitment the publication declines to make. That is not a
   formalization gap but the open problem, and the `Frustration as memory
   capacity` row is right to record it as one.
+
+## Z — From conditional to falsifiable
+
+**The eight edges are supplied, and the article says so.** §4.3 states that the
+composition establishes that the premises are consistent and *not* that
+coherence follows from installed energy or self-representation from coherence.
+That is accurate, and it is also the ceiling: a chain that transmits nothing
+carries no prediction. The one prediction the article does make — a square-root
+recovery onset at the `K_c` crossing — is defeated by its own §5.2, where none of
+the scanned rates meets the declared tracking tolerance. This section lists what
+would change that, separated into what is reachable and what is not.
+
+**The finding that reorders the list.** The delay scaling is already measured and
+already filed as a limitation. `supplementary.tex` §"Finite-ramp numerical check"
+reports `ΔK ∝ v^0.443` against the predicted `1/2`, with the deterministic
+mean-field limit returning `0.447` over four speeds and `0.418` over three, so
+the shortfall belongs to the delay estimator rather than to finite-`N` sampling
+— which is the hard half of that argument, and it is done.
+`figures/DYNAMIC_RAMP_REPORT.md` adds the scale conversion: at `D_phys = 1.5`
+rad/s a 100–1000 s crossing is `v ∈ [6.7e-4, 6.7e-3]`, inside the tested range. A
+scaling law with a predicted exponent, a diagnosed bias and a physiologically
+relevant range is a prediction. It is currently presented as a control.
+
+**Acceptance rule.** Z1's extended sweep writes a saved summary, and its numerals
+reach either publication file only as generated macros read from that summary
+(AGENTS.md §3); regenerating the macros must not rerun the sweep. Z2 is prose
+plus a script under `simulations/`, on the pattern of `fermi_estimate_check.py`.
+Any publication edit rebuilds the three tracked PDFs in the same commit (§6) and
+refreshes or removes `arxiv_submit/` (§7).
+
+- [x] **Z1 — Extend the ramp sweep, and state the scaling as a prediction.** The
+      delay fit uses three speeds; the fastest leg is right-censored at
+      `rampFastEscaped/rampReplicas` replicas and excluded. Extend to six or
+      eight speeds spanning the converted range, put an interval on the
+      exponent, and check whether the estimator shortfall is stable across the
+      wider span. Then state the prediction in the form that needs no absolute
+      calibration: **onset delay scales as the square root of the emergence
+      rate**. That requires only that `K̇` be monotonic in the drug offset rate,
+      not its value, nor `κ`, nor `γ`, so it is a within-subject design an
+      anaesthesia group can run by varying offset rate alone. The §5.2 protocol
+      hazard — a fixed `r ≥ 0.2` criterion meeting a size-dependent fluctuation
+      floor — is what such a design must avoid, and the article already says so.
+      `D` itself is nearer than the EEG work suggests: §5.1 notes quadratic
+      variation accumulates at rate `2D`, which is estimable from resolved phase
+      traces and is a different quantity from the concentration `a` that the
+      propofol analysis could not range over.
+
+- [x] **Z2 — Read the installed-energy bound against a cortical energy budget.**
+      The installed-energy row is the only conditional theorem in Table 1 and it
+      carries no number. `fermi_params.tex` computes the *other* conversion
+      already — and **none of it reaches either publication file**, which is the
+      first thing this item has to fix. `fermi_estimate_check.py` emits 29 macros;
+      exactly three are cited anywhere in `main.tex`, `supplementary.tex` or
+      `docs/primer.tex` (`fermiFieldMin`, `fermiFieldMax`, `fermiShift`, all in the
+      field-amplitude and spike-timing sentence of Table S1's E56 row). The whole
+      coupling estimate — `fermiN`, `fermiK`, `fermiKGamma`, `fermiKGammaCons`,
+      `fermiThreshold` and every band-specific `E` and `f` — is generated and
+      unread. Recomputed: `N ≈ 1675` in a 0.2 mm sphere at `ρ = 5e4 mm^-3`, giving
+      `K/γ ≈ 8.0` at theta (3.0 mV/mm, 6 Hz), `≈ 8.9` at gamma and `≈ 5.7` on the
+      conservative parameter set, against the noiseless Lorentzian `K_c/γ = 2`.
+      That estimate addresses the Lorentzian-heterogeneity threshold and **not**
+      `K_c = 2D`; the fermi file says so in its own header and the distinction
+      must survive into anything written here. Whether the estimate belongs in
+      the publication at all is the decision this item forces: a cortical
+      coupling a few times over its threshold is either the article's most
+      concrete physical claim or a calculation too loose to print, and it is
+      currently neither. Missing is the energy side:
+      whether the metabolic cost of maintaining the currents that generate those
+      fields clears `2D/κ` for any defensible `κ`. Attwell & Laughlin (2001) and
+      Harris, Jolivet & Attwell (2012) give the budget. Expect it to clear by
+      orders of magnitude and to discriminate nothing for cortex — worth one
+      paragraph rather than none, because it says what the installed-energy
+      result is *for*: it bites on energy-limited substrates, which makes it a
+      sharper instrument in §6.3 than in §6.2.
+
+- [x] **Z3 — Characterize when restriction resonance fails.** The reachable half
+      of the contraction question, and the one that fits what §5 already does.
+      The ingredients are present: the constant-readout counterexample, the
+      code-separation criterion of §3.2, and the causal-past obstruction of §3.3.
+      A theorem naming conditions under which restriction resonance *fails* would
+      constrain E89 from below in the way the winding results constrain the
+      resultant. A pass of its own, not a corollary of Z1 or Z2.
+
+- [x] **Z4 — Two defects in the Fermi macros, found while scoping Z2.**
+      `\fermiKGammaCons` hardcodes the shift `0.4` while `\fermiConsShift = 0.3`
+      is defined beside it and used nowhere, so the macro named for the
+      conservative parameter set is not conservative in that parameter: it
+      returns `5.7` where the declared conservative shift gives `4.2`. Both
+      clear the threshold of `2`, so nothing published is wrong — nothing
+      published cites it. Second, 26 of the 29 fermi macros are uncited. The M
+      pass added an unused-macro assertion to `test_simulation_tex.py`, but only
+      over the five summary groups it introduced; `fermi_params.tex` has no such
+      check, which is why this went unnoticed. Extend the assertion to cover it,
+      then either cite the coupling estimate (Z2) or stop generating it.
+
+**Pass record.**
+
+- **Z3, done first.** `Resonates E ρ` names restriction resonance on bare maps
+  in `Phase6_Reconstruction.lean`, and `isRestrictionResonance_iff_resonates`
+  identifies the boundary's predicate with it. Failure has two criteria that
+  evaluate neither map — a pair the encoder confuses and the reference separates
+  (`not_resonates_of_confuses`), and the mirror image
+  (`not_resonates_of_splits`) — and they generalize
+  `constResonance_not_isRestrictionResonance` from a constructed boundary to a
+  hypothesis about any boundary (`not_isRestrictionResonance_of_const_avatar`).
+  The one that constrains E89 is
+  `not_isRestrictionResonance_of_reconstructs`: accuracy on two relevant states
+  the avatar region reads identically refutes resonance, so under resonance
+  `restrictToAvatar` must be injective on any separated reconstructed family
+  (`restrictToAvatar_injOn_of_isRestrictionResonance`). That is a demand on the
+  region, fixed before any encoding is chosen. `Phase6_Locality.lean` adds the
+  deadline form from the causal past. Witnessed both ways on the one-site
+  avatar and on the delay line; supplement §"When restriction resonance fails"
+  and one Table S1 row.
+
+- **Z4, and the decision it forced.** The conservative-shift defect is gone with
+  the macro: the whole coupling estimate is no longer emitted. `K` there is a
+  neuron count times a time times a frequency, so it is a pure number, while a
+  coupling in the stochastic model is an inverse time; the rate closing that gap
+  is the persistence of a field-induced timing shift, which the supplement's
+  own rate-calibration subsection shows the field measurement does not fix.
+  Emitting `K/γ` would have published one choice of it silently. The calculator
+  keeps computing and printing the estimate, and now prints `4.2` for the
+  conservative bound because the script's own scenario always used
+  `CONS_SHIFT`; only the TeX path had `0.4` hardcoded. `fermi_params.tex` is
+  down to the three measured quantities the publication states.
+  `test_generated_macros.py` now gates every generated macro file both ways —
+  drift against its generator, and citation by the publication — with the
+  citation match anchored so that `\fermiK` is not certified live by
+  `\fermiKGamma`.
+
+- **Z2.** `energy_budget_check.py` (theory layer, `energy_budget.tex`) reads the
+  installed-energy bound against Attwell & Laughlin's grey-matter budget. It
+  cannot evaluate the condition, because the conversion factor is declined;
+  what it does is invert it, and report the factor the identification would have
+  to deliver. The expectation that it "clears by orders of magnitude" holds for
+  the *energy* and not for the condition: the decay sphere's installed energy is
+  fourteen orders of magnitude above `kT` at body temperature, so the condition
+  can fail for cortex only through the conversion factor. Supplement
+  §"The bound against a cortical energy budget", and one sentence in §6.3 saying
+  the same of a processor.
+
+- **Z1.** The delay sweep runs eight speeds, `0.1` down to `1e-4` on a 1--2--5
+  ladder, with three inside the converted window; the per-leg onset and collapse
+  fits stay on the four decade-spaced legs, which is what their paragraphs can
+  carry. `fit_power_law` returns a 95% Student-`t` interval on the slope and
+  `split_span_exponents` fits the halves of the span apart, which is the check
+  that the shortfall is the estimator's rather than a drift with rate. The
+  prediction is stated in §5.2 in the form that needs no absolute calibration.
+
+**Declined, with reasons**, so that neither returns as an open item.
+
+- **Deriving `κ` from the mode hardware.** A mode is a priced rank-one
+  contribution to the kernel. Cortical extracellular field generation has no
+  canonical decomposition into priced modes — the field is the summed
+  transmembrane current of everything present — so choosing the basis is
+  choosing the answer. This is not a formalization gap but the absence of the
+  physical object the formalism quantifies over. Z2 is the consistency check
+  that remains available without it.
+- **Deriving E89's contraction from dynamics.** Restriction resonance, that a
+  sub-region's encoding recovers the whole state, is the substantive commitment
+  of the reflexive construction rather than a lemma in front of it. The witnesses
+  construct models where it holds; deriving it for a physical system is the
+  framework's problem restated. Z3 is the half that is reachable.

@@ -25,6 +25,13 @@ indistinguishability theorem below is derived and not postulated.
   reconstruction bound of `Phase6_Reconstruction`: the encoding is blind, and a
   blind encoding cannot meet a tolerance smaller than half the separation of the
   values it must distinguish.
+* **`not_resonates_regionReading_of_outside_past`.** The same fact refutes a
+  different claim, and a stronger one. A reading *region* whose causal past
+  misses the intervened site holds the same state in both worlds, so its
+  contents are not any declared reference that tells the worlds apart — with no
+  metric, no tolerance and no report. Restriction resonance, the hypothesis the
+  reflexive fixed point is interpreted through, therefore fails by the declared
+  round.
 
 ## Latency, and what this is not
 
@@ -233,9 +240,62 @@ theorem not_reconstructs_of_outside_past [PseudoMetricSpace Q] (N : Network V S 
     (r := report (N.run (intervene base w inj q) T v))
     (fun p => congrArg report (run_intervene_eq_of_notMem N base inj hw p q)) hq hq' hsep
 
+/-! ## Restriction resonance, by a declared round
+
+The previous theorem refutes *accuracy*. The same causal-past fact refutes
+*resonance*, and it does so without a metric, a tolerance or a readout.
+
+A reading region's state at round `T` is a code: one section of the machine, read
+where the avatar sits. Restriction resonance asks that this code be what the
+region is supposed to hold — the reference map `ρ` below, which the model
+declares and this module does not choose. When the world is changed at a site
+outside the region's causal past for `T` rounds, the region holds the same state
+in both worlds, so the code confuses two worlds. Any reference separating them is
+then not what the region reads, by `Reconstruction.not_resonates_of_confuses`.
+
+What this adds to the reconstruction result is where the failure sits. The
+obstruction is not that the report is inaccurate but that the region's contents
+cannot be the state the model says they are, before the deadline, for any
+encoding whatever. Which sites lie outside a region's causal past is a fact about
+the graph and the round; choosing a physically meaningful deadline, and mapping
+execution onto this graph, remain the empirical questions this module does not
+touch. -/
+
+/-- The reading region's whole state at round `T`, as a function of the value the
+world was given. The single-site case is `v` a one-element region. -/
+def regionReading (N : Network V S M) (base : V → S) (w : V) (inj : Q → S)
+    (R : Finset V) (T : ℕ) : Q → ({v // v ∈ R} → S) :=
+  fun q v => N.run (intervene base w inj q) T v.1
+
+/-- **A region whose causal past misses the intervention reads the same in both
+worlds.** The regional form of `run_intervene_eq_of_notMem`: every site of the
+region is separately blind, so the region's whole state is. -/
+theorem regionReading_eq_of_outside_past (N : Network V S M) (base : V → S) {w : V}
+    (inj : Q → S) {R : Finset V} {T : ℕ} (hw : ∀ v ∈ R, w ∉ ball N.nbhd T v) (q q' : Q) :
+    regionReading N base w inj R T q = regionReading N base w inj R T q' := by
+  funext v
+  exact run_intervene_eq_of_notMem N base inj (hw v.1 v.2) q q'
+
+/-- **Restriction resonance fails by the declared round.** If the world is changed
+outside the reading region's causal past for `T` rounds, the region's state is the
+same in both worlds, so it is not any reference that tells them apart.
+
+No metric, no tolerance and no readout: the region's contents are the same object
+in the two worlds, and a reference that is not is not them. Compare
+`not_reconstructs_of_outside_past`, which refutes accuracy of a report at the same
+deadline; this refutes the claim that the region holds what the model says it
+holds, which is the hypothesis E89's fixed point is interpreted through. -/
+theorem not_resonates_regionReading_of_outside_past (N : Network V S M) (base : V → S)
+    {w : V} (inj : Q → S) {R : Finset V} {T : ℕ} (ρ : Q → ({v // v ∈ R} → S))
+    (hw : ∀ v ∈ R, w ∉ ball N.nbhd T v) {q q' : Q} (hρ : ρ q ≠ ρ q') :
+    ¬ Resonates (regionReading N base w inj R T) ρ :=
+  not_resonates_of_confuses (regionReading_eq_of_outside_past N base inj hw q q') hρ
+
 #print axioms Network.run_eq_of_agree_on_ball
 #print axioms Network.run_eq_on_region_of_agree
 #print axioms run_intervene_eq_of_notMem
 #print axioms not_reconstructs_of_outside_past
+#print axioms regionReading_eq_of_outside_past
+#print axioms not_resonates_regionReading_of_outside_past
 
 end PhysicsOfConsciousness.Locality

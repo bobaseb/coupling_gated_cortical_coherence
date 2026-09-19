@@ -3449,9 +3449,15 @@ consecutive samples at $r\ge0.2$ after threshold:
 \begin{itemize}[leftmargin=*,noitemsep]
 \item The fastest leg is right-censored---only $\rampFastEscaped/\rampReplicas$
 replicas escape before $K=2.5$.
-\item The three slower ramps give mean coupling delays $\rampDelaySlowOne$,
-$\rampDelaySlowTwo$ and $\rampDelaySlowThree$, whose log--log fit is
-$\Delta K\propto v^{\rampDelayExponent}$. A deterministic mean-field control
+\item The $\rampDelayUncensoredCount$ uncensored legs of
+$\rampDelaySpeedCount$ give a log--log fit
+$\Delta K\propto v^{\rampDelayExponent}$, with $95\%$ slope interval
+$[\rampDelayExponentLow,\rampDelayExponentHigh]$, which excludes $1/2$; the
+decade-spaced legs among them have mean coupling delays $\rampDelaySlowOne$,
+$\rampDelaySlowTwo$ and $\rampDelaySlowThree$. Fitting the faster and slower
+halves of the span apart returns $\rampDelayExponentFast$ and
+$\rampDelayExponentSlow$, which agree but are each too few legs to resolve the
+shortfall alone. A deterministic mean-field control
 seeded at the finite-population fluctuation floor gives
 $\quasistaticExponentAll$ over \quasistaticSpeedCount{} speeds and
 $\quasistaticExponentUncensored$ over the \quasistaticUncensoredCount{} used

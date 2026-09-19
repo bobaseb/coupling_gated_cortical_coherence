@@ -15,19 +15,31 @@ from numpy.typing import NDArray
 from bifurcation import bessel_ratio, coherent_r
 from dynamic_ramp_analysis import (
     OnsetFit,
+    PowerLawFit,
     collapse_deviation,
     fit_onset_exponent,
     fit_power_law,
     replica_escape_couplings,
+    split_span_exponents,
 )
 
 
 FloatArray = NDArray[np.float64]
 # Anchored on this file, not the working directory: simulations/README.md.
 FIGURE_DIR = Path(__file__).resolve().parent / "figures"
+# The legs whose per-leg onset and collapse fits the publication reports, at
+# decade spacing.
 SPEEDS = (0.1, 0.01, 0.001, 0.0001)
+# Every leg the delay measurement uses. The delay is one number per leg, so it
+# can carry a denser sweep than the per-leg fits can; the extra speeds are
+# placed inside the physiologically converted window and on either side of it.
+DELAY_SPEEDS = (0.1, 0.02, 0.01, 0.005, 0.002, 0.001, 0.0002, 0.0001)
 ESCAPE_LEVEL = 0.2
 SUSTAIN = 3
+# How close the two half-span exponents must be for the report to call the
+# shortfall stable. A tenth of the shortfall itself, so agreement means the
+# halves are closer to each other than either is to the predicted 1/2.
+_SPLIT_AGREEMENT = 0.05
 
 
 @dataclass(frozen=True)
@@ -100,8 +112,8 @@ def _speed_path(speed: float) -> Path:
     return FIGURE_DIR / f"dynamic_ramp_replicas_v{speed:.0e}.npz"
 
 
-def _load_speed_legs() -> list[Leg]:
-    return [_load_leg(_speed_path(speed)) for speed in SPEEDS]
+def _load_legs(speeds: tuple[float, ...]) -> list[Leg]:
+    return [_load_leg(_speed_path(speed)) for speed in speeds]
 
 
 def _metrics(leg: Leg) -> LegMetrics:
@@ -190,6 +202,14 @@ def _plot_delay_scaling(metrics: list[LegMetrics]) -> None:
     fit = fit_power_law(speeds, delays)
     grid = np.geomspace(speeds.min(), speeds.max(), 100)
     fig, axes = plt.subplots(1, 2, figsize=(10.0, 4.2))
+    axes[0].fill_between(
+        grid,
+        fit.prefactor * grid**fit.exponent_low,
+        fit.prefactor * grid**fit.exponent_high,
+        color="tab:orange",
+        alpha=0.18,
+        label="95% slope interval",
+    )
     axes[0].errorbar(speeds, delays, yerr=errors, fmt="o", capsize=3, label="measured")
     axes[0].plot(grid, fit.prefactor * grid**fit.exponent, label=rf"fit $v^{{{fit.exponent:.3f}}}$")
     axes[0].plot(grid, np.sqrt(2.0 * grid * np.log(2000)), ls="--", label=r"$\sqrt{2v\ln N}$")
@@ -242,17 +262,52 @@ def _plot_onset(metrics: list[LegMetrics]) -> None:
     _save_figure(fig, "dynamic_ramp_onset_exponent.png")
 
 
-def _write_report(metrics: list[LegMetrics]) -> None:
-    speeds, delays, _ = _delay_arrays(metrics)
-    delay_fit = fit_power_law(speeds, delays)
-    floor = next(item.collapse_deviation for item in metrics if item.speed == min(SPEEDS))
-    threshold = 2.0 * floor
-    bracketed = any(item.collapse_deviation >= threshold for item in metrics)
-    rows = "\n".join(
+def _table_rows(metrics: list[LegMetrics]) -> str:
+    return "\n".join(
         f"| {item.speed:g} | {item.escaped}/32 | {item.delay_mean:.4f} | "
         f"{item.delay_sd:.4f} | {item.collapse_deviation:.5f} | {item.onset.exponent:.3f} |"
         for item in metrics
     )
+
+
+def _fit_text(fit: PowerLawFit) -> str:
+    return f"{fit.exponent:.3f} [{fit.exponent_low:.3f}, {fit.exponent_high:.3f}]"
+
+
+def _delay_paragraph(metrics: list[LegMetrics]) -> str:
+    """The delay scaling, its interval, and the split-span consistency check."""
+    speeds, delays, _ = _delay_arrays(metrics)
+    delay_fit = fit_power_law(speeds, delays)
+    fast_fit, slow_fit = split_span_exponents(speeds, delays)
+    censored = ", ".join(f"v={item.speed:g}" for item in metrics if item.escaped != 32)
+    agree = abs(fast_fit.exponent - slow_fit.exponent) < _SPLIT_AGREEMENT
+    resolved = delay_fit.exponent_high < 0.5
+    return f"""The delay fit uses the {speeds.size} uncensored legs of {len(metrics)}, excluding
+{censored}, and gives exponent {_fit_text(delay_fit)} against the predicted 0.5,
+which the interval {"excludes" if resolved else "does not exclude"}.
+
+Split at the median speed, the faster half returns {_fit_text(fast_fit)} and the
+slower half {_fit_text(slow_fit)}. The point estimates
+{"agree" if agree else "disagree"} to within {_SPLIT_AGREEMENT}, but each half is
+three legs over one decade and its own interval is far wider than the shortfall
+being tested, so the split is a consistency check and not a second measurement:
+it shows the apparent exponent does not drift across the span, and neither half
+resolves the shortfall by itself."""
+
+
+def _collapse_paragraph(metrics: list[LegMetrics], diagnostics: list[LegMetrics]) -> str:
+    """The Bessel-collapse floor, and whether any leg reaches twice it."""
+    floor = next(item.collapse_deviation for item in diagnostics if item.speed == min(SPEEDS))
+    threshold = 2.0 * floor
+    bracketed = any(item.collapse_deviation >= threshold for item in metrics)
+    legs = ", ".join(f"{speed:g}" for speed in SPEEDS)
+    return f"""Collapse deviations and onset exponents are read on the decade-spaced legs
+v={legs}. The slowest-ramp deviation floor is Dev_0={floor:.5f};
+2 Dev_0={threshold:.5f}. The critical-speed crossing is
+{"bracketed" if bracketed else "not bracketed"} by the sweep."""
+
+
+def _write_report(metrics: list[LegMetrics], diagnostics: list[LegMetrics]) -> None:
     report = f"""# Dynamic-ramp numerical report
 
 Finite-N heuristic evidence only; these runs prove no trajectory theorem and do
@@ -262,12 +317,11 @@ r >= {ESCAPE_LEVEL}; pre-critical crossings are excluded.
 
 | v | escaped | mean delay | replica SD | collapse Dev | beta_eff |
 |---:|---:|---:|---:|---:|---:|
-{rows}
+{_table_rows(metrics)}
 
-The delay fit excludes the right-censored v=0.1 leg and gives exponent
-{delay_fit.exponent:.3f} against the predicted 0.5. The slowest-ramp deviation
-floor is Dev_0={floor:.5f}; 2 Dev_0={threshold:.5f}. The critical-speed crossing
-is {"bracketed" if bracketed else "not bracketed"} by the four-speed sweep.
+{_delay_paragraph(metrics)}
+
+{_collapse_paragraph(metrics, diagnostics)}
 
 Using D_phys=1.5 rad/s, v_phys=v D_phys^2. A 100--1000 s crossing of a coupling
 window of width 1.5 rad/s corresponds to v=0.000667--0.00667 in simulation
@@ -279,13 +333,15 @@ measurement of astrocytic coupling dynamics.
 
 def main() -> None:
     """Generate all required S1 summary artifacts."""
-    legs = _load_speed_legs()
-    metrics = [_metrics(leg) for leg in legs]
-    _plot_bifurcation(legs)
-    _plot_delay_scaling(metrics)
-    _plot_collapse(legs, metrics)
-    _plot_onset(metrics)
-    _write_report(metrics)
+    delay_legs = _load_legs(DELAY_SPEEDS)
+    delay_metrics = [_metrics(leg) for leg in delay_legs]
+    diagnostic_legs = [leg for leg in delay_legs if leg.speed in SPEEDS]
+    diagnostic_metrics = [item for item in delay_metrics if item.speed in SPEEDS]
+    _plot_bifurcation(diagnostic_legs)
+    _plot_delay_scaling(delay_metrics)
+    _plot_collapse(diagnostic_legs, diagnostic_metrics)
+    _plot_onset(diagnostic_metrics)
+    _write_report(delay_metrics, diagnostic_metrics)
     print("wrote dynamic-ramp figures and DYNAMIC_RAMP_REPORT.md")
 
 

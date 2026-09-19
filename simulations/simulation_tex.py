@@ -9,8 +9,15 @@ from typing import Any, cast
 
 import numpy as np
 
-from dynamic_ramp_analysis import fit_power_law
-from dynamic_ramp_report import SPEEDS, LegMetrics, _load_leg, _metrics, _size_metrics
+from dynamic_ramp_analysis import fit_power_law, split_span_exponents
+from dynamic_ramp_report import (
+    DELAY_SPEEDS,
+    SPEEDS,
+    LegMetrics,
+    _load_leg,
+    _metrics,
+    _size_metrics,
+)
 from empirical_collapse import tangent_separation
 from fermi_estimate_check import FERMI_LAM_MIN
 from propagation_of_chaos import Summary, write_tex_macros
@@ -84,14 +91,42 @@ def _ramp_onset_macros(metrics: list[LegMetrics]) -> list[str]:
     ]
 
 
+def _ramp_delay_macros(delays: list[LegMetrics]) -> list[str]:
+    """The delay scaling, over every leg the sweep ran.
+
+    The exponent travels with an interval and with the two half-span fits,
+    because a single number over three decades cannot say whether its shortfall
+    from the predicted 1/2 is the estimator's or a drift with rate.
+    """
+    uncensored = [item for item in delays if item.escaped == 32]
+    speeds = np.asarray([item.speed for item in uncensored])
+    means = np.asarray([item.delay_mean for item in uncensored])
+    delay_fit = fit_power_law(speeds, means)
+    fast_fit, slow_fit = split_span_exponents(speeds, means)
+    return [
+        _macro("rampDelaySpeedCount", len(delays)),
+        _macro("rampDelayUncensoredCount", len(uncensored)),
+        _macro("rampDelayCensoredCount", len(delays) - len(uncensored)),
+        _macro("rampDelaySpeedFastest", f"{max(item.speed for item in delays):g}"),
+        _macro("rampDelaySpeedSlowest", f"{min(item.speed for item in delays):g}"),
+        _macro("rampDelayExponent", f"{delay_fit.exponent:.3f}"),
+        _macro("rampDelayExponentLow", f"{delay_fit.exponent_low:.3f}"),
+        _macro("rampDelayExponentHigh", f"{delay_fit.exponent_high:.3f}"),
+        _macro("rampDelayExponentFast", f"{fast_fit.exponent:.3f}"),
+        _macro("rampDelayExponentFastLow", f"{fast_fit.exponent_low:.3f}"),
+        _macro("rampDelayExponentFastHigh", f"{fast_fit.exponent_high:.3f}"),
+        _macro("rampDelayExponentSlow", f"{slow_fit.exponent:.3f}"),
+        _macro("rampDelayExponentSlowLow", f"{slow_fit.exponent_low:.3f}"),
+        _macro("rampDelayExponentSlowHigh", f"{slow_fit.exponent_high:.3f}"),
+    ]
+
+
 def _ramp_macros() -> list[str]:
-    legs = [_load_leg(FIGURES / f"dynamic_ramp_replicas_v{speed:.0e}.npz") for speed in SPEEDS]
-    metrics = [_metrics(leg) for leg in legs]
-    uncensored = [item for item in metrics if item.escaped == 32]
-    delay_fit = fit_power_law(
-        np.asarray([item.speed for item in uncensored]),
-        np.asarray([item.delay_mean for item in uncensored]),
-    )
+    delays = [
+        _metrics(_load_leg(FIGURES / f"dynamic_ramp_replicas_v{speed:.0e}.npz"))
+        for speed in DELAY_SPEEDS
+    ]
+    metrics = [item for item in delays if item.speed in SPEEDS]
     floor = metrics[-1].collapse_deviation
     return [
         _macro("rampFastEscaped", metrics[0].escaped),
@@ -99,7 +134,7 @@ def _ramp_macros() -> list[str]:
         _macro("rampDelaySlowOne", f"{metrics[1].delay_mean:.4f}"),
         _macro("rampDelaySlowTwo", f"{metrics[2].delay_mean:.4f}"),
         _macro("rampDelaySlowThree", f"{metrics[3].delay_mean:.4f}"),
-        _macro("rampDelayExponent", f"{delay_fit.exponent:.3f}"),
+        *_ramp_delay_macros(delays),
         *_ramp_size_macros(),
         *_ramp_onset_macros(metrics),
         *_indexed_macros("rampCollapse", [item.collapse_deviation for item in metrics], 5),

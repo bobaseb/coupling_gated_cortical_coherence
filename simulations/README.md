@@ -6,10 +6,18 @@ that keep the two documents honest.
 
 Published numbers are **not** recomputed at build time. Each simulation writes a
 saved summary, and `simulation_tex.py` turns those summaries into the LaTeX
-macros that `simulation_results.tex` and `fermi_params.tex` define. The
-manuscript reads only those macros, so a figure or a quoted value cannot drift
-from the run that produced it, and rebuilding the PDFs does not require
-rerunning a production sweep.
+macros `simulation_results.tex` defines. Two closed-form calculators define
+macros of their own: `fermi_estimate_check.py` writes `fermi_params.tex` and
+`energy_budget_check.py` writes `energy_budget.tex`. The manuscript reads only
+those macros, so a figure or a quoted value cannot drift from the run that
+produced it, and rebuilding the PDFs does not require rerunning a production
+sweep.
+
+`test_generated_macros.py` gates all three files two ways: each committed file
+must equal what its generator writes, and each macro it defines must be cited by
+`main.tex` or `supplementary.tex`. A calculator may compute more than the
+publication quotes — `fermi_estimate_check.py` does — but what it *emits* is
+what the publication states, so the emitted set and the cited set are the same.
 
 ## Setup
 
