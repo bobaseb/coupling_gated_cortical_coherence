@@ -76,6 +76,17 @@ repos:
         files: ^(supplementary\.tex|.*Chain\.lean)$
         pass_filenames: false
 
+      # The status column and the coverage are different questions, so they are
+      # different gates: check-table reads a cell, this reads the whole map.
+      # A theorem the article argues from and Table S1 omits is a claim with no
+      # recorded scope, and nothing else here looks at both documents at once.
+      - id: check-table-coverage
+        name: every lean name in the article has a table S1 row
+        entry: bash -c 'cd simulations && uv run python check_table_coverage.py'
+        language: system
+        files: ^(main\.tex|supplementary\.tex|PhysicsOfConsciousness/.*\.lean)$
+        pass_filenames: false
+
       # Tracked PDFs are deliverables: README.md and index.html link
       # main.pdf, supplementary.pdf and docs/primer.pdf directly, so a source
       # change committed without the rebuilt PDF publishes stale text to

@@ -214,6 +214,11 @@ layer = "gate"
 depends_on = ["repo_root"]
 
 [[modules]]
+path = "check_table_coverage"
+layer = "gate"
+depends_on = ["check_leaves", "repo_root"]
+
+[[modules]]
 path = "check_leaves"
 layer = "gate"
 depends_on = ["repo_root"]

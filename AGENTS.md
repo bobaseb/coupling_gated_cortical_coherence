@@ -138,3 +138,34 @@ mode with a history in this repository rather than a hypothetical one.
   what the new axiom is and why it is irreducible — and, per §5 of
   `Axioms.lean`, a physical postulate that mentions a class field must be a
   field of that class rather than a standalone axiom at all.
+
+## 9. Table S1 Is the Claim Map, So Coverage Is a Gate
+
+Table S1 says of itself that it is the claim-by-claim map: each row names the
+Lean identifier that carries a claim and states that identifier's scope
+limitation. `check_tableS1.py` validates the *status column* against
+`Chain.lean` and measures no coverage, so until `check_table_coverage.py` a
+theorem could be argued from in `main.tex` and appear in no row, with every
+other gate here passing. That is not hypothetical: the winding and amplitude
+results were cited in both publication files and mapped in neither.
+
+- **The gate:** `simulations/check_table_coverage.py`, wired into
+  `.pre-commit-config.yaml` as `check-table-coverage`. Every `\texttt{}` span in
+  `main.tex` whose final dot-separated segment names a declaration under
+  `PhysicsOfConsciousness/` must appear in the `tab:full` longtable. The Lean
+  sources decide what a declaration is, so module names, `.lean` filenames and
+  directory names are ignored without being enumerated, and a theorem added
+  tomorrow is covered with no edit to the script — the same principle as
+  `check_pdf_freshness.py` deriving its dependency set from the sources.
+- **The rule stops at the article, deliberately.** Requiring a row for every
+  Lean name in *either* file would demand the table absorb the supplement,
+  which names several hundred working lemmas in the course of its proofs. Those
+  are steps, not claims. The article names an identifier only when it rests an
+  argument on it, which is exactly the set a claim map exists to cover.
+- **Coverage runs one way.** A row may carry an identifier the article never
+  spells: a claim can be stated in prose and carried by a theorem the reader
+  meets only in the map. The gate never asks the table to shrink.
+- **There is no allowlist**, for the reason §5 gives. The two ways to satisfy
+  it are to give the identifier a row ending on what it does not reach, in the
+  commit that introduces it, or — if the article does not in fact rest on it —
+  to take the name out of the article and leave it to the supplement.
