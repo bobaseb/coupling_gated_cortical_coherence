@@ -341,3 +341,104 @@ amplitude before this pass, so the layer withdraws nothing. The entry would be
 an announcement of new work, which is what the file's own opening declines to
 carry. `main.pdf`, `supplementary.pdf`, `docs/primer.pdf`, the proof companion
 and the arXiv submission are all rebuilt.
+
+## Y — What the winding rows say they do not reach
+
+**Table S1's two new rows end on three scope limitations, and two of them are
+reachable with the machinery already in the file.** The rows state that
+stationarity of a character state needs no basin hypothesis but selects no
+limit; that the existence band `mu + lambda > 0` is one of existence and not
+stability; and that no theorem connects a winding sector to content. The second
+is the cheapest result in this section and is what the sweep in
+`travelling_wave.py` actually measures. Half of the third is nearly free and
+improves a bound the article already complains about. The first is mostly out of
+reach, and two negative corollaries are all that is honestly available.
+
+**Why the stability half is cheap.** Linearising the phase model about a winding,
+`theta i = W.psi i + u i`, gives
+
+    d(u i)/dt = sum_d f d * sin (psi d + u (i+d) - u i)
+              ~ sum_d f d * sin (psi d)                       -- vanishes
+              + sum_d f d * cos (psi d) * (u (i+d) - u i)
+
+The first sum is exactly `circulant_drift_char`. What is left is circulant with
+kernel `g d = f d * cos (W.psi d)`, and `g` is even: `f` is even by hypothesis
+and `cos . psi` is even from `chi_neg`. So `sum_kernel_chi` applies unchanged and
+the spectrum is `charLambda W' g` ranging over the characters `W'` — the
+definition already at `Phase4_KuramotoDynamics.lean:1399`, re-instantiated at a
+twisted kernel. `charLambda`, `sum_kernel_chi` and `sum_eq_zero_of_odd` are all
+generic in the kernel and require only evenness, so none of them is touched.
+
+This is the mechanism the sweep measures. As the decay length grows the kernel
+reaches separations at which the winding has advanced past a quarter turn,
+`cos (psi d)` turns negative, `g d < 0`, and a mode crosses zero. It would make
+the interpolated boundary `\waveBoundary` a computable quantity rather than a
+measured one.
+
+**Why the content half is nearly free.** `chord_le_of_coherence` and
+`compatible_of_shared_coherence` are generic in the site type `V`. Instantiated
+at the subtype of a patch they give the same bounds with `card P` for `card V`
+and the patch's own resultant for the global one; the only bridge needed is
+`patch_resultant theta P` against `order_parameter_complex` on that subtype,
+which is `Finset.sum_coe_sort` and `Fintype.card_coe`.
+
+**Integration cost to budget.** All of Y1--Y4 belong in the modules that already
+carry what they qualify — Y1--Y3 in `Phase4_KuramotoDynamics` beside §6 and §7,
+and Y4 split across both, its patch bridge in `Phase4_KuramotoDynamics` where
+`patch_resultant` and `chord_le_of_coherence` are and its compatibility
+instantiation in `Phase5_ContentDynamics` — so nothing arrives as a leaf and `ALLOWED_LEAVES` gains nothing. Anything that reaches
+`main.tex` needs a Table S1 row in the same commit, which
+`check_table_coverage.py` now enforces (AGENTS.md §9), and any `.lean` edit needs
+`proof_companion/run.sh extract` then `pdf` before the commit hooks pass.
+
+- [ ] **Y1 — The twisted kernel.** Define
+      `twistedKernel W f := fun d => f d * Real.cos (W.psi d)` and prove it even
+      from `chi_neg`. Cheap, and on its own it says nothing; it is the object
+      Y2 is stated about.
+- [ ] **Y2 — The linear criterion at a winding.** Prove the Jacobian of the
+      phase model at `charState` is circulant with kernel `twistedKernel W f`,
+      so its spectrum is `charLambda W' (twistedKernel W f)` over characters
+      `W'`. Then the two halves: if `0 <= f d` and `|W.psi d| <= pi/2` on the
+      kernel's support, every eigenvalue is at most zero, termwise from
+      `(chi' d).re <= 1`; and a `W'` with `charLambda W' (twistedKernel W f) > 0`
+      is a growing mode. This is the phase-layer analogue of
+      `incoherent_mode_rate` and `incoherent_instability_iff`, which is a shape
+      this development has already carried once.
+- [ ] **Y3 — A winding is not a minimum.** A nontrivial winding has `r^2 = 0`
+      where a global minimum has `r^2 = 1`, so it is not one:
+      `potential_min_iff_phase_locked`, `phase_locked_implies_r_sq_eq_one` and
+      `order_parameter_r_sq_char` are all proved and this is close to an
+      assembly. It upgrades "the convergence hypothesis excludes this state" to
+      "it must, because the conclusion is false of it", which is the refutation
+      shape `Axioms.lean` §5 prefers. With Y2 it extends to "not a local
+      minimum either" wherever an eigenvalue is positive.
+- [ ] **Y4 — Content agreement on a patch.** Instantiate
+      `chord_le_of_coherence` and `compatible_of_shared_coherence` at the
+      subtype of a patch, with the bridge lemma above. Two payoffs, and the
+      second is independent of windings: on a winding the global bound is
+      `sqrt 2 * N` and vacuous while the patch bound stays finite, because
+      `cos_le_mean_patch_order_char` holds patch order near one — which is the
+      winding-to-content connection Table S1 records as absent; and a bound
+      carrying `card P` rather than `card V` answers the article's own remark
+      that the factor `N` makes the estimate weak in large populations.
+
+**Out of scope, and worth recording as such.** Two things this section does not
+reach, both for stated reasons rather than for want of effort.
+
+- **Asymptotic stability.** Y2 is an eigenvalue statement about the Jacobian, not
+  convergence of trajectories. Upgrading it needs a local Lojasiewicz estimate
+  around a critical point that is not a minimum, and the existing chain —
+  `lojasiewicz_estimate`, `excess_decay`, `velocity_abs_le_exp`, `phase_tendsto`
+  — is built around the global minimum through `potentialExcess`, the pairwise
+  quarter turn and `couplingTotal_pos`. Rebuilding it locally is a pass of its
+  own, not a corollary of Y2, and the publication must keep saying that the
+  states which persist occupy a strictly narrower range than the band allows.
+- **The converse direction of Y4.** That a nonzero winding *obstructs* global
+  compatibility does not follow from anything here.
+  `loopWinding_eq_zero_of_hasGlobalLift` is the topological obstruction, but
+  `Phase5_PhaseLifts.lean` is combinatorial throughout — integers around a loop,
+  with no connection to the Kuramoto dynamics or to the content sheaf. Joining
+  them means identifying the content sheaf with the phase-lift sheaf, which is
+  the modelling commitment the publication declines to make. That is not a
+  formalization gap but the open problem, and the `Frustration as memory
+  capacity` row is right to record it as one.
