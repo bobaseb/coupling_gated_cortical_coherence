@@ -651,6 +651,19 @@ def _reduction_macros() -> list[str]:
     ]
 
 
+def _auc_macros(prefix: str, row: JsonObject) -> list[str]:
+    """Emit a separation score with the interval the run resampled for it.
+
+    A score quoted alone invites the reader to compare two of them by eye; the
+    interval is what says whether that comparison is available.
+    """
+    return [
+        _macro(prefix, f"{cast(float, row['auc_against_null']):.3f}"),
+        _macro(f"{prefix}Low", f"{cast(float, row['auc_low']):.3f}"),
+        _macro(f"{prefix}High", f"{cast(float, row['auc_high']):.3f}"),
+    ]
+
+
 def _compatibility_macros() -> list[str]:
     """Emit the overlap estimator's separation, its two silent failures and its limit (N9)."""
     data = _read_json(FIGURES / "compatibility_estimator" / "compatibility_estimator_summary.json")
@@ -677,8 +690,8 @@ def _compatibility_macros() -> list[str]:
         _macro("overlapTrials", data["trials"]),
         _macro("overlapSites", data["overlap"]),
         _macro("overlapDecodingError", f"{cast(float, data['decoding_error']):.1f}"),
-        _macro("overlapCompatibleAuc", f"{cast(float, compatible['auc_against_null']):.3f}"),
-        _macro("overlapIncompatibleAuc", f"{cast(float, incompatible['auc_against_null']):.3f}"),
+        *_auc_macros("overlapCompatibleAuc", compatible),
+        *_auc_macros("overlapIncompatibleAuc", incompatible),
         _macro("overlapIncompatibleZ", f"{cast(float, incompatible['z_against_null']):.0f}"),
         _macro("overlapShrinkageStatistic", f"{cast(float, shrinkage['statistic']):.4f}"),
         _macro("overlapBiasStatistic", f"{cast(float, bias['statistic']):.4f}"),

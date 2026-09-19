@@ -186,6 +186,63 @@ class AucTest(unittest.TestCase):
         self.assertAlmostEqual(estimator.auc(low, low.copy()), 0.5)
 
 
+class AucIntervalTest(unittest.TestCase):
+    def test_the_interval_brackets_the_point_estimate(self) -> None:
+        rng = np.random.default_rng(3)
+        negative = rng.normal(0.0, 1.0, size=200)
+        positive = rng.normal(1.0, 1.0, size=200)
+        low, high = estimator.auc_interval(positive, negative, np.random.default_rng(4))
+        self.assertLess(low, estimator.auc(positive, negative))
+        self.assertGreater(high, estimator.auc(positive, negative))
+        self.assertGreaterEqual(low, 0.0)
+        self.assertLessEqual(high, 1.0)
+
+    def test_an_unseparated_pair_gives_an_interval_covering_one_half(self) -> None:
+        rng = np.random.default_rng(5)
+        first = rng.normal(0.0, 1.0, size=200)
+        second = rng.normal(0.0, 1.0, size=200)
+        low, high = estimator.auc_interval(first, second, np.random.default_rng(6))
+        self.assertLess(low, 0.5)
+        self.assertGreater(high, 0.5)
+
+    def test_the_resampling_stream_is_the_only_source_of_the_interval(self) -> None:
+        rng = np.random.default_rng(7)
+        negative = rng.normal(0.0, 1.0, size=120)
+        positive = rng.normal(1.5, 1.0, size=120)
+        first = estimator.auc_interval(positive, negative, np.random.default_rng(8))
+        second = estimator.auc_interval(positive, negative, np.random.default_rng(8))
+        self.assertEqual(first, second)
+
+    def test_more_trials_narrow_the_interval(self) -> None:
+        rng = np.random.default_rng(9)
+        small = estimator.auc_interval(
+            rng.normal(1.0, 1.0, size=60),
+            rng.normal(0.0, 1.0, size=60),
+            np.random.default_rng(10),
+        )
+        large = estimator.auc_interval(
+            rng.normal(1.0, 1.0, size=600),
+            rng.normal(0.0, 1.0, size=600),
+            np.random.default_rng(10),
+        )
+        self.assertLess(large[1] - large[0], small[1] - small[0])
+
+    def test_every_baseline_row_carries_an_interval_around_its_score(self) -> None:
+        rows = estimator.baseline(np.random.default_rng(11), TERRITORY, 0.2, 60)
+        for row in rows:
+            self.assertIsNotNone(row.auc_low)
+            self.assertIsNotNone(row.auc_high)
+            self.assertLessEqual(cast(float, row.auc_low), cast(float, row.auc_against_null))
+            self.assertGreaterEqual(cast(float, row.auc_high), cast(float, row.auc_against_null))
+
+    def test_the_interval_does_not_disturb_the_stream_the_measurements_draw_from(self) -> None:
+        """The scores themselves must not move because an interval was added beside them."""
+        rows = estimator.baseline(np.random.default_rng(12), TERRITORY, 0.2, 60)
+        statistics = [row.statistic for row in rows]
+        replayed = estimator.baseline(np.random.default_rng(12), TERRITORY, 0.2, 60)
+        self.assertEqual(statistics, [row.statistic for row in replayed])
+
+
 class CompatibilityEstimatorPropertyTest(unittest.TestCase):
     @given(
         arrays(

@@ -64,7 +64,11 @@ FIGURES = Path(__file__).resolve().parent / "figures"
 PRODUCTION_OUTPUT = FIGURES / "compatibility_estimator"
 
 SEED = 20260916
+# The interval's resampling runs on its own stream, so that quoting an interval
+# beside a score does not move the score.
+INTERVAL_SEED = 20260917
 BOOTSTRAP_RESAMPLES = 2000
+CONFIDENCE_LEVEL = 0.95
 
 # A patch's decoded content must carry at least this share of the content
 # entropy before its compatibility reading is admitted, and its private-site
@@ -392,6 +396,33 @@ def auc(positive: FloatArray, negative: FloatArray) -> float:
     return (rank_sum - positive.size * (positive.size + 1) / 2.0) / (positive.size * negative.size)
 
 
+def auc_interval(
+    positive: FloatArray,
+    negative: FloatArray,
+    rng: np.random.Generator,
+    resamples: int = BOOTSTRAP_RESAMPLES,
+    level: float = CONFIDENCE_LEVEL,
+) -> tuple[float, float]:
+    """Percentile bootstrap interval for `auc`, resampling both sides by trial.
+
+    The trial is the independent unit here for the reason `uncertainty` gives:
+    sites within a trial share a latent content field, so resampling sites would
+    treat dependent numbers as independent and return an interval too narrow to
+    be worth quoting. Both samples are resampled, because the score is a
+    comparison and the null's spread is half of what moves it.
+    """
+    draws = [
+        auc(
+            positive[rng.integers(0, positive.size, positive.size)],
+            negative[rng.integers(0, negative.size, negative.size)],
+        )
+        for _ in range(resamples)
+    ]
+    tail = 100.0 * (1.0 - level) / 2.0
+    low, high = np.percentile(draws, (tail, 100.0 - tail))
+    return float(low), float(high)
+
+
 @dataclass(frozen=True)
 class Assessment:
     """One configuration measured, with the diagnostics that admit or reject it."""
@@ -412,6 +443,8 @@ class Assessment:
     phase_share: float
     z_against_null: float | None = None
     auc_against_null: float | None = None
+    auc_low: float | None = None
+    auc_high: float | None = None
 
 
 @dataclass(frozen=True)
@@ -512,12 +545,26 @@ def _pair(
     return against(null, null), against(test, null)
 
 
+def _scored(
+    measurement: Measurement, null: Measurement, interval_rng: np.random.Generator
+) -> Assessment:
+    """Score a measurement against the null and attach the interval of that score."""
+    low, high = auc_interval(measurement.per_trial, null.per_trial, interval_rng)
+    return replace(against(measurement, null), auc_low=low, auc_high=high)
+
+
 def baseline(
     rng: np.random.Generator, territory: Territory, error: float, trials: int
 ) -> list[Assessment]:
-    """Every constructed configuration at the declared decoding quality."""
+    """Every constructed configuration at the declared decoding quality, with intervals.
+
+    These are the rows the manuscript quotes, so these are the rows that carry
+    an interval; the degradation sweeps report separation in null standard
+    deviations, which is an interval statement already.
+    """
     decoders = _matched(error)
     null = measure(rng, territory, SINGLE_VALUED, decoders, trials)
+    interval_rng = np.random.default_rng(INTERVAL_SEED)
     configurations = (
         SINGLE_VALUED,
         DISAGREEING,
@@ -527,7 +574,7 @@ def baseline(
         PHASE_CONTENT_DISAGREEING,
     )
     return [
-        against(measure(rng, territory, configuration, decoders, trials), null)
+        _scored(measure(rng, territory, configuration, decoders, trials), null, interval_rng)
         for configuration in configurations
     ]
 
