@@ -233,6 +233,33 @@ theorem compatible_of_shared_coherence {V : Type*} [Fintype V] [Nonempty V]
     (mul_le_mul_of_nonneg_left (chord_le_of_coherence theta (patch i) (patch j)) hL)
 
 omit [NormedSpace ℝ E] in
+/-- **Y4: the same guarantee with the patch's own count.** `patch` selects a
+site for each index, and every selected site lies in one declared patch `P` of
+the population. The residual is then read off `P`'s own resultant and carries
+`P.card` rather than the whole population's count — which is the factor the
+global statement above is criticised for, answered by instantiating that
+statement at the subtype of `P` rather than by weakening it.
+
+Two things this buys. In a large population read through small patches the
+bound constrains where the global one does not. And on a winding field it is
+not vacuous at all: `chord_le_of_char_patch` puts the nearest-neighbour patch
+bound at `2 √2 |sin (psi g)|` on a state whose global resultant is exactly
+zero, so a population that no global observable calls coherent still supports
+content agreement inside each patch. -/
+theorem compatible_of_patch_coherence {V : Type*} [Fintype V] [DecidableEq V]
+    (U : I → Set A) (P : Finset V) (patch : I → V) (hpatch : ∀ i, patch i ∈ P)
+    (theta : V → ℝ) (e : I → A → ℝ × ℝ → E) (L : ℝ)
+    (hL : 0 ≤ L) (hshared : SharedEncoder U e) (he : UniformLipschitzEncoder e L) :
+    Compatible U (fun i x => e i x (circlePoint (theta (patch i))))
+      (L * (Real.sqrt 2 * (P.card : ℝ) *
+        Real.sqrt (1 - Complex.normSq (patch_resultant theta P)))) := by
+  intro i j x hi hj
+  have hne : Nonempty {v // v ∈ P} := ⟨⟨patch i, hpatch i⟩⟩
+  have h := compatible_of_shared_coherence (V := {v // v ∈ P}) U
+    (fun i => ⟨patch i, hpatch i⟩) (fun v => theta v.1) e L hL hshared he i j x hi hj
+  rwa [order_parameter_r_sq_patch, Fintype.card_coe] at h
+
+omit [NormedSpace ℝ E] in
 /-- The one-encoder case, as the instance of the shared-encoder theorem in which
 every patch and site use the same encoder. The overlap obligation is then
 discharged by `rfl`, which is exactly why a single population-wide report hides
@@ -339,6 +366,7 @@ theorem run_residual_of_coherence {V : Type*} [Fintype V] [Nonempty V]
 #print axioms readout_agrees
 #print axioms readout_unique
 #print axioms compatible_of_shared_coherence
+#print axioms compatible_of_patch_coherence
 #print axioms compatible_of_coherence
 #print axioms compatible_of_shared_phase_locked
 #print axioms compatible_of_phase_locked

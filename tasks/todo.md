@@ -391,11 +391,11 @@ instantiation in `Phase5_ContentDynamics` — so nothing arrives as a leaf and `
 `check_table_coverage.py` now enforces (AGENTS.md §9), and any `.lean` edit needs
 `proof_companion/run.sh extract` then `pdf` before the commit hooks pass.
 
-- [ ] **Y1 — The twisted kernel.** Define
+- [x] **Y1 — The twisted kernel.** Define
       `twistedKernel W f := fun d => f d * Real.cos (W.psi d)` and prove it even
       from `chi_neg`. Cheap, and on its own it says nothing; it is the object
       Y2 is stated about.
-- [ ] **Y2 — The linear criterion at a winding.** Prove the Jacobian of the
+- [x] **Y2 — The linear criterion at a winding.** Prove the Jacobian of the
       phase model at `charState` is circulant with kernel `twistedKernel W f`,
       so its spectrum is `charLambda W' (twistedKernel W f)` over characters
       `W'`. Then the two halves: if `0 <= f d` and `|W.psi d| <= pi/2` on the
@@ -404,7 +404,7 @@ instantiation in `Phase5_ContentDynamics` — so nothing arrives as a leaf and `
       is a growing mode. This is the phase-layer analogue of
       `incoherent_mode_rate` and `incoherent_instability_iff`, which is a shape
       this development has already carried once.
-- [ ] **Y3 — A winding is not a minimum.** A nontrivial winding has `r^2 = 0`
+- [x] **Y3 — A winding is not a minimum.** A nontrivial winding has `r^2 = 0`
       where a global minimum has `r^2 = 1`, so it is not one:
       `potential_min_iff_phase_locked`, `phase_locked_implies_r_sq_eq_one` and
       `order_parameter_r_sq_char` are all proved and this is close to an
@@ -412,7 +412,7 @@ instantiation in `Phase5_ContentDynamics` — so nothing arrives as a leaf and `
       "it must, because the conclusion is false of it", which is the refutation
       shape `Axioms.lean` §5 prefers. With Y2 it extends to "not a local
       minimum either" wherever an eigenvalue is positive.
-- [ ] **Y4 — Content agreement on a patch.** Instantiate
+- [x] **Y4 — Content agreement on a patch.** Instantiate
       `chord_le_of_coherence` and `compatible_of_shared_coherence` at the
       subtype of a patch, with the bridge lemma above. Two payoffs, and the
       second is independent of windings: on a winding the global bound is
@@ -421,6 +421,75 @@ instantiation in `Phase5_ContentDynamics` — so nothing arrives as a leaf and `
       winding-to-content connection Table S1 records as absent; and a bound
       carrying `card P` rather than `card V` answers the article's own remark
       that the factor `N` makes the estimate weak in large populations.
+
+**Closing record.** All four are done, in `Phase4_KuramotoDynamics.lean` §9 and
+§10 — both inside the already-consumed module, so no leaf arrives and
+`ALLOWED_LEAVES` gains nothing. `lake build` runs the audit, which reports 5412
+declarations resting only on the permitted three.
+
+Y1 is `twistedKernel` with `twistedKernel_even` and `twistedKernel_nonneg`. The
+evenness rests on a new `WindingData.cos_psi_neg`, the companion of
+`sin_psi_neg`: conjugation fixes the real part, so `cos ∘ psi` is even where
+`sin ∘ psi` is odd, and that one fact is what lets every §6 cancellation run
+again at the twisted kernel with nothing else touched.
+
+Y2 is `hasDerivAt_charJacobian`, `charJacobian_chi_re`, `charLambda_nonpos`,
+`charJacobian_stable_of_quarter_turn` and `charJacobian_growing_mode`. The
+Jacobian is stated as the derivative of `kuramotoField` along the line
+`W.psi + s • u` at `s = 0`, which is what a Jacobian is and needs no bundling of
+the state space. The eigenvector is `Re ∘ chi'` rather than `chi'` itself, so the
+statement stays inside the real field the phase model lives in; the imaginary
+half cancels through `sum_kernel_chi_im`, extracted from `sum_kernel_chi` for
+the purpose and now used by both. The growing mode is evaluated at the identity
+site, where `chi' 0 = 1` makes it nonzero for every character — which is why no
+hypothesis is needed to rule out a mode that vanishes where it is read.
+
+Y3 is `char_not_potential_min` for the global half and
+`char_not_local_min_of_charLambda_pos` for the local one, the second the
+extension the ledger left as a remark. The local half needed the second
+variation, so §9 carries `charLinePotential`, `charLineDeriv`, `charLineSecond`
+and their two derivative lemmas: `charLineDeriv_zero` proves the first variation
+vanishes in *every* direction, by an antisymmetry that reduces both halves of
+the split to `circulant_drift_char`, and `charLineSecond_zero` identifies the
+second variation with minus the Jacobian's quadratic form through
+`sum_sq_diff_eq`. Negative curvature plus a vanishing first derivative gives
+strict decrease to the right of zero, and `IsLocalMin.comp_continuous` lifts the
+line statement to the state space.
+
+Y4 is `order_parameter_complex_patch` — the bridge, and `Finset.sum_coe_sort`
+with `Fintype.card_coe` are the whole of it — then `chord_le_of_patch_coherence`
+in `Phase4_KuramotoDynamics` and `compatible_of_patch_coherence` in
+`Phase5_ContentDynamics`, each a literal instantiation of the global statement at
+the subtype of a patch rather than a second proof of it. `chord_le_of_char_patch`
+is the winding payoff at `2√2|sin ψ_g|`, and `chord_bound_char_global` with
+`chord_le_two` make "the global bound is vacuous there" a theorem rather than a
+remark.
+
+**Still not reached, and recorded where it matters.** Asymptotic stability
+remains out of reach for the reason the ledger gives, and both publication files
+and Table S1 say so in the same sentence as the criterion. The amplitude layer's
+band is untouched: §9 linearises the *phase* model, and the amplitude field's
+Jacobian at a character state mixes the amplitude and phase directions, so "the
+band is one of existence and not of stability" stands as the amplitude row
+states it.
+
+**No `CHANGELOG.md` entry, deliberately**, on the reading the X pass set down:
+that file lists claims that were made and are no longer made. Nothing here
+denies anything either publication file asserted. The scope sentences that
+tighten — which state a trajectory reaches, what the factor `N` costs, what a
+winding sector connects to — tighten by gaining a theorem beside them, and each
+keeps the part of itself that is still true.
+
+**Where it landed in the publication.** `main.tex` §"A winding state leaves the
+order parameter ambiguous" gains the criterion and the minimality paragraphs and
+one paragraph on what a vanishing resultant does not mean for content;
+§"When coherence does constrain content" gains the patchwise reading of the
+factor `N`. `supplementary.tex` §"Global sections and the unity of
+consciousness" gains Eq. (chord-bound-patch), and §"What the order parameter
+reports for a winding state" gains four paragraphs. Table S1's winding row
+carries every new identifier the article names, as `check_table_coverage`
+requires. `docs/primer.tex` gains the forced-hypothesis reading in its scope
+note on the convergence theorem.
 
 **Out of scope, and worth recording as such.** Two things this section does not
 reach, both for stated reasons rather than for want of effort.

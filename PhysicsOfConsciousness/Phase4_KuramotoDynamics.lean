@@ -795,6 +795,13 @@ lemma chi_neg (d : G) : W.chi (-d) = (starRingEnd ℂ) (W.chi d) := by
 lemma sin_psi_neg (d : G) : Real.sin (W.psi (-d)) = - Real.sin (W.psi d) := by
   rw [← W.im_chi, ← W.im_chi, W.chi_neg, Complex.conj_im]
 
+/-- The cosine of the phase advance is *even* in the separation, where the sine
+is odd. Conjugation fixes the real part, and this one fact is what makes the
+linearised kernel of §9 even and so leaves every cancellation of this section
+intact at the twisted kernel. -/
+lemma cos_psi_neg (d : G) : Real.cos (W.psi (-d)) = Real.cos (W.psi d) := by
+  rw [← W.re_chi, ← W.re_chi, W.chi_neg, Complex.conj_re]
+
 /-- **The phase difference across a separation depends only on the separation.**
 The lift's defect is a whole number of turns and `exp` does not see it, so this
 is the general form of `sin_winding_add`: no residue arithmetic survives. -/
@@ -988,14 +995,15 @@ lemma isUniformCover_pairCover {g : G} (hg : g ≠ 0) : IsUniformCover (pairCove
         exact hg (by simpa using h.symm)),
       Finset.card_singleton]
 
-/-- **A winding keeps its neighbourhoods locked.** Patch order across a chosen
-separation is at least `cos (psi g)`, which tends to one as the same winding is
-spread over more sites, while `order_parameter_r_sq_char` puts the global
-resultant at zero. The two observables measure different things, and the sweep
-in `travelling_wave.py` measures the gap between them. -/
-theorem cos_le_mean_patch_order_char [Nonempty G] (W : WindingData G) (g : G) :
-    Real.cos (W.psi g) ≤ mean_patch_order W.psi (pairCover g) := by
-  refine le_mean_patch_order _ _ fun k => ?_
+omit [Fintype G] in
+/-- **A single nearest-neighbour patch of a winding is concentrated.** Its
+resultant is at least `cos (psi g)`, the cosine of the phase the winding
+advances across the patch. This is the per-patch statement; averaging it is
+`cos_le_mean_patch_order_char`, and reading it against
+`chord_le_of_patch_coherence` is what gives §10 a content bound on a state
+whose global resultant is zero. -/
+theorem cos_le_norm_patch_resultant_char (W : WindingData G) (g k : G) :
+    Real.cos (W.psi g) ≤ ‖patch_resultant W.psi (pairCover g k)‖ := by
   refine le_norm_patch_resultant _ _ ⟨k, by simp [pairCover]⟩ (W.psi k) _ ?_
   intro i hi
   simp only [pairCover, Finset.mem_insert, Finset.mem_singleton] at hi
@@ -1003,6 +1011,15 @@ theorem cos_le_mean_patch_order_char [Nonempty G] (W : WindingData G) (g : G) :
   · rw [sub_self, Real.cos_zero]
     exact Real.cos_le_one _
   · exact le_of_eq (W.cos_psi_sub k g).symm
+
+/-- **A winding keeps its neighbourhoods locked.** Patch order across a chosen
+separation is at least `cos (psi g)`, which tends to one as the same winding is
+spread over more sites, while `order_parameter_r_sq_char` puts the global
+resultant at zero. The two observables measure different things, and the sweep
+in `travelling_wave.py` measures the gap between them. -/
+theorem cos_le_mean_patch_order_char [Nonempty G] (W : WindingData G) (g : G) :
+    Real.cos (W.psi g) ≤ mean_patch_order W.psi (pairCover g) :=
+  le_mean_patch_order _ _ fun k => cos_le_norm_patch_resultant_char W g k
 
 /-- A translation-invariant (circulant) coupling at identical natural
 frequencies. `KuramotoSystem.A` is a general `V → V → ℝ`, so the isotropy the
@@ -1422,14 +1439,21 @@ lemma charState_ne_zero (W : WindingData G) {a : ℝ} (ha : a ≠ 0) (g : G) :
   exact ha (abs_eq_zero.mp h.symm)
 
 omit [DecidableEq G] in
-/-- The kernel sum a winding produces is real and equals `charLambda`: the
-imaginary part is odd in the separation against an even kernel, so it cancels
-exactly as the phase drift does in `circulant_drift_char`. -/
+/-- **An even kernel sees no imaginary part of a character.** The summand is odd
+in the separation against a kernel even in it, so it cancels exactly as the
+phase drift does in `circulant_drift_char`. Everything that makes a winding
+behave like a single real scalar goes through this one sum. -/
+lemma sum_kernel_chi_im (W : WindingData G) (f : G → ℝ) (hf : ∀ d, f (-d) = f d) :
+    ∑ d, f d * (W.chi d).im = 0 :=
+  sum_eq_zero_of_odd _ fun d => by
+    rw [hf, W.im_chi, W.im_chi, W.sin_psi_neg]; ring
+
+omit [DecidableEq G] in
+/-- The kernel sum a winding produces is real and equals `charLambda`: its
+imaginary part is `sum_kernel_chi_im`, and its real part is the definition. -/
 lemma sum_kernel_chi (W : WindingData G) (f : G → ℝ) (hf : ∀ d, f (-d) = f d) :
     ∑ d, ((f d : ℝ) : ℂ) * (W.chi d - 1) = ((charLambda W f : ℝ) : ℂ) := by
-  have him : ∑ d : G, f d * (W.chi d).im = 0 :=
-    sum_eq_zero_of_odd _ fun d => by
-      rw [hf, W.im_chi, W.im_chi, W.sin_psi_neg]; ring
+  have him : ∑ d : G, f d * (W.chi d).im = 0 := sum_kernel_chi_im W f hf
   apply Complex.ext
   · rw [Complex.re_sum, Complex.ofReal_re, charLambda]
     exact Finset.sum_congr rfl fun d _ => by
@@ -1830,5 +1854,643 @@ theorem torusWinding_plaquetteCirculation_eq_zero {n : ℕ} [NeZero n] (q₁ q�
     (hodd : ∀ x : ℝ, wrap (-x) = - wrap x) (e₁ e₂ g : ZMod n × ZMod n) :
     plaquetteCirculation wrap (torusWinding n q₁ q₂).psi e₁ e₂ g = 0 :=
   plaquetteCirculation_eq_zero_of_winding (torusWinding n q₁ q₂) hper hodd e₁ e₂ g
+
+/-! ## 9. Linear stability at a winding
+
+`char_is_kuramoto_trajectory` puts a winding at rest and says nothing about
+whether it stays there, and `coupling_does_not_determine_order` therefore
+exhibits two stationary states without ranking them. This section supplies the
+criterion that ranks them, in the shape `Phase8_Linearization` already carries
+once for the incoherent state: an eigenvalue, a sign, and a growing mode where
+the sign is wrong.
+
+Linearising the phase model about a winding, `theta i = W.psi i + s * u i`, the
+drift term `sum_d f d * sin (W.psi d)` that vanishes by `circulant_drift_char`
+is exactly the constant term, and what is left is circulant again with the
+**twisted kernel** `g d = f d * cos (W.psi d)`. That kernel is even, because `f`
+is even by hypothesis and `cos ∘ psi` is even by `WindingData.cos_psi_neg`, so
+every cancellation of §6 and §7 applies to it unchanged and the spectrum is
+`charLambda W' (twistedKernel W f)` over the characters `W'`.
+
+* `hasDerivAt_charJacobian` — the derivative of the field at a winding is
+  `charJacobian`, which is circulant with kernel `twistedKernel W f`.
+* `charJacobian_chi_re` — each character's real part is an eigenvector, with
+  eigenvalue `charLambda W' (twistedKernel W f)`.
+* `charLambda_nonpos` and `charJacobian_stable_of_nonneg_twist` — where the
+  winding advances by no more than a quarter turn across every separation the
+  kernel reaches, the twisted kernel is nonnegative and no eigenvalue is
+  positive.
+* `charJacobian_growing_mode` — a character whose eigenvalue is positive is a
+  solution of the linearised equation growing without bound.
+
+This is the mechanism the sweep in `travelling_wave.py` measures: as the decay
+length grows the kernel reaches separations at which the winding has advanced
+past a quarter turn, `cos (W.psi d)` turns negative, and a mode crosses zero.
+
+**What this is not.** An eigenvalue statement about the derivative of the field
+is not convergence of trajectories. Upgrading it to asymptotic stability needs a
+Łojasiewicz estimate around a critical point that is not a minimum, and the
+chain `lojasiewicz_estimate` → `excess_decay` → `velocity_abs_le_exp` →
+`phase_tendsto` in `Phase4_RotatingFrame` is built around the global minimum
+through `potentialExcess`, the pairwise quarter turn and `couplingTotal_pos`.
+The states that persist therefore occupy a strictly narrower range than the
+criterion here admits.
+-/
+
+section WindingStability
+
+variable {G : Type*} [AddCommGroup G] [Fintype G] [DecidableEq G]
+
+/-- **The twisted kernel.** What a circulant coupling `f` looks like to a
+perturbation of the winding `W`: each separation is reweighted by the cosine of
+the phase the winding advances across it. Separations across which the winding
+has turned by more than a quarter circle enter with the opposite sign. -/
+noncomputable def twistedKernel (W : WindingData G) (f : G → ℝ) : G → ℝ :=
+  fun d => f d * Real.cos (W.psi d)
+
+omit [Fintype G] [DecidableEq G] in
+/-- **The twisted kernel is even**, which is the whole reason nothing in §6 or
+§7 has to be redone at it: `charLambda`, `sum_kernel_chi` and
+`sum_eq_zero_of_odd` are generic in the kernel and ask only for this. -/
+lemma twistedKernel_even (W : WindingData G) {f : G → ℝ} (hf : ∀ d, f (-d) = f d) (d : G) :
+    twistedKernel W f (-d) = twistedKernel W f d := by
+  rw [twistedKernel, twistedKernel, hf, W.cos_psi_neg]
+
+omit [Fintype G] [DecidableEq G] in
+/-- The twisted kernel is nonnegative when the winding advances by at most a
+quarter turn across every separation the coupling reaches. Separations carrying
+no coupling are unconstrained, which is what makes this a hypothesis about the
+kernel's support rather than about the whole group. -/
+lemma twistedKernel_nonneg (W : WindingData G) {f : G → ℝ} (hf0 : ∀ d, 0 ≤ f d)
+    (hsupp : ∀ d, f d ≠ 0 → |W.psi d| ≤ Real.pi / 2) (d : G) :
+    0 ≤ twistedKernel W f d := by
+  rcases eq_or_ne (f d) 0 with h | h
+  · simp [twistedKernel, h]
+  · obtain ⟨h1, h2⟩ := abs_le.mp (hsupp d h)
+    exact mul_nonneg (hf0 d) (Real.cos_nonneg_of_mem_Icc ⟨by linarith, h2⟩)
+
+/-- **The linearisation of the phase model at a winding.** A circulant operator
+again, with the twisted kernel in place of the coupling: the constant term of
+the expansion is the drift `circulant_drift_char` proves to vanish, and this is
+what is left. -/
+noncomputable def charJacobian (W : WindingData G) (f : G → ℝ) (u : G → ℝ) : G → ℝ :=
+  fun i => ∑ d, twistedKernel W f d * (u (i + d) - u i)
+
+omit [DecidableEq G] in
+/-- **Y2, first half: the Jacobian at a winding is circulant with the twisted
+kernel.** Stated as the derivative of the field along the line
+`theta = W.psi + s * u`, which is what a Jacobian is and asks for no bundling of
+the state space. -/
+theorem hasDerivAt_charJacobian (W : WindingData G) (f : G → ℝ) (hf : ∀ d, f (-d) = f d)
+    (u : G → ℝ) (i : G) :
+    HasDerivAt (fun s : ℝ =>
+        kuramotoField (circulantSystem f hf) (fun j => W.psi j + s * u j) i)
+      (charJacobian W f u i) 0 := by
+  have hterm : ∀ j : G, HasDerivAt
+      (fun s : ℝ => f (j - i) * Real.sin ((W.psi j + s * u j) - (W.psi i + s * u i)))
+      (f (j - i) * (Real.cos (W.psi j - W.psi i) * (u j - u i))) 0 := by
+    intro j
+    have h1 : HasDerivAt (fun s : ℝ => W.psi j + s * u j) (u j) 0 := by
+      simpa using ((hasDerivAt_id (0 : ℝ)).mul_const (u j)).const_add (W.psi j)
+    have h2 : HasDerivAt (fun s : ℝ => W.psi i + s * u i) (u i) 0 := by
+      simpa using ((hasDerivAt_id (0 : ℝ)).mul_const (u i)).const_add (W.psi i)
+    have hlin : HasDerivAt (fun s : ℝ => (W.psi j + s * u j) - (W.psi i + s * u i))
+        (u j - u i) 0 := h1.sub h2
+    have hsin : HasDerivAt
+        (fun s : ℝ => Real.sin ((W.psi j + s * u j) - (W.psi i + s * u i)))
+        (Real.cos (W.psi j - W.psi i) * (u j - u i)) 0 := by
+      simpa using hlin.sin
+    exact hsin.const_mul (f (j - i))
+  have hsum : HasDerivAt
+      (fun s : ℝ => ∑ j, f (j - i) * Real.sin ((W.psi j + s * u j) - (W.psi i + s * u i)))
+      (∑ j, f (j - i) * (Real.cos (W.psi j - W.psi i) * (u j - u i))) 0 :=
+    HasDerivAt.fun_sum fun j _ => hterm j
+  have hfun : (fun s : ℝ =>
+        kuramotoField (circulantSystem f hf) (fun j => W.psi j + s * u j) i)
+      = fun s : ℝ =>
+        ∑ j, f (j - i) * Real.sin ((W.psi j + s * u j) - (W.psi i + s * u i)) := by
+    funext s
+    simp only [kuramotoField, kuramoto_velocity, circulantSystem_omega, circulantSystem_A,
+      zero_add]
+  have hre : ∑ j, f (j - i) * (Real.cos (W.psi j - W.psi i) * (u j - u i))
+      = charJacobian W f u i := by
+    rw [← Fintype.sum_equiv (Equiv.addLeft i)
+      (fun d => f ((i + d) - i) * (Real.cos (W.psi (i + d) - W.psi i) * (u (i + d) - u i)))
+      (fun j => f (j - i) * (Real.cos (W.psi j - W.psi i) * (u j - u i))) fun _ => rfl]
+    exact Finset.sum_congr rfl fun d _ => by
+      rw [add_sub_cancel_left, W.cos_psi_sub, twistedKernel]; ring
+  rw [hfun, ← hre]
+  exact hsum
+
+omit [DecidableEq G] in
+/-- **Y2, second half: the characters diagonalise the linearisation.** The real
+part of every character is an eigenvector of `charJacobian`, with eigenvalue
+`charLambda W' (twistedKernel W f)`. The imaginary part of the kernel sum
+cancels by `sum_kernel_chi_im`, which is where the evenness of the twisted
+kernel is spent. -/
+theorem charJacobian_chi_re (W W' : WindingData G) (f : G → ℝ) (hf : ∀ d, f (-d) = f d)
+    (i : G) :
+    charJacobian W f (fun j => (W'.chi j).re) i
+      = charLambda W' (twistedKernel W f) * (W'.chi i).re := by
+  have him := sum_kernel_chi_im W' (twistedKernel W f) (twistedKernel_even W hf)
+  have hexp : ∀ d : G, twistedKernel W f d * ((W'.chi (i + d)).re - (W'.chi i).re)
+      = (W'.chi i).re * (twistedKernel W f d * ((W'.chi d).re - 1))
+        - (W'.chi i).im * (twistedKernel W f d * (W'.chi d).im) := by
+    intro d
+    rw [W'.map_add, Complex.mul_re]
+    ring
+  simp only [charJacobian]
+  rw [Finset.sum_congr rfl fun d _ => hexp d, Finset.sum_sub_distrib,
+    ← Finset.mul_sum, ← Finset.mul_sum, him, mul_zero, sub_zero, charLambda, mul_comm]
+
+omit [DecidableEq G] in
+/-- **A nonnegative kernel has no positive eigenvalue.** Termwise, from
+`(chi d).re ≤ 1`: this is what the `charLambda` docstring asserts and what the
+stable half of the criterion rests on. -/
+theorem charLambda_nonpos (W' : WindingData G) {g : G → ℝ} (hg : ∀ d, 0 ≤ g d) :
+    charLambda W' g ≤ 0 := by
+  refine Finset.sum_nonpos fun d _ => ?_
+  have h1 : (W'.chi d).re ≤ 1 := by
+    have h := Complex.re_le_norm (W'.chi d)
+    rwa [W'.norm_chi] at h
+  nlinarith [hg d]
+
+omit [DecidableEq G] in
+/-- **The stable half of the criterion.** Where the coupling is nonnegative and
+the winding advances by at most a quarter turn across every separation it
+reaches, no mode grows: every eigenvalue of the linearisation is at most zero.
+This is the phase-layer analogue of `incoherent_mode_rate`. -/
+theorem charJacobian_stable_of_quarter_turn (W W' : WindingData G) {f : G → ℝ}
+    (hf0 : ∀ d, 0 ≤ f d) (hsupp : ∀ d, f d ≠ 0 → |W.psi d| ≤ Real.pi / 2) :
+    charLambda W' (twistedKernel W f) ≤ 0 :=
+  charLambda_nonpos W' (twistedKernel_nonneg W hf0 hsupp)
+
+omit [DecidableEq G] in
+/-- **The unstable half: a positive eigenvalue is a growing mode.** The field
+`u t = exp (lambda * t) * Re (chi')` solves the linearised equation exactly, and
+at the identity site — where `chi' 0 = 1`, so the mode does not vanish for any
+character — its amplitude is `exp (lambda * t)` and leaves every bound. Together
+with `charJacobian_stable_of_quarter_turn` this is the shape of
+`incoherent_instability_iff`: one criterion, both directions. -/
+theorem charJacobian_growing_mode (W W' : WindingData G) (f : G → ℝ) (hf : ∀ d, f (-d) = f d)
+    (hlam : 0 < charLambda W' (twistedKernel W f)) :
+    (∀ (t : ℝ) (i : G),
+        HasDerivAt (fun s : ℝ => Real.exp (charLambda W' (twistedKernel W f) * s)
+            * (W'.chi i).re)
+          (charJacobian W f
+            (fun j => Real.exp (charLambda W' (twistedKernel W f) * t) * (W'.chi j).re) i) t)
+      ∧ Filter.Tendsto
+          (fun t : ℝ => Real.exp (charLambda W' (twistedKernel W f) * t) * (W'.chi (0 : G)).re)
+          Filter.atTop Filter.atTop := by
+  set lam := charLambda W' (twistedKernel W f) with hlamdef
+  have hscal : ∀ (c : ℝ) (i : G),
+      charJacobian W f (fun j => c * (W'.chi j).re) i
+        = c * charJacobian W f (fun j => (W'.chi j).re) i := by
+    intro c i
+    simp only [charJacobian, Finset.mul_sum]
+    exact Finset.sum_congr rfl fun d _ => by ring
+  refine ⟨fun t i => ?_, ?_⟩
+  · have hexp : HasDerivAt (fun s : ℝ => Real.exp (lam * s)) (Real.exp (lam * t) * lam) t := by
+      simpa using ((hasDerivAt_id t).const_mul lam).exp
+    have h := hexp.mul_const ((W'.chi i).re)
+    rw [hscal, charJacobian_chi_re W W' f hf i, ← hlamdef,
+      show Real.exp (lam * t) * (lam * (W'.chi i).re)
+        = Real.exp (lam * t) * lam * (W'.chi i).re from by ring]
+    exact h
+  · have hone : (W'.chi (0 : G)).re = 1 := by rw [W'.chi_zero, Complex.one_re]
+    simp only [hone, mul_one]
+    exact Real.tendsto_exp_atTop.comp (Filter.tendsto_id.const_mul_atTop hlam)
+
+omit [DecidableEq G] in
+/-- **Y3: a winding is not a minimum of the potential.** Not because the
+convergence results decline to reach it, but because the conclusion they reach
+is false of it: `potential_min_iff_phase_locked` would make a minimiser phase
+locked, `phase_locked_implies_r_sq_eq_one` would then put its resultant at one,
+and `order_parameter_r_sq_char` puts it at zero. The quarter-turn hypothesis of
+`kuramoto_tendsto_global_minimum` therefore *must* exclude this state. -/
+theorem char_not_potential_min [Nonempty G] (W : WindingData G) {g₀ : G}
+    (hg : W.chi g₀ ≠ 1) {f : G → ℝ} (hf : ∀ d, f (-d) = f d) (hf0 : ∀ d, 0 < f d) :
+    ¬ ∀ phi : G → ℝ, kuramoto_potential_dynamic (circulantSystem f hf) W.psi
+        ≤ kuramoto_potential_dynamic (circulantSystem f hf) phi := by
+  intro hmin
+  have hpos : ∀ i j : G, (circulantSystem f hf).A i j > 0 := fun i j => hf0 (j - i)
+  have hlock := (potential_min_iff_phase_locked (circulantSystem f hf) hpos W.psi).1 hmin
+  have h1 := phase_locked_implies_r_sq_eq_one W.psi hlock
+  rw [order_parameter_r_sq_char W hg] at h1
+  exact zero_ne_one h1
+
+/-! ### The second variation, and the local statement
+
+`char_not_potential_min` rules out a *global* minimum from the value of the
+order parameter alone. The local statement needs the curvature, and the
+curvature is the twisted kernel again: the second variation of the potential
+along `theta = W.psi + s * u` is the Dirichlet form of `twistedKernel W f`,
+which `charJacobian` carries. A mode with a positive eigenvalue is a direction
+in which the potential curves downwards. -/
+
+/-- The potential along the line through a winding in direction `u`. -/
+noncomputable def charLinePotential (W : WindingData G) (f u : G → ℝ) (s : ℝ) : ℝ :=
+  -(1 / 2) * ∑ i, ∑ j, f (j - i) * Real.cos (W.psi j + s * u j - (W.psi i + s * u i))
+
+/-- Its first derivative, written out. -/
+noncomputable def charLineDeriv (W : WindingData G) (f u : G → ℝ) (s : ℝ) : ℝ :=
+  (1 / 2) * ∑ i, ∑ j, f (j - i)
+    * (Real.sin (W.psi j + s * u j - (W.psi i + s * u i)) * (u j - u i))
+
+/-- Its second derivative, written out. -/
+noncomputable def charLineSecond (W : WindingData G) (f u : G → ℝ) (s : ℝ) : ℝ :=
+  (1 / 2) * ∑ i, ∑ j, f (j - i)
+    * (Real.cos (W.psi j + s * u j - (W.psi i + s * u i)) * (u j - u i) ^ 2)
+
+omit [DecidableEq G] in
+/-- The line potential is the Lyapunov potential, restricted. -/
+lemma charLinePotential_eq (W : WindingData G) (f : G → ℝ) (hf : ∀ d, f (-d) = f d)
+    (u : G → ℝ) (s : ℝ) :
+    charLinePotential W f u s
+      = kuramoto_potential_dynamic (circulantSystem f hf) (fun j => W.psi j + s * u j) := rfl
+
+omit [Fintype G] [DecidableEq G] in
+private lemma hasDerivAt_charLine_arg (W : WindingData G) (u : G → ℝ) (i j : G) (s : ℝ) :
+    HasDerivAt (fun s : ℝ => W.psi j + s * u j - (W.psi i + s * u i)) (u j - u i) s := by
+  have h1 : HasDerivAt (fun s : ℝ => W.psi j + s * u j) (u j) s := by
+    simpa using ((hasDerivAt_id s).mul_const (u j)).const_add (W.psi j)
+  have h2 : HasDerivAt (fun s : ℝ => W.psi i + s * u i) (u i) s := by
+    simpa using ((hasDerivAt_id s).mul_const (u i)).const_add (W.psi i)
+  exact h1.sub h2
+
+omit [DecidableEq G] in
+lemma hasDerivAt_charLinePotential (W : WindingData G) (f u : G → ℝ) (s : ℝ) :
+    HasDerivAt (charLinePotential W f u) (charLineDeriv W f u s) s := by
+  have hterm : ∀ i j : G, HasDerivAt
+      (fun s : ℝ => f (j - i) * Real.cos (W.psi j + s * u j - (W.psi i + s * u i)))
+      (f (j - i) * (-Real.sin (W.psi j + s * u j - (W.psi i + s * u i)) * (u j - u i))) s := by
+    intro i j
+    have hcos : HasDerivAt (fun s : ℝ => Real.cos (W.psi j + s * u j - (W.psi i + s * u i)))
+        (-Real.sin (W.psi j + s * u j - (W.psi i + s * u i)) * (u j - u i)) s :=
+      (hasDerivAt_charLine_arg W u i j s).cos
+    exact hcos.const_mul (f (j - i))
+  have hall : HasDerivAt
+      (fun s : ℝ => ∑ i, ∑ j,
+        f (j - i) * Real.cos (W.psi j + s * u j - (W.psi i + s * u i)))
+      (∑ i, ∑ j,
+        f (j - i) * (-Real.sin (W.psi j + s * u j - (W.psi i + s * u i)) * (u j - u i))) s :=
+    HasDerivAt.fun_sum fun i _ => HasDerivAt.fun_sum fun j _ => hterm i j
+  have hval : charLineDeriv W f u s
+      = -(1 / 2 : ℝ) * ∑ i, ∑ j,
+          f (j - i) * (-Real.sin (W.psi j + s * u j - (W.psi i + s * u i)) * (u j - u i)) := by
+    have hrow : ∀ i : G, ∑ j : G,
+        f (j - i) * (-Real.sin (W.psi j + s * u j - (W.psi i + s * u i)) * (u j - u i))
+        = -∑ j : G, f (j - i)
+            * (Real.sin (W.psi j + s * u j - (W.psi i + s * u i)) * (u j - u i)) := by
+      intro i
+      rw [← Finset.sum_neg_distrib]
+      exact Finset.sum_congr rfl fun j _ => by ring
+    rw [charLineDeriv, Finset.sum_congr rfl fun i _ => hrow i, Finset.sum_neg_distrib]
+    ring
+  rw [hval]
+  exact hall.const_mul (-(1 / 2 : ℝ))
+
+omit [DecidableEq G] in
+lemma hasDerivAt_charLineDeriv (W : WindingData G) (f u : G → ℝ) (s : ℝ) :
+    HasDerivAt (charLineDeriv W f u) (charLineSecond W f u s) s := by
+  have hterm : ∀ i j : G, HasDerivAt
+      (fun s : ℝ => f (j - i)
+        * (Real.sin (W.psi j + s * u j - (W.psi i + s * u i)) * (u j - u i)))
+      (f (j - i) * (Real.cos (W.psi j + s * u j - (W.psi i + s * u i)) * (u j - u i)
+        * (u j - u i))) s := by
+    intro i j
+    have hsin : HasDerivAt (fun s : ℝ => Real.sin (W.psi j + s * u j - (W.psi i + s * u i)))
+        (Real.cos (W.psi j + s * u j - (W.psi i + s * u i)) * (u j - u i)) s :=
+      (hasDerivAt_charLine_arg W u i j s).sin
+    exact (hsin.mul_const (u j - u i)).const_mul (f (j - i))
+  have hall : HasDerivAt
+      (fun s : ℝ => ∑ i, ∑ j, f (j - i)
+        * (Real.sin (W.psi j + s * u j - (W.psi i + s * u i)) * (u j - u i)))
+      (∑ i, ∑ j, f (j - i)
+        * (Real.cos (W.psi j + s * u j - (W.psi i + s * u i)) * (u j - u i) * (u j - u i))) s :=
+    HasDerivAt.fun_sum fun i _ => HasDerivAt.fun_sum fun j _ => hterm i j
+  have hval : charLineSecond W f u s
+      = (1 / 2 : ℝ) * ∑ i, ∑ j, f (j - i)
+          * (Real.cos (W.psi j + s * u j - (W.psi i + s * u i)) * (u j - u i) * (u j - u i)) := by
+    rw [charLineSecond]
+    congr 1
+    exact Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => by ring
+  rw [hval]
+  exact hall.const_mul (1 / 2 : ℝ)
+
+omit [DecidableEq G] in
+/-- **The first variation vanishes at a winding**, in every direction: the
+winding is a critical point of the potential and not only a rest point of the
+field. The coupling sum is antisymmetric in the pair, so both halves of the
+split cancel by `circulant_drift_char`. -/
+lemma charLineDeriv_zero (W : WindingData G) (f : G → ℝ) (hf : ∀ d, f (-d) = f d)
+    (u : G → ℝ) : charLineDeriv W f u 0 = 0 := by
+  have hdrift : ∀ i : G, ∑ j : G, f (j - i) * Real.sin (W.psi j - W.psi i) = 0 :=
+    circulant_drift_char W f hf
+  have hanti : ∀ i j : G, f (j - i) * Real.sin (W.psi j - W.psi i)
+      = -(f (i - j) * Real.sin (W.psi i - W.psi j)) := by
+    intro i j
+    rw [show i - j = -(j - i) by abel, hf,
+      show W.psi i - W.psi j = -(W.psi j - W.psi i) by ring, Real.sin_neg]
+    ring
+  have hcol : ∀ j : G, ∑ i : G, f (j - i) * Real.sin (W.psi j - W.psi i) = 0 := by
+    intro j
+    rw [Finset.sum_congr rfl fun i _ => hanti i j, Finset.sum_neg_distrib, hdrift j, neg_zero]
+  have hsplit : ∀ i : G, ∑ j : G, f (j - i) * (Real.sin (W.psi j - W.psi i) * (u j - u i))
+      = (∑ j : G, f (j - i) * Real.sin (W.psi j - W.psi i) * u j)
+        - u i * ∑ j : G, f (j - i) * Real.sin (W.psi j - W.psi i) := by
+    intro i
+    rw [Finset.mul_sum, ← Finset.sum_sub_distrib]
+    exact Finset.sum_congr rfl fun j _ => by ring
+  have h1 : ∑ i : G, ∑ j : G, f (j - i) * Real.sin (W.psi j - W.psi i) * u j = 0 := by
+    rw [Finset.sum_comm]
+    refine Finset.sum_eq_zero fun j _ => ?_
+    rw [← Finset.sum_mul, hcol j, zero_mul]
+  have h2 : ∑ i : G, u i * ∑ j : G, f (j - i) * Real.sin (W.psi j - W.psi i) = 0 :=
+    Finset.sum_eq_zero fun i _ => by rw [hdrift i, mul_zero]
+  rw [charLineDeriv]
+  simp only [zero_mul, add_zero]
+  rw [Finset.sum_congr rfl fun i _ => hsplit i, Finset.sum_sub_distrib, h1, h2, sub_zero,
+    mul_zero]
+
+omit [DecidableEq G] in
+/-- The Dirichlet form of a circulant kernel is minus twice its quadratic form.
+Shifting the site index is what makes the two square terms equal; no evenness of
+the kernel is needed. -/
+lemma sum_sq_diff_eq (g u : G → ℝ) :
+    ∑ i : G, ∑ d : G, g d * (u (i + d) - u i) ^ 2
+      = -2 * ∑ i : G, u i * ∑ d : G, g d * (u (i + d) - u i) := by
+  have hshift : ∀ d : G, ∑ i : G, u (i + d) ^ 2 = ∑ i : G, u i ^ 2 := fun d =>
+    Fintype.sum_equiv (Equiv.addRight d) (fun i => u (i + d) ^ 2) (fun i => u i ^ 2) fun _ => rfl
+  have hA : ∑ i : G, ∑ d : G, g d * u (i + d) ^ 2
+      = (∑ d : G, g d) * ∑ i : G, u i ^ 2 := by
+    rw [Finset.sum_comm, Finset.sum_mul]
+    exact Finset.sum_congr rfl fun d _ => by rw [← Finset.mul_sum, hshift d]
+  have hB : ∑ i : G, ∑ d : G, g d * u i ^ 2
+      = (∑ d : G, g d) * ∑ i : G, u i ^ 2 := by
+    rw [Finset.mul_sum]
+    exact Finset.sum_congr rfl fun i _ => by rw [← Finset.sum_mul]
+  have hi : ∀ i : G, ∑ d : G, g d * (u (i + d) - u i) ^ 2
+      = (∑ d : G, g d * u (i + d) ^ 2) - 2 * (∑ d : G, g d * (u (i + d) * u i))
+        + ∑ d : G, g d * u i ^ 2 := by
+    intro i
+    rw [Finset.mul_sum, ← Finset.sum_sub_distrib, ← Finset.sum_add_distrib]
+    exact Finset.sum_congr rfl fun d _ => by ring
+  have hL : ∑ i : G, ∑ d : G, g d * (u (i + d) - u i) ^ 2
+      = (∑ i : G, ∑ d : G, g d * u (i + d) ^ 2)
+        - 2 * (∑ i : G, ∑ d : G, g d * (u (i + d) * u i))
+        + ∑ i : G, ∑ d : G, g d * u i ^ 2 := by
+    rw [Finset.sum_congr rfl fun i _ => hi i, Finset.sum_add_distrib, Finset.sum_sub_distrib,
+      ← Finset.mul_sum]
+  have hR : ∑ i : G, u i * ∑ d : G, g d * (u (i + d) - u i)
+      = (∑ i : G, ∑ d : G, g d * (u (i + d) * u i))
+        - ∑ i : G, ∑ d : G, g d * u i ^ 2 := by
+    rw [← Finset.sum_sub_distrib]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [Finset.mul_sum, ← Finset.sum_sub_distrib]
+    exact Finset.sum_congr rfl fun d _ => by ring
+  rw [hL, hR, hA, hB]
+  ring
+
+omit [DecidableEq G] in
+/-- **The second variation is minus the Jacobian's quadratic form.** The
+potential's curvature at a winding and the linearisation of the field at it are
+the same object, which is what makes the eigenvalue criterion of `Y2` an energy
+statement as well as a rate statement. -/
+lemma charLineSecond_zero (W : WindingData G) (f u : G → ℝ) :
+    charLineSecond W f u 0 = -∑ i : G, u i * charJacobian W f u i := by
+  have hre : ∀ i : G, ∑ j : G, f (j - i)
+      * (Real.cos (W.psi j - W.psi i) * (u j - u i) ^ 2)
+      = ∑ d : G, twistedKernel W f d * (u (i + d) - u i) ^ 2 := by
+    intro i
+    rw [← Fintype.sum_equiv (Equiv.addLeft i)
+      (fun d => f ((i + d) - i) * (Real.cos (W.psi (i + d) - W.psi i) * (u (i + d) - u i) ^ 2))
+      (fun j => f (j - i) * (Real.cos (W.psi j - W.psi i) * (u j - u i) ^ 2)) fun _ => rfl]
+    exact Finset.sum_congr rfl fun d _ => by
+      rw [add_sub_cancel_left, W.cos_psi_sub, twistedKernel]; ring
+  rw [charLineSecond]
+  simp only [zero_mul, add_zero]
+  rw [Finset.sum_congr rfl fun i _ => hre i, sum_sq_diff_eq]
+  simp only [charJacobian]
+  ring
+
+omit [DecidableEq G] in
+/-- **A positive eigenvalue is a direction of negative curvature.** The mode's
+value at the identity site is one, so the mode is never the zero direction and
+the curvature is strictly negative. -/
+lemma charLineSecond_neg_of_charLambda_pos [Nonempty G] (W W' : WindingData G) (f : G → ℝ)
+    (hf : ∀ d, f (-d) = f d) (hlam : 0 < charLambda W' (twistedKernel W f)) :
+    charLineSecond W f (fun j => (W'.chi j).re) 0 < 0 := by
+  set u : G → ℝ := fun j => (W'.chi j).re with hu
+  have hquad : ∑ i : G, u i * charJacobian W f u i
+      = charLambda W' (twistedKernel W f) * ∑ i : G, u i ^ 2 := by
+    rw [Finset.mul_sum]
+    exact Finset.sum_congr rfl fun i _ => by
+      rw [hu, charJacobian_chi_re W W' f hf i]; ring
+  have hone : u 0 ^ 2 = 1 := by rw [hu]; simp [W'.chi_zero]
+  have hsum : (1 : ℝ) ≤ ∑ i : G, u i ^ 2 := by
+    rw [← hone]
+    exact Finset.single_le_sum (f := fun i : G => u i ^ 2)
+      (fun i _ => sq_nonneg (u i)) (Finset.mem_univ (0 : G))
+  rw [charLineSecond_zero W f u, hquad]
+  nlinarith
+
+omit [DecidableEq G] in
+/-- **Y3, the local half: a winding with a growing mode is not a local minimum
+of the potential.** The potential strictly decreases along the mode at every
+positive distance close enough to the winding, so no neighbourhood of it
+contains only larger values. -/
+theorem charLinePotential_lt_of_charLambda_pos [Nonempty G] (W W' : WindingData G)
+    (f : G → ℝ) (hf : ∀ d, f (-d) = f d) (hlam : 0 < charLambda W' (twistedKernel W f)) :
+    ∀ᶠ s in nhdsWithin (0 : ℝ) (Set.Ioi 0),
+      charLinePotential W f (fun j => (W'.chi j).re) s
+        < charLinePotential W f (fun j => (W'.chi j).re) 0 := by
+  set u : G → ℝ := fun j => (W'.chi j).re with hu
+  set P := charLinePotential W f u with hP
+  set Q := charLineDeriv W f u with hQ
+  have hPQ : ∀ s, HasDerivAt P (Q s) s := fun s => hasDerivAt_charLinePotential W f u s
+  have hderivP : deriv P = Q := funext fun s => (hPQ s).deriv
+  have hQ0 : Q 0 = 0 := charLineDeriv_zero W f hf u
+  have hQ' : HasDerivAt Q (charLineSecond W f u 0) 0 := hasDerivAt_charLineDeriv W f u 0
+  have hneg : charLineSecond W f u 0 < 0 :=
+    charLineSecond_neg_of_charLambda_pos W W' f hf hlam
+  -- the slope of `Q` at `0` tends to a negative number, so `Q` is negative to the right
+  have hslope := hQ'.tendsto_slope
+  have hev : ∀ᶠ x in nhdsWithin (0 : ℝ) (Set.Ioi 0), Q x < 0 := by
+    have h1 : ∀ᶠ x in nhdsWithin (0 : ℝ) {(0 : ℝ)}ᶜ, slope Q 0 x < 0 :=
+      hslope (Iio_mem_nhds hneg)
+    have h2 : ∀ᶠ x in nhdsWithin (0 : ℝ) (Set.Ioi 0), slope Q 0 x < 0 :=
+      nhdsWithin_mono _ (fun x hx => ne_of_gt hx) h1
+    filter_upwards [h2, self_mem_nhdsWithin] with x hx (hx0 : (0 : ℝ) < x)
+    rw [slope_def_field, hQ0, sub_zero, sub_zero, div_neg_iff] at hx
+    rcases hx with ⟨_, hc⟩ | ⟨hc, _⟩
+    · linarith
+    · exact hc
+  obtain ⟨δ, hδ, hsub⟩ := mem_nhdsGT_iff_exists_Ioo_subset.1 hev
+  have hδ0 : (0 : ℝ) < δ := hδ
+  have hanti : StrictAntiOn P (Set.Icc 0 (δ / 2)) := by
+    refine strictAntiOn_of_deriv_neg (convex_Icc _ _)
+      (fun x _ => ((hPQ x).differentiableAt.continuousAt).continuousWithinAt) ?_
+    intro x hx
+    rw [interior_Icc] at hx
+    rw [hderivP]
+    exact hsub ⟨hx.1, by linarith [hx.2]⟩
+  filter_upwards [Ioo_mem_nhdsGT (by linarith : (0 : ℝ) < δ / 2)] with x hx
+  exact hanti (Set.left_mem_Icc.2 (by linarith)) ⟨le_of_lt hx.1, le_of_lt hx.2⟩ hx.1
+
+omit [DecidableEq G] in
+/-- **Y3, the local half.** A winding carrying a growing mode is not a local
+minimum of the potential: every neighbourhood of it along that mode contains a
+state of strictly lower potential. Stated on the line first, because that is
+where the derivative test lives. -/
+theorem charLine_not_local_min_of_charLambda_pos [Nonempty G] (W W' : WindingData G)
+    (f : G → ℝ) (hf : ∀ d, f (-d) = f d)
+    (hlam : 0 < charLambda W' (twistedKernel W f)) :
+    ¬ IsLocalMin (charLinePotential W f fun j => (W'.chi j).re) 0 := by
+  intro hmin
+  have h1 := charLinePotential_lt_of_charLambda_pos W W' f hf hlam
+  have h2 : ∀ᶠ s in nhdsWithin (0 : ℝ) (Set.Ioi 0),
+      charLinePotential W f (fun j => (W'.chi j).re) 0
+        ≤ charLinePotential W f (fun j => (W'.chi j).re) s :=
+    hmin.filter_mono nhdsWithin_le_nhds
+  obtain ⟨_, hs1, hs2⟩ := (h1.and h2).exists
+  exact absurd hs1 (not_lt.2 hs2)
+
+omit [DecidableEq G] in
+/-- **The same statement in the state space.** A winding with a growing mode is
+not a local minimum of the Lyapunov potential on `G → ℝ`, the line of the
+previous theorem being a continuous curve through it. With
+`char_not_potential_min` this closes both halves: a nontrivial winding is not a
+global minimum, and one carrying a growing mode is not a local one. -/
+theorem char_not_local_min_of_charLambda_pos [Nonempty G] (W W' : WindingData G)
+    (f : G → ℝ) (hf : ∀ d, f (-d) = f d)
+    (hlam : 0 < charLambda W' (twistedKernel W f)) :
+    ¬ IsLocalMin (kuramoto_potential_dynamic (circulantSystem f hf)) W.psi := by
+  intro hmin
+  set u : G → ℝ := fun j => (W'.chi j).re with hu
+  have hline : Continuous fun s : ℝ => fun j => W.psi j + s * u j :=
+    continuous_pi fun j => continuous_const.add (continuous_id.mul continuous_const)
+  have h0 : (fun j => W.psi j + (0 : ℝ) * u j) = W.psi := by
+    funext j; ring
+  have hcomp : IsLocalMin
+      ((kuramoto_potential_dynamic (circulantSystem f hf)) ∘
+        fun s : ℝ => fun j => W.psi j + s * u j) 0 := by
+    refine IsLocalMin.comp_continuous ?_ hline.continuousAt
+    rw [h0]
+    exact hmin
+  exact charLine_not_local_min_of_charLambda_pos W W' f hf hlam hcomp
+
+end WindingStability
+
+/-! ## 10. What a patch bound buys
+
+`chord_le_of_coherence` carries the factor `card V`, and on a winding it says
+nothing at all: `order_parameter_r_sq_char` puts the resultant at zero, so the
+bound reads `sqrt 2 * N`, while `chord_le_two` puts every chord below `2`
+whatever the state. The bound is not wrong; it is reading the wrong population.
+What it needs is a site type with an order parameter on it, and a patch supplies
+one.
+
+* `order_parameter_complex_patch` — the bridge: the order parameter of the
+  subtype of a patch *is* that patch's resultant, so every coherence bound in
+  the development is available patchwise with no new proof.
+* `chord_le_of_patch_coherence` — the same bound with `card P` in place of
+  `card V`, which answers rather than restates the remark that the factor `N`
+  makes the estimate weak in a large population.
+* `chord_le_of_char_patch` — on a winding the patch bound is
+  `2 * sqrt 2 * |sin (psi g)|`, finite and shrinking as the same winding is
+  spread over more sites, exactly where the global bound is vacuous. A state
+  whose global resultant carries no content guarantee still constrains content
+  locally.
+-/
+
+omit [DecidableEq V] in
+/-- Every chord is at most the diameter of the circle, so a bound above `2` on
+one constrains nothing. -/
+theorem chord_le_two (a b : ℝ) : chord a b ≤ 2 := by
+  have h : (Real.cos a - Real.cos b) ^ 2 + (Real.sin a - Real.sin b) ^ 2 ≤ 4 := by
+    rw [chord_sq_eq]
+    linarith [Real.neg_one_le_cos (a - b)]
+  calc chord a b ≤ Real.sqrt 4 := Real.sqrt_le_sqrt h
+    _ = 2 := by
+        rw [show (4 : ℝ) = 2 ^ 2 by norm_num, Real.sqrt_sq (by norm_num : (0:ℝ) ≤ 2)]
+
+omit [Fintype V] [DecidableEq V] in
+/-- **The bridge.** A patch is a population, and its resultant is that
+population's order parameter. Both sides are means of the same phasors; the
+content is that the coercion of the sum and the cardinality match up. -/
+theorem order_parameter_complex_patch (theta : V → ℝ) (P : Finset V) :
+    order_parameter_complex (fun v : {x // x ∈ P} => theta v.1)
+      = patch_resultant theta P := by
+  rw [order_parameter_complex, patch_resultant, Fintype.card_coe]
+  congr 1
+  exact Finset.sum_coe_sort P fun i => Complex.exp (I * (theta i : ℂ))
+
+omit [Fintype V] [DecidableEq V] in
+theorem order_parameter_r_sq_patch (theta : V → ℝ) (P : Finset V) :
+    order_parameter_r_sq (fun v : {x // x ∈ P} => theta v.1)
+      = Complex.normSq (patch_resultant theta P) := by
+  rw [order_parameter_r_sq, order_parameter_complex_patch]
+
+omit [Fintype V] [DecidableEq V] in
+/-- **Y4: coherence bounds the chord separation inside a patch, with the
+patch's own count.** `chord_le_of_coherence` instantiated at the subtype of `P`:
+the factor is `card P`, and the resultant is the patch's. In a large population
+read through small patches this is the difference between a bound that
+constrains and one that does not. -/
+theorem chord_le_of_patch_coherence (theta : V → ℝ) {P : Finset V} {i j : V}
+    (hi : i ∈ P) (hj : j ∈ P) :
+    chord (theta i) (theta j)
+      ≤ Real.sqrt 2 * (P.card : ℝ)
+        * Real.sqrt (1 - Complex.normSq (patch_resultant theta P)) := by
+  have : Nonempty {x // x ∈ P} := ⟨⟨i, hi⟩⟩
+  have h := chord_le_of_coherence (V := {x // x ∈ P}) (fun v => theta v.1) ⟨i, hi⟩ ⟨j, hj⟩
+  rwa [order_parameter_r_sq_patch, Fintype.card_coe] at h
+
+section PatchWinding
+
+variable {G : Type*} [AddCommGroup G] [Fintype G] [DecidableEq G]
+
+omit [DecidableEq G] in
+/-- **The global bound at a winding is the whole circle.** With the resultant at
+zero the estimate degrades to `sqrt 2 * N`, which `chord_le_two` makes vacuous
+for every population of two or more sites. -/
+theorem chord_bound_char_global [Nonempty G] (W : WindingData G) {g₀ : G}
+    (hg : W.chi g₀ ≠ 1) :
+    Real.sqrt 2 * (Fintype.card G : ℝ) * Real.sqrt (1 - order_parameter_r_sq W.psi)
+      = Real.sqrt 2 * (Fintype.card G : ℝ) := by
+  rw [order_parameter_r_sq_char W hg, sub_zero, Real.sqrt_one, mul_one]
+
+omit [Fintype G] in
+/-- **Y4's payoff: a winding still constrains content locally.** Across a
+nearest-neighbour patch the chord separation is at most
+`2 * sqrt 2 * |sin (psi g)|`, which shrinks to zero as the same winding is
+spread over more sites — while `chord_bound_char_global` shows the global
+estimate on the same state constrains nothing. A vanishing order parameter is
+therefore not the absence of agreement but the absence of *global* agreement,
+which is the winding-to-content connection the claim map records as missing. -/
+theorem chord_le_of_char_patch (W : WindingData G) {g : G}
+    (hcos : 0 ≤ Real.cos (W.psi g)) (k : G) {i j : G}
+    (hi : i ∈ pairCover g k) (hj : j ∈ pairCover g k) :
+    chord (W.psi i) (W.psi j)
+      ≤ Real.sqrt 2 * ((pairCover g k).card : ℝ) * |Real.sin (W.psi g)| := by
+  have hns : Real.cos (W.psi g) ^ 2
+      ≤ Complex.normSq (patch_resultant W.psi (pairCover g k)) := by
+    have h1 := cos_le_norm_patch_resultant_char W g k
+    rw [Complex.normSq_eq_norm_sq]
+    nlinarith [norm_nonneg (patch_resultant W.psi (pairCover g k))]
+  have hsq : Real.sqrt (1 - Complex.normSq (patch_resultant W.psi (pairCover g k)))
+      ≤ |Real.sin (W.psi g)| := by
+    have hsin : 1 - Real.cos (W.psi g) ^ 2 = Real.sin (W.psi g) ^ 2 := by
+      nlinarith [Real.sin_sq_add_cos_sq (W.psi g)]
+    calc Real.sqrt (1 - Complex.normSq (patch_resultant W.psi (pairCover g k)))
+        ≤ Real.sqrt (1 - Real.cos (W.psi g) ^ 2) := Real.sqrt_le_sqrt (by linarith)
+      _ = |Real.sin (W.psi g)| := by rw [hsin, Real.sqrt_sq_eq_abs]
+  refine (chord_le_of_patch_coherence W.psi hi hj).trans ?_
+  have hnn : (0 : ℝ) ≤ Real.sqrt 2 * ((pairCover g k).card : ℝ) :=
+    mul_nonneg (Real.sqrt_nonneg 2) (Nat.cast_nonneg _)
+  exact mul_le_mul_of_nonneg_left hsq hnn
+
+end PatchWinding
 
 end PhysicsOfConsciousness

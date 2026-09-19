@@ -2691,7 +2691,23 @@ symmetric kernel a twisted state is stationary exactly
 (\id{winding\_is\_kuramoto\_trajectory}), its drift cancelling by pairing each
 separation with its negative---so ``every trajectory
 reaches the phase-locked state'' is simply false. What is proved is the
-arc-condition version. It is witnessed on three sites
+arc-condition version.
+
+The hypothesis is not merely convenient, then; it is forced. A twisted state
+has global order zero and a global minimiser of the potential has order one, so
+a twisted state is not a minimiser at all
+(\id{char\_not\_potential\_min}): the conclusion of the convergence theorem is
+false of it, and no version of the theorem can reach it. What the twisted state
+does instead is answered by linearising there. The derivative of the field at a
+twist is the same translation-invariant coupling with each separation
+reweighted by the cosine of the phase the twist advances across it
+(\id{hasDerivAt\_charJacobian}); the reweighted kernel is still even, so the
+same modes diagonalise it and their rates are its eigenvalues. Where the twist
+advances by no more than a quarter turn across every separation the coupling
+reaches, all rates are non-positive; where one rate is positive, that mode grows
+without bound and the potential falls along it. This is a statement about rates
+at the linearisation and not about trajectories: it says which twists cannot
+persist, not which one a trajectory reaches. It is witnessed on three sites
 (\id{Examples}~\S17), where no closed-form solution exists---the
 trajectory is produced by the existence theorem and its limit by the
 convergence theorem, the whole numerical content of checking the hypotheses
