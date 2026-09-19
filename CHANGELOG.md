@@ -23,6 +23,41 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-18 — The demonstrated object is a winding, not a travelling wave
+
+One claim is withdrawn, and the object it was made about is now a theorem.
+
+**The sheet's low-resultant state does not travel.** Both publication files said
+that the global resultant "does not by itself separate a travelling wave from
+incoherence", of a state the sweep in `travelling_wave.py` produces by imposing
+a twist at identical frequencies under a symmetric kernel. Such a state has zero
+drift: it is a standing phase gradient, and the vanishing resultant follows from
+the winding rather than from any motion. A travelling wave is the same winding
+carried by a drift that this case does not supply, so the sentence named a
+special case where the general one was demonstrated, and the general one is the
+stronger statement. Both sentences now say "winding field". The module filename
+stays, being wired into `tach.toml`, `setup.cfg`, the figure paths and the
+supplement's `\includegraphics`.
+
+**What the Lean development now says about it.** Four results on the ring
+`ZMod n`, in `Phase4_KuramotoDynamics.lean` §6, replace prose and a property
+test. `winding_is_kuramoto_trajectory` proves the winding `θ k = 2πqk/n`
+stationary under `circulantSystem` — the coupling `A i j = f (j - i)` for any
+`f` with `f (-d) = f d` — the drift cancelling by pairing each separation with
+its negative. `order_parameter_r_sq_winding` puts its global resultant at
+exactly zero whenever `n ∤ q`. `norm_order_parameter_le_mean_patch_order` proves
+the patch estimator never reports less than the global one over a uniform cover,
+which is what `travelling_wave.local_order` computes; and
+`cos_le_mean_patch_order_winding` puts nearest-neighbour patch order at or above
+`cos (2πq/n)`. `coupling_does_not_determine_order` collects them into one
+system with two stationary states, at `r² = 1` and `r² = 0`.
+
+Nothing here relaxes a convergence result. `velocity_tendsto_zero` assumes only
+`omega = 0` and holds of a winding trivially;
+`kuramoto_tendsto_global_minimum` additionally requires the quarter-turn initial
+spread, which a winding violates, so it is silent on this regime by
+construction. The gap closed is that nothing stated what happens instead.
+
 ## 2026-09-17 — Sheafification, and a no-go stated one level too wide
 
 Two claims are withdrawn, both about what a construction in the development
