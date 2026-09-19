@@ -23,6 +23,43 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-19 — The extra dimension was never where the spiral was
+
+One claim is withdrawn, and what it deferred to is now settled negatively.
+
+**Extending the sheet to two dimensions does not reach a spiral.** The
+supplement said of the amplitude layer that extending it to `ZMod n × ZMod n`
+"is where that payoff sits", the payoff being a phase singularity of the kind
+`townsend2015` and `xu2023` measure. It is not. A character state on the torus
+has modulus `|a|` at every site exactly as on the ring, so it winds around the
+torus's two non-contractible loops and around no plaquette. A spiral is winding
+around a *contractible* loop, which forces an amplitude zero at its core, and no
+state of constant modulus has one. The dimension was never the obstacle.
+
+**What the development now says instead.** §6 and §7 of
+`Phase4_KuramotoDynamics.lean` are stated over an arbitrary finite abelian group
+carrying a `WindingData` — a unit character with a real phase lift — so the ring
+and the periodic sheet are both instances, the second built from the first by
+`WindingData.prod`. This closes a gap of a different kind: `travelling_wave.py`
+integrates a `(side, side)` array under a toroidal kernel, so until now the
+theorems and the simulation stood one dimension apart. Every name the
+publication cites survives as a ring specialisation.
+
+§8 replaces the withdrawn promise with two theorems about the observable
+`spatial_kernel.defect_winding` actually computes.
+`plaquetteCirculation_eq_zero_of_winding` proves the circulation around every
+periodic 2×2 plaquette of every state above is exactly zero, for any
+2π-periodic odd angle convention. `sum_plaquetteCirculation_eq_zero` proves
+that on a torus the circulations of *any* phase field sum to zero, each edge
+being traversed once in each direction, and `no_isolated_defect` puts that in
+the usable form: a defect cannot sit alone, so defects arrive in cancelling
+pairs. The first says the exact solutions carry no defect; the second says the
+geometry admits no lone spiral regardless of the dynamics. Neither was available
+while the matter sat in a scope note.
+
+Nothing here relaxes a result or adds an axiom: the audit reports the same three
+for all 5374 declarations.
+
 ## 2026-09-18 — The demonstrated object is a winding, not a travelling wave
 
 One claim is withdrawn, and the object it was made about is now a theorem.

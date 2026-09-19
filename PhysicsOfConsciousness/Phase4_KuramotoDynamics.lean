@@ -719,13 +719,116 @@ lemma mean_patch_order_singleton [Nonempty V] (theta : V → ℝ) :
     mul_one]
   field_simp
 
-/-- `x ^ (a % n) = x ^ a` whenever `x ^ n = 1`. The ring index arithmetic below
-lands in `ZMod.val`, which is a residue, and this is what carries the phasor
-across the wrap. -/
-private lemma pow_mod_of_pow_eq_one {M : Type*} [Monoid M] {x : M} {n : ℕ}
-    (hx : x ^ n = 1) (a : ℕ) : x ^ (a % n) = x ^ a := by
-  conv_rhs => rw [← Nat.div_add_mod a n]
-  rw [pow_add, pow_mul, hx, one_pow, one_mul]
+omit [Fintype V] [DecidableEq V] in
+private lemma norm_expI (t : ℝ) : ‖Complex.exp (Complex.I * (t : ℂ))‖ = 1 := by
+  rw [mul_comm]
+  exact Complex.norm_exp_ofReal_mul_I t
+
+/-! ### Windings on a finite abelian group
+
+The ring is one geometry and the sheet the sweep integrates is another: the
+twist `travelling_wave.py` imposes lives on a periodic `(side, side)` array
+under a toroidal kernel, which is `ZMod n × ZMod n` and not `ZMod n`. Every
+cancellation below uses only that the sites form a finite abelian group and that
+the kernel is even in the separation, so the statements are made there and the
+ring and the torus are both instances of them.
+
+What carries a winding is a character together with a chosen real lift of it.
+The character is what the amplitude layer of §7 acts on; the lift is what the
+phase model needs, because `is_kuramoto_trajectory` takes a real-valued `θ` and
+a character does not supply one. -/
+
+/-- A winding on `G`: a unit character `chi`, together with a real phase `psi`
+lifting it. `map_add` is the only algebraic input and `lift` ties the two fields
+together; constant modulus, the oddness of the phase and every cancellation
+below are derived from the pair. -/
+structure WindingData (G : Type*) [AddCommGroup G] where
+  /-- The character: a unit phasor, multiplicative in the site index. -/
+  chi : G → ℂ
+  /-- A real-valued lift of `chi`. The phase model needs one and a character
+  does not supply it: on the ring `psi` goes through `ZMod.val`, which is a
+  residue, so `psi` is additive only up to whole turns while `chi` is additive
+  exactly. -/
+  psi : G → ℝ
+  /-- The character is a homomorphism to the unit circle. -/
+  map_add : ∀ a b, chi (a + b) = chi a * chi b
+  /-- `psi` lifts `chi`, which is what makes the defect invisible to `exp`. -/
+  lift : ∀ g, Complex.exp (I * (psi g : ℂ)) = chi g
+
+namespace WindingData
+
+variable {G : Type*} [AddCommGroup G] (W : WindingData G)
+
+@[simp] lemma norm_chi (g : G) : ‖W.chi g‖ = 1 := by
+  rw [← W.lift g]; exact norm_expI _
+
+lemma chi_ne_zero (g : G) : W.chi g ≠ 0 := by
+  intro hcon
+  have h := W.norm_chi g
+  rw [hcon, norm_zero] at h
+  exact zero_ne_one h
+
+@[simp] lemma chi_zero : W.chi 0 = 1 := by
+  have h := W.map_add 0 0
+  rw [add_zero] at h
+  have h2 : W.chi 0 * (W.chi 0 - 1) = 0 := by rw [mul_sub, mul_one, ← h]; ring
+  rcases mul_eq_zero.1 h2 with h3 | h3
+  · exact absurd h3 (W.chi_ne_zero 0)
+  · linear_combination h3
+
+/-- The character is conjugated by negation, which is the source of every
+oddness statement below. -/
+lemma chi_neg (d : G) : W.chi (-d) = (starRingEnd ℂ) (W.chi d) := by
+  have h1 : W.chi d * W.chi (-d) = 1 := by
+    rw [← W.map_add, add_neg_cancel, W.chi_zero]
+  have h2 : W.chi d * (starRingEnd ℂ) (W.chi d) = 1 := by
+    rw [Complex.mul_conj, Complex.normSq_eq_norm_sq, W.norm_chi]
+    norm_num
+  exact mul_left_cancel₀ (W.chi_ne_zero d) (h1.trans h2.symm)
+
+@[simp] lemma re_chi (g : G) : (W.chi g).re = Real.cos (W.psi g) := by
+  rw [← W.lift g, exp_I_re]
+
+@[simp] lemma im_chi (g : G) : (W.chi g).im = Real.sin (W.psi g) := by
+  rw [← W.lift g, exp_I_im]
+
+lemma sin_psi_neg (d : G) : Real.sin (W.psi (-d)) = - Real.sin (W.psi d) := by
+  rw [← W.im_chi, ← W.im_chi, W.chi_neg, Complex.conj_im]
+
+/-- **The phase difference across a separation depends only on the separation.**
+The lift's defect is a whole number of turns and `exp` does not see it, so this
+is the general form of `sin_winding_add`: no residue arithmetic survives. -/
+lemma expI_psi_sub (i d : G) :
+    Complex.exp (I * ((W.psi (i + d) - W.psi i : ℝ) : ℂ)) = W.chi d := by
+  rw [show ((W.psi (i + d) - W.psi i : ℝ) : ℂ)
+      = (W.psi (i + d) : ℂ) - (W.psi i : ℂ) by push_cast; ring,
+    mul_sub, Complex.exp_sub, W.lift, W.lift, W.map_add,
+    mul_comm (W.chi i) (W.chi d), mul_div_assoc, div_self (W.chi_ne_zero i), mul_one]
+
+lemma sin_psi_sub (i d : G) : Real.sin (W.psi (i + d) - W.psi i) = Real.sin (W.psi d) := by
+  rw [← W.im_chi d, ← W.expI_psi_sub i d, exp_I_im]
+
+lemma cos_psi_sub (i d : G) : Real.cos (W.psi (i + d) - W.psi i) = Real.cos (W.psi d) := by
+  rw [← W.re_chi d, ← W.expI_psi_sub i d, exp_I_re]
+
+/-- **Two windings make a winding on the product.** The sheet is the ring twice
+over: `psi` adds, `chi` multiplies, and the lift survives both. This is the only
+step the torus needs that the ring did not already have. -/
+def prod {H : Type*} [AddCommGroup H] (W : WindingData G) (W' : WindingData H) :
+    WindingData (G × H) where
+  chi := fun g => W.chi g.1 * W'.chi g.2
+  psi := fun g => W.psi g.1 + W'.psi g.2
+  map_add := by
+    intro a b
+    simp only [Prod.fst_add, Prod.snd_add, W.map_add, W'.map_add]
+    ring
+  lift := by
+    intro g
+    rw [show I * ((W.psi g.1 + W'.psi g.2 : ℝ) : ℂ)
+        = I * (W.psi g.1 : ℂ) + I * (W'.psi g.2 : ℂ) by push_cast; ring,
+      Complex.exp_add, W.lift, W'.lift]
+
+end WindingData
 
 /-- The phasor advanced per site by a `q`-fold winding on a ring of `n` sites. -/
 noncomputable def windingPhasor (n : ℕ) (q : ℤ) : ℂ :=
@@ -740,8 +843,9 @@ noncomputable def winding (n : ℕ) (q : ℤ) : ZMod n → ℝ :=
   simp [winding]
 
 /-- The winding is additive in the site index up to a whole number of turns.
-Every statement below that treats it as a homomorphism goes through here: `val`
-is a residue, not a homomorphism to `ℝ`, and the defect is exactly `2π`-periodic. -/
+`val` is a residue, not a homomorphism to `ℝ`, and the defect is exactly
+`2π`-periodic — which is why the ring supplies a `WindingData` and not a
+homomorphism. -/
 lemma winding_add (n : ℕ) [NeZero n] (q : ℤ) (a b : ZMod n) :
     ∃ k : ℤ, winding n q (a + b) = winding n q a + winding n q b + k * (2 * Real.pi) := by
   have hn : (n : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr (NeZero.ne n)
@@ -758,62 +862,35 @@ lemma winding_add (n : ℕ) [NeZero n] (q : ℤ) (a b : ZMod n) :
   field_simp
   ring
 
-lemma sin_winding_add (n : ℕ) [NeZero n] (q : ℤ) (a b : ZMod n) :
-    Real.sin (winding n q (a + b) - winding n q a) = Real.sin (winding n q b) := by
+lemma expI_winding_add (n : ℕ) [NeZero n] (q : ℤ) (a b : ZMod n) :
+    Complex.exp (I * (winding n q (a + b) : ℂ))
+      = Complex.exp (I * (winding n q a : ℂ)) * Complex.exp (I * (winding n q b : ℂ)) := by
   obtain ⟨k, hk⟩ := winding_add n q a b
-  rw [hk, show winding n q a + winding n q b + k * (2 * Real.pi) - winding n q a
-      = winding n q b + k * (2 * Real.pi) by ring, Real.sin_add_int_mul_two_pi]
+  rw [hk, show I * ((winding n q a + winding n q b + (k : ℝ) * (2 * Real.pi) : ℝ) : ℂ)
+      = I * (winding n q a : ℂ) + I * (winding n q b : ℂ) + (k : ℂ) * (2 * Real.pi * I) by
+        push_cast; ring,
+    Complex.exp_add, Complex.exp_add, Complex.exp_int_mul_two_pi_mul_I, mul_one]
 
-lemma cos_winding_add (n : ℕ) [NeZero n] (q : ℤ) (a b : ZMod n) :
-    Real.cos (winding n q (a + b) - winding n q a) = Real.cos (winding n q b) := by
-  obtain ⟨k, hk⟩ := winding_add n q a b
-  rw [hk, show winding n q a + winding n q b + k * (2 * Real.pi) - winding n q a
-      = winding n q b + k * (2 * Real.pi) by ring, Real.cos_add_int_mul_two_pi]
+/-- The ring's winding as a `WindingData`. Everything §6 and §7 prove about
+windings is proved about this object's general shape and specialized back here. -/
+noncomputable def ringWinding (n : ℕ) [NeZero n] (q : ℤ) : WindingData (ZMod n) where
+  chi := fun k => Complex.exp (I * (winding n q k : ℂ))
+  psi := winding n q
+  map_add := expI_winding_add n q
+  lift := fun _ => rfl
 
-/-- The winding is odd in the site index, modulo turns. This is the half of the
-cancellation that the coupling kernel's evenness meets. -/
-lemma sin_winding_neg (n : ℕ) [NeZero n] (q : ℤ) (d : ZMod n) :
-    Real.sin (winding n q (-d)) = - Real.sin (winding n q d) := by
-  obtain ⟨k, hk⟩ := winding_add n q d (-d)
-  rw [add_neg_cancel, winding_zero] at hk
-  have hneg : winding n q (-d) = -winding n q d + ((-k : ℤ) : ℝ) * (2 * Real.pi) := by
-    push_cast; linarith
-  rw [hneg, Real.sin_add_int_mul_two_pi, Real.sin_neg]
+@[simp] lemma ringWinding_psi (n : ℕ) [NeZero n] (q : ℤ) : (ringWinding n q).psi = winding n q :=
+  rfl
 
-/-- An odd function on `ZMod n` sums to zero, by reindexing along negation. -/
-lemma sum_eq_zero_of_odd {n : ℕ} [NeZero n] (g : ZMod n → ℝ) (hg : ∀ d, g (-d) = - g d) :
-    ∑ d, g d = 0 := by
-  have h : ∑ d : ZMod n, g d = - ∑ d : ZMod n, g d := by
-    calc ∑ d : ZMod n, g d = ∑ d : ZMod n, g (-d) :=
-          (Fintype.sum_equiv (Equiv.neg (ZMod n)) (fun d => g (-d)) g fun _ => rfl).symm
-      _ = ∑ d : ZMod n, -g d := Finset.sum_congr rfl fun d _ => hg d
-      _ = - ∑ d : ZMod n, g d := by rw [Finset.sum_neg_distrib]
-  linarith
+@[simp] lemma ringWinding_chi (n : ℕ) [NeZero n] (q : ℤ) (k : ZMod n) :
+    (ringWinding n q).chi k = Complex.exp (I * (winding n q k : ℂ)) := rfl
 
-lemma windingPhasor_pow_card (n : ℕ) [NeZero n] (q : ℤ) : windingPhasor n q ^ n = 1 := by
-  have hn : (n : ℂ) ≠ 0 := Nat.cast_ne_zero.mpr (NeZero.ne n)
-  rw [windingPhasor, ← Complex.exp_nat_mul]
-  have hrw : (n : ℂ) * (2 * Real.pi * I * q / n) = (q : ℂ) * (2 * Real.pi * I) := by
-    field_simp
-  rw [hrw]
-  exact_mod_cast Complex.exp_int_mul_two_pi_mul_I q
-
-lemma exp_winding (n : ℕ) [NeZero n] (q : ℤ) (k : ZMod n) :
-    Complex.exp (I * (winding n q k : ℂ)) = windingPhasor n q ^ k.val := by
-  have hn : (n : ℂ) ≠ 0 := Nat.cast_ne_zero.mpr (NeZero.ne n)
-  rw [windingPhasor, ← Complex.exp_nat_mul]
-  congr 1
-  simp only [winding]
-  push_cast
-  field_simp
-
-lemma exp_winding_succ (n : ℕ) [NeZero n] (q : ℤ) (k : ZMod n) :
-    Complex.exp (I * (winding n q (k + 1) : ℂ))
-      = windingPhasor n q * Complex.exp (I * (winding n q k : ℂ)) := by
-  have hpow := windingPhasor_pow_card n q
-  rw [exp_winding, exp_winding, ZMod.val_add, pow_mod_of_pow_eq_one hpow,
-    ZMod.val_one_eq_one_mod, pow_add, pow_mod_of_pow_eq_one hpow, pow_one]
-  ring
+/-- **The sheet the sweep integrates.** `travelling_wave.py` imposes
+`θ[r,c] = 2πq·c/side` on a periodic `(side, side)` array under a toroidal
+kernel: that state is this object at `q₁ = 0`. -/
+noncomputable def torusWinding (n : ℕ) [NeZero n] (q₁ q₂ : ℤ) :
+    WindingData (ZMod n × ZMod n) :=
+  (ringWinding n q₁).prod (ringWinding n q₂)
 
 lemma windingPhasor_ne_one {n : ℕ} [NeZero n] {q : ℤ} (hq : ¬ ((n : ℤ) ∣ q)) :
     windingPhasor n q ≠ 1 := by
@@ -826,170 +903,251 @@ lemma windingPhasor_ne_one {n : ℕ} [NeZero n] {q : ℤ} (hq : ¬ ((n : ℤ) �
   field_simp at hm
   exact_mod_cast hm
 
-/-- **The order parameter vanishes on a winding state.** The site sum is
-invariant under the shift `k ↦ k + 1`, which multiplies it by a phasor other
-than one whenever `n ∤ q`, so the sum is zero. The observable in which
-`K_c = 2D` is stated therefore cannot see the winding at all. -/
-theorem order_parameter_complex_winding {n : ℕ} [NeZero n] {q : ℤ} (hq : ¬ ((n : ℤ) ∣ q)) :
-    order_parameter_complex (winding n q) = 0 := by
-  have key : (∑ k : ZMod n, Complex.exp (I * (winding n q k : ℂ))) = 0 := by
-    set S := ∑ k : ZMod n, Complex.exp (I * (winding n q k : ℂ)) with hS
-    have h1 : S = windingPhasor n q * S := by
-      calc S = ∑ k : ZMod n, Complex.exp (I * (winding n q (k + 1) : ℂ)) :=
-            (Fintype.sum_equiv (Equiv.addRight (1 : ZMod n))
-              (fun k => Complex.exp (I * (winding n q (k + 1) : ℂ)))
-              (fun k => Complex.exp (I * (winding n q k : ℂ))) (fun _ => rfl)).symm
-        _ = ∑ k : ZMod n, windingPhasor n q * Complex.exp (I * (winding n q k : ℂ)) :=
-            Finset.sum_congr rfl fun k _ => exp_winding_succ n q k
-        _ = windingPhasor n q * S := by rw [Finset.mul_sum]
-    have h2 : (1 - windingPhasor n q) * S = 0 := by rw [sub_mul, one_mul, ← h1]; ring
+/-- The ring winding is nontrivial exactly where the phasor is, which is the
+hypothesis the general order-parameter statement takes. -/
+lemma ringWinding_chi_one_ne_one {n : ℕ} [NeZero n] [Fact (1 < n)] {q : ℤ}
+    (hq : ¬ ((n : ℤ) ∣ q)) : (ringWinding n q).chi 1 ≠ 1 := by
+  have hn : (n : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr (NeZero.ne n)
+  have hval : winding n q 1 = 2 * Real.pi * q / n := by rw [winding, ZMod.val_one]; ring
+  rw [ringWinding_chi, hval,
+    show I * ((2 * Real.pi * q / n : ℝ) : ℂ) = 2 * Real.pi * I * q / n by push_cast; ring]
+  exact windingPhasor_ne_one hq
+
+section AbelianSites
+
+variable {G : Type*} [AddCommGroup G] [Fintype G] [DecidableEq G]
+
+omit [DecidableEq G] in
+/-- An odd function on a finite abelian group sums to zero, by reindexing along
+negation. -/
+lemma sum_eq_zero_of_odd (g : G → ℝ) (hg : ∀ d, g (-d) = - g d) : ∑ d, g d = 0 := by
+  have h : ∑ d : G, g d = - ∑ d : G, g d := by
+    calc ∑ d : G, g d = ∑ d : G, g (-d) :=
+          (Fintype.sum_equiv (Equiv.neg G) (fun d => g (-d)) g fun _ => rfl).symm
+      _ = ∑ d : G, -g d := Finset.sum_congr rfl fun d _ => hg d
+      _ = - ∑ d : G, g d := by rw [Finset.sum_neg_distrib]
+  linarith
+
+omit [DecidableEq G] in
+/-- **The order parameter vanishes on any nontrivial winding.** The site sum is
+invariant under a shift, which multiplies it by the character's value there; if
+that value is not one the sum must be zero. On the ring this is `n ∤ q`; on the
+torus it is a winding number on either axis. The observable in which `K_c = 2D`
+is stated therefore cannot see the winding at all. -/
+theorem order_parameter_complex_char [Nonempty G] (W : WindingData G) {g₀ : G}
+    (hg : W.chi g₀ ≠ 1) : order_parameter_complex W.psi = 0 := by
+  have key : (∑ k : G, Complex.exp (I * (W.psi k : ℂ))) = 0 := by
+    set S := ∑ k : G, Complex.exp (I * (W.psi k : ℂ)) with hS
+    have hchi : S = ∑ k : G, W.chi k := Finset.sum_congr rfl fun k _ => W.lift k
+    have h1 : S = W.chi g₀ * S := by
+      calc S = ∑ k : G, W.chi (k + g₀) :=
+            hchi.trans (Fintype.sum_equiv (Equiv.addRight g₀)
+              (fun k => W.chi (k + g₀)) W.chi (fun _ => rfl)).symm
+        _ = ∑ k : G, W.chi g₀ * W.chi k :=
+            Finset.sum_congr rfl fun k _ => by rw [W.map_add, mul_comm]
+        _ = W.chi g₀ * S := by rw [← Finset.mul_sum, ← hchi]
+    have h2 : (1 - W.chi g₀) * S = 0 := by rw [sub_mul, one_mul, ← h1]; ring
     rcases mul_eq_zero.1 h2 with h | h
-    · exact absurd (by linear_combination -h : windingPhasor n q = 1) (windingPhasor_ne_one hq)
+    · exact absurd (by linear_combination -h : W.chi g₀ = 1) hg
     · exact h
   rw [order_parameter_complex, key, mul_zero]
 
-theorem order_parameter_r_sq_winding {n : ℕ} [NeZero n] {q : ℤ} (hq : ¬ ((n : ℤ) ∣ q)) :
-    order_parameter_r_sq (winding n q) = 0 := by
-  rw [order_parameter_r_sq, order_parameter_complex_winding hq, map_zero]
+omit [DecidableEq G] in
+theorem order_parameter_r_sq_char [Nonempty G] (W : WindingData G) {g₀ : G}
+    (hg : W.chi g₀ ≠ 1) : order_parameter_r_sq W.psi = 0 := by
+  rw [order_parameter_r_sq, order_parameter_complex_char W hg, map_zero]
 
-/-- Nearest-neighbour patches on the ring: the coarsest cover that is not the
-singleton one. -/
-def ringPair (n : ℕ) (k : ZMod n) : Finset (ZMod n) := {k, k + 1}
+/-- Nearest-neighbour patches along a chosen separation: the coarsest cover that
+is not the singleton one. -/
+def pairCover (g : G) (k : G) : Finset G := {k, k + g}
 
-lemma isUniformCover_ringPair (n : ℕ) [NeZero n] [Fact (1 < n)] :
-    IsUniformCover (ringPair n) 2 2 where
+lemma isUniformCover_pairCover {g : G} (hg : g ≠ 0) : IsUniformCover (pairCover g) 2 2 where
   card_patch := by
     intro b
-    rw [ringPair, Finset.card_insert_of_notMem (by
+    rw [pairCover, Finset.card_insert_of_notMem (by
         simp only [Finset.mem_singleton]
         intro h
-        exact one_ne_zero (α := ZMod n) (by linear_combination -h)),
+        exact hg (by simpa using h.symm)),
       Finset.card_singleton]
   multiplicity := by
     intro i
-    have hset : (Finset.univ.filter fun b => i ∈ ringPair n b) = {i, i - 1} := by
+    have hset : (Finset.univ.filter fun b => i ∈ pairCover g b) = {i, i - g} := by
       ext b
-      simp only [Finset.mem_filter, Finset.mem_univ, true_and, ringPair, Finset.mem_insert,
+      simp only [Finset.mem_filter, Finset.mem_univ, true_and, pairCover, Finset.mem_insert,
         Finset.mem_singleton]
       constructor
       · rintro (h | h)
         · exact Or.inl h.symm
-        · exact Or.inr (by rw [h]; ring)
+        · exact Or.inr (by rw [h]; abel)
       · rintro (h | h)
         · exact Or.inl h.symm
-        · exact Or.inr (by rw [h]; ring)
+        · exact Or.inr (by rw [h]; abel)
     rw [hset, Finset.card_insert_of_notMem (by
         simp only [Finset.mem_singleton]
         intro h
-        exact one_ne_zero (α := ZMod n) (by linear_combination h)),
+        exact hg (by simpa using h.symm)),
       Finset.card_singleton]
 
-/-- **A winding state keeps its neighbourhoods locked.** Nearest-neighbour patch
-order is at least `cos (2πq/n)`, which tends to one as the same winding is spread
-over more sites, while `order_parameter_r_sq_winding` puts the global resultant
-at zero. The two observables are measuring different things, and the sweep in
-`travelling_wave.py` measures the gap between them. -/
-theorem cos_le_mean_patch_order_winding (n : ℕ) [NeZero n] [Fact (1 < n)] (q : ℤ) :
-    Real.cos (2 * Real.pi * q / n) ≤ mean_patch_order (winding n q) (ringPair n) := by
-  have hval : winding n q 1 = 2 * Real.pi * q / n := by
-    rw [winding, ZMod.val_one]; ring
-  rw [← hval]
+/-- **A winding keeps its neighbourhoods locked.** Patch order across a chosen
+separation is at least `cos (psi g)`, which tends to one as the same winding is
+spread over more sites, while `order_parameter_r_sq_char` puts the global
+resultant at zero. The two observables measure different things, and the sweep
+in `travelling_wave.py` measures the gap between them. -/
+theorem cos_le_mean_patch_order_char [Nonempty G] (W : WindingData G) (g : G) :
+    Real.cos (W.psi g) ≤ mean_patch_order W.psi (pairCover g) := by
   refine le_mean_patch_order _ _ fun k => ?_
-  refine le_norm_patch_resultant _ _ ⟨k, by simp [ringPair]⟩ (winding n q k) _ ?_
+  refine le_norm_patch_resultant _ _ ⟨k, by simp [pairCover]⟩ (W.psi k) _ ?_
   intro i hi
-  simp only [ringPair, Finset.mem_insert, Finset.mem_singleton] at hi
+  simp only [pairCover, Finset.mem_insert, Finset.mem_singleton] at hi
   rcases hi with rfl | rfl
   · rw [sub_self, Real.cos_zero]
     exact Real.cos_le_one _
-  · exact le_of_eq (cos_winding_add n q k 1).symm
+  · exact le_of_eq (W.cos_psi_sub k g).symm
 
-/-- A translation-invariant (circulant) coupling on the ring `ZMod n`, at
-identical natural frequencies. `KuramotoSystem.A` is a general `V → V → ℝ`, so
-the isotropy the cancellation needs has to be supplied: `f` depends on the
-separation alone and `hf` makes it even in that separation. -/
-def circulantSystem (n : ℕ) (f : ZMod n → ℝ) (hf : ∀ d, f (-d) = f d) :
-    KuramotoSystem (ZMod n) where
+/-- A translation-invariant (circulant) coupling at identical natural
+frequencies. `KuramotoSystem.A` is a general `V → V → ℝ`, so the isotropy the
+cancellation needs has to be supplied: `f` depends on the separation alone and
+`hf` makes it even in that separation. -/
+def circulantSystem (f : G → ℝ) (hf : ∀ d, f (-d) = f d) : KuramotoSystem G where
   omega := fun _ => 0
   A := fun i j => f (j - i)
   symm := by
     intro i j
-    rw [show i - j = -(j - i) by ring, hf]
+    rw [show i - j = -(j - i) by abel, hf]
 
-@[simp] lemma circulantSystem_omega (n : ℕ) (f : ZMod n → ℝ) (hf : ∀ d, f (-d) = f d)
-    (i : ZMod n) : (circulantSystem n f hf).omega i = 0 := rfl
+omit [Fintype G] [DecidableEq G] in
+@[simp] lemma circulantSystem_omega (f : G → ℝ) (hf : ∀ d, f (-d) = f d)
+    (i : G) : (circulantSystem f hf).omega i = 0 := rfl
 
-@[simp] lemma circulantSystem_A (n : ℕ) (f : ZMod n → ℝ) (hf : ∀ d, f (-d) = f d)
-    (i j : ZMod n) : (circulantSystem n f hf).A i j = f (j - i) := rfl
+omit [Fintype G] [DecidableEq G] in
+@[simp] lemma circulantSystem_A (f : G → ℝ) (hf : ∀ d, f (-d) = f d)
+    (i j : G) : (circulantSystem f hf).A i j = f (j - i) := rfl
 
-/-- The drift of a winding state under a circulant even kernel is zero at every
-site: reindexing by separation makes the summand odd in `d` against a kernel
-even in it, and pairing `d` with `-d` cancels the sum. -/
-theorem circulant_drift_winding {n : ℕ} [NeZero n] (q : ℤ) (f : ZMod n → ℝ)
-    (hf : ∀ d, f (-d) = f d) (i : ZMod n) :
-    ∑ j, f (j - i) * Real.sin (winding n q j - winding n q i) = 0 := by
-  have hreindex : ∑ j : ZMod n, f (j - i) * Real.sin (winding n q j - winding n q i)
-      = ∑ d : ZMod n, f d * Real.sin (winding n q d) := by
+omit [DecidableEq G] in
+/-- The drift of a winding under a circulant even kernel is zero at every site:
+reindexing by separation makes the summand odd in `d` against a kernel even in
+it, and pairing `d` with `-d` cancels the sum. Nothing about the ring enters. -/
+theorem circulant_drift_char (W : WindingData G) (f : G → ℝ)
+    (hf : ∀ d, f (-d) = f d) (i : G) :
+    ∑ j, f (j - i) * Real.sin (W.psi j - W.psi i) = 0 := by
+  have hreindex : ∑ j : G, f (j - i) * Real.sin (W.psi j - W.psi i)
+      = ∑ d : G, f d * Real.sin (W.psi d) := by
     rw [← Fintype.sum_equiv (Equiv.addLeft i)
-      (fun d => f ((i + d) - i) * Real.sin (winding n q (i + d) - winding n q i))
-      (fun j => f (j - i) * Real.sin (winding n q j - winding n q i)) fun _ => rfl]
+      (fun d => f ((i + d) - i) * Real.sin (W.psi (i + d) - W.psi i))
+      (fun j => f (j - i) * Real.sin (W.psi j - W.psi i)) fun _ => rfl]
     exact Finset.sum_congr rfl fun d _ => by
-      rw [add_sub_cancel_left, sin_winding_add]
+      rw [add_sub_cancel_left, W.sin_psi_sub]
   rw [hreindex]
   refine sum_eq_zero_of_odd _ fun d => ?_
-  rw [hf, sin_winding_neg]
+  rw [hf, W.sin_psi_neg]
   ring
 
-/-- **A winding state is stationary.** Nothing moves: at identical frequencies
-with an even kernel the winding is a standing phase gradient, not a travelling
-one, and its vanishing resultant is a consequence of the winding rather than of
-any motion. -/
-theorem winding_is_kuramoto_trajectory {n : ℕ} [NeZero n] (q : ℤ) (f : ZMod n → ℝ)
+omit [DecidableEq G] in
+/-- **A winding is stationary.** Nothing moves: at identical frequencies with an
+even kernel the winding is a standing phase gradient, not a travelling one, and
+its vanishing resultant is a consequence of the winding rather than of any
+motion. -/
+theorem char_is_kuramoto_trajectory (W : WindingData G) (f : G → ℝ)
     (hf : ∀ d, f (-d) = f d) :
-    is_kuramoto_trajectory (circulantSystem n f hf) (fun _ => winding n q) := by
+    is_kuramoto_trajectory (circulantSystem f hf) (fun _ => W.psi) := by
   intro i t
-  have hdrift : (circulantSystem n f hf).omega i
-      + ∑ j, (circulantSystem n f hf).A i j
-          * Real.sin (winding n q j - winding n q i) = 0 := by
+  have hdrift : (circulantSystem f hf).omega i
+      + ∑ j, (circulantSystem f hf).A i j
+          * Real.sin (W.psi j - W.psi i) = 0 := by
     simp only [circulantSystem_omega, circulantSystem_A, zero_add]
-    exact circulant_drift_winding q f hf i
+    exact circulant_drift_char W f hf i
   rw [hdrift]
   exact hasDerivAt_const t _
 
+omit [DecidableEq G] in
 /-- The uniform state is stationary for the same system, which is what makes the
 pair a statement about one coupling rather than about two. -/
-theorem const_is_kuramoto_trajectory {n : ℕ} [NeZero n] (f : ZMod n → ℝ)
+theorem const_is_kuramoto_trajectory (f : G → ℝ)
     (hf : ∀ d, f (-d) = f d) (c : ℝ) :
-    is_kuramoto_trajectory (circulantSystem n f hf) (fun _ _ => c) := by
+    is_kuramoto_trajectory (circulantSystem f hf) (fun _ _ => c) := by
   intro i t
-  have hdrift : (circulantSystem n f hf).omega i
-      + ∑ _j : ZMod n, (circulantSystem n f hf).A i _j * Real.sin (c - c) = 0 := by
+  have hdrift : (circulantSystem f hf).omega i
+      + ∑ _j : G, (circulantSystem f hf).A i _j * Real.sin (c - c) = 0 := by
     simp
   rw [hdrift]
   exact hasDerivAt_const t _
 
-/-- **The coupling does not determine the order parameter.** One circulant system
-on the ring has two stationary states: the uniform one at `r² = 1`, and a
-`q`-fold winding at `r² = 0` whose nearest-neighbour patch order is still at
-least `cos (2πq/n)`. No bound on `K` separates them, because they share it. -/
-theorem coupling_does_not_determine_order {n : ℕ} [NeZero n] {q : ℤ}
-    (hq : ¬ ((n : ℤ) ∣ q)) (f : ZMod n → ℝ) (hf : ∀ d, f (-d) = f d) (c : ℝ) :
-    (is_kuramoto_trajectory (circulantSystem n f hf) (fun _ _ => c)
-        ∧ order_parameter_r_sq (fun _ : ZMod n => c) = 1)
-      ∧ (is_kuramoto_trajectory (circulantSystem n f hf) (fun _ => winding n q)
-        ∧ order_parameter_r_sq (winding n q) = 0
-        ∧ Real.cos (2 * Real.pi * q / n)
-            ≤ mean_patch_order (winding n q) (ringPair n)) := by
-  have hn : 1 < n := by
-    have h0 : n ≠ 0 := NeZero.ne n
-    by_contra hcon
-    have h1 : n = 1 := by omega
-    subst h1
-    exact hq (by simp)
-  have : Fact (1 < n) := ⟨hn⟩
-  refine ⟨⟨const_is_kuramoto_trajectory f hf c, ?_⟩,
-    winding_is_kuramoto_trajectory q f hf, order_parameter_r_sq_winding hq,
-    cos_le_mean_patch_order_winding n q⟩
-  exact phase_locked_implies_r_sq_eq_one _ (by intro i j; simp)
+/-- **The coupling does not determine the order parameter.** One circulant
+system has two stationary states: the uniform one at `r² = 1`, and a nontrivial
+winding at `r² = 0` whose patch order across a separation is still at least
+`cos (psi g)`. No bound on `K` separates them, because they share it. -/
+theorem coupling_does_not_determine_order [Nonempty G] (W : WindingData G) {g₀ : G}
+    (hg : W.chi g₀ ≠ 1) (f : G → ℝ) (hf : ∀ d, f (-d) = f d) (c : ℝ) (g : G) :
+    (is_kuramoto_trajectory (circulantSystem f hf) (fun _ _ => c)
+        ∧ order_parameter_r_sq (fun _ : G => c) = 1)
+      ∧ (is_kuramoto_trajectory (circulantSystem f hf) (fun _ => W.psi)
+        ∧ order_parameter_r_sq W.psi = 0
+        ∧ Real.cos (W.psi g) ≤ mean_patch_order W.psi (pairCover g)) :=
+  ⟨⟨const_is_kuramoto_trajectory f hf c,
+      phase_locked_implies_r_sq_eq_one _ (by intro i j; simp)⟩,
+    char_is_kuramoto_trajectory W f hf, order_parameter_r_sq_char W hg,
+    cos_le_mean_patch_order_char W g⟩
+
+end AbelianSites
+
+/-! ### The ring and the torus
+
+The statements above at their two instances. The ring keeps the names the
+publication cites; the torus is the geometry `travelling_wave.py` integrates,
+and it costs one `WindingData.prod`. -/
+
+/-- Nearest-neighbour patches on the ring. -/
+def ringPair (n : ℕ) (k : ZMod n) : Finset (ZMod n) := {k, k + 1}
+
+lemma isUniformCover_ringPair (n : ℕ) [NeZero n] [Fact (1 < n)] :
+    IsUniformCover (ringPair n) 2 2 :=
+  isUniformCover_pairCover (g := (1 : ZMod n)) one_ne_zero
+
+theorem circulant_drift_winding {n : ℕ} [NeZero n] (q : ℤ) (f : ZMod n → ℝ)
+    (hf : ∀ d, f (-d) = f d) (i : ZMod n) :
+    ∑ j, f (j - i) * Real.sin (winding n q j - winding n q i) = 0 :=
+  circulant_drift_char (ringWinding n q) f hf i
+
+/-- **A winding state is stationary**, on the ring. -/
+theorem winding_is_kuramoto_trajectory {n : ℕ} [NeZero n] (q : ℤ) (f : ZMod n → ℝ)
+    (hf : ∀ d, f (-d) = f d) :
+    is_kuramoto_trajectory (circulantSystem f hf) (fun _ => winding n q) :=
+  char_is_kuramoto_trajectory (ringWinding n q) f hf
+
+theorem order_parameter_complex_winding {n : ℕ} [NeZero n] [Fact (1 < n)] {q : ℤ}
+    (hq : ¬ ((n : ℤ) ∣ q)) : order_parameter_complex (winding n q) = 0 :=
+  order_parameter_complex_char (ringWinding n q) (ringWinding_chi_one_ne_one hq)
+
+theorem order_parameter_r_sq_winding {n : ℕ} [NeZero n] [Fact (1 < n)] {q : ℤ}
+    (hq : ¬ ((n : ℤ) ∣ q)) : order_parameter_r_sq (winding n q) = 0 :=
+  order_parameter_r_sq_char (ringWinding n q) (ringWinding_chi_one_ne_one hq)
+
+/-- Nearest-neighbour patch order on the ring is at least `cos (2πq/n)`, which
+approaches one as the same winding is spread over more sites. -/
+theorem cos_le_mean_patch_order_winding (n : ℕ) [NeZero n] [Fact (1 < n)] (q : ℤ) :
+    Real.cos (2 * Real.pi * q / n) ≤ mean_patch_order (winding n q) (ringPair n) := by
+  have hval : winding n q 1 = 2 * Real.pi * q / n := by rw [winding, ZMod.val_one]; ring
+  rw [← hval]
+  exact cos_le_mean_patch_order_char (ringWinding n q) 1
+
+/-- **The torus carries the same two states.** The sheet of the sweep, at any
+even toroidal kernel: a winding on either axis is stationary and invisible to
+the global resultant, and the uniform state is stationary at the same coupling.
+This is the geometry `travelling_wave.py` integrates. -/
+theorem torus_coupling_does_not_determine_order {n : ℕ} [NeZero n] [Fact (1 < n)]
+    {q₁ q₂ : ℤ} (hq : ¬ ((n : ℤ) ∣ q₂)) (f : ZMod n × ZMod n → ℝ)
+    (hf : ∀ d, f (-d) = f d) (c : ℝ) (g : ZMod n × ZMod n) :
+    (is_kuramoto_trajectory (circulantSystem f hf) (fun _ _ => c)
+        ∧ order_parameter_r_sq (fun _ : ZMod n × ZMod n => c) = 1)
+      ∧ (is_kuramoto_trajectory (circulantSystem f hf) (fun _ => (torusWinding n q₁ q₂).psi)
+        ∧ order_parameter_r_sq (torusWinding n q₁ q₂).psi = 0
+        ∧ Real.cos ((torusWinding n q₁ q₂).psi g)
+            ≤ mean_patch_order (torusWinding n q₁ q₂).psi (pairCover g)) := by
+  refine coupling_does_not_determine_order (torusWinding n q₁ q₂) (g₀ := (0, 1)) ?_ f hf c g
+  have h : (torusWinding n q₁ q₂).chi (0, 1)
+      = (ringWinding n q₁).chi 0 * (ringWinding n q₂).chi 1 := rfl
+  rw [h, (ringWinding n q₁).chi_zero, one_mul]
+  exact ringWinding_chi_one_ne_one hq
 
 /-! ## 7. An amplitude field, and the standing structure it buys
 
@@ -1075,11 +1233,6 @@ alternating mode of `standing_wave_of_amplitude_band`. A standing wave with an
 interior amplitude node is a fixed point of a nonlinear system with no closed
 form, reached by bifurcation from `μ = -windingLambda n q f`.
 -/
-
-omit [DecidableEq V] in
-private lemma norm_expI (t : ℝ) : ‖Complex.exp (Complex.I * (t : ℂ))‖ = 1 := by
-  rw [mul_comm]
-  exact Complex.norm_exp_ofReal_mul_I t
 
 omit [DecidableEq V] in
 /-- `e^{iy} · conj e^{ix} = e^{i(y-x)}`: the rotation that reads a pair of phases
@@ -1230,142 +1383,218 @@ theorem amplitude_phase_is_kuramoto (sys : KuramotoSystem V) (hom : ∀ i, sys.o
   rw [hom i, zero_add, ← hratio, ← key]
   exact hthd
 
-/-- The winding state of §6 given an amplitude: `z k = a · ξ^k` with
-`ξ = exp (2πiq/n)`. Its modulus is `|a|` at every site, which is limit 1 of the
-scope note above in one line. -/
-noncomputable def windingState (n : ℕ) (q : ℤ) (a : ℝ) : ZMod n → ℂ :=
-  fun k => ((a : ℝ) : ℂ) * Complex.exp (I * (winding n q k : ℂ))
+section AmplitudeWindings
 
-/-- The coupling eigenvalue a `q`-fold winding sees:
-`λ q = ∑ d, f d * (cos (2πqd/n) - 1)`, real by the evenness of `f`, and
-nonpositive for a nonnegative kernel. It is what shifts the existence threshold
-away from `μ > 0`. -/
-noncomputable def windingLambda (n : ℕ) [NeZero n] (q : ℤ) (f : ZMod n → ℝ) : ℝ :=
-  ∑ d, f d * (Real.cos (winding n q d) - 1)
+variable {G : Type*} [AddCommGroup G] [Fintype G] [DecidableEq G]
 
-lemma expI_winding_add (n : ℕ) [NeZero n] (q : ℤ) (a b : ZMod n) :
-    Complex.exp (I * (winding n q (a + b) : ℂ))
-      = Complex.exp (I * (winding n q a : ℂ)) * Complex.exp (I * (winding n q b : ℂ)) := by
-  obtain ⟨k, hk⟩ := winding_add n q a b
-  rw [hk, show I * ((winding n q a + winding n q b + (k : ℝ) * (2 * Real.pi) : ℝ) : ℂ)
-      = I * (winding n q a : ℂ) + I * (winding n q b : ℂ) + (k : ℂ) * (2 * Real.pi * I) by
-        push_cast; ring,
-    Complex.exp_add, Complex.exp_add, Complex.exp_int_mul_two_pi_mul_I, mul_one]
+/-- A winding given an amplitude: `z g = a · chi g`. Its modulus is `|a|` at
+every site — no site is a zero, which is why nothing here is a phase
+singularity. -/
+noncomputable def charState (W : WindingData G) (a : ℝ) : G → ℂ :=
+  fun g => ((a : ℝ) : ℂ) * W.chi g
 
-lemma windingState_add (n : ℕ) [NeZero n] (q : ℤ) (a : ℝ) (i d : ZMod n) :
-    windingState n q a (i + d)
-      = windingState n q a i * Complex.exp (I * (winding n q d : ℂ)) := by
-  rw [windingState, windingState, expI_winding_add]
+/-- The coupling eigenvalue a winding sees: `λ = ∑ d, f d * (Re (chi d) - 1)`,
+real by the evenness of `f`, and nonpositive for a nonnegative kernel. It is
+what shifts the existence threshold away from `μ > 0`. -/
+noncomputable def charLambda (W : WindingData G) (f : G → ℝ) : ℝ :=
+  ∑ d, f d * ((W.chi d).re - 1)
+
+omit [Fintype G] [DecidableEq G] in
+lemma charState_add (W : WindingData G) (a : ℝ) (i d : G) :
+    charState W a (i + d) = charState W a i * W.chi d := by
+  rw [charState, charState, W.map_add]
   ring
 
-/-- **No site of a winding state is a zero**, which is why nothing here is a
-phase singularity: the modulus is constant across the ring. -/
-lemma norm_windingState (n : ℕ) [NeZero n] (q : ℤ) (a : ℝ) (k : ZMod n) :
-    ‖windingState n q a k‖ = |a| := by
-  rw [windingState, norm_mul, norm_expI, mul_one, Complex.norm_real, Real.norm_eq_abs]
+omit [Fintype G] [DecidableEq G] in
+/-- **No site of a winding state is a zero.** The modulus is constant across the
+sites, which is the exact sense in which these solutions are windings and not
+spirals: a phase singularity is a point at which the amplitude vanishes. -/
+@[simp] lemma norm_charState (W : WindingData G) (a : ℝ) (g : G) :
+    ‖charState W a g‖ = |a| := by
+  rw [charState, norm_mul, W.norm_chi, mul_one, Complex.norm_real, Real.norm_eq_abs]
 
-lemma windingState_ne_zero {n : ℕ} [NeZero n] (q : ℤ) {a : ℝ} (ha : a ≠ 0) (k : ZMod n) :
-    windingState n q a k ≠ 0 := by
+omit [Fintype G] [DecidableEq G] in
+lemma charState_ne_zero (W : WindingData G) {a : ℝ} (ha : a ≠ 0) (g : G) :
+    charState W a g ≠ 0 := by
   intro hcon
-  have h := norm_windingState n q a k
+  have h := norm_charState W a g
   rw [hcon, norm_zero] at h
   exact ha (abs_eq_zero.mp h.symm)
 
-/-- The kernel sum a winding state produces is real and equals `windingLambda`:
-the imaginary part is odd in the separation against an even kernel, so it
-cancels exactly as the phase drift does in `circulant_drift_winding`. -/
-lemma sum_kernel_expI_winding {n : ℕ} [NeZero n] (q : ℤ) (f : ZMod n → ℝ)
-    (hf : ∀ d, f (-d) = f d) :
-    ∑ d, ((f d : ℝ) : ℂ) * (Complex.exp (I * (winding n q d : ℂ)) - 1)
-      = ((windingLambda n q f : ℝ) : ℂ) := by
-  have him : ∑ d : ZMod n, f d * Real.sin (winding n q d) = 0 :=
-    sum_eq_zero_of_odd _ fun d => by rw [hf, sin_winding_neg]; ring
+omit [DecidableEq G] in
+/-- The kernel sum a winding produces is real and equals `charLambda`: the
+imaginary part is odd in the separation against an even kernel, so it cancels
+exactly as the phase drift does in `circulant_drift_char`. -/
+lemma sum_kernel_chi (W : WindingData G) (f : G → ℝ) (hf : ∀ d, f (-d) = f d) :
+    ∑ d, ((f d : ℝ) : ℂ) * (W.chi d - 1) = ((charLambda W f : ℝ) : ℂ) := by
+  have him : ∑ d : G, f d * (W.chi d).im = 0 :=
+    sum_eq_zero_of_odd _ fun d => by
+      rw [hf, W.im_chi, W.im_chi, W.sin_psi_neg]; ring
   apply Complex.ext
-  · rw [Complex.re_sum, Complex.ofReal_re, windingLambda]
+  · rw [Complex.re_sum, Complex.ofReal_re, charLambda]
     exact Finset.sum_congr rfl fun d _ => by
-      rw [Complex.re_ofReal_mul, Complex.sub_re, Complex.one_re, exp_I_re]
+      rw [Complex.re_ofReal_mul, Complex.sub_re, Complex.one_re]
   · rw [Complex.im_sum, Complex.ofReal_im, ← him]
     exact Finset.sum_congr rfl fun d _ => by
-      rw [Complex.im_ofReal_mul, Complex.sub_im, Complex.one_im, exp_I_im, sub_zero]
+      rw [Complex.im_ofReal_mul, Complex.sub_im, Complex.one_im, sub_zero]
 
-/-- **The amplitude field acts on a winding state as a single real scalar.** The
-cubic term contributes `-a²`, the coupling contributes `windingLambda n q f`, and
-the state itself is carried unchanged: the §6 cancellation with the cubic term
-absorbed into the amplitude. -/
-theorem amplitudeField_windingState {n : ℕ} [NeZero n] (q : ℤ) (f : ZMod n → ℝ)
-    (hf : ∀ d, f (-d) = f d) (mu a : ℝ) (i : ZMod n) :
-    amplitudeField mu (circulantSystem n f hf).A (windingState n q a) i
-      = ((mu - a ^ 2 + windingLambda n q f : ℝ) : ℂ) * windingState n q a i := by
-  have hcoup : ∑ j, (((circulantSystem n f hf).A i j : ℝ) : ℂ)
-        * (windingState n q a j - windingState n q a i)
-      = windingState n q a i * ((windingLambda n q f : ℝ) : ℂ) := by
+omit [DecidableEq G] in
+/-- **The amplitude field acts on a winding as a single real scalar.** The cubic
+term contributes `-a²`, the coupling contributes `charLambda W f`, and the state
+itself is carried unchanged: the §6 cancellation with the cubic term absorbed
+into the amplitude. -/
+theorem amplitudeField_charState (W : WindingData G) (f : G → ℝ)
+    (hf : ∀ d, f (-d) = f d) (mu a : ℝ) (i : G) :
+    amplitudeField mu (circulantSystem f hf).A (charState W a) i
+      = ((mu - a ^ 2 + charLambda W f : ℝ) : ℂ) * charState W a i := by
+  have hcoup : ∑ j, (((circulantSystem f hf).A i j : ℝ) : ℂ)
+        * (charState W a j - charState W a i)
+      = charState W a i * ((charLambda W f : ℝ) : ℂ) := by
     rw [← Fintype.sum_equiv (Equiv.addLeft i)
-      (fun d => (((circulantSystem n f hf).A i (i + d) : ℝ) : ℂ)
-        * (windingState n q a (i + d) - windingState n q a i))
-      (fun j => (((circulantSystem n f hf).A i j : ℝ) : ℂ)
-        * (windingState n q a j - windingState n q a i)) fun _ => rfl]
+      (fun d => (((circulantSystem f hf).A i (i + d) : ℝ) : ℂ)
+        * (charState W a (i + d) - charState W a i))
+      (fun j => (((circulantSystem f hf).A i j : ℝ) : ℂ)
+        * (charState W a j - charState W a i)) fun _ => rfl]
     rw [Finset.sum_congr rfl (fun d _ =>
-      show (((circulantSystem n f hf).A i (i + d) : ℝ) : ℂ)
-          * (windingState n q a (i + d) - windingState n q a i)
-        = windingState n q a i
-          * (((f d : ℝ) : ℂ) * (Complex.exp (I * (winding n q d : ℂ)) - 1)) by
-        rw [circulantSystem_A, add_sub_cancel_left, windingState_add]; ring),
-      ← Finset.mul_sum, sum_kernel_expI_winding q f hf]
-  simp only [amplitudeField, hcoup, norm_windingState]
+      show (((circulantSystem f hf).A i (i + d) : ℝ) : ℂ)
+          * (charState W a (i + d) - charState W a i)
+        = charState W a i * (((f d : ℝ) : ℂ) * (W.chi d - 1)) by
+        rw [circulantSystem_A, add_sub_cancel_left, charState_add]; ring),
+      ← Finset.mul_sum, sum_kernel_chi W f hf]
+  simp only [amplitudeField, hcoup, norm_charState]
   rw [show (((|a| : ℝ)) : ℂ) ^ 2 = ((a ^ 2 : ℝ) : ℂ) by
     rw [← Complex.ofReal_pow, sq_abs]]
   push_cast
   ring
 
-/-- **X2: windings are exact, and they carry an amplitude.** `z k = a · ξ^k` is
-stationary exactly when `a² = μ + λ q`. The phase model's winding is the `a = 1`
-shadow of this; here the amplitude is determined by the winding number and the
+omit [DecidableEq G] in
+/-- **X2: windings are exact, and they carry an amplitude.** `z g = a · chi g`
+is stationary exactly when `a² = μ + λ`. The phase model's winding is the
+`a = 1` shadow of this; here the amplitude is determined by the winding and the
 kernel together. -/
-theorem windingState_is_amplitude_trajectory_iff {n : ℕ} [NeZero n] (q : ℤ) (f : ZMod n → ℝ)
+theorem charState_is_amplitude_trajectory_iff (W : WindingData G) (f : G → ℝ)
     (hf : ∀ d, f (-d) = f d) (mu a : ℝ) (ha : a ≠ 0) :
-    is_amplitude_trajectory mu (circulantSystem n f hf).A (fun _ => windingState n q a)
-      ↔ a ^ 2 = mu + windingLambda n q f := by
+    is_amplitude_trajectory mu (circulantSystem f hf).A (fun _ => charState W a)
+      ↔ a ^ 2 = mu + charLambda W f := by
   rw [is_amplitude_trajectory_const_iff]
   constructor
   · intro h
     have h0 := h 0
-    rw [amplitudeField_windingState] at h0
+    rw [amplitudeField_charState] at h0
     rcases mul_eq_zero.mp h0 with h1 | h1
-    · have h2 : mu - a ^ 2 + windingLambda n q f = 0 := by exact_mod_cast h1
+    · have h2 : mu - a ^ 2 + charLambda W f = 0 := by exact_mod_cast h1
       linarith
-    · exact absurd h1 (windingState_ne_zero q ha 0)
+    · exact absurd h1 (charState_ne_zero W ha 0)
   · intro h i
-    rw [amplitudeField_windingState, show mu - a ^ 2 + windingLambda n q f = 0 by linarith]
+    rw [amplitudeField_charState, show mu - a ^ 2 + charLambda W f = 0 by linarith]
     simp
 
-/-- **X3: an existence band the phase model cannot state.** A `q`-fold winding of
-positive amplitude exists **iff** `μ + λ q > 0`. -/
-theorem exists_windingState_iff {n : ℕ} [NeZero n] (q : ℤ) (f : ZMod n → ℝ)
+omit [DecidableEq G] in
+/-- **X3: an existence band the phase model cannot state.** A winding of
+positive amplitude exists **iff** `μ + λ > 0`. -/
+theorem exists_charState_iff (W : WindingData G) (f : G → ℝ)
     (hf : ∀ d, f (-d) = f d) (mu : ℝ) :
-    (∃ a : ℝ, 0 < a ∧ is_amplitude_trajectory mu (circulantSystem n f hf).A
-        (fun _ => windingState n q a))
-      ↔ 0 < mu + windingLambda n q f := by
+    (∃ a : ℝ, 0 < a ∧ is_amplitude_trajectory mu (circulantSystem f hf).A
+        (fun _ => charState W a))
+      ↔ 0 < mu + charLambda W f := by
   constructor
   · rintro ⟨a, ha, htraj⟩
-    have h := (windingState_is_amplitude_trajectory_iff q f hf mu a (ne_of_gt ha)).1 htraj
+    have h := (charState_is_amplitude_trajectory_iff W f hf mu a (ne_of_gt ha)).1 htraj
     nlinarith
   · intro h
-    have hs : 0 < Real.sqrt (mu + windingLambda n q f) := Real.sqrt_pos.2 h
-    exact ⟨Real.sqrt (mu + windingLambda n q f), hs,
-      (windingState_is_amplitude_trajectory_iff q f hf mu _ (ne_of_gt hs)).2
+    have hs : 0 < Real.sqrt (mu + charLambda W f) := Real.sqrt_pos.2 h
+    exact ⟨Real.sqrt (mu + charLambda W f), hs,
+      (charState_is_amplitude_trajectory_iff W f hf mu _ (ne_of_gt hs)).2
         (Real.sq_sqrt h.le)⟩
 
-/-- **The band is a prediction and not a restatement.** Outside it the phase
-model still carries the winding as a stationary state — `winding_is_kuramoto_trajectory`
-constrains neither `q` nor `f` — while the amplitude model has no state of that
-winding number at all. The extra degree of freedom is what separates them. -/
+omit [DecidableEq G] in
+/-- **The two layers disagree about the state space.** Outside the band the
+phase model still carries the winding as a stationary state —
+`char_is_kuramoto_trajectory` constrains neither the winding nor the kernel —
+while the amplitude model has no state of that winding at all. -/
+theorem phase_model_admits_char_outside_band (W : WindingData G) (f : G → ℝ)
+    (hf : ∀ d, f (-d) = f d) (mu : ℝ) (hband : mu + charLambda W f ≤ 0) :
+    is_kuramoto_trajectory (circulantSystem f hf) (fun _ => W.psi)
+      ∧ ¬ ∃ a : ℝ, 0 < a ∧ is_amplitude_trajectory mu (circulantSystem f hf).A
+          (fun _ => charState W a) :=
+  ⟨char_is_kuramoto_trajectory W f hf,
+    fun h => absurd ((exists_charState_iff W f hf mu).1 h) (not_lt.2 hband)⟩
+
+end AmplitudeWindings
+
+/-! ### The amplitude layer on the ring and on the torus -/
+
+/-- The winding state of §6 given an amplitude: `z k = a · ξ^k` with
+`ξ = exp (2πiq/n)`. -/
+noncomputable def windingState (n : ℕ) [NeZero n] (q : ℤ) (a : ℝ) : ZMod n → ℂ :=
+  charState (ringWinding n q) a
+
+/-- The coupling eigenvalue a `q`-fold winding sees:
+`λ q = ∑ d, f d * (cos (2πqd/n) - 1)`. -/
+noncomputable def windingLambda (n : ℕ) [NeZero n] (q : ℤ) (f : ZMod n → ℝ) : ℝ :=
+  charLambda (ringWinding n q) f
+
+lemma windingLambda_eq (n : ℕ) [NeZero n] (q : ℤ) (f : ZMod n → ℝ) :
+    windingLambda n q f = ∑ d, f d * (Real.cos (winding n q d) - 1) :=
+  Finset.sum_congr rfl fun d _ => by rw [(ringWinding n q).re_chi]; rfl
+
+lemma windingState_apply (n : ℕ) [NeZero n] (q : ℤ) (a : ℝ) (k : ZMod n) :
+    windingState n q a k = ((a : ℝ) : ℂ) * Complex.exp (I * (winding n q k : ℂ)) := rfl
+
+lemma windingState_add (n : ℕ) [NeZero n] (q : ℤ) (a : ℝ) (i d : ZMod n) :
+    windingState n q a (i + d)
+      = windingState n q a i * Complex.exp (I * (winding n q d : ℂ)) :=
+  charState_add (ringWinding n q) a i d
+
+/-- **No site of a winding state is a zero**, which is why nothing here is a
+phase singularity: the modulus is constant across the ring. -/
+lemma norm_windingState (n : ℕ) [NeZero n] (q : ℤ) (a : ℝ) (k : ZMod n) :
+    ‖windingState n q a k‖ = |a| :=
+  norm_charState (ringWinding n q) a k
+
+lemma windingState_ne_zero {n : ℕ} [NeZero n] (q : ℤ) {a : ℝ} (ha : a ≠ 0) (k : ZMod n) :
+    windingState n q a k ≠ 0 :=
+  charState_ne_zero (ringWinding n q) ha k
+
+theorem amplitudeField_windingState {n : ℕ} [NeZero n] (q : ℤ) (f : ZMod n → ℝ)
+    (hf : ∀ d, f (-d) = f d) (mu a : ℝ) (i : ZMod n) :
+    amplitudeField mu (circulantSystem f hf).A (windingState n q a) i
+      = ((mu - a ^ 2 + windingLambda n q f : ℝ) : ℂ) * windingState n q a i :=
+  amplitudeField_charState (ringWinding n q) f hf mu a i
+
+/-- **X2 on the ring.** `z k = a · ξ^k` is stationary exactly when
+`a² = μ + λ q`. -/
+theorem windingState_is_amplitude_trajectory_iff {n : ℕ} [NeZero n] (q : ℤ) (f : ZMod n → ℝ)
+    (hf : ∀ d, f (-d) = f d) (mu a : ℝ) (ha : a ≠ 0) :
+    is_amplitude_trajectory mu (circulantSystem f hf).A (fun _ => windingState n q a)
+      ↔ a ^ 2 = mu + windingLambda n q f :=
+  charState_is_amplitude_trajectory_iff (ringWinding n q) f hf mu a ha
+
+/-- **X3 on the ring.** A `q`-fold winding of positive amplitude exists **iff**
+`μ + λ q > 0`. -/
+theorem exists_windingState_iff {n : ℕ} [NeZero n] (q : ℤ) (f : ZMod n → ℝ)
+    (hf : ∀ d, f (-d) = f d) (mu : ℝ) :
+    (∃ a : ℝ, 0 < a ∧ is_amplitude_trajectory mu (circulantSystem f hf).A
+        (fun _ => windingState n q a))
+      ↔ 0 < mu + windingLambda n q f :=
+  exists_charState_iff (ringWinding n q) f hf mu
+
 theorem phase_model_admits_winding_outside_band {n : ℕ} [NeZero n] (q : ℤ) (f : ZMod n → ℝ)
     (hf : ∀ d, f (-d) = f d) (mu : ℝ) (hband : mu + windingLambda n q f ≤ 0) :
-    is_kuramoto_trajectory (circulantSystem n f hf) (fun _ => winding n q)
-      ∧ ¬ ∃ a : ℝ, 0 < a ∧ is_amplitude_trajectory mu (circulantSystem n f hf).A
+    is_kuramoto_trajectory (circulantSystem f hf) (fun _ => winding n q)
+      ∧ ¬ ∃ a : ℝ, 0 < a ∧ is_amplitude_trajectory mu (circulantSystem f hf).A
           (fun _ => windingState n q a) :=
-  ⟨winding_is_kuramoto_trajectory q f hf,
-    fun h => absurd ((exists_windingState_iff q f hf mu).1 h) (not_lt.2 hband)⟩
+  phase_model_admits_char_outside_band (ringWinding n q) f hf mu hband
+
+/-- **The band on the sheet.** The same existence statement on the geometry
+`travelling_wave.py` integrates: on the torus a winding of a given pair of
+numbers exists exactly where its own kernel eigenvalue clears `-μ`. -/
+theorem exists_torus_windingState_iff {n : ℕ} [NeZero n] (q₁ q₂ : ℤ)
+    (f : ZMod n × ZMod n → ℝ) (hf : ∀ d, f (-d) = f d) (mu : ℝ) :
+    (∃ a : ℝ, 0 < a ∧ is_amplitude_trajectory mu (circulantSystem f hf).A
+        (fun _ => charState (torusWinding n q₁ q₂) a))
+      ↔ 0 < mu + charLambda (torusWinding n q₁ q₂) f :=
+  exists_charState_iff (torusWinding n q₁ q₂) f hf mu
 
 /-- At the half turn `n = 2q` the winding advances by `π` per site. -/
 lemma winding_antipodal {n : ℕ} [NeZero n] {q : ℤ} (hq : (n : ℤ) = 2 * q) (k : ZMod n) :
@@ -1383,7 +1612,7 @@ lemma winding_antipodal {n : ℕ} [NeZero n] {q : ℤ} (hq : (n : ℤ) = 2 * q) 
 sign along the ring and has no imaginary part to rotate. -/
 lemma windingState_antipodal {n : ℕ} [NeZero n] {q : ℤ} (hq : (n : ℤ) = 2 * q) (a : ℝ)
     (k : ZMod n) : windingState n q a k = ((a * (-1) ^ k.val : ℝ) : ℂ) := by
-  rw [windingState, winding_antipodal hq,
+  rw [windingState_apply, winding_antipodal hq,
     show I * ((Real.pi * (k.val : ℕ) : ℝ) : ℂ) = (k.val : ℂ) * ((Real.pi : ℂ) * I) by
       push_cast; ring,
     Complex.exp_nat_mul, Complex.exp_pi_mul_I]
@@ -1410,12 +1639,196 @@ theorem standing_wave_of_amplitude_band {n : ℕ} [NeZero n] {q : ℤ} (hq : (n 
     (f : ZMod n → ℝ) (hf : ∀ d, f (-d) = f d) (mu : ℝ)
     (hband : 0 < mu + windingLambda n q f) (Om : ℝ) :
     ∃ a : ℝ, 0 < a ∧
-      is_amplitude_trajectory mu (circulantSystem n f hf).A (fun _ => windingState n q a) ∧
+      is_amplitude_trajectory mu (circulantSystem f hf).A (fun _ => windingState n q a) ∧
       (∀ k : ZMod n, (windingState n q a k).im = 0) ∧
       ∀ (k : ZMod n) (t : ℝ),
         labField (windingState n q a) Om k t = a * (-1) ^ k.val * Real.cos (Om * t) := by
   obtain ⟨a, ha, htraj⟩ := (exists_windingState_iff q f hf mu).2 hband
   exact ⟨a, ha, htraj, fun k => by rw [windingState_antipodal hq, Complex.ofReal_im],
     fun k t => labField_windingState_antipodal hq a Om k t⟩
+
+
+/-! ## 8. Defects, and why the exact solutions carry none
+
+`spatial_kernel.defect_winding` reads a phase field's defect density by summing
+four wrapped phase differences around every periodic `2×2` plaquette and
+rounding the total to a whole turn. A phase singularity — the object
+`townsend2015` and `xu2023` measure, and the one the sweep counts — is a
+plaquette whose total is not zero, and it is a point at which the amplitude
+vanishes.
+
+This section says two things about that observable, and together they are the
+reason the amplitude layer of §7 reaches a winding and not a spiral.
+
+* `plaquetteCirculation_eq_zero_of_winding` — every state §7 exhibits has
+  circulation **exactly** zero on every plaquette. The phase difference across a
+  separation depends only on the separation, so the four sides of a plaquette
+  cancel in pairs. Going to `ZMod n × ZMod n` does not change this: the torus
+  supplies more windings, not defects.
+* `sum_plaquetteCirculation_eq_zero` and `no_isolated_defect` — on a torus the
+  circulations of *any* phase field sum to zero, because each edge is traversed
+  once in each direction. So a defect cannot sit alone: they come in cancelling
+  pairs. This holds of every field, not only of the exact ones, and it is what
+  makes "a single spiral" not a state this geometry has.
+
+The angle convention is a parameter rather than a definition. `_wrap` in
+`spatial_kernel.py` is `2π`-periodic and odd away from the antipode, and those
+two properties are exactly what the proofs consume; taking them as hypotheses
+keeps the antipodal case visible instead of hidden inside a `%`. -/
+
+section Defects
+
+variable {G : Type*} [AddCommGroup G] [Fintype G] [DecidableEq G]
+
+omit [Fintype G] [DecidableEq G] in
+private lemma real_of_expI_eq {x y : ℝ}
+    (h : Complex.exp (I * (x : ℂ)) = Complex.exp (I * (y : ℂ))) :
+    ∃ k : ℤ, x = y + k * (2 * Real.pi) := by
+  rw [Complex.exp_eq_exp_iff_exists_int] at h
+  obtain ⟨k, hk⟩ := h
+  refine ⟨k, ?_⟩
+  have hmul : (I : ℂ) * ((x : ℝ) : ℂ) = I * (((y + k * (2 * Real.pi) : ℝ)) : ℂ) := by
+    rw [hk]; push_cast; ring
+  exact_mod_cast mul_left_cancel₀ Complex.I_ne_zero hmul
+
+omit [Fintype G] [DecidableEq G] in
+/-- The phase advance across a separation is the phase of that separation, up to
+whole turns. This is `expI_psi_sub` read back through the lift. -/
+lemma psi_sub_eq_add_int_mul (W : WindingData G) (i d : G) :
+    ∃ k : ℤ, W.psi (i + d) - W.psi i = W.psi d + k * (2 * Real.pi) :=
+  real_of_expI_eq (by rw [W.expI_psi_sub, W.lift])
+
+omit [Fintype G] [DecidableEq G] in
+lemma psi_neg_eq_add_int_mul (W : WindingData G) (d : G) :
+    ∃ k : ℤ, W.psi (-d) = - W.psi d + k * (2 * Real.pi) := by
+  refine real_of_expI_eq ?_
+  rw [W.lift, W.chi_neg, ← W.lift d, ← Complex.exp_conj]
+  congr 1
+  simp
+
+/-- The circulation of a phase field around the periodic plaquette at `g` with
+sides `e₁` and `e₂`, read through an angle convention `wrap`: the four wrapped
+differences around the loop `g → g + e₂ → g + e₁ + e₂ → g + e₁ → g`. This is
+`spatial_kernel.defect_winding` before its division by `2π` and its rounding,
+and the loop is the one that function traverses. -/
+noncomputable def plaquetteCirculation (wrap : ℝ → ℝ) (theta : G → ℝ) (e₁ e₂ g : G) : ℝ :=
+  wrap (theta (g + e₂) - theta g)
+    + wrap (theta (g + e₁ + e₂) - theta (g + e₂))
+    + wrap (theta (g + e₁) - theta (g + e₁ + e₂))
+    + wrap (theta g - theta (g + e₁))
+
+omit [Fintype G] [DecidableEq G] in
+lemma expI_psi_sub' (W : WindingData G) (a b : G) :
+    Complex.exp (I * ((W.psi b - W.psi a : ℝ) : ℂ)) = W.chi (b - a) := by
+  have h := W.expI_psi_sub a (b - a)
+  rw [show a + (b - a) = b by abel] at h
+  exact h
+
+omit [Fintype G] [DecidableEq G] in
+/-- The wrapped phase difference between two sites depends only on the
+separation between them. This is the whole content of "a winding has no defect":
+the four sides of a plaquette are read from the same two separations twice. -/
+lemma wrap_psi_sub (W : WindingData G) {wrap : ℝ → ℝ}
+    (hper : ∀ (x : ℝ) (k : ℤ), wrap (x + k * (2 * Real.pi)) = wrap x) (a b : G) :
+    wrap (W.psi b - W.psi a) = wrap (W.psi (b - a)) := by
+  obtain ⟨k, hk⟩ := real_of_expI_eq
+    (show Complex.exp (I * ((W.psi b - W.psi a : ℝ) : ℂ))
+        = Complex.exp (I * (W.psi (b - a) : ℂ)) by rw [expI_psi_sub' W a b, W.lift])
+  rw [hk, hper]
+
+omit [Fintype G] [DecidableEq G] in
+lemma wrap_psi_neg (W : WindingData G) {wrap : ℝ → ℝ}
+    (hper : ∀ (x : ℝ) (k : ℤ), wrap (x + k * (2 * Real.pi)) = wrap x)
+    (hodd : ∀ x : ℝ, wrap (-x) = - wrap x) (d : G) :
+    wrap (W.psi (-d)) = - wrap (W.psi d) := by
+  obtain ⟨k, hk⟩ := psi_neg_eq_add_int_mul W d
+  rw [hk, hper, hodd]
+
+omit [Fintype G] [DecidableEq G] in
+/-- **A winding carries no defect.** Every state of §7 has circulation exactly
+zero around every plaquette: the phase advance across a separation does not
+depend on where the separation is taken, so the two `e₁` sides of the plaquette
+cancel and so do the two `e₂` sides. Nothing here is an approximation or a
+density — it is zero.
+
+This is the sense in which these solutions are windings and not spirals, and
+passing to `ZMod n × ZMod n` does not improve it: the torus supplies windings
+around its two non-contractible loops, and a spiral is a winding around a
+contractible one, which `norm_charState` forbids by keeping the modulus equal at
+every site. -/
+theorem plaquetteCirculation_eq_zero_of_winding (W : WindingData G) {wrap : ℝ → ℝ}
+    (hper : ∀ (x : ℝ) (k : ℤ), wrap (x + k * (2 * Real.pi)) = wrap x)
+    (hodd : ∀ x : ℝ, wrap (-x) = - wrap x) (e₁ e₂ g : G) :
+    plaquetteCirculation wrap W.psi e₁ e₂ g = 0 := by
+  rw [plaquetteCirculation, wrap_psi_sub W hper, wrap_psi_sub W hper,
+    wrap_psi_sub W hper, wrap_psi_sub W hper,
+    show g + e₂ - g = e₂ by abel, show g + e₁ + e₂ - (g + e₂) = e₁ by abel,
+    show g + e₁ - (g + e₁ + e₂) = -e₂ by abel, show g - (g + e₁) = -e₁ by abel,
+    wrap_psi_neg W hper hodd e₂, wrap_psi_neg W hper hodd e₁]
+  ring
+
+omit [DecidableEq G] in
+/-- **On a torus the defects cancel.** For *any* phase field, the circulations
+of all plaquettes sum to zero: each edge is traversed once in each direction, so
+an antisymmetric angle convention telescopes. No hypothesis on the field enters
+— this is the geometry, not the dynamics. -/
+theorem sum_plaquetteCirculation_eq_zero {wrap : ℝ → ℝ}
+    (hodd : ∀ x : ℝ, wrap (-x) = - wrap x) (theta : G → ℝ) (e₁ e₂ : G) :
+    ∑ g, plaquetteCirculation wrap theta e₁ e₂ g = 0 := by
+  set D : G → G → ℝ := fun a b => wrap (theta b - theta a) with hD
+  have hanti : ∀ a b, D b a = - D a b := by
+    intro a b
+    rw [hD]
+    simp only
+    rw [show theta a - theta b = -(theta b - theta a) by ring, hodd]
+  have hsplit : ∑ g, plaquetteCirculation wrap theta e₁ e₂ g
+      = (∑ g : G, D g (g + e₂)) + (∑ g : G, D (g + e₂) (g + e₁ + e₂))
+        + (∑ g : G, D (g + e₁ + e₂) (g + e₁)) + (∑ g : G, D (g + e₁) g) := by
+    simp only [plaquetteCirculation, hD]
+    rw [Finset.sum_add_distrib, Finset.sum_add_distrib, Finset.sum_add_distrib]
+  have hA : (∑ g : G, D (g + e₂) (g + e₁ + e₂)) = ∑ g : G, D g (g + e₁) :=
+    Fintype.sum_equiv (Equiv.addRight e₂)
+      (fun g => D (g + e₂) (g + e₁ + e₂)) (fun g => D g (g + e₁))
+      (fun g => by simp only [Equiv.coe_addRight]; rw [add_right_comm])
+  have hB : (∑ g : G, D (g + e₁ + e₂) (g + e₁)) = - ∑ g : G, D g (g + e₂) := by
+    have h2 : (∑ g : G, D (g + e₁) (g + e₁ + e₂)) = ∑ g : G, D g (g + e₂) :=
+      Fintype.sum_equiv (Equiv.addRight e₁)
+        (fun g => D (g + e₁) (g + e₁ + e₂)) (fun g => D g (g + e₂)) (fun _ => rfl)
+    calc (∑ g : G, D (g + e₁ + e₂) (g + e₁))
+        = ∑ g : G, -D (g + e₁) (g + e₁ + e₂) := Finset.sum_congr rfl fun g _ => hanti _ _
+      _ = - ∑ g : G, D (g + e₁) (g + e₁ + e₂) := by rw [Finset.sum_neg_distrib]
+      _ = - ∑ g : G, D g (g + e₂) := by rw [h2]
+  have hC : (∑ g : G, D (g + e₁) g) = - ∑ g : G, D g (g + e₁) :=
+    calc (∑ g : G, D (g + e₁) g)
+        = ∑ g : G, -D g (g + e₁) := Finset.sum_congr rfl fun g _ => hanti _ _
+      _ = - ∑ g : G, D g (g + e₁) := by rw [Finset.sum_neg_distrib]
+  rw [hsplit, hA, hB, hC]
+  ring
+
+/-- **A defect cannot sit alone.** If every plaquette but one has zero
+circulation then so does that one. A single spiral is therefore not a state of
+this geometry at all, whatever dynamics produced it: defects arrive in
+cancelling pairs. -/
+theorem no_isolated_defect {wrap : ℝ → ℝ}
+    (hodd : ∀ x : ℝ, wrap (-x) = - wrap x) (theta : G → ℝ) (e₁ e₂ : G) (g₀ : G)
+    (h : ∀ g, g ≠ g₀ → plaquetteCirculation wrap theta e₁ e₂ g = 0) :
+    plaquetteCirculation wrap theta e₁ e₂ g₀ = 0 := by
+  have hsum := sum_plaquetteCirculation_eq_zero hodd theta e₁ e₂
+  rw [← Finset.sum_erase_add _ _ (Finset.mem_univ g₀),
+    Finset.sum_eq_zero (fun g hg => h g (Finset.ne_of_mem_erase hg)), zero_add] at hsum
+  exact hsum
+
+end Defects
+
+/-- **The sheet's exact states carry no defect.** `travelling_wave.py` reports a
+near-zero defect density for its twisted runs; this says the exact stationary
+states of that geometry have none at all, so the measurement is consistent with
+the model rather than evidence of anything further. -/
+theorem torusWinding_plaquetteCirculation_eq_zero {n : ℕ} [NeZero n] (q₁ q₂ : ℤ)
+    {wrap : ℝ → ℝ}
+    (hper : ∀ (x : ℝ) (k : ℤ), wrap (x + k * (2 * Real.pi)) = wrap x)
+    (hodd : ∀ x : ℝ, wrap (-x) = - wrap x) (e₁ e₂ g : ZMod n × ZMod n) :
+    plaquetteCirculation wrap (torusWinding n q₁ q₂).psi e₁ e₂ g = 0 :=
+  plaquetteCirculation_eq_zero_of_winding (torusWinding n q₁ q₂) hper hodd e₁ e₂ g
 
 end PhysicsOfConsciousness

@@ -4356,17 +4356,27 @@ Third, the framework's own dynamics do carry an amplitude beside the phase---a
 Stuart--Landau layer whose phase equation is exactly the Kuramoto equation with
 each coupling weighted by a ratio of amplitudes
 (\id{amplitude\_phase\_is\_kuramoto}), so the phase model is that layer with the
-ratios set to one. This does not put a spiral inside the framework. Its exact
-solutions live on a ring, where every site has the same arrow length
-(\id{norm\_windingState}), so the phase winds without the amplitude ever
-vanishing, and a phase singularity is precisely a point where it does vanish.
+ratios set to one. This does not put a spiral inside the framework, and the
+reason is not that the sites form a ring---they need not, the results holding
+for any finite abelian group, the periodic sheet included. It is that every
+site of these solutions has the same arrow length (\id{norm\_charState}), so the
+phase winds without the amplitude ever vanishing, where a phase singularity is
+precisely a point at which it does vanish. Around every small square of the
+sheet the phase therefore returns exactly to where it started
+(\id{plaquetteCirculation\_eq\_zero\_of\_winding}); and on a closed sheet one
+defect cannot stand alone in any field whatever, exact or not, since the
+circulations over all squares cancel (\id{no\_isolated\_defect}).
 What the layer buys instead is a band: a winding of a given number exists only
 when one inequality between the coupling kernel and the distance from the
 bifurcation holds (\id{exists\_windingState\_iff}), where the phase model admits
-every winding number at every coupling. The distance from the bifurcation is
-measured nowhere here, so that band locates nothing; and the arrow length of the
-model is a normal-form radius rather than the envelope of a recording, which is
-an identification the development does not make.
+every winding number at every coupling. The two layers differ about the state
+space and not about a measurement: broadening the kernel takes the winding out
+of existence here, and leaves it in the phase model as a state that no longer
+survives integration. Three things the band is not. The distance from the
+bifurcation is measured nowhere here, so it locates nothing; it is a band of
+existence rather than of stability, no stability result being proved; and the
+arrow length of the model is a normal-form radius rather than the envelope of a
+recording, which is an identification the development does not make.
 
 \lean
 \id{Phase5\_PhaseLifts.lean}, \id{Phase4\_KuramotoDynamics.lean}~\S7.
