@@ -87,7 +87,7 @@ def _transition(summary: dict[str, Any], output: Path) -> None:
     top = ax.secondary_xaxis("top", functions=(lambda x: x * factor, lambda x: x / factor))
     top.set_xlabel("Conditional field (mV/mm), decay length 0.2 mm")
     ax.set(xlabel=r"Uniform per-pair coupling $\epsilon$", ylabel="Order r", ylim=(0, 1))
-    ax.legend(fontsize=8, loc="lower right")
+    ax.legend(fontsize=8, loc="upper left")
     fig.tight_layout()
     fig.savefig(output / "transition.png", dpi=180)
     plt.close(fig)

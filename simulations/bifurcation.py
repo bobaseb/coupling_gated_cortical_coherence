@@ -125,7 +125,7 @@ def plot_bifurcation(D: float = 1.0, out: str = "simulations/bifurcation_diagram
     )
 
     ax.axvline(Kc, color="0.4", ls="--", lw=1.2)
-    ax.annotate(r"$K_c = 2D$", xy=(Kc, 0.30), xytext=(Kc + 0.07, 0.28), fontsize=11, color="0.25")
+    ax.annotate(r"$K_c = 2D$", xy=(Kc, 0.30), xytext=(Kc - 0.62, 0.30), fontsize=11, color="0.25")
 
     ax.set_xlim(0, 4 * D)
     ax.set_ylim(-0.04, 1.0)

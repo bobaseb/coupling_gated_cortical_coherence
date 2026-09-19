@@ -25,7 +25,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes import Axes
-from matplotlib.ticker import NullFormatter, ScalarFormatter
+from matplotlib.ticker import FuncFormatter, NullFormatter
 from numpy.typing import NDArray
 
 from fermi_estimate_check import FERMI_LAM_MAX, FERMI_LAM_MIN
@@ -390,6 +390,36 @@ def _save_summary(output: Path, config: WaveConfig, summary: WaveSummary) -> Non
     (output / "travelling_wave_summary.json").write_text(json.dumps(payload, indent=2) + "\n")
 
 
+def replot(output: Path) -> None:
+    """Redraw a finished sweep's figures from its saved artifacts.
+
+    Every quantity the figure draws is already on disk: the summary carries the
+    boundary panel and each length's twisted checkpoint carries its traces.
+    Redrawing therefore integrates nothing, so adjusting a legend or an axis
+    never puts the published numbers back through the integrator.
+    """
+    data = json.loads((output / "travelling_wave_summary.json").read_text(encoding="utf-8"))
+    summary = WaveSummary(
+        decay_mm=np.asarray(data["decay_mm"]),
+        steady_global=np.asarray(data["steady_global_order"]),
+        steady_local=np.asarray(data["steady_local_order"]),
+        steady_gap=np.asarray(data["steady_coherence_gap"]),
+        steady_defect_density=np.asarray(data["steady_defect_density"]),
+        retained_winding=np.asarray(data["retained_winding"], dtype=np.int64),
+        control_global=np.asarray(data["control_global_order"]),
+        boundary_mm=data["retention_boundary_mm"],
+        runtime_seconds=float(data["runtime_seconds"]),
+    )
+    winding_q = int(data["config"]["winding_q"])
+    waves = []
+    for decay_mm in summary.decay_mm:
+        path = _run_path(output, float(decay_mm), winding_q)
+        if not path.exists():
+            raise FileNotFoundError(f"no saved run for decay length {decay_mm:.6f} mm: {path}")
+        waves.append(_load_run(path))
+    _plot_outputs(output, summary, waves)
+
+
 def _trace_subset(summary: WaveSummary, count: int = 6) -> list[int]:
     """Pick evenly spaced lengths so the trace legend stays readable."""
     span = np.linspace(0, summary.decay_mm.size - 1, count)
@@ -420,12 +450,15 @@ def _plot_sweep(axis: Axes, summary: WaveSummary) -> None:
     axis.semilogx(summary.decay_mm, summary.steady_global, "o-", label="global r (twisted)")
     axis.semilogx(summary.decay_mm, summary.steady_local, "s-", label="local r (twisted)")
     axis.semilogx(summary.decay_mm, summary.control_global, "^--", label="global r (uniform)")
-    axis.axvspan(FERMI_LAM_MIN, FERMI_LAM_MAX, alpha=0.15, color="tab:green")
+    band = axis.axvspan(FERMI_LAM_MIN, FERMI_LAM_MAX, alpha=0.15, color="tab:green")
+    band.set_label("empirical decay-length band")
     if summary.boundary_mm is not None:
         axis.axvline(summary.boundary_mm, color="black", linestyle=":", label="retention boundary")
     axis.set(xlabel="decay length (mm)", ylabel="steady order", title="Where the twist survives")
     axis.set_xticks([0.0125, 0.025, 0.05, 0.1, 0.2, 0.4, 0.8])
-    axis.xaxis.set_major_formatter(ScalarFormatter())
+    # Four decimals on every tick of a decade-wide log axis reads as noise;
+    # the lengths differ in their leading digits, which is what a reader needs.
+    axis.xaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{value:g}"))
     axis.xaxis.set_minor_formatter(NullFormatter())
     axis.legend(fontsize=7, loc="center left")
 
@@ -475,6 +508,11 @@ def _parse_args() -> argparse.Namespace:
         help="run the seed control over these seeds instead of the decay sweep",
     )
     parser.add_argument("--output", type=Path, default=None)
+    parser.add_argument(
+        "--replot",
+        action="store_true",
+        help="redraw the figures from saved artifacts, running no integration",
+    )
     return parser.parse_args()
 
 
@@ -492,6 +530,10 @@ def main() -> None:
     )
     default = DISORDERED_OUTPUT if args.frequency_sigma > 0.0 else PRODUCTION_OUTPUT
     output = args.output or default
+    if args.replot:
+        replot(output)
+        print(f"redrew figures in {output} from saved artifacts")
+        return
     if args.seeds:
         run_seed_control(config, seed_control_lengths(), args.seeds, output)
         return

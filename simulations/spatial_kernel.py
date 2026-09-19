@@ -328,29 +328,78 @@ def _save_summary(output: Path, config: SpatialConfig, summary: SweepSummary) ->
     (output / "spatial_kernel_summary.json").write_text(json.dumps(payload, indent=2) + "\n")
 
 
+def replot(output: Path) -> None:
+    """Redraw a finished sweep's figures from its saved artifacts.
+
+    The sweep costs twenty minutes of integration and its every drawn quantity
+    is already on disk: the summary carries the geometry panel and each
+    length's checkpoint carries its trace. Redrawing therefore reads those
+    files and integrates nothing, so a change of legend or axis never puts the
+    published numbers back through the integrator that produced them.
+    """
+    data = json.loads((output / "spatial_kernel_summary.json").read_text(encoding="utf-8"))
+    config = SpatialConfig(**data["config"])
+    summary = SweepSummary(
+        decay_mm=np.asarray(data["decay_mm"]),
+        steady_order=np.asarray(data["steady_order"]),
+        steady_defect_density=np.asarray(data["steady_defect_density"]),
+        critical_decay_mm=data["critical_decay_mm"],
+        threshold=float(data["order_threshold"]),
+        runtime_seconds=float(data["runtime_seconds"]),
+    )
+    results = []
+    for decay_mm in summary.decay_mm:
+        path = _run_path(output, float(decay_mm))
+        if not path.exists():
+            raise FileNotFoundError(f"no saved run for decay length {decay_mm:.6f} mm: {path}")
+        results.append(_load_run(path))
+    _plot_outputs(output, config, results, summary)
+
+
 def _plot_outputs(
     output: Path,
     config: SpatialConfig,
     results: list[SpatialResult],
     summary: SweepSummary,
 ) -> None:
-    figure, (trace_axis, sweep_axis) = plt.subplots(1, 2, figsize=(12, 4.5))
+    figure, (trace_axis, sweep_axis) = plt.subplots(1, 2, figsize=(13, 4.8))
     for decay, result in zip(summary.decay_mm, results, strict=True):
         trace_axis.plot(result.time, result.order, linewidth=0.8, label=f"{decay:.3g} mm")
     trace_axis.axhline(1.0 / config.side, color="black", linestyle="--", label=r"$1/\sqrt{N}$")
     trace_axis.set(xlabel="time (s)", ylabel="global order r", title="Finite-sheet traces")
-    trace_axis.legend(fontsize=6, ncol=2)
-    sweep_axis.semilogx(summary.decay_mm, summary.steady_order, "o-", label="steady r")
+    # Twenty-two lengths will not fit beside the traces without covering them,
+    # so the key goes outside the axes rather than over the data it describes.
+    trace_axis.legend(
+        fontsize=6, ncol=1, loc="upper left", bbox_to_anchor=(1.01, 1.0), borderaxespad=0.0
+    )
+    order_color, defect_color = "tab:blue", "tab:red"
+    sweep_axis.semilogx(
+        summary.decay_mm, summary.steady_order, "o-", color=order_color, label="steady global r"
+    )
     sweep_axis.axhline(1.0 / config.side, color="black", linestyle="--", label=r"$1/\sqrt{N}$")
     defect_axis = sweep_axis.twinx()
     defect_axis.semilogx(
-        summary.decay_mm, summary.steady_defect_density, "s-", color="tab:red", label="defects"
+        summary.decay_mm,
+        summary.steady_defect_density,
+        "s-",
+        color=defect_color,
+        label="winding-defect density",
     )
-    sweep_axis.axvspan(FERMI_LAM_MIN, FERMI_LAM_MAX, alpha=0.15, color="tab:green")
+    band = sweep_axis.axvspan(FERMI_LAM_MIN, FERMI_LAM_MAX, alpha=0.15, color="tab:green")
+    band.set_label("empirical decay-length band")
     sweep_axis.set(
         xlabel="decay length (mm)", ylabel="steady global order r", title="Geometry sweep"
     )
     defect_axis.set_ylabel("winding-defect density")
+    # Two series on two scales: colour the axes to match them and give the panel
+    # one legend spanning both, so neither series has to be guessed at.
+    sweep_axis.yaxis.label.set_color(order_color)
+    sweep_axis.tick_params(axis="y", labelcolor=order_color)
+    defect_axis.yaxis.label.set_color(defect_color)
+    defect_axis.tick_params(axis="y", labelcolor=defect_color)
+    handles, labels = sweep_axis.get_legend_handles_labels()
+    extra = defect_axis.get_legend_handles_labels()
+    sweep_axis.legend(handles + extra[0], labels + extra[1], fontsize=7, loc="center right")
     figure.tight_layout()
     figure.savefig(output / "spatial_kernel_sweep.png", dpi=180)
     plt.close(figure)
@@ -388,6 +437,11 @@ def _parse_args() -> argparse.Namespace:
         help="sweep whose transition band the refinement reruns",
     )
     parser.add_argument("--output", type=Path, default=None)
+    parser.add_argument(
+        "--replot",
+        action="store_true",
+        help="redraw the figures from saved artifacts, running no integration",
+    )
     return parser.parse_args()
 
 
@@ -420,6 +474,10 @@ def main() -> None:
     """Run the reduced, production, or refined sweep and print the operational result."""
     args = _parse_args()
     config, lengths, output = _plan(args)
+    if args.replot:
+        replot(output)
+        print(f"redrew figures in {output} from saved artifacts")
+        return
     summary = run_sweep(config, lengths, output)
     critical = (
         "not bracketed"

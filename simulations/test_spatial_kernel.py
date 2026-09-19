@@ -1,11 +1,15 @@
+import tempfile
 import unittest
+from pathlib import Path
 from typing import cast
+from unittest import mock
 
 import hypothesis.strategies as st
 import numpy as np
 from hypothesis import given, settings
 from hypothesis.extra.numpy import arrays
 
+import spatial_kernel
 from spatial_kernel import (
     SpatialConfig,
     build_kernel,
@@ -175,3 +179,32 @@ class SpatialKernelPropertyTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ReplotTest(unittest.TestCase):
+    """Redrawing a finished sweep must read its artifacts, never the integrator."""
+
+    def test_replot_redraws_from_saved_artifacts_without_integrating(self) -> None:
+        with tempfile.TemporaryDirectory() as name:
+            output = Path(name)
+            config = spatial_kernel.SpatialConfig(side=8, steps=4, sample_every=2, dt=0.02)
+            lengths = np.array([0.05, 0.2])
+            spatial_kernel.run_sweep(config, lengths, output)
+            figure = output / "spatial_kernel_sweep.png"
+            figure.unlink()
+
+            def explode(*_: object, **__: object) -> None:
+                raise AssertionError("replot must not integrate")
+
+            with mock.patch.object(spatial_kernel, "simulate_spatial", explode):
+                spatial_kernel.replot(output)
+            self.assertTrue(figure.exists())
+
+    def test_replot_reports_a_sweep_whose_checkpoints_are_missing(self) -> None:
+        with tempfile.TemporaryDirectory() as name:
+            output = Path(name)
+            config = spatial_kernel.SpatialConfig(side=8, steps=4, sample_every=2, dt=0.02)
+            spatial_kernel.run_sweep(config, np.array([0.05]), output)
+            next(output.glob("spatial_lambda_*.npz")).unlink()
+            with self.assertRaises(FileNotFoundError):
+                spatial_kernel.replot(output)

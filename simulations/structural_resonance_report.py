@@ -11,10 +11,16 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.lines import Line2D
 
 from structural_resonance import ROOT
 
-STYLES = {"gradient": "-", "random": "-.", "permuted": (0, (3, 1, 1, 1)), "frozen": "--"}
+STYLES: dict[str, Any] = {
+    "gradient": "-",
+    "random": "-.",
+    "permuted": (0, (3, 1, 1, 1)),
+    "frozen": "--",
+}
 
 
 def read_records(root: Path, name: str = "summary.json") -> list[dict[str, Any]]:
@@ -142,35 +148,51 @@ def render_report(root: Path, output: Path) -> None:
     output.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def _panels(axes: list[Any], root: Path, row: dict[str, Any]) -> None:
+def _seed(row: dict[str, Any]) -> str:
+    """The seed an arm belongs to: run names are ``<seed>_<mode>``."""
+    return str(row["name"]).split("_", 1)[0]
+
+
+def _panels(axes: list[Any], root: Path, row: dict[str, Any], color: Any) -> None:
+    """Draw one arm across the four panels.
+
+    The arm's colour is supplied rather than taken from each axis's own cycle:
+    panel 3 omits the frozen arms, so a per-axis cycle would advance at a
+    different rate there and give one arm two colours in one figure. Nothing
+    here is labelled, because twelve arms named on every panel is a legend over
+    the data; the figure names them once, outside the axes.
+    """
     with np.load(root / f"{row['name']}.npz", allow_pickle=False) as data:
         time, style = data["time"], STYLES[row["mode"]]
-        label = row["name"].replace("_", " ")
         window = 21
         axes[0].plot(
             np.convolve(time, np.ones(window) / window, "valid"),
             np.convolve(data["dissipation"], np.ones(window) / window, "valid"),
             linestyle=style,
+            color=color,
             alpha=0.7,
-            label=label,
         )
-        axes[1].plot(time, data["order"], linestyle=style, alpha=0.6)
-        axes[2].plot(time, data["alignment_ratio"], linestyle=style, alpha=0.7)
+        axes[1].plot(time, data["order"], linestyle=style, color=color, alpha=0.6)
+        axes[2].plot(time, data["alignment_ratio"], linestyle=style, color=color, alpha=0.7)
         if row["mode"] != "frozen":
-            (line,) = axes[3].plot(
-                time, data["distance"], linestyle=style, alpha=0.7, label=label + " true"
-            )
-            axes[3].plot(time, data["shuffled_distance"], ":", color=line.get_color(), alpha=0.7)
+            axes[3].plot(time, data["distance"], linestyle=style, color=color, alpha=0.7)
+            axes[3].plot(time, data["shuffled_distance"], ":", color=color, alpha=0.7)
 
 
 def plot(root: Path) -> None:
     records = read_records(root)
-    fig, axes = plt.subplots(4, 1, figsize=(8, 11), sharex=True)
+    fig, axes = plt.subplots(4, 1, figsize=(8, 11.8), sharex=True)
+    # Twelve arms are three seeds times four modes, and the mode is already
+    # carried by the linestyle. Colouring by seed therefore leaves three
+    # colours to tell apart instead of twelve shades of a twenty-colour map.
+    seeds = sorted({_seed(row) for row in records})
+    palette = plt.get_cmap("tab10")
+    colors = {seed: palette(i) for i, seed in enumerate(seeds)}
     for row in records:
-        _panels(list(axes), root, row)
+        _panels(list(axes), root, row, colors[_seed(row)])
     config = records[0]["config"]
     axes[0].axhline(records[0]["sigma_floor"], color="black", ls=":", label=r"drive floor")
-    axes[1].axhline(1 / np.sqrt(config["n"]), color="black", ls=":", label=r"$1/\sqrt{N}$")
+    floor = 1 / np.sqrt(config["n"])
     axes[2].axhline(1.0, color="black", ls=":", label="no cluster preference")
     axes[3].plot([], [], ":", color="black", label="node-label shuffle")
     axes[0].set_ylabel(r"Dissipation function $\sum_i v_i^2/D$")
@@ -178,12 +200,33 @@ def plot(root: Path) -> None:
     axes[2].set_ylabel("Within/between coupling")
     axes[3].set_ylabel("Frobenius distance")
     axes[3].set_xlabel("Time")
+    # The arms sit in a narrow band near one, an order of magnitude above the
+    # finite-size floor. Drawn on a 0-1 axis they collapse onto a single line
+    # and the panel shows nothing, so frame the axis on the data and report the
+    # floor as the number it is rather than as a line off the bottom.
+    _frame_order_panel(axes[1], floor)
     for axis in axes:
         axis.grid(alpha=0.2)
-        axis.legend(fontsize=8, ncol=2)
-    fig.tight_layout()
+        # Reference lines only: the arms are named once in the figure legend,
+        # so a per-panel arm legend would repeat twelve entries over the data.
+        axis.legend(fontsize=8, loc="lower left")
+    handles = [Line2D([], [], color=colors[seed], linestyle="-") for seed in seeds]
+    handles += [Line2D([], [], color="0.35", linestyle=style) for style in STYLES.values()]
+    labels = [f"seed {seed}" for seed in seeds] + list(STYLES)
+    fig.legend(handles, labels, loc="upper center", ncol=len(handles), fontsize=8, frameon=False)
+    fig.tight_layout(rect=(0.0, 0.0, 1.0, 0.96))
     fig.savefig(root / "joint_dynamics.png", dpi=160)
     plt.close(fig)
+
+
+def _frame_order_panel(axis: Any, floor: float) -> None:
+    """Frame the order panel on its own data and name the finite-size floor."""
+    traces = [line.get_ydata() for line in axis.get_lines() if len(line.get_ydata())]
+    values = np.concatenate(traces)
+    low, high = float(np.min(values)), float(np.max(values))
+    pad = max(0.01, 0.15 * (high - low))
+    axis.set_ylim(max(0.0, low - pad), min(1.0, high + pad))
+    axis.plot([], [], " ", label=rf"$1/\sqrt{{N}}={floor:.3f}$, below axis")
 
 
 def main() -> None:

@@ -3,12 +3,14 @@ import tempfile
 import unittest
 from pathlib import Path
 from typing import cast
+from unittest import mock
 
 import hypothesis.strategies as st
 import numpy as np
 from hypothesis import assume, given, settings
 from hypothesis.extra.numpy import arrays
 
+import travelling_wave
 from spatial_kernel import build_kernel, coupling_drift, defect_winding
 from travelling_wave import (
     WaveConfig,
@@ -319,3 +321,33 @@ class WavePropertyTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ReplotTest(unittest.TestCase):
+    """Redrawing a finished sweep must read its artifacts, never the integrator."""
+
+    def _sweep(self, output: Path) -> None:
+        config = travelling_wave.WaveConfig(side=8, steps=4, sample_every=2, dt=0.02, winding_q=1)
+        travelling_wave.run_sweep(config, np.array([0.05, 0.2]), output)
+
+    def test_replot_redraws_from_saved_artifacts_without_integrating(self) -> None:
+        with tempfile.TemporaryDirectory() as name:
+            output = Path(name)
+            self._sweep(output)
+            figure = output / "travelling_wave_sweep.png"
+            figure.unlink()
+
+            def explode(*_: object, **__: object) -> None:
+                raise AssertionError("replot must not integrate")
+
+            with mock.patch.object(travelling_wave, "simulate_wave", explode):
+                travelling_wave.replot(output)
+            self.assertTrue(figure.exists())
+
+    def test_replot_reports_a_sweep_whose_checkpoints_are_missing(self) -> None:
+        with tempfile.TemporaryDirectory() as name:
+            output = Path(name)
+            self._sweep(output)
+            next(output.glob("wave_lambda_*_q1.npz")).unlink()
+            with self.assertRaises(FileNotFoundError):
+                travelling_wave.replot(output)
