@@ -279,15 +279,22 @@ class WavePropertyTest(unittest.TestCase):
         self.assertEqual(int(np.count_nonzero(defect_winding(phases))), 0)
 
     @given(
-        st.lists(st.floats(min_value=0.01, max_value=1.0), min_size=2, max_size=8, unique=True),
+        st.floats(min_value=0.01, max_value=0.1),
+        st.lists(st.floats(min_value=1.1, max_value=3.0), min_size=1, max_size=7),
         st.integers(min_value=1, max_value=7),
     )
     @settings(deadline=None, max_examples=30)
     def test_property_a_boundary_separates_held_lengths_from_lost_ones(
-        self, lengths: list[float], split: int
+        self, first: float, ratios: list[float], split: int
     ) -> None:
-        """Any monotone held-then-lost pattern puts the boundary between the two."""
-        decay = np.sort(np.asarray(lengths))
+        """Any monotone held-then-lost pattern puts the boundary between the two.
+
+        The lengths are drawn as a grid whose ratios are bounded away from one,
+        which is the shape of sweep a boundary is read from. Two samples a
+        rounding step apart have no geometric mean representable between them,
+        and no dynamics between them either.
+        """
+        decay = np.asarray(first * np.cumprod([1.0, *ratios]), dtype=np.float64)
         assume(0 < split < decay.size)
         retained = np.array([1] * split + [0] * (decay.size - split))
 
