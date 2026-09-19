@@ -120,6 +120,23 @@ def _first_sustained_index(values: list[float], threshold: float) -> int:
     return index
 
 
+def _sustained_bracket(
+    decays: list[float], orders: list[float], threshold: float = _COHERENCE_CRITERION
+) -> tuple[float, float]:
+    """The two sampled lengths the operational crossing falls between.
+
+    An interpolated crossing is a number read between the sweep's samples rather
+    than one it measured, and two of them can differ while lying in the same
+    grid cell. The pair returned here is what the grid itself says, so a
+    comparison of two crossings can be checked against the resolution it was
+    read at.
+    """
+    index = _first_sustained_index(orders, threshold)
+    if index == 0:
+        raise ValueError("the sweep is already coherent at its shortest length; widen its band")
+    return decays[index - 1], decays[index]
+
+
 def _shared_coherent_length(
     coarse_decays: list[float],
     coarse_orders: list[float],
@@ -161,6 +178,10 @@ def _spatial_refinement_macros(
     spacing_mm = cast(float, config["extent_mm"]) / cast(int, config["side"])
     refined_decays = cast(list[float], data["decay_mm"])
     refined_orders = cast(list[float], data["steady_order"])
+    if _sustained_bracket(refined_decays, refined_orders) != _sustained_bracket(
+        coarse_decays, coarse_orders
+    ):
+        raise ValueError("the two sheets no longer cross inside one pair of sampled lengths")
     shared_mm = _shared_coherent_length(
         coarse_decays, coarse_orders, refined_decays, refined_orders
     )
@@ -189,11 +210,14 @@ def _spatial_macros() -> list[str]:
     mantissa, exponent = f"{max(defects[position] for position in indices):.1e}".split("e")
 
     critical_decay_mm = cast(float, data["critical_decay_mm"])
+    bracket = _sustained_bracket(decays, orders)
     resolved_mm = decays[_first_sustained_index(orders, _COHERENCE_CRITERION)]
     plateau = orders[indices[0] :]
 
     return [
         _macro("spatialCriticalDecay", f"{critical_decay_mm:.4f}"),
+        _macro("spatialBracketLow", f"{bracket[0]:.4f}"),
+        _macro("spatialBracketHigh", f"{bracket[1]:.4f}"),
         _macro("spatialCriticalDecayCells", f"{critical_decay_mm / spacing_mm:.2f}"),
         _macro("spatialResolvedDecayCells", f"{resolved_mm / spacing_mm:.2f}"),
         _macro("spatialPlateauMax", f"{decays[-1]:.1f}"),
