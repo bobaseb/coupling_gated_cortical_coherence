@@ -312,6 +312,65 @@ theorem cortexCheat_not_resonant : ¬ cortexCheat.IsRestrictionResonance := by
   rw [dist_cortexState_lvl]
   norm_num
 
+/-! ### The region has to be paid for
+
+The two halves above hold the region fixed and vary the avatar. This one varies
+the region, and it is the reason `Phase6_Reconstruction.lean` carries a
+properness condition at all.
+
+`cortexIdentity` — the nonexpansive control of §10 — *is* the whole-substrate
+boundary `topAvatar`, and on it every demand the criterion makes is met: the
+avatar reports the field's own restriction, it reconstructs the declared family
+exactly, and the region resolves every family there is. The one-site boundary
+`cortexReflexive` meets the first demand and provably fails the second on
+`offAvatarFamily`, because its region identifies two states the family needs
+told apart. The difference between them is not the read-out and not the
+encoding; it is that one region is a proper part of the substrate and the other
+is the substrate.
+
+So a criterion that quantifies over regions selects the whole substrate unless
+properness is a hypothesis. That is what `IsProperAvatar` is for, and what a
+capacity argument over a proper region buys: at `⊤` the encoder's range is the
+whole state space, so no packing number bounds anything. -/
+
+/-- The nonexpansive control is the whole-substrate boundary, definitionally. -/
+theorem cortexIdentity_eq_topAvatar : cortexIdentity = ReflexiveBoundary.topAvatar Cortex := rfl
+
+/-- **The degenerate region meets every demand.** Resonance, exact
+reconstruction of whatever family is declared, and resolution of every family —
+and it folds nothing, because its region is the substrate. -/
+theorem cortexIdentity_satisfies_obligations (relevant : Set (GlobalSection (X := Cortex))) :
+    cortexIdentity.IsRestrictionResonance ∧
+      (cortexIdentity.encoding relevant).Reconstructs 0 ∧
+      Function.Injective cortexIdentity.restrictToAvatar ∧
+      ¬ cortexIdentity.IsProperAvatar :=
+  ReflexiveBoundary.topAvatar_satisfies_obligations relevant
+
+/-- The one-site avatar's region is a proper part of the substrate: the left
+site is outside it. -/
+theorem cortexReflexive_isProperAvatar : cortexReflexive.IsProperAvatar := by
+  intro h
+  have hmem : Site.left ∈ avatarPatch := by
+    show Site.left ∈ (cortexReflexive.avatar_region : Opens ↥Cortex)
+    rw [h]
+    trivial
+  exact (show Site.left ≠ Site.mid by decide) hmem
+
+/-- **What properness costs, on the substrate that already carries both.** The
+proper region cannot reconstruct a family it fails to resolve, at any tolerance
+below one; the improper one reconstructs it exactly. Both are resonant, so the
+criterion of §"When restriction resonance fails" does not separate them — the
+region does. -/
+theorem properness_is_what_costs :
+    ¬ (cortexReflexive.encoding offAvatarFamily).Reconstructs (1/2) ∧
+      (cortexIdentity.encoding offAvatarFamily).Reconstructs 0 :=
+  ⟨cortexReflexive_not_reconstructs_offAvatar,
+    ReflexiveBoundary.topAvatar_reconstructs offAvatarFamily⟩
+
+#print axioms cortexIdentity_satisfies_obligations
+#print axioms cortexReflexive_isProperAvatar
+#print axioms properness_is_what_costs
+
 #print axioms error_cortexState
 #print axioms error_cortexSilent
 #print axioms selfEncoding_reconstructs

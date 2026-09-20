@@ -6,6 +6,8 @@ import Mathlib.Topology.Category.TopCat.Basic
 import Mathlib.MeasureTheory.Measure.FiniteMeasure
 import Mathlib.Topology.Sheaves.Sheaf
 import Mathlib.Topology.Sheaves.SheafCondition.UniqueGluing
+import Mathlib.Topology.Sheaves.SheafCondition.Sites
+import Mathlib.CategoryTheory.Limits.Types.Products
 
 open CategoryTheory TopologicalSpace MeasureTheory
 open Opposite
@@ -115,6 +117,108 @@ theorem probability_glue_unique {I : Type u} (cover : I → Opens X)
     ∃! g : GlobalSection (X := X),
       ∀ i : I, (probabilityPresheaf X).map (homOfLE (le_top : cover i ≤ ⊤)).op g = s i :=
   sheaf_glue_unique probability_is_sheaf cover h_cover s h_compat
+
+/-! ## What an empty overlap asks of a cover
+
+`section_agrees_of_phase_eq` is the class's one modelling obligation, and it
+compares two sections over `cover i ⊓ cover j`. Where that meet is `⊥` there is
+nothing to compare: the presheaf's value on the empty region is a singleton
+(`subsingleton_section_of_eq_bot`, the sheaf condition over the empty cover), so
+any two sections restrict there to the same thing. A cover by pairwise disjoint
+opens therefore satisfies the obligation for every assignment of local data
+whatsoever (`LocalSectionSynchronization.ofDisjointCover`), and
+`probability_glue_unique` still returns a unique global section
+(`glue_unique_of_disjoint`) — which is the tuple it was handed, re-indexed by a
+space.
+
+The gluing theorem is unaffected; what the disjoint cover shows is where its
+content lies. Existence and uniqueness of the global section are the sheaf
+property, and the physical claim is that *synchronised patches agree where they
+overlap*. A cover whose patches do not overlap makes that claim empty while
+leaving the theorem true, so a cover chosen to secure agreement establishes
+nothing about the system it covers.
+
+`HasNonemptyOverlaps` is the non-degeneracy condition this identifies, and it is
+a predicate rather than a field, per rule §3 of `Axioms.lean`: the class is data
+and the results say which of them need the cover to be a genuine one.
+`Examples/Cortex.lean` §4.1 exhibits both sides — the shard cover, which fails
+it at every pair, and the two-patch cover, which meets it. The condition is
+necessary and not sufficient: overlaps that are nonempty but carry no quantity
+the two patches both constrain are degenerate in the same way, and nothing here
+rules that out. -/
+
+omit [TriangulatedManifold ↥X] in
+/-- **The presheaf's value on the empty region is a singleton.** The sheaf
+condition over the empty cover: a section over `⊥` is glued from no local data,
+so there is exactly one of it. -/
+theorem subsingleton_section_of_eq_bot {U : Opens X} (h : U = ⊥) :
+    Subsingleton ((probabilityPresheaf X).obj (op U)) :=
+  have hu : Unique ((probabilityPresheaf X).obj (op U)) :=
+    Limits.Types.isTerminalEquivUnique _
+      (TopCat.Sheaf.isTerminalOfEqEmpty (TopCat.Presheaf.sheafify (probabilityPresheaf_pre X)) h)
+  hu.instSubsingleton
+
+omit [TriangulatedManifold ↥X] in
+/-- **Agreement over an empty overlap is free.** Two sections over patches that
+do not meet restrict to the unique section over `⊥`, so they agree there
+whatever they are. No phase, no equilibrium and no property of the sections is
+used. -/
+theorem section_agrees_of_disjoint {I : Type u} {cover : I → Opens X}
+    (hdisj : ∀ i j, i ≠ j → cover i ⊓ cover j = ⊥)
+    (s : (i : I) → (probabilityPresheaf X).obj (op (cover i))) (i j : I) :
+    (probabilityPresheaf X).map (homOfLE (inf_le_left : cover i ⊓ cover j ≤ cover i)).op (s i) =
+      (probabilityPresheaf X).map (homOfLE (inf_le_right : cover i ⊓ cover j ≤ cover j)).op (s j) := by
+  rcases eq_or_ne i j with rfl | hij
+  · rfl
+  · exact (subsingleton_section_of_eq_bot (hdisj i j hij)).elim _ _
+
+/-- **A disjoint cover is an instance, for any local data and any phases.** The
+obligation `section_agrees_of_phase_eq` excludes no tuple here, so membership of
+the class carries no information about the system beyond the cover being a
+cover. -/
+@[instance_reducible]
+noncomputable def LocalSectionSynchronization.ofDisjointCover
+    (I : Type u) (cover : I → Opens X) (is_cover : iSup cover = ⊤)
+    (hdisj : ∀ i j, i ≠ j → cover i ⊓ cover j = ⊥)
+    (phase : I → ℝ)
+    (s : (i : I) → (probabilityPresheaf X).obj (op (cover i))) :
+    LocalSectionSynchronization X where
+  I := I
+  cover := cover
+  is_cover := is_cover
+  phase := phase
+  sync_to_section := s
+  section_agrees_of_phase_eq := fun i j _ => section_agrees_of_disjoint hdisj s i j
+
+omit [TriangulatedManifold ↥X] in
+/-- **Every tuple glues on a disjoint cover, uniquely.** Derivation 5's
+conclusion, reached without its hypothesis doing any work: the global section
+exists and is unique because the patches are disjoint, and it restricts to the
+data it was handed because that data was never constrained. -/
+theorem glue_unique_of_disjoint {I : Type u} {cover : I → Opens X} (is_cover : iSup cover = ⊤)
+    (hdisj : ∀ i j, i ≠ j → cover i ⊓ cover j = ⊥)
+    (s : (i : I) → (probabilityPresheaf X).obj (op (cover i))) :
+    ∃! g : GlobalSection (X := X),
+      ∀ i : I, (probabilityPresheaf X).map (homOfLE (le_top : cover i ≤ ⊤)).op g = s i :=
+  probability_glue_unique cover is_cover s (section_agrees_of_disjoint hdisj s)
+
+/-- **The non-degeneracy a gluing claim needs**: distinct patches meet. Stated of
+the class as a predicate, so that a result resting on it says so. -/
+def LocalSectionSynchronization.HasNonemptyOverlaps (S : LocalSectionSynchronization X) : Prop :=
+  ∀ i j : S.I, i ≠ j → S.cover i ⊓ S.cover j ≠ ⊥
+
+/-- A disjoint cover fails it at every pair of distinct patches. -/
+theorem LocalSectionSynchronization.ofDisjointCover_not_hasNonemptyOverlaps
+    {I : Type u} {cover : I → Opens X} {is_cover : iSup cover = ⊤}
+    {hdisj : ∀ i j, i ≠ j → cover i ⊓ cover j = ⊥} {phase : I → ℝ}
+    {s : (i : I) → (probabilityPresheaf X).obj (op (cover i))} {i j : I} (hij : i ≠ j) :
+    ¬ (LocalSectionSynchronization.ofDisjointCover I cover is_cover hdisj phase s).HasNonemptyOverlaps :=
+  fun h => h i j hij (hdisj i j hij)
+
+#print axioms subsingleton_section_of_eq_bot
+#print axioms section_agrees_of_disjoint
+#print axioms glue_unique_of_disjoint
+#print axioms LocalSectionSynchronization.ofDisjointCover_not_hasNonemptyOverlaps
 
 /--
 Structure bundling a cover with a coupling matrix that has already reached

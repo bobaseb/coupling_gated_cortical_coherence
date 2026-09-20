@@ -675,3 +675,271 @@ refreshes or removes `arxiv_submit/` (§7).
   of the reflexive construction rather than a lemma in front of it. The witnesses
   construct models where it holds; deriving it for a physical system is the
   framework's problem restated. Z3 is the half that is reachable.
+
+## G — The cover and the region, as choices with teeth
+
+**The two objects the framework asks a physical system to supply are chosen, and
+nothing in the development constrains either choice.** A `ThermodynamicCover`
+picks the patches whose local descriptions glue; a `ReflexiveBoundary` picks the
+region whose restriction is read as the self-encoding. `main.tex:531` and `sec:gpu`
+both say a cover chosen to secure agreement empties the claim, and that sentence
+has no counterexample behind it — unlike the winding results, which say the
+analogous thing about the resultant and are carried by theorems. The degenerate
+instances are not hypothetical: a cover by disjoint opens discharges the class's
+one physical obligation for free, and the whole-substrate avatar is already in
+the tree. This section closes the reachable half of that gap and states the
+unreachable half as scope.
+
+**Acceptance rule.** Numerals reaching either publication file are generated
+macros read from saved summaries (AGENTS.md §3). A Lean identifier named in
+`main.tex` gets a `tab:full` row ending on what it does not reach (AGENTS.md §9).
+Prose is present tense with no drafting-history narration (§5). The three tracked
+PDFs are rebuilt in the commit that changes their sources (§6) and
+`arxiv_submit/` is refreshed or removed (§7). New citations are verified online
+before they are committed (§4).
+
+- [x] **G1 — Gate the avatar region, or say what an ungated one buys.**
+      `avatar_region : Opens X` is unconstrained (`Phase6_ReflexiveTopology.lean:125`),
+      and the degenerate instance already exists: `cortexIdentity`
+      (`Examples/Phase6.lean:812`) takes `⊤` with identity maps. Its docstring
+      says it "makes no claim to compress information into a proper local
+      region", which is true and is not a theorem. At `⊤` the restriction is the
+      identity, so resonance holds and `restrictToAvatar` is injective on every
+      family: the two obligations Z3 established — resonance, and injectivity on
+      the declared family — are jointly satisfiable while nothing is encoded
+      anywhere. Prove that first (`map_id` should do the work), because it is the
+      statement that says why a properness condition is needed. Then add the
+      condition as a hypothesis on the theorems that consume it rather than as a
+      field on the structure, per §5 of `Axioms.lean`. Two candidate shapes:
+      `avatar_region ≠ ⊤`, which is cheap and weak, or the quantitative one —
+      the family the region must resolve exceeds what a code of that region's
+      capacity carries. The second is the one G4 supplies.
+
+- [x] **G2 — An empty overlap discharges the cover's only physical obligation.**
+      `section_agrees_of_phase_eq` (`Phase4_MacroscopicScaling.lean:83`) compares
+      two sections over `cover i ⊓ cover j`. Where that meet is `⊥` there is
+      nothing to compare, so a cover by pairwise disjoint opens satisfies the
+      class's one modelling obligation for free, and `probability_glue_unique`
+      still returns a unique global section — the tuple. Confirm the presheaf's
+      value at `⊥` is a singleton, then exhibit the disjoint cover as a witness
+      in the style of `cortexCheat`: an instance whose glued section is unique
+      and whose local data agree nowhere. This is the formal content of
+      `main.tex:531`, and it converts a methodological warning into the same
+      kind of object the winding sweep produced. Carry the non-degeneracy the
+      class needs — overlaps non-empty, and carrying the shared quantity — into
+      the supplement and onto the gluing row's scope clause.
+
+- [x] **G3 — One index set is doing three jobs (scoping only).**
+      `LocalSectionSynchronization` carries `cover : I → Opens X` and
+      `phase : I → ℝ` on one `I`, and `ThermodynamicCover` adds `A : I → I → ℝ`
+      on the same one. So "one oscillator = one content patch" is a bridge
+      assumption built into the class shape and named nowhere, including in
+      Table 1's E78 row, which is the row it serves. The physical reason it
+      matters: field-mediated coupling is spatial, so the kernel wants the
+      cortical sheet's topology, while two territories describing the same
+      quantity need not be adjacent on that sheet. Under one `I` that comparison
+      is made silently. Scope the split — patch index, oscillator index, declared
+      map between them — and cost it against every result that mentions `I`
+      before touching anything. The refactor is a separate item if the scoping
+      says it pays; the E78 row's wording is fixable either way.
+
+- [x] **G4 — Generalize the code count from an alphabet to a metric.**
+      `M ≤ 2^b` is finitary, and Eq. `eq:reconstruction-separation` already
+      proves the part that is not: `M` states pairwise more than `2ε` apart need
+      `M` distinguishable codes. Missing is the form whose code space is a metric
+      rather than an alphabet — the packing statement, that the `2ε`-packing
+      number of the declared family bounds below the packing number the encoding
+      realizes. That is the version a continuous family of cortical states needs,
+      it is a generalization of an existing proof rather than a new argument, and
+      it is the quantitative shape G1 asks for. Check what Mathlib gives for
+      separated sets and packing numbers before committing to a statement.
+
+- [ ] **G5 — Say what discharging the eight hypotheses would and would not
+      deliver.** Table 1 names eight connecting hypotheses and the
+      installed-energy consequence; the identification of the glued state with
+      unity and of the reconstruction with a minimal self is not among them,
+      because `sec:commitment` states it as an empirical commitment. A reader can therefore
+      take the eight as the whole bill. Two present-tense sentences: discharging
+      E12–E89 for cortex would make the composition a statement about cortex, and
+      would leave the correlate identification — whose three falsifiers `main.tex:541`
+      already lists — untouched. In the same pass, sharpen `main.tex:569`:
+      "cortical agent" reads as a conscious subject, while `agent` is a technical
+      term in this development (`ContinuingAgent`, `MemoryAgent`), so name the
+      two missing things instead of the one ambiguous noun.
+
+- [ ] **G6 — The coherence-to-content bound is informative where unity is not in
+      question.** `δ_r = L√2·N·√(1-r²)` read patch-locally is tight when `N` is
+      small and `r` near one, and shrinking patches thins the overlaps at the
+      same rate as it tightens the bound. At columnar grain it constrains
+      agreement inside a locally synchronous population and goes vacuous across
+      the distant territories whose agreement is what unity is about. `main.tex:543`
+      records that the population-size dependence "limits its quantitative use";
+      this is the specific form of that limit and it belongs in `sec:content-connection` beside the
+      bound. Check whether an existing sweep supports a numeral before writing
+      one, and if it does, generate it.
+
+- [ ] **G7 — Read cortical columns against the cover's requirements.** Columns
+      are the obvious candidate for the oscillator index — independently defined,
+      with a measurable columnar phase, so not chosen to make agreement come out
+      right — and a poor one for the content cover: a tiling lands in G2,
+      `is_cover : iSup cover = ⊤` demands the patches cover everything while much
+      of association cortex has no accepted columnar parcellation, and the
+      column's status as a canonical cortical unit is contested. `sec:scaling` calibrates
+      geometry and coupling and names no candidate patch at all, which is the gap
+      this fills, in one paragraph that says which of the three jobs columns are
+      offered for. Every empirical claim here needs its citation verified online
+      first; none of them is verified yet.
+
+- [x] **G8 — The winding state as an invariant, not only a counterexample
+      (scoping).** `char_is_kuramoto_trajectory` makes a winding stationary for
+      any isotropic symmetric kernel, and `sec:unconditional` reads that as "the resultant does
+      not determine the state". The winding number is the invariant behind it,
+      and stating it as one buys what the counterexample does not: it does not
+      depend on a cover, so unlike compatibility it cannot be rigged by redrawing
+      patches, and it is the obstruction to a locally locked field admitting the
+      kind of global description `sec:unity` glues. Scope whether the existing results can
+      carry a degree statement and whether the obstruction is expressible in the
+      sheaf language already present. One observation to record while scoping:
+      the weights in the approximate-gluing theorem — vanishing outside their
+      patches, summing to one at each site — are a partition of unity, so that
+      proof is already the Čech argument and its continuum form is standard. The
+      bundle-and-connection reformulation of content is not this item; it goes to
+      `tasks/research_programme.md` if the scoping says the language pays.
+
+- [ ] **G9 — Carry the cover and region conditions into the publication.** The
+      Lean half of G1–G4 and G8 is in the tree and none of it has reached a
+      publication file, which is the same shape the M pass exists to catch.
+      Four sites, and they are independent of each other. (i) `sec:unity`'s
+      statement that a cover chosen to secure agreement empties the claim now
+      has the object behind it — a disjoint cover discharges the gluing
+      obligation for every tuple of local data — so the sentence becomes a
+      present-tense statement of what a cover must supply, and the gluing row's
+      scope clause in Table S1 ends on the non-degeneracy that is not assumed.
+      (ii) The E78 row names the bridge assumption the class makes: one
+      oscillator carries exactly one content patch. (iii)
+      `sec:content-connection`'s treatment of the avatar says that the
+      resonance-and-resolution pair is satisfied by the whole substrate, so a
+      properness condition is what a fold asks for, and that the packing bound
+      is its quantitative form — a family no larger than the packing number of
+      the codes the region carries. (iv) The winding paragraph in
+      `sec:unconditional` gains the degree: the same state whose resultant
+      vanishes has winding number `q`, and that integer obstructs a global phase
+      lift and is not a quantity a redrawn cover can move. Any identifier that
+      reaches `main.tex` needs its `tab:full` row in the same commit (AGENTS.md
+      §9), the three PDFs are rebuilt in it (§6) and `arxiv_submit/` is
+      refreshed or removed (§7).
+
+**Pass record.**
+
+- **G1, and the condition it forces.** At `⊤` the restriction map is the
+  identity — `restrictToAvatar_mk_top`, by functoriality on the poset's only
+  endomorphism of `⊤` — so the whole-substrate boundary `topAvatar` is resonant,
+  reconstructs every declared family at tolerance zero, and resolves every
+  family whatsoever (`topAvatar_satisfies_obligations`). Z3's two obligations
+  are jointly satisfiable with nothing folded anywhere, which is what says a
+  properness condition is needed. `IsProperAvatar` is the cheap shape of it, a
+  predicate and not a field. `Examples/Reconstruction.lean` records that
+  `cortexIdentity` *is* `topAvatar` on the three-site substrate, that
+  `cortexReflexive`'s one-site region is proper, and pairs the two:
+  `properness_is_what_costs` — the proper region provably fails to reconstruct
+  the family it cannot resolve, the improper one reconstructs it exactly, and
+  both are resonant. What separates them is the region and nothing else.
+
+- **G4, which supplies G1's quantitative shape.** The code count is now a
+  packing statement. With a metric on the codes and a Lipschitz readout, the
+  triangle inequality that forced distinct codes forces separated ones:
+  `sub_two_mul_le_lipschitz_mul` transfers the separation, and
+  `isSeparated_image_encode` makes the family's codes a `δ`-separated set
+  whenever `δ * L ≤ r - 2 ε`, so `encard_le_packingNumber_range` bounds the
+  family by `Metric.packingNumber` of the codes the encoder writes.
+  Mathlib carries both notions (`Metric.IsSeparated`,
+  `Metric.packingNumber`, `IsSeparated.encard_le_packingNumber`), so the
+  generalization is an application rather than a construction. On a boundary:
+  `encard_le_packingNumber_auto_resonance`, and under resonance
+  `encard_le_packingNumber_restrictToAvatar`, which eliminates the encoding and
+  states the bound *of the region*. At `⊤` it says nothing — the encoder is the
+  identity and its range is everything (`topAvatar_encode_range`) — which is the
+  same fact G1 reports from the other side. The gain `L` is declared; nothing
+  here derives one for a physical readout, and an unbounded-gain decoder is
+  subject to no constraint from this theorem.
+
+- **G2.** The presheaf's value on the empty region is a singleton
+  (`subsingleton_section_of_eq_bot`, the sheaf condition over the empty cover),
+  so agreement across an empty overlap is free (`section_agrees_of_disjoint`)
+  and a cover by pairwise disjoint opens is an instance of the class for *every*
+  assignment of local data and phases
+  (`LocalSectionSynchronization.ofDisjointCover`), with the unique global
+  section still delivered (`glue_unique_of_disjoint`). `HasNonemptyOverlaps` is
+  the non-degeneracy this identifies, as a predicate. `Examples/Cortex.lean`
+  §4.1 is the witness in the style of `cortexCheat`: one patch per site on the
+  three-site substrate, a legal `ThermodynamicCover` at the chain's coupling and
+  a locked phase field for every tuple of local data (`shardCover_glued`), and
+  failing the condition at every pair; §4's two-patch cover meets it
+  (`cortexSync_hasNonemptyOverlaps`). The supplement sentence and the gluing
+  row's scope clause are owed, and are G9.
+
+- **G3, scoped: the split does not pay as a refactor, and the assumption is now
+  named.** The index carries the patch reading in `cover`, `sync_to_section`
+  and `section_agrees_of_phase_eq`, the oscillator reading in
+  `ThermodynamicCover.A` and throughout `Phase5_EquilibriumBridge.lean` — where
+  `I` is the site index of a `KuramotoSystem` and the phase field is that
+  system's trajectory — and `phase : I → ℝ` is where the two are welded. About
+  forty sites across six modules mention it, and a split would restate every
+  result quantifying over `I`: three in `Phase4_MacroscopicScaling` and
+  `Phase5_GlobalSection`, the eight of the equilibrium bridge, `TwistedFamily`'s
+  own index, Chain's E78 edge, and every witness. It would change no theorem's
+  content, because each split statement specializes back when the declared map
+  is the identity — which is exactly what the present shape asserts. So the
+  refactor buys a name, and the name is cheaper written down: the class
+  docstring now states that one oscillator carries exactly one patch, that this
+  is a modelling assumption rather than a consequence, and why it is not
+  innocent — field-mediated coupling is spatial while two territories describing
+  the same quantity need not be neighbours. The E78 row's wording is owed, and
+  is G9.
+
+- **G8, scoped, and the bridge it identified is built.** No new language is
+  needed: `Phase5_PhaseLifts.lean` already carries the degree
+  (`loopWinding`), the global-lift predicate and the obstruction
+  (`loopWinding_eq_zero_of_hasGlobalLift`,
+  `not_hasGlobalLift_of_loopWinding_ne_zero`). What was missing is that its
+  transitions were measured data, so the winding state of
+  `Phase4_KuramotoDynamics` §6 and the obstruction of F2 sat in the same
+  repository without meeting. `ringTransition` supplies them from the state:
+  `winding_succ` shows the `q`-fold winding's lift rises by `2πq/n` at every
+  site except across the wrap, where the residue resets and it drops `q` whole
+  turns, and `loopWinding_ringTransition` sums them to `q`.
+  `winding_degree_obstructs` is the pairing — on one state, at one coupling, the
+  global resultant is exactly zero and the degree is `q`, which obstructs every
+  global real-valued phase lift. The resultant is an average over sites and
+  moves when they are reweighted; the degree telescopes and does not. Scope is
+  the ring's: `ZMod n` has no interior, so this is a loop's winding and not a
+  spiral, and the transitions are those of the affine lifts rather than of an
+  unwrapped measurement. The sheaf half of the observation holds as recorded —
+  `ApproximateGluing.IsPartition` is subordinate weights summing to one, a
+  partition of unity, and the module says so — and nothing in the degree
+  statement needs the bundle-and-connection language, which therefore stays out
+  of the tree.
+
+**Declined, with reasons**, so that none of them returns as an open item.
+
+- **The explanatory gap.** Why the specified relations would be accompanied by
+  experience. Not a formalization gap and not a measurement; `sec:scope` states it as
+  unexplained, which is where it stays.
+- **Selecting the subject.** Which cover is the conscious one requires
+  independent evidence about neural organization (`main.tex:539`). The framework
+  can state the requirement and cannot meet it. G2 and G7 are the halves that
+  are reachable — the degenerate covers a claim must exclude, and the candidate
+  a cortical reading would name.
+- **A continuum content sheaf on a Grothendieck site.** The germ and refinement
+  picture removes the chosen cover from the statements and changes no
+  measurement, since observation is on finitely many sites; the site change that
+  would make long-range overlap available rewrites every result mentioning
+  `Opens X`. Declined until G3's scoping establishes that the patch index and
+  the oscillator index are genuinely different objects.
+- **A measure-valued Kuramoto limit for the coupling half.** E45 and
+  `coarseGrains_of_meshRefinement` already carry the discrete-to-continuum
+  bridge on the energy side, and the supplement's own result that
+  point-supported kernels vanish under an atomless measure is the warning: a
+  continuum kernel needs a density the cortical identification does not supply.
+  Same reason as the declined derivation of `κ` from mode hardware — the
+  physical object the formalism would quantify over is absent.

@@ -200,5 +200,96 @@ example : ∃! s : GlobalSection (X := Cortex),
       (homOfLE (le_top : cortexCover.cover i ≤ ⊤)).op s = cortexCover.sync_to_section i :=
   global_section_from_thermodynamics (X := Cortex)
 
+/-! ## 4.1 The cover that asks nothing: one patch per site
+
+§4's two patches overlap at the shared site, so its instance of
+`section_agrees_of_phase_eq` is a constraint on the local data. This cover is
+the other case. Each site gets its own patch; the patches cover the substrate
+and meet nowhere; and the obligation is discharged for *every* assignment of
+local sections, because there is no region on which any two of them are
+compared.
+
+The consequence is the one `Phase5_GlobalSection.lean` §"What an empty overlap
+asks of a cover" states in general, here on a substrate that also carries the
+honest cover. Both are `ThermodynamicCover`s at the same coupling and the same
+locked phase field; one of them makes a claim about the system and the other
+records a partition of it. The class does not distinguish them, which is why
+`HasNonemptyOverlaps` is stated and why a cover has to be argued for rather than
+chosen.
+-/
+
+/-- One patch per site: the finest cover the discrete topology admits. -/
+def shard (x : Site) : Opens ↥Cortex := ⟨{x}, isOpen_discrete _⟩
+
+theorem shard_cover : iSup shard = ⊤ := by
+  ext z
+  simp only [Opens.coe_iSup, Set.mem_iUnion, Opens.coe_top, Set.mem_univ, iff_true]
+  exact ⟨z, rfl⟩
+
+/-- Distinct shards meet nowhere. -/
+theorem shard_disjoint {x y : Site} (h : x ≠ y) : shard x ⊓ shard y = ⊥ := by
+  ext z
+  simp only [Opens.coe_inf, Set.mem_inter_iff, Opens.coe_bot, Set.mem_empty_iff_false, iff_false,
+    not_and]
+  intro hx hy
+  exact h (hx.symm.trans hy)
+
+/-- The shard cover, at phase zero on every patch, carrying arbitrary local
+data. Nothing relates the three sections, and nothing has to. -/
+@[instance_reducible]
+noncomputable def shardSync (s : (x : Site) → (probabilityPresheaf Cortex).obj (op (shard x))) :
+    LocalSectionSynchronization Cortex :=
+  LocalSectionSynchronization.ofDisjointCover Site shard shard_cover
+    (fun _ _ h => shard_disjoint h) (fun _ => 0) s
+
+/-- …and it reaches thermodynamic equilibrium exactly as §4's cover does: the
+phase field is constant, so `phase_locked_minimizes_potential` discharges the
+field at the chain's coupling. Both physical hypotheses of Derivation 5 are
+therefore met, for every tuple of local data. -/
+@[instance_reducible]
+noncomputable def shardCover (s : (x : Site) → (probabilityPresheaf Cortex).obj (op (shard x))) :
+    ThermodynamicCover Cortex where
+  toLocalSectionSynchronization := shardSync s
+  I_fintype := inferInstanceAs (Fintype Site)
+  I_decidable := inferInstanceAs (DecidableEq Site)
+  A := fun _ _ => 3
+  A_symm := fun _ _ => rfl
+  A_pos := fun _ _ => by norm_num
+  thermodynamic_equilibrium := fun theta =>
+    phase_locked_minimizes_potential (V := Site)
+      ⟨fun _ => 0, fun _ _ => 3, fun _ _ => rfl⟩ (fun _ _ => by norm_num) theta
+
+/-- **Derivation 5 on the shard cover.** A unique global section, for every
+tuple of local data — so the conclusion separates no system from any other. The
+theorem is unchanged and true; what this instance shows is how much of it the
+cover decides. -/
+theorem shardCover_glued (s : (x : Site) → (probabilityPresheaf Cortex).obj (op (shard x))) :
+    ∃! g : GlobalSection (X := Cortex),
+      ∀ x : Site, (probabilityPresheaf Cortex).map (homOfLE (le_top : shard x ≤ ⊤)).op g = s x :=
+  @global_section_from_thermodynamics Cortex _ _ _ (shardCover s)
+
+/-- The shard cover fails the non-degeneracy condition. -/
+theorem shardSync_not_hasNonemptyOverlaps
+    (s : (x : Site) → (probabilityPresheaf Cortex).obj (op (shard x))) :
+    ¬ (shardSync s).HasNonemptyOverlaps :=
+  fun h => h Site.left Site.mid (show Site.left ≠ Site.mid by decide)
+    (shard_disjoint (show Site.left ≠ Site.mid by decide))
+
+/-- …and §4's cover meets it: its two patches share the middle site, so its
+agreement obligation compares sections over a region that has a point in it. -/
+theorem cortexSync_hasNonemptyOverlaps : cortexSync.HasNonemptyOverlaps := by
+  intro i j _ h
+  have hmem : Site.mid ∈ (cortexSync.cover i ⊓ cortexSync.cover j) := by
+    show Site.mid ∈ (patch i ⊓ patch j : Opens ↥Cortex)
+    cases i <;> cases j <;> exact ⟨by simp [patch], by simp [patch]⟩
+  rw [h] at hmem
+  simp at hmem
+
+#print axioms shard_cover
+#print axioms shard_disjoint
+#print axioms shardCover_glued
+#print axioms shardSync_not_hasNonemptyOverlaps
+#print axioms cortexSync_hasNonemptyOverlaps
+
 end Examples
 end PhysicsOfConsciousness

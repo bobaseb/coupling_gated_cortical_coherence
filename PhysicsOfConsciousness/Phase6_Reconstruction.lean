@@ -1,4 +1,5 @@
 import PhysicsOfConsciousness.Phase6_ReflexiveTopology
+import Mathlib.Topology.MetricSpace.CoveringNumbers
 
 /-!
 # Bounded-error self-reconstruction and the codes it needs
@@ -60,6 +61,8 @@ existing: a constant readout has a unique fixed point and still fails the
 criterion on any two separated relevant states (`not_reconstructs_of_const`),
 which is the precise sense in which a fixed point is not a reconstruction.
 -/
+
+open scoped ENNReal NNReal
 
 namespace PhysicsOfConsciousness.Reconstruction
 
@@ -286,6 +289,112 @@ theorem not_reconstructs_of_const_readout {r : S} (hconst : ∀ c, Enc.readout c
     (hsep : 2 * ε < dist s t) : ¬ Enc.Reconstructs ε :=
   not_reconstructs_of_blind (fun s => hconst (Enc.encode s)) hs ht hsep
 
+/-! ### From an alphabet to a metric: the packing form
+
+`card_le_two_pow` counts an alphabet, and a continuous family of macrostates has
+no alphabet to count. The generalization keeps the argument and replaces the
+counting: put a metric on the codes, ask the readout to have bounded gain, and
+the triangle inequality that forced *distinct* codes forces *separated* ones.
+
+The gain is where the physics enters. A readout with Lipschitz constant `L`
+moves its outputs at most `L` times as far as its inputs, so two states more
+than `r` apart, each reconstructed to within `ε`, have codes more than
+`(r - 2 ε) / L` apart — the hypothesis is written `δ * L ≤ r - 2 ε` to keep the
+division out of the statement. The declared family therefore realizes a packing
+of the code space at that scale, and `Metric.packingNumber` of the codes the
+encoder actually writes bounds the family above.
+
+The finite case is the special case: an alphabet of `2 ^ b` values has packing
+number at most `2 ^ b` at every scale, and the bound reads `M ≤ 2 ^ b` again.
+What is new is that the code space may be continuous, which is what a region of
+a cortical sheet carrying a field value is.
+
+`L` is declared, like everything else here. Nothing in this module derives a
+gain for a physical readout, and a mechanism free to amplify without bound —
+`L` arbitrarily large — is subject to no constraint from this theorem, which is
+the honest reading of an uncalibrated decoder. -/
+
+section Packing
+
+variable [PseudoMetricSpace C]
+
+/-- **Reconstruction error is what separation must overcome.** The distance
+between two relevant states, less the two reconstruction errors, is carried by
+the readout, which moves its outputs at most `L` times as far as its inputs. -/
+theorem sub_two_mul_le_lipschitz_mul {L : ℝ≥0} {ε : ℝ} (hL : LipschitzWith L Enc.readout)
+    (hrec : Enc.Reconstructs ε) {s t : S} (hs : s ∈ Enc.relevant) (ht : t ∈ Enc.relevant) :
+    dist s t - 2 * ε ≤ L * dist (Enc.encode s) (Enc.encode t) := by
+  have h1 : Enc.error s ≤ ε := hrec s hs
+  have h2 : Enc.error t ≤ ε := hrec t ht
+  rw [error] at h1 h2
+  have htri : dist s t ≤ dist s (Enc.readout (Enc.encode s))
+      + dist (Enc.readout (Enc.encode s)) (Enc.readout (Enc.encode t))
+      + dist (Enc.readout (Enc.encode t)) t := dist_triangle4 s _ _ t
+  have hlip : dist (Enc.readout (Enc.encode s)) (Enc.readout (Enc.encode t))
+      ≤ L * dist (Enc.encode s) (Enc.encode t) := hL.dist_le_mul _ _
+  rw [dist_comm (Enc.readout (Enc.encode t)) t] at htri
+  linarith
+
+/-- **The codes of a separated family are separated.** The metric form of
+"distinguishable states need distinct codes": at gain `L` the codes of a family
+pairwise more than `r` apart are pairwise more than `δ` apart, for any `δ` with
+`δ * L ≤ r - 2 ε`.
+
+A positive gain is required, and it is not a technicality: at `L = 0` the readout
+is constant and `not_reconstructs_of_const_readout` says the family is not
+reconstructed at all. -/
+theorem isSeparated_image_encode {L δ : ℝ≥0} {ε r : ℝ} (hL : LipschitzWith L Enc.readout)
+    (hL0 : 0 < L) (hrec : Enc.Reconstructs ε) {F : Set S} (hF : F ⊆ Enc.relevant)
+    (hsep : ∀ s ∈ F, ∀ t ∈ F, s ≠ t → r < dist s t)
+    (hδ : (δ : ℝ) * L ≤ r - 2 * ε) :
+    Metric.IsSeparated (δ : ℝ≥0∞) (Enc.encode '' F) := by
+  have hL' : (0 : ℝ) < L := hL0
+  rintro _ ⟨s, hs, rfl⟩ _ ⟨t, ht, rfl⟩ hne
+  have hst : s ≠ t := fun h => hne (by rw [h])
+  have hkey := sub_two_mul_le_lipschitz_mul hL hrec (hF hs) (hF ht)
+  have hdist : (δ : ℝ) < dist (Enc.encode s) (Enc.encode t) := by
+    have h1 : (L : ℝ) * (δ : ℝ) < (L : ℝ) * dist (Enc.encode s) (Enc.encode t) := by
+      have := hsep s hs t ht hst
+      nlinarith
+    exact lt_of_mul_lt_mul_left h1 hL'.le
+  rw [edist_dist, ← ENNReal.ofReal_coe_nnreal]
+  exact (ENNReal.ofReal_lt_ofReal_iff_of_nonneg δ.coe_nonneg).mpr hdist
+
+/-- **The packing bound.** The declared family is no larger than the packing
+number, at scale `δ`, of the codes the encoder writes.
+
+This is `card_le_card_codes` with the alphabet's size replaced by a packing
+number, and it degenerates to it: a finite code space has packing number at most
+its cardinality at every scale. The quantity on the right is a property of the
+code space and the gain — for a reflexive boundary, of the avatar region and its
+readout — so it is fixed before the family is declared. -/
+theorem encard_le_packingNumber_range {L δ : ℝ≥0} {ε r : ℝ} (hL : LipschitzWith L Enc.readout)
+    (hL0 : 0 < L) (hrec : Enc.Reconstructs ε) {F : Set S} (hF : F ⊆ Enc.relevant)
+    (hsep : ∀ s ∈ F, ∀ t ∈ F, s ≠ t → r < dist s t)
+    (hδ : (δ : ℝ) * L ≤ r - 2 * ε) :
+    F.encard ≤ Metric.packingNumber δ (Set.range Enc.encode) := by
+  have hL' : (0 : ℝ) < L := hL0
+  have h2ε : 2 * ε ≤ r := by nlinarith [δ.coe_nonneg]
+  have hinj : Set.InjOn Enc.encode F :=
+    encode_injOn_of_separated hrec hF fun s hs t ht hne =>
+      lt_of_le_of_lt h2ε (hsep s hs t ht hne)
+  rw [← hinj.encard_image]
+  exact Metric.IsSeparated.encard_le_packingNumber (Set.image_subset_range _ _)
+    (isSeparated_image_encode hL hL0 hrec hF hsep hδ)
+
+/-- The packing bound on a finite family, in the counting form the alphabet
+version states. -/
+theorem card_le_packingNumber_range {L δ : ℝ≥0} {ε r : ℝ} (hL : LipschitzWith L Enc.readout)
+    (hL0 : 0 < L) (hrec : Enc.Reconstructs ε) {F : Finset S} (hF : ↑F ⊆ Enc.relevant)
+    (hsep : ∀ s ∈ F, ∀ t ∈ F, s ≠ t → r < dist s t)
+    (hδ : (δ : ℝ) * L ≤ r - 2 * ε) :
+    (F.card : ℕ∞) ≤ Metric.packingNumber δ (Set.range Enc.encode) := by
+  have h := encard_le_packingNumber_range hL hL0 hrec hF
+    (fun s hs t ht hne => hsep s hs t ht hne) hδ
+  rwa [Set.encard_coe_eq_coe_finsetCard] at h
+
+end Packing
+
 end Encoding
 
 end PhysicsOfConsciousness.Reconstruction
@@ -449,6 +558,165 @@ theorem restrictToAvatar_injOn_of_isRestrictionResonance
     Set.InjOn rb.restrictToAvatar F :=
   Encoding.injOn_of_resonates (Enc := rb.encoding relevant) hres hrec hF hsep
 
+/-! ### The capacity bound, on the region
+
+The packing bound of `Reconstruction.Encoding` applies to a reflexive boundary
+with its own two maps in place, and under resonance its right-hand side is a
+property of the *region*: the codes the avatar writes are the sections the
+substrate holds there, so the number of states the region can keep apart at a
+given scale is fixed before any avatar is built. That is the quantitative form
+of the properness condition — a region resolves the declared family only if the
+family packs into the region's sections — and it is the form that says something
+at a proper region and nothing at `⊤`, where the sections over the region are
+the global sections themselves.
+
+The gain `L` is a declared property of the read-out and nothing here supplies
+one for a physical decoder. -/
+
+/-- **The declared family packs into the codes the avatar writes.** -/
+theorem encard_le_packingNumber_auto_resonance [MetricSpace (GlobalSection (X := X))]
+    (rb : ReflexiveBoundary X)
+    [PseudoMetricSpace ((probabilityPresheaf X).obj (op rb.avatar_region))]
+    (relevant : Set (GlobalSection (X := X))) {L δ : ℝ≥0} {ε r : ℝ}
+    (hL : LipschitzWith L rb.readout) (hL0 : 0 < L)
+    (hrec : (rb.encoding relevant).Reconstructs ε)
+    {F : Set (GlobalSection (X := X))} (hF : F ⊆ relevant)
+    (hsep : ∀ s ∈ F, ∀ t ∈ F, s ≠ t → r < dist s t)
+    (hδ : (δ : ℝ) * L ≤ r - 2 * ε) :
+    F.encard ≤ Metric.packingNumber δ (Set.range rb.auto_resonance) :=
+  Encoding.encard_le_packingNumber_range (Enc := rb.encoding relevant) hL hL0 hrec hF hsep hδ
+
+/-- **…and under resonance those codes are the region's own sections.** The
+bound is then a statement about the avatar region and the substrate, with the
+encoding eliminated: a region whose sections do not pack the declared family at
+the scale the read-out's gain leaves cannot carry a resonant mechanism that
+reconstructs it. -/
+theorem encard_le_packingNumber_restrictToAvatar [MetricSpace (GlobalSection (X := X))]
+    (rb : ReflexiveBoundary X)
+    [PseudoMetricSpace ((probabilityPresheaf X).obj (op rb.avatar_region))]
+    (relevant : Set (GlobalSection (X := X))) {L δ : ℝ≥0} {ε r : ℝ}
+    (hres : rb.IsRestrictionResonance)
+    (hL : LipschitzWith L rb.readout) (hL0 : 0 < L)
+    (hrec : (rb.encoding relevant).Reconstructs ε)
+    {F : Set (GlobalSection (X := X))} (hF : F ⊆ relevant)
+    (hsep : ∀ s ∈ F, ∀ t ∈ F, s ≠ t → r < dist s t)
+    (hδ : (δ : ℝ) * L ≤ r - 2 * ε) :
+    F.encard ≤ Metric.packingNumber δ (Set.range rb.restrictToAvatar) := by
+  have hrange : Set.range rb.auto_resonance = Set.range rb.restrictToAvatar :=
+    congrArg Set.range (funext hres)
+  exact hrange ▸ encard_le_packingNumber_auto_resonance rb relevant hL hL0 hrec hF hsep hδ
+
+/-! ### The region is a choice, and the whole substrate is a legal one
+
+`avatar_region` is unconstrained data, and `⊤` is a value it may take. This
+block computes what the criteria above say about the boundary that takes it, and
+the answer is nothing: at `⊤` the restriction is the identity map
+(`restrictToAvatar_mk_top`), so the whole-substrate boundary is resonant,
+reconstructs every declared family exactly, and resolves every family whatsoever
+(`topAvatar_satisfies_obligations`). The two demands that restriction resonance
+places on a region — that the avatar report what the region holds, and that the
+region separate the states the mechanism must tell apart — are therefore jointly
+satisfiable with nothing folded into anything.
+
+That is the argument for a properness condition, and it is why the condition is
+a hypothesis rather than a field, per rule §3: a `ReflexiveBoundary` is data, and
+which results need the region to be a proper part of the substrate is what the
+statements say. `IsProperAvatar` is the cheap shape of it. The quantitative
+shape is the packing bound of §"From an alphabet to a metric": the family the
+region must resolve is no larger than the packing number of the codes the region
+carries, which is a constraint exactly when that code space is smaller than the
+state space. At `⊤` it is not smaller — the encoder is the identity and its
+range is everything (`topAvatar_encode_range`), so the bound is the family's own
+packing number and says nothing.
+
+Neither condition is derived here. A substrate is not obliged to fold its state
+into a proper region; what this block establishes is that a development which
+does not ask it to has not asked for a fold at all. -/
+
+/-- **The restriction to the whole substrate is the identity.** The morphism
+`⊤ ⟶ ⊤` is the identity of the poset, and a functor preserves it. -/
+theorem restrictToAvatar_mk_top
+    (w : GlobalSection (X := X) → (probabilityPresheaf X).obj (op (⊤ : Opens X)))
+    (r : (probabilityPresheaf X).obj (op (⊤ : Opens X)) → GlobalSection (X := X))
+    (s : GlobalSection (X := X)) :
+    (ReflexiveBoundary.mk (X := X) ⊤ w r).restrictToAvatar s = s := by
+  show (probabilityPresheaf X).map (homOfLE (le_top : (⊤ : Opens X) ≤ ⊤)).op s = s
+  rw [show (homOfLE (le_top : (⊤ : Opens X) ≤ ⊤)) = 𝟙 _ from Subsingleton.elim _ _, op_id]
+  exact Functor.map_id_apply (probabilityPresheaf X) (op ⊤) s
+
+/-- A region equal to the whole substrate resolves every family, for free. This
+is `restrictToAvatar_injOn_of_isRestrictionResonance`'s conclusion with no
+hypothesis in front of it, which is the sense in which that theorem constrains a
+region only when the region is proper. -/
+theorem restrictToAvatar_injective_of_top (rb : ReflexiveBoundary X)
+    (h : rb.avatar_region = ⊤) : Function.Injective rb.restrictToAvatar := by
+  obtain ⟨U, w, r⟩ := rb
+  subst h
+  intro s t hst
+  rw [restrictToAvatar_mk_top, restrictToAvatar_mk_top] at hst
+  exact hst
+
+/-- **The whole substrate as its own avatar**: the field, written unchanged into
+a region that is everything, and read back unchanged. `Examples/Phase6.lean`'s
+`cortexIdentity` is this boundary on the three-site substrate. -/
+def topAvatar (X : TopCat.{u}) [MeasurableSpace X] [BorelSpace X] : ReflexiveBoundary X where
+  avatar_region := ⊤
+  auto_resonance := id
+  readout := id
+
+@[simp] theorem topAvatar_restrictToAvatar (s : GlobalSection (X := X)) :
+    (topAvatar X).restrictToAvatar s = s := restrictToAvatar_mk_top _ _ s
+
+@[simp] theorem topAvatar_predict (s : GlobalSection (X := X)) :
+    (topAvatar X).predict s = s := rfl
+
+/-- The write is the region's own restriction, so the boundary is resonant. -/
+theorem topAvatar_isRestrictionResonance : (topAvatar X).IsRestrictionResonance :=
+  fun s => (topAvatar_restrictToAvatar s).symm
+
+theorem topAvatar_restrictToAvatar_injective :
+    Function.Injective (topAvatar X).restrictToAvatar :=
+  restrictToAvatar_injective_of_top _ rfl
+
+/-- Every state is its own reconstruction, whatever family is declared. -/
+theorem topAvatar_reconstructs [MetricSpace (GlobalSection (X := X))]
+    (relevant : Set (GlobalSection (X := X))) :
+    ((topAvatar X).encoding relevant).Reconstructs 0 := by
+  intro s _
+  show dist s ((topAvatar X).predict s) ≤ 0
+  rw [topAvatar_predict, dist_self]
+
+/-- **The codes are the states.** The encoder is the identity, so the packing
+bound of §"From an alphabet to a metric" reads the family's cardinality against
+the packing number of the whole state space. A capacity argument over this
+region is an argument about nothing. -/
+theorem topAvatar_encode_range [MetricSpace (GlobalSection (X := X))]
+    (relevant : Set (GlobalSection (X := X))) :
+    Set.range ((topAvatar X).encoding relevant).encode = Set.univ := Set.range_id
+
+/-- **The region is a proper part of the substrate.** The cheap properness
+condition: a hypothesis on the theorems that need it, not a field on the
+structure. It is weak — a region one point short of `⊤` satisfies it — and the
+quantitative condition is the packing bound, whose right-hand side is a property
+of the region's code space. -/
+def IsProperAvatar (rb : ReflexiveBoundary X) : Prop := rb.avatar_region ≠ ⊤
+
+theorem topAvatar_not_isProperAvatar : ¬ (topAvatar X).IsProperAvatar := fun h => h rfl
+
+/-- **Both obligations, met with nothing encoded anywhere.** Restriction
+resonance and resolution of the declared family are what a reflexive boundary is
+asked for, and the whole-substrate avatar supplies both — reconstructing exactly,
+at tolerance zero, for every family that can be declared — while failing
+properness. Whatever a fold into a local region buys, it is not this pair. -/
+theorem topAvatar_satisfies_obligations [MetricSpace (GlobalSection (X := X))]
+    (relevant : Set (GlobalSection (X := X))) :
+    (topAvatar X).IsRestrictionResonance ∧
+      ((topAvatar X).encoding relevant).Reconstructs 0 ∧
+      Function.Injective (topAvatar X).restrictToAvatar ∧
+      ¬ (topAvatar X).IsProperAvatar :=
+  ⟨topAvatar_isRestrictionResonance, topAvatar_reconstructs relevant,
+    topAvatar_restrictToAvatar_injective, topAvatar_not_isProperAvatar⟩
+
 #print axioms Reconstruction.dist_le_add_error
 #print axioms Reconstruction.half_dist_le_max_error
 #print axioms Reconstruction.Encoding.encode_injOn_of_separated
@@ -469,6 +737,19 @@ theorem restrictToAvatar_injOn_of_isRestrictionResonance
 #print axioms not_isRestrictionResonance_of_const_avatar
 #print axioms not_isRestrictionResonance_of_reconstructs
 #print axioms restrictToAvatar_injOn_of_isRestrictionResonance
+#print axioms Reconstruction.Encoding.sub_two_mul_le_lipschitz_mul
+#print axioms Reconstruction.Encoding.isSeparated_image_encode
+#print axioms Reconstruction.Encoding.encard_le_packingNumber_range
+#print axioms Reconstruction.Encoding.card_le_packingNumber_range
+#print axioms encard_le_packingNumber_auto_resonance
+#print axioms encard_le_packingNumber_restrictToAvatar
+#print axioms restrictToAvatar_mk_top
+#print axioms restrictToAvatar_injective_of_top
+#print axioms topAvatar_isRestrictionResonance
+#print axioms topAvatar_restrictToAvatar_injective
+#print axioms topAvatar_reconstructs
+#print axioms topAvatar_encode_range
+#print axioms topAvatar_satisfies_obligations
 
 end ReflexiveBoundary
 end PhysicsOfConsciousness

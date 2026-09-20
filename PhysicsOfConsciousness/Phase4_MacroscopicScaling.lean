@@ -33,6 +33,22 @@ the individual patches; no global object appears anywhere in the class. That is
 the point of the present shape, and it was not always so — see the two notes
 below.
 
+**One index, two roles.** `cover` makes `I` a family of content patches and
+`phase` makes it a family of oscillators; `ThermodynamicCover` adds the coupling
+`A : I → I → ℝ` on the same index. An instance therefore declares that one
+oscillator carries exactly one patch and conversely. That is a modelling
+assumption and not a consequence of anything here: field-mediated coupling is
+spatial, so `A` wants the substrate's own topology, while two territories
+describing the same quantity need not be neighbours in it. Under a single index
+the two comparisons are made with one object, and every result quantifying over
+`I` inherits the identification — `overlap_agreement`,
+`ThermodynamicCover.phase_locked`, `global_section_from_thermodynamics`, and the
+equilibrium bridge of `Phase5_EquilibriumBridge.lean`, which reads `I` as the
+site index of a Kuramoto system and its phase field as that system's trajectory.
+Separating them means a patch index, an oscillator index and a declared map
+between the two, and it changes the statement of each of those results; what the
+present shape asserts is that the map is the identity.
+
 **Soundness note (2026-08-29).** `phase_invariant_periodic` and
 `sync_to_section_eq` were once declared as standalone `axiom`s quantified over
 `[S : LocalSectionSynchronization X]`. That is the same defect that made
