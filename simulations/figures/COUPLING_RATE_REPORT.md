@@ -26,7 +26,9 @@ which is why the criterion is read off the terminal residual instead.
 | subcritical_0.8 | 0.8 | 0.03162 | 63.25 | 0.01995 | 1 | 0.0001 |
 | supercritical_0.8 | 0.8 | 0.01 | 200 | 0.02 | 2.995 | 1 |
 
-Bifurcation delay, seeded at threshold at the finite-`N` fluctuation floor `0.02236`: exponent **0.447** over all four speeds and **0.418** over the three the published fit used, against that fit's `0.443`.
+Bifurcation delay, seeded at threshold at the finite-`N` fluctuation floor `0.02236`: exponent **0.4509** over all 8 speeds and **0.4255** over the 6 the published fit uses.
+
+Against the escape criterion, over those same legs: `r >= 0.2` gives **0.425**, `r >= 0.1` gives **0.482**, `r >= 0.05` gives **0.490**. The shortfall from 1/2 is the criterion's, and it closes as the criterion approaches the seed.
 
 Controls: stationary drift `1.11e-16`, step halving `4.4e-06`, frozen-branch comparison rejected at every speed: `True`.
 

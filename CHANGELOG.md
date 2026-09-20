@@ -23,6 +23,40 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-20 — An interval read against 1/2 instead of against its estimator
+
+Both publication files reported the finite-`N` bifurcation-delay fit,
+`dK = v^0.444` with a 95% slope interval of `[0.394, 0.494]`, as **excluding the
+predicted 1/2**, and then assigned the shortfall to "the delay estimator" on the
+strength of a deterministic mean-field control showing the same shortfall with no
+ensemble in it. That control establishes that finite-`N` sampling is not the
+cause. It identifies no cause, and what a reader met in the article's headline
+prediction was that prediction being rejected by the article's own sweep.
+
+**The exclusion claim is withdrawn**, and the shortfall is located instead of
+assigned. The escape criterion is the cause. A run entering threshold at the
+fluctuation floor `1/sqrt(N)` and stopped at `r >= 0.2` crosses the saturation
+between those two levels, which the linear escape condition does not describe;
+that condition alone gives `dK = 2 sqrt(v ln(r_esc/r_seed))`, a square root in
+`v` at any fixed pair of levels. Scanning the criterion in the deterministic
+limit — over the same eight speeds the ensemble ramps, fitted by the same
+estimator over the same six uncensored legs — returns 0.425 at `r >= 0.2`, 0.482
+at `r >= 0.1` and 0.490 at `r >= 0.05`, against a seed a criterion cannot go
+below. The measurement's interval contains its own reference, and the distance
+from 1/2 is what an absolute escape criterion costs a reading of onset delay.
+
+Three things moved in the code so that the comparison is one measurement rather
+than two. `quasistatic_error.py` mirrors the ensemble's eight speeds rather than
+four decade-spaced ones; it refuses an escape level at or below the seed, which
+had returned a delay of exactly zero and put an infinity into the log fit that
+read it; and it stores the raw delays per criterion, the fitting having moved to
+the publication layer, where the reference and the measurement it is a reference
+for are one function of one set of legs. `RAMP_DELAY_EXPONENT`, a hand-copied
+restatement of the published fit, is gone: it had drifted to `0.443` against the
+published `0.444`.
+
+---
+
 ## 2026-09-19 — A Fermi estimate that was generated and never stated
 
 `simulations/fermi_estimate_check.py` computes a coupling estimate for cortex —

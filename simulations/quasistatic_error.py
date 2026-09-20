@@ -248,15 +248,28 @@ def build_legs(config: ErrorConfig) -> list[Leg]:
 # `dynamic_ramp_report` fixes the escape level and the speeds, and
 # `dynamic_ramp.production_config` fixes the population; `report` sits above
 # `simulation` in `tach.toml`, so the numbers are restated here rather than
-# imported, and `\rampDelayExponent` is the published fit they produced.
-RAMP_SPEEDS: tuple[float, ...] = (1e-1, 1e-2, 1e-3, 1e-4)
-# The finite-`N` ensemble is right-censored at the fastest speed -- not every
-# replica escapes before the leg ends -- so the published fit uses the other
-# three. The comparison below is made over the same three, and over all four.
-RAMP_UNCENSORED: tuple[float, ...] = RAMP_SPEEDS[1:]
+# imported. The speeds are that sweep's, so that the deterministic delay is the
+# same measurement as the ensemble's at every leg the ensemble fits.
+RAMP_SPEEDS: tuple[float, ...] = (1e-1, 2e-2, 1e-2, 5e-3, 2e-3, 1e-3, 2e-4, 1e-4)
+# The finite-`N` ensemble is right-censored at its two fastest legs -- not every
+# replica escapes before the leg ends -- so its published fit uses the other
+# six. The reference fit is read over the same six.
+RAMP_UNCENSORED: tuple[float, ...] = RAMP_SPEEDS[2:]
 RAMP_ESCAPE = 0.2
+# The escape criterion, scanned. A run seeded at the fluctuation floor and
+# stopped at a level above it crosses the saturation between the two, which the
+# linear escape argument behind `delay = O(sqrt(speed))` does not describe; the
+# scan is what separates that contribution from the law. The published level
+# comes first, and the tightest sits a little above the seed, which a criterion
+# cannot reach.
+RAMP_ESCAPE_LEVELS: tuple[float, ...] = (RAMP_ESCAPE, 0.1, 0.05)
 RAMP_OSCILLATORS = 2000
-RAMP_DELAY_EXPONENT = 0.443
+
+
+def ramp_seed_order() -> float:
+    """The finite-`N` fluctuation floor the deterministic run starts from."""
+    return 1.0 / float(np.sqrt(RAMP_OSCILLATORS))
+
 
 # Declared time scales for the manuscript reading, both as ranges and neither
 # measured here. The first is the sleep-wake transition the extracellular-space
@@ -293,23 +306,29 @@ def _seeded_delay_leg(config: ErrorConfig) -> Leg:
     return Leg("threshold_delay", critical, critical + config.delay_span, 0.0)
 
 
-def threshold_delay(speed: float, config: ErrorConfig) -> float | None:
+def threshold_delay(speed: float, config: ErrorConfig, escape: float = RAMP_ESCAPE) -> float | None:
     """Return the coupling excess at which a threshold-seeded run escapes.
 
     The seed is the finite-population fluctuation floor `1/sqrt(N)` and the
-    escape level is the one `dynamic_ramp_report` uses, so this is the
+    default escape level is the one `dynamic_ramp_report` uses, so this is the
     deterministic idealization of the same measurement: a run that enters the
     threshold at the floor rather than one whose seed decayed to a point.
+
+    A level at or below the seed is met before the ramp has moved, which would
+    return a delay of zero rather than report that nothing was measured, so it
+    is refused instead.
     """
+    seed = ramp_seed_order()
+    if escape <= seed:
+        raise ValueError(f"an escape level must sit above the seed {seed:.4f}")
     leg = _seeded_delay_leg(config)
-    seed = 1.0 / np.sqrt(RAMP_OSCILLATORS)
-    harmonics = von_mises_harmonics(concentration_for_order(float(seed)), config.n_harmonics)
+    harmonics = von_mises_harmonics(concentration_for_order(seed), config.n_harmonics)
     factors = propagator(config.n_harmonics, config.diffusion, config.dt)
     steps = max(int(round((leg.end - leg.start) / speed / config.dt)), 1)
     for index in range(steps):
         coupling = leg.start + speed * index * config.dt
         harmonics = advance(harmonics, coupling, factors)
-        if harmonics[0] >= RAMP_ESCAPE:
+        if harmonics[0] >= escape:
             return float(coupling - leg.start)
     return None
 
@@ -433,8 +452,17 @@ def _exponent_of(pairs: list[tuple[float, float]]) -> float | None:
     )
 
 
+def _scan_entry(config: ErrorConfig, escape: float) -> dict[str, object]:
+    """One escape level, with the delay it returns at every ramp speed."""
+    return {
+        "escape": escape,
+        "coupling_excess": [threshold_delay(speed, config, escape) for speed in RAMP_SPEEDS],
+    }
+
+
 def _delay_payload(config: ErrorConfig) -> dict[str, object]:
-    excess = [threshold_delay(speed, config) for speed in RAMP_SPEEDS]
+    scan = [_scan_entry(config, level) for level in RAMP_ESCAPE_LEVELS]
+    excess = cast(list[float | None], scan[0]["coupling_excess"])
     measured = [(s, d) for s, d in zip(RAMP_SPEEDS, excess, strict=True) if d is not None]
     uncensored = [(s, d) for s, d in measured if s in RAMP_UNCENSORED]
     return {
@@ -443,8 +471,8 @@ def _delay_payload(config: ErrorConfig) -> dict[str, object]:
         "exponent": _exponent_of(measured),
         "uncensored_speeds": list(RAMP_UNCENSORED),
         "uncensored_exponent": _exponent_of(uncensored),
-        "published_exponent": RAMP_DELAY_EXPONENT,
-        "seed_order": 1.0 / float(np.sqrt(RAMP_OSCILLATORS)),
+        "criterion_scan": scan,
+        "seed_order": ramp_seed_order(),
         "escape_level": RAMP_ESCAPE,
     }
 
@@ -509,7 +537,7 @@ def main() -> None:
     speeds = np.geomspace(1e-2, 1.0, 3) if args.smoke else production_speeds()
     summary = run_sweep(config, speeds, args.output or PRODUCTION_OUTPUT)
     delay = cast(dict[str, object], summary["bifurcation_delay"])
-    print(f"delay exponent {delay['exponent']} against published {delay['published_exponent']}")
+    print(f"delay exponent {delay['exponent']} at escape level {delay['escape_level']}")
     for point in cast(list[dict[str, object]], summary["criterion"]):
         print(f"{point['leg']}: admissible speed {point['admissible_speed']}")
     print("scope: mean-field quasi-static residual; no cortical trajectory is calibrated")

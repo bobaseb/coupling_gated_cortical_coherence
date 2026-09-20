@@ -1,4 +1,5 @@
 import unittest
+from typing import cast
 
 import hypothesis.strategies as st
 import numpy as np
@@ -148,13 +149,66 @@ class DelayTest(unittest.TestCase):
         delays = [value for value in measured if value is not None]
         self.assertTrue(all(a < b for a, b in zip(delays, delays[1:], strict=False)))
 
-    def test_the_delay_exponent_reproduces_the_published_fit(self) -> None:
-        # The published `\rampDelayExponent` is a finite-`N` measurement; this
-        # is its deterministic threshold limit, and the item requires the two to
-        # be the same measurement rather than two results.
-        speeds = np.asarray(qe.RAMP_SPEEDS)
-        delays = np.asarray([qe.threshold_delay(float(speed), CONFIG) for speed in speeds])
-        self.assertAlmostEqual(qe.fit_exponent(speeds, delays), qe.RAMP_DELAY_EXPONENT, places=1)
+    def test_every_speed_the_ensemble_ramps_escapes_in_the_deterministic_limit(self) -> None:
+        """Censoring is the ensemble's, not the measurement's.
+
+        The finite-`N` sweep is right-censored at its fastest legs because not
+        every replica escapes before the leg ends. A deterministic run has no
+        replicas to lose, so if a speed censored there also failed to escape
+        here, the two would not be the same measurement at different noise
+        levels and the reference would be reading a different quantity.
+        """
+        measured = [qe.threshold_delay(speed, CONFIG) for speed in qe.RAMP_SPEEDS]
+
+        self.assertEqual([value for value in measured if value is None], [])
+
+    def test_tightening_the_escape_criterion_moves_the_exponent_to_one_half(self) -> None:
+        """What the shortfall from 1/2 belongs to.
+
+        The run is seeded at the fluctuation floor and escapes at a level above
+        it, so the measured delay carries the saturation crossed between the
+        two, which the linear escape argument does not. Shrinking that gap
+        therefore has to shrink the shortfall, and at the tightest level the
+        estimator has to return the law. A reference that did not do this would
+        leave the shortfall unexplained rather than located.
+        """
+        speeds = np.asarray(qe.RAMP_UNCENSORED)
+        exponents = [
+            qe.fit_exponent(
+                speeds,
+                np.asarray([qe.threshold_delay(float(s), CONFIG, level) for s in speeds]),
+            )
+            for level in qe.RAMP_ESCAPE_LEVELS
+        ]
+
+        self.assertEqual(qe.RAMP_ESCAPE_LEVELS[0], qe.RAMP_ESCAPE)
+        self.assertTrue(all(a < b for a, b in zip(exponents, exponents[1:], strict=False)))
+        self.assertLess(exponents[0], 0.45)
+        self.assertAlmostEqual(exponents[-1], 0.5, delta=0.02)
+
+    def test_an_escape_level_at_or_below_the_seed_is_refused(self) -> None:
+        """A criterion the seed already meets measures nothing.
+
+        The run starts at the fluctuation floor, so a level at or below it is
+        met at the first step and the function returns a delay of exactly zero
+        -- a number that passes every positivity check downstream and puts an
+        infinity into the log fit that reads it.
+        """
+        seed = qe.ramp_seed_order()
+
+        for level in (seed, seed / 2.0, 0.0):
+            with self.assertRaisesRegex(ValueError, "above the seed"):
+                qe.threshold_delay(1e-2, CONFIG, level)
+
+    def test_the_criterion_scan_carries_one_leg_per_speed_at_every_level(self) -> None:
+        payload = qe._delay_payload(CONFIG)
+        scan = cast(list[dict[str, object]], payload["criterion_scan"])
+
+        self.assertEqual([entry["escape"] for entry in scan], list(qe.RAMP_ESCAPE_LEVELS))
+        for entry in scan:
+            legs = cast(list[float | None], entry["coupling_excess"])
+            self.assertEqual(len(legs), len(qe.RAMP_SPEEDS))
+        self.assertEqual(scan[0]["coupling_excess"], payload["coupling_excess"])
 
     def test_the_fit_recovers_an_exact_power_law(self) -> None:
         """A slope the fit has to return exactly, rather than to one decimal.

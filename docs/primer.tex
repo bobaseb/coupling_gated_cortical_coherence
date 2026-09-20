@@ -3447,22 +3447,25 @@ $v\in\{10^{-1},10^{-2},10^{-3},10^{-4}\}$, escape defined as the first of three
 consecutive samples at $r\ge0.2$ after threshold:
 
 \begin{itemize}[leftmargin=*,noitemsep]
-\item The fastest leg is right-censored---only $\rampFastEscaped/\rampReplicas$
-replicas escape before $K=2.5$.
+\item The $\rampDelayCensoredCount$ fastest legs are right-censored---at the
+fastest, only $\rampFastEscaped/\rampReplicas$ replicas escape before $K=2.5$.
 \item The $\rampDelayUncensoredCount$ uncensored legs of
 $\rampDelaySpeedCount$ give a log--log fit
 $\Delta K\propto v^{\rampDelayExponent}$, with $95\%$ slope interval
-$[\rampDelayExponentLow,\rampDelayExponentHigh]$, which excludes $1/2$; the
+$[\rampDelayExponentLow,\rampDelayExponentHigh]$; the
 decade-spaced legs among them have mean coupling delays $\rampDelaySlowOne$,
 $\rampDelaySlowTwo$ and $\rampDelaySlowThree$. Fitting the faster and slower
 halves of the span apart returns $\rampDelayExponentFast$ and
 $\rampDelayExponentSlow$, which agree but are each too few legs to resolve the
-shortfall alone. A deterministic mean-field control
-seeded at the finite-population fluctuation floor gives
-$\quasistaticExponentAll$ over \quasistaticSpeedCount{} speeds and
-$\quasistaticExponentUncensored$ over the \quasistaticUncensoredCount{} used
-in that fit. The shortfall from $1/2$ persists without finite-population
-sampling and cannot be attributed to that sampling alone.
+shortfall alone. The reference for that fit is a deterministic mean-field
+control seeded at the finite-population fluctuation floor: it escapes at all
+\quasistaticSpeedCount{} speeds, so the censoring above is the ensemble's, and
+it returns $\quasistaticDelayExponent$ over the \quasistaticUncensoredCount{}
+legs the fit uses, inside the interval on the fit. Tightening the escape
+criterion to $r\geq\quasistaticEscapeMid$ gives $\quasistaticEscapeMidExponent$
+and to $r\geq\quasistaticEscapeTight$ gives $\quasistaticEscapeTightExponent$,
+so the distance from $1/2$ is what an absolute escape criterion costs rather
+than a failure of the square-root law.
 \item At fixed $v=10^{-2}$ the delay grows with population size
 ($\rampNDelayOne$, $\rampNDelayTwo$, $\rampNDelayThree$ at $N=500$, $2000$,
 $8000$). However, dividing the delays by $\sqrt{\log N}$ does not give a
@@ -4617,7 +4620,7 @@ the region. So the structure instead carries the region's \emph{write}
 \id{predict} is their \emph{composite} rather than a field. The self-model runs
 through the encoding region---the ``avatar''---or it does not exist.
 
-Four theorems fix the status of the resonance condition, which is a
+Five theorems fix the status of the resonance condition, which is a
 \emph{predicate} (\id{IsRestrictionResonance}: the write is the presheaf
 restriction of the state to the avatar region) rather than a field:
 
@@ -4639,6 +4642,13 @@ boundary's map is constant, its only fixed point is named, and the original
 Self is \emph{not} one. Note the asymmetry: the opposite statement---that
 blinding leaves the Self where it was---does not even typecheck, since a
 contraction hypothesis about one boundary's map says nothing about another's.
+\item \id{not\_isRestrictionResonance\_of\_reconstructs}: what the region has to
+resolve. A boundary reconstructing two relevant states more than $2\varepsilon$
+apart while its avatar region reads them identically is not resonant; read
+forwards, \id{restrictToAvatar\_injOn\_of\_isRestrictionResonance} says a
+resonant boundary that reconstructs a pairwise separated family restricts
+injectively on it. Which states a region reads identically is fixed by where the
+region sits, before an encoding is chosen, so no read-out repairs it.
 \end{itemize}
 
 \scope
@@ -4648,7 +4658,9 @@ and the Lipschitz bound at the mean-field rate is an instance obligation.
 (ii) The witness substrate's coupling value is a choice of units, not a
 measurement. (iii) Nothing derives the resonance condition---that a physical
 avatar performs the restriction is an assumption on an instance, in the same
-class as the overlap-agreement obligation of Part XI.
+class as the overlap-agreement obligation of Part XI. The criteria above refute
+it of a given region and construct a resonant avatar for none: a region that
+does resolve the relevant family is not thereby shown to carry one.
 
 \lean
 \id{Phase6\_ReflexiveTopology.lean}, with the three-site witness in

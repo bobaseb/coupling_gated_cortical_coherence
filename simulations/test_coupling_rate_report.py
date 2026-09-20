@@ -49,7 +49,11 @@ ERROR: dict[str, Any] = {
         "exponent": 0.447,
         "uncensored_speeds": [0.01, 0.001, 0.0001],
         "uncensored_exponent": 0.418,
-        "published_exponent": 0.443,
+        "criterion_scan": [
+            {"escape": 0.2, "coupling_excess": [0.94, 0.30, 0.10, 0.044]},
+            {"escape": 0.1, "coupling_excess": [0.78, 0.25, 0.08, 0.027]},
+            {"escape": 0.05, "coupling_excess": [0.57, 0.18, 0.058, 0.019]},
+        ],
         "seed_order": 0.0224,
         "escape_level": 0.2,
     },
@@ -157,9 +161,24 @@ class ReportTest(unittest.TestCase):
         for leg in ERROR["legs"]:
             self.assertIn(leg, text)
         self.assertIn("0.447", text)
-        self.assertIn("0.443", text)
         self.assertIn("fast", text)
         self.assertIn("slow", text)
+
+    def test_the_report_fits_every_escape_criterion_over_the_uncensored_legs(self) -> None:
+        """The scan's point, in the report that carries it.
+
+        Each level is fitted over the legs the published fit uses, so the three
+        numbers are comparable to each other and to the ensemble's. A fit over
+        all four speeds of this fixture would mix in the censored leg and the
+        approach to 1/2 would be reading something else.
+        """
+        text = report.build_report(ERROR, NOISE)
+        line = next(item for item in text.splitlines() if item.startswith("Against the escape"))
+
+        for entry in ERROR["bifurcation_delay"]["criterion_scan"]:
+            self.assertIn(f"r >= {entry['escape']:g}", line)
+        self.assertIn("**0.417**", line)
+        self.assertIn("**0.488**", line)
 
     def test_the_report_says_the_crossing_leg_has_no_admissible_speed(self) -> None:
         text = report.build_report(ERROR, NOISE)

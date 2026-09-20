@@ -1059,11 +1059,12 @@ $\rampDelayUncensoredCount$ legs at which every replica escapes.  The
 decade-spaced legs among them have
 mean delays $\Delta K=\rampDelaySlowOne$, $\rampDelaySlowTwo$ and $\rampDelaySlowThree$.  The log--log fit over all
 $\rampDelayUncensoredCount$ gives
-$\Delta K\propto v^{\rampDelayExponent}$, with $95\%$ interval
-$[\rampDelayExponentLow,\rampDelayExponentHigh]$ on the slope, which excludes
-$1/2$.  That is an interval on how well a power law describes these legs, and
-not on seed variability, integrator error or the estimator's own bias, none of
-which enter it.  Split at the median speed, the faster half returns
+$\Delta K\propto v^{\rampDelayExponent}$, with a $95\%$ slope interval of
+$[\rampDelayExponentLow,\rampDelayExponentHigh]$.  That is an interval on how
+well a power law describes these legs, and not on seed variability, integrator
+error or the estimator's own bias, none of which enter it, so what the exponent
+is read against is the same estimator applied to a run carrying no ensemble.
+Split at the median speed, the faster half returns
 $\rampDelayExponentFast$
 $[\rampDelayExponentFastLow,\rampDelayExponentFastHigh]$ and the slower half
 $\rampDelayExponentSlow$
@@ -1071,13 +1072,30 @@ $[\rampDelayExponentSlowLow,\rampDelayExponentSlowHigh]$: the two point
 estimates agree, and each half is three legs across one decade, so its own
 interval is far wider than the shortfall being tested.  The split therefore
 shows that the apparent exponent does not drift across the span, and neither
-half measures it.  The same delay measured in the
-deterministic mean-field limit, seeded at threshold at the finite-$N$ fluctuation
-floor $\quasistaticSeedOrder$, returns $\quasistaticExponentAll$ over
-\quasistaticSpeedCount{} speeds and $\quasistaticExponentUncensored$ over the
-\quasistaticUncensoredCount{} this fit uses, so the shortfall from $1/2$ outlives
-the removal of finite-$N$ sampling and belongs to the delay estimator rather than
-to the ensemble.  Section~\ref{sec:ramp} states the prediction this licenses,
+half measures it.  The reference is the same
+delay measured in the deterministic mean-field limit, seeded at threshold at the
+finite-$N$ fluctuation floor $\quasistaticSeedOrder$ and stopped at the same
+criterion.  Every one of its \quasistaticSpeedCount{} speeds escapes, so the
+censoring above is the ensemble's, and the fit over the
+\quasistaticUncensoredCount{} legs the ensemble fits returns
+$\quasistaticDelayExponent$: the interval on the measurement contains its
+reference, and the shortfall from $1/2$ survives the removal of finite-$N$
+sampling.
+
+What the reference shows is that the shortfall is the escape criterion's.  A run
+entering threshold at the floor and stopped at $r\geq 0.2$ crosses the
+saturation between those two levels, which the linear escape condition
+$\tfrac12\int_0^{T}(K(t)-K_c)\,dt=\ln(r_{\mathrm{esc}}/r_{\mathrm{seed}})$ does
+not describe; that condition alone gives
+$\Delta K=2\sqrt{v\ln(r_{\mathrm{esc}}/r_{\mathrm{seed}})}$, a square root in
+$v$ at any fixed pair of levels.  Tightening the criterion shortens the crossing:
+at $r\geq\quasistaticEscapeMid$ the same estimator over the same legs returns
+$\quasistaticEscapeMidExponent$ and at $r\geq\quasistaticEscapeTight$ it returns
+$\quasistaticEscapeTightExponent$, against a seed the criterion cannot go below
+and at which the measured delay would be zero.  An onset delay read off an
+absolute threshold therefore carries an exponent that depends on how far above
+the fluctuation floor that threshold sits, which is a property of the reading and
+not of the crossing.  Section~\ref{sec:ramp} states the prediction this licenses,
 which fixes no absolute rate: onset delay scales as the square root of the rate
 at which coupling crosses threshold, so a design varying only that rate tests it
 without calibrating $\kappa$ or $\gamma$.  At fixed $v=10^{-2}$ the delay is monotonic in $N$, increasing

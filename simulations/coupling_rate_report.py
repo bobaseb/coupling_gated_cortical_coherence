@@ -73,14 +73,35 @@ def _criterion_panel(axis: Any, summary: Row) -> None:
     axis.grid(alpha=0.3)
 
 
+def _scan_entry_text(delay: Row, entry: Row) -> str:
+    """One escape level of the criterion scan, fitted over the uncensored legs."""
+    keep = [
+        (speed, excess)
+        for speed, excess in zip(delay["speeds"], entry["coupling_excess"], strict=True)
+        if speed in delay["uncensored_speeds"] and excess is not None
+    ]
+    speeds = np.asarray([speed for speed, _ in keep], dtype=float)
+    excess = np.asarray([value for _, value in keep], dtype=float)
+    exponent = float(np.polyfit(np.log(speeds), np.log(excess), 1)[0])
+    return f"`r >= {entry['escape']:g}` gives **{exponent:.3f}**"
+
+
 def _delay_panel(axis: Any, summary: Row) -> None:
-    """The threshold-seeded bifurcation delay against the published fit."""
+    """The threshold-seeded bifurcation delay at each escape criterion.
+
+    The square-root line is drawn through the tightest criterion's fastest leg
+    rather than fitted: what the panel is for is the approach to it as the
+    criterion tightens, and a fitted line through each scan would hide that by
+    construction.
+    """
     delay = summary["bifurcation_delay"]
     speeds = np.asarray(delay["speeds"], dtype=float)
-    excess = np.asarray([value for value in delay["coupling_excess"]], dtype=float)
-    axis.loglog(speeds, excess, "o", color="tab:red", label="measured")
-    reference = excess[0] * (speeds / speeds[0]) ** delay["published_exponent"]
-    axis.loglog(speeds, reference, "k--", lw=1.4, label=f"$v^{{{delay['published_exponent']}}}$")
+    for entry in delay["criterion_scan"]:
+        excess = np.asarray(entry["coupling_excess"], dtype=float)
+        axis.loglog(speeds, excess, "o-", lw=1.1, ms=4, label=f"$r\\geq{entry['escape']:g}$")
+    tightest = np.asarray(delay["criterion_scan"][-1]["coupling_excess"], dtype=float)
+    root = tightest[0] * (speeds / speeds[0]) ** 0.5
+    axis.loglog(speeds, root, "k--", lw=1.4, label=r"$v^{1/2}$")
     axis.set(xlabel=r"ramp speed $\dot K$", ylabel=r"$\Delta K$ at escape")
     axis.legend(fontsize=8)
     axis.grid(alpha=0.3)
@@ -130,8 +151,13 @@ def error_section(summary: Row) -> list[str]:
         "",
         f"Bifurcation delay, seeded at threshold at the finite-`N` fluctuation floor "
         f"`{_format(delay['seed_order'])}`: exponent **{_format(delay['exponent'])}** over all "
-        f"four speeds and **{_format(delay['uncensored_exponent'])}** over the three the "
-        f"published fit used, against that fit's `{delay['published_exponent']}`.",
+        f"{len(delay['speeds'])} speeds and **{_format(delay['uncensored_exponent'])}** over the "
+        f"{len(delay['uncensored_speeds'])} the published fit uses.",
+        "",
+        "Against the escape criterion, over those same legs: "
+        + ", ".join(_scan_entry_text(delay, entry) for entry in delay["criterion_scan"])
+        + ". The shortfall from 1/2 is the criterion's, and it closes as the criterion "
+        "approaches the seed.",
         "",
         f"Controls: stationary drift `{_format(controls['stationary_drift'], 3)}`, "
         f"step halving `{_format(controls['step_halving'], 3)}`, frozen-branch comparison "

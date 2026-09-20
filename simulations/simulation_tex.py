@@ -764,6 +764,26 @@ def _compatibility_macros() -> list[str]:
     ]
 
 
+def _scan_exponent(delay: JsonObject, entry: JsonObject) -> float:
+    """Fit one escape level over the legs the finite-`N` delay fit uses.
+
+    ``fit_power_law`` is the estimator that produced ``\rampDelayExponent``, so
+    the reference and the measurement it is a reference for are one function of
+    one set of legs, differing only in the ensemble the delays came from. A
+    second estimator here would leave the comparison reading two things.
+    """
+    uncensored = cast(list[float], delay["uncensored_speeds"])
+    excess = cast(list[float | None], entry["coupling_excess"])
+    pairs = [
+        (speed, value)
+        for speed, value in zip(cast(list[float], delay["speeds"]), excess, strict=True)
+        if speed in uncensored and value is not None
+    ]
+    speeds = np.array([speed for speed, _ in pairs])
+    delays = np.array([value for _, value in pairs])
+    return fit_power_law(speeds, delays).exponent
+
+
 def _quasistatic_macros() -> list[str]:
     """Emit the rate the quasi-static reading requires and where it is unavailable (N12)."""
     data = _read_json(FIGURES / "quasistatic_error" / "quasistatic_error_summary.json")
@@ -774,6 +794,10 @@ def _quasistatic_macros() -> list[str]:
     cited = cast(list[float], manuscript["cited_ratio_range"])
     if crossing["admissible_speed"] is not None:
         raise ValueError("the crossing leg now admits a speed; rewrite the sentence")
+    scan = cast(list[JsonObject], delay["criterion_scan"])
+    if len(scan) != 3:
+        raise ValueError("the criterion scan is no longer three levels; rewrite the sentence")
+    published, mid, tight = scan
     terminal = [cast(float, run["terminal_error"]) for run in runs]
     speeds = [cast(float, run["speed"]) for run in runs]
     return [
@@ -792,8 +816,11 @@ def _quasistatic_macros() -> list[str]:
         _macro("quasistaticCrossingResidualMin", f"{min(terminal):.3f}"),
         _macro("quasistaticCrossingResidualMax", f"{max(terminal):.3f}"),
         _macro("quasistaticSeedOrder", f"{cast(float, delay['seed_order']):.4f}"),
-        _macro("quasistaticExponentAll", f"{cast(float, delay['exponent']):.3f}"),
-        _macro("quasistaticExponentUncensored", f"{cast(float, delay['uncensored_exponent']):.3f}"),
+        _macro("quasistaticDelayExponent", f"{_scan_exponent(delay, published):.3f}"),
+        _macro("quasistaticEscapeMid", f"{cast(float, mid['escape']):g}"),
+        _macro("quasistaticEscapeMidExponent", f"{_scan_exponent(delay, mid):.3f}"),
+        _macro("quasistaticEscapeTight", f"{cast(float, tight['escape']):g}"),
+        _macro("quasistaticEscapeTightExponent", f"{_scan_exponent(delay, tight):.3f}"),
         _macro("quasistaticSpeedCount", len(cast(list[float], delay["speeds"]))),
         _macro("quasistaticUncensoredCount", len(cast(list[float], delay["uncensored_speeds"]))),
     ]
