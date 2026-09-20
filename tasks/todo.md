@@ -754,7 +754,7 @@ before they are committed (§4).
       it is the quantitative shape G1 asks for. Check what Mathlib gives for
       separated sets and packing numbers before committing to a statement.
 
-- [ ] **G5 — Say what discharging the eight hypotheses would and would not
+- [x] **G5 — Say what discharging the eight hypotheses would and would not
       deliver.** Table 1 names eight connecting hypotheses and the
       installed-energy consequence; the identification of the glued state with
       unity and of the reconstruction with a minimal self is not among them,
@@ -767,7 +767,7 @@ before they are committed (§4).
       term in this development (`ContinuingAgent`, `MemoryAgent`), so name the
       two missing things instead of the one ambiguous noun.
 
-- [ ] **G6 — The coherence-to-content bound is informative where unity is not in
+- [x] **G6 — The coherence-to-content bound is informative where unity is not in
       question.** `δ_r = L√2·N·√(1-r²)` read patch-locally is tight when `N` is
       small and `r` near one, and shrinking patches thins the overlaps at the
       same rate as it tightens the bound. At columnar grain it constrains
@@ -778,7 +778,7 @@ before they are committed (§4).
       bound. Check whether an existing sweep supports a numeral before writing
       one, and if it does, generate it.
 
-- [ ] **G7 — Read cortical columns against the cover's requirements.** Columns
+- [x] **G7 — Read cortical columns against the cover's requirements.** Columns
       are the obvious candidate for the oscillator index — independently defined,
       with a measurable columnar phase, so not chosen to make agreement come out
       right — and a poor one for the content cover: a tiling lands in G2,
@@ -806,7 +806,7 @@ before they are committed (§4).
       bundle-and-connection reformulation of content is not this item; it goes to
       `tasks/research_programme.md` if the scoping says the language pays.
 
-- [ ] **G9 — Carry the cover and region conditions into the publication.** The
+- [x] **G9 — Carry the cover and region conditions into the publication.** The
       Lean half of G1–G4 and G8 is in the tree and none of it has reached a
       publication file, which is the same shape the M pass exists to catch.
       Four sites, and they are independent of each other. (i) `sec:unity`'s
@@ -919,6 +919,61 @@ before they are committed (§4).
   partition of unity, and the module says so — and nothing in the degree
   statement needs the bundle-and-connection language, which therefore stays out
   of the tree.
+
+- **G5.** The commitments subsection now says what discharging E12--E89 for cortex
+  would buy --- a composition that is a statement about cortex, its cover reached
+  by relaxation of a cortical field and its glued state the unique fixed point of
+  a reconstruction realized there --- and that it would leave the two correlate
+  identifications exactly where they are, since neither is among the eight and
+  neither follows from their conjunction. The scope subsection named the residue
+  as "a cortical agent"; `agent` is a technical term here (`ContinuingAgent`,
+  `MemoryAgent`) and the phrase read as a conscious subject, so it now names the
+  two missing things: the eight discharged for toy components rather than for
+  cortex, and the correlate identification the eight do not contain.
+
+- **G6, and the numerals the sweep already carried.** Eq. (4) bounds a chord,
+  which never exceeds two, so the estimate constrains anything only where
+  `√2·N·√(1-r²)` falls below that, and the travelling-wave summary fixes both
+  ends of the range on one sheet. `_wave_content_macros` in
+  `simulations/simulation_tex.py` reads it without integrating: the sweep's own
+  patch is 625 sites at patch-local order 0.9015, where the bound is 382.5·L and
+  says nothing; holding that order fixed the count alone brings it under the
+  maximum chord only at three sites or fewer; and a nearest-neighbour pair of the
+  same winding gives 0.1388·L. Shrinking patches therefore thins the overlaps at
+  the rate it tightens the bound, which is the specific form of the
+  population-size limit the discussion records in a clause. Four generated
+  macros, one drift test.
+
+- **G7, with three verified citations.** The calibration section named no
+  candidate patch at all. Columns answer one of the two demands: as the
+  oscillator index they are delineated by response properties and anatomy rather
+  than by the agreement they would establish (Mountcastle 1997), and a phase is
+  estimable from a column-sized territory at the electrode spacings used for
+  cortical wave measurements (Townsend et al. 2015). As the content cover they
+  fail three ways --- a non-overlapping parcellation is the disjoint cover of G2,
+  the cover condition demands the patches exhaust the substrate while much of
+  association cortex has no accepted columnar parcellation, and the column's
+  standing as a canonical unit is contested (Horton and Adams 2005; Rakic 2008).
+  So columns supply the oscillator index and leave the content cover to separate
+  evidence, which is E78's bridge assumption.
+
+- **G9, all four sites.** (i) The unity section states what a cover must supply,
+  with `ofDisjointCover` and `glue_unique_of_disjoint` behind the sentence that
+  a cover chosen to secure agreement empties the claim, and `HasNonemptyOverlaps`
+  named as the non-degeneracy nothing above assumes; Table S1's gluing row ends
+  on it. (ii) The E78 row names the one-index bridge assumption G3 scoped.
+  (iii) The reconstruction subsection reads the whole-substrate region against
+  the pair of obligations it satisfies with nothing folded anywhere
+  (`topAvatar_satisfies_obligations`), makes properness a separate requirement
+  (`IsProperAvatar`) and states its quantitative form as the packing bound
+  (`encard_le_packingNumber_restrictToAvatar`), empty at `⊤`. (iv) The
+  unconditional collection and the winding section gain the degree: one state at
+  one coupling with resultant exactly zero and winding number `q`, obstructing
+  every global real-valued phase lift (`winding_degree_obstructs`), an integer a
+  redrawn cover does not move. Three Table S1 rows extended, and
+  `docs/primer.tex` carries the same three additions, its explanation of the
+  gluing cover, the phase lifts and the reconstruction count having gone behind
+  the manuscript.
 
 **Declined, with reasons**, so that none of them returns as an open item.
 

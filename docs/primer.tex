@@ -4019,6 +4019,18 @@ That object is what a prose table of assumptions cannot carry. It is also the
 target the compatibility observable of Part XVIII would have to separate from its
 compatible counterpart.
 
+\noindent
+The cover is itself a choice, and overlap agreement is the only demand the class
+makes of it. Over an empty overlap there is nothing to compare---the presheaf's
+value on the empty region is a singleton---so a cover by pairwise \emph{disjoint}
+patches is an instance for every assignment of local data and phases
+(\id{LocalSectionSynchronization.ofDisjointCover}), and the gluing theorem still
+returns a unique global section, which is the tuple it was handed
+(\id{glue\_unique\_of\_disjoint}). Membership of the class then reports nothing
+about the system beyond the patches covering it. \id{HasNonemptyOverlaps} is the
+non-degeneracy this identifies, stated as a predicate rather than a field, so no
+result above assumes it.
+
 \scope
 The theorem does \emph{not} require patches to agree away from their
 overlaps---the three-patch witness carries three pairwise-different profiles.
@@ -4030,7 +4042,9 @@ a globally compatible representation.
 \lean
 \id{Phase5\_GlobalSection.lean}: \id{probability\_glue\_unique},
 \id{ThermodynamicCover}, \id{LocalSectionSynchronization.section\_agrees\_of\_phase\_eq},
-\id{sync\_to\_section\_eq}; the equilibrium discharge in
+\id{sync\_to\_section\_eq}, \id{subsingleton\_section\_of\_eq\_bot},
+\id{section\_agrees\_of\_disjoint}, \id{glue\_unique\_of\_disjoint},
+\id{LocalSectionSynchronization.HasNonemptyOverlaps}; the equilibrium discharge in
 \id{Phase5\_EquilibriumBridge.lean}
 (\id{ThermodynamicCover.ofConvergentTrajectory}).
 
@@ -4336,6 +4350,17 @@ transitions arising from a single global lift telescope to zero---so non-zero
 winding \emph{obstructs} a global lift---and a winding-one witness on three
 electrodes shows the obstruction is realized.
 
+The same integers are available from a state rather than from a recording.
+\id{ringTransition} is the number of whole turns the $q$-fold winding's affine
+local lifts drop between consecutive sites: zero inside the ring, $q$ across the
+wrap where the residue resets (\id{winding\_succ}). Summed around the loop they
+give $q$ (\id{loopWinding\_ringTransition}). What this buys is a pairing on one
+state at one coupling: the global resultant is exactly zero and the degree is $q$
+(\id{winding\_degree\_obstructs}). The resultant is an average over sites and
+moves when they are reweighted or the patches redrawn; the degree telescopes, so
+no redrawing of the loop's intermediate transitions changes it. That is the sense
+in which the winding state is an invariant and not only a counterexample.
+
 The following notation spells out where phases can be measured. The
 \emph{punctured domain} is the surface with singularities removed. The
 \emph{nerve} of a cover records which patches overlap: a node for each patch,
@@ -4404,7 +4429,9 @@ arrow length of the model is a normal-form radius rather than the envelope of a
 recording, which is an identification the development does not make.
 
 \lean
-\id{Phase5\_PhaseLifts.lean}, \id{Phase4\_KuramotoDynamics.lean}~\S7.
+\id{Phase5\_PhaseLifts.lean} (\id{ringTransition}, \id{winding\_succ},
+\id{loopWinding\_ringTransition}, \id{not\_hasGlobalLift\_of\_loopWinding\_ne\_zero},
+\id{winding\_degree\_obstructs}), \id{Phase4\_KuramotoDynamics.lean}~\S7.
 
 %======================================================================
 \part*{Part XIII. Metric spaces, contractions, and the reflexive self}
@@ -4691,6 +4718,28 @@ codes, and an alphabet of at most $2^b$ codes can serve only $M\leq2^b$.
 
 This applies directly to the avatar: $E$ is its encoding, $R$ its readout,
 and $R\circ E$ the self-prediction map already used in the framework.
+
+Read the code as the state's own restriction to a region and the criterion moves
+onto the region, where it constrains nothing by itself. Take the region to be the
+whole substrate: restriction is then the identity, so the boundary is resonant,
+reconstructs every declarable family exactly and restricts injectively on all of
+them, with nothing folded into any proper region
+(\id{topAvatar\_satisfies\_obligations}). \id{IsProperAvatar} is the condition
+this identifies, a predicate rather than a field, and the two regions can be
+compared on one substrate: the proper one provably fails to reconstruct the family
+it cannot resolve while the improper one reconstructs it exactly, both being
+resonant (\id{properness\_is\_what\_costs}).
+
+The count also generalizes from an alphabet to a metric, which is the form a
+continuous family of states needs. With a metric on the codes and an
+$L$-Lipschitz readout, the triangle inequality that forced distinct codes forces
+\emph{separated} ones: a family reconstructed within $\varepsilon$ whose members
+lie pairwise more than $r$ apart has $\delta$-separated codes whenever
+$\delta L\leq r-2\varepsilon$ (\id{isSeparated\_image\_encode}), so the family
+is no larger than the $\delta$-packing number of the codes the encoder writes
+(\id{encard\_le\_packingNumber\_range}), and under resonance of the region
+itself (\id{encard\_le\_packingNumber\_restrictToAvatar}). At the whole
+substrate that bound is empty, the encoder's range being everything.
 The cortex witness reconstructs its two extreme states within tolerance one
 using a nonconstant, contracting map. Its blinded version fails at tolerance
 $1/2$ even though it has a unique fixed point. Another example needs three
@@ -4702,12 +4751,18 @@ consequence of having a Self or UnifiedSelf. It asks for bounded error rather
 than multiple exact fixed points of one contraction. The relevant states and
 metric are declared; the theorem demands no recovery of every microscopic
 hardware state. The code alphabet is a bare type, so a physical interpretation
-of $b$ as memory bits needs a hardware model.
+of $b$ as memory bits needs a hardware model. The packing form declares its gain
+$L$ and derives one for no physical readout, so a decoder of unbounded gain is
+constrained by neither form.
 
 \lean{
 \id{Phase6\_Reconstruction.lean}: \id{dist\_le\_add\_error},
 \id{half\_dist\_le\_max\_error}, \id{Encoding.card\_le\_two\_pow},
-\id{ReflexiveBoundary.dist\_le\_prediction\_residuals}.
+\id{ReflexiveBoundary.dist\_le\_prediction\_residuals},
+\id{Encoding.sub\_two\_mul\_le\_lipschitz\_mul}, \id{isSeparated\_image\_encode},
+\id{encard\_le\_packingNumber\_range},
+\id{encard\_le\_packingNumber\_restrictToAvatar}, \id{topAvatar},
+\id{topAvatar\_satisfies\_obligations}, \id{IsProperAvatar}.
 \id{Examples/Reconstruction.lean}, \S24, checks the positive and blinded cases.}
 
 %======================================================================
@@ -5886,7 +5941,7 @@ Twisted gluing & Weakening to per-patch phases & Theorem; adds nothing (offsets 
 Winding numbers, phase lifts & Measured topological obstruction & Theorem + empirical candidate; no link to content \\
 Banach fixed point & The reflexive self & Conditional theorem; rate is an obligation \\
 Avatar / restriction resonance & Self-model runs through a region & Theorems, positive and negative halves \\
-\raggedright Reconstruction over a family (\S\ref{sec:reconstruction-family}) & \raggedright Separated states require distinct codes; $M\leq2^b$ & \raggedright\arraybackslash Theorem; declared states, metric and tolerance, without a physical memory model \\
+\raggedright Reconstruction over a family (\S\ref{sec:reconstruction-family}) & \raggedright Separated states require distinct codes; $M\leq2^b$ for an alphabet, and the $\delta$-packing number of the codes for a metric & \raggedright\arraybackslash Theorem; declared states, metric and tolerance, without a physical memory model, and a declared readout gain \\
 \raggedright Locality and latency (\S\ref{sec:locality}) & \raggedright Interventions outside a causal past cannot be reported accurately by its deadline & \raggedright\arraybackslash Theorem for local synchronous updates; snapshot compatibility remains possible \\
 Rigid wiring suboptimality & Support constraints cost correlation & Theorem; \emph{not} about biology \\
 Point support and finite regions (\S\ref{sec:finite-regions}) & \raggedright Atomless integrals ignore finite points; positive-mass cells preserve finite matrix weight and correlation & \raggedright\arraybackslash Theorems about support representation; no device exclusion \\
