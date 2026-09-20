@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 from typing import Any, cast
 
@@ -21,6 +22,7 @@ from dynamic_ramp_report import (
 from empirical_collapse import tangent_separation
 from fermi_estimate_check import FERMI_LAM_MIN
 from propagation_of_chaos import Summary, write_tex_macros
+from travelling_wave import WaveConfig, patch_cells
 
 
 JsonObject = dict[str, object]
@@ -298,6 +300,31 @@ def _wave_macros() -> list[str]:
         _macro("waveGapMax", f"{max(gaps):.4f}"),
         _macro("waveControlGapMax", f"{max(gaps[index] for index in lost):.4f}"),
         _macro("waveDefectMaximum", f"{max(defects):.6f}"),
+    ]
+
+
+def _wave_content_macros() -> list[str]:
+    """Read the coherence-to-content bound at the two grains the same sweep fixes.
+
+    Eq. (main-content-coherence) bounds a chord by ``L*sqrt(2)*N*sqrt(1-r^2)``,
+    and a chord never exceeds 2, so the estimate says something only where the
+    population is small enough. The winding sweep fixes both ends on one sheet:
+    its own patch is a square of ``2*cells+1`` sites at the measured patch-local
+    order, and a nearest-neighbour pair of the same winding is the smallest
+    patch there is, where the bound is exactly ``2*sqrt(2)*|sin psi|``.
+    """
+    data = _read_json(FIGURES / "travelling_wave" / "travelling_wave_summary.json")
+    config = WaveConfig(**cast(dict[str, Any], data["config"]))
+    band = cast(list[float], data["decay_mm"]).index(FERMI_LAM_MIN)
+    order = cast(list[float], data["steady_local_order"])[band]
+    sites = (2 * patch_cells(config) + 1) ** 2
+    spread = math.sqrt(2.0) * math.sqrt(1.0 - order**2)
+    advance = 2.0 * math.pi * config.winding_q / config.side
+    return [
+        _macro("wavePatchSites", sites),
+        _macro("wavePatchChordBound", f"{sites * spread:.1f}"),
+        _macro("wavePatchInformativeSites", int(2.0 / spread)),
+        _macro("waveNeighbourChordBound", f"{2.0 * math.sqrt(2.0) * abs(math.sin(advance)):.4f}"),
     ]
 
 
@@ -878,6 +905,9 @@ def generate_simulation_tex(output: Path) -> None:
         "",
         "% S2b: a winding state on the same sheet",
         *_wave_macros(),
+        "",
+        "% S2b': the same sweep read against the coherence-to-content bound",
+        *_wave_content_macros(),
         "",
         "% S2c: the same winding state under the published frequency spread",
         *_wave_disordered_macros(),
