@@ -281,13 +281,57 @@
             margin: 1.25rem auto 0 auto;
             text-align: left;
         }
+
+        .fixed-points {
+            counter-reset: fixed-point;
+            list-style: none;
+            padding-left: 0;
+            margin-top: 1.5rem;
+        }
+
+        .fixed-points li {
+            counter-increment: fixed-point;
+            position: relative;
+            background: #f4f9fc;
+            border: 1px solid #dceaf3;
+            border-left: 4px solid var(--accent-color);
+            border-radius: 6px;
+            padding: 1.1rem 1.4rem 1.1rem 3.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .fixed-points li::before {
+            content: counter(fixed-point);
+            position: absolute;
+            left: 1.25rem;
+            top: 1.1rem;
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: var(--accent-color);
+        }
+
+        .fixed-points strong {
+            color: var(--primary-color);
+        }
+
+        .prediction {
+            background: #f2fbf5;
+            border-left: 4px solid #27ae60;
+            padding: 1.25rem 1.5rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+        }
+
+        .prediction strong {
+            color: #1e8449;
+        }
     </style>
 </head>
 <body>
 
     <header>
         <h1>Coupling-gated cortical coherence</h1>
-        <p class="subtitle">What a field theory of conscious unity must assume, and what it predicts</p>
+        <p class="subtitle">A conditional framework for unity and self-representation</p>
         <p class="byline">Sebastian Bobadilla-Suarez &middot; Independent Researcher &middot;
         <a href="https://orcid.org/0000-0002-5951-0772">ORCID 0000-0002-5951-0772</a> &middot;
         <a href="mailto:sebastian.bobadilla.s@gmail.com">sebastian.bobadilla.s@gmail.com</a></p>
@@ -303,6 +347,7 @@
                 <br>
                 <a href="docs/primer.pdf" class="button button-secondary">Maths Primer</a>
                 <a href="proof_companion/companion.pdf" class="button button-secondary">Lean Proof Companion</a>
+                <a href="https://github.com/bobaseb/coupling_gated_cortical_coherence" class="button button-secondary">Code &amp; Lean Development</a>
             </center>
             <p class="link-note">The primer explains, from the ground up, the mathematics both documents
             use, for readers coming from cognitive neuroscience, machine learning or philosophy of mind;
@@ -313,7 +358,7 @@
 
         <h2>Abstract</h2>
         <div class="abstract">
-            How could coordinated cortical activity support one internally represented situation? We distinguish coherence, agreement between local contents, and accurate self-reconstruction, and develop conditional connections among them. Declared actuator modes give a necessary installed-energy condition for a coherent stationary branch. Phase encoders shared on overlaps bound content disagreement; compatible spatial measures form one global state. A contracting reconstruction that fixes this state makes it the unique fixed point, while accuracy across a state family requires distinguishable encodings. Lean&nbsp;4 checks the results and their composition under explicit connecting hypotheses. Numerical controls delimit their observational use: finite ramps delay coherence, distinct mechanisms share stationary phase distributions, and content agreement requires independently validated decoders. We propose the global state and its internal reconstruction as correlates of unity and a minimal self. An extracellular-field hypothesis links awakening to increasing coupling. Its test requires calibrated geometry and phase dynamics, together with measurements of content agreement, self-encoding and experience.
+            How could activity distributed across cortex support one experienced situation? We separate three requirements: <em>coherence</em> (collective phase order), <em>compatibility</em> (local descriptions agree where their domains overlap) and <em>self-representation</em> (the state carries an accurate reconstruction of itself). Coherence supplies neither of the others, and five results establish that with no cortical hypothesis. Synchrony bounds content disagreement only through encoders shared on overlaps, and then only at the patch the bound is read on, not over the whole population. The resultant does not determine the state: a winding field and a uniform one are stationary at one coupling, at opposite ends of that observable. A unique fixed point is not a self-model, since a contraction can discard its input: accuracy across a family of states requires distinguishable codes. Where the encoding is a region's restriction, that resolution is demanded of the region before any readout is chosen. And agreement about a change takes communication. Four of the five are checkable for a machine candidate, which fixes what a claim of machine unity or self-representation commits its maker to measuring. Under stated hypotheses, compatible local states then glue to a unique global state that an accurate contracting reconstruction fixes uniquely. Installed energy bounds the mean coupling a declared actuator supplies, so a coherent stationary branch requires it to exceed 2<em>D</em>/&kappa;; &kappa; is derived here for neither cortex nor a processor. A Lean&nbsp;4 development carries these results and their composition, with the eight connecting hypotheses as explicit arguments, no incomplete proofs, and an audited axiom footprint no wider than its libraries'. Further controls bound what observation can decide: distinct mechanisms share stationary phase distributions, and coherent adaptation can lose the structure it was meant to acquire. One prediction needs no absolute calibration: onset delay scales as the square root of the rate at which coupling crosses threshold, which a within-subject emergence-from-anaesthesia design can test; the finite-size estimate here is biased below 1/2 by its escape criterion, as a deterministic reference confirms. We propose the glued state and its internal reconstruction as correlates of unity and a minimal self, and an extracellular-field hypothesis linking awakening to rising coupling. Testing it requires calibrated geometry, resolved phase dynamics and validated decoders.
         </div>
 
         <h2>The problem</h2>
@@ -338,13 +383,24 @@
             <div class="flow-step">
                 <h4>Self-representation</h4>
                 <p>That glued state accurately reconstructing itself through an internal encoding and readout.</p>
-                <p class="needs">Needs: a contracting map that fixes the glued state as the state it reconstructs.</p>
+                <p class="needs">Needs: a contracting map that fixes the glued state, and codes that separate the states it must tell apart.</p>
             </div>
         </div>
         <p class="caption-note">Each arrow is a proposed connection, not an automatic one: phase coherence alone supplies neither agreement between local descriptions nor an accurate self-model. We propose the glued state as a correlate of conscious unity and its accurate self-reconstruction as a correlate of a minimal self &mdash; a philosophical identification, argued for but not proved by the mathematics.</p>
 
+        <h2 id="fixed-points">What holds without the cortical hypothesis</h2>
+        <p>Most of the framework is conditional. Five results are not. They constrain any account that reads unity off phase coherence &mdash; whatever physical field is proposed to carry the coupling, and whatever substrate carries the field. These are the article's fixed points, and a reader who rejects everything else on this page still has to accommodate them.</p>
+        <ol class="fixed-points">
+            <li><strong>Phase order alone does not constrain content.</strong> Give every patch the same phase and let two local mass profiles disagree at a shared site. The profiles are chosen independently of phase, so synchrony bounds their disagreement not at all, and they have no common extension: perfect locking is consistent with local descriptions that do not glue. A bound on content disagreement needs encoders already related on overlaps, and that relation is a supplied fact about the descriptions rather than a consequence of the dynamics.</li>
+            <li><strong>The order parameter does not determine the state.</strong> A field winding once across a periodic sheet has <em>r</em>&nbsp;=&nbsp;0 while every patch of it stays locked, and this is not a contrived initial condition: on a periodic array of any dimension, a winding is stationary for <em>any</em> isotropic symmetric kernel at identical frequencies, because the coupling term is odd in the separation against a kernel even in it. A low resultant therefore reports either weak coupling or a winding field, and no measurement in <em>r</em> alone separates them. The state also carries an integer the resultant does not: read around a ring, the same winding has a winding number <em>q</em>, and a nonzero <em>q</em> obstructs every global real-valued phase lift. The resultant is an average over sites and moves when they are reweighted or the patches redrawn; the degree telescopes and does not.</li>
+            <li><strong>A unique fixed point is not a self-model.</strong> A constant readout contracts, fixes whatever state it returns, and reconstructs nothing. Uniqueness is consequently the wrong criterion. Reconstructing <em>M</em> states pairwise more than 2&epsilon; apart within error &epsilon; requires <em>M</em> distinguishable codes, so an alphabet of 2<sup><em>b</em></sup> codes caps the family at <em>M</em>&nbsp;&le;&nbsp;2<sup><em>b</em></sup>. This is a counting argument and holds for any encoder and readout whatever.</li>
+            <li><strong>Where the encoding is a restriction, the region must resolve the family.</strong> Read the code as the state's own restriction to a region and the criterion moves off the readout entirely. A boundary whose region reads two relevant states identically cannot reconstruct them more than 2&epsilon; apart; a boundary that does reconstruct a separated family restricts injectively on it. Where the region sits is fixed before an encoding is chosen, so no readout supplies resolution the region lacks.</li>
+            <li><strong>Agreement after a change takes communication.</strong> In a synchronous network whose updates read only the site's own state and its declared neighbours' messages, two configurations agreeing on a site's causal past through <em>T</em> rounds leave that site identical at round <em>T</em>. Two interventions outside that past that require reports more than 2&epsilon; apart therefore cannot both be reported from it within &epsilon; by the deadline. Snapshot compatibility and timely compatibility are different requirements, and cutting the path removes the second while leaving the first intact.</li>
+        </ol>
+        <p class="caption-note">None of these depends on the coupling being electromagnetic, on the substrate being cortex, or on the eight hypotheses below holding. Four of them &mdash; all but the one about the resultant, which is a statement about a spatial observable &mdash; are checkable for a candidate that is neither biological nor field-coupled; see <a href="#digital">what they constrain in a digital candidate</a>.</p>
+
         <h2>What this is, and what it is not</h2>
-        <p>Nothing here derives consciousness from first principles. The construction is a <strong>conditional chain of nine nodes</strong>, and the eight arrows between them are assumptions rather than results: one independent physical premise, three bridge assumptions, two modelling assumptions and two physical commitments. A common toy model satisfies all eight, which establishes that their conjunction is consistent&mdash;not that cortex realizes it. The article is meant to be judged in three separable parts: a prediction that can be tested, a composition that can be checked, and an identification that can be argued about.</p>
+        <p>Nothing here derives consciousness from first principles. The construction is a <strong>conditional chain of nine nodes</strong>, and the eight arrows between them are assumptions rather than results: one independent physical premise, three bridge assumptions, two modelling assumptions and two physical commitments. A joint witness satisfies all eight at once, which establishes that their conjunction is consistent&mdash;not that cortex realizes it. Three of the ingredients are standard: the synchronization threshold K<sub>c</sub>&nbsp;=&nbsp;2D for the noisy mean-field model, the unique gluing of compatible local sections, and Banach's fixed-point theorem. Four things are not: the installed-energy condition, the patch-local form of the coherence-to-content bound, the criterion separating a winding field from weak coupling, and the machine-checked composition with its joint witness. The article is meant to be judged in three separable parts: a prediction that can be tested, a composition that can be checked, and an identification that can be argued about.</p>
 
         <div class="derivation-grid">
             <div class="card">
@@ -357,11 +413,11 @@
             </div>
             <div class="card">
                 <h4>3. Predictive dissipation</h4>
-                <p>Dissipation bounds nonpredictive memory. The bound specifies no learning rule and does not require the internal representation to reproduce environmental geometry&mdash;a point one of our simulations makes concretely and negatively.</p>
+                <p>Dissipation bounds nonpredictive memory. Under feedback the signed difference can go negative, because acting creates correlations with the future, so the passive bound is not the one an agent obeys. Neither branch specifies a learning rule, and neither requires the internal representation to reproduce environmental geometry&mdash;a point one of the simulations makes concretely and negatively.</p>
             </div>
             <div class="card">
                 <h4>4. Continuum coupling</h4>
-                <p>Replace the discrete sum of couplings with an integral against a kernel built from installed response modes with finite installation prices. Averaging that kernel over its own configuration law bounds mean coupling by installed energy: coherence on the scalar branch needs installed energy above <em>2D/&kappa;</em>. The reduction from spatial kernel to scalar coupling is a separate, checked approximation.</p>
+                <p>Replace the discrete sum of couplings with an integral against a kernel built from installed response modes with finite installation prices. Averaging that kernel over its own configuration law bounds mean coupling by installed energy: coherence on the scalar branch needs installed energy above <em>2D/&kappa;</em>. The condition is necessary, not sufficient, and it binds through &kappa;&mdash;hardware data&mdash;rather than through the energy, which any macroscopic substrate has in abundance.</p>
             </div>
             <div class="card">
                 <h4>5. Field identification</h4>
@@ -369,20 +425,20 @@
             </div>
             <div class="card">
                 <h4>6. Coupling-gated coherence</h4>
-                <p>Above a threshold <em>K<sub>c</sub></em>&nbsp;=&nbsp;2<em>D</em> the noisy mean-field phase model has a unique coherent stationary branch with square-root onset. This is a statement about the stationary solutions; dynamical selection is not proved.</p>
+                <p>Above a threshold <em>K<sub>c</sub></em>&nbsp;=&nbsp;2<em>D</em> the noisy mean-field phase model has a unique coherent stationary branch with square-root onset. This is a statement about the stationary solutions; dynamical selection is not proved, and from initial data outside a quarter turn a winding stays stationary at the same coupling.</p>
             </div>
             <div class="card">
                 <h4>7. Compatibility, not synchrony</h4>
-                <p>Phases can agree everywhere while the local probabilistic descriptions they carry remain incompatible on their overlaps. The sheaf condition marks that difference and glues compatible local states into a unique global section.</p>
+                <p>Phases can agree everywhere while the local probabilistic descriptions they carry remain incompatible on their overlaps. The sheaf condition marks that difference and glues compatible local states into a unique global section. The cover is a choice, and a cover by disjoint patches satisfies the condition for every assignment whatever, so a gluing claim has to supply patches that actually meet.</p>
             </div>
             <div class="card">
                 <h4>8. The reflexive fixed point</h4>
-                <p>A self-prediction map restricts a global state to a region encoding it and reads that encoding back out. Where the map contracts, Banach's theorem gives a unique fixed point&mdash;a state whose self-model is accurate about the state it models.</p>
+                <p>A self-prediction map restricts a global state to a region encoding it and reads that encoding back out. Where the map contracts, Banach's theorem gives a unique fixed point. Uniqueness alone is not accuracy: reconstructing a declared family of states demands codes that separate its members, and where the code is the restriction, that demand falls on the region.</p>
             </div>
         </div>
 
         <h3>The eight connecting assumptions</h3>
-        <p>The arrows between the nodes above are Table&nbsp;1 of the manuscript: eight explicit hypotheses that the Lean development takes as arguments to its composition theorem.</p>
+        <p>The arrows between the nodes above are Table&nbsp;1 of the manuscript: eight explicit hypotheses that the Lean development takes as arguments to its composition theorem. The passive and feedback branches share all but two of them.</p>
         <div class="table-wrap">
             <table class="hyp-table">
                 <thead>
@@ -390,76 +446,117 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Capacity &rarr; boundary</td>
+                        <td>E12 &mdash; capacity and boundary</td>
                         <td class="status">Physical premise</td>
                         <td>A finite-capacity system also realizes a field that must leave a disconnected vacuum manifold. Capacity and boundary are independent roots of the chain, not one derived from the other.</td>
                     </tr>
                     <tr>
-                        <td>Boundary &rarr; erasure</td>
+                        <td>E23 &mdash; boundary to register</td>
                         <td class="status">Bridge assumption</td>
-                        <td>The boundary corresponds to a finite register whose update discards information&mdash;a many-to-one map, not a one-to-one one.</td>
+                        <td>The boundary is associated with a finite register whose update leaves states unreachable&mdash;a many-to-one map, not a one-to-one one.</td>
                     </tr>
                     <tr>
-                        <td>Erasure &rarr; predictive bound</td>
+                        <td>E34 &mdash; register to dissipation</td>
                         <td class="status">Bridge assumption</td>
-                        <td>The discarded information is priced at the register's thermal scale and heat budget; the active (learning) branch further allocates that heat to a named substep.</td>
+                        <td>Passive: predictive memory priced at the register's thermal scale and heat budget, with nonzero waste. Active: positive paths, local detailed balance, and allocation of the register's heat to a named substep&mdash;a ledger assumption that neither Landauer's bound nor microscopic reversibility supplies.</td>
                     </tr>
                     <tr>
-                        <td>Predictive bound &rarr; continuum coupling</td>
+                        <td>E45 &mdash; couplings to continuum</td>
                         <td class="status">Modelling assumption</td>
-                        <td>Discrete spatial coupling energies converge as the network is refined; a declared hardware model supplies the limiting kernel.</td>
+                        <td>Discrete spatial coupling energies converge as the network is refined; a declared mode hardware supplies the limiting kernel. Convergence comes from refinement data, not from the thermodynamic bound above it.</td>
                     </tr>
                     <tr>
-                        <td>Continuum coupling &rarr; field</td>
+                        <td>E56 &mdash; field identification</td>
                         <td class="status">Physical commitment</td>
-                        <td>A specified physical field&mdash;here, the endogenous extracellular electromagnetic field&mdash;realizes that limiting coupling.</td>
+                        <td>A specified physical field&mdash;here, the endogenous extracellular electromagnetic field&mdash;realizes that limiting coupling and satisfies the kernel conditions.</td>
                     </tr>
                     <tr>
-                        <td>Field &rarr; coherence</td>
+                        <td>E67 &mdash; above threshold</td>
                         <td class="status">Physical commitment</td>
                         <td>The identified field operates above the synchronization threshold K<sub>c</sub>&nbsp;=&nbsp;2D.</td>
                     </tr>
                     <tr>
-                        <td>Coherence &rarr; compatibility</td>
+                        <td>E78 &mdash; coherence to cover</td>
                         <td class="status">Bridge assumption</td>
-                        <td>Phase encoders shared across a specified cover bound content disagreement; the cover itself and timely responsiveness are separate requirements.</td>
+                        <td>Coherence relaxes the supplied cover, and phase encoders shared across it bound content disagreement; the cover itself and timely responsiveness are separate requirements. Patches and oscillators carry one index, so one oscillator carries exactly one content patch&mdash;not an innocent assumption, since field-mediated coupling is spatial while two territories describing one quantity need not be neighbours.</td>
                     </tr>
                     <tr>
-                        <td>Compatibility &rarr; self</td>
+                        <td>E89 &mdash; contraction to fixed point</td>
                         <td class="status">Modelling assumption</td>
-                        <td>A self-prediction map built from local self-encoding contracts, with Lipschitz factor q&nbsp;&lt;&nbsp;1, and fixes the glued state.</td>
+                        <td>A self-prediction map built from local self-encoding contracts, with Lipschitz factor q&nbsp;&lt;&nbsp;1, and fixes the glued state. Reconstruction over a declared family imposes a further code-separation criterion that E89 does not supply.</td>
+                    </tr>
+                    <tr>
+                        <td>Installed energy</td>
+                        <td class="status">Conditional theorem</td>
+                        <td>Under the occupancy and mode-price conditions, E56 and E67 together require installed energy above 2<em>D</em>/&kappa;. A learning witness clears this necessary bound while its matched control stays on the exclusion line. Neither physical premise follows from it.</td>
                     </tr>
                 </tbody>
             </table>
         </div>
-        <p class="caption-note">A toy three-site cortex in the Lean development satisfies all eight at once, which shows their conjunction is consistent&mdash;not that cortex realizes it.</p>
+        <p class="caption-note">Each edge is supplied rather than derived from the one above it, and the inferential content of the composition is its last step, where contraction and a fixed glued section give uniqueness. What composing them establishes is that the premises are consistent, named in one place and machine-checked together&mdash;not that coherence follows from installed energy, or self-representation from coherence. A joint witness in the Lean development satisfies all eight at once.</p>
 
-        <h2 id="simulations">What the simulations restrict</h2>
-        <p>The numerical controls bound the hypothesis rather than support it, and two of the results transfer well beyond this framework. <strong>Ramp speed sets the apparent onset exponent</strong>: an exponent fitted to a driven recovery trace reports the drive at least as much as the mechanism, so any analysis reading a critical exponent off a driven transition needs an independently known ramp rate. And <strong>squared-drift plasticity does not learn structure</strong>: coupling updates that descend the objective preserve coherence while moving away from the generating structure, below the level of a shuffled-label comparison, which is evidence against the common intuition that dissipation minimization implies representational learning.</p>
+        <h2 id="simulations">What the observations can and cannot establish</h2>
+        <p>Six numerical controls bound what a measurement could decide. Each is a finite regime on a declared model, and none of them calibrates a cortical quantity.</p>
 
-        <h2>The awakening prediction</h2>
-        <p>The framework's one empirical commitment is that part of effective cortical coupling is carried by the endogenous extracellular electromagnetic field, and that this coupling rises as the brain wakes. The proposed control variable is extracellular geometry: the fluid-filled space between cells expands during sleep and contracts on waking&mdash;one study reports a rise from roughly 0.14 to 0.23 of tissue volume during sleep&mdash;and a smaller extracellular fraction raises tissue conductivity. At fixed transmembrane current, higher conductivity means a smaller field, so the argument runs in reverse on waking: contraction of that space should raise field amplitude and, other factors held fixed, raise effective coupling. This gives a direction, not a rate; the size of the effect and its relation to actual recovery both require measurement.</p>
-        <p>Crossing the coherence threshold does not by itself supply a recovery latency. As <a href="#simulations">the ramp-speed control above</a> shows, a driven crossing near threshold departs from the stationary square-root law, and by how much depends on a ramp rate that is not yet known independently for cortex. A usable test of the awakening hypothesis therefore needs six things measured together, not the threshold read off a single trace:</p>
+        <h3>Stationary distributions leave the mechanism undetermined</h3>
+        <p>Stronger coupling, weaker diffusion, and uncoupled oscillators under a matched common drive produce the same stationary phase density, window by window, despite different causes. Resolved dynamics supply more: quadratic variation accumulates at rate 2<em>D</em>, and conditional increment means constrain the drift. But separating endogenous coupling from a common drive still requires a measured drive or a controlled perturbation, and identifying the coupling as electromagnetic requires evidence specific to that interaction.</p>
+
+        <h3>Finite ramps change the observable onset</h3>
+        <p>The square-root law describes stationary solutions; a changing coupling takes time to approach them. Faster ramps delay escape, and an exponent fitted to a driven recovery trace reports the drive at least as much as the mechanism. In a deterministic control that crosses the threshold symmetrically, none of the scanned rates met the declared tracking tolerance, so slowness alone supplies no guarantee of branch tracking at onset. Any analysis reading a critical exponent off a driven transition therefore needs an independently known ramp rate&mdash;but the <em>delay</em> does not, which is what <a href="#prediction">the prediction below</a> rests on.</p>
+
+        <h3>A winding state leaves the order parameter ambiguous</h3>
+        <p>On the spatial sheet, uniform and winding initial conditions settle at opposite ends of the order parameter&mdash;at one coupling, one diffusion and one kernel&mdash;both stationary, both with high patch-local order and no defect. A stability criterion says which windings persist: linearizing about a winding returns a coupling of the same translation-invariant form with each separation reweighted by the cosine of the phase advanced across it, so where the winding advances at most a quarter turn across every separation the kernel reaches, no mode grows. Moving coupling mass to longer separations is what carries that advance past a quarter turn.</p>
+        <p>An amplitude layer decides which windings exist at all. Every oscillator of the phase model sits on the unit circle, so a field with an amplitude node has no representation in it; the real Stuart&ndash;Landau extension supplies one on the same coupling, and its phase equation is the Kuramoto equation with each coupling weighted by a ratio of amplitudes. A broad enough kernel removes the winding outright. Three limits bound the layer for a reader of the cortical wave literature: these are windings and not spirals, and on a periodic sheet that is a theorem rather than a shortage of dimensions, since the circulations of any field sum to zero there; relaxational dynamics has no propagation speed, which is the quantity a cortical wave measurement leads with; and the normal-form radius is not a measured envelope, an identification this work nowhere makes.</p>
+        <p>A vanishing resultant is the absence of <em>global</em> agreement, not of agreement: the content bound read on a nearest-neighbour patch of a winding still bounds disagreement inside that patch, and falls to zero as the same winding is spread over more sites, while its global form is vacuous. The practical consequence is that an onset criterion stated in the resultant alone registers a change of basin as readily as a change of coupling, so the awakening protocol needs a spatial observable beside it.</p>
+
+        <h3>Coherent adaptation can lose environmental alignment</h3>
+        <p>An adaptive coupling rule might supply representational structure, but only if its objective rewards the relevant agreement. For symmetric coupling the pairwise sine terms cancel in the population mean drift, so minimizing squared drift at that fixed mean can only equalize drift across nodes&mdash;which favours coupling <em>between</em> unlike-frequency clusters, exactly what the diagnostic template penalizes. In the finite control, phase order holds up while the within-cluster to between-cluster coupling ratio falls away from the generating structure. A prespecified grid of rate&ndash;cadence combinations contains no case that meets the sustained-reduction criterion while retaining coherence and losing alignment: the immediate post-update objective reduction disappears once averaged over complete update intervals. This is evidence against the common intuition that dissipation minimization implies representational learning.</p>
+
+        <h3>Content agreement needs independent decoders</h3>
+        <p>Two decoders must estimate a shared content on overlapping domains before their agreement is examined, and the discrepancy needs a null under decoding noise plus deliberately compatible and incompatible controls. The implemented statistic separates those constructed cases cleanly, but shared-prior shrinkage can manufacture agreement and regional bias can manufacture disagreement; per-patch diagnostics detect these failures and the compatibility statistic alone does not. Phase agreement cannot substitute for the measurement: a phase-derived statistic reports compatibility on phase-locked patches whose local descriptions disagree.</p>
+
+        <h3>What an informative phase-density measurement requires</h3>
+        <p>The concentration range and the dependence structure decide whether the concentration&ndash;coherence relation can be tested at all. Exercising the estimators on public propofol-sedation EEG gives a concentration ceiling at which the scanned designs need thousands of independent sites, and roughly an order of magnitude more when sites share a mean in clusters. The bipolar results are compatible with the Bessel relation over a range too narrow to distinguish it from its linear approximation at the observed scatter; temporal pooling changes the estimand, and sedation recordings leave the awakening hypothesis untested. Public mouse calcium imaging supplies the site count and the state coverage, but its frame rate sits below the phase-estimation band. Site count, state coverage and bandwidth are separate requirements.</p>
+
+        <h2 id="prediction">The one prediction that needs no absolute calibration</h2>
+        <div class="prediction">
+            <p><strong>Onset delay scales as the square root of the rate at which coupling crosses threshold.</strong> Testing it requires only that the rate of change of coupling be monotonic in a manipulated rate&mdash;not its value, nor the installation factor &kappa;, nor the conversion rate &gamma;. That makes it a within-subject design varying the rate of emergence from anaesthesia alone, with each participant as their own control.</p>
+        </div>
+        <p>The finite-population sweep returns a delay exponent below 1/2. That shortfall measures the escape criterion rather than the scaling: applied to a deterministic mean-field run seeded at the fluctuation floor&mdash;which has no noise to delay it&mdash;the same estimator reproduces the same shortfall at the same criterion, and tightening the criterion moves the estimate back towards 1/2. The bias is reproduced where the answer is known, which is what licenses reading the measurement as the law rather than as a competing exponent.</p>
+        <p>A real design must avoid the hazard the sweep exhibits: a fixed absolute escape criterion meets a size-dependent fluctuation floor, so the criterion has to be referred to each recording's own pre-threshold fluctuation scale rather than to a shared number. Phase diffusion is the remaining input, and it is estimable from resolved phase traces through the rate at which quadratic variation accumulates.</p>
+
+        <h2>The awakening hypothesis</h2>
+        <p>The framework's one empirical commitment is that part of effective cortical coupling is carried by the endogenous extracellular electromagnetic field, and that this coupling rises as the brain wakes. The proposed control variable is extracellular geometry: the fluid-filled space between cells expands during sleep and contracts on waking&mdash;one study reports a rise from roughly 0.14 to 0.23 of tissue volume during sleep&mdash;and a smaller extracellular fraction raises tissue conductivity. At fixed transmembrane current, higher conductivity means a smaller field, so the argument runs in reverse on waking: contraction of that space should raise field amplitude and, other factors held fixed, raise effective coupling. This gives a direction, not a rate; the size of the effect and its relation to actual recovery both require measurement. A spike-time shift alone supplies no coupling rate either&mdash;the dimensionless product of population size, timing sensitivity, field amplitude and frequency needs a conversion rate describing how induced timing shifts accumulate into drift, and no heat bound supplies it.</p>
+        <p>The formalism also has to be told what an oscillator is. Cortical columns are the obvious candidate and answer one of its two demands: they are delineated by response properties and anatomy rather than by the agreement they would be used to establish, and a phase can be estimated from a column-sized territory at the electrode spacings used for cortical wave measurements. As a <em>content cover</em> they are a poor choice, for three separate reasons: a parcellation into non-overlapping columns is a disjoint cover, which satisfies the compatibility obligation without constraining anything; the cover condition requires the patches to exhaust the substrate, while much of association cortex has no accepted columnar parcellation; and the column's standing as a canonical unit is contested. Columns therefore supply the oscillator index and leave the content cover to be identified on separate evidence&mdash;which is exactly the bridge assumption E78 records.</p>
+        <p>Crossing the coherence threshold does not by itself supply a recovery latency. As <a href="#simulations">the ramp controls</a> show, a driven crossing near threshold departs from the stationary square-root law. A usable test of the awakening hypothesis therefore needs six things measured together, not a threshold read off a single trace:</p>
         <ol>
-            <li><strong>Coupling and diffusion in the same units</strong>, estimated from resolved phase dynamics, with endogenous coupling separated from any external drive.</li>
-            <li><strong>Geometry calibrated to coupling</strong>, since the conductivity argument by itself supplies only the expected direction.</li>
-            <li><strong>Calibrated phase measurements</strong>, with concentration and resultant length estimated using a site count chosen for the concentrations actually observed; pooling across time changes what is being estimated.</li>
+            <li><strong>Coupling and diffusion in the same units</strong>, estimated from resolved phase dynamics, separating heterogeneity and observation noise, with endogenous coupling distinguished from any external drive by measuring the drive or perturbing the system.</li>
+            <li><strong>Geometry calibrated to coupling</strong>, with uncertainty, since the conductivity argument by itself supplies only the expected direction.</li>
+            <li><strong>Calibrated phase measurements</strong>, with the resultant and the concentration estimated under a dependence-aware calibration over the intended concentration range; the tested designs require thousands of sites, and pooling across time changes what is being estimated.</li>
             <li><strong>An independent recovery endpoint</strong>, measured separately from the phase trace itself.</li>
-            <li><strong>A predeclared dynamical onset criterion</strong>, set above the finite-size noise floor rather than fitted after the fact.</li>
+            <li><strong>A predeclared dynamical onset criterion</strong>, set above the finite-size noise floor rather than fitted after the fact, and recorded alongside a spatial observable&mdash;a winding field reports a low resultant at coupling that sustains local order.</li>
             <li><strong>Matched comparison</strong> against rival mechanisms&mdash;coupling increase, diffusion change, a common external drive, and alternative recovery models&mdash;under the same observation and filtering assumptions.</li>
         </ol>
         <p>Each half of the hypothesis is separately falsifiable. A failure of the concentration&ndash;coherence relation over an informative range would constrain the density model; a failure of the calibrated geometry&ndash;coupling relation would constrain the physical gate; a competing mechanism that predicts recovery better would count against coupling's proposed role. And a favorable outcome on every count would still leave the content of coordinated activity&mdash;what the cup example turns on&mdash;unexplained.</p>
 
-        <h2>On hardware</h2>
-        <p>Two formal results bear on the substrate question and are easy to over-read. At matched coupling resource, a fixed wiring support that excludes a better-correlated pair can be suboptimal&mdash;a statement about constrained optimization, not about biology. On an atomless substrate, a kernel supported on finitely many points contributes zero to the chosen continuum coupling integral; that is a property of the measure and the observable, and it cuts against this framework's own coarse-graining step as much as against anything else. <strong>No conclusion about artificial consciousness follows.</strong> Nothing in the sheaf or fixed-point conditions is specific to cortex or to electromagnetic coupling: that substrate claim is empirical and is carried entirely by two named hypotheses.</p>
-        <p>Applied to a large language model running on GPUs, the same three requirements apply rather than being ruled out in advance. Coherence would need a calibrated physical coupling and a noise regime for whatever substrate is proposed&mdash;an attention matrix or a shared clock does not supply that on its own. Compatibility would need independently identified local descriptions that agree on shared content, which digital representations are not barred from satisfying; common timing and fluent output do not establish it either way. Self-representation would need an internal encoding and readout that contracts and fixes the same global state at a declared fidelity, and a constant readout that discards its input shows why uniqueness alone is not enough. These are open physical and representational questions, not resolved ones, and they constrain the cortical proposal exactly as much as any digital one.</p>
+        <h2 id="digital">What the conditions constrain in a digital candidate</h2>
+        <p>The five results above hold for any candidate, and for a large language model running on GPUs four of them are checkable rather than merely stateable. That is where this framework bears on claims made for such systems. It does not exclude them, and no result here could; what it does is fix what a claim of machine unity or self-representation commits its maker to measuring.</p>
+        <p><strong>Codes, not reports.</strong> If two macrostates the candidate is said to represent have the same internal code while lying more than 2&epsilon; apart, no readout reconstructs both within &epsilon;. A system's reports are readouts. Identical verbal reports across two conditions are therefore consistent with identical internal codes and settle nothing about the states&mdash;while the converse claim, that the system represents its own condition across a declared family, asserts that its internal code separates that family. That is a statement about activations under intervention, not about text. Declare the family and the fidelity first, then test whether the encoding region distinguishes its members.</p>
+        <p><strong>The region, not the readout.</strong> For a decoder-only transformer the causal mask makes the network an instance of the update model above: the activation at a given position and layer reads positions at most that one at the layer below, and nothing else. A region's causal past is therefore fixed by the architecture rather than chosen by interpretation, and the deadline bound applies with its communication graph given rather than assumed. A claim that a model reports on its own processing carries an obligation to say which positions and layers the report's causal past contains, and a report that appears to track an intervention outside it indicates a confound or a different region, not a faster channel.</p>
+        <p><strong>Agreement about what.</strong> Unity requires the candidate's local descriptions to agree on independently identified shared quantities. Common timing, a shared residual stream and fluent output supply none of that: coordination bounds content disagreement only through encoders already related on overlaps, and which quantities two parts of a model describe in common is a decoding question, carrying every failure mode listed above. The cover is a choice, and choosing it to secure agreement empties the claim.</p>
+        <p><strong>What is not excluded.</strong> Digital representations can satisfy compatibility, so finite hardware is compatible with the gluing construction and none of the above is a no-go for machines. The coupling-gated route is a different matter: it requires a calibrated physical coupling, its noise regime, and a connection from coordination to content agreement, and an attention matrix or a shared clock supplies none of those identifications. Computing a field model likewise leaves its realization in the computing substrate to be established&mdash;and those physical obligations fall on the cortical proposal identically. The installed-energy condition is restricted the same way: it constrains a macroscopic candidate only through &kappa;, which is hardware data. Two formal results about support are easy to over-read in this direction. At matched coupling resource, a fixed wiring support that excludes a better-correlated pair can be suboptimal; on an atomless substrate, a kernel supported on finitely many points contributes nothing to the continuum coupling integral. Both are statements about specified support constraints, and the second cuts against this framework's own coarse-graining step as much as against anything else. <strong>No conclusion about artificial consciousness follows</strong>; a universal exclusion would need a necessary condition for consciousness and a proof that every relevant implementation violates it, and the composition here supplies neither.</p>
+        <p>Whether experience requires a living substrate is the explicit subject of biological naturalism, on which the properties grounding experience are those of self-sustaining organisms and simulating them does not secure them. The conditions stated here name no biological mechanism, but computation described as such does not satisfy them either: a candidate must exhibit a physically realized coupling in a measured noise regime, agreement about independently identified shared quantities, and an internal reconstruction meeting a declared fidelity. What this framework adds to the investigation is an order for the questions&mdash;declare the family of states and the fidelity, fix the encoding region and read its causal past off the architecture, and only then ask what the system reconstructs. A claim that survives those three steps is a claim about the machine; one that does not survive them was a claim about its output.</p>
 
         <h2>How this compares</h2>
-        <p>Other accounts tie unity to a single organizing principle: integrated information theory to integration and exclusion, global-workspace accounts to broadcast availability, predictive-processing accounts to a shared hierarchical generative model. This account keeps coherence, compatibility and self-representation apart instead, so each carries its own assumptions and its own measurement&mdash;at the cost of not explaining why the three would go together. Its distinctive contribution is a candidate physical mechanism, field-mediated coupling, and the conditional relations linking that mechanism to content agreement and self-encoding. It does not explain why meeting these conditions would be accompanied by experience at all.</p>
+        <p>Other accounts tie unity to a single organizing principle: integrated information theory to integration and exclusion, global-workspace accounts to broadcast availability, predictive-processing accounts to a shared hierarchical generative model. This account keeps coherence, compatibility and self-representation apart instead, so each carries its own assumptions and its own measurement&mdash;at the cost of not explaining why the three would go together. Its distinctive contribution is a candidate physical mechanism, field-mediated coupling, and the conditional relations linking that mechanism to content agreement and self-encoding. Two things stand outside the formal result and are not supplied by it: the eight hypotheses are discharged for toy components rather than for cortex, and the identification of the glued state with unity and of its reconstruction with a minimal self is a further commitment the eight do not contain. It does not explain why meeting these conditions would be accompanied by experience at all.</p>
 
-        <h2>Formal Verification in Lean 4</h2>
+        <h2>Formal verification in Lean 4</h2>
         <span class="lean-badge">Verified with Lean 4</span>
-        <p>The development declares no axioms of its own: physical postulates are hypotheses or fields of models, each discharged by an explicit witness. What formalization adds is not certainty about the physics but that the assumption list cannot be lost&mdash;type-checking forbids reading a theorem about a stationary density as a claim about a trajectory, or agreement of phases as compatibility of representations. It does not make the assumptions true.</p>
+        <p>The development declares no axioms of its own: physical postulates are hypotheses or fields of models, each discharged by an explicit witness. That claim is itself checked&mdash;an audit target walks every declaration the library adds to the environment, collects the axioms each one rests on, and fails the build if anything outside the three foundational axioms of its libraries appears. Incomplete proofs are collected the same way, so the audit is also what fails on a missing proof. What formalization adds is not certainty about the physics but that the assumption list cannot be lost: type-checking forbids reading a theorem about a stationary density as a claim about a trajectory, or agreement of phases as compatibility of representations. It does not make the assumptions true.</p>
+
+        <h2>Data and code</h2>
+        <p>The Lean development, the simulation scripts, their tests and the saved numerical summaries are in the
+        <a href="https://github.com/bobaseb/coupling_gated_cortical_coherence">project repository</a>. Every computed value quoted in the publication is generated from those saved summaries without rerunning a production sweep. The exploratory EEG analysis uses a public OpenNeuro propofol-sedation dataset; the repository carries the reproducible analysis and does not redistribute the raw recordings.</p>
     </div>
 
     <div class="footer">
