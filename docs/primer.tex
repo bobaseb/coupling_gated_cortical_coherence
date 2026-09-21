@@ -334,6 +334,7 @@ $\Sigma$ & dimensionless entropy production of the finite path model; distinct f
 $D_{KL}(P\|Q)$ & Kullback--Leibler divergence \\
 $S$, $H$ & entropy (thermodynamic; Shannon) \\
 $k_B$, $T$ & Boltzmann constant; temperature \\
+$\nu$ & fan-in of a communication graph: the most sites any one site hears from; distinct from the reset distribution $\nu$ of the Landauer ledger \\
 $k_BT$ & thermal scale of a register, in energy units \\
 $B$ & heat budget allocated to a named substep \\
 $\mathcal{V}$ & vacuum manifold (space of energy minima) \\
@@ -4231,17 +4232,51 @@ A three-site line takes two rounds to relay a value from one end to the other.
 The formal example fails after one round and reports exactly after two.
 Cutting the path blocks delivery at every round.
 
+How long the wait is depends on how widely each site listens. If no site hears
+from more than $\nu$ others, then the causal past after $T$ rounds holds at
+most $1+\nu+\dots+\nu^{T}$ sites, which is below $(T+1)\nu^{T}$. While that
+count stays under the number of sites there is always somewhere the world can
+be changed that the reading site has not heard about, so the obstruction fires
+without anyone having to point at a particular site: bounded fan-in produces
+one by counting. Reaching all $N$ sites therefore takes about $\log_\nu N$
+rounds. Read backwards, the same inequality prices the deadline in wiring
+instead of in time. A network that does reach everything in a single round must
+have a site listening to all but one of the others, which is a full crossbar.
+Whether the rounds or the wires are the scarce thing decides which reading is
+the useful one.
+
+At the other extreme the bound has nothing to say at all. If every site hears
+from every site---which is how a mean-field coupling kernel is idealised---then
+after one round the causal past is already everything, and no site is left
+outside it for the obstruction to use. This is not an escape from delay. A
+physical field travels at a finite speed, so treating one this way assumes that
+transit across the substrate is quick compared with the phase dynamics, and
+that is a measurement rather than a theorem. The two extremes are the same
+count at its endpoints, and neither is a statement about substrates.
+
 \scope
 A constant report may happen to be right about one fixed world. What fails is
 a guarantee across fresh interventions. Static compatible descriptions remain
 possible. Applying the bound to a brain or computer requires its actual
 communication paths, including memory and sensory routes, and a justified
-deadline.
+deadline. The counting version adds nothing to that: the fan-in and the site
+count are declared numbers like the graph and the deadline, and what the wiring
+corollary bounds is the communication graph a guarantee would require, not what
+hardware can be built. Rounds are hops, so none of this is a claim about how
+fast anything computes.
 
 \lean{
 \id{Phase6\_Locality.lean}: \id{Network.run\_eq\_of\_agree\_on\_ball},
-\id{not\_reconstructs\_of\_outside\_past}.
-\id{Examples/Locality.lean}, \S25, supplies the delay, cut and snapshot controls.}
+\id{not\_reconstructs\_of\_outside\_past}; \id{ball\_rank\_le} for an
+architecture that orders its sites, and \id{card\_ball\_le} with
+\id{card\_ball\_le\_mul\_pow} for the counting form, feeding
+\id{not\_reconstructs\_of\_bounded\_degree}. The wiring reading is
+\id{card\_le\_geomSum\_of\_reaches} and \id{le\_degree\_of\_reaches\_one};
+the full-support extreme is \id{not\_outside\_past\_of\_isFullSupport}.
+\id{Examples/Locality.lean}, \S25, supplies the delay, cut and snapshot
+controls and reaches the round-one rejection a second time from the fan-in
+alone; \S31 is a causal mask, where \id{mask\_ball\_subset\_le} keeps the
+past of a token position inside the positions at or before it at every depth.}
 
 \section{Where uniqueness comes from}
 
@@ -4759,6 +4794,33 @@ using a nonconstant, contracting map. Its blinded version fails at tolerance
 $1/2$ even though it has a unique fixed point. Another example needs three
 codes to distinguish three separated states.
 
+On its own the packing bound is a \emph{ceiling}: it says what a code space
+cannot exceed, never that a code space supplies anything. So "a continuous
+medium has room for more states" stays a hand-wave until the other direction
+is available, and the other direction comes from measuring the code space. A
+maximal $\delta$-separated family is also a $\delta$-cover---that is what
+maximality means---so the region it packs is covered by that many balls of
+radius $\delta$, and its measure is at most the number of them times the
+largest ball's. Read backwards that is a floor: a region of measure $m$ whose
+$\delta$-balls each measure at most $v$ holds at least $m/v$ mutually
+resolvable codes. In ordinary $d$-dimensional space a ball of radius $\delta$
+has measure proportional to $\delta^{d}$, so the floor is volume over the
+volume of one resolution cell.
+
+With a ceiling and a floor on the same quantity the two kinds of code space
+can finally be compared at matched resource, because both are now counted in
+the same unit: how many states they can tell apart. An alphabet of $2^{b}$
+codes distinguishes $2^{b}$ states. A region of volume $m$ read at resolution
+$\delta$ distinguishes at least $m/v$. So the continuum wins exactly when its
+volume exceeds $2^{b}$ resolution cells, and loses when it does not---at a
+coarse enough resolution a region of any size holds a single code, which any
+alphabet matches. \textbf{What the comparison returns is a criterion and not a
+verdict.} What decides it is the volume, the resolution and the dimension,
+every one of them a measured quantity, and continuity decides nothing by
+itself: a continuous code space read at a \emph{finite} resolution is a finite
+alphabet, and its capacity is a number of bits. Since every physical medium has
+a noise floor, that is the only resolution there is.
+
 \scope
 Accuracy across a family is an additional operational criterion, not a
 consequence of having a Self or UnifiedSelf. It asks for bounded error rather
@@ -4767,7 +4829,12 @@ metric are declared; the theorem demands no recovery of every microscopic
 hardware state. The code alphabet is a bare type, so a physical interpretation
 of $b$ as memory bits needs a hardware model. The packing form declares its gain
 $L$ and derives one for no physical readout, so a decoder of unbounded gain is
-constrained by neither form.
+constrained by neither form. The floor inherits that: it is a property of the
+code space and the resolution alone, so it does not say that an encoder writes
+those codes, that a readout separates them, or that the states they would encode
+exist. Ceiling and floor meet only where $\delta$ is a measured noise floor and
+$L$ a measured gain, and neither is measured here---so the comparison is a
+criterion waiting on two numbers, not a result about hardware.
 
 \lean{
 \id{Phase6\_Reconstruction.lean}: \id{dist\_le\_add\_error},
@@ -4775,7 +4842,13 @@ constrained by neither form.
 \id{ReflexiveBoundary.dist\_le\_prediction\_residuals},
 \id{Encoding.sub\_two\_mul\_le\_lipschitz\_mul}, \id{isSeparated\_image\_encode},
 \id{encard\_le\_packingNumber\_range},
-\id{encard\_le\_packingNumber\_restrictToAvatar}, \id{topAvatar},
+\id{encard\_le\_packingNumber\_restrictToAvatar};
+\id{measure\_le\_mul\_packingNumber} and
+\id{measure\_le\_pow\_mul\_packingNumber} for the floor, and
+\id{two\_pow\_lt\_packingNumber\_of\_lt\_measure} with
+\id{Encoding.encard\_le\_two\_pow\_of\_packingNumber\_le} for the two
+directions of the comparison, both signs witnessed on the unit interval in
+\id{Examples/Phase6.lean}, \S33. \id{topAvatar},
 \id{topAvatar\_satisfies\_obligations}, \id{IsProperAvatar}.
 \id{Examples/Reconstruction.lean}, \S24, checks the positive and blinded cases.}
 
@@ -4870,7 +4943,12 @@ for that theorem as stated.
 The point-supported comparison is \textbf{not
 resource-matched}---a measure-zero substrate carries zero resource in the
 $\mu\otimes\mu$ sense as well. What it establishes is a claim about the
-\emph{model's observable}, not about computational power. And as
+\emph{model's observable}, not about computational power. A resource-matched
+comparison between the two kinds of substrate does exist, but it is about
+\emph{capacity} rather than coupling energy, and it lives in
+Section~\ref{sec:reconstruction-family}: how many states a code space can tell
+apart, counted the same way on both sides. Its answer is a criterion decided by
+volume, resolution and dimension, and it favours continuity nowhere. And as
 Section~\ref{sec:nokernel} noted, it cuts against the framework's own
 coarse-graining step as much as against anything else.
 
@@ -5641,6 +5719,21 @@ selective perturbation of that interaction left the proposed neural and
 behavioural endpoints unchanged. Such a perturbation needs controls for direct
 effects on transmembrane currents and other coupling pathways; selectivity is
 not assumed experimentally available.
+
+It is worth being precise about what such a failure would take down, because
+most of it is not electromagnetic. Of the six requirements the manuscript's
+protocol lists, only the second---the calibrated relation between extracellular
+geometry and effective coupling---discriminates an electromagnetic field from
+any other continuous coupling. It is the only one that runs through
+conductivity and volume fraction, which is the single place a field equation
+enters this work. The rest ask for coupling measured against diffusion, a
+calibrated phase measurement, an independent recovery endpoint, a predeclared
+onset criterion and a matched model comparison, and extracellular ion
+diffusion, gap junctions treated as a density, astrocytic calcium or a
+mechanical medium would satisfy or fail them in exactly the same way. So a null
+result on the second requirement counts against the electromagnetic
+identification, and a null result on any of the others counts against the
+coupling-gated account whatever turns out to carry the coupling.
 
 %======================================================================
 \part*{Part XVIII. What the mathematics is asked to mean}
