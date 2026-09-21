@@ -734,3 +734,166 @@ from scratch and compiled from the unpacked tarball at 96 pages.
 
 **The C and D blocks are closed.** The R research programme in
 `tasks/research_programme.md` stays live and is untouched by this pass.
+
+## V — The content bound's grain, and three routes off it
+
+**Intent.** `sec:content-connection` states the positive coherence-to-content
+result and its own limit in one breath: Eq. `eq:main-content-coherence` bounds a
+chord, a chord never exceeds `2`, so at the sheet's patch-local order
+`\waveBandLocalOrder` the bound carries information only at
+`\wavePatchInformativeSites` sites or fewer. Three. The article now says so in
+the abstract, in `sec:unconditional` and in the Discussion, which is the honest
+reading and leaves the framework's first arrow spanning three oscillators. This
+block is the three ways off that number. Each removes a different step of the
+proof; none is a repair of the prose, and each would be worth proving whichever
+way it came out.
+
+**Constraints.** Every item is SRR and lands in a module that already carries
+what it qualifies, so `ALLOWED_LEAVES` gains nothing. Nothing here widens
+`Audit.permitted`. A new identifier reaching `main.tex` takes a `tab:full` row
+in the same commit (AGENTS.md §9). `.lean` edits are followed by
+`proof_companion/run.sh extract` then `pdf`. The three tracked PDFs and
+`arxiv_submit/` are refreshed in the same commit (AGENTS.md §6–7).
+
+**Success criteria.** `lake build` passes with the audit's footprint unchanged;
+the publication numbers that change are regenerated macros and not typed
+numerals (AGENTS.md §3); publication edits are present-tense statements of
+scope.
+
+### The audit
+
+**The `N` has exactly one source.** From the order-parameter identity,
+`∑_{ij} (1 - cos(θᵢ-θⱼ)) = N²(1-r²)`. Every term is nonnegative, so each term is
+at most the whole sum. That single step — a sum of `N²` nonnegative terms
+bounded by their total — permits all the disorder in a population to sit in the
+one pair the conclusion is about, and it is where the factor `N` enters
+`chord_le_of_patch_coherence`. The three routes below decline that step in three
+different ways: by asking for fewer pairs (A), by asking over shorter distances
+(B), or by not reading phase differences off `r` at all (C).
+
+| Route | Declines | Removes `N`? | Mathlib has |
+| :--- | :--- | :--- | :--- |
+| A | each-term-≤-total, for a counting bound | yes, entirely | sum/card monotonicity |
+| B | direct comparison of distant patches | no — trades it for path length | `SimpleGraph.Walk` |
+| C | reading `Δθ` off the order parameter | yes, replaces it with `λ₂` | `lapMatrix`, `posSemidef_lapMatrix`, `Real.mul_le_sin` |
+
+### Route A — the same sum, in the norm the statement wants
+
+- [ ] **V1 — Markov on the pair sum.** Replace each-term-≤-total by
+      `t * card {(i,j) : 1 - cos(θᵢ-θⱼ) > t} ≤ ∑ ≤ N²(1-r²)`, a two-line `calc`
+      from `Finset.sum_le_sum_of_subset_of_nonneg`. The conclusion is
+      **`N`-free**: the fraction of pairs whose chord exceeds `c` is at most
+      `2(1-r²)/c²`, at any population size. At `r = 0.99` that is 4% of pairs
+      above `1·L`; at the sheet's own `\waveBandLocalOrder` it is 37%, weak but
+      scale-free, and it improves quadratically in the locking. Lands in
+      `Phase4_KuramotoDynamics` beside `chord_le_of_patch_coherence`, which it
+      does not replace — the uniform bound stays, at its stated grain.
+      Scope to state: this counts pairs and says nothing about *which* pairs, so
+      it cannot name a site, and the outliers it permits may be exactly the ones
+      a cover's overlaps sit on.
+
+- [ ] **V2 — Approximate gluing in measure.** The item with real design risk,
+      and it should be scoped before it is started. `approximate_diameter_le`
+      (`Phase5_GlobalSection.lean:611`) takes overlap discrepancy bounded by `ε`
+      in **uniform** distance and returns a weighted selection within `ε` of
+      each patch. V1's conclusion is not of that shape, so it cannot be fed in:
+      a fraction-of-pairs hypothesis has no sup-norm content. The partition-of-
+      unity average of profiles agreeing off a small set is close to each in
+      `L¹`, and *not* in sup norm, so the honest version weakens the conclusion
+      as well as the hypothesis — a section determined off a set of controlled
+      size rather than everywhere. Whether that object still deserves to be
+      called a glued state is the question to answer first, and the answer may
+      be no. Estimate on the proof is 250–400 lines; estimate on the design
+      question is one sitting with the existing selection argument.
+      Scope to state: unity is being weakened from "every overlap agrees" to
+      "almost every overlap agrees", which is arguably the right claim — one
+      rogue site should not unmake an experienced situation — but it is a
+      different claim and the publication has to say which one it makes.
+
+### Route B — chain the local bound through the nerve
+
+- [ ] **V3 — Disagreement accumulates in hops, not in population.** The cheapest
+      item here and the one that moves the headline number. The observation is
+      that the theorem bounds all `N²` pairs while the sheaf only ever asks
+      about *overlapping* ones: distant agreement needs no direct bound, because
+      a site in patch `p₀` and a site in patch `p_k` are compared through the
+      sites they share with the patches between them, by triangle inequality in
+      the content space. Error then grows **linearly in the number of hops**.
+      With the sheet's own nearest-neighbour value `\waveNeighbourChordBound`,
+      the crossover is at 14.4 hops rather than 3 sites:
+
+      | hops | bound | |
+      | ---: | ---: | :--- |
+      | 1 | 0.139 L | informative |
+      | 10 | 1.388 L | informative |
+      | 14 | 1.943 L | informative |
+      | 15 | 2.082 L | vacuous |
+
+      This also dissolves the dilemma `sec:content-connection` currently states
+      as closed — that shrinking a patch tightens the bound and thins its
+      overlaps at the same rate, so the two ends are not reached by one cover.
+      Chained, they are: small patches are where the bound bites, and the path
+      is how it reaches distance. The machinery exists.
+      `Phase5_TwistedGluing.lean` already builds a Čech-style 1-cochain on
+      overlaps and reads its coboundary class as the obstruction; a discrepancy
+      cochain summed along a walk is the same object over a different coefficient
+      structure, and `SimpleGraph.Walk` indexes the chain. Lands in
+      `Phase5_ContentDynamics` beside `compatible_of_patch_coherence`, with the
+      nerve's connectivity as a hypothesis on `LocalSectionSynchronization`
+      alongside `HasNonemptyOverlaps`.
+      Scope to state: fourteen hops of column-sized patches is millimetres, not
+      a hemisphere, and the accumulation is linear, so this moves the scale by
+      an order of magnitude and does not reach the distant territories whose
+      agreement unity is about. The per-hop constant is the sheet's, not
+      cortex's.
+
+### Route C — connectivity, entering through the dynamics
+
+- [ ] **V4 — The spectral gap replaces the population count.** The principled
+      removal of `N`, and it is not astronomical provided the gap is *declared*
+      rather than derived. At a locked configuration the phase differences are
+      not free: they satisfy `K ∑ⱼ Aᵢⱼ sin(θⱼ-θᵢ) = ωᵢ - Ω`. Read that against
+      the graph Laplacian instead of against the order parameter and the maximum
+      pairwise difference is controlled by frequency heterogeneity over `K`
+      times the algebraic connectivity — no averaging, no `N`, and the bound
+      *improves* as the coupling graph becomes better connected, which is the
+      statement one wants on physical grounds and the one `r` cannot express.
+      Mathlib supplies more than expected: `SimpleGraph.lapMatrix`,
+      `posSemidef_lapMatrix`, `lapMatrix_mulVec_apply` and
+      `lapMatrix_mulVec_eq_zero_iff_forall_reachable` are there, and
+      `Real.mul_le_sin` (Jordan, `2/π · x ≤ sin x` on `[0, π/2]`) together with
+      `Real.mul_abs_le_abs_sin` handles the nonlinearity **without linearising**,
+      at a cost of one factor of `π/2`. What Mathlib does not supply is `λ₂`
+      itself — no Fiedler value, no Courant–Fischer on the Laplacian's kernel
+      complement — so the item declares a `SpectralGap` structure carrying
+      `λ > 0` and the Rayleigh hypothesis `⟪θ, Lθ⟫ ≥ λ‖θ‖²` for mean-zero `θ`,
+      exactly as `PricedArrangement` declares `κ`. Estimate 200–300 lines.
+      Lands in a new section of `Phase8_CoherentStability`, which already carries
+      the coherent branch's spectral-gap inequality.
+      Scope to state: `λ` is declared hardware data and this derives it for no
+      graph, which is the same standing `κ` has and should be said in the same
+      words; the result is about a locked configuration and supplies no
+      existence proof for one; and the balance equation is the identical-frequency
+      spatial model, so applying it to the scalar threshold still needs the
+      reduction `sec:scaling` already flags.
+
+### What reaches the publication
+
+- [ ] **V5 — Say which route the article takes.** Any of the three changes the
+      number now in the abstract, `sec:unconditional` and the Discussion, and
+      those three sites must move together. V3 alone replaces "only at three
+      sites or fewer" with a hop count and a per-hop constant, both regenerated
+      macros. V1 adds a second sentence in a different quantifier and must not
+      be allowed to read as a strengthening of the first. V4 adds `λ` to Table 1
+      and an E78 sentence, since what it qualifies is the edge from coherence to
+      the cover.
+
+- [ ] **V6 — What functional connectivity does not buy.** Structural
+      connectivity is a declared graph and is what V4 consumes. Functional
+      connectivity is an estimate, and feeding an estimate into a hypothesis
+      strengthens no conclusion: it inherits the decoder failure modes
+      `sec:observations` already records, shared-prior shrinkage manufacturing
+      agreement and regional bias manufacturing disagreement. Using measured
+      functional connectivity to *choose the cover* is worse than neutral, being
+      the "choosing the cover to secure agreement empties the claim" problem in
+      new clothes. One scope sentence, wherever V4 lands.
