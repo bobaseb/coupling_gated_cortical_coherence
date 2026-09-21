@@ -26,6 +26,13 @@ indistinguishability theorem below is derived and not postulated.
   on its sites discharges it rather than being assumed to satisfy it —
   `Examples/Locality.lean` §31 is the causal mask of a decoder-only forward pass,
   where the rank is the token position.
+* **`card_ball_le`.** How fast a causal past grows when nothing orders the
+  sites: at most `∑_{i ≤ n} dⁱ` sites after `n` rounds on a graph of fan-in `d`.
+  It supplies the obstruction's hypothesis by counting rather than by structure
+  (`not_reconstructs_of_bounded_degree`), which is the statement that a
+  guarantee by deadline `T` across `N` sites needs `T` of order `log_d N`; and
+  read backwards it prices the deadline in wiring instead of rounds
+  (`card_le_geomSum_of_reaches`, and `le_degree_of_reaches_one` at one round).
 
 * **`not_reconstructs_of_outside_past`.** Two interventions writing different
   values into a site *outside* that causal past leave the state at `v`
@@ -181,6 +188,129 @@ theorem notMem_ball_of_rank_lt {α : Type*} [Preorder α] {nbhd : V → Finset V
     w ∉ ball nbhd n v :=
   fun hw => absurd (ball_rank_le h n v w hw) (not_le_of_gt hlt)
 
+/-! ### Bounded fan-in, and what a deadline costs in wiring
+
+`ball_rank_le` says where a causal past stops when the architecture orders its
+sites. These say how fast it can grow when nothing orders them. A site hearing
+from at most `d` others reaches at most `∑_{i ≤ n} dⁱ` sites in `n` rounds,
+because each round adds the site itself and multiplies the frontier by at most
+`d`; `card_ball_le_mul_pow` reads the same count as `(n+1)·dⁿ`, which is the
+form the logarithm comes out of.
+
+That count supplies the hypothesis the negative results below have to be handed.
+`not_reconstructs_of_outside_past` fires on a site *outside* the reading site's
+causal past, and an architectural order is one way to produce one; bounded
+fan-in is the other, and it produces one by counting rather than by structure.
+While the reachable count stays below `Fintype.card V` the causal past is not
+everything, so a witness exists: reconstruction by deadline `T` on a degree-`d`
+network of `N` sites needs `T` of order `log_d N`.
+
+Read backwards the same count prices the deadline in wiring instead of in
+rounds. A network that does reach every site by `T` satisfies
+`Fintype.card V ≤ ∑_{i ≤ T} dⁱ`, so meeting a deadline across `N` sites requires
+degree of order `N^{1/T}` — and at `T = 1`, by `le_degree_of_reaches_one`, a
+site hearing from all but one of the others.
+
+**What is declared, and what is proved.** `d` and `N` are inputs, exactly as the
+communication graph and the deadline already are; nothing here says which graph
+a device runs or which deadline is physically meaningful. The bound is about a
+*guaranteed* response across interventions and not about what one run achieves —
+`Examples/Locality.lean` §25 exhibits a report that is exactly right in one world
+at a round where no guarantee holds. And what it bounds is the communication
+graph a guarantee requires, which is a different question from what hardware is
+buildable; this development models the second nowhere. -/
+
+/-- **A degree bound bounds the causal past.** If every site hears from at most
+`d` others, the causal past after `n` rounds holds at most `∑_{i ≤ n} dⁱ` sites.
+
+The hypothesis is about `nbhd` alone, as `ball` is, so no property of `msg` or
+`step` enters and the bound holds of every network on that communication graph.
+The count is of *sites reachable*, not of messages sent or of time elapsed. -/
+theorem card_ball_le {nbhd : V → Finset V} {d : ℕ} (hd : ∀ v, (nbhd v).card ≤ d) :
+    ∀ (n : ℕ) (v : V), (ball nbhd n v).card ≤ ∑ i ∈ Finset.range (n + 1), d ^ i := by
+  intro n
+  induction n with
+  | zero => intro v; simp [ball_zero]
+  | succ n ih =>
+    intro v
+    rw [ball_succ]
+    calc (insert v ((nbhd v).biUnion (ball nbhd n))).card
+        ≤ ((nbhd v).biUnion (ball nbhd n)).card + 1 := Finset.card_insert_le _ _
+      _ ≤ (∑ u ∈ nbhd v, (ball nbhd n u).card) + 1 := by
+          gcongr
+          exact Finset.card_biUnion_le
+      _ ≤ (∑ _u ∈ nbhd v, ∑ i ∈ Finset.range (n + 1), d ^ i) + 1 := by
+          gcongr with u hu
+          exact ih u
+      _ = (nbhd v).card * ∑ i ∈ Finset.range (n + 1), d ^ i + 1 := by
+          rw [Finset.sum_const, smul_eq_mul]
+      _ ≤ d * ∑ i ∈ Finset.range (n + 1), d ^ i + 1 := by
+          gcongr
+          exact hd v
+      _ = ∑ i ∈ Finset.range (n + 1 + 1), d ^ i := by
+          rw [Finset.sum_range_succ' (fun i => d ^ i) (n + 1), Finset.mul_sum]
+          simp [pow_succ, mul_comm]
+
+/-- **The same bound with the logarithm visible.** At degree at least one the
+geometric sum is at most `(n+1)·dⁿ`, so the reachable count grows exponentially
+in the rounds and a deadline `T` reaching `N` sites needs `T` of order
+`log_d N`. The looser form is the quotable one; `card_ball_le` is the sharp
+one. -/
+theorem card_ball_le_mul_pow {nbhd : V → Finset V} {d : ℕ} (hd1 : 1 ≤ d)
+    (hd : ∀ v, (nbhd v).card ≤ d) (n : ℕ) (v : V) :
+    (ball nbhd n v).card ≤ (n + 1) * d ^ n := by
+  refine (card_ball_le hd n v).trans ?_
+  calc ∑ i ∈ Finset.range (n + 1), d ^ i
+      ≤ ∑ _i ∈ Finset.range (n + 1), d ^ n :=
+        Finset.sum_le_sum fun i hi =>
+          Nat.pow_le_pow_right hd1 (Nat.le_of_lt_succ (Finset.mem_range.1 hi))
+    _ = (n + 1) * d ^ n := by rw [Finset.sum_const, Finset.card_range, smul_eq_mul]
+
+/-- **Bounded fan-in produces the witness the obstruction needs.** While the
+reachable count stays below the number of sites, some site lies outside the
+reading site's causal past at the deadline — so
+`not_reconstructs_of_outside_past` fires on a network with no order on its
+sites at all, its hypothesis discharged by counting.
+
+Which site it is, is not determined here and does not need to be: the negative
+result quantifies over the value written, not over where it is written. -/
+theorem exists_notMem_ball_of_bounded_degree [Fintype V] {nbhd : V → Finset V} {d : ℕ}
+    (hd : ∀ v, (nbhd v).card ≤ d) {T : ℕ}
+    (hlt : ∑ i ∈ Finset.range (T + 1), d ^ i < Fintype.card V) (v : V) :
+    ∃ w, w ∉ ball nbhd T v := by
+  by_contra h
+  have hall : ∀ w, w ∈ ball nbhd T v := fun w => by
+    by_contra hw
+    exact h ⟨w, hw⟩
+  have hsub : (Finset.univ : Finset V) ⊆ ball nbhd T v := fun w _ => hall w
+  have hcard : Fintype.card V ≤ (ball nbhd T v).card := by
+    simpa [Finset.card_univ] using Finset.card_le_card hsub
+  exact absurd (hcard.trans (card_ball_le hd T v)) (not_le_of_gt hlt)
+
+/-- **The interconnect a deadline costs.** The contrapositive: a network whose
+causal past at deadline `T` is the whole site set has at most `∑_{i ≤ T} dⁱ`
+sites, so reaching `N` of them by round `T` requires degree of order `N^{1/T}`.
+
+This bounds the communication graph a guarantee requires. It says nothing about
+what hardware is buildable, or about latency — `ball` counts hops, and nothing
+in this development is about time to solution. -/
+theorem card_le_geomSum_of_reaches [Fintype V] {nbhd : V → Finset V} {d : ℕ}
+    (hd : ∀ v, (nbhd v).card ≤ d) {T : ℕ} {v : V} (h : ∀ w, w ∈ ball nbhd T v) :
+    Fintype.card V ≤ ∑ i ∈ Finset.range (T + 1), d ^ i := by
+  have hsub : (Finset.univ : Finset V) ⊆ ball nbhd T v := fun w _ => h w
+  have hcard : Fintype.card V ≤ (ball nbhd T v).card := by
+    simpa [Finset.card_univ] using Finset.card_le_card hsub
+  exact hcard.trans (card_ball_le hd T v)
+
+/-- **At one round, a crossbar.** The `T = 1` case of the interconnect bound: a
+site whose causal past after a single round is everything hears from all but one
+of the other sites. The deadline is purchasable, and this is the wiring it
+costs. -/
+theorem le_degree_of_reaches_one [Fintype V] {nbhd : V → Finset V} {d : ℕ}
+    (hd : ∀ v, (nbhd v).card ≤ d) {v : V} (h : ∀ w, w ∈ ball nbhd 1 v) :
+    Fintype.card V ≤ 1 + d := by
+  simpa [Finset.sum_range_succ] using card_le_geomSum_of_reaches hd h
+
 namespace Network
 
 variable (N : Network V S M)
@@ -308,6 +438,29 @@ theorem not_reconstructs_of_outside_past [PseudoMetricSpace Q] (N : Network V S 
     (r := report (N.run (intervene base w inj q) T v))
     (fun p => congrArg report (run_intervene_eq_of_notMem N base inj hw p q)) hq hq' hsep
 
+/-- **The same obstruction, with its hypothesis derived from the degree.** On a
+network of bounded fan-in and a deadline too early for the reachable count to
+cover the site set, there is a site the world can be changed at that no report
+read off `v` tracks by round `T`.
+
+This is the quantitative form: the deadline the guarantee needs grows like
+`log_d N`, by `card_ball_le_mul_pow`. What it supplies over
+`not_reconstructs_of_outside_past` is that nothing has to be assumed about where
+the intervention lands — the counting picks the site out.
+
+It remains a statement about a *guarantee* across two declared values. For one
+fixed world a report may be exactly right at any round whatever, which
+`Examples/Locality.lean` §25 exhibits, and the graph and the deadline are
+declared here as they are everywhere in this module. -/
+theorem not_reconstructs_of_bounded_degree [Fintype V] [PseudoMetricSpace Q]
+    (N : Network V S M) (base : V → S) (inj : Q → S) (report : S → Q) (relevant : Set Q)
+    {d T : ℕ} (hd : ∀ v, (N.nbhd v).card ≤ d)
+    (hlt : ∑ i ∈ Finset.range (T + 1), d ^ i < Fintype.card V) (v : V)
+    {ε : ℝ} {q q' : Q} (hq : q ∈ relevant) (hq' : q' ∈ relevant) (hsep : 2 * ε < dist q q') :
+    ∃ w, ¬ (worldEncoding N base w inj v T report relevant).Reconstructs ε := by
+  obtain ⟨w, hw⟩ := exists_notMem_ball_of_bounded_degree hd hlt v
+  exact ⟨w, not_reconstructs_of_outside_past N base inj report relevant hw hq hq' hsep⟩
+
 /-! ## Restriction resonance, by a declared round
 
 The previous theorem refutes *accuracy*. The same causal-past fact refutes
@@ -375,6 +528,14 @@ but zero, and `not_reconstructs_of_outside_past` and
 the asymmetry the bound's uses have to respect: the results above obstruct an
 architecture whose agreement propagates by hops, and a mean-field kernel of full
 support is not one.
+
+Against `card_ball_le` the asymmetry is quantitative on both sides. A graph of
+fan-in `d` needs `T` of order `log_d N` before its causal past covers `N` sites,
+and `le_degree_of_reaches_one` says what a single round costs instead: a site
+hearing from all but one of the others. Full support is that crossbar, and
+`ball_eq_univ_of_full` is the degree bound at `d = N`, where the count covers
+the site set at the first round and the obstruction has no witness left to pick
+out.
 
 **What this is not.** It is not a claim that a field escapes latency. A physical
 field propagates at a finite speed, so `nbhd v = univ` is a model of one only
@@ -445,6 +606,12 @@ theorem not_outside_past_of_isFullSupport [Fintype V] {N : Network V S M}
 
 #print axioms ball_rank_le
 #print axioms notMem_ball_of_rank_lt
+#print axioms card_ball_le
+#print axioms card_ball_le_mul_pow
+#print axioms exists_notMem_ball_of_bounded_degree
+#print axioms card_le_geomSum_of_reaches
+#print axioms le_degree_of_reaches_one
+#print axioms not_reconstructs_of_bounded_degree
 #print axioms Network.run_eq_of_agree_on_ball
 #print axioms Network.run_eq_on_region_of_agree
 #print axioms run_intervene_eq_of_notMem

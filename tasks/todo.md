@@ -173,7 +173,7 @@ phase time scale owes a computable quantity, and the three items below compute
 it. Each would be worth proving whichever way it came out, which is the property
 that makes it survive a reviewer who does not share the prior.
 
-- [ ] **C8 — The deadline bound, quantitative.** The highest value per line in
+- [x] **C8 — The deadline bound, quantitative.** The highest value per line in
       the C block and the contrast partner C3 leaves unwritten.
       `not_reconstructs_of_outside_past` (`Phase6_Locality.lean:234`) must be
       *handed* a witness `w ∉ ball N.nbhd T v`; bounded fan-in produces one.
@@ -227,7 +227,7 @@ that makes it survive a reviewer who does not share the prior.
       site values is declared — the same `κ` problem, in the same place, as C4
       and the installed-coupling argument.
 
-- [ ] **C10 — The interconnect corollary.** Contrapositive of `card_ball_le`:
+- [x] **C10 — The interconnect corollary.** Contrapositive of `card_ball_le`:
       meeting deadline `T` across `N` sites needs degree `d ≥ N^(1/T)`, and at
       `T = 1` a full crossbar. One `Finset` argument past C8 and the most
       quotable form of it — the deadline is purchasable, and this is the wiring
@@ -552,3 +552,52 @@ requires a Table S1 row in the same commit. `lake build` is clean with no
 warnings; the axiom audit covers 5604 declarations in 91 modules, up from 5569,
 all resting only on `propext`, `Classical.choice` and `Quot.sound`. The proof
 companion is re-extracted and rebuilt.
+
+### 2026-09-21 — C8 and C10 built, the deadline priced
+
+**`Phase6_Locality.lean`.** `card_ball_le` bounds the causal past by
+`∑_{i ≤ n} dⁱ` on a graph of fan-in `d`, by induction on `ball_succ`: each round
+adds the site itself and multiplies the frontier by at most `d`.
+`card_ball_le_mul_pow` reads the same count as `(n+1)·dⁿ`, which is where the
+logarithm comes from. `exists_notMem_ball_of_bounded_degree` is the step the
+item was about — `not_reconstructs_of_outside_past` has to be *handed* a site
+outside the causal past, and until now only an architectural order produced one;
+below `Fintype.card V` the count produces one instead.
+`not_reconstructs_of_bounded_degree` fires the obstruction with it, so a
+guarantee by deadline `T` across `N` sites of degree `d` needs `T` of order
+`log_d N`.
+
+C10 is the same count backwards. `card_le_geomSum_of_reaches`: a network whose
+causal past at `T` is everything has `Fintype.card V ≤ ∑_{i ≤ T} dⁱ`, so the
+deadline is purchasable and this is the wiring it costs;
+`le_degree_of_reaches_one` is the `T = 1` case, `N ≤ 1 + d`, the crossbar.
+
+Read against C3's `not_outside_past_of_isFullSupport` the asymmetry is
+quantitative on both sides, and the full-support section says so: full support
+*is* that crossbar, and `ball_eq_univ_of_full` is the degree bound at `d = N`,
+where the count covers the site set at the first round and no witness is left to
+pick out.
+
+**`Examples/Locality.lean` §25.** `line_degree` by `decide`, then the same
+round-one rejection reached a second way: `line_exists_notMem_one` and
+`no_guarantee_at_one_of_degree` produce the site from the fan-in and the site
+count alone, where `far_notMem_one` names it. `line_needs_degree_two` runs the
+count the other way — three sites at one round need a site of degree two, and
+the line has none.
+
+*Does not establish.* Anything about latency: `ball` counts hops, and nothing in
+the development is about time to solution. Anything about buildable hardware —
+what C10 bounds is the communication graph a guarantee requires, which is a
+separate question this development models nowhere. And `d` and `N` are declared
+inputs exactly as the communication graph and the deadline already are, so the
+bound prices a guarantee under a declared graph rather than measuring a device.
+The theorems are about a guarantee across two declared values; a report right
+about one fixed world stays right about it at any round, which §25's
+`coincidental_at_one` exhibits.
+
+**What remains in this block.** C5–C7 and C9, and the publication half: none of
+the identifiers above is named in `main.tex`, so `check_table_coverage.py` is
+satisfied as it stands, and naming any of them there requires a Table S1 row in
+the same commit. `lake build` is clean with no warnings; the axiom audit covers
+5614 declarations in 91 modules, up from 5604, all resting only on `propext`,
+`Classical.choice` and `Quot.sound`.

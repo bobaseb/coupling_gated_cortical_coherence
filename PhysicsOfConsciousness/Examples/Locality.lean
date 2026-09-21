@@ -10,7 +10,9 @@
   that is right about one fixed world stays right about it. The same deadline
   separates two claims about the reading region's contents rather than about a
   report: at round one they are not the value the world was given, and at round
-  two they are.
+  two they are. The same rejection is then reached a second way, from the chain's
+  fan-in and its site count alone, with no site named; and the count run
+  backwards says what wiring a one-round guarantee would cost here.
 
   §31. The same machinery on a deployed architecture: the sites of a
   decoder-only forward pass, indexed by token position and layer, with the
@@ -195,6 +197,46 @@ theorem cut_no_guarantee (T : ℕ) (report : ℝ → ℝ) :
     ¬ (worldEncoding cut base 2 id 0 (T + 1) report values).Reconstructs 1 :=
   not_reconstructs_of_outside_past cut base id report values (cut_far_notMem T)
     zero_mem ten_mem values_separated
+
+/-! ### The same rejection, by counting alone
+
+The rejection at round one is read off the graph above: `far_notMem_one` names
+the site the chain leaves outside the causal past. `card_ball_le` reaches it
+without naming anything. Every site of the line hears from at most one other,
+and a degree-one graph reaches at most two sites after one round, so with three
+sites one of them is outside — the shape of the chain is not consulted and only
+the two numbers are.
+
+This is the smallest instance that separates the two routes, and it runs the
+count in both directions: `line_needs_degree_two` is the interconnect bound at
+one round, and the line fails it. -/
+
+/-- Every site of the line hears from at most one other. -/
+theorem line_degree : ∀ v, (line.nbhd v).card ≤ 1 := by decide
+
+/-- **The witness, produced by counting.** After one round a degree-one graph
+reaches at most `1 + 1` of the three sites, so some site lies outside the
+reading site's causal past. The chain's own `far_notMem_one` names that site;
+this derives its existence from the degree and `Fintype.card (Fin 3)` alone. -/
+theorem line_exists_notMem_one : ∃ w, w ∉ ball line.nbhd 1 0 :=
+  exists_notMem_ball_of_bounded_degree line_degree (by decide) 0
+
+/-- **No guarantee at one round, from the degree bound.** `no_guarantee_at_one`
+rejects at the site the architecture is inspected for; this rejects at a site
+the count produces, on the same network, deadline and declared values. -/
+theorem no_guarantee_at_one_of_degree (report : ℝ → ℝ) :
+    ∃ w, ¬ (worldEncoding line base w id 0 1 report values).Reconstructs 1 :=
+  not_reconstructs_of_bounded_degree line base id report values line_degree (by decide) 0
+    zero_mem ten_mem values_separated
+
+/-- **And the wiring one round would cost.** Reaching all three sites at a
+single round needs a site hearing from at least two others, which no site of the
+line does: the interconnect bound at `T = 1`, on the smallest instance that
+exhibits it. -/
+theorem line_needs_degree_two : ¬ ∀ w, w ∈ ball line.nbhd 1 0 := by
+  intro h
+  have hcard := le_degree_of_reaches_one line_degree h
+  simp [Fintype.card_fin] at hcard
 
 /-! ## 31. A causal mask, and what no depth reaches
 
