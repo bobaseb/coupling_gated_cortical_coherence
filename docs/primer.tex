@@ -686,6 +686,101 @@ reappears as \id{nonpredictive\_eq\_zero\_of\_injective}: on a reversible
 update, the entropy erased is zero, so the bound forces wasted memory to
 vanish.
 
+\subsection{One sum, two ways to compute it}
+\label{sec:reduction-budget}
+
+A \emph{reduction} is a computation that reads many values and returns one
+summary of them: a sum, an average, a maximum. The mean-field coupling of this
+framework is a reduction---the coupling constant is the kernel averaged over
+both of its arguments, which on finitely many sites is a sum over pairs---so
+any implementation of the model performs one, whatever it is built from. The
+\emph{register} is where the running total is kept. \emph{Clearing} an array
+means overwriting it with a fixed value, which is what a working memory does
+when it moves on to the next job. Write $\mathcal{V}$ for the set of values one
+site can hold.
+
+\what
+The previous subsection says a many-to-one \emph{description} costs nothing and
+a many-to-one \emph{device} costs heat. That leaves an obvious question about
+any particular device: did it have to be many-to-one? Take the sum over $N$
+sites and evaluate it twice. One evaluation accumulates the site values into
+the register and leaves the site array standing. The other computes exactly the
+same total and clears the array behind it. Both return the same number, and a
+reader looking only at the returned number cannot tell them apart.
+
+\why
+This is the analog energy-per-operation argument, which is usually made by
+gesture: a physical medium performs the sum by simply being in a state, where a
+digital machine performs it by $N$ accumulations and pays for each. The two
+evaluations are that argument with the gesture removed, and what they price
+turns out not to be what the gesture usually claims.
+
+\statement
+The charges are not close. Keeping the array is injective---read the array
+straight off the output, then subtract the total back out of the register---so
+it destroys exactly zero entropy and Landauer's bound charges it nothing at
+all. Clearing reaches only one array, the cleared one, so the reachable set has
+shrunk from the whole state space to a single register's worth of it, and the
+entropy destroyed is $N\log\lvert\mathcal{V}\rvert$: linear in the number of
+sites reduced, with a coefficient set by the alphabet each site is read to. The
+heat is at least temperature times that.
+
+Stated that way it invites the Norton--Shenker reply one subsection earlier.
+The clearing evaluation erases because it was \emph{defined} to clear, and the
+recording evaluation is the standing proof that nothing compelled it. The reply
+is closed by throwing both examples away and quantifying over implementations
+instead. Assume only that an evaluation leaves its results somewhere holding at
+most $m$ states---a \emph{memory budget}, which says where the answers may go
+and nothing whatever about how they are computed. The state space has not moved,
+so by pigeonhole everything the evaluation fails to reach is entropy it removed,
+and it destroys at least $\log(\lvert X\rvert/m)$. A map that reaches fewer
+states than the space holds cannot be surjective, hence on a finite space cannot
+be injective, hence is an erasure in the development's own sense; and the heat
+is at least temperature times $\log(\lvert X\rvert/m)$. The claim upgrades from
+\emph{this implementation pays} to \emph{every implementation inside a memory
+budget pays}, at a stated exchange rate.
+
+Generality costs nothing here. Set the budget to one register's worth and the
+general bound returns exactly the $N\log\lvert\mathcal{V}\rvert$ the clearing
+evaluation was computed to owe, so it replaces the exhibited pair rather than
+standing weaker beside it.
+
+\scope
+\textbf{This is a trade, not a barrier}, and the trade is the whole of the
+content. Memory sufficient to retain every intermediate pays exactly zero---that
+is what the recording evaluation is---and letting the budget grow towards the
+whole state space sends the bound smoothly to zero. What is priced is the
+\emph{exchange rate} between memory and dissipation, and the theorem closes
+neither end of it. Reversible computing is therefore a standing counterexample
+rather than an embarrassment: nothing here says a digital machine must take the
+clearing route, and a claim that it must would need an argument this development
+does not have.
+
+Nor does any of it price a joule. The count is $N$ times the logarithm of a site
+alphabet, so it says nothing until someone declares how a continuous field
+decomposes into site values and how many values a site carries. That is the same
+undetermined conversion factor as the $\kappa$ of the installed-coupling
+argument, sitting in the same place, and a quantity linear in $N$ with an
+undetermined coefficient is a scaling law and not an energy.
+
+And the comparison is between two ways of evaluating one functional on one
+finite state space. It is not a comparison between two substrates, and it is
+certainly not a comparison between two ways of being conscious. Neither
+evaluation is claimed to be what any medium actually does.
+
+\lean
+\id{Phase3\_LandauerBridge.lean}, \S4: \id{recordingSum} and
+\id{clearingSum} for the two evaluations; \id{recordingSum\_injective} with
+\id{erasedEntropy\_recordingSum} for the zero; \id{erasedEntropy\_clearingSum}
+and \id{temperature\_mul\_le\_heat\_clearingSum} for the linear charge and its
+price, with \id{clearingSum\_is\_erasure} routing through
+\id{is\_erasure\_of\_not\_surjective}. The budget form is
+\id{erasedEntropy\_ge\_of\_card\_image\_le}, with
+\id{is\_erasure\_of\_card\_image\_lt} and
+\id{temperature\_mul\_log\_le\_heat\_of\_card\_image\_le};
+\id{erasedEntropy\_clearingSum\_of\_budget} checks it against the instance it
+generalizes.
+
 %======================================================================
 \part*{Part IV. Memory, action and thermodynamics}
 \addcontentsline{toc}{section}{Part IV. Memory, action and thermodynamics}
@@ -4246,7 +4341,7 @@ Whether the rounds or the wires are the scarce thing decides which reading is
 the useful one.
 
 At the other extreme the bound has nothing to say at all. If every site hears
-from every site---which is how a mean-field coupling kernel is idealised---then
+from every site---which is how a mean-field coupling kernel is idealized---then
 after one round the causal past is already everything, and no site is left
 outside it for the obstruction to use. This is not an escape from delay. A
 physical field travels at a finite speed, so treating one this way assumes that
@@ -6152,6 +6247,10 @@ forward/reverse probability ratio and reservoir heat at a specified temperature.
 above its minimum by its current rate of decrease. Yields exponential
 convergence without compactness.
 \item[Lyapunov function] A quantity that never increases along trajectories.
+\item[Memory budget] A bound on how many states an evaluation may leave its
+results in. It constrains where answers go and not how they are computed, and
+it is what forces a Landauer charge without any assumption that the
+implementation chose to erase (Section~\ref{sec:reduction-budget}).
 \item[Mean field] The population's aggregate influence. Its finite-sample
 formula is exact for uniform coupling; passing to a deterministic limiting
 density requires a separate justification.
@@ -6184,6 +6283,10 @@ sheaf additionally satisfies the gluing axiom.
 interacting system as $N\to\infty$.
 \item[Ramp speed] Rate of change of a control parameter. Here $v=dK/dt$;
 a finite ramp gives the population finite time to adjust (Section~\ref{sec:ramp}).
+\item[Reduction] A computation reading many values and returning one summary
+of them. The mean-field coupling is one, so every implementation of the model
+performs a reduction; what it costs depends on the memory budget it keeps, not
+on the substrate.
 \item[Relaxation time] Timescale for returning toward a settled state after a
 disturbance.
 \item[Replica] One repeat of a stochastic simulation with its own random seed.
