@@ -1,5 +1,6 @@
 import PhysicsOfConsciousness.Phase6_ReflexiveTopology
 import Mathlib.Topology.MetricSpace.CoveringNumbers
+import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
 
 /-!
 # Bounded-error self-reconstruction and the codes it needs
@@ -43,6 +44,16 @@ repairs it. It runs one way — a region that does resolve the family is not
 thereby resonant, and nothing here constructs an avatar.
 `Phase6_Locality.lean` supplies the same failure with a deadline in place of a
 tolerance.
+
+## The floor on the code space
+
+The bound above is a ceiling. `measure_le_mul_packingNumber` is the matching
+floor: give the code space a measure, and a region of measure `μ A` whose
+`δ`-balls each measure at most `v` packs at least `μ A / v` separated codes. On
+a finite-dimensional real space with a Haar measure that reads as volume over
+`δ^d` (`measure_le_pow_mul_packingNumber`), which is what makes "a continuum
+code space is large" a quantity rather than a gesture. Both bounds are about the
+code space alone, and the gain `L` in the ceiling is still declared.
 
 ## Scope
 
@@ -396,6 +407,177 @@ theorem card_le_packingNumber_range {L δ : ℝ≥0} {ε r : ℝ} (hL : Lipschit
 end Packing
 
 end Encoding
+
+/-! ## The floor, to match the ceiling
+
+`encard_le_packingNumber_range` bounds the declared family *above* by the
+packing number of the codes the encoder writes. On its own that is a ceiling and
+never a floor: it says what a code space cannot exceed and never that the code
+space supplies anything. A continuous code space is therefore still a hand-wave
+after it, because nothing has said how many `δ`-separated codes a continuum
+actually holds.
+
+This section supplies the other direction. Give the code space a measure. A
+maximal `δ`-separated family is a `δ`-cover — that is what maximality means —
+so the region it packs is covered by that many balls of radius `δ`, and its
+measure is at most the number of them times the largest ball measure. Read
+backwards, that is a floor: a region of measure `μ A` whose `δ`-balls each
+measure at most `v` has packing number at least `μ A / v`, written
+`μ A ≤ v * packingNumber δ A` to keep the division out of the statement.
+
+`measure_le_pow_mul_packingNumber` is the quantity the manuscript's reading
+wants. On a finite-dimensional real vector space with a Haar measure the ball
+measure is `δ^d` times the unit ball's, so the floor grows as volume over
+`δ^d` — resolution `δ` and dimension `d`, and nothing else. Against
+`card_le_two_pow`, whose `b` is a declared alphabet size, this makes the
+corresponding count a physical quantity: `δ` is the noise floor of the readout
+and the volume is the region the code lives in.
+
+**Scope, and it is not small.** The floor is about the *code space*, not about
+any mechanism reaching it. It says a region of positive measure holds that many
+mutually resolvable codes; it does not say an encoder writes them, that a
+readout separates them, or that the states they would encode exist. Read with
+`encard_le_packingNumber_range`, whose gain `L` is declared and uncalibrated: a
+mechanism free to amplify without bound evacuates the ceiling, and no floor on
+the code space repairs that. The two bounds meet only when `δ` is fixed by a
+measured noise floor and `L` by a measured gain, and this module measures
+neither.
+
+Neither theorem needs the encoder, so both are stated on a bare metric measure
+space; `Encoding.measure_le_mul_packingNumber_range` carries the first to the
+codes an encoder writes, which is the only form the reconstruction argument
+uses. -/
+
+section Floor
+
+open MeasureTheory
+
+section PackingFloor
+
+variable {X : Type*} [PseudoMetricSpace X] [MeasurableSpace X]
+
+omit [MeasurableSpace X] in
+/-- Packing more room holds at least as much: a separated family inside `A` is a
+separated family inside any `B` containing it. -/
+theorem packingNumber_mono_set (δ : ℝ≥0) {A B : Set X} (h : A ⊆ B) :
+    Metric.packingNumber δ A ≤ Metric.packingNumber δ B := by
+  simp only [Metric.packingNumber, iSup_le_iff]
+  exact fun D hDA hDsep => Metric.IsSeparated.encard_le_packingNumber (hDA.trans h) hDsep
+
+/-- **The packing floor.** If every ball of radius `δ` has measure at most `v`,
+a set of measure `μ A` needs at least `μ A / v` of them to be covered, and a
+maximal `δ`-separated family inside `A` is such a cover. So the packing number
+is at least `μ A / v`, in the division-free form `μ A ≤ v * packingNumber δ A`.
+
+`v ≠ 0` is needed only where the packing number is infinite, and there it is
+needed: the argument runs through a *maximal* separated family, which exists
+only when the packing number is finite, so nothing bounds `μ A` while the
+right-hand side stays `0`. A positive bound on the ball measure is what the
+physical reading supplies anyway — a resolution cell has a volume.
+
+This bounds the *code space*, and says nothing about any mechanism that writes
+into it. -/
+theorem measure_le_mul_packingNumber (μ : Measure X) {δ : ℝ≥0} {A : Set X} {v : ℝ≥0∞}
+    (hv0 : v ≠ 0) (hv : ∀ x, μ (Metric.closedBall x (δ : ℝ)) ≤ v) :
+    μ A ≤ v * Metric.packingNumber δ A := by
+  rcases eq_or_ne (Metric.packingNumber δ A) ⊤ with h | h
+  · rw [h, ENat.toENNReal_top, ENNReal.mul_top hv0]
+    exact le_top
+  · have hcard : (Metric.maximalSeparatedSet δ A).encard = Metric.packingNumber δ A :=
+      Metric.encard_maximalSeparatedSet h
+    have hfin : (Metric.maximalSeparatedSet δ A).Finite :=
+      Set.encard_ne_top_iff.mp (by rw [hcard]; exact h)
+    have hcov := Metric.isCover_maximalSeparatedSet h
+    have hsub : A ⊆ ⋃ c ∈ hfin.toFinset, Metric.closedBall c (δ : ℝ) := by
+      intro x hx
+      obtain ⟨c, hc, hdist⟩ := hcov hx
+      refine Set.mem_biUnion (hfin.mem_toFinset.2 hc) ?_
+      have hnn : nndist x c ≤ δ := edist_le_coe.mp hdist
+      exact Metric.mem_closedBall.2 (by exact_mod_cast hnn)
+    have hpack : ((hfin.toFinset.card : ℕ∞) : ℝ≥0∞) = ((Metric.packingNumber δ A : ℕ∞) : ℝ≥0∞) := by
+      rw [← hcard, hfin.encard_eq_coe_toFinset_card]
+    calc μ A ≤ μ (⋃ c ∈ hfin.toFinset, Metric.closedBall c (δ : ℝ)) := measure_mono hsub
+      _ ≤ ∑ c ∈ hfin.toFinset, μ (Metric.closedBall c (δ : ℝ)) := measure_biUnion_finset_le _ _
+      _ ≤ ∑ _c ∈ hfin.toFinset, v := Finset.sum_le_sum fun c _ => hv c
+      _ = v * (hfin.toFinset.card : ℝ≥0∞) := by rw [Finset.sum_const, nsmul_eq_mul, mul_comm]
+      _ = v * Metric.packingNumber δ A := by rw [← hpack, ENat.toENNReal_coe]
+
+/-- The floor in counting form: a region too large to be covered by `n` cells of
+resolution `δ` packs more than `n` separated codes. -/
+theorem lt_packingNumber_of_mul_lt_measure (μ : Measure X) {δ : ℝ≥0} {A : Set X} {v : ℝ≥0∞}
+    {n : ℕ} (hv0 : v ≠ 0) (hv : ∀ x, μ (Metric.closedBall x (δ : ℝ)) ≤ v)
+    (hn : (n : ℝ≥0∞) * v < μ A) : (n : ℕ∞) < Metric.packingNumber δ A := by
+  by_contra hle
+  have hle' : Metric.packingNumber δ A ≤ (n : ℕ∞) := not_lt.mp hle
+  have hchain : μ A ≤ v * (n : ℝ≥0∞) := by
+    refine (measure_le_mul_packingNumber μ hv0 hv).trans ?_
+    calc v * (Metric.packingNumber δ A : ℝ≥0∞) ≤ v * ((n : ℕ∞) : ℝ≥0∞) := by gcongr
+      _ = v * (n : ℝ≥0∞) := by rw [ENat.toENNReal_coe]
+  rw [mul_comm] at hchain
+  exact absurd (lt_of_lt_of_le hn hchain) (lt_irrefl _)
+
+end PackingFloor
+
+section EuclideanFloor
+
+variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
+  [FiniteDimensional ℝ E]
+
+/-- **Volume over `δ^d`.** On a finite-dimensional real vector space with a Haar
+measure, every ball of radius `δ` has the same measure, `δ^d` times the unit
+ball's, so the floor is the region's volume divided by a resolution cell's. This
+is the sense in which a continuum code space is large: not that it is infinite —
+at `δ = 0` the packing number is the cardinality and says nothing physical — but
+that at a *fixed* resolution it holds a number of codes growing as the volume
+and shrinking as `δ^d`.
+
+`δ ≠ 0` is required, and it is the whole physical content: the bound is a
+statement about a code space read at a finite resolution, and the resolution is
+supplied by a noise floor this module does not derive. -/
+theorem measure_le_pow_mul_packingNumber (μ : Measure E) [μ.IsAddHaarMeasure]
+    {δ : ℝ≥0} (hδ : δ ≠ 0) (A : Set E) :
+    μ A ≤ ENNReal.ofReal ((δ : ℝ) ^ Module.finrank ℝ E) * μ (Metric.ball 0 1)
+        * Metric.packingNumber δ A := by
+  refine measure_le_mul_packingNumber μ ?_ fun x => ?_
+  · have h1 : ENNReal.ofReal ((δ : ℝ) ^ Module.finrank ℝ E) ≠ 0 := by
+      simp only [ne_eq, ENNReal.ofReal_eq_zero, not_le]
+      have : (0 : ℝ) < (δ : ℝ) := lt_of_le_of_ne δ.coe_nonneg (by simpa [eq_comm] using hδ)
+      positivity
+    exact mul_ne_zero h1 (Metric.measure_ball_pos μ 0 one_pos).ne'
+  · exact le_of_eq (Measure.addHaar_closedBall μ x δ.coe_nonneg)
+
+end EuclideanFloor
+
+namespace Encoding
+
+variable [PseudoMetricSpace C] [MeasurableSpace C]
+
+/-- **The floor, on the codes the encoder writes.** A region of the code space
+inside the encoder's range, of measure `μ A`, forces the packing number that
+`encard_le_packingNumber_range` bounds the declared family by to be at least
+`μ A / v`. The ceiling and the floor then hold of the same quantity, which is
+what makes the resource-matched comparison a comparison rather than a bound in
+one direction.
+
+That quantity is still a property of the code space and the resolution alone.
+Nothing here says the encoder is injective on any family, that the readout
+resolves what the code space separates, or that the family the mechanism must
+distinguish is that large. -/
+theorem measure_le_mul_packingNumber_range (Enc : Encoding S C) (μ : Measure C) {δ : ℝ≥0}
+    {A : Set C} {v : ℝ≥0∞} (hA : A ⊆ Set.range Enc.encode) (hv0 : v ≠ 0)
+    (hv : ∀ x, μ (Metric.closedBall x (δ : ℝ)) ≤ v) :
+    μ A ≤ v * Metric.packingNumber δ (Set.range Enc.encode) := by
+  refine (measure_le_mul_packingNumber μ hv0 hv).trans ?_
+  gcongr
+  exact packingNumber_mono_set δ hA
+
+end Encoding
+
+end Floor
+
+#print axioms measure_le_mul_packingNumber
+#print axioms measure_le_pow_mul_packingNumber
+#print axioms Encoding.measure_le_mul_packingNumber_range
 
 end PhysicsOfConsciousness.Reconstruction
 

@@ -33,6 +33,16 @@ indistinguishability theorem below is derived and not postulated.
   reflexive fixed point is interpreted through, therefore fails by the declared
   round.
 
+* **`not_outside_past_of_isFullSupport`.** The hypothesis both negative results
+  run on — a site outside the reading site's causal past — is unsatisfiable on a
+  network where every site hears from every site. A coupling of full support has
+  no hop structure for a deadline to bite on, so this module's obstruction is
+  silent there, and an argument running it against such a kernel is running it
+  where its hypothesis cannot hold. What that costs is stated with the theorem:
+  a physical field propagates at a finite speed, so the idealization holds only
+  while transit is short against the phase time scale, which is a calibration
+  and not a theorem.
+
 ## Latency, and what this is not
 
 A communication delay is a chain of sites: a message crossing `k` hops arrives
@@ -291,11 +301,98 @@ theorem not_resonates_regionReading_of_outside_past (N : Network V S M) (base : 
     ¬ Resonates (regionReading N base w inj R T) ρ :=
   not_resonates_of_confuses (regionReading_eq_of_outside_past N base inj hw q q') hρ
 
+/-! ## A kernel with no hop structure
+
+Both negative results above are fired by the same hypothesis: some site lies
+*outside* the reading site's causal past for `T` rounds. That hypothesis is
+about `nbhd`, and a coupling of full support does not have one to speak of —
+every site hears from every site, `incoming` is `some` everywhere, and a
+message crosses no hops because there are none to cross.
+
+`ball_eq_univ_of_full` is that, in the only form the obstruction cares about:
+after a single round the causal past of any site is the whole network. So on a
+full-support network there is no `w` to instantiate `hw` with, at any deadline
+but zero, and `not_reconstructs_of_outside_past` and
+`not_resonates_regionReading_of_outside_past` have nothing to fire on. This is
+the asymmetry the bound's uses have to respect: the results above obstruct an
+architecture whose agreement propagates by hops, and a mean-field kernel of full
+support is not one.
+
+**What this is not.** It is not a claim that a field escapes latency. A physical
+field propagates at a finite speed, so `nbhd v = univ` is a model of one only
+while transit across the substrate is short against the phase time scale the
+dynamics runs on. That comparison is a calibration — a conduction speed, a
+diameter, a frequency — and this module measures none of them. What is proved
+is narrower and exact: *given* a network with no neighbourhood structure, the
+deadline obstruction of this module has no instance. Whether cortex is such a
+network, and at what deadline, is the empirical question the module's header
+already declines. -/
+
+/-- Every site hears from every site: the shape a coupling of full support has,
+with no neighbourhood for a message to cross. -/
+def Network.IsFullSupport [Fintype V] (N : Network V S M) : Prop :=
+  ∀ v, N.nbhd v = Finset.univ
+
+/-- **Full support is exactly a total `incoming`.** The predicate is stated on
+`nbhd` because `ball` is, and this is the check that it says what it is named
+for: a site receives a message from every site, in every configuration. -/
+theorem Network.isFullSupport_iff_incoming_isSome [Fintype V] [Nonempty S]
+    (N : Network V S M) :
+    N.IsFullSupport ↔ ∀ (c : V → S) (v u : V), (N.incoming c v u).isSome := by
+  constructor
+  · intro h c v u
+    simp [Network.incoming, h v]
+  · intro h v
+    refine Finset.eq_univ_of_forall fun u => ?_
+    by_contra hu
+    have hsome := h (fun _ => Classical.arbitrary S) v u
+    simp [Network.incoming, hu] at hsome
+
+/-- **One round of a full-support kernel reaches everything.** The causal past
+after any positive number of rounds is the whole network. -/
+theorem ball_eq_univ_of_full [Fintype V] {nbhd : V → Finset V}
+    (h : ∀ v, nbhd v = Finset.univ) (n : ℕ) (v : V) :
+    ball nbhd (n + 1) v = Finset.univ := by
+  rw [ball_succ, h v]
+  refine Finset.eq_univ_of_forall fun u => ?_
+  exact Finset.mem_insert_of_mem
+    (Finset.mem_biUnion.2 ⟨u, Finset.mem_univ u, self_mem_ball nbhd n u⟩)
+
+theorem mem_ball_of_full [Fintype V] {nbhd : V → Finset V}
+    (h : ∀ v, nbhd v = Finset.univ) {T : ℕ} (hT : T ≠ 0) (v w : V) :
+    w ∈ ball nbhd T v := by
+  obtain ⟨n, rfl⟩ := Nat.exists_eq_succ_of_ne_zero hT
+  rw [ball_eq_univ_of_full h]
+  exact Finset.mem_univ w
+
+/-- **No site is outside the causal past**, at any deadline but zero. -/
+theorem mem_ball_of_isFullSupport [Fintype V] {N : Network V S M} (h : N.IsFullSupport)
+    {T : ℕ} (hT : T ≠ 0) (v w : V) : w ∈ ball N.nbhd T v :=
+  mem_ball_of_full h hT v w
+
+/-- **The deadline obstruction has no instance on a full-support kernel.** The
+hypothesis `w ∉ ball N.nbhd T v`, which is what fires both
+`not_reconstructs_of_outside_past` and
+`not_resonates_regionReading_of_outside_past`, is unsatisfiable once every site
+hears from every site and the deadline is at least one round.
+
+This does not say the reports are accurate or that the region reads what it is
+supposed to. It says this module's obstruction is silent, and that an argument
+running it against a full-support kernel is running it where its hypothesis
+cannot hold. -/
+theorem not_outside_past_of_isFullSupport [Fintype V] {N : Network V S M}
+    (h : N.IsFullSupport) {T : ℕ} (hT : T ≠ 0) {v w : V} :
+    ¬ w ∉ ball N.nbhd T v :=
+  fun hw => hw (mem_ball_of_isFullSupport h hT v w)
+
 #print axioms Network.run_eq_of_agree_on_ball
 #print axioms Network.run_eq_on_region_of_agree
 #print axioms run_intervene_eq_of_notMem
 #print axioms not_reconstructs_of_outside_past
 #print axioms regionReading_eq_of_outside_past
 #print axioms not_resonates_regionReading_of_outside_past
+#print axioms Network.isFullSupport_iff_incoming_isSome
+#print axioms ball_eq_univ_of_full
+#print axioms not_outside_past_of_isFullSupport
 
 end PhysicsOfConsciousness.Locality

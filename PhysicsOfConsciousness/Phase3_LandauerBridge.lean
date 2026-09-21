@@ -1,6 +1,7 @@
 import PhysicsOfConsciousness.Phase3_CombinatorialThermodynamics
 import PhysicsOfConsciousness.Phase3_MeasureThermodynamics
 import PhysicsOfConsciousness.Phase3_PredictiveThermodynamics
+import PhysicsOfConsciousness.Phase1_PhaseSpaceCapacity
 
 /-!
 # Phase 3 — Landauer's heat as Still's budget
@@ -63,6 +64,16 @@ its `continuous_entropy` **is** `boltzmann_entropy`, its `is_dissipative` is
 non-injectivity, and its `landauer_heat_bound` is `T · erasedEntropy`. The two
 statements of Derivation 2 are one statement at two levels of generality, which
 is worth a theorem rather than a remark.
+
+## One functional, two ways of evaluating it
+
+§4 counts the distinction `Phase1_PhaseSpaceCapacity` §3 draws one step at a
+time. Two maps compute the same sum over `N` sites: `recordingSum` keeps the
+site array and is injective, so it destroys nothing; `clearingSum` clears it and
+destroys `N log |Val|`, which Landauer's bound prices at temperature times that.
+The comparison is between two evaluations of one functional on one finite phase
+space, and it prices nothing until the decomposition into site values is
+declared.
 
 Witness: `Examples.lean` §18.5.
 -/
@@ -305,5 +316,183 @@ theorem measure_heat_eq_temperature_mul_erasedEntropy [Nonempty sys] {t : sys �
   rwa [landauer_heat_bound_count_eq] at this
 
 end MeasureRestatement
+
+/-! ## 4. One functional, two ways of evaluating it
+
+`Phase1_PhaseSpaceCapacity` §3 is careful about where heat appears: not at
+losing history, but at *erasure*. The joint map that keeps the incoming record
+is injective and dissipates nothing; `absorbStep`, which refreshes the incoming
+slot instead, is not and does. That distinction has been stated one step at a
+time. This section counts it over `N` of them.
+
+The functional is a sum over sites — the reduction a mean-field kernel performs,
+in the only form a finite phase space can carry it. Two evaluations:
+
+* `recordingSum` accumulates the site values into the register and *leaves the
+  site array standing*. It is injective (`recordingSum_injective`), so the
+  entropy it destroys is exactly zero and Landauer's bound charges it nothing.
+* `clearingSum` computes the same register value and clears the array. Its image
+  is one array's worth of states, so it destroys `N log |Val|`
+  (`erasedEntropy_clearingSum`) and the heat is at least the temperature times
+  that (`temperature_mul_le_heat_clearingSum`) — `Ω(N)`, linear in the number of
+  sites reduced, with a coefficient set by the alphabet each site is read to.
+
+This is the analog energy-per-operation argument with the hand-waving removed,
+and what it prices is not what it is usually said to price.
+
+**Scope, and it is the whole of the result's reach.**
+
+The comparison is between two ways of *evaluating one functional*, not between
+two ways of being conscious, and not between two substrates. `recordingSum` is
+a map on a finite phase space like any other; nothing here says a continuous
+medium performs it, that a digital machine cannot, or that either is easier to
+build. What is proved is that the record-keeping evaluation carries no Landauer
+charge and the clearing one carries a charge growing linearly in `N`.
+
+The bound on the clearing route is a *lower* bound on heat, and the zero on the
+recording route is a lower bound too — it is the absence of a charge, not the
+achievement of free computation. A reversible implementation still pays for the
+noise floor it runs above, which is the diffusion `D` of
+`Phase8_FokkerPlanck` and not this section's subject.
+
+And the count is in bits of the site alphabet, `N log |Val|`, so it prices
+nothing until the decomposition of the field into site values is declared. That
+is the same `κ` problem the installed-coupling argument has, in the same place:
+a quantity linear in `N` with an undetermined coefficient is a scaling law and
+not an energy. -/
+
+section Reduction
+
+variable {Reg Val : Type*} [Fintype Reg] [DecidableEq Reg] [AddCommGroup Reg]
+  [Fintype Val] [DecidableEq Val]
+
+/-- The reduction performed digitally: the `N` site values are accumulated into
+the register and the site array is cleared to `val₀`. Clearing is what a working
+register does; keeping every input is the alternative below. -/
+def clearingSum {N : ℕ} (site : Val → Reg) (val₀ : Val) :
+    Reg × (Fin N → Val) → Reg × (Fin N → Val) :=
+  fun rv => (rv.1 + ∑ k, site (rv.2 k), fun _ => val₀)
+
+/-- The same reduction with the record kept: the register carries the sum and
+the site array is left where it was. -/
+def recordingSum {N : ℕ} (site : Val → Reg) :
+    Reg × (Fin N → Val) → Reg × (Fin N → Val) :=
+  fun rv => (rv.1 + ∑ k, site (rv.2 k), rv.2)
+
+omit [Fintype Reg] [DecidableEq Reg] [Fintype Val] [DecidableEq Val] in
+/-- **Keeping the record is reversible.** The array is read straight off the
+output and the register's old value is the sum subtracted back. -/
+theorem recordingSum_injective {N : ℕ} (site : Val → Reg) :
+    Function.Injective (recordingSum (N := N) site) := by
+  rintro ⟨r, v⟩ ⟨r', v'⟩ h
+  simp only [recordingSum, Prod.mk.injEq] at h
+  obtain ⟨h1, h2⟩ := h
+  subst h2
+  simpa using h1
+
+/-- **So it destroys nothing.** The reduction itself carries no Landauer charge:
+`erasedEntropy` is exactly zero, and `temperature_mul_erasedEntropy_le_heat`
+bounds the heat below by zero and no more. -/
+theorem erasedEntropy_recordingSum {N : ℕ} (site : Val → Reg) :
+    erasedEntropy (recordingSum (N := N) site) = 0 :=
+  erasedEntropy_eq_zero_of_injective (recordingSum_injective site)
+
+/-- The clearing evaluation reaches exactly one array: the cleared one. -/
+theorem image_clearingSum {N : ℕ} (site : Val → Reg) (val₀ : Val) :
+    Finset.image (clearingSum (N := N) site val₀) Finset.univ
+      = Finset.image (fun r : Reg => (r, (fun _ => val₀ : Fin N → Val))) Finset.univ := by
+  ext x
+  simp only [Finset.mem_image, Finset.mem_univ, true_and]
+  constructor
+  · rintro ⟨rv, rfl⟩
+    exact ⟨rv.1 + ∑ k, site (rv.2 k), rfl⟩
+  · rintro ⟨r, rfl⟩
+    refine ⟨(r - ∑ _k : Fin N, site val₀, fun _ => val₀), ?_⟩
+    simp [clearingSum]
+
+theorem card_image_clearingSum {N : ℕ} (site : Val → Reg) (val₀ : Val) :
+    (Finset.image (clearingSum (N := N) site val₀) Finset.univ).card = Fintype.card Reg := by
+  rw [image_clearingSum,
+    Finset.card_image_of_injective _ (fun a b h => (Prod.mk.injEq _ _ _ _ ▸ h).1),
+    Finset.card_univ]
+
+/-- **`Ω(N)`, exactly.** Clearing the site array after the reduction destroys
+`N log |Val|` of entropy: the reachable set has shrunk from the whole phase
+space to one register's worth of states, and the factor lost is the array. -/
+theorem erasedEntropy_clearingSum [Nonempty Reg] [Nonempty Val] {N : ℕ}
+    (site : Val → Reg) (val₀ : Val) :
+    erasedEntropy (clearingSum (N := N) site val₀) = N * Real.log (Fintype.card Val) := by
+  have hReg : (0 : ℝ) < Fintype.card Reg := by exact_mod_cast Fintype.card_pos (α := Reg)
+  have hVal : (0 : ℝ) < Fintype.card Val := by exact_mod_cast Fintype.card_pos (α := Val)
+  have hcard : Fintype.card (Reg × (Fin N → Val)) = Fintype.card Reg * Fintype.card Val ^ N := by
+    rw [Fintype.card_prod, Fintype.card_fun, Fintype.card_fin]
+  rw [erasedEntropy, entropy, entropy, Finset.image_id, boltzmann_entropy, boltzmann_entropy,
+    Finset.card_univ, card_image_clearingSum, hcard]
+  rw [Nat.cast_mul, Nat.cast_pow, Real.log_mul (ne_of_gt hReg) (by positivity), Real.log_pow]
+  ring
+
+omit [Fintype Reg] [DecidableEq Reg] [Fintype Val] [DecidableEq Val] in
+/-- A cleared array is unreachable from any state whose array is not cleared, so
+long as there is another letter and at least one site. -/
+theorem clearingSum_not_surjective [Nonempty Reg] {N : ℕ} (hN : 0 < N)
+    (site : Val → Reg) {val₀ val₁ : Val} (hne : val₁ ≠ val₀) :
+    ¬ Function.Surjective (clearingSum (N := N) site val₀) := by
+  intro hsurj
+  obtain ⟨x, hx⟩ := hsurj (Classical.arbitrary Reg,
+    Function.update (fun _ => val₀) ⟨0, hN⟩ val₁)
+  have hval := congrFun (congrArg Prod.snd hx) ⟨0, hN⟩
+  simp [clearingSum] at hval
+  exact hne hval.symm
+
+omit [DecidableEq Reg] [DecidableEq Val] in
+/-- Hence it is an erasure, by `is_erasure_of_not_surjective` — the step where
+finiteness of the phase space does the work. -/
+theorem clearingSum_is_erasure [Nonempty Reg] {N : ℕ} (hN : 0 < N)
+    (site : Val → Reg) {val₀ val₁ : Val} (hne : val₁ ≠ val₀) :
+    is_erasure (clearingSum (N := N) site val₀) :=
+  is_erasure_of_not_surjective _ (clearingSum_not_surjective hN site hne)
+
+theorem erasedEntropy_clearingSum_pos [Nonempty Reg] [Nonempty Val] {N : ℕ} (hN : 0 < N)
+    (site : Val → Reg) {val₀ val₁ : Val} (hne : val₁ ≠ val₀) :
+    0 < erasedEntropy (clearingSum (N := N) site val₀) := by
+  rw [erasedEntropy_clearingSum]
+  have h2 : (2 : ℝ) ≤ Fintype.card Val := by
+    have hcard : 2 ≤ Fintype.card Val := Fintype.one_lt_card_iff.2 ⟨val₁, val₀, hne⟩
+    exact_mod_cast hcard
+  have hlog : 0 < Real.log (Fintype.card Val) := Real.log_pos (by linarith)
+  positivity
+
+/-- **The reduction costs no erasure; clearing the record costs `N` times a
+letter.** The one-line form of the comparison: two maps computing the same
+register value, one charged nothing and the other charged a quantity linear in
+the number of sites reduced. -/
+theorem erasedEntropy_recordingSum_lt_clearingSum [Nonempty Reg] [Nonempty Val] {N : ℕ}
+    (hN : 0 < N) (site : Val → Reg) {val₀ val₁ : Val} (hne : val₁ ≠ val₀) :
+    erasedEntropy (recordingSum (N := N) site)
+      < erasedEntropy (clearingSum (N := N) site val₀) := by
+  rw [erasedEntropy_recordingSum]
+  exact erasedEntropy_clearingSum_pos hN site hne
+
+/-- **Landauer's bill for the clearing evaluation.** Temperature times
+`N log |Val|`, and no smaller, for a system whose thermodynamics is declared.
+
+The temperature is the phase space's own, as everywhere in this file; what the
+`StatisticalMechanics` instance supplies is `heat_eq`, and the bound is
+`landauer_bound` specialized to the entropy this map destroys. -/
+theorem temperature_mul_le_heat_clearingSum [Nonempty Reg] [Nonempty Val] {N : ℕ}
+    [StatisticalMechanics (Reg × (Fin N → Val))] (site : Val → Reg) (val₀ : Val) :
+    Thermodynamics.temperature (sys := Reg × (Fin N → Val)) * (N * Real.log (Fintype.card Val))
+      ≤ heat_dissipation (clearingSum (N := N) site val₀) := by
+  have hbound := temperature_mul_erasedEntropy_le_heat (sys := Reg × (Fin N → Val))
+    (clearingSum (N := N) site val₀)
+  rwa [erasedEntropy_clearingSum] at hbound
+
+end Reduction
+
+#print axioms recordingSum_injective
+#print axioms erasedEntropy_recordingSum
+#print axioms erasedEntropy_clearingSum
+#print axioms erasedEntropy_recordingSum_lt_clearingSum
+#print axioms temperature_mul_le_heat_clearingSum
 
 end PhysicsOfConsciousness
