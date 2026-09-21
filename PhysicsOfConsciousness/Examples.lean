@@ -37,13 +37,14 @@
     `Examples/LearnedCoupling.lean` §28 -- one process: learning, its coupling and its work
     `Examples/FundedCoupling.lean` §29 -- a finite source that cannot fund coherence
     `Examples/EvolvingCoupling.lean` §30 -- a run's no-go needs a supremum, not a mean
-    `Examples/Phase4.lean`  §7, §15, §16, §17
+    `Examples/Phase4.lean`  §7, §15, §16, §17, §32 (two legal covers of one state)
     `Examples/Phase5.lean`  §13, §14, §17.1, §20 (overlap agreement)
     `Examples/VectorContent.lean` §22 (vector contents), §23 (the overlap encoder)
     `Examples/Phase6.lean`  §10
     `Examples/MeasureGluing.lean` -- actual measures on a finite open cover
     `Examples/Reconstruction.lean` §24 (bounded-error self-reconstruction)
-    `Examples/Locality.lean` §25 (a delay line and its deadline)
+    `Examples/Locality.lean` §25 (a delay line and its deadline), §31 (a causal
+      mask, and the positions no depth reaches)
     `Examples/Phase7.lean`  §8
     `Examples/FiniteRegion.lean` §26 (finite cells in the continuum functional)
     `Examples/Phase8.lean`  §5, §9, §12, §20 (continuum operator), §21 (stationary

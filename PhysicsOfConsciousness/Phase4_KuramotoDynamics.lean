@@ -719,6 +719,54 @@ lemma mean_patch_order_singleton [Nonempty V] (theta : V → ℝ) :
     mul_one]
   field_simp
 
+/-! ### The cover is a choice, and the finest one is a legal one
+
+`mean_patch_order_singleton` is one lemma read two ways. Read forwards it says
+how little the finest patch observable constrains the global one. Read backwards
+it says something about *claims*: patch agreement at any declared level is
+available on a legal cover, for every configuration whatever, so a claim that a
+candidate's parts agree — stated as a level of patch order, with the cover left
+to the claimant — has no configuration that refutes it.
+
+That is the cover-side analogue of the region being a choice
+(`Phase6_Reconstruction.lean`: the whole substrate is a legal avatar region, and
+an encoding on it reconstructs everything). Both say the same thing about the
+same kind of claim: the declared decomposition is part of the claim, and a claim
+that picks it afterwards has not been tested.
+
+What this does not say. It does not say patch order is a bad observable — it is
+the strictly finer one (`norm_order_parameter_le_mean_patch_order`), it is what
+`travelling_wave.local_order` estimates, and on a *fixed* cover it constrains the
+state: `Examples/Phase4.lean` §32 exhibits two sites, two legal covers and two
+answers, one of them zero. What is empty is the existential, not the observable.
+Which cover a claim is about is the claim's to declare, and the patch size is
+then a physical scale rather than a free parameter. -/
+
+/-- **Maximal patch agreement is always available.** For every configuration
+there is a uniform cover whose mean patch order is exactly one: the cover by
+single sites, which is a legal `IsUniformCover` with `c = m = 1`.
+
+The content is the order of the quantifiers. Fix the cover and patch order is an
+observable of the state; let the cover be chosen after the state and the value
+one is reachable from anywhere, including from a configuration whose global
+resultant is zero. -/
+theorem exists_isUniformCover_mean_patch_order_eq_one [Nonempty V] (theta : V → ℝ) :
+    ∃ (P : V → Finset V) (c m : ℕ), IsUniformCover P c m ∧ mean_patch_order theta P = 1 :=
+  ⟨fun i => {i}, 1, 1, isUniformCover_singleton, mean_patch_order_singleton theta⟩
+
+/-- **Any declared agreement level is met by some legal cover.** The form a claim
+takes: a threshold `c₀ ≤ 1` is satisfied on a cover exhibited after the
+configuration is known, so the threshold constrains nothing until the cover is
+fixed with it. The hypothesis `c₀ ≤ 1` is where the construction stops: a level
+above one is not reached by this cover, and no bound proved here says it is
+unreachable by another. -/
+theorem exists_isUniformCover_le_mean_patch_order [Nonempty V] (theta : V → ℝ) {c₀ : ℝ}
+    (hc : c₀ ≤ 1) :
+    ∃ (P : V → Finset V) (c m : ℕ), IsUniformCover P c m ∧ c₀ ≤ mean_patch_order theta P := by
+  refine ⟨fun i => {i}, 1, 1, isUniformCover_singleton, ?_⟩
+  rw [mean_patch_order_singleton theta]
+  exact hc
+
 omit [Fintype V] [DecidableEq V] in
 private lemma norm_expI (t : ℝ) : ‖Complex.exp (Complex.I * (t : ℂ))‖ = 1 := by
   rw [mul_comm]
@@ -963,6 +1011,25 @@ omit [DecidableEq G] in
 theorem order_parameter_r_sq_char [Nonempty G] (W : WindingData G) {g₀ : G}
     (hg : W.chi g₀ ≠ 1) : order_parameter_r_sq W.psi = 0 := by
   rw [order_parameter_r_sq, order_parameter_complex_char W hg, map_zero]
+
+omit [DecidableEq G] in
+/-- **The gap, at its widest, on one state.** A nontrivial winding has global
+resultant exactly zero and singleton-cover patch order exactly one. One
+configuration, one family of observables, and the two extremes of the range —
+which is what makes the choice of cover the whole content of a patch-agreement
+claim about such a state.
+
+Neither half is new: this is `order_parameter_r_sq_char` beside
+`mean_patch_order_singleton`. Stating them together is the point, because the
+claim they bear on is the one that reports a patch order without saying which
+cover produced it. Nothing here says a winding is incoherent or that it is
+coherent; the two observables measure different things, and
+`cos_le_mean_patch_order_char` is what a *declared* cover reports on it. -/
+theorem order_parameter_zero_mean_patch_order_singleton_char [Nonempty G] (W : WindingData G)
+    {g₀ : G} (hg : W.chi g₀ ≠ 1) :
+    order_parameter_r_sq W.psi = 0
+      ∧ mean_patch_order W.psi (fun k : G => ({k} : Finset G)) = 1 :=
+  ⟨order_parameter_r_sq_char W hg, mean_patch_order_singleton W.psi⟩
 
 /-- Nearest-neighbour patches along a chosen separation: the coarsest cover that
 is not the singleton one. -/

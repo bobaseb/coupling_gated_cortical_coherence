@@ -8,7 +8,10 @@
   `Examples/Phase8.lean` §5; §16 is the one-way coupling that beats its own
   phase-locked state, which is why the symmetric-kernel result needs its
   hypothesis. §17 reaches the minimum on three sites, where no closed form
-  exists and the trajectory comes from the existence theorem instead.
+  exists and the trajectory comes from the existence theorem instead. §32 is
+  about covers rather than trajectories: two sites in antiphase, two legal
+  uniform covers of them, and the reported patch agreement zero on one and one
+  on the other.
 -/
 
 import PhysicsOfConsciousness.Phase3_CombinatorialThermodynamics
@@ -676,6 +679,90 @@ theorem trio_reaches_minimum :
     theta h_traj (by rw [h0]; exact trioStart_small) (by rw [h0]; exact trioStart_init)
 
 end TrioDynamics
+
+/-! ## 32. Two sites, two legal covers, two answers
+
+`exists_isUniformCover_mean_patch_order_eq_one` says maximal patch agreement is
+available on some legal cover, for every configuration. On its own that could be
+read as a defect of the observable, so this section fences that reading: patch
+order on a *fixed* cover is a real measurement of the state, and here it returns
+zero.
+
+Two sites in antiphase. The global resultant is zero. The one-patch cover — both
+sites in one patch, each site in one patch, a legal `IsUniformCover` with
+`c = 2`, `m = 1` — reports zero as well. The cover by single sites reports one.
+One configuration, two legal covers, the two ends of the range, so what moved the
+answer was the choice and not the state.
+
+This is the cover-side counterpart of the avatar region of
+`Phase6_Reconstruction`: nothing here says either cover is the wrong one to use.
+It says which one is used is part of the claim. -/
+
+section CoverChoice
+
+/-- Two sites in antiphase. The same configuration appears in the agency
+regressions under its own name; it is spelled again here because this section is
+about covers of it rather than about content. -/
+noncomputable def pairAntiphase : Fin 2 → ℝ := ![0, Real.pi]
+
+/-- **The global resultant is zero.** The two phasors cancel. -/
+theorem pairAntiphase_incoherent : order_parameter_r_sq pairAntiphase = 0 := by
+  have hsum : ∑ i : Fin 2, Complex.exp (Complex.I * (pairAntiphase i : ℂ)) = 0 := by
+    rw [Fin.sum_univ_two]
+    simp only [pairAntiphase, Matrix.cons_val_zero, Matrix.cons_val_one,
+      Complex.ofReal_zero, mul_zero, Complex.exp_zero]
+    rw [mul_comm, Complex.exp_pi_mul_I]
+    ring
+  rw [order_parameter_r_sq, order_parameter_complex, hsum, mul_zero, map_zero]
+
+/-- Both sites in a single patch: the coarsest cover of two sites, and a
+partition rather than an overlapping family. -/
+def bothCover : Fin 1 → Finset (Fin 2) := fun _ => {0, 1}
+
+/-- It is a legal cover: every patch holds two sites and every site lies in one
+patch. -/
+theorem isUniformCover_bothCover : IsUniformCover bothCover 2 1 where
+  card_patch := by decide
+  multiplicity := by decide
+
+/-- The patch's resultant vanishes: within the one patch the two phasors are the
+ones that cancel. -/
+theorem patch_resultant_bothCover (b : Fin 1) :
+    patch_resultant pairAntiphase (bothCover b) = 0 := by
+  have hsum : ∑ i ∈ bothCover b, Complex.exp (Complex.I * (pairAntiphase i : ℂ)) = 0 := by
+    show ∑ i ∈ ({0, 1} : Finset (Fin 2)), Complex.exp (Complex.I * (pairAntiphase i : ℂ)) = 0
+    rw [Finset.sum_insert (by decide), Finset.sum_singleton]
+    simp only [pairAntiphase, Matrix.cons_val_zero, Matrix.cons_val_one,
+      Complex.ofReal_zero, mul_zero, Complex.exp_zero]
+    rw [mul_comm, Complex.exp_pi_mul_I]
+    ring
+  rw [patch_resultant, hsum, mul_zero]
+
+/-- **A fixed legal cover reports zero.** Patch order is not identically one: on
+this cover it measures the state, and the state is incoherent. -/
+theorem mean_patch_order_bothCover : mean_patch_order pairAntiphase bothCover = 0 := by
+  rw [mean_patch_order]
+  simp [patch_resultant_bothCover]
+
+/-- …and the finest legal cover reports one on the same configuration. -/
+theorem mean_patch_order_singleton_pairAntiphase :
+    mean_patch_order pairAntiphase (fun i : Fin 2 => ({i} : Finset (Fin 2))) = 1 :=
+  mean_patch_order_singleton pairAntiphase
+
+/-- **The choice is the whole difference.** One configuration whose global
+resultant is zero; two covers, both legal; the reported agreement is zero on one
+and one on the other. A patch-agreement claim that does not say which cover it
+was measured on has not said what it measured. -/
+theorem mean_patch_order_depends_on_cover :
+    order_parameter_r_sq pairAntiphase = 0
+      ∧ IsUniformCover bothCover 2 1
+      ∧ mean_patch_order pairAntiphase bothCover = 0
+      ∧ IsUniformCover (fun i : Fin 2 => ({i} : Finset (Fin 2))) 1 1
+      ∧ mean_patch_order pairAntiphase (fun i : Fin 2 => ({i} : Finset (Fin 2))) = 1 :=
+  ⟨pairAntiphase_incoherent, isUniformCover_bothCover, mean_patch_order_bothCover,
+    isUniformCover_singleton, mean_patch_order_singleton_pairAntiphase⟩
+
+end CoverChoice
 
 end Examples
 end PhysicsOfConsciousness

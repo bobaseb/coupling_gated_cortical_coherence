@@ -55,6 +55,19 @@ a finite-dimensional real space with a Haar measure that reads as volume over
 code space is large" a quantity rather than a gesture. Both bounds are about the
 code space alone, and the gain `L` in the ceiling is still declared.
 
+## When the alphabet is a vocabulary
+
+`C` is a bare type, and one deployed architecture makes it concrete. Everything a
+model carries about its own internal condition from one autoregressive step to
+the next passes through the tokens it emits: the next step recomputes its
+activations from the token sequence, so whatever a forward pass held about itself
+reaches the following step only as what was sampled. `tokenChannel` is that
+channel and `card_le_card_tokens` is the count it has —
+`|vocab| ^ k` codes over `k` steps, which is the honest bound and a large one. It
+bites on a *single-step* self-report claim (`card_le_card_tokens_one`) and not on
+an extended one, and it is a fact about the architecture as deployed rather than
+about digital computation.
+
 ## Scope
 
 `b` counts *distinguishable codes*. Reading it as bits of physical memory, as a
@@ -219,6 +232,86 @@ theorem card_le_two_pow [Fintype C] [DecidableEq S] {ε : ℝ} {b : ℕ}
     (hsep : ∀ s ∈ F, ∀ t ∈ F, s ≠ t → 2 * ε < dist s t) :
     F.card ≤ 2 ^ b :=
   (card_le_card_codes hrec hF hsep).trans hb
+
+/-! ### The report channel: when the alphabet is a vocabulary
+
+The bound above counts codes in an alphabet nothing has named. Name it the
+vocabulary a model samples from, and the counting argument becomes a statement
+about a self-report: the code is the token sequence emitted, because that is
+what the next autoregressive step reads.
+
+The bound is `|vocab| ^ k` over `k` steps and it is deliberately not dressed up.
+It is large, so it constrains a single-step claim and says nothing restrictive
+about an extended report. It counts codes and not bits: `Fintype.card T` is a
+cardinality, and nothing here prices a token or a channel.
+`Examples/Reconstruction.lean` §24 exhibits the counting half biting, with three
+separated states and one bit (`no_bit_reconstruction`).
+
+What it does not reach. It is not about digital computation, or about what a
+model can compute — it counts the codes of one declared channel. It says nothing
+about what a single forward pass can read, which is the causal-mask statement of
+`Examples/Locality.lean` §31. And a claim resting on activations rather than on
+text has declared a *different* encoding: the bound then applies to that one,
+with that one's alphabet, which may be the machine's whole state. Which channel
+a self-report claim is about is the claim's to declare, and this module does not
+declare it. -/
+
+/-- A self-report channel: the code is the token sequence the candidate emits
+over `k` steps, and the readout is whatever reconstruction the claim attributes
+to it. Data only, as `Encoding` is — that the readout is any good is
+`Reconstructs`, and which channel carries the claim is declared, not derived. -/
+def tokenChannel {T : Type*} (k : ℕ) (relevant : Set S) (emit : S → Fin k → T)
+    (decode : (Fin k → T) → S) : Encoding S (Fin k → T) where
+  relevant := relevant
+  encode := emit
+  readout := decode
+
+/-- **A report of `k` tokens carries `|vocab| ^ k` codes.** `card_le_card_codes`
+with the alphabet spelled as a sequence of vocabulary members: a family of
+relevant states pairwise more than `2ε` apart, all reconstructed to within `ε`
+from the emitted sequence alone, is no larger than `|vocab| ^ k`.
+
+The hypotheses carry the content and all of it is declared: which states the
+claim is about, the metric separating them, the tolerance, and that the emitted
+sequence is the code. Nothing here says a model has only this channel; it says
+what *this* channel counts. -/
+theorem card_le_card_tokens {T : Type*} [Fintype T] {k : ℕ} [DecidableEq S]
+    {Ch : Encoding S (Fin k → T)} {ε : ℝ} (hrec : Ch.Reconstructs ε) {F : Finset S}
+    (hF : ↑F ⊆ Ch.relevant)
+    (hsep : ∀ s ∈ F, ∀ t ∈ F, s ≠ t → 2 * ε < dist s t) :
+    F.card ≤ Fintype.card T ^ k := by
+  have h := card_le_card_codes hrec hF hsep
+  rwa [Fintype.card_fun, Fintype.card_fin] at h
+
+/-- The same bound on the channel as named, which is the form a claim about a
+model's own reports instantiates. -/
+theorem card_le_card_tokens_channel {T : Type*} [Fintype T] {k : ℕ} [DecidableEq S]
+    {relevant : Set S} {emit : S → Fin k → T} {decode : (Fin k → T) → S} {ε : ℝ}
+    (hrec : (tokenChannel k relevant emit decode).Reconstructs ε) {F : Finset S}
+    (hF : ↑F ⊆ relevant) (hsep : ∀ s ∈ F, ∀ t ∈ F, s ≠ t → 2 * ε < dist s t) :
+    F.card ≤ Fintype.card T ^ k :=
+  card_le_card_tokens hrec hF hsep
+
+/-- **One step is one token.** Where the bound bites: a single-step self-report
+distinguishes at most `|vocab|` states of the thing reporting, however large that
+thing is. Over `k` steps the alphabet is `|vocab| ^ k` and this is no constraint
+worth stating, which is why the single-step case is the one named. -/
+theorem card_le_card_tokens_one {T : Type*} [Fintype T] [DecidableEq S]
+    {Ch : Encoding S (Fin 1 → T)} {ε : ℝ} (hrec : Ch.Reconstructs ε) {F : Finset S}
+    (hF : ↑F ⊆ Ch.relevant)
+    (hsep : ∀ s ∈ F, ∀ t ∈ F, s ≠ t → 2 * ε < dist s t) :
+    F.card ≤ Fintype.card T := by
+  have h := card_le_card_tokens hrec hF hsep
+  rwa [pow_one] at h
+
+/-- **A family too large for the channel is not reconstructed by it.** The
+contrapositive, and the usable form: counting the declared family against
+`|vocab| ^ k` refutes the accuracy claim without evaluating any readout. -/
+theorem not_reconstructs_of_card_tokens_lt {T : Type*} [Fintype T] {k : ℕ}
+    [DecidableEq S] {Ch : Encoding S (Fin k → T)} {ε : ℝ} {F : Finset S}
+    (hF : ↑F ⊆ Ch.relevant) (hsep : ∀ s ∈ F, ∀ t ∈ F, s ≠ t → 2 * ε < dist s t)
+    (hcard : Fintype.card T ^ k < F.card) : ¬ Ch.Reconstructs ε :=
+  fun hrec => absurd (card_le_card_tokens hrec hF hsep) (not_le_of_gt hcard)
 
 /-! ### Accuracy against a coarse reference
 
@@ -903,6 +996,9 @@ theorem topAvatar_satisfies_obligations [MetricSpace (GlobalSection (X := X))]
 #print axioms Reconstruction.half_dist_le_max_error
 #print axioms Reconstruction.Encoding.encode_injOn_of_separated
 #print axioms Reconstruction.Encoding.card_le_card_codes
+#print axioms Reconstruction.Encoding.card_le_card_tokens
+#print axioms Reconstruction.Encoding.card_le_card_tokens_one
+#print axioms Reconstruction.Encoding.not_reconstructs_of_card_tokens_lt
 #print axioms Reconstruction.Encoding.card_le_two_pow
 #print axioms Reconstruction.Encoding.not_reconstructs_of_blind
 #print axioms Reconstruction.Encoding.not_reconstructs_of_const

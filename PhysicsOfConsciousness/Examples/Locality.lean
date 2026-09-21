@@ -1,5 +1,5 @@
 /-
-  Examples/Locality.lean — a three-site delay line, and what it can promise
+  Examples/Locality.lean — two networks, and what each can promise
 
   §25. One value is written into the far end of a three-site chain and read at
   the near end. The chain's middle site is a delay register: the value is
@@ -11,6 +11,15 @@
   separates two claims about the reading region's contents rather than about a
   report: at round one they are not the value the world was given, and at round
   two they are.
+
+  §31. The same machinery on a deployed architecture: the sites of a
+  decoder-only forward pass, indexed by token position and layer, with the
+  neighbourhood the causal mask gives. The causal past never reaches a later
+  position at any depth, so the rejection holds at every deadline rather than at
+  a chosen one; the controls are that the graph delivers backwards at round one
+  and that a report on an earlier position is exact there. One forward pass
+  only — the autoregressive loop is bounded by the code count of
+  `Phase6_Reconstruction`, not by anything here.
 -/
 
 import PhysicsOfConsciousness.Phase6_Locality
@@ -187,6 +196,133 @@ theorem cut_no_guarantee (T : ℕ) (report : ℝ → ℝ) :
   not_reconstructs_of_outside_past cut base id report values (cut_far_notMem T)
     zero_mem ten_mem values_separated
 
+/-! ## 31. A causal mask, and what no depth reaches
+
+The delay line above is a chain of sites chosen to carry a delay. This is a
+*deployed* architecture: the sites of a decoder-only forward pass, indexed by
+token position and layer, with the neighbourhood the causal mask gives. The
+activation at position `t` and layer `ℓ` reads positions at most `t` at layer
+`ℓ - 1` and nothing else, so the causal past is read off the architecture rather
+than chosen by interpretation.
+
+The headline is `mask_ball_subset_le`, and it is stronger than a latency claim:
+the causal past never reaches a later position **at any depth**. Paired with
+`not_outside_past_of_isFullSupport` — one round of a full-support kernel reaches
+every site — that is the asymmetry stated on both sides.
+
+The neighbourhood is spelled `u.2.val + 1 = v.2.val` rather than with a
+subtraction, because `Fin` subtraction wraps: this way the embedding layer reads
+nothing as a consequence (`mask_nbhd_layer_zero`) rather than by a case split.
+
+**Scope, and it is load-bearing.** This is *one forward pass*. Across token steps
+a model does read its own prior output, so nothing here says anything about the
+autoregressive loop; what that loop carries between steps is bounded by
+`Reconstruction.Encoding.card_le_card_tokens` instead, and by nothing proved
+here. Nor is any of this about latency: `ball` counts hops, and no result in this
+development is about time to solution. The controls fence the two ways the
+rejection could be trivial — the graph delivers backwards at round one
+(`mask_backward_mem_ball`), and a report reading an earlier position is exact at
+round one (`mask_reads_earlier_position`), so what fails forwards fails by
+direction and not by a missing path. -/
+
+/-- The sites of a decoder-only forward pass: `P` token positions by `L` layers,
+each site hearing from positions at most its own at the layer below. The update
+adds what arrives to what the site holds, so a value that reaches a site is
+visible in its state. -/
+def mask (P L : ℕ) : Network (Fin P × Fin L) ℝ ℝ where
+  nbhd := fun v => Finset.univ.filter (fun u => u.1 ≤ v.1 ∧ u.2.val + 1 = v.2.val)
+  msg := fun _ _ s => s
+  step := fun _ s inc => s + ∑ u, (inc u).getD 0
+
+/-- The baseline forward pass: every activation at rest. -/
+def maskBase (P L : ℕ) : Fin P × Fin L → ℝ := fun _ => 0
+
+@[simp] theorem mem_mask_nbhd_iff {P L : ℕ} {u v : Fin P × Fin L} :
+    u ∈ (mask P L).nbhd v ↔ u.1 ≤ v.1 ∧ u.2.val + 1 = v.2.val := by
+  simp [mask]
+
+/-- **The embedding layer hears from nobody.** A consequence of the
+neighbourhood, not a case in its definition. -/
+theorem mask_nbhd_layer_zero {P L : ℕ} {v : Fin P × Fin L} (hv : v.2.val = 0) :
+    (mask P L).nbhd v = ∅ := by
+  refine Finset.eq_empty_of_forall_notMem fun u hu => ?_
+  rw [mem_mask_nbhd_iff, hv] at hu
+  exact Nat.succ_ne_zero _ hu.2
+
+/-- The mask, as the rank hypothesis of `ball_rank_le`: no site hears from a
+later position. This is where the architecture enters, and it is checked against
+the neighbourhood rather than declared of it. -/
+theorem mask_nbhd_pos_le {P L : ℕ} (v : Fin P × Fin L) :
+    ∀ u ∈ (mask P L).nbhd v, u.1 ≤ v.1 :=
+  fun _ hu => (mem_mask_nbhd_iff.1 hu).1
+
+/-- **The causal past never reaches a later position, at any depth.** Not that it
+grows slowly: for every number of rounds, every site whose initial activation can
+reach `v` sits at a position at most `v`'s. Depth buys reach across layers and
+none across positions. -/
+theorem mask_ball_subset_le {P L : ℕ} (n : ℕ) (v : Fin P × Fin L) :
+    ball (mask P L).nbhd n v ⊆ Finset.univ.filter (fun u => u.1 ≤ v.1) :=
+  fun u hu => Finset.mem_filter.2 ⟨Finset.mem_univ u, ball_rank_le mask_nbhd_pos_le n v u hu⟩
+
+/-- A site at a strictly later position is outside the causal past, at every
+deadline: the hypothesis both negative results of `Phase6_Locality` run on,
+supplied by the architecture with an explicit site rather than declared. -/
+theorem mask_forward_notMem_ball {P L : ℕ} (n : ℕ) {v w : Fin P × Fin L} (h : v.1 < w.1) :
+    w ∉ ball (mask P L).nbhd n v :=
+  notMem_ball_of_rank_lt mask_nbhd_pos_le h
+
+/-- **No waiting repairs it.** For every deadline, every baseline and every
+report, a report at position `t` cannot be within one of a value written into a
+later position: the two forward passes leave the reading site identical, so the
+readout has the same input in both.
+
+What this does not say: that the model is inaccurate about its own earlier
+positions, which `mask_reads_earlier_position` shows it can be exact about; or
+anything about a second forward pass, in which the later position's token is part
+of the input. -/
+theorem mask_no_guarantee {P L : ℕ} (T : ℕ) {v w : Fin P × Fin L} (h : v.1 < w.1)
+    (base : Fin P × Fin L → ℝ) (report : ℝ → ℝ) :
+    ¬ (worldEncoding (mask P L) base w id v T report values).Reconstructs 1 :=
+  not_reconstructs_of_outside_past (mask P L) base id report values
+    (mask_forward_notMem_ball T h) zero_mem ten_mem values_separated
+
+/-! ### The controls: the mask delivers, backwards
+
+A cut graph would reject the same way for the wrong reason. These two say the
+graph is not cut: the past reaches the layer below at round one, and on the
+smallest instance a report on an earlier position is exact there. -/
+
+/-- **The graph delivers backwards at round one.** A site one layer below, at a
+position at most `v`'s, is in `v`'s causal past immediately. -/
+theorem mask_backward_mem_ball {P L : ℕ} {v u : Fin P × Fin L} (hpos : u.1 ≤ v.1)
+    (hlay : u.2.val + 1 = v.2.val) : u ∈ ball (mask P L).nbhd 1 v := by
+  rw [ball_succ]
+  exact Finset.mem_insert_of_mem
+    (Finset.mem_biUnion.2 ⟨u, mem_mask_nbhd_iff.2 ⟨hpos, hlay⟩, self_mem_ball _ 0 u⟩)
+
+/-- Two positions and two layers: the smallest instance in which both directions
+have something to say. The value written into position `0` of the embedding layer
+is at position `1` of the next layer after one round, exactly. -/
+theorem mask_read_earlier (q : ℝ) :
+    (mask 2 2).run (intervene (maskBase 2 2) (0, 0) id q) 1 (1, 1) = q := by
+  simp [Network.run, Network.round, Network.incoming, mask, maskBase, intervene,
+    Function.update, Fintype.sum_prod_type, Fin.sum_univ_two]
+
+/-- **The positive control.** Reading the activation directly, the report is exact
+for every value the world might have been given — not merely for the two the
+rejection uses. The obstruction above is therefore about direction. -/
+theorem mask_reads_earlier_position :
+    (worldEncoding (mask 2 2) (maskBase 2 2) (0, 0) id (1, 1) 1 id Set.univ).Reconstructs 0 := by
+  intro q _
+  rw [worldEncoding_error, mask_read_earlier q, id_eq, dist_self]
+
+/-- **The same instance, forwards.** Position `0` at the layer above cannot be
+guaranteed to track a value written into position `1` below it, at any deadline.
+One network, one round: exact backwards, unreachable forwards. -/
+theorem mask_forward_no_guarantee (T : ℕ) (report : ℝ → ℝ) :
+    ¬ (worldEncoding (mask 2 2) (maskBase 2 2) (1, 0) id (0, 1) T report values).Reconstructs 1 :=
+  mask_no_guarantee T (by decide) _ report
+
 #print axioms ball_line_one
 #print axioms ball_line_two
 #print axioms source_holds
@@ -200,6 +336,14 @@ theorem cut_no_guarantee (T : ℕ) (report : ℝ → ℝ) :
 #print axioms cut_no_guarantee
 #print axioms no_resonance_at_one
 #print axioms resonance_at_two
+#print axioms mask_nbhd_layer_zero
+#print axioms mask_ball_subset_le
+#print axioms mask_forward_notMem_ball
+#print axioms mask_no_guarantee
+#print axioms mask_backward_mem_ball
+#print axioms mask_read_earlier
+#print axioms mask_reads_earlier_position
+#print axioms mask_forward_no_guarantee
 
 end Locality
 end Examples

@@ -19,6 +19,14 @@ indistinguishability theorem below is derived and not postulated.
 * **`run_eq_of_agree_on_ball`.** Two initial configurations that agree on the
   causal past `ball nbhd T v` give the same state at `v` after `T` rounds.
   `run_eq_on_region_of_agree` is the same statement for a region.
+* **`ball_rank_le`.** Where a causal past *stops*. If every site hears only
+  from sites of rank at most its own, then no number of rounds reaches a site of
+  higher rank: the past does not merely grow slowly, it never crosses the rank.
+  The hypothesis is about `nbhd` alone, so an architecture that imposes an order
+  on its sites discharges it rather than being assumed to satisfy it —
+  `Examples/Locality.lean` §31 is the causal mask of a decoder-only forward pass,
+  where the rank is the token position.
+
 * **`not_reconstructs_of_outside_past`.** Two interventions writing different
   values into a site *outside* that causal past leave the state at `v`
   identical, so no report read off `v` can track both. The obstruction is the
@@ -122,6 +130,56 @@ theorem ball_subset_succ (nbhd : V → Finset V) : ∀ (n : ℕ) (v : V),
     · exact Finset.mem_insert.2 (Or.inl h)
     · obtain ⟨u, hu, hxu⟩ := Finset.mem_biUnion.1 h
       exact Finset.mem_insert.2 (Or.inr (Finset.mem_biUnion.2 ⟨u, hu, ih u hxu⟩))
+
+/-! ### A rank no message increases
+
+`ball_subset_succ` says a causal past grows with the rounds; these two say where
+it stops growing. A *rank* is any order-valued function on the sites that no
+neighbourhood increases, and a past confined below a rank at one round is
+confined below it at every round.
+
+The content is where the hypothesis comes from. `∀ v, ∀ u ∈ nbhd v, f u ≤ f v` is
+a statement about the declared neighbourhood, so an architecture that orders its
+sites — a feed-forward depth, a token position under a causal mask — supplies it
+by construction and is not assumed to satisfy it. What the rank is, and whether
+the graph is the one a device runs, remain the empirical questions this module
+declines. -/
+
+/-- **A monotone rank bounds the causal past at every depth.** If no site hears
+from a site of higher rank, then every site whose initial state can reach `v` in
+any number of rounds has rank at most `v`'s.
+
+The hypothesis carries the architectural content and nothing else does: `f` is
+arbitrary, the order is arbitrary, and no property of `msg` or `step` is used —
+the statement is about `ball`, which is defined from `nbhd` alone. Removing the
+hypothesis is not possible; weakening it to "rank increases by at most one per
+hop" would give a growth rate rather than a barrier, which is the weaker claim
+this theorem exists to avoid. -/
+theorem ball_rank_le {α : Type*} [Preorder α] {nbhd : V → Finset V} {f : V → α}
+    (h : ∀ v, ∀ u ∈ nbhd v, f u ≤ f v) :
+    ∀ (n : ℕ) (v : V), ∀ u ∈ ball nbhd n v, f u ≤ f v := by
+  intro n
+  induction n with
+  | zero =>
+    intro v u hu
+    rw [ball_zero, Finset.mem_singleton] at hu
+    exact le_of_eq (congrArg f hu)
+  | succ n ih =>
+    intro v u hu
+    rw [ball_succ] at hu
+    rcases Finset.mem_insert.1 hu with rfl | hu
+    · exact le_rfl
+    · obtain ⟨w, hw, huw⟩ := Finset.mem_biUnion.1 hu
+      exact (ih w u huw).trans (h v w hw)
+
+/-- **A site of strictly higher rank is outside the causal past, at every
+deadline.** The contrapositive form, and the one that fires the negative results
+below: it supplies `hw` with a `w` the architecture's own order picks out, at
+every `T` at once rather than at a chosen one. -/
+theorem notMem_ball_of_rank_lt {α : Type*} [Preorder α] {nbhd : V → Finset V} {f : V → α}
+    (h : ∀ v, ∀ u ∈ nbhd v, f u ≤ f v) {n : ℕ} {v w : V} (hlt : f v < f w) :
+    w ∉ ball nbhd n v :=
+  fun hw => absurd (ball_rank_le h n v w hw) (not_le_of_gt hlt)
 
 namespace Network
 
@@ -385,6 +443,8 @@ theorem not_outside_past_of_isFullSupport [Fintype V] {N : Network V S M}
     ¬ w ∉ ball N.nbhd T v :=
   fun hw => hw (mem_ball_of_isFullSupport h hT v w)
 
+#print axioms ball_rank_le
+#print axioms notMem_ball_of_rank_lt
 #print axioms Network.run_eq_of_agree_on_ball
 #print axioms Network.run_eq_on_region_of_agree
 #print axioms run_intervene_eq_of_notMem
