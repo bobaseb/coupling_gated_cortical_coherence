@@ -37,7 +37,9 @@
     `Examples/LearnedCoupling.lean` §28 -- one process: learning, its coupling and its work
     `Examples/FundedCoupling.lean` §29 -- a finite source that cannot fund coherence
     `Examples/EvolvingCoupling.lean` §30 -- a run's no-go needs a supremum, not a mean
-    `Examples/Phase4.lean`  §7, §15, §16, §17, §32 (two legal covers of one state)
+    `Examples/Phase4.lean`  §7, §15, §16, §17, §32 (two legal covers of one state),
+      §34 (a computed spectral gap, and a detuned pair locked by it), §35 (a
+      chained bound on a pair no patch contains)
     `Examples/Phase5.lean`  §13, §14, §17.1, §20 (overlap agreement)
     `Examples/VectorContent.lean` §22 (vector contents), §23 (the overlap encoder)
     `Examples/Phase6.lean`  §10, §33 (both signs of the capacity comparison)

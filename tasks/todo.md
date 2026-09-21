@@ -779,7 +779,7 @@ different ways: by asking for fewer pairs (A), by asking over shorter distances
 
 ### Route A — the same sum, in the norm the statement wants
 
-- [ ] **V1 — Markov on the pair sum.** Replace each-term-≤-total by
+- [x] **V1 — Markov on the pair sum.** Replace each-term-≤-total by
       `t * card {(i,j) : 1 - cos(θᵢ-θⱼ) > t} ≤ ∑ ≤ N²(1-r²)`, a two-line `calc`
       from `Finset.sum_le_sum_of_subset_of_nonneg`. The conclusion is
       **`N`-free**: the fraction of pairs whose chord exceeds `c` is at most
@@ -792,7 +792,8 @@ different ways: by asking for fewer pairs (A), by asking over shorter distances
       it cannot name a site, and the outliers it permits may be exactly the ones
       a cover's overlaps sit on.
 
-- [ ] **V2 — Approximate gluing in measure.** The item with real design risk,
+- [x] **V2 — Approximate gluing in measure.** *Scoped and declined; see the
+      2026-09-21 entry below.* The item with real design risk,
       and it should be scoped before it is started. `approximate_diameter_le`
       (`Phase5_GlobalSection.lean:611`) takes overlap discrepancy bounded by `ε`
       in **uniform** distance and returns a weighted selection within `ε` of
@@ -812,7 +813,7 @@ different ways: by asking for fewer pairs (A), by asking over shorter distances
 
 ### Route B — chain the local bound through the nerve
 
-- [ ] **V3 — Disagreement accumulates in hops, not in population.** The cheapest
+- [x] **V3 — Disagreement accumulates in hops, not in population.** The cheapest
       item here and the one that moves the headline number. The observation is
       that the theorem bounds all `N²` pairs while the sheaf only ever asks
       about *overlapping* ones: distant agreement needs no direct bound, because
@@ -849,7 +850,7 @@ different ways: by asking for fewer pairs (A), by asking over shorter distances
 
 ### Route C — connectivity, entering through the dynamics
 
-- [ ] **V4 — The spectral gap replaces the population count.** The principled
+- [x] **V4 — The spectral gap replaces the population count.** The principled
       removal of `N`, and it is not astronomical provided the gap is *declared*
       rather than derived. At a locked configuration the phase differences are
       not free: they satisfy `K ∑ⱼ Aᵢⱼ sin(θⱼ-θᵢ) = ωᵢ - Ω`. Read that against
@@ -897,3 +898,133 @@ different ways: by asking for fewer pairs (A), by asking over shorter distances
       functional connectivity to *choose the cover* is worse than neutral, being
       the "choosing the cover to secure agreement empties the claim" problem in
       new clothes. One scope sentence, wherever V4 lands.
+
+### 2026-09-21 — V1, V3 and V4 built; V2 scoped and declined
+
+**V1, `Phase4_KuramotoDynamics.lean` §11.** `sum_gap_eq` puts the pair sum in
+closed form over the product type; `card_gap_le` is Markov on it, and
+`card_chord_le` and `chord_fraction_le` carry it into the chord metric. The
+conclusion is scale-free: the fraction of pairs separated by `c` or more is at
+most `2(1-r²)/c²` at any population size, and where the uniform bound improves
+like `√(1-r²)` this one improves like its square. The bad set is supplied as an arbitrary `Finset` of pairs rather than
+filtered, which is strictly more general — the filter is the largest such set —
+and keeps a decidability instance for a real inequality out of the statement.
+
+`card_site_gap_le` and `site_fraction_le` read the same sum by rows, which the
+item did not ask for and which the V2 decision turned on: a site with many
+distant partners spends its own row, so the sites that disagree with a fraction
+`δ` of the population by `c` or more are themselves at most `2(1-r²)/(δc²)` of
+it. Most sites agree with most sites, at a rate fixed by the order parameter.
+
+*Does not establish.* Anything about a named pair or a named site. Both
+statements bound counts, and the exceptional set they permit is unlocated — it
+may be exactly the sites a cover's overlaps sit on. The uniform bound stays, at
+its own grain, because it is what a statement about a particular overlap needs.
+
+**V3, `Phase4_KuramotoDynamics.lean` §12 and `Phase5_ContentDynamics.lean`.**
+`patchNerve` is `SimpleGraph.fromRel` on "these two patches share a site";
+`chord_le_of_patch_walk` chains a per-patch diameter `β` along a walk in it, and
+`chord_le_of_patch_walk_coherence` reads `β` off each patch's own resultant.
+`compatible_of_patch_nerve` is the content-level form, with the nerve's diameter
+as an explicit hypothesis. Four metric lemmas were needed first and are in §5:
+`chord_sq`, `chord_eq_norm`, `chord_triangle`, `chord_le_abs_sub`.
+
+*The constant is `(hops+1)β`, not `hops·β`.* Both endpoint sites pay a step
+inside their own patch, the shared sites of the walk being interior to the
+chain, so a `k`-hop walk gives `(k+1)β` and the crossover moves by one: at the
+sheet's nearest-neighbour value the last informative walk is 13 hops
+(`14 × 0.1388 = 1.943`) and 14 hops is vacuous (`15 × 0.1388 = 2.082`). The
+item's table is the bound as a function of *patch diameters travelled*, which is
+`hops+1`, and V5 must regenerate it as such rather than as a hop count.
+
+*Does not establish.* Any nerve's connectivity: that is a property of the cover
+and is supplied. Nothing makes the accumulation sublinear, so the reach is a
+dozen patch diameters and not a hemisphere, and the per-hop constant is the
+sheet's rather than cortex's.
+
+**V4, `Phase4_RotatingFrame.lean` §8, with the content half in
+`Phase5_ContentDynamics.lean`.** `couplingForm` is the coupling-weighted
+Dirichlet form and `SpectralGap` declares the Rayleigh inequality on mean-zero
+fields. `is_frequency_locked` is the balance equation, and
+`is_frequency_locked_iff` proves it equivalent to the rigid rotation of the
+configuration solving the Kuramoto equations, so the hypothesis is a solution of
+the system rather than a condition resembling one. `sum_mul_coupling_sin`
+symmetrizes; `couplingForm_le_pairing` applies Jordan's inequality termwise,
+keeping the sine and paying `2/π` rather than linearizing;
+`spread_le_of_frequency_locked` closes with Cauchy–Schwarz. The conclusion is
+`4λ²‖θ − θ̄‖² ≤ π²‖ω − Ω‖²`, and `chord_le_of_frequency_locked` reads it at a
+named pair. `compatible_of_frequency_locked` is the content residual with no
+population count, no patch and no cover geometry in it.
+
+*Three design calls.* It lands in `Phase4_RotatingFrame` and not in
+`Phase8_CoherentStability` as the item proposed: that module is the scalar
+Fokker–Planck circle-density development, it cannot see `KuramotoSystem`, and
+the balance equation is precisely the residual detuning the rotating-frame
+reduction leaves behind when the frequencies are not identical — which is the
+case that file's own scope note declines. `SpectralGap` is declared on the
+weighted coupling rather than on `SimpleGraph.lapMatrix`, because the
+development's coupling is a real matrix and not an unweighted graph;
+`couplingForm_eq_lapMatrix` identifies the two on an adjacency matrix, which is
+what anchors `λ` to algebraic connectivity, and `SpectralGap.scale` makes the
+coupling strength visible as `K λ`. The nerve's connectivity in V3 is an
+explicit hypothesis rather than a predicate on `LocalSectionSynchronization`:
+the content module's cover is a plain family of sets and the module uses nothing
+from the sheaf, which is a property worth keeping.
+
+*Does not establish.* `λ` for any graph — it is declared hardware data in the
+standing of `PricedArrangement`'s `κ`, and `Examples/Phase4.lean` §34 computes
+one only for the complete graph. Existence of a locked configuration: it is
+assumed, the critical coupling appears nowhere, and §34 exhibits one rather than
+producing it. The quarter-turn confinement is assumed and is not implied by
+locking. And the detuning enters in the population's `ℓ²` norm, which is
+extensive — no `N` appears in the statement, and a population whose frequency
+spread grows with its size pays for that growth through the data. What is
+removed is the unconditional factor, not the physics of heterogeneity.
+
+**Witnesses.** `Examples/Phase4.lean` §34 computes the complete graph's gap
+(`K N`, with the Rayleigh inequality an equality at every mean-zero field) and
+runs the whole estimate on two oscillators with *different* natural frequencies
+locked at `±π/12`: every hypothesis discharged, the configuration provably not
+phase-locked, and the resulting chord bound `π/4`, which `chord_le_two` makes a
+constraint. §35 is V3's: four sites, three patches in a line, and a bound on the
+pair `0`,`3` that no patch contains, at `3√(2−√3) ≈ 1.553` — informative where
+the direct patch bound is not merely weak but unavailable.
+
+**V2 — scoped and declined.** The design question was whether a section
+determined off a set of controlled size still deserves to be called a glued
+state. The answer that settles the item is upstream of that: *the hypothesis
+cannot be supplied.* V1 bounds a fraction of pairs and `site_fraction_le` bounds
+a fraction of sites, and neither locates the exceptional set. A cover's overlaps
+are a set of sites fixed before the state is known, so reading either bound as
+agreement on an overlap requires the exceptional set to miss that overlap —
+a joint fact about the state and the cover that no coherence hypothesis
+supplies. The only route to it is to choose the cover in the light of the state,
+which is the move `sec:unity` already identifies as emptying the claim, and
+which V6 names again for functional connectivity.
+
+The object itself is not uninteresting, and the reason to record the decision
+rather than the failure is that it is a decision about *which* object. Gluing in
+the sheaf sense is determination: the global section restricts to each local
+one. An almost-everywhere agreement determines a state only up to the
+exceptional set, so what is produced is an `L¹` class and not a state, and every
+consumer downstream must be a functional continuous in that norm — a population
+average, not a site-wise evaluation. That trade has a real cortical reading
+(population codes are redundant, and a small lesion produces no discontinuity in
+what is experienced) and a real cortical cost (coincidence detection is a
+sup-norm operation, it is the canonical binding operation, and it is exactly
+what an `L¹` guarantee does not cover). Small measure is also not small
+influence in a network with hubs. Any future version of this item states which
+of the two it means before it proves anything, and does not reach it through
+V1.
+
+**What remains.** V5 and V6 are publication-only and untouched: no identifier
+introduced here is named in `main.tex`, so `check_table_coverage.py` is
+satisfied as the tree stands, and naming any of them there takes a `tab:full`
+row in the same commit. The three tracked PDFs and `arxiv_submit/` are therefore
+unaffected by this pass; the publication still states the three-site reading,
+which remains true of the uniform bound it is a reading of.
+
+**Verification.** `lake build` clean with zero warnings; the audit reports 5716
+declarations in 91 modules, up from 5629, all resting only on `propext`,
+`Classical.choice` and `Quot.sound`. `check_leaves`, `check_sorry` and
+`check_table_coverage` pass.

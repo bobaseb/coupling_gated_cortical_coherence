@@ -1403,4 +1403,337 @@ theorem rotating_frame_tendsto_global_minimum [Nonempty V] (sys : KuramotoSystem
     (is_kuramoto_trajectory_rotate sys Ω h_omega theta h_traj) h_small h_init
 
 
+/-! ## 8. The spectral gap: what replaces the population count
+
+Every coherence bound in the development reads a phase difference off the order
+parameter, and pays a factor `card V` for doing so — the order parameter is a
+mean, and a pointwise guarantee drawn from a mean must pay for the one
+oscillator that can hide in it. This section does not read phase differences off
+`r` at all.
+
+At a frequency-locked configuration the differences are not free: each site's
+detuning from the common rotation is balanced by its coupling term,
+`ωᵢ - Ω = ∑ⱼ Aᵢⱼ sin(θᵢ - θⱼ)`. Pairing that balance with the configuration
+itself, symmetrizing, and applying Jordan's inequality termwise turns it into a
+statement about the coupling graph's Dirichlet form; the algebraic connectivity
+of that form then bounds the spread. What comes out has no population count in
+it, and *improves* as the coupling graph becomes better connected — which is the
+dependence one wants on physical grounds and the one a resultant cannot express,
+`r` being blind to who is coupled to whom.
+
+Three things are declared rather than derived, and the doc-strings say so at
+each site.
+
+* **`λ` is hardware data.** Mathlib has the graph Laplacian and its positive
+  semidefiniteness but no Fiedler value and no Courant–Fischer on the kernel's
+  complement, so `SpectralGap` carries the Rayleigh inequality as an obligation,
+  exactly as `PricedArrangement` carries `κ`. `couplingForm_eq_lapMatrix`
+  identifies the form with Mathlib's `lapMatrix` on an unweighted graph, which
+  is what makes `λ` the algebraic connectivity rather than an unanchored
+  constant; nothing here computes it for any particular graph.
+  `Examples/Phase4.lean` §34 exhibits one that is computed.
+* **The configuration is assumed locked and assumed cohesive.** Nothing here
+  proves a locked configuration exists — that is the critical-coupling question
+  this file's scope note already declines — and the quarter-turn hypothesis is
+  the same one `kuramoto_tendsto_global_minimum` uses, without which Jordan's
+  inequality has nothing to say.
+* **The detuning enters in the `ℓ²` norm of the population.** `∑ᵢ (ωᵢ - Ω)²` is
+  extensive: no `N` appears in the statement, and a population whose frequency
+  spread grows with its size pays for that growth here, through the data rather
+  than through the estimate. What the result removes is the *unconditional*
+  factor, not the physics of heterogeneity. -/
+
+section SpectralGap
+
+/-- The coupling-weighted Dirichlet form of a phase field: the energy the
+coupling assigns to the differences across it. For an unweighted graph's
+adjacency matrix this is the graph Laplacian's quadratic form
+(`couplingForm_eq_lapMatrix`). -/
+noncomputable def couplingForm (A : V → V → ℝ) (x : V → ℝ) : ℝ :=
+  (∑ i, ∑ j, A i j * (x i - x j) ^ 2) / 2
+
+/-- **Declared algebraic connectivity.** A coupling `A` has spectral gap `λ` when
+its Dirichlet form dominates `λ` times the squared norm on mean-zero fields —
+the Rayleigh characterization of the Laplacian's second eigenvalue, restricted
+to the complement of the constants, which is its kernel on a connected graph.
+
+This is an obligation on the hardware and not a theorem: it is declared for no
+graph here, exactly as `PricedArrangement` declares its conversion factor, and
+for the same reason — the quantity is a property of the substrate's wiring,
+which the development takes as given. A witness that computes it is in
+`Examples/Phase4.lean` §34.
+
+The mean-zero restriction is not a technicality. Constants are in the kernel of
+every Dirichlet form, so an inequality on all fields would be false, and the
+physics of that is that a global phase shift is not a disagreement. -/
+structure SpectralGap (A : V → V → ℝ) (lam : ℝ) : Prop where
+  /-- The gap is strictly positive: the coupling graph is connected. -/
+  pos : 0 < lam
+  /-- The Rayleigh inequality on mean-zero fields. -/
+  rayleigh : ∀ x : V → ℝ, ∑ i, x i = 0 → lam * ∑ i, x i ^ 2 ≤ couplingForm A x
+
+/-- **The form is the graph Laplacian's.** On the adjacency matrix of a simple
+graph, `couplingForm` is `xᵀLx` as Mathlib defines it. This is what anchors
+`SpectralGap` to the algebraic connectivity of a graph rather than leaving it a
+free constant: the declared inequality is the Rayleigh quotient of
+`SimpleGraph.lapMatrix`. `SimpleGraph.posSemidef_lapMatrix` is that inequality
+at `λ = 0`, which holds for every graph and which the structure excludes — the
+whole content of a declared gap is that a connected graph does better. -/
+theorem couplingForm_eq_lapMatrix (G : SimpleGraph V) [DecidableRel G.Adj] (x : V → ℝ) :
+    couplingForm (fun i j => if G.Adj i j then (1 : ℝ) else 0) x
+      = Matrix.toLinearMap₂' ℝ (G.lapMatrix ℝ) x x := by
+  rw [SimpleGraph.lapMatrix_toLinearMap₂', couplingForm]
+  congr 1
+  refine Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => ?_
+  split <;> ring
+
+omit [DecidableEq V] in
+/-- Scaling the coupling scales the form. -/
+theorem couplingForm_smul (A : V → V → ℝ) (K : ℝ) (x : V → ℝ) :
+    couplingForm (fun i j => K * A i j) x = K * couplingForm A x := by
+  have h : ∀ i : V, ∑ j, K * A i j * (x i - x j) ^ 2
+      = K * ∑ j, A i j * (x i - x j) ^ 2 := by
+    intro i
+    rw [Finset.mul_sum]
+    exact Finset.sum_congr rfl fun j _ => by ring
+  simp only [couplingForm, h, ← Finset.mul_sum]
+  ring
+
+omit [DecidableEq V] in
+/-- **The gap carries the coupling strength.** Turning `K` up on a fixed graph
+turns the gap up in proportion, so the `λ` of the estimate below is `K` times
+the graph's own algebraic connectivity, and the bound tightens with coupling as
+well as with connectivity. -/
+theorem SpectralGap.scale {A : V → V → ℝ} {lam K : ℝ} (h : SpectralGap A lam)
+    (hK : 0 < K) : SpectralGap (fun i j => K * A i j) (K * lam) where
+  pos := mul_pos hK h.pos
+  rayleigh x hx := by
+    rw [couplingForm_smul, mul_assoc]
+    exact mul_le_mul_of_nonneg_left (h.rayleigh x hx) hK.le
+
+/-- **A frequency-locked configuration**: every site's detuning from the common
+rotation `Ω` is balanced by its coupling term. This is the residual the
+rotating-frame reduction leaves behind when the natural frequencies are *not*
+identical, which is the case this file's scope note declines and the case the
+estimate below is about. -/
+def is_frequency_locked (sys : KuramotoSystem V) (Ω : ℝ) (theta : V → ℝ) : Prop :=
+  ∀ i, sys.omega i + ∑ j, sys.A i j * Real.sin (theta j - theta i) = Ω
+
+omit [DecidableEq V] in
+/-- **The balance equation is the dynamics, not an extra postulate.** A
+configuration is frequency-locked exactly when rigidly rotating it at `Ω` solves
+the Kuramoto equations. The estimate below therefore rests on a solution of the
+system rather than on a condition resembling one. -/
+theorem is_frequency_locked_iff (sys : KuramotoSystem V) (Ω : ℝ) (theta : V → ℝ) :
+    is_frequency_locked sys Ω theta
+      ↔ is_kuramoto_trajectory sys (fun t i => theta i + Ω * t) := by
+  have hshift : ∀ (t : ℝ) (i : V), sys.omega i + ∑ j, sys.A i j *
+      Real.sin ((theta j + Ω * t) - (theta i + Ω * t))
+      = sys.omega i + ∑ j, sys.A i j * Real.sin (theta j - theta i) := by
+    intro t i
+    simp only [add_sub_add_right_eq_sub]
+  constructor
+  · intro h i t
+    have hd : HasDerivAt (fun t : ℝ => theta i + Ω * t) Ω t := by
+      simpa using ((hasDerivAt_id t).const_mul Ω).const_add (theta i)
+    exact hd.congr_deriv (by rw [hshift t i, h i])
+  · intro h i
+    have hd := h i 0
+    have hd2 : HasDerivAt (fun t : ℝ => theta i + Ω * t) Ω 0 := by
+      simpa using ((hasDerivAt_id (0:ℝ)).const_mul Ω).const_add (theta i)
+    have hu := hd.unique hd2
+    rw [← hu, hshift 0 i]
+
+/-- Jordan's inequality in the product form: on a quarter turn, `u sin u`
+dominates `(2/π) u²`, in both signs and with no linearization. -/
+private lemma jordan_mul_self {u : ℝ} (h : |u| ≤ Real.pi / 2) :
+    2 / Real.pi * u ^ 2 ≤ u * Real.sin u := by
+  rcases le_total 0 u with hu | hu
+  · have h1 : 2 / Real.pi * u ≤ Real.sin u :=
+      Real.mul_le_sin hu (by rwa [abs_of_nonneg hu] at h)
+    nlinarith
+  · have h1 : Real.sin u ≤ 2 / Real.pi * u :=
+      Real.sin_le_mul (by rw [abs_of_nonpos hu] at h; linarith) hu
+    nlinarith
+
+omit [DecidableEq V] in
+/-- **Symmetrization.** Pairing the coupling term with any field turns a sum over
+sites into a sum over pairs, halved. Only the symmetry of `A` and the oddness of
+the sine are used, so this holds at every configuration, locked or not. -/
+theorem sum_mul_coupling_sin (sys : KuramotoSystem V) (theta x : V → ℝ) :
+    ∑ i, x i * ∑ j, sys.A i j * Real.sin (theta i - theta j)
+      = (∑ i, ∑ j, sys.A i j * (x i - x j) * Real.sin (theta i - theta j)) / 2 := by
+  have hexp : ∀ i : V, x i * ∑ j, sys.A i j * Real.sin (theta i - theta j)
+      = ∑ j, sys.A i j * x i * Real.sin (theta i - theta j) := by
+    intro i
+    rw [Finset.mul_sum]
+    exact Finset.sum_congr rfl fun j _ => by ring
+  have hswap : ∑ i, ∑ j, sys.A i j * x j * Real.sin (theta i - theta j)
+      = -∑ i, ∑ j, sys.A i j * x i * Real.sin (theta i - theta j) := by
+    rw [Finset.sum_comm, ← Finset.sum_neg_distrib]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [← Finset.sum_neg_distrib]
+    refine Finset.sum_congr rfl fun j _ => ?_
+    rw [sys.symm j i, show Real.sin (theta j - theta i)
+      = -Real.sin (theta i - theta j) from by rw [← Real.sin_neg, neg_sub]]
+    ring
+  simp only [hexp]
+  have hsplit : ∑ i, ∑ j, sys.A i j * (x i - x j) * Real.sin (theta i - theta j)
+      = (∑ i, ∑ j, sys.A i j * x i * Real.sin (theta i - theta j))
+        - ∑ i, ∑ j, sys.A i j * x j * Real.sin (theta i - theta j) := by
+    rw [← Finset.sum_sub_distrib]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [← Finset.sum_sub_distrib]
+    exact Finset.sum_congr rfl fun j _ => by ring
+  rw [hsplit, hswap]
+  ring
+
+omit [DecidableEq V] in
+/-- **The Dirichlet form is bounded by the balance pairing.** Jordan's
+inequality applied termwise to the symmetrized sum, which needs the couplings
+nonnegative — one term of the wrong sign reverses its own inequality — and the
+differences inside a quarter turn. Nothing is linearized: the sine is kept and
+the whole cost of keeping it is the factor `2/π`. -/
+theorem couplingForm_le_pairing (sys : KuramotoSystem V) (theta x : V → ℝ)
+    (hA : ∀ i j, 0 ≤ sys.A i j)
+    (hcoh : ∀ i j, |theta i - theta j| ≤ Real.pi / 2)
+    (hx : ∀ i j, x i - x j = theta i - theta j) :
+    2 / Real.pi * couplingForm sys.A x
+      ≤ ∑ i, x i * ∑ j, sys.A i j * Real.sin (theta i - theta j) := by
+  rw [sum_mul_coupling_sin, couplingForm]
+  have hterm : ∀ i ∈ (univ : Finset V), ∀ j ∈ (univ : Finset V),
+      2 / Real.pi * (sys.A i j * (x i - x j) ^ 2)
+        ≤ sys.A i j * (x i - x j) * Real.sin (theta i - theta j) := by
+    intro i _ j _
+    have hj := jordan_mul_self (hcoh i j)
+    rw [hx i j]
+    have := mul_le_mul_of_nonneg_left hj (hA i j)
+    nlinarith [hA i j]
+  have hsum : 2 / Real.pi * ∑ i, ∑ j, sys.A i j * (x i - x j) ^ 2
+      ≤ ∑ i, ∑ j, sys.A i j * (x i - x j) * Real.sin (theta i - theta j) := by
+    rw [Finset.mul_sum]
+    refine Finset.sum_le_sum fun i hi => ?_
+    rw [Finset.mul_sum]
+    exact Finset.sum_le_sum fun j hj => hterm i hi j hj
+  have hpi : 0 < Real.pi := Real.pi_pos
+  rw [mul_div_assoc', div_le_div_iff_of_pos_right (by norm_num : (0:ℝ) < 2)]
+  linarith
+
+omit [DecidableEq V] in
+/-- **The spectral gap replaces the population count.** At a frequency-locked,
+quarter-turn-cohesive configuration of a nonnegatively coupled system with
+spectral gap `λ`, the squared spread about the mean phase is at most
+`(π / 2λ)²` times the squared detuning of the population. No `card V` appears,
+and the bound improves as the coupling graph's connectivity improves.
+
+Three hypotheses carry physical content and none of them is discharged here.
+`hgap` is declared hardware data, in the standing of `PricedArrangement`'s `κ`;
+`hlock` asserts a locked configuration exists, which above the critical coupling
+is true and below it is false, and this development proves neither direction;
+`hcoh` is the quarter-turn confinement, which is what makes Jordan's inequality
+applicable and is not implied by locking. The detuning enters in the population's
+`ℓ²` norm, so a heterogeneous population still pays for its heterogeneity — what
+is gone is the unconditional factor, not the physics.
+
+The balance equation is the identical-frequency spatial model's, so reading this
+at the scalar threshold still needs the reduction the manuscript's scaling
+section flags. -/
+theorem spread_le_of_frequency_locked [Nonempty V] (sys : KuramotoSystem V) {lam Ω : ℝ}
+    (hgap : SpectralGap sys.A lam) (hA : ∀ i j, 0 ≤ sys.A i j) (theta : V → ℝ)
+    (hlock : is_frequency_locked sys Ω theta)
+    (hcoh : ∀ i j, |theta i - theta j| ≤ Real.pi / 2) :
+    4 * lam ^ 2 * ∑ i, (theta i - (∑ k, theta k) / Fintype.card V) ^ 2
+      ≤ Real.pi ^ 2 * ∑ i, (sys.omega i - Ω) ^ 2 := by
+  have hN : (Fintype.card V : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr Fintype.card_ne_zero
+  set m : ℝ := (∑ k, theta k) / Fintype.card V with hm
+  set x : V → ℝ := fun i => theta i - m with hxdef
+  have hx0 : ∑ i, x i = 0 := by
+    simp only [hxdef, Finset.sum_sub_distrib, Finset.sum_const, Finset.card_univ,
+      nsmul_eq_mul, hm]
+    field_simp
+    ring
+  have hxd : ∀ i j, x i - x j = theta i - theta j := by intro i j; simp [hxdef]
+  have hbal : ∀ i, sys.omega i - Ω = ∑ j, sys.A i j * Real.sin (theta i - theta j) := by
+    intro i
+    have h := hlock i
+    have hneg : ∑ j, sys.A i j * Real.sin (theta j - theta i)
+        = -∑ j, sys.A i j * Real.sin (theta i - theta j) := by
+      rw [← Finset.sum_neg_distrib]
+      exact Finset.sum_congr rfl fun j _ => by
+        rw [show Real.sin (theta j - theta i)
+          = -Real.sin (theta i - theta j) from by rw [← Real.sin_neg, neg_sub]]
+        ring
+    rw [hneg] at h
+    linarith
+  set S : ℝ := ∑ i, x i ^ 2 with hS
+  set D : ℝ := ∑ i, (sys.omega i - Ω) ^ 2 with hD
+  set E : ℝ := ∑ i, x i * (sys.omega i - Ω) with hE
+  have hSnn : 0 ≤ S := Finset.sum_nonneg fun i _ => sq_nonneg _
+  have hDnn : 0 ≤ D := Finset.sum_nonneg fun i _ => sq_nonneg _
+  have hpi : 0 < Real.pi := Real.pi_pos
+  have hlam := hgap.pos
+  have h1 : 2 / Real.pi * couplingForm sys.A x ≤ E := by
+    rw [hE]
+    refine (couplingForm_le_pairing sys theta x hA hcoh hxd).trans (le_of_eq ?_)
+    exact Finset.sum_congr rfl fun i _ => by rw [hbal i]
+  have h2 : lam * S ≤ couplingForm sys.A x := hgap.rayleigh x hx0
+  have h3 : 2 * lam * S ≤ Real.pi * E := by
+    have h4 : 2 / Real.pi * (lam * S) ≤ 2 / Real.pi * couplingForm sys.A x :=
+      mul_le_mul_of_nonneg_left h2 (by positivity)
+    have h5 : 2 / Real.pi * (lam * S) ≤ E := h4.trans h1
+    rw [div_mul_eq_mul_div, div_le_iff₀ hpi] at h5
+    linarith
+  have hCS : E ^ 2 ≤ S * D :=
+    Finset.sum_mul_sq_le_sq_mul_sq univ (fun i => x i) (fun i => sys.omega i - Ω)
+  have hEnn : 0 ≤ E := by nlinarith
+  have h6 : (2 * lam * S) ^ 2 ≤ (Real.pi * E) ^ 2 := pow_le_pow_left₀ (by positivity) h3 2
+  have hkey : 4 * lam ^ 2 * S ^ 2 ≤ Real.pi ^ 2 * (S * D) := by
+    nlinarith [mul_le_mul_of_nonneg_left hCS (sq_nonneg Real.pi)]
+  have hfinal : 4 * lam ^ 2 * S ≤ Real.pi ^ 2 * D := by
+    rcases eq_or_lt_of_le hSnn with hS0 | hSpos
+    · rw [← hS0]; nlinarith
+    · nlinarith
+  exact hfinal
+
+private lemma sq_sub_le_two_mul_sum (x : V → ℝ) (i j : V) :
+    (x i - x j) ^ 2 ≤ 2 * ∑ k, x k ^ 2 := by
+  have hnn : ∀ k ∈ (univ : Finset V), 0 ≤ x k ^ 2 := fun k _ => sq_nonneg _
+  rcases eq_or_ne i j with rfl | hij
+  · simpa using Finset.sum_nonneg hnn
+  · have hpair : x i ^ 2 + x j ^ 2 ≤ ∑ k, x k ^ 2 := by
+      rw [← Finset.sum_pair (f := fun k => x k ^ 2) hij]
+      exact Finset.sum_le_sum_of_subset_of_nonneg (Finset.subset_univ _)
+        (fun k hk _ => hnn k hk)
+    nlinarith [sq_nonneg (x i + x j)]
+
+/-- **The same bound in the chord metric an encoder is Lipschitz for.** The
+spread bound read at a named pair of sites: the chord separation of any two
+phases of a locked configuration is controlled by the population's detuning over
+its spectral gap, with no population count anywhere in the statement.
+
+This is the content-side payoff. `compatible_of_patch_coherence` reads its
+residual off a patch's resultant and pays `card P` for it; this reads the same
+residual off the coupling graph and pays nothing, at the price of a locked
+configuration and a declared gap. The two are not competitors: one holds at any
+configuration whatever and the other only at a locked one, which is where the
+factor went. -/
+theorem chord_le_of_frequency_locked [Nonempty V] (sys : KuramotoSystem V) {lam Ω : ℝ}
+    (hgap : SpectralGap sys.A lam) (hA : ∀ i j, 0 ≤ sys.A i j) (theta : V → ℝ)
+    (hlock : is_frequency_locked sys Ω theta)
+    (hcoh : ∀ i j, |theta i - theta j| ≤ Real.pi / 2) (i j : V) :
+    2 * lam ^ 2 * chord (theta i) (theta j) ^ 2
+      ≤ Real.pi ^ 2 * ∑ k, (sys.omega k - Ω) ^ 2 := by
+  set m : ℝ := (∑ k, theta k) / Fintype.card V with hm
+  have hspread := spread_le_of_frequency_locked sys hgap hA theta hlock hcoh
+  have hpair : (theta i - theta j) ^ 2 ≤ 2 * ∑ k, (theta k - m) ^ 2 := by
+    simpa using sq_sub_le_two_mul_sum (fun k => theta k - m) i j
+  have hch : chord (theta i) (theta j) ^ 2 ≤ (theta i - theta j) ^ 2 := by
+    have h2 : chord (theta i) (theta j) ^ 2 ≤ |theta i - theta j| ^ 2 :=
+      pow_le_pow_left₀ (chord_nonneg _ _) (chord_le_abs_sub _ _) 2
+    rwa [sq_abs] at h2
+  have hlam : 0 < lam := hgap.pos
+  nlinarith [sq_nonneg lam]
+
+end SpectralGap
+
 end PhysicsOfConsciousness

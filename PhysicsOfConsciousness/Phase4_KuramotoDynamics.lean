@@ -489,6 +489,43 @@ theorem chord_sq_eq (a b : ℝ) :
 
 theorem chord_nonneg (a b : ℝ) : 0 ≤ chord a b := Real.sqrt_nonneg _
 
+/-- **The chord, squared.** `chord_sq_eq` with the square root discharged, which
+is the form every estimate below is read in: a bound on the cosine gap is a
+bound on the chord and conversely, with no loss. -/
+theorem chord_sq (a b : ℝ) : chord a b ^ 2 = 2 * (1 - Real.cos (a - b)) := by
+  unfold chord
+  rw [Real.sq_sqrt (by positivity)]
+  exact chord_sq_eq a b
+
+/-- The chord is the distance between two unit complex numbers. Stated because
+`ℝ × ℝ` carries the sup metric in Mathlib, so `circlePoint` does not deliver the
+Euclidean distance through `dist` and the triangle inequality has to be got
+from a space that does. -/
+theorem chord_eq_norm (a b : ℝ) :
+    chord a b = ‖Complex.exp (I * (a : ℂ)) - Complex.exp (I * (b : ℂ))‖ := by
+  rw [Complex.norm_eq_sqrt_sq_add_sq, chord]
+  congr 1
+  simp [mul_comm I, Complex.exp_mul_I, Complex.cos_ofReal_re, Complex.sin_ofReal_re]
+
+/-- **The chord obeys the triangle inequality.** It is a metric on phases and
+not merely a bound, which is what lets a bound on neighbouring pairs be chained
+along a path of patches (`chord_le_of_patch_walk`). -/
+theorem chord_triangle (a b c : ℝ) : chord a c ≤ chord a b + chord b c := by
+  rw [chord_eq_norm, chord_eq_norm, chord_eq_norm]
+  exact norm_sub_le_norm_sub_add_norm_sub _ _ _
+
+/-- **The chord is at most the arc.** A phase difference read in the encoder's
+metric never exceeds the same difference read in radians, so a bound on the
+latter — which is what a balance equation supplies
+(`chord_le_of_frequency_locked`) — is a bound on the former. The converse
+fails by a factor approaching `π/2` near antiphase, and by everything at all
+beyond it, the chord being `2π`-periodic where the arc is not. -/
+theorem chord_le_abs_sub (a b : ℝ) : chord a b ≤ |a - b| := by
+  have h : chord a b ^ 2 ≤ |a - b| ^ 2 := by
+    rw [chord_sq, sq_abs]
+    linarith [Real.one_sub_sq_div_two_le_cos (x := a - b)]
+  exact (pow_le_pow_iff_left₀ (chord_nonneg a b) (abs_nonneg _) two_ne_zero).1 h
+
 omit [DecidableEq V] in
 /-- **Coherence bounds the chord separation of any two phases.** This is
 `cos_gap_le_of_coherence` in the metric an encoder is Lipschitz for. At
@@ -2559,5 +2596,263 @@ theorem chord_le_of_char_patch (W : WindingData G) {g : G}
   exact mul_le_mul_of_nonneg_left hsq hnn
 
 end PatchWinding
+
+/-! ## 11. How many pairs a coherence bound can miss
+
+`chord_le_of_coherence` and its patch form bound *every* pair, and pay a factor
+`card V` for it. The factor has exactly one source. From
+`order_parameter_r_sq_eq_mean_cos`, `∑ᵢⱼ (1 - cos(θᵢ-θⱼ)) = N²(1-r²)`; every
+term is nonnegative, so each term is at most the whole sum, and that single step
+permits all the disorder in a population to sit in the one pair the conclusion
+is about.
+
+This section declines the step. Asking not how large a single gap can be but
+how *many* gaps can be large at once is Markov's inequality on the same sum, and
+its conclusion carries no population count: at order `r`, the fraction of pairs
+whose chord exceeds `c` is at most `2(1-r²)/c²`, at any size of population.
+Where the uniform bound improves like `√(1-r²)`, this one improves like its
+square.
+
+The bad set is supplied rather than constructed, as any `Finset` of pairs whose
+gaps all exceed the threshold. The filtered set is the largest such, so nothing
+is lost, and no decidability instance is needed to state it.
+
+`card_site_gap_le` reads the same sum by rows: a site with many distant partners
+spends its own row, so the sites that disagree widely are themselves a small
+fraction. That is the form a cover could conceivably consume, and the reason it
+still cannot is in its doc-string.
+
+What neither reading does is name a pair or a site. Both bound counts and say
+nothing about *where* the exceptions are, and the exceptions they permit may be
+exactly the sites a cover's overlaps sit on. A guarantee about a named overlap
+still needs the uniform bound, at the grain that bound is stated for. -/
+
+omit [DecidableEq V] in
+/-- The pair sum of cosine gaps, in closed form. `order_parameter_r_sq_eq_mean_cos`
+read over the product type rather than as an iterated sum. -/
+theorem sum_gap_eq [Nonempty V] (theta : V → ℝ) :
+    ∑ p : V × V, (1 - Real.cos (theta p.1 - theta p.2))
+      = (Fintype.card V : ℝ) ^ 2 * (1 - order_parameter_r_sq theta) := by
+  rw [Fintype.sum_prod_type]
+  have hid := order_parameter_r_sq_eq_mean_cos theta
+  have hcard : ∑ _a : V, ∑ _b : V, (1 : ℝ) = (Fintype.card V : ℝ) ^ 2 := by
+    simp [Finset.card_univ, sq]
+  rw [mul_sub, mul_one, hid, ← hcard, ← Finset.sum_sub_distrib]
+  refine Finset.sum_congr rfl fun a _ => ?_
+  rw [← Finset.sum_sub_distrib]
+
+omit [DecidableEq V] in
+/-- **Markov's inequality on the pair sum.** Any set of pairs whose cosine gaps
+all reach `t` has at most `N²(1-r²)/t` members. The hypothesis is on a supplied
+set rather than on a filtered one, which costs nothing — the filter is the
+largest set satisfying it — and keeps the statement free of a decidability
+instance for a real inequality. -/
+theorem card_gap_le [Nonempty V] (theta : V → ℝ) {t : ℝ}
+    (S : Finset (V × V)) (hS : ∀ p ∈ S, t ≤ 1 - Real.cos (theta p.1 - theta p.2)) :
+    (S.card : ℝ) * t ≤ (Fintype.card V : ℝ) ^ 2 * (1 - order_parameter_r_sq theta) := by
+  rw [← sum_gap_eq theta]
+  calc (S.card : ℝ) * t = ∑ _p ∈ S, t := by rw [Finset.sum_const, nsmul_eq_mul]
+    _ ≤ ∑ p ∈ S, (1 - Real.cos (theta p.1 - theta p.2)) := Finset.sum_le_sum hS
+    _ ≤ ∑ p : V × V, (1 - Real.cos (theta p.1 - theta p.2)) := by
+        refine Finset.sum_le_sum_of_subset_of_nonneg (Finset.subset_univ S) ?_
+        intro p _ _
+        linarith [Real.cos_le_one (theta p.1 - theta p.2)]
+
+omit [DecidableEq V] in
+/-- **The same count, in the chord metric the encoder is Lipschitz for.**
+`card_gap_le` at `t = c²/2`, which is what `chord_sq` makes of a chord
+threshold `c`. -/
+theorem card_chord_le [Nonempty V] (theta : V → ℝ) {c : ℝ} (hc : 0 ≤ c)
+    (S : Finset (V × V)) (hS : ∀ p ∈ S, c ≤ chord (theta p.1) (theta p.2)) :
+    (S.card : ℝ) * c ^ 2
+      ≤ 2 * (Fintype.card V : ℝ) ^ 2 * (1 - order_parameter_r_sq theta) := by
+  have key : ∀ p ∈ S, c ^ 2 / 2 ≤ 1 - Real.cos (theta p.1 - theta p.2) := by
+    intro p hp
+    have h2 : c ^ 2 ≤ chord (theta p.1) (theta p.2) ^ 2 := pow_le_pow_left₀ hc (hS p hp) 2
+    rw [chord_sq] at h2
+    linarith
+  have := card_gap_le theta S key
+  linarith
+
+omit [DecidableEq V] in
+/-- **The conclusion with no population count in it.** The fraction of pairs
+separated by at least `c` is at most `2(1-r²)/c²`, whatever the size of the
+population. At `r = 0.99` and `c` one Lipschitz unit this is four per cent of
+pairs; the estimate is weak at moderate order and improves quadratically in the
+locking, which is the trade the uniform bound cannot make.
+
+It is a statement about a population and not about a site: see the section
+header for what a count does not deliver. -/
+theorem chord_fraction_le [Nonempty V] (theta : V → ℝ) {c : ℝ} (hc : 0 < c)
+    (S : Finset (V × V)) (hS : ∀ p ∈ S, c ≤ chord (theta p.1) (theta p.2)) :
+    (S.card : ℝ) / (Fintype.card V : ℝ) ^ 2
+      ≤ 2 * (1 - order_parameter_r_sq theta) / c ^ 2 := by
+  have hN : (0 : ℝ) < (Fintype.card V : ℝ) ^ 2 :=
+    pow_pos (Nat.cast_pos.mpr Fintype.card_pos) 2
+  rw [div_le_div_iff₀ hN (by positivity)]
+  have := card_chord_le theta hc.le S hS
+  nlinarith
+
+omit [DecidableEq V] in
+/-- **The same count read at sites rather than at pairs.** A site with many
+distant partners spends its own row of the pair sum, so the number of such sites
+is bounded by the same total: if every site of `T` has at least `d` partners at
+chord `c` or more, then `card T · d · c² ≤ 2N²(1-r²)`.
+
+This is the statement that bears on a cover, and `site_fraction_le` is its
+scale-free form. It is still a count, and it still names no site — which is
+exactly why it cannot be fed to a gluing argument without choosing the cover in
+the light of the state. -/
+theorem card_site_gap_le [Nonempty V] (theta : V → ℝ) {c d : ℝ} (hc : 0 ≤ c)
+    (T : Finset V) (S : V → Finset V)
+    (hS : ∀ i ∈ T, ∀ j ∈ S i, c ≤ chord (theta i) (theta j))
+    (hcard : ∀ i ∈ T, d ≤ (S i).card) :
+    (T.card : ℝ) * (d * c ^ 2)
+      ≤ 2 * (Fintype.card V : ℝ) ^ 2 * (1 - order_parameter_r_sq theta) := by
+  have hrow : ∀ i ∈ T, d * (c ^ 2 / 2) ≤ ∑ j, (1 - Real.cos (theta i - theta j)) := by
+    intro i hi
+    have hterm : ∀ j ∈ S i, c ^ 2 / 2 ≤ 1 - Real.cos (theta i - theta j) := by
+      intro j hj
+      have h2 : c ^ 2 ≤ chord (theta i) (theta j) ^ 2 :=
+        pow_le_pow_left₀ hc (hS i hi j hj) 2
+      rw [chord_sq] at h2
+      linarith
+    have hsub : ∑ j ∈ S i, (c ^ 2 / 2) ≤ ∑ j, (1 - Real.cos (theta i - theta j)) := by
+      refine le_trans (Finset.sum_le_sum hterm) ?_
+      refine Finset.sum_le_sum_of_subset_of_nonneg (Finset.subset_univ _) ?_
+      intro j _ _
+      linarith [Real.cos_le_one (theta i - theta j)]
+    rw [Finset.sum_const, nsmul_eq_mul] at hsub
+    have := hcard i hi
+    nlinarith [sq_nonneg c]
+  have htotal : (T.card : ℝ) * (d * (c ^ 2 / 2))
+      ≤ ∑ i, ∑ j, (1 - Real.cos (theta i - theta j)) := by
+    calc (T.card : ℝ) * (d * (c ^ 2 / 2)) = ∑ _i ∈ T, (d * (c ^ 2 / 2)) := by
+          rw [Finset.sum_const, nsmul_eq_mul]
+      _ ≤ ∑ i ∈ T, ∑ j, (1 - Real.cos (theta i - theta j)) := Finset.sum_le_sum hrow
+      _ ≤ ∑ i, ∑ j, (1 - Real.cos (theta i - theta j)) := by
+          refine Finset.sum_le_sum_of_subset_of_nonneg (Finset.subset_univ T) ?_
+          intro i _ _
+          exact Finset.sum_nonneg fun j _ => by
+            linarith [Real.cos_le_one (theta i - theta j)]
+  have hsum : ∑ i, ∑ j, (1 - Real.cos (theta i - theta j))
+      = (Fintype.card V : ℝ) ^ 2 * (1 - order_parameter_r_sq theta) := by
+    rw [← sum_gap_eq theta, Fintype.sum_prod_type]
+  rw [hsum] at htotal
+  linarith
+
+omit [DecidableEq V] in
+/-- **The site count, free of the population size.** The fraction of sites that
+disagree with a fraction `δ` of the population by `c` or more is at most
+`2(1-r²)/(δc²)`. Most sites agree with most sites, at a rate fixed by the order
+parameter alone.
+
+What it does not say is *which* sites, and a cover's overlaps are a set of sites
+chosen before the state is known. Reading this as agreement on an overlap
+requires the exceptional set to miss that overlap, which is a fact about the
+state and the cover jointly; choosing the cover to secure it is the move that
+empties the claim. -/
+theorem site_fraction_le [Nonempty V] (theta : V → ℝ) {c δ : ℝ} (hc : 0 < c) (hδ : 0 < δ)
+    (T : Finset V) (S : V → Finset V)
+    (hS : ∀ i ∈ T, ∀ j ∈ S i, c ≤ chord (theta i) (theta j))
+    (hcard : ∀ i ∈ T, δ * (Fintype.card V : ℝ) ≤ (S i).card) :
+    (T.card : ℝ) / (Fintype.card V : ℝ)
+      ≤ 2 * (1 - order_parameter_r_sq theta) / (δ * c ^ 2) := by
+  have hN : (0 : ℝ) < (Fintype.card V : ℝ) := Nat.cast_pos.mpr Fintype.card_pos
+  have h := card_site_gap_le theta hc.le T S hS hcard
+  rw [div_le_div_iff₀ hN (by positivity)]
+  nlinarith [Nat.cast_nonneg (α := ℝ) T.card]
+
+/-! ## 12. Disagreement along a path of patches
+
+`chord_le_of_patch_coherence` compares two sites of one patch, so it says
+nothing about two sites no patch contains — which is every pair far enough
+apart, and those are the pairs the question of unity is about. A cover does not
+need it to. Sites in `P a` and in `P b` are compared through the sites
+those patches share with the patches between them, and the chord is a metric
+(`chord_triangle`), so the comparisons chain.
+
+What accumulates along the chain is the number of hops, not the size of the
+population: a walk of `k` hops through patches of diameter `β` bounds the
+endpoints by `(k+1)β`. The count is `k+1` and not `k` because both endpoint
+sites pay a step inside their own patch, the shared sites being interior to the
+chain rather than at its ends.
+
+This also settles what a single cover can and cannot do. Shrinking a patch
+tightens `β` and thins its overlaps at the same rate, so the informative grain
+and the reach across territories are not two ends of one uniform bound — but
+they are two ends of one chain, small patches being where `β` bites and the
+walk being how the bound travels. The nerve carries the travelling.
+
+The per-hop constant is the cover's own, and the scale it reaches is `k+1`
+patch diameters: at the nearest-neighbour value of a columnar sheet the chained
+bound stays inside the maximum chord for on the order of a dozen hops, which is
+millimetres of cortex rather than a hemisphere. Accumulation is linear and
+nothing here makes it sublinear. -/
+
+section PatchNerve
+
+variable {J : Type*}
+
+/-- **The nerve of a family of patches**: indices are adjacent when the patches
+they name share a site. It is `SimpleGraph.fromRel`, so it is symmetric and
+irreflexive by construction, and a walk in it is a chain of patches each meeting
+the next. -/
+def patchNerve (P : J → Finset V) : SimpleGraph J :=
+  SimpleGraph.fromRel fun a b => (P a ∩ P b).Nonempty
+
+omit [Fintype V] in
+/-- Adjacency in the nerve produces the shared site, in either orientation. -/
+theorem patchNerve_shared {P : J → Finset V} {a b : J} (h : (patchNerve P).Adj a b) :
+    ∃ z, z ∈ P a ∧ z ∈ P b := by
+  rw [patchNerve, SimpleGraph.fromRel_adj] at h
+  rcases h.2 with ⟨z, hz⟩ | ⟨z, hz⟩
+  · exact ⟨z, (Finset.mem_inter.1 hz).1, (Finset.mem_inter.1 hz).2⟩
+  · exact ⟨z, (Finset.mem_inter.1 hz).2, (Finset.mem_inter.1 hz).1⟩
+
+omit [Fintype V] in
+/-- **Disagreement accumulates in hops.** Given a bound `β` on the chord
+separation inside every patch, two sites joined by a walk of length `k` in the
+nerve are separated by at most `(k+1)β` — with no reference to the size of the
+population, to the number of patches, or to any patch containing both sites.
+
+The hypothesis is per patch and the conclusion is across the cover; what makes
+the difference is that the chord is a metric, so the shared sites of the walk
+are genuine intermediaries rather than a bookkeeping device. Nothing here
+produces the walk: connectivity of the nerve is a property of the cover, and a
+cover whose nerve is disconnected supports no conclusion between its
+components. -/
+theorem chord_le_of_patch_walk (theta : V → ℝ) (P : J → Finset V) {β : ℝ}
+    (hβ : ∀ a, ∀ x ∈ P a, ∀ y ∈ P a, chord (theta x) (theta y) ≤ β)
+    {a b : J} (w : (patchNerve P).Walk a b) {x y : V} (hx : x ∈ P a) (hy : y ∈ P b) :
+    chord (theta x) (theta y) ≤ ((w.length : ℝ) + 1) * β := by
+  induction w generalizing x with
+  | nil => simpa using hβ _ x hx y hy
+  | @cons a c b h p ih =>
+      obtain ⟨z, hza, hzc⟩ := patchNerve_shared h
+      have h1 : chord (theta x) (theta z) ≤ β := hβ a x hx z hza
+      have h2 : chord (theta z) (theta y) ≤ ((p.length : ℝ) + 1) * β := ih hzc hy
+      have h3 := chord_triangle (theta x) (theta z) (theta y)
+      have hlen : ((SimpleGraph.Walk.cons h p).length : ℝ) = (p.length : ℝ) + 1 := by
+        simp [SimpleGraph.Walk.length_cons]
+      rw [hlen]
+      nlinarith
+
+omit [Fintype V] in
+/-- **The chained bound, with the per-hop constant read off each patch's own
+resultant.** `chord_le_of_patch_coherence` supplies the diameter of every patch
+and `chord_le_of_patch_walk` carries it along the nerve. The population's global
+order parameter does not appear: a state whose global resultant is zero still
+constrains content across a connected cover, at a price linear in the distance
+travelled through it. -/
+theorem chord_le_of_patch_walk_coherence (theta : V → ℝ) (P : J → Finset V) {β : ℝ}
+    (hβ : ∀ a, Real.sqrt 2 * ((P a).card : ℝ)
+      * Real.sqrt (1 - Complex.normSq (patch_resultant theta (P a))) ≤ β)
+    {a b : J} (w : (patchNerve P).Walk a b) {x y : V} (hx : x ∈ P a) (hy : y ∈ P b) :
+    chord (theta x) (theta y) ≤ ((w.length : ℝ) + 1) * β :=
+  chord_le_of_patch_walk theta P
+    (fun c _ hu _ hv => (chord_le_of_patch_coherence theta hu hv).trans (hβ c)) w hx hy
+
+end PatchNerve
 
 end PhysicsOfConsciousness

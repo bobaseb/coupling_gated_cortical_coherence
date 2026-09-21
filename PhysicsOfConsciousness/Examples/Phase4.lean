@@ -11,7 +11,11 @@
   exists and the trajectory comes from the existence theorem instead. §32 is
   about covers rather than trajectories: two sites in antiphase, two legal
   uniform covers of them, and the reported patch agreement zero on one and one
-  on the other.
+  on the other. §34 computes a spectral gap instead of declaring one and runs
+  the locked-configuration estimate on a pair of oscillators with *different*
+  natural frequencies, which is the case §7's reduction does not reach. §35 is
+  about a cover rather than a system: four sites, three overlapping patches, and
+  a bound on the two sites no patch contains.
 -/
 
 import PhysicsOfConsciousness.Phase3_CombinatorialThermodynamics
@@ -763,6 +767,274 @@ theorem mean_patch_order_depends_on_cover :
     isUniformCover_singleton, mean_patch_order_singleton_pairAntiphase⟩
 
 end CoverChoice
+
+/-! ## 34. A spectral gap that is computed, and a locked state that needs it
+
+`SpectralGap` declares the algebraic connectivity of a coupling as an obligation,
+because Mathlib carries the graph Laplacian but no Fiedler value. A declared
+quantity that nothing computes is the shape of a vacuous hypothesis, so this
+section computes one and then runs the whole estimate on a system that satisfies
+every other hypothesis of it.
+
+`spectralGap_completeCoupling` is the computation: all-to-all coupling at
+strength `K` on `N` sites has gap exactly `K N`, and the proof is the Rayleigh
+quotient evaluated, not bounded. It is an equality at every mean-zero field, so
+the constant cannot be improved.
+
+`detunedPair` is the system. Two oscillators with *different* natural
+frequencies — the case the rotating-frame reduction of §7 does not reach, and
+the case `Phase4_RotatingFrame`'s scope note declines — locked at
+`±π/12` by the coupling alone. Every hypothesis of
+`chord_le_of_frequency_locked` is discharged concretely, the configuration is
+provably *not* phase-locked, and the bound that comes out is `π/4`, which
+`chord_le_two` makes a real constraint rather than a restatement.
+
+What is not witnessed here is existence in general: this locked configuration is
+exhibited, not produced by a dynamics, and nothing in the development says at
+what coupling one stops existing. -/
+
+section SpectralGapWitness
+
+/-- All-to-all coupling at strength `K`. -/
+noncomputable def completeCoupling (V : Type*) [DecidableEq V] (K : ℝ) : V → V → ℝ :=
+  fun i j => if i = j then 0 else K
+
+theorem completeCoupling_symm {V : Type*} [DecidableEq V] (K : ℝ) (i j : V) :
+    completeCoupling V K i j = completeCoupling V K j i := by
+  unfold completeCoupling
+  by_cases h : i = j
+  · simp [h]
+  · simp [h, Ne.symm h]
+
+/-- **The gap of the complete graph, computed.** All-to-all coupling at strength
+`K` on `N` sites has spectral gap `K N`. The Rayleigh inequality holds with
+equality at every mean-zero field — the complete graph's Laplacian is `N` times
+the projection onto the constants' complement — so the witness exercises the
+obligation rather than discharging it with room to spare. -/
+theorem spectralGap_completeCoupling {V : Type*} [Fintype V] [DecidableEq V] [Nonempty V]
+    {K : ℝ} (hK : 0 < K) :
+    SpectralGap (completeCoupling V K) (K * Fintype.card V) where
+  pos := mul_pos hK (by exact_mod_cast Fintype.card_pos)
+  rayleigh x hx := by
+    have hdiag : ∀ i j : V, completeCoupling V K i j * (x i - x j) ^ 2
+        = K * (x i - x j) ^ 2 := by
+      intro i j
+      unfold completeCoupling
+      by_cases h : i = j
+      · simp [h]
+      · simp [h]
+    have hrow : ∀ i : V, ∑ j, (x i - x j) ^ 2
+        = (Fintype.card V : ℝ) * x i ^ 2 - 2 * x i * ∑ j, x j + ∑ j, x j ^ 2 := by
+      intro i
+      have h : ∀ j : V, (x i - x j) ^ 2 = x i ^ 2 - 2 * x i * x j + x j ^ 2 := fun j => by ring
+      rw [Finset.sum_congr rfl fun j _ => h j, Finset.sum_add_distrib,
+        Finset.sum_sub_distrib, Finset.sum_const, Finset.card_univ, nsmul_eq_mul,
+        ← Finset.mul_sum]
+    have htotal : ∑ i, ∑ j, (x i - x j) ^ 2
+        = 2 * (Fintype.card V : ℝ) * ∑ i, x i ^ 2 := by
+      rw [Finset.sum_congr rfl fun i _ => hrow i, hx]
+      rw [Finset.sum_add_distrib, Finset.sum_sub_distrib, Finset.sum_const,
+        Finset.card_univ, nsmul_eq_mul, ← Finset.mul_sum]
+      simp
+      ring
+    rw [couplingForm, Finset.sum_congr rfl fun i _ =>
+      Finset.sum_congr rfl fun j _ => hdiag i j]
+    have hpull : ∑ i, ∑ j, K * (x i - x j) ^ 2 = K * ∑ i, ∑ j, (x i - x j) ^ 2 := by
+      rw [Finset.mul_sum]
+      exact Finset.sum_congr rfl fun i _ => (Finset.mul_sum _ _ _).symm
+    rw [hpull, htotal]
+    apply le_of_eq
+    ring
+
+/-- Natural frequencies a half apart: the detuning the reduction of §7 cannot
+absorb into a rotating frame. -/
+noncomputable def detunedOmega : Bool → ℝ
+  | true => 1 / 2
+  | false => -(1 / 2)
+
+/-- Two oscillators, unit coupling, opposite detunings. -/
+noncomputable def detunedPair : KuramotoSystem Bool where
+  omega := detunedOmega
+  A := completeCoupling Bool 1
+  symm := completeCoupling_symm 1
+
+/-- The locked configuration: a twelfth of a turn either side of the mean, which
+is where unit coupling exactly cancels a detuning of a half. -/
+noncomputable def detunedPhase : Bool → ℝ
+  | true => Real.pi / 12
+  | false => -(Real.pi / 12)
+
+/-- The balance equation holds at `Ω = 0`: `sin(π/6) = 1/2` is what makes the
+arithmetic close. By `is_frequency_locked_iff` this says the rigid rotation of
+this configuration solves the Kuramoto equations. -/
+theorem detunedPair_locked : is_frequency_locked detunedPair 0 detunedPhase := by
+  have h6 : -(Real.pi / 12) - Real.pi / 12 = -(Real.pi / 6) := by ring
+  have h6' : Real.pi / 12 - -(Real.pi / 12) = Real.pi / 6 := by ring
+  intro i
+  cases i <;>
+    simp only [detunedPair, detunedOmega, detunedPhase, completeCoupling,
+      Fintype.sum_bool] <;>
+    norm_num [h6, h6', Real.sin_neg, Real.sin_pi_div_six]
+
+theorem detunedPair_cohesive (i j : Bool) :
+    |detunedPhase i - detunedPhase j| ≤ Real.pi / 2 := by
+  have hpi := Real.pi_pos
+  cases i <;> cases j <;>
+    · simp only [detunedPhase]
+      rw [abs_le]
+      constructor <;> linarith
+
+theorem detunedPair_nonneg (i j : Bool) : 0 ≤ detunedPair.A i j := by
+  cases i <;> cases j <;> simp [detunedPair, completeCoupling]
+
+theorem detunedPair_gap : SpectralGap detunedPair.A (1 * (Fintype.card Bool : ℝ)) :=
+  spectralGap_completeCoupling one_pos
+
+/-- **The estimate, run.** With gap `2` and squared detuning `1/2`, the chord
+between the two phases is at most `π/4`. -/
+theorem detunedPhase_chord_le (i j : Bool) :
+    chord (detunedPhase i) (detunedPhase j) ≤ Real.pi / 4 := by
+  have h := chord_le_of_frequency_locked detunedPair detunedPair_gap detunedPair_nonneg
+    detunedPhase detunedPair_locked detunedPair_cohesive i j
+  have hD : ∑ k, (detunedPair.omega k - 0) ^ 2 = 1 / 2 := by
+    simp only [detunedPair, detunedOmega, Fintype.sum_bool]
+    norm_num
+  rw [hD] at h
+  simp only [Fintype.card_bool, Nat.cast_ofNat, one_mul] at h
+  have hc := chord_nonneg (detunedPhase i) (detunedPhase j)
+  nlinarith [Real.pi_pos, sq_nonneg (chord (detunedPhase i) (detunedPhase j) - Real.pi / 4)]
+
+/-- The bound is a constraint and not a restatement of `chord_le_two`. -/
+theorem detunedPhase_bound_informative : Real.pi / 4 < 2 := by
+  linarith [Real.pi_lt_four]
+
+/-- **And it is not the trivial case.** The configuration the bound is proved at
+is not phase-locked, so this is a quantitative statement about a genuinely spread
+state rather than the exact one in disguise. -/
+theorem detunedPhase_not_phase_locked : ¬ is_phase_locked detunedPhase := by
+  intro h
+  have h1 := h true false
+  have h6 : detunedPhase true - detunedPhase false = Real.pi / 6 := by
+    simp only [detunedPhase]; ring
+  rw [h6, Real.cos_pi_div_six] at h1
+  have h3 : Real.sqrt 3 ^ 2 = 3 := Real.sq_sqrt (by norm_num)
+  nlinarith
+
+end SpectralGapWitness
+
+/-! ## 35. A bound that reaches a pair no patch contains
+
+`chord_le_of_patch_coherence` compares two sites of one patch and has nothing to
+say about a pair no patch contains — which is the pair the compatibility claim
+is about. `chord_le_of_patch_walk` chains along the nerve instead, and this
+section checks that what comes out is a constraint rather than an artefact.
+
+Four sites, three overlapping patches, a phase ramp of a sixth of a turn per
+step. Sites `0` and `3` lie in no common patch (`linePatch_no_common`), so the
+patch bound is not merely weak there but unavailable. The two-hop walk through
+the middle patch gives `3 √(2 - √3) ≈ 1.553`, which is below the maximum chord
+`2` — so the chained estimate constrains a pair that the direct one cannot
+address at all.
+
+The arithmetic is also the honest reading of the cost. Three steps of the ramp
+and three times the per-step constant: accumulation is linear in hops, so a
+cover whose nerve has a diameter of a dozen is where this stops, and nothing
+here makes it sublinear. -/
+
+section NerveWitness
+
+/-- Three patches in a line on four sites: `{0,1}`, `{1,2}`, `{2,3}`. -/
+def linePatch : Fin 3 → Finset (Fin 4)
+  | 0 => {0, 1}
+  | 1 => {1, 2}
+  | 2 => {2, 3}
+
+/-- A phase ramp advancing a sixth of a turn per site. -/
+noncomputable def lineTheta : Fin 4 → ℝ := fun k => (k : ℕ) * (Real.pi / 6)
+
+/-- The per-hop constant: the chord across one step of the ramp. -/
+noncomputable def lineStep : ℝ := Real.sqrt (2 - Real.sqrt 3)
+
+/-- **The pair the direct bound cannot reach.** No patch contains both `0` and
+`3`, so `chord_le_of_patch_coherence` has no instance to offer about them. -/
+theorem linePatch_no_common :
+    ∀ a, ¬ ((0 : Fin 4) ∈ linePatch a ∧ (3 : Fin 4) ∈ linePatch a) := by
+  decide
+
+theorem lineStep_bound {x y : Fin 4}
+    (h : (x : ℕ) = y ∨ (x : ℕ) + 1 = y ∨ (y : ℕ) + 1 = x) :
+    chord (lineTheta x) (lineTheta y) ≤ lineStep := by
+  have hstep : ∀ u : ℝ, u = Real.pi / 6 ∨ u = -(Real.pi / 6) ∨ u = 0 →
+      chord (lineTheta x) (lineTheta y) = Real.sqrt (2 * (1 - Real.cos u)) →
+      chord (lineTheta x) (lineTheta y) ≤ lineStep := by
+    intro u hu heq
+    rw [heq, lineStep]
+    rcases hu with rfl | rfl | rfl
+    · rw [Real.cos_pi_div_six]
+      apply Real.sqrt_le_sqrt
+      nlinarith [Real.sq_sqrt (by norm_num : (0:ℝ) ≤ 3), Real.sqrt_nonneg 3]
+    · rw [Real.cos_neg, Real.cos_pi_div_six]
+      apply Real.sqrt_le_sqrt
+      nlinarith [Real.sq_sqrt (by norm_num : (0:ℝ) ≤ 3), Real.sqrt_nonneg 3]
+    · rw [Real.cos_zero]
+      simp
+  have hchord : chord (lineTheta x) (lineTheta y)
+      = Real.sqrt (2 * (1 - Real.cos (lineTheta x - lineTheta y))) := by
+    unfold chord
+    rw [chord_sq_eq]
+  rcases h with h | h | h
+  · refine hstep 0 (Or.inr (Or.inr rfl)) ?_
+    rw [hchord, lineTheta, lineTheta, h]
+    norm_num
+  · refine hstep (-(Real.pi / 6)) (Or.inr (Or.inl rfl)) ?_
+    rw [hchord, lineTheta, lineTheta, ← h]
+    push_cast
+    ring_nf
+  · refine hstep (Real.pi / 6) (Or.inl rfl) ?_
+    rw [hchord, lineTheta, lineTheta, ← h]
+    push_cast
+    ring_nf
+
+theorem linePatch_adjacent (a b : Fin 3) (z : Fin 4) (hza : z ∈ linePatch a)
+    (hzb : z ∈ linePatch b) (hab : a ≠ b) : (patchNerve linePatch).Adj a b := by
+  rw [patchNerve, SimpleGraph.fromRel_adj]
+  exact ⟨hab, Or.inl ⟨z, Finset.mem_inter.2 ⟨hza, hzb⟩⟩⟩
+
+/-- Every pair inside a patch is one step of the ramp apart at most. -/
+theorem linePatch_step : ∀ a, ∀ x ∈ linePatch a, ∀ y ∈ linePatch a,
+    chord (lineTheta x) (lineTheta y) ≤ lineStep := by
+  have hmem : ∀ (a : Fin 3) (x y : Fin 4), x ∈ linePatch a → y ∈ linePatch a →
+      ((x : ℕ) = y ∨ (x : ℕ) + 1 = y ∨ (y : ℕ) + 1 = x) := by decide
+  exact fun a x hx y hy => lineStep_bound (hmem a x y hx hy)
+
+/-- The two-hop walk through the middle patch. -/
+def lineWalk : (patchNerve linePatch).Walk 0 2 :=
+  SimpleGraph.Walk.cons (linePatch_adjacent 0 1 1 (by decide) (by decide) (by decide))
+    (SimpleGraph.Walk.cons (linePatch_adjacent 1 2 2 (by decide) (by decide) (by decide))
+      SimpleGraph.Walk.nil)
+
+theorem lineWalk_length : lineWalk.length = 2 := rfl
+
+/-- **The chained bound, on the pair no patch contains.** -/
+theorem lineTheta_chord_le : chord (lineTheta 0) (lineTheta 3) ≤ 3 * lineStep := by
+  have h := chord_le_of_patch_walk lineTheta linePatch linePatch_step lineWalk
+    (show (0 : Fin 4) ∈ linePatch 0 by decide) (show (3 : Fin 4) ∈ linePatch 2 by decide)
+  rw [lineWalk_length] at h
+  norm_num at h
+  linarith
+
+/-- **And it constrains.** Three hops of this cover stay inside the maximum
+chord, so the conclusion is not vacuous where the direct bound is unavailable. -/
+theorem lineStep_informative : 3 * lineStep < 2 := by
+  have h3 : (14 : ℝ) / 9 < Real.sqrt 3 := by
+    nlinarith [Real.sqrt_nonneg 3, Real.sq_sqrt (by norm_num : (0:ℝ) ≤ 3)]
+  have hs : lineStep ^ 2 = 2 - Real.sqrt 3 := by
+    rw [lineStep, Real.sq_sqrt]
+    nlinarith [Real.sq_sqrt (by norm_num : (0:ℝ) ≤ 3), Real.sqrt_nonneg 3]
+  have hnn : 0 ≤ lineStep := Real.sqrt_nonneg _
+  nlinarith
+
+end NerveWitness
 
 end Examples
 end PhysicsOfConsciousness

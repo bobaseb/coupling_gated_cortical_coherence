@@ -1,4 +1,5 @@
 import PhysicsOfConsciousness.Phase4_MacroscopicScaling
+import PhysicsOfConsciousness.Phase4_RotatingFrame
 import Mathlib.Analysis.Normed.Module.Basic
 
 /-!
@@ -360,6 +361,113 @@ theorem run_residual_of_coherence {V : Type*} [Fintype V] [Nonempty V]
   run_residual_of_shared_coherence U patch theta (fun _ _ => e) L hL
     (fun _ _ _ _ _ => rfl) (fun _ _ => he) s ε η δ hη hη' hs hδ n
 
+/-! ## Agreement across a cover, and agreement off the resultant
+
+`compatible_of_shared_coherence` and `compatible_of_patch_coherence` read their
+residual off a *single* patch: two reports agree because the sites they are read
+at lie in one population whose resultant is high. That is the bound at its informative grain and it is also the bound at
+its limit, because two territories far enough apart lie in no common patch and
+the hypothesis is then unavailable, not merely weak.
+
+This section removes that ceiling twice over, in the two ways it can be removed.
+
+`compatible_of_patch_nerve` keeps the coherence hypothesis and drops the common
+patch: a cover whose nerve is connected compares distant reports through the
+sites its patches share, and the residual grows with the number of hops rather
+than with the size of the population. What the cover must supply is connectivity
+of its nerve, a property of the cover itself, and what the conclusion costs is
+that the bound now scales with the diameter of the nerve.
+
+`compatible_of_frequency_locked` drops the resultant altogether. At a locked
+configuration the phase differences satisfy the balance equation, so the
+coupling graph's spectral gap bounds them directly, and the residual carries no
+population count and no cover geometry at all — at the price of a locked
+configuration, a declared gap and quarter-turn confinement.
+
+Neither weakens `SharedEncoder`. Two patches meeting at a site must still encode
+that site's quantity the same way; no amount of phase agreement supplies it, and
+that is as true across a dozen hops as across one. -/
+
+omit [NormedSpace ℝ E] in
+/-- **Agreement across a connected cover, at a price linear in its diameter.**
+Reports are compared through the sites the patches share: `home` says which
+patch of the population each index reads inside, the nerve's walks chain the
+per-patch bound `β`, and a nerve of diameter `k` gives every pair of overlapping
+indices a residual of `L (k+1) β`.
+
+The `k+1` rather than `k` is not slack. Both endpoint sites pay one step inside
+their own patch, the shared sites of the walk being interior to the chain.
+
+What this buys over `compatible_of_patch_coherence` is that no patch need
+contain both sites, which is the situation of every pair of territories far
+enough apart — and that is the situation the compatibility claim is about.
+What it does not buy is distance for free: the accumulation is linear in hops,
+the per-hop constant is the cover's own, and a cover whose nerve is disconnected
+supports no conclusion between its components. -/
+theorem compatible_of_patch_nerve {V J : Type*} [Fintype V] [DecidableEq V]
+    (U : I → Set A) (P : J → Finset V) (patch : I → V) (home : I → J)
+    (hpatch : ∀ i, patch i ∈ P (home i))
+    (theta : V → ℝ) (e : I → A → ℝ × ℝ → E) (L : ℝ) (hL : 0 ≤ L)
+    (hshared : SharedEncoder U e) (he : UniformLipschitzEncoder e L)
+    {β : ℝ} (hβ : ∀ a, Real.sqrt 2 * ((P a).card : ℝ)
+      * Real.sqrt (1 - Complex.normSq (patch_resultant theta (P a))) ≤ β)
+    {k : ℕ} (hk : ∀ i i' : I, ∃ w : (patchNerve P).Walk (home i) (home i'), w.length ≤ k) :
+    Compatible U (fun i x => e i x (circlePoint (theta (patch i))))
+      (L * (((k : ℝ) + 1) * β)) := by
+  intro i j x hi hj
+  have hβ0 : 0 ≤ β := le_trans (by positivity) (hβ (home i))
+  obtain ⟨w, hw⟩ := hk i j
+  have hchord := chord_le_of_patch_walk_coherence theta P hβ w (hpatch i) (hpatch j)
+  have hlen : ((w.length : ℝ) + 1) * β ≤ ((k : ℝ) + 1) * β := by
+    have : (w.length : ℝ) ≤ (k : ℝ) := Nat.cast_le.mpr hw
+    nlinarith
+  simp only [hshared i j x hi hj]
+  exact (he j x _ _).trans
+    (mul_le_mul_of_nonneg_left (hchord.trans hlen) hL)
+
+omit [NormedSpace ℝ E] in
+/-- **Agreement read off the coupling graph rather than off the resultant.** At a
+frequency-locked, quarter-turn-cohesive configuration of a nonnegatively coupled
+system with spectral gap `λ`, every pair of reports agrees to
+`L π √(∑ (ωᵢ - Ω)²) / (λ √2)`, with no population count, no patch and no cover
+geometry in the residual at all.
+
+This is the third route off the population count and the only one that removes
+it on principle rather than by trading it: the bound *improves* as the coupling
+graph becomes better connected, which is the dependence physical intuition
+expects and the one a resultant cannot express.
+
+What it costs is stated in the hypotheses and discharged by none of them. The
+gap is declared hardware data; the configuration is assumed locked, which this
+development does not prove exists; the confinement is assumed; and the detuning
+enters in the population's `ℓ²` norm, so heterogeneity is still paid for, in the
+data rather than in the estimate. -/
+theorem compatible_of_frequency_locked {V : Type*} [Fintype V] [DecidableEq V] [Nonempty V]
+    (U : I → Set A) (sys : KuramotoSystem V) (patch : I → V) {lam Ω : ℝ}
+    (hgap : SpectralGap sys.A lam) (hA : ∀ i j, 0 ≤ sys.A i j)
+    (theta : V → ℝ) (hlock : is_frequency_locked sys Ω theta)
+    (hcoh : ∀ i j, |theta i - theta j| ≤ Real.pi / 2)
+    (e : I → A → ℝ × ℝ → E) (L : ℝ) (hL : 0 ≤ L)
+    (hshared : SharedEncoder U e) (he : UniformLipschitzEncoder e L) :
+    Compatible U (fun i x => e i x (circlePoint (theta (patch i))))
+      (L * (Real.pi * Real.sqrt (∑ k, (sys.omega k - Ω) ^ 2) / (lam * Real.sqrt 2))) := by
+  intro i j x hi hj
+  have hlam := hgap.pos
+  have hsq := chord_le_of_frequency_locked sys hgap hA theta hlock hcoh (patch i) (patch j)
+  have hchord : chord (theta (patch i)) (theta (patch j))
+      ≤ Real.pi * Real.sqrt (∑ k, (sys.omega k - Ω) ^ 2) / (lam * Real.sqrt 2) := by
+    have hrhs : 0 ≤ Real.pi * Real.sqrt (∑ k, (sys.omega k - Ω) ^ 2) / (lam * Real.sqrt 2) := by
+      positivity
+    refine (pow_le_pow_iff_left₀ (chord_nonneg _ _) hrhs two_ne_zero).1 ?_
+    have hD : Real.sqrt (∑ k, (sys.omega k - Ω) ^ 2) ^ 2 = ∑ k, (sys.omega k - Ω) ^ 2 :=
+      Real.sq_sqrt (Finset.sum_nonneg fun k _ => sq_nonneg _)
+    have h2 : Real.sqrt 2 ^ 2 = (2 : ℝ) := Real.sq_sqrt (by norm_num)
+    rw [div_pow, mul_pow, mul_pow, hD, h2]
+    rw [le_div_iff₀ (by positivity)]
+    nlinarith
+  simp only [hshared i j x hi hj]
+  exact (he j x _ _).trans (mul_le_mul_of_nonneg_left hchord hL)
+
 #print axioms update_residual
 #print axioms compatible_map
 #print axioms run_residual
@@ -372,6 +480,8 @@ theorem run_residual_of_coherence {V : Type*} [Fintype V] [Nonempty V]
 #print axioms compatible_of_phase_locked
 #print axioms run_residual_floor
 #print axioms run_residual_of_shared_coherence
+#print axioms compatible_of_patch_nerve
+#print axioms compatible_of_frequency_locked
 #print axioms run_residual_of_coherence
 
 end PhysicsOfConsciousness.LocalContent
