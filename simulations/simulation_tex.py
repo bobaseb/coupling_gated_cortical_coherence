@@ -312,6 +312,23 @@ def _wave_content_macros() -> list[str]:
     its own patch is a square of ``2*cells+1`` sites at the measured patch-local
     order, and a nearest-neighbour pair of the same winding is the smallest
     patch there is, where the bound is exactly ``2*sqrt(2)*|sin psi|``.
+
+    Three results decline the step that puts the population count there, and
+    each is read on this same sheet rather than on a second one.
+
+    * A *count* of pairs rather than a bound on one (``chord_fraction_le``):
+      at order ``r`` the fraction separated by a chord of ``c`` or more is at
+      most ``2(1-r^2)/c^2``, with no population size in it. Read at the
+      sweep's patch-local order and one Lipschitz unit, that is
+      ``wavePatchPairFraction``.
+    * A *chain* through the cover (``chord_le_of_patch_walk_coherence``): a
+      walk of ``k`` hops through patches of chord diameter ``beta`` bounds its
+      endpoints by ``(k+1)*beta``, so the nearest-neighbour value above is the
+      per-diameter constant and ``2/beta`` is how many diameters the chain
+      carries before it reaches the maximum chord. The count of diameters is
+      ``k+1``, both endpoint sites paying a step inside their own patch.
+    * The spectral gap (``chord_le_of_frequency_locked``), which reads no
+      resultant at all and so is fixed by no sweep; it contributes no macro.
     """
     data = _read_json(FIGURES / "travelling_wave" / "travelling_wave_summary.json")
     config = WaveConfig(**cast(dict[str, Any], data["config"]))
@@ -320,11 +337,18 @@ def _wave_content_macros() -> list[str]:
     sites = (2 * patch_cells(config) + 1) ** 2
     spread = math.sqrt(2.0) * math.sqrt(1.0 - order**2)
     advance = 2.0 * math.pi * config.winding_q / config.side
+    neighbour = 2.0 * math.sqrt(2.0) * abs(math.sin(advance))
+    diameters = int(2.0 / neighbour)
+    spacing_mm = config.extent_mm / config.side
     return [
         _macro("wavePatchSites", sites),
         _macro("wavePatchChordBound", f"{sites * spread:.1f}"),
         _macro("wavePatchInformativeSites", int(2.0 / spread)),
-        _macro("waveNeighbourChordBound", f"{2.0 * math.sqrt(2.0) * abs(math.sin(advance)):.4f}"),
+        _macro("wavePatchPairFraction", f"{2.0 * (1.0 - order**2):.2f}"),
+        _macro("waveNeighbourChordBound", f"{neighbour:.4f}"),
+        _macro("waveNerveDiameters", diameters),
+        _macro("waveNerveHops", diameters - 1),
+        _macro("waveNerveReachMm", f"{diameters * spacing_mm:.3f}"),
     ]
 
 

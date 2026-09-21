@@ -880,7 +880,7 @@ different ways: by asking for fewer pairs (A), by asking over shorter distances
 
 ### What reaches the publication
 
-- [ ] **V5 — Say which route the article takes.** Any of the three changes the
+- [x] **V5 — Say which route the article takes.** Any of the three changes the
       number now in the abstract, `sec:unconditional` and the Discussion, and
       those three sites must move together. V3 alone replaces "only at three
       sites or fewer" with a hop count and a per-hop constant, both regenerated
@@ -889,7 +889,7 @@ different ways: by asking for fewer pairs (A), by asking over shorter distances
       and an E78 sentence, since what it qualifies is the edge from coherence to
       the cover.
 
-- [ ] **V6 — What functional connectivity does not buy.** Structural
+- [x] **V6 — What functional connectivity does not buy.** Structural
       connectivity is a declared graph and is what V4 consumes. Functional
       connectivity is an estimate, and feeding an estimate into a hypothesis
       strengthens no conclusion: it inherits the decoder failure modes
@@ -1028,3 +1028,91 @@ which remains true of the uniform bound it is a reading of.
 declarations in 91 modules, up from 5629, all resting only on `propext`,
 `Classical.choice` and `Quot.sound`. `check_leaves`, `check_sorry` and
 `check_table_coverage` pass.
+
+### 2026-09-21 — V5 and V6 built; the V block closed
+
+**The three routes reach the article, each in its own quantifier.**
+`sec:content-connection` gains three paragraphs after the vacuity sentence,
+which stays: it is true of the uniform bound and is what the three decline.
+Route A states the fraction `2(1-r²)/c²` and the site form beside it
+(`chord_fraction_le`, `site_fraction_le`), read on the same patch where the
+uniform bound gives `\wavePatchChordBound L` and constrains nothing, at
+`\wavePatchPairFraction`; it is labelled a different quantifier and not a
+stronger statement, and the unlocated exceptional set is said in the same
+breath. Route B gives the nerve, the metric argument and `(k+1)β`
+(`chord_le_of_patch_walk_coherence`, `compatible_of_patch_nerve`) with the
+reach as the item asked — `\waveNerveHops` hops, `\waveNerveDiameters` patch
+diameters, `\waveNerveReachMm` mm of that sheet — and says the connectivity is
+supplied. Route C gives the balance equation, the Dirichlet form and
+`2λ₂‖θ−θ̄‖ ≤ π‖ω−Ω‖` (`spread_le_of_frequency_locked`,
+`chord_le_of_frequency_locked`, `compatible_of_frequency_locked`) with its four
+declared inputs listed and none discharged.
+
+**The three sites moved together.** The abstract's "the estimate is vacuous
+across the distant territories" clause becomes the uniform bound's grain plus
+the three replacements, each against a declared input. The
+`sec:unconditional` paragraph keeps `\wavePatchInformativeSites` as the uniform
+reading's own limit and closes on what none of the three changes: a count
+locates no site, the other two consume a declared cover or declared hardware
+data, so phase order by itself still reaches no territory too far away to share
+a patch. The Discussion says the same in its opening list and turns the
+"population-size dependence" sentence in `sec:full-test` into what each route
+asks a measurement for.
+
+**`λ₂`, not `λ`.** The article already spends `λ` twice — the kernel eigenvalue
+at a winding and extracellular tortuosity — so the spectral gap is written
+`λ₂`, which is the standard name for algebraic connectivity and costs the
+notation table one row rather than a third meaning. The E78 row of Table 1
+gains the two alternative readings of the coherence-to-cover edge: through the
+sites a connected cover's patches share, or through `λ₂` instead of through any
+patch count, declared hardware data in the standing of `κ`. `β` and `k` take a
+notation row scoped to `sec:content-connection`, as the table's convention for
+a reused letter provides.
+
+**V6.** One paragraph closing `sec:content-connection`: structural connectivity
+is the declared graph that supplies `λ₂`; measured functional connectivity is
+an estimate, inherits the decoder failure modes `sec:observations` records, and
+using it to choose the cover is the move `sec:unity` identifies as emptying a
+gluing claim.
+
+**Supplement and claim map.** `sec:supp-compatibility` gains the development —
+`eq:chord-fraction`, `eq:chord-nerve` and `eq:spectral-spread`, the witnesses at
+`Examples/Phase4.lean` §34–35, and the sentence that neither route weakens
+`SharedEncoder`. Table S1 gains two rows rather than one, because A and B are
+unconditional theorems and C is not: "How many pairs a bound can miss, and
+agreement across a connected cover" at `Theorem`, and "Agreement read off the
+coupling graph rather than off the resultant" at `Theorem (conditional)`.
+`check_table_coverage` reports 42 declarations named by the article, all mapped.
+
+**Macros.** `_wave_content_macros` gains `\wavePatchPairFraction`,
+`\waveNerveDiameters`, `\waveNerveHops` and `\waveNerveReachMm`, all derived in
+that function from the summary already read there;
+`\waveNeighbourChordBound` is reused as the per-diameter constant rather than
+written a second time. The drift test carries the four new values.
+
+*A number checked rather than changed.* `\waveNeighbourChordBound` is
+`2√2|sin ψ|` and not `2√2|sin(ψ/2)|`, which is the exact two-site value. That is
+correct: `chord_le_of_char_patch` takes its patch resultant from
+`cos_le_mean_patch_order_winding`, which lower-bounds it by `cos ψ` rather than
+by `cos(ψ/2)`. The published bound is sound and not tight, and it is the
+constant route B chains.
+
+*Does not establish.* Nothing new is proved: this pass is publication-only and
+touches no `.lean` file. The reach of route B is that sheet's and not cortex's;
+`λ₂` is computed for no cortical graph; and the counting route still names no
+site, which is why the uniform bound's sentence stays where it is.
+
+**Artifacts.** `simulations/simulation_results.tex` regenerated from the saved
+summaries with no sweep rerun. All three tracked PDFs rebuilt, two passes each,
+with the overfull-box count unchanged at zero; `arxiv_submit/` rebuilt from
+scratch and compiled from the unpacked tarball at 96 pages.
+
+**Verification.** `check_prose`, `check_figures`, `check_table_coverage`,
+`check_tableS1`, `check_pdf_freshness` and `check_arxiv_freshness` pass;
+`check_hedging` reports 0 flagged in both files. `test_simulation_tex` and
+`test_generated_macros` pass, so no generated macro is uncited. `ruff`, `mypy`,
+`vulture` and `xenon` clean on the generator. No Lean file changed, so the
+audit's footprint and the proof companion are untouched.
+
+**The V block is closed.** The R research programme in
+`tasks/research_programme.md` stays live and is untouched by this pass.

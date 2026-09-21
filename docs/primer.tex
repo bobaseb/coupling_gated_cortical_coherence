@@ -4304,6 +4304,106 @@ vector witnesses in \id{Examples/VectorContent.lean}, \S22--23; the antiphase
 witness, its computed $r^2=0$ and the disagreement control in
 \id{Examples/AgencyFoundations.lean}.
 
+\subsection{Three ways off the population count}
+\label{sec:off-the-count}
+
+\what
+The factor $N^{2}$ above has exactly one source, and it is worth staring at:
+every term of $\sum_{ij}\bigl(1-\cos(\theta_i-\theta_j)\bigr)=N^{2}(1-r^{2})$ is
+nonnegative, so each term is at most the whole sum. That single step is what
+lets all the disorder in a population sit in the one pair you happen to be
+asking about, and it is why the estimate has to assume the worst. Three results
+decline it, in the three ways it can be declined: by asking for fewer pairs, by
+asking over shorter distances, or by not reading phase differences off $r$ at
+all.
+
+\statement
+\emph{Count instead of bound.} Ask not how large one gap can be but how
+\emph{many} gaps can be large at once, and the same identity becomes Markov's
+inequality. If every pair in a set $S$ is separated by a chord of at least $c$,
+then $|S|/N^{2}\le2(1-r^{2})/c^{2}$ --- with the population size gone. At
+$r=0.99$ and $c$ one Lipschitz unit that is four per cent of pairs; at the
+patch-local order of the winding sheet, \waveBandLocalOrder, it is
+\wavePatchPairFraction{} of them, weak but scale-free, and improving like the
+square of what the uniform bound improves like. Reading the sum by rows instead
+of by terms gives the same thing for sites: a site with many distant partners
+spends its own row, so most sites agree with most sites.
+
+\emph{Chain instead of compare.} Give the cover a nerve --- two patches are
+adjacent when they share a site --- and use the fact that the chord is a metric.
+A bound $\beta$ on the separation inside every patch then composes along a walk:
+$k$ hops give $(k+1)\beta$. The $k+1$ is not slack. Both endpoint sites pay a
+step inside their own patch, while the shared sites of the walk are interior to
+the chain. Nothing in this needs a patch containing both endpoints, which is
+what makes it say something about two territories far enough apart to lie in no
+common patch --- and that is the situation the whole compatibility question is
+about. At the winding sheet's nearest-neighbour value,
+$\beta=\waveNeighbourChordBound\,L$, the chain stays inside the maximum chord
+for \waveNerveHops{} hops: \waveNerveDiameters{} patch diameters, or
+\waveNerveReachMm~mm of that sheet.
+
+\emph{Do not read $r$ at all.} At a configuration turning rigidly at a common
+rate $\Omega$, the phase differences are pinned by the dynamics themselves:
+$\omega_i-\Omega=\sum_j K_{ij}\sin(\theta_i-\theta_j)$ at every site, which is
+the Kuramoto equation at such a solution rather than an extra assumption. Pair
+that with the configuration, symmetrize, and apply Jordan's inequality termwise
+--- keeping the sine and paying $2/\pi$ rather than linearizing --- and the
+coupling graph's Dirichlet form appears. Its algebraic connectivity $\lambda_2$,
+the same quantity as the graph Laplacian's spectral gap on an unweighted graph,
+then closes the estimate:
+$2\lambda_2\lVert\theta-\bar\theta\rVert\le\pi\lVert\omega-\Omega\rVert$. There
+is no $N$ in that, and the bound \emph{improves} as the coupling graph becomes
+better connected --- which is the dependence physical intuition expects and
+exactly the one an order parameter cannot express, $r$ being blind to who is
+coupled to whom.
+
+\scope
+The first two buy their freedom with a quantifier and the third with a
+hypothesis, and neither trade is free.
+
+A count names no pair and no site. The exceptional set it permits is unlocated,
+and a cover's overlaps are a set of sites fixed before the state is known, so
+reading a fraction as agreement on an overlap needs the exceptions to miss that
+overlap --- a joint fact about the state and the cover that no coherence
+hypothesis supplies. The only way to get it is to choose the cover knowing the
+state, which is the move that empties a gluing claim. A guarantee about a named
+overlap still needs the uniform bound, at the grain the uniform bound is stated
+for.
+
+The chain supplies no walk. Connectivity of the nerve, and its diameter, are
+properties of the declared cover; a cover whose nerve is disconnected says
+nothing between its components. Accumulation is linear and nothing here makes it
+sublinear, so the reach is a dozen or so patch diameters rather than a
+hemisphere, and the per-hop constant is the cover's own.
+
+The spectral-gap route declares four things and discharges none. $\lambda_2$ is
+hardware data, in the same standing as the mode-price constant $\kappa$: Mathlib
+has the graph Laplacian and its positive semidefiniteness but no Fiedler value,
+so the Rayleigh inequality is carried as an obligation, and it is computed here
+only for the complete graph. A locked configuration is assumed to exist, which
+above the critical coupling is true and below it is false, and neither direction
+is proved. The quarter-turn confinement is assumed, and locking does not imply
+it. And the detuning enters in the population's $\ell^{2}$ norm, which is
+extensive: a population whose frequency spread grows with its size still pays
+for that growth, through the data rather than through the estimate. What the
+route removes is the unconditional factor, not the physics of heterogeneity.
+
+\lean
+\id{Phase4\_KuramotoDynamics.lean} \S11: \id{sum\_gap\_eq}, \id{card\_gap\_le},
+\id{card\_chord\_le}, \id{chord\_fraction\_le}, \id{card\_site\_gap\_le},
+\id{site\_fraction\_le}; \S12: \id{patchNerve}, \id{patchNerve\_shared},
+\id{chord\_le\_of\_patch\_walk},
+\id{chord\_le\_of\_patch\_walk\_coherence}, with the metric lemmas
+\id{chord\_triangle} and \id{chord\_le\_abs\_sub} in \S5.
+\id{Phase4\_RotatingFrame.lean} \S8: \id{couplingForm},
+\id{couplingForm\_eq\_lapMatrix}, \id{SpectralGap}, \id{SpectralGap.scale},
+\id{is\_frequency\_locked}, \id{is\_frequency\_locked\_iff},
+\id{sum\_mul\_coupling\_sin}, \id{couplingForm\_le\_pairing},
+\id{spread\_le\_of\_frequency\_locked}, \id{chord\_le\_of\_frequency\_locked}.
+\id{Phase5\_ContentDynamics.lean}: \id{compatible\_of\_patch\_nerve},
+\id{compatible\_of\_frequency\_locked}. Witnesses in
+\id{Examples/Phase4.lean}, \S34--35.
+
 \subsection{How soon can a patch respond?}
 \label{sec:locality}
 
