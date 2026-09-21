@@ -319,7 +319,7 @@ $\psi$ & collective phase (the direction of the mean resultant) \\
 $a$ & von Mises concentration parameter, $a=Kr/D$ \\
 $I_n$ & modified Bessel function of the first kind, order $n$ \\
 $R(a)$ & the Bessel ratio $I_1(a)/I_0(a)$ \\
-$E(a)$ & $\E_a[\sin^2\theta]$ under the von Mises law at concentration $a$ \\
+$\mathcal{S}(a)$ & $\E_a[\sin^2\theta]$ under the von Mises law at concentration $a$ \\
 $\beta$ & critical exponent of the order parameter; $=1/2$ here \\
 $\rho(\theta)$ & stationary phase density \\
 $V(\theta)$ & Kuramoto Lyapunov potential \\
@@ -339,7 +339,15 @@ $B$ & heat budget allocated to a named substep \\
 $\mathcal{V}$ & vacuum manifold (space of energy minima) \\
 $\pi_n$ & $n$-th homotopy group \\
 $\mathcal{F}$ & a sheaf; $\mathcal{F}(U)$ its sections over the open set $U$ \\
-$\mu$ & a measure on the substrate, normalized to total mass one \\
+$\mu$ & a measure on the substrate, normalized to total mass one; also a law on a finite register \\
+$\Xi$ & a configuration of the declared actuator hardware \\
+$\mathcal{E}$ & energy observable of the thermodynamic models \\
+$\mathcal{K}_n$ & mesh energy of a refining partition \\
+$\mathcal{U}$ & memory-update channel \\
+$\mathcal{A}$ & the avatar region an encoding restricts to \\
+$\mathcal{C}$ & content space: a real normed vector space \\
+$\mathcal{T}$ & timing sensitivity, the spike-time shift per unit field \\
+$E$, $R$ & encoder and readout; $E$ is also the field amplitude in Part~VI \\
 $\gamma$ & the rate calibration converting a field estimate to a coupling \\
 $\Lambda$ & contraction (Lipschitz) factor of a self-prediction map, $<1$ \\
 $\tau$ & time interval over which the contraction rate is evaluated \\
@@ -874,7 +882,7 @@ Writing $\sim$ for ``is sampled according to'', the channels are
  A_t&\sim\pi(\cdot\mid X_t),&
  S_{t+1}&\sim K(\cdot\mid S_t,A_t),\\
  O_{t+1}&\sim G(\cdot\mid S_{t+1}),&
- X_{t+1}&\sim U(\cdot\mid X_t,A_t,O_{t+1}).
+ X_{t+1}&\sim \mathcal{U}(\cdot\mid X_t,A_t,O_{t+1}).
 \end{align*}
 Here $K$ is a transition-probability rule, rather than the coupling strength
 of the oscillator model. The same sampled action is supplied to the world
@@ -998,7 +1006,7 @@ own dynamics and accounting.
 
 Work needs its own first-law relation. With $q$ positive into the reservoir
 and $w$ the work supplied to the joint system, that relation is
-$w=E(x,s')-E(x,s)+q$. Lean derives the corresponding average relation from
+$w=\mathcal{E}(x,s')-\mathcal{E}(x,s)+q$. Lean derives the corresponding average relation from
 this pathwise assumption. A mean heat bound alone does not identify work.
 
 \lean{
@@ -1015,11 +1023,11 @@ retains the process, heat observable, thermal scale and budget.}
 
 Let $p_0(x,s)$ be the initial joint law. Actuation gives
 $p_1(x,t)=\sum_s p_0(x,s)K_x(t\mid s)$. During sensing, the world $t$ is
-fixed and memory changes from $x$ to $y$ through a channel $U_t(y\mid x)$.
+fixed and memory changes from $x$ to $y$ through a channel $\mathcal{U}_t(y\mid x)$.
 This substep must start at $p_1(x,t)$, written in world--memory order as
 $p_1^{\mathrm{swap}}(t,x)$. Its output, returned to memory--world order, is
 \[
- p_2(y,t)=\sum_x p_1(x,t)U_t(y\mid x).
+ p_2(y,t)=\sum_x p_1(x,t)\mathcal{U}_t(y\mid x).
 \]
 Lean proves that this is the law produced by the composed perception--action
 channels. The second initial law is constructed from the first final law;
@@ -1035,13 +1043,13 @@ joint entropy. Neither $p_1$ nor $p_2$ has to be an equilibrium distribution.
 If the total mean heat is at most $B$, the complete update therefore satisfies
 $H(p_0)-H(p_2)\le B/(k_BT)$.
 
-Energy accounting uses one observable $E(x,s)$ for both substeps, evaluated
+Energy accounting uses one observable $\mathcal{E}(x,s)$ for both substeps, evaluated
 in the appropriate coordinate order. Under each substep's first law, with
 heat positive into the bath and work positive into the system, the same
 intermediate expected energy cancels:
 \[
  \langle W_A\rangle+\langle W_M\rangle
- =\mathbb E_{p_2}E-\mathbb E_{p_0}E
+ =\mathbb E_{p_2}\mathcal{E}-\mathbb E_{p_0}\mathcal{E}
    +\langle Q_A\rangle+\langle Q_M\rangle.
 \]
 Strict positivity and local detailed balance carry the same roles as in the
@@ -1425,7 +1433,7 @@ stage too. For one common energy and temperature, the first law and entropy
 balance add across the actual sequence:
 \[
  k_BT[H(p_0)-H(p_N)]\leq Q_{<N}
- =W_{<N}+\langle E\rangle_0-\langle E\rangle_N.
+ =W_{<N}+\langle \mathcal{E}\rangle_0-\langle \mathcal{E}\rangle_N.
 \]
 The store and the system's energy loss therefore bound the joint entropy
 the run can remove. If each stage costs at least a positive amount, a finite
@@ -1894,7 +1902,7 @@ increases joint entropy can give a negative density under this law.
 Two deductions then use different premises. Regular spatial meshes with cells
 shrinking to zero, together with continuity and integrability, give
 \[
- E_n(f_A)\longrightarrow L_A=g\,d\int_S b\,d\mu.
+ \mathcal{K}_n(f_A)\longrightarrow L_A=g\,d\int_S b\,d\mu.
 \]
 The process's budget gives $d\leq B/(k_BT)$. If the total profile is
 nonnegative, this bounds the limit by $g(B/(k_BT))\int_S b\,d\mu$.
@@ -1938,20 +1946,20 @@ say what the hardware is. Suppose it carries finitely many spatial response
 modes. Each mode $i$ has a fixed profile $\phi_i(x)$ saying where on the
 substrate it responds, and a price $u_i$ saying what it costs to hold open.
 A configuration $z$ of the controller and its switches sets the occupancies
-$c_i(z)$, and those same numbers fix two things at once:
+$c_i(\Xi)$, and those same numbers fix two things at once:
 \[
- K_z(x,y)=\sum_i c_i(z)\,\phi_i(x)\,\phi_i(y),
+ K_\Xi(x,y)=\sum_i c_i(\Xi)\,\phi_i(x)\,\phi_i(y),
  \qquad
- U(z)=\sum_i u_i\,c_i(z).
+ U(\Xi)=\sum_i u_i\,c_i(\Xi).
 \]
 The first is a kernel on pairs of points; the second is the energy stored in
 the hardware as configured. A transition $z\to z'$ changes the kernel only
 through the modes whose occupancy it changes, and its external work is
-$U(z')-U(z)+Q$.
+$U(\Xi')-U(\Xi)+Q$.
 
 \why
 This is what the scalar model leaves out. The kernel the executed step
-installs is the average of $K_z$ over the law that step actually leaves, so
+installs is the average of $K_\Xi$ over the law that step actually leaves, so
 its change is the mean of the pathwise changes rather than a function of an
 entropy difference. The mean of the transition works is the installation
 cost, and the first law splits it into the change in expected stored energy
@@ -1964,7 +1972,7 @@ has a cell-mass weighted energy exactly equal to its integral against the
 product measure. As the sample error shrinks, a continuous kernel on a
 compact substrate gives
 \[
- \mathcal{E}_n\longrightarrow\iint K\,d\mu\,d\mu .
+ \mathcal{K}_n\longrightarrow\iint K\,d\mu\,d\mu .
 \]
 The index $n$ counts refinements of space, not executed updates.
 
@@ -2014,8 +2022,8 @@ the law of the hardware's configuration. The product of its two profiles
 integrates to $m_i^2$. The mean coupling and the energy held in the modes are
 therefore
 \[
- K=\sum_z p(z)\sum_i c_i(z)m_i^2,
- \qquad U=\sum_z p(z)\sum_i u_i c_i(z).
+ K=\sum_\Xi p(\Xi)\sum_i c_i(\Xi)m_i^2,
+ \qquad U=\sum_\Xi p(\Xi)\sum_i u_i c_i(\Xi).
 \]
 Declare $\kappa>0$ with $m_i^2\leq\kappa u_i$ for every mode. If occupancies
 are nonnegative, multiply that inequality by each occupancy and average:
@@ -2971,23 +2979,23 @@ on the other, plus endpoint terms. Here the key identity is
 exact because $\sin(\pm\pi)=0$ kills the boundary term. Dividing by the
 normalizer, this factorizes the Bessel ratio:
 \[
-R(a) \;=\; a\,E(a), \qquad E(a) := \E_a[\sin^2\theta].
+R(a) \;=\; a\,\mathcal{S}(a), \qquad \mathcal{S}(a) := \E_a[\sin^2\theta].
 \]
 The subscript $a$ means average with the von Mises probabilities at that
-concentration. Thus $E(a)$ is the average squared vertical component of a
+concentration. Thus $\mathcal{S}(a)$ is the average squared vertical component of a
 centered phase arrow. A moment is an average of a power of a variable; the
 cosine moments below are averages or unnormalized integrals of powers of cosine.
-Now everything turns on $E$. Since $\sin^2\le1$ trivially, $R(a)\le a$, which
+Now everything turns on $\mathcal{S}$. Since $\sin^2\le1$ trivially, $R(a)\le a$, which
 would put a threshold at $K=D$. The sharper fact is
 \[
- E(a) \;\le\; \tfrac12, \qquad\text{strictly, for } a>0,
+ \mathcal{S}(a) \;\le\; \tfrac12, \qquad\text{strictly, for } a>0,
 \]
 which gives $R(a)<a/2$ and hence a threshold at $K=2D$.
 \textbf{That factor of $1/2$ is exactly what separates a threshold at $D$ from
 one at $2D$}, and the development keeps the crude version around to make the
 point visible.
 
-Proving $E(a)\le1/2$ amounts to showing the second cosine moment
+Proving $\mathcal{S}(a)\le1/2$ amounts to showing the second cosine moment
 $I_2(a)\ge0$, done by \emph{folding} the interval $[-\pi,\pi]$ onto
 $[0,\pi/4]$ through the two reflections $\theta\mapsto\pi-\theta$ and
 $\theta\mapsto\pi/2-\theta$, after which the integrand becomes a product of two
@@ -3003,8 +3011,8 @@ $r\mapsto (K/2D)r \le r$ for $r>0$, so it cannot cross. The threshold case
 $K=2D$ falls on the \emph{incoherent} side, so the two regimes exhaust
 $K\ge0$ with no gap.
 \item[Supercritical ($K>2D$).] There is an $r$ with $0<r\le1$ solving it, and
-no series expansion is needed. Writing the condition through $E$: since
-$D/K<1/2=E(0)$ and $E$ is continuous, the map overshoots for small $r>0$;
+no series expansion is needed. Writing the condition through $\mathcal{S}$: since
+$D/K<1/2=\mathcal{S}(0)$ and $\mathcal{S}$ is continuous, the map overshoots for small $r>0$;
 $R(a)\le1$ (being a mean of $\cos\theta$) makes it undershoot at $r=1$; and the
 intermediate value theorem supplies the crossing.
 \end{description}
@@ -3017,9 +3025,9 @@ Section~\ref{sec:fold}.
 \item \textbf{Continuity at threshold.} For every $\varepsilon>0$ there is
 $\delta>0$ such that on $(2D,2D+\delta)$ every coherent solution has
 $r<\varepsilon$. The branch emerges \emph{continuously} from zero: no
-discontinuous jump. (The proof needs no monotonicity of $E$---on a compact
+discontinuous jump. (The proof needs no monotonicity of $\mathcal{S}$---on a compact
 interval bounded away from the origin the extreme value theorem gives a
-maximum strictly below $1/2$, and beyond that the crude bound $E(a)\le1/a$
+maximum strictly below $1/2$, and beyond that the crude bound $\mathcal{S}(a)\le1/a$
 suffices.)
 \item \textbf{Strict growth.} $r$ increases strictly with $K$ above threshold.
 \end{itemize}
@@ -3099,7 +3107,7 @@ population follows, which is the second question and remains open.
 
 \subsection{Why there cannot be two positive solutions at the same coupling}
 
-The positive-branch equation can be written $E(a)=D/K$. If $E$ strictly
+The positive-branch equation can be written $\mathcal{S}(a)=D/K$. If $\mathcal{S}$ strictly
 decreases as $a$ rises, a horizontal line of height $D/K$ can meet it at most
 once. That is the geometric meaning of the uniqueness proof.
 
@@ -3107,8 +3115,8 @@ This is the one proof worth describing in outline, because its structure is
 unusual and the supplement devotes a section to it.
 
 \what
-Uniqueness of the coherent branch reduces to the \emph{injectivity} of $E$ on
-$(0,\infty)$, and what is proved is the stronger statement that $E$ is
+Uniqueness of the coherent branch reduces to the \emph{injectivity} of $\mathcal{S}$ on
+$(0,\infty)$, and what is proved is the stronger statement that $\mathcal{S}$ is
 \emph{strictly decreasing} on $[0,\infty)$.
 
 \statement
@@ -3118,7 +3126,7 @@ exponential of a parameter times a statistic; changing the parameter is called
 their means together: $\mathrm{Cov}(X,Y)=\E[XY]-\E[X]\E[Y]$.
 For this family, differentiation gives
 \[
- E'(a) \;=\; -\,\mathrm{Cov}_a\!\left(\cos^2\theta,\ \cos\theta\right),
+ \mathcal{S}'(a) \;=\; -\,\mathrm{Cov}_a\!\left(\cos^2\theta,\ \cos\theta\right),
 \]
 and one would show that covariance positive. That route was not taken, and it
 was the harder one: it costs differentiation under the integral sign, and the
@@ -3171,12 +3179,12 @@ The consequences are the uniqueness results
 (\id{coherent\_fixed\_point\_unique},
 \id{supercritical\_fixed\_point\_existsUnique},
 \id{supercritical\_solution\_set}) and strict growth of the branch
-(\id{coherent\_branch\_strictMono}), which uses both halves: $E$ decreasing
+(\id{coherent\_branch\_strictMono}), which uses both halves: $\mathcal{S}$ decreasing
 puts the concentrations of two couplings in the order $a_1<a_2$ through
-$E(a_i)=D/K_i$, and $R$ increasing carries that order to $r_1<r_2$.
+$\mathcal{S}(a_i)=D/K_i$, and $R$ increasing carries that order to $r_1<r_2$.
 
 \scope
-Because nothing is differentiated, $E$ and $R$ are obtained as strictly
+Because nothing is differentiated, $\mathcal{S}$ and $R$ are obtained as strictly
 monotone rather than as smooth. The rate at which the branch leaves zero
 therefore needs a different file---the next section.
 
@@ -3225,23 +3233,23 @@ derivative and integral is justified by dominated convergence, dominated by
 the constant $e^{|a|+1}$ on a unit ball around the parameter---this is where
 compactness of $[-\pi,\pi]$ and boundedness of $\cos$ do the work. Iterating
 gives two continuous derivatives.
-\item \textbf{Rewrite $E$ through the moments.}
-$E(a)=1-\mathrm{vmMoment}\,2\,a/\mathrm{vmMoment}\,0\,a$, a quotient with
-positive denominator, so $E$ inherits two derivatives.
+\item \textbf{Rewrite $\mathcal{S}$ through the moments.}
+$\mathcal{S}(a)=1-\mathrm{vmMoment}\,2\,a/\mathrm{vmMoment}\,0\,a$, a quotient with
+positive denominator, so $\mathcal{S}$ inherits two derivatives.
 \item \textbf{Evaluate at zero.} The moments at $a=0$ are elementary integrals
 of powers of $\cos$: $2\pi,\ 0,\ \pi,\ 0,\ 3\pi/4$. They give
 \[
- E(0)=\tfrac12,\qquad E'(0)=0,\qquad E''(0)=-\tfrac18 ,
+ \mathcal{S}(0)=\tfrac12,\qquad \mathcal{S}'(0)=0,\qquad \mathcal{S}''(0)=-\tfrac18 ,
 \]
 the first derivative vanishing by the symmetry that kills the odd moments.
 \item \textbf{Taylor.} Hence
 \[
- E(a) \;=\; \frac12-\frac{a^2}{16}+o(a^2).
+ \mathcal{S}(a) \;=\; \frac12-\frac{a^2}{16}+o(a^2).
 \]
 The remainder is $o(a^2)$, not $O(a^4)$; the stronger form would need a fourth
 derivative and nothing requires it.
 \item \textbf{Substitute into the branch equation.} On the coherent branch
-$E(Kr/D)=D/K$. Writing $a=Kr/D$ and rearranging gives
+$\mathcal{S}(Kr/D)=D/K$. Writing $a=Kr/D$ and rearranging gives
 \[
  K-2D \;=\; K a^2\!\left(\tfrac18-2q(a)\right)
 \]
@@ -5481,7 +5489,7 @@ precisely because it cannot be argued away.
 
 \statement
 A natural Fermi estimate of field-mediated coupling multiplies a population
-size $N$, a spike-time shift per unit field $s$, a field amplitude $E$, and an
+size $N$, a spike-time shift per unit field $\mathcal{T}$, a field amplitude $E$, and an
 oscillation frequency $f$. Track the units:
 \begin{itemize}[leftmargin=*,noitemsep]
 \item $s$ is a time per unit field, so $sE$ is a \emph{time};
@@ -5493,7 +5501,7 @@ But a coupling in the sense of the stochastic model \eqref{eq:sde} is an
 \emph{inverse time}, comparable with $D$. So the estimate cannot be compared
 with $D$ at all. The conversion
 \[
- \Keff=\gamma\,N s E f
+ \Keff=\gamma\,N \mathcal{T} E f
 \]
 puts the entire gap into a rate calibration $\gamma$.
 

@@ -137,20 +137,27 @@ $K_c$ & Eq.~\eqref{eq:selfconsistency} & Synchronization threshold, $K_c=2D$ \\
 $r$, $r_N$ & Eq.~\eqref{eq:kuramoto} & Resultant length (order parameter), on the population it is read on \\
 $a$, $\psi$ & Eq.~\eqref{eq:selfconsistency} & Concentration $a=Kr/D$ and collective phase of the stationary density \\
 $q$ & Section~\ref{sec:wave} & Winding number of a phase field read around a ring \\
-$\mu$, $\phi_i$, $u_i$, $c_i$ & Eq.~\eqref{eq:microscopic-kernel} & Substrate measure; mode profile, installation price and occupancy of mode $i$ \\
+$\mu$ & Eq.~\eqref{eq:microscopic-kernel} & Substrate measure, normalized to one \\
+$\Xi$, $\phi_i$, $u_i$, $c_i$ & Eq.~\eqref{eq:microscopic-kernel} & Actuator configuration; mode profile, installation price and occupancy of mode $i$ \\
 $U_{\mathrm{inst}}$, $\kappa$ & Eq.~\eqref{eq:installed-coupling-bound} & Installed energy and the mode-data conversion factor bounding $K_{\mathrm{mf}}\leq\kappa U_{\mathrm{inst}}$ \\
 $L$ & Section~\ref{sec:content-connection} & Lipschitz constant of an encoder or readout \\
 $\varepsilon$, $\delta$ & Section~\ref{sec:content-connection} & Content and observation discrepancy tolerances \\
 $M$, $b$ & Eq.~\eqref{eq:reconstruction-separation} & Size of a declared family of states and code length in bits \\
 $\Lambda$, $\tau$ & Eq.~\eqref{eq:selfmap} & Contraction factor $\Lambda=e^{-(K-2D)\tau/2}$ and its relaxation time \\
 $T$ & Section~\ref{sec:self} & Number of communication rounds to a deadline \\
-$k_BT$, $B$ & Eq.~\eqref{eq:active-chain-bound} & Thermal scale (Boltzmann constant times temperature, read as one symbol) and heat budget of a register \\
-$\gamma$, $s$, $f$ & Eq.~\eqref{eq:keff} & Field-to-coupling conversion rate, timing sensitivity and frequency \\
+$k_BT$, $B$ & Eq.~\eqref{eq:active-chain-bound} & Thermal scale, read as one symbol, and heat budget of a register \\
+$\gamma$, $\mathcal{T}$, $f$ & Eq.~\eqref{eq:keff} & Field-to-coupling conversion rate, timing sensitivity and frequency \\
 $\alpha$ & Section~\ref{sec:prediction} & Extracellular volume fraction \\
 $\lambda$ & \S\ref{sec:wave}, \S\ref{sec:prediction} & Eigenvalue the coupling kernel supplies at a winding; extracellular tortuosity \\
-$E$ & \S\ref{sec:content-connection}, \S\ref{sec:reconstruction-family}, \S\ref{sec:chain}, \S\ref{sec:scaling} & Content space; encoder; energy observable; field amplitude \\
-$U$ & \S\ref{sec:installation}, \S\ref{sec:unity}, \S\ref{sec:self} & Stored energy $U(z)$; a patch of the cover; the encoding region \\
-$s$ & \S\ref{sec:self}, \S\ref{sec:scaling} & A global section; timing sensitivity \\
+$\mathcal{C}$, $e_{i,x}$ & Section~\ref{sec:content-connection} & Content space and the phase encoder patch $i$ reads at site $x$ \\
+$E$, $R$ & Eq.~\eqref{eq:reconstruction-separation} & Encoder and readout of the reconstruction criterion \\
+$\mathcal{A}$, $F$ & Eq.~\eqref{eq:selfmap} & Encoding region and the reconstruction map $F(s)=\operatorname{readout}(s|_{\mathcal{A}})$ \\
+$\mathcal{E}$ & Eq.~\eqref{eq:continuing-budget} & Energy observable shared by the stages of a continuing protocol \\
+$z_i$, $\Gamma$, $A_{ij}$ & Section~\ref{sec:wave} & Complex amplitude, linear gain and coupling matrix of the amplitude layer \\
+$\Delta\theta_d$ & Section~\ref{sec:wave} & Phase a winding advances across separation $d$ \\
+$E$ & Eq.~\eqref{eq:keff} & Field amplitude, in the cortical identification \\
+$U$ & \S\ref{sec:installation}, \S\ref{sec:unity} & Stored energy $U(\Xi)$ of a configuration; a patch $U$ of the cover \\
+$s$, $s_*$ & \S\ref{sec:unity}--\ref{sec:self} & A global section and the one the reconstruction fixes \\
 \end{longtable}
 \endgroup
 
@@ -213,20 +220,20 @@ Linearization about the uniform density gives rate $K/2-D$ for the first harmoni
 \subsection{Installed energy bounds mean coupling}
 \label{sec:installation}
 
-A spatial model replaces the finite sum by integration against a kernel. One declared implementation carries response modes with continuous profiles $\phi_i$, installation prices $u_i$ and nonnegative occupancies $c_i(z)$ in configuration $z$:
+A spatial model replaces the finite sum by integration against a kernel. One declared implementation carries response modes with continuous profiles $\phi_i$, installation prices $u_i$ and nonnegative occupancies $c_i(\Xi)$ in configuration $\Xi$:
 \begin{equation}
- K_z(x,y)=\sum_i c_i(z)\phi_i(x)\phi_i(y),
- \qquad U(z)=\sum_i u_i c_i(z).
+ K_\Xi(x,y)=\sum_i c_i(\Xi)\phi_i(x)\phi_i(y),
+ \qquad U(\Xi)=\sum_i u_i c_i(\Xi).
  \label{eq:microscopic-kernel}
 \end{equation}
-The same configuration sets the reciprocal kernel and stored energy. An executed transition changes the kernel through its changed occupancies and requires work $U(z')-U(z)+Q$, with $Q$ positive into the reservoir. The installed kernel is averaged over the resulting configuration law $p(z)$. Cell-pair reconstruction on refining spatial partitions converges to its product-measure integral under the specified compactness and sampling assumptions; the refinement index is independent of the number of control updates.
+The same configuration sets the reciprocal kernel and stored energy. An executed transition changes the kernel through its changed occupancies and requires work $U(\Xi')-U(\Xi)+Q$, with $Q$ positive into the reservoir. The installed kernel is averaged over the resulting configuration law $p(\Xi)$. Cell-pair reconstruction on refining spatial partitions converges to its product-measure integral under the specified compactness and sampling assumptions; the refinement index is independent of the number of control updates.
 
 Normalize the substrate measure $\mu$ to one. Write $m_i=\int\phi_i\,d\mu$ and declare $\kappa>0$ with $m_i^2\leq\kappa u_i$ for every mode. Factorizing each mode's integral gives
 \begin{equation}
  \begin{aligned}
- U_{\mathrm{inst}}&=\sum_z p(z)U(z),\\
+ U_{\mathrm{inst}}&=\sum_\Xi p(\Xi)U(\Xi),\\
  K_{\mathrm{mf}}&=\iint K(x,y)\,d\mu(x)\,d\mu(y)
- =\sum_z p(z)\sum_i c_i(z)m_i^2
+ =\sum_\Xi p(\Xi)\sum_i c_i(\Xi)m_i^2
  \leq\kappa U_{\mathrm{inst}}.
  \end{aligned}
  \label{eq:installed-coupling-bound}
@@ -251,7 +258,7 @@ The cover is itself a choice, and the construction constrains it in one way only
 \subsection{When coherence does constrain content}
 \label{sec:content-connection}
 
-A declared relation between phase and content gives a positive result. Let contents take values in a real normed vector space $E$. Patch $i$ reads an assigned oscillator through $e_{i,x}$ at site $x$, evaluated on the circle point $(\cos\theta,\sin\theta)$. Assume a uniform Lipschitz constant $L$ in chord distance and require $e_{i,x}=e_{j,x}$ wherever patches $i$ and $j$ overlap. Encoders may vary across sites; their equality on overlaps is a supplied relation between descriptions of the shared quantity. The order-parameter identity
+A declared relation between phase and content gives a positive result. Let contents take values in a real normed vector space $\mathcal{C}$. Patch $i$ reads an assigned oscillator through $e_{i,x}$ at site $x$, evaluated on the circle point $(\cos\theta,\sin\theta)$. Assume a uniform Lipschitz constant $L$ in chord distance and require $e_{i,x}=e_{j,x}$ wherever patches $i$ and $j$ overlap. Encoders may vary across sites; their equality on overlaps is a supplied relation between descriptions of the shared quantity. The order-parameter identity
 $N^2r^2=\sum_{ij}\cos(\theta_i-\theta_j)$ implies
 $1-\cos(\theta_i-\theta_j)\leq N^2(1-r^2)$ for each pair. Consequently every overlap discrepancy is bounded by
 \begin{equation}
@@ -284,9 +291,9 @@ These constructions concern declared objects: a specified cover, contents valued
 
 \subsection{The reflexive construction}
 
-Compatibility gives a global state. Reflexivity relates it to an encoding within that state. Equip global sections with a complete metric. If the additional restriction-resonance condition identifies encoding with restriction to a region $U$, the reconstruction map is
+Compatibility gives a global state. Reflexivity relates it to an encoding within that state. Equip global sections with a complete metric. If the additional restriction-resonance condition identifies encoding with restriction to a region $\mathcal{A}$, the reconstruction map is
 \begin{equation}
- F(s)=\operatorname{readout}(s|_U).
+ F(s)=\operatorname{readout}(s|_{\mathcal{A}}).
  \label{eq:selfmap}
 \end{equation}
 The region and readout are fixed across the state space. If $F$ contracts and fixes the section $s_*$ formed from the local descriptions, Banach's theorem makes $s_*$ its unique fixed point \cite{banach1922}. The formal bridge E89 supplies the contraction and $F(s_*)=s_*$; restriction resonance is separate. Supercritical coupling makes the stipulated contraction factor $\Lambda=e^{-(K-2D)\tau/2}$ less than one for a relaxation time $\tau>0$. Constructing a map with that factor remains a modelling obligation.
@@ -362,11 +369,11 @@ The finite examples distinguish selecting a feasible policy, relaxing a register
 
 A phase-derived sensor makes the informational distinction concrete: an informative readout and a blind control have the same phase order but different learning performance. Attaching the learner's register to the actuator of Section~\ref{sec:installation} ties reward, installed kernel and work to its own executed law. The learning witness rises above the necessary installed-energy bound while its matched control remains on the exclusion line. These finite constructions, detailed in Supplemental Material, leave the evolving feedback between phase dynamics, installation and sensing to be specified.
 
-For that model, common energy $E$, thermal scale $k_BT$, local detailed balance and positive support at each stage give
+For that model, common energy observable $\mathcal{E}$, thermal scale $k_BT$, local detailed balance and positive support at each stage give
 \begin{equation}
  k_BT[H(p_0)-H(p_N)]\leq Q_{<N}
- =W_{<N}+\langle E\rangle_0-\langle E\rangle_N
- \leq B+\langle E\rangle_0-\langle E\rangle_N,
+ =W_{<N}+\langle \mathcal{E}\rangle_0-\langle \mathcal{E}\rangle_N
+ \leq B+\langle \mathcal{E}\rangle_0-\langle \mathcal{E}\rangle_N,
  \label{eq:continuing-budget}
 \end{equation}
 where expected cumulative work stays within the supplied allowance $B$ at every prefix. This bounds expectations. Separate constructions track a store on each trajectory, include finite sources, charge sensor clearing and prepend preparation. They specify when a mean allowance represents an available resource; an expected budget alone permits overdrawn paths.
@@ -474,13 +481,13 @@ Under the quenched frequency spread of \waveSpread~rad\,s$^{-1}$ that the spatia
 
 Which windings persist has a criterion behind it. Linearizing the phase model about a winding returns a coupling of the same translation-invariant form, each separation reweighted by the cosine of the phase the winding advances across it (\texttt{hasDerivAt\_\allowbreak charJacobian}). That reweighted kernel is again even in the separation, so the same characters diagonalize it and every mode's rate is one of its eigenvalues. Where the winding advances by at most a quarter turn across every separation the coupling reaches, the reweighted kernel is nonnegative and no rate is positive (\texttt{charJacobian\_\allowbreak stable\_\allowbreak of\_\allowbreak quarter\_\allowbreak turn}); where some rate is positive, that mode grows without bound (\texttt{charJacobian\_\allowbreak growing\_\allowbreak mode}). Moving coupling mass to longer separations is what carries a phase advance past a quarter turn, and that is the mechanism the decay-length sweep varies. The criterion bounds rates rather than trajectories: asymptotic stability is not proved, so the states that persist occupy a narrower range than it admits, and the boundary quoted above is measured and not derived from it. The same kernel is the potential's curvature, so a winding at $r=0$ is not the global minimum the convergence result places its limit at, and one carrying a growing mode is not a local minimum either: that result's quarter-turn hypothesis must exclude a winding rather than merely decline to cover it (\texttt{char\_\allowbreak not\_\allowbreak potential\_\allowbreak min}).
 
-An amplitude layer decides which of these states exist, and leaves what the resultant reports unchanged. Every oscillator of the phase model sits on the unit circle, so a field with an amplitude node has no representation in those dynamics. The real Stuart--Landau extension supplies one on the same coupling, and leaves intact the gradient structure the convergence results rest on. The state becomes $z_i\in\mathbb{C}$ with $\dot z_i=(\mu-|z_i|^2)z_i+\sum_j A_{ij}(z_j-z_i)$. Its phase equation is the Kuramoto equation with each coupling weighted by a ratio of amplitudes (\texttt{amplitude\_\allowbreak phase\_\allowbreak is\_\allowbreak kuramoto}). The phase model is this one with the amplitude ratios set to one, rather than a separate object.
+An amplitude layer decides which of these states exist, and leaves what the resultant reports unchanged. Every oscillator of the phase model sits on the unit circle, so a field with an amplitude node has no representation in those dynamics. The real Stuart--Landau extension supplies one on the same coupling, and leaves intact the gradient structure the convergence results rest on. The state becomes $z_i\in\mathbb{C}$ with $\dot z_i=(\Gamma-|z_i|^2)z_i+\sum_j A_{ij}(z_j-z_i)$. Its phase equation is the Kuramoto equation with each coupling weighted by a ratio of amplitudes (\texttt{amplitude\_\allowbreak phase\_\allowbreak is\_\allowbreak kuramoto}). The phase model is this one with the amplitude ratios set to one, rather than a separate object.
 
-What the added degree of freedom decides is which windings exist at all. On a periodic array of any dimension, this sheet included, a winding requires $\mu+\lambda>0$. Here $\lambda=\sum_d f_d(\cos\phi_d-1)$ is the eigenvalue the kernel supplies, summed over separations, with $\phi_d$ the phase the winding advances across $d$ (\texttt{exists\_\allowbreak charState\_\allowbreak iff}; on the ring $\phi_d=2\pi qd/n$). For the nonnegative kernels used here $\lambda\leq0$, and moving coupling mass to longer separations lowers it further. A broad enough kernel therefore removes the winding outright. The sweep above reaches that same boundary by a different route: the phase model retains every winding at every coupling, and loses this one under integration instead. The two layers bound the same regime from opposite sides. A phase recording does not separate a state the amplitude layer excludes from one the dynamics fails to sustain.
+What the added degree of freedom decides is which windings exist at all. On a periodic array of any dimension, this sheet included, a winding requires $\Gamma+\lambda>0$, with $\Gamma$ the layer's linear gain. Here $\lambda=\sum_d f_d(\cos\Delta\theta_d-1)$ is the eigenvalue the kernel supplies, summed over separations, with $\Delta\theta_d$ the phase the winding advances across $d$ (\texttt{exists\_\allowbreak charState\_\allowbreak iff}; on the ring $\Delta\theta_d=2\pi qd/n$). For the nonnegative kernels used here $\lambda\leq0$, and moving coupling mass to longer separations lowers it further. A broad enough kernel therefore removes the winding outright. The sweep above reaches that same boundary by a different route: the phase model retains every winding at every coupling, and loses this one under integration instead. The two layers bound the same regime from opposite sides. A phase recording does not separate a state the amplitude layer excludes from one the dynamics fails to sustain.
 
 Three limits bound the layer for a reader of the cortical literature. These states are windings and not spirals, and on the sheet that is a theorem rather than a shortage of dimensions: equal modulus at every site puts the phase circulation at exactly zero on every plaquette, and on a periodic sheet the circulations of \emph{any} field sum to zero, so a lone defect is not a state of this geometry at all. Relaxational dynamics has no propagation speed, which is the quantity a cortical wave measurement leads with. And $|z|$ is a normal-form radius, which a measured envelope is not; this work identifies the two nowhere. Supplemental Material gives the sweep, its uniform control, the amplitude layer, the standing wave it admits inside the band, the potential's curvature at a winding and the defect theorems, together with the remaining limits of both.
 
-A vanishing resultant is the absence of global agreement and not of agreement. Eq.~\eqref{eq:main-content-coherence} read on a nearest-neighbour patch of a winding gives a discrepancy bound of $2\sqrt{2}\,L\,|\sin\phi|$, with $\phi$ the phase advanced across the patch, which falls to zero as the same winding is spread over more sites (\texttt{chord\_\allowbreak le\_\allowbreak of\_\allowbreak char\_\allowbreak patch}), while the global form of the same bound is vacuous at $r=0$. Encoders shared on overlaps therefore still bound content disagreement inside a patch of a state that no global observable calls coherent. The winding number itself stays unconnected to content. It is, however, a property of the state rather than of the cover read on it. On a ring the whole turns dropped by the winding's affine local lifts are zero at every site but the wrap, where the residue resets, and they sum around the loop to $q$; a nonzero $q$ obstructs every global real-valued phase lift, so one state at one coupling has resultant exactly zero and degree $q$ (\texttt{winding\_\allowbreak degree\_\allowbreak obstructs}). Reweighting the sites moves the first quantity and redrawing the loop's intermediate transitions leaves the second where it was. The scope is the ring's: this is a loop's winding and not a spiral, the transitions are those of the affine lifts rather than of an unwrapped measurement, and the integer is identified with no cortical observable.
+A vanishing resultant is the absence of global agreement and not of agreement. Eq.~\eqref{eq:main-content-coherence} read on a nearest-neighbour patch of a winding gives a discrepancy bound of $2\sqrt{2}\,L\,|\sin\Delta\theta|$, with $\Delta\theta$ the phase advanced across the patch, which falls to zero as the same winding is spread over more sites (\texttt{chord\_\allowbreak le\_\allowbreak of\_\allowbreak char\_\allowbreak patch}), while the global form of the same bound is vacuous at $r=0$. Encoders shared on overlaps therefore still bound content disagreement inside a patch of a state that no global observable calls coherent. The winding number itself stays unconnected to content. It is, however, a property of the state rather than of the cover read on it. On a ring the whole turns dropped by the winding's affine local lifts are zero at every site but the wrap, where the residue resets, and they sum around the loop to $q$; a nonzero $q$ obstructs every global real-valued phase lift, so one state at one coupling has resultant exactly zero and degree $q$ (\texttt{winding\_\allowbreak degree\_\allowbreak obstructs}). Reweighting the sites moves the first quantity and redrawing the loop's intermediate transitions leaves the second where it was. The scope is the ring's: this is a loop's winding and not a spiral, the transitions are those of the affine lifts rather than of an unwrapped measurement, and the integer is identified with no cortical observable.
 
 This qualifies what a phase trace can establish. An onset criterion stated in $r$ alone registers a change of basin as readily as a change of coupling. The protocol of Section~\ref{sec:protocol} therefore needs a spatial observable beside the resultant.
 
@@ -538,9 +545,9 @@ The spatial reduction is also testable. A row-sum aggregation at zero diagonal t
 
 The field commitment requires physical evidence beyond a choice of mathematical representation, and the available support comparisons do not supply it. A finite matrix spread over positive-mass cells preserves its total coupling and phase correlation exactly, while point-supported vanishing under an atomless measure and a disadvantage from excluding a better-correlated pair concern specified support constraints; Section~\ref{sec:gpu} reads the same comparisons against a digital candidate. Neither supplies energy prices.
 
-A spike-time shift alone supplies no coupling rate. The dimensionless product of population size $N$, timing sensitivity $s$, field amplitude $E$ and frequency $f$ needs a conversion rate $\gamma$:
+A spike-time shift alone supplies no coupling rate. The dimensionless product of population size $N$, timing sensitivity $\mathcal{T}$, field amplitude $E$ and frequency $f$ needs a conversion rate $\gamma$:
 \begin{equation}
- K_{\mathrm{eff}}=\gamma N s E f.
+ K_{\mathrm{eff}}=\gamma N \mathcal{T} E f.
  \label{eq:keff}
 \end{equation}
 This rate describes how induced timing shifts accumulate into drift. Neither it nor the installation factor $\kappa$ follows from a heat bound. Testing the physical threshold requires independent estimates of the interaction kernel, its aggregation and diffusion in the same cortical regime.
