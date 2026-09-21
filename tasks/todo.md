@@ -133,7 +133,7 @@ or optical medium.
       two ways of being conscious, and it prices nothing until the mode
       decomposition is declared — the same `κ` problem, in the same place.
 
-- [ ] **C5 — Decline super-Turing computation, in the publication.** Real-valued
+- [x] **C5 — Decline super-Turing computation, in the publication.** Real-valued
       weights buy unbounded capacity only at infinite precision, and any `D > 0`
       destroys it. The paper's own noise floor is the reason, which makes one
       sentence in `sec:gpu` or `sec:scope` cheaper than the objection it
@@ -142,7 +142,7 @@ or optical medium.
 
 ### What is electromagnetic, and what is not
 
-- [ ] **C6 — Say the development is substrate-neutral.** `sec:unconditional`
+- [x] **C6 — Say the development is substrate-neutral.** `sec:unconditional`
       claims substrate-independence for five results; the conditional chain
       E56–E89 is equally substrate-neutral modulo calibration, and
       `Phase9_EMIdentification`'s own scope note says so. Stating it costs
@@ -151,7 +151,7 @@ or optical medium.
       nonatomic substrate named where Table S1's E56 row already discusses the
       predicate.
 
-- [ ] **C7 — Separate EM falsification from field falsification.** The
+- [x] **C7 — Separate EM falsification from field falsification.** The
       supplement's falsification conditions (`supplementary.tex:1643`) falsify
       *some continuous coupling field*, not an electromagnetic one. The
       conductivity and geometry handle of item 2 in the audit is the only
@@ -433,7 +433,7 @@ candidate is still prose, and it is the half a reader checks.
       repository supplies against itself (`fieldCorrelation_cellKernel`,
       `no_forced_gap_of_best_wired`), and those controls stay.
 
-- [ ] **D5 — Say the asymmetry in the publication.** Once D1 and D2 exist,
+- [x] **D5 — Say the asymmetry in the publication.** Once D1 and D2 exist,
       `sec:gpu`'s two middle paragraphs state theorems rather than
       architectural observations, and the section can say which obstruction
       bites where without implying a verdict. Table S1 rows for every
@@ -677,3 +677,60 @@ neutralized by the controls this repository supplies against itself —
 **What remains.** C5–C7 and D5, all publication-only, in one editorial pass.
 `lake build` is clean with no warnings; the axiom audit covers 5629 declarations
 in 91 modules, up from 5619.
+
+### 2026-09-21 — C5–C7 and D5, the editorial pass, and the block closed
+
+**`sec:gpu`, "Codes, not reports" (D5).** The counting constraint names its
+channel: `tokenChannel` for the token sequence a model emits, because that is
+what its next step reads, `card_le_card_tokens` for the vocabulary size raised
+to the number of steps, and `card_le_card_tokens_one` where it bites. The
+paragraph says the bound is slack over an extended exchange and constrains a
+single-step claim, and that a claim resting on activations has declared a
+different channel.
+
+**`sec:gpu`, "The region, not the readout" (D5, C8, C10).** The causal-mask
+sentence stated an architectural observation; `mask_ball_subset_le` and
+`mask_no_guarantee` make it a theorem firing at every deadline at once, with the
+one-forward-pass scope stated. The deadline bound is then **retargeted**, which
+was C8's point: it is weakest on the attention graph, where fan-in is the
+context length, and has force on the physical interconnect, where
+`card_ball_le_mul_pow` gives rounds growing like the logarithm of the device
+count and `le_degree_of_reaches_one` prices the one-round deadline in wiring.
+`not_outside_past_of_isFullSupport` states the other side, with the finite-speed
+calibration named so that it does not read as an escape from latency.
+
+**`sec:gpu`, "What is not excluded" (D4, C5).** The capacity comparison, stated
+as a criterion: the continuum out-resolves `2^b` codes exactly when its volume
+exceeds `2^b` resolution cells, and below that the inequality runs the other
+way. C5 rides on the same sentence — real-valued states carry unbounded capacity
+only at unbounded precision, and the noise floor the dynamics is stated against
+removes it, so no computation beyond a Turing machine's is credited.
+
+**`sec:scope` (C6).** Substrate-neutrality stated for the conditional chain and
+not only for the unconditional results, with `no_site_dominates` named and its
+vacuity on a nonatomic substrate said where it matters. What carries the
+electromagnetic identification is the calibration and the extracellular-geometry
+argument, which is the one place a field equation enters.
+
+**`supplementary.tex`, falsification conditions (C7).** The six protocol
+requirements are split: the second, the calibrated geometry-to-coupling
+relation, is the only EM-discriminating one; the rest are satisfied or failed
+identically by ion diffusion, gap junctions as a density, astrocytic calcium or
+a mechanical medium. A null result now lands on the right claim.
+
+**Table S1.** Three rows added — the deadline and its wiring cost, the channel a
+self-report is counted in, and capacity at a declared resolution in both
+directions — each ending on what its identifiers do not reach;
+`no_site_dominates` went into the existing E56 row.
+`check_table_coverage.py` reports 35 declarations named by the article, all
+mapped.
+
+**Notation.** The interconnect fan-in is `\nu`, with a Table 1 row, because `d`
+already means a metric and a separation in this article.
+
+**Artifacts.** All three tracked PDFs rebuilt, two passes each, with the
+overfull-box count unchanged at zero against `HEAD`; `arxiv_submit/` rebuilt
+from scratch and compiled from the unpacked tarball at 96 pages.
+
+**The C and D blocks are closed.** The R research programme in
+`tasks/research_programme.md` stays live and is untouched by this pass.
