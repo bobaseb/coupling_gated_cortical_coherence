@@ -23,6 +23,29 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-21 — A spectral bound measured against the maximum chord
+
+The coupling-graph route bounds the content residual at a named pair by
+`L pi |omega - Omega| / (lambda_2 sqrt 2)` with no population count in it, and
+the supplement's two-oscillator witness reported its chord bound of `pi/4` as a
+constraint on the strength of `chord_le_two` — that is, on the strength of its
+falling below the largest a chord can be.
+
+**That comparison is withdrawn.** The theorem's quarter-turn hypothesis,
+`|theta i - theta j| <= pi/2` at every pair, already bounds every chord by
+`sqrt 2` before any coupling datum is read, so the maximum chord is not the
+baseline the route has to beat. The reading adds something exactly where
+`lambda_2 > pi |omega - Omega| / 2`, and that condition is now stated in both
+publication files, in the Table S1 row and in the primer. The witness still
+clears it: `pi/4 < sqrt 2`.
+
+Nothing in Lean changed. `chord_le_two` is true of the witness and
+`detunedPhase_bound_informative` proves `pi/4 < 2`; what was wrong was the
+weight the prose put on that comparison, and a route whose informative regime is
+not stated is a route a reader cannot price.
+
+---
+
 ## 2026-09-20 — An interval read against 1/2 instead of against its estimator
 
 Both publication files reported the finite-`N` bifurcation-delay fit,
