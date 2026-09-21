@@ -334,12 +334,18 @@ $\Sigma$ & dimensionless entropy production of the finite path model; distinct f
 $D_{KL}(P\|Q)$ & Kullback--Leibler divergence \\
 $S$, $H$ & entropy (thermodynamic; Shannon) \\
 $k_B$, $T$ & Boltzmann constant; temperature \\
+$k_BT$ & thermal scale of a register, in energy units \\
+$B$ & heat budget allocated to a named substep \\
 $\mathcal{V}$ & vacuum manifold (space of energy minima) \\
 $\pi_n$ & $n$-th homotopy group \\
 $\mathcal{F}$ & a sheaf; $\mathcal{F}(U)$ its sections over the open set $U$ \\
 $\mu$ & a measure on the substrate, normalized to total mass one \\
 $\gamma$ & the rate calibration converting a field estimate to a coupling \\
+$\Lambda$ & contraction (Lipschitz) factor of a self-prediction map, $<1$ \\
 $\tau$ & time interval over which the contraction rate is evaluated \\
+$\lambda$ & extracellular diffusion tortuosity (Part~VI); also a kernel eigenvalue \\
+$d_{\min}$ & pairwise separation of a declared family of states \\
+$L$ & Lipschitz constant of an encoder or readout \\
 \hline
 \end{longtable}
 \end{center}
@@ -1019,15 +1025,15 @@ Lean proves that this is the law produced by the composed perception--action
 channels. The second initial law is constructed from the first final law;
 an independently chosen distribution cannot replace it.
 
-At one common thermal scale $\theta=k_BT>0$, add the two substep balances:
+At one common thermal scale $k_BT>0$, add the two substep balances:
 \[
  \Sigma_A+\Sigma_M
- =H(p_2)-H(p_0)+\frac{\langle Q_A\rangle+\langle Q_M\rangle}{\theta}\ge0.
+ =H(p_2)-H(p_0)+\frac{\langle Q_A\rangle+\langle Q_M\rangle}{k_BT}\ge0.
 \]
 The intermediate entropy cancels because a coordinate exchange preserves
 joint entropy. Neither $p_1$ nor $p_2$ has to be an equilibrium distribution.
 If the total mean heat is at most $B$, the complete update therefore satisfies
-$H(p_0)-H(p_2)\le B/\theta$.
+$H(p_0)-H(p_2)\le B/(k_BT)$.
 
 Energy accounting uses one observable $E(x,s)$ for both substeps, evaluated
 in the appropriate coordinate order. Under each substep's first law, with
@@ -1418,7 +1424,7 @@ A run fits that allowance only if it stays nonnegative at every earlier
 stage too. For one common energy and temperature, the first law and entropy
 balance add across the actual sequence:
 \[
- \theta[H(p_0)-H(p_N)]\leq Q_{<N}
+ k_BT[H(p_0)-H(p_N)]\leq Q_{<N}
  =W_{<N}+\langle E\rangle_0-\langle E\rangle_N.
 \]
 The store and the system's energy loss therefore bound the joint entropy
@@ -1588,7 +1594,7 @@ log-ratio splits exactly into their three own. So there is a well-defined
 answer to what clearing the memory cost, rather than a leftover. When the
 erasure lands on $\nu$ whatever it is given, that answer is
 \[
- \langle Q_M\rangle=\theta\,[H(\mu)-H(\nu)]+\theta\,D_{KL}(\mu\|\nu),
+ \langle Q_M\rangle=k_BT\,[H(\mu)-H(\nu)]+k_BT\,D_{KL}(\mu\|\nu),
 \]
 where $\mu$ is what the memory held. The first term is Landauer's: the entropy
 you removed. The second is the price of using one fixed channel on a law it
@@ -1890,8 +1896,8 @@ shrinking to zero, together with continuity and integrability, give
 \[
  E_n(f_A)\longrightarrow L_A=g\,d\int_S b\,d\mu.
 \]
-The process's budget gives $d\leq B/\theta$. If the total profile is
-nonnegative, this bounds the limit by $g(B/\theta)\int_S b\,d\mu$.
+The process's budget gives $d\leq B/(k_BT)$. If the total profile is
+nonnegative, this bounds the limit by $g(B/(k_BT))\int_S b\,d\mu$.
 The budget constrains the amplitude; the mesh assumptions establish
 convergence. Refinement does not execute the channel again, so $n$ is a
 spatial index and not the learning clock.
@@ -4456,9 +4462,9 @@ inequality: going via a third point cannot shorten the direct distance.
 \what
 A \emph{metric space} is a set with a notion of distance. It is
 \emph{complete} when every Cauchy sequence converges---no limits are missing.
-A map $f$ is a \emph{contraction} with rate $\lambda<1$ if it shrinks all
+A map $f$ is a \emph{contraction} with rate $\Lambda<1$ if it shrinks all
 distances by at least that factor:
-$d(f(x),f(y))\le\lambda\,d(x,y)$.
+$d(f(x),f(y))\le\Lambda\,d(x,y)$.
 
 \begin{quote}
 \textbf{Banach's fixed-point theorem} \citep{banach1922}. A contraction on a
@@ -4470,7 +4476,7 @@ map from any starting point converges to it.
 The proof is three lines: iterates form a Cauchy sequence because distances
 shrink geometrically; completeness supplies a limit; continuity makes the limit
 a fixed point; and two fixed points would have to be at distance
-$\le\lambda\,d$ from each other, forcing $d=0$.
+$\le\Lambda\,d$ from each other, forcing $d=0$.
 
 \why
 The framework proposes that a minimal self involves an accurate internal
@@ -4487,7 +4493,7 @@ does not describe a temporal prediction without a further dynamical model.
 \textbf{Theorem (Conditional auto-resonance).} On a nonempty complete metric space of
 global sections, a self-prediction map with Lipschitz rate
 \[
- \lambda \;=\; e^{-(K-\Kc)\tau/2} \;<\; 1
+ \Lambda \;=\; e^{-(K-\Kc)\tau/2} \;<\; 1
 \]
 has a unique fixed point.
 \end{quote}
@@ -4501,12 +4507,12 @@ is the growth rate of the incoherent
 state's instability, so supercriticality $K>\Kc$ makes the factor less than one.
 Relaxation about the \emph{coherent} branch is twice as fast---linearizing
 $\dot r = \tfrac12(K-2D)r - cr^3$ about its stable fixed point gives
-$(K-\Kc)$---so $\lambda$ is the larger of the two factors and the Lipschitz
+$(K-\Kc)$---so $\Lambda$ is the larger of the two factors and the Lipschitz
 obligation stated with it is the weaker. Both are below one on exactly the
 half-plane $K>\Kc$.
 Here $\tau>0$ is a specified interval, and a Lipschitz bound says output
-distances are at most $\lambda$ times input distances. Below threshold this
-particular formula gives $\lambda\ge1$, so it does not supply the strict
+distances are at most $\Lambda$ times input distances. Below threshold this
+particular formula gives $\Lambda\ge1$, so it does not supply the strict
 factor below one required by the contraction theorem. Other maps can still
 be contractions at other rates; what fails is this rate's contraction
 condition, not the existence of every possible contraction.
@@ -4525,23 +4531,23 @@ Suppose its reconstruction error is at most $\varepsilon$, measured with the
 same metric as the contraction. Since $F(s_*)=s_*$,
 \[
 d(s,s_*)\leq d(s,F(s))+d(F(s),F(s_*))
-\leq\varepsilon+\lambda d(s,s_*).
+\leq\varepsilon+\Lambda d(s,s_*).
 \]
 Moving the last term to the left gives
 \[
-d(s,s_*)\leq\frac{\varepsilon}{1-\lambda}.
+d(s,s_*)\leq\frac{\varepsilon}{1-\Lambda}.
 \]
 The exact fixed point remains unique; several approximately reconstructed
 states may lie near it. For the three-site witness, the silent profile
 $(0,0,0)$ reconstructs as $(0,1,0)$, while the fixed profile is $(0,2,0)$.
 The reconstruction error is one and the distance to the fixed point is two.
-With $\lambda=1/2$, the bound is attained exactly.
+With $\Lambda=1/2$, the bound is attained exactly.
 
 The denominator measures how strongly successive predictions contract.
-At the stipulated rate $\lambda=e^{-(K-2D)\tau/2}$, the proved bounds are
+At the stipulated contraction factor $\Lambda=e^{-(K-2D)\tau/2}$, the proved bounds are
 \[
 \frac{2\varepsilon}{(K-2D)\tau}
-\leq\frac{\varepsilon}{1-\lambda}
+\leq\frac{\varepsilon}{1-\Lambda}
 \leq\frac{2\varepsilon}{(K-2D)\tau}+\varepsilon
 \qquad(K>2D,\ \tau>0,\ \varepsilon\geq0).
 \]
@@ -4552,8 +4558,8 @@ away. At zero reconstruction error, its distance from the fixed point is zero
 at every supercritical coupling.
 
 If the state is also displaced by at most $\delta$, its new reconstruction
-error is at most $\varepsilon+(1+\lambda)\delta$, giving distance at most
-$[\varepsilon+(1+\lambda)\delta]/(1-\lambda)$. The errors add and the inverse
+error is at most $\varepsilon+(1+\Lambda)\delta$, giving distance at most
+$[\varepsilon+(1+\Lambda)\delta]/(1-\Lambda)$. The errors add and the inverse
 contraction gap amplifies the bound. This calculation holds the map fixed and
 assumes the displacement bound. It supplies no mechanism for achieving
 agreement between local descriptions.
@@ -4734,8 +4740,8 @@ The count also generalizes from an alphabet to a metric, which is the form a
 continuous family of states needs. With a metric on the codes and an
 $L$-Lipschitz readout, the triangle inequality that forced distinct codes forces
 \emph{separated} ones: a family reconstructed within $\varepsilon$ whose members
-lie pairwise more than $r$ apart has $\delta$-separated codes whenever
-$\delta L\leq r-2\varepsilon$ (\id{isSeparated\_image\_encode}), so the family
+lie pairwise more than $d_{\min}$ apart has $\delta$-separated codes whenever
+$\delta L\leq d_{\min}-2\varepsilon$ (\id{isSeparated\_image\_encode}), so the family
 is no larger than the $\delta$-packing number of the codes the encoder writes
 (\id{encard\_le\_packingNumber\_range}), and under resonance of the region
 itself (\id{encard\_le\_packingNumber\_restrictToAvatar}). At the whole
@@ -5994,7 +6000,7 @@ whose terms eventually become arbitrarily close to one another.
 from the slope of the log-density on $\cos\theta$.
 \item[Conditional mutual information] Dependence between two variables
 remaining when a third is known, averaged over that third variable's values.
-\item[Contraction] A map shrinking all distances by a factor $\lambda<1$.
+\item[Contraction] A map shrinking all distances by a factor $\Lambda<1$.
 \item[Coupling] An influence of one oscillator's phase on another's speed;
 $K$ controls its strength in the uniform model.
 \item[Cover] A collection of regions together covering the chosen whole space.
