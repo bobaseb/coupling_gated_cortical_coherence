@@ -422,7 +422,7 @@ candidate is still prose, and it is the half a reader checks.
       or residual-stream subspaces as the parts that agree, and it applies to
       the cortical proposal identically, which is the reason to state it.
 
-- [ ] **D4 — The resource-matched comparison `Phase7_Rigidity` §3 lacks.** C2
+- [x] **D4 — The resource-matched comparison `Phase7_Rigidity` §3 lacks.** C2
       supplied the prerequisite floor; this is the thing it was a prerequisite
       for. **The sign of the result is not predictable and this item is not to
       be written as though it were.** Once `b` is a real number the comparison
@@ -634,3 +634,46 @@ counterexample §4's scope note already concedes.
 file is touched: none of the new identifiers is named in `main.tex`. `lake
 build` is clean with no warnings; the axiom audit covers 5619 declarations in 91
 modules, up from 5614.
+
+### 2026-09-21 — D4 built, and the sign it returns
+
+**The sign, first, because the item was written not to promise one.** The
+comparison returns a **criterion and not a verdict**, and continuity is not on
+either side of it. A continuum code space read at a finite resolution is a
+finite alphabet whose capacity is a bit count, and whether it beats a `b`-bit
+digital alphabet is decided by the region's measure against `2^b` resolution
+cells — a volume, a noise floor and a dimension, every one of them measured.
+Nothing in the comparison favours an analog medium as such.
+
+**`Phase6_Reconstruction.lean`, the `Floor` section.** C2 supplied the floor to
+match `encard_le_packingNumber_range`'s ceiling, which is what lets both sides
+be counted in one currency: mutually resolvable codes.
+`two_pow_lt_packingNumber_of_lt_measure` is the comparison — the continuum
+strictly out-resolves `2^b` exactly when `2^b · v < μ A` —
+and `two_pow_lt_packingNumber_of_lt_measure_haar` reads it on a
+finite-dimensional real space as volume against `2^b · δ^d`, where the exchange
+rate is `b` against `log₂(volume) − d log₂ δ`.
+`Encoding.encard_le_two_pow_of_packingNumber_le` runs it the other way, reaching
+`card_le_two_pow`'s conclusion with no alphabet to count, so the statement is a
+comparison rather than a boast in one direction.
+
+**`Examples/Phase6.lean` §33.** Both signs on one code space, the unit interval
+under Lebesgue measure. `fine_resolution_beats_two_bits`: at `δ = 1/16` four
+cells come to `1/2` and the interval's measure exceeds it, so the continuum
+holds more than `2^2` codes. `coarse_resolution_holds_one_code`: at `δ = 2` the
+interval's diameter is below the separation two codes would need, so it holds
+one, and any alphabet matches. The volume and the substrate are the same in
+both; the resolution is what moved.
+
+*Does not establish.* Any mechanism: the floor is a property of the code space,
+so nothing says an encoder writes those codes, that a readout separates them, or
+that the states they would encode exist. Any calibration: `δ` and `L` are
+declared, an uncalibrated gain still evacuates the ceiling in the direction the
+module records, and the two bounds meet only where both are measured. And
+nothing about §3 of `Phase7_Rigidity`'s two support comparisons, which stay
+neutralized by the controls this repository supplies against itself —
+`fieldCorrelation_cellKernel` and `no_forced_gap_of_best_wired` are unchanged.
+
+**What remains.** C5–C7 and D5, all publication-only, in one editorial pass.
+`lake build` is clean with no warnings; the axiom audit covers 5629 declarations
+in 91 modules, up from 5619.

@@ -9,11 +9,20 @@
   the one-site avatar, so it contracts by exactly half of what the avatar sees
   without being constant, with a unique fixed point, and its contraction
   constant is read off `K` and `D` rather than stipulated.
+
+  §33. The capacity comparison of `Phase6_Reconstruction`, on both of its signs.
+  The unit interval of the reals is a continuum code space; at a fine resolution
+  it holds strictly more mutually resolvable codes than a two-bit alphabet, and
+  at a coarse one it holds a single code, which any alphabet matches. The
+  comparison is decided by the resolution and the volume and by nothing about
+  continuity, and a witness exhibiting only the favourable sign would say the
+  opposite.
 -/
 
 import PhysicsOfConsciousness.Phase1_Primitives
 import PhysicsOfConsciousness.Phase5_GlobalSection
 import PhysicsOfConsciousness.Phase6_ReflexiveTopology
+import PhysicsOfConsciousness.Phase6_Reconstruction
 import PhysicsOfConsciousness.Phase8_ContinuousField
 import PhysicsOfConsciousness.Examples.Cortex
 
@@ -1000,6 +1009,72 @@ theorem cortexBlind_not_determined :
   norm_num at h2
 
 end ReflexiveSelf
+
+/-! ## 33. Both signs of the capacity comparison
+
+`two_pow_lt_packingNumber_of_lt_measure` says a continuum code space
+out-resolves a `b`-bit alphabet exactly when its measure exceeds `2 ^ b`
+resolution cells. "Exactly when" is the part that needs a witness on each side:
+a comparison whose favourable sign is the only one exhibited reads as a claim
+about continuity, which is what it is not.
+
+The code space here is the unit interval of `ℝ` under Lebesgue measure, which
+has measure one and whose `δ`-balls measure `2δ`. At `δ = 1/16` the interval
+holds more than four such codes, so it beats two bits. At `δ = 2` it holds one,
+because its diameter is below the separation any two codes would need, and every
+alphabet matches or beats it.
+
+Nothing about the substrate changed between the two. -/
+
+section CapacityComparison
+
+open PhysicsOfConsciousness.Reconstruction
+
+/-- The code space: measure one. -/
+theorem volume_unitInterval : volume (Set.Ioo (0 : ℝ) 1) = 1 := by
+  rw [Real.volume_Ioo]
+  norm_num
+
+/-- Its resolution cell at `δ = 1/16`: the `δ`-balls of `ℝ` measure `2δ`. -/
+theorem ball_measure_unitInterval (x : ℝ) :
+    volume (Metric.closedBall x ((1 / 16 : ℝ≥0) : ℝ)) ≤ ENNReal.ofReal (1 / 8 : ℝ) := by
+  rw [Real.volume_closedBall]
+  norm_num
+
+/-- **The favourable sign.** Four resolution cells of measure `1/8` come to
+`1/2`, which the interval's measure exceeds, so the continuum code space holds
+strictly more than the `2 ^ 2` codes a two-bit alphabet carries. -/
+theorem fine_resolution_beats_two_bits :
+    ((2 ^ 2 : ℕ) : ℕ∞) < Metric.packingNumber (1 / 16 : ℝ≥0) (Set.Ioo (0 : ℝ) 1) := by
+  refine two_pow_lt_packingNumber_of_lt_measure volume (v := ENNReal.ofReal (1 / 8 : ℝ))
+    (by simp) ball_measure_unitInterval ?_
+  rw [volume_unitInterval]
+  rw [show ((2 : ℝ≥0∞) ^ 2) = 4 by norm_num, ← ENNReal.ofReal_ofNat 4,
+    ← ENNReal.ofReal_mul (by norm_num)]
+  rw [show ((1 : ℝ≥0∞)) = ENNReal.ofReal 1 by simp]
+  exact (ENNReal.ofReal_lt_ofReal_iff (by norm_num)).mpr (by norm_num)
+
+/-- **The other sign, on the same code space.** At resolution `2` the interval
+holds a single code: its diameter is one, so a `1`-cover of one point covers it
+and no two of its points are `2`-separated. Every alphabet of at least one
+symbol matches that, and `encard_le_two_pow_of_packingNumber_le` then caps a
+declared family at the alphabet rather than at the continuum.
+
+The volume did not change and the substrate did not change. The resolution
+did. -/
+theorem coarse_resolution_holds_one_code :
+    Metric.packingNumber (2 : ℝ≥0) (Set.Ioo (0 : ℝ) 1) ≤ 1 := by
+  have hdiam : Metric.ediam (Set.Ioo (0 : ℝ) 1) ≤ ((1 : ℝ≥0) : ℝ≥0∞) := by
+    simp
+  have h := Metric.packingNumber_two_mul_le_externalCoveringNumber (1 : ℝ≥0)
+    (Set.Ioo (0 : ℝ) 1)
+  refine le_trans ?_ (le_trans h (Metric.externalCoveringNumber_le_one_of_ediam_le hdiam))
+  norm_num
+
+#print axioms fine_resolution_beats_two_bits
+#print axioms coarse_resolution_holds_one_code
+
+end CapacityComparison
 
 end Examples
 end PhysicsOfConsciousness

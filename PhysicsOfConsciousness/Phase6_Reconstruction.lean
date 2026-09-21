@@ -539,7 +539,33 @@ neither.
 Neither theorem needs the encoder, so both are stated on a bare metric measure
 space; `Encoding.measure_le_mul_packingNumber_range` carries the first to the
 codes an encoder writes, which is the only form the reconstruction argument
-uses. -/
+uses.
+
+## The comparison the two bounds make possible
+
+With a ceiling and a floor on one quantity, the continuum and the alphabet can
+be counted in one currency — mutually resolvable codes — and compared at matched
+resource. `two_pow_lt_packingNumber_of_lt_measure` is that comparison: a
+continuum code space out-resolves a `b`-bit alphabet exactly when its measure
+exceeds `2 ^ b` resolution cells, which on a finite-dimensional real space
+(`two_pow_lt_packingNumber_of_lt_measure_haar`) reads as volume against
+`2 ^ b · δ^d`. `Encoding.encard_le_two_pow_of_packingNumber_le` runs it the
+other way: where the packing number is at most `2 ^ b`, the declared family is
+capped at `2 ^ b` exactly as `card_le_two_pow` caps it for a declared alphabet.
+
+**What the comparison returns is a criterion, not a verdict.** Which side wins
+is decided by the measure, the resolution and the dimension — measured
+quantities, every one — and continuity decides nothing on its own. A continuum
+code space read at a *finite* resolution is a finite alphabet, and its capacity
+is a bit count; the resolution is a noise floor, which every physical medium
+has. `Examples/Phase6.lean` §33 exhibits both signs on the unit interval, at a
+fine resolution and at a coarse one, because a witness showing only the
+favourable sign would misrepresent what is proved.
+
+Two things the comparison still does not supply. A mechanism: the floor is a
+property of the code space, so nothing says an encoder writes those codes or a
+readout separates them. And a calibration: `δ` and `L` are declared here, and
+the comparison is informative only where both are measured. -/
 
 section Floor
 
@@ -609,6 +635,29 @@ theorem lt_packingNumber_of_mul_lt_measure (μ : Measure X) {δ : ℝ≥0} {A : 
   rw [mul_comm] at hchain
   exact absurd (lt_of_lt_of_le hn hchain) (lt_irrefl _)
 
+/-- **The resource-matched comparison.** A continuum code space holds strictly
+more mutually resolvable codes than a `b`-bit alphabet exactly when its measure
+exceeds `2 ^ b` resolution cells, where a cell is the largest a `δ`-ball can
+measure.
+
+Both sides are counted in one currency: `card_le_two_pow` caps a declared family
+by an alphabet of `2 ^ b` codes, and the packing number is what
+`encard_le_packingNumber_range` caps it by when the code space is continuous. So
+this is a comparison and not a boast in one direction —
+`Encoding.encard_le_two_pow_of_packingNumber_le` is the same statement with the
+inequality reversed, and below the threshold it is the alphabet that is larger.
+
+What decides it is `v` and `μ A`: a noise floor and a volume, both measured
+quantities. Continuity contributes nothing by itself, and a continuum code space
+read at a finite resolution is a finite alphabet whose capacity is a bit
+count. -/
+theorem two_pow_lt_packingNumber_of_lt_measure (μ : Measure X) {δ : ℝ≥0} {A : Set X}
+    {v : ℝ≥0∞} {b : ℕ} (hv0 : v ≠ 0) (hv : ∀ x, μ (Metric.closedBall x (δ : ℝ)) ≤ v)
+    (hb : (2 : ℝ≥0∞) ^ b * v < μ A) :
+    ((2 ^ b : ℕ) : ℕ∞) < Metric.packingNumber δ A := by
+  refine lt_packingNumber_of_mul_lt_measure μ hv0 hv ?_
+  simpa using hb
+
 end PackingFloor
 
 section EuclideanFloor
@@ -632,6 +681,30 @@ theorem measure_le_pow_mul_packingNumber (μ : Measure E) [μ.IsAddHaarMeasure]
     μ A ≤ ENNReal.ofReal ((δ : ℝ) ^ Module.finrank ℝ E) * μ (Metric.ball 0 1)
         * Metric.packingNumber δ A := by
   refine measure_le_mul_packingNumber μ ?_ fun x => ?_
+  · have h1 : ENNReal.ofReal ((δ : ℝ) ^ Module.finrank ℝ E) ≠ 0 := by
+      simp only [ne_eq, ENNReal.ofReal_eq_zero, not_le]
+      have : (0 : ℝ) < (δ : ℝ) := lt_of_le_of_ne δ.coe_nonneg (by simpa [eq_comm] using hδ)
+      positivity
+    exact mul_ne_zero h1 (Metric.measure_ball_pos μ 0 one_pos).ne'
+  · exact le_of_eq (Measure.addHaar_closedBall μ x δ.coe_nonneg)
+
+/-- **The comparison in the form a reader can evaluate.** On a
+finite-dimensional real space with a Haar measure the resolution cell is `δ^d`
+times the unit ball's measure, so a continuum code space out-resolves a `b`-bit
+alphabet exactly when its volume exceeds `2 ^ b` cells. The exchange rate is
+`b` against `log₂(volume) − d·log₂ δ` up to the unit ball's constant: volume
+buys capacity linearly in bits, and resolution buys it `d` times over.
+
+Every quantity on the left is measured or declared — the dimension, the noise
+floor and the word length — and none of them is continuity. That is the content:
+the advantage an analog medium has here is exactly the number of resolution
+cells in its volume, and no more. -/
+theorem two_pow_lt_packingNumber_of_lt_measure_haar (μ : Measure E) [μ.IsAddHaarMeasure]
+    {δ : ℝ≥0} (hδ : δ ≠ 0) {A : Set E} {b : ℕ}
+    (hb : (2 : ℝ≥0∞) ^ b
+        * (ENNReal.ofReal ((δ : ℝ) ^ Module.finrank ℝ E) * μ (Metric.ball 0 1)) < μ A) :
+    ((2 ^ b : ℕ) : ℕ∞) < Metric.packingNumber δ A := by
+  refine two_pow_lt_packingNumber_of_lt_measure μ ?_ (fun x => ?_) hb
   · have h1 : ENNReal.ofReal ((δ : ℝ) ^ Module.finrank ℝ E) ≠ 0 := by
       simp only [ne_eq, ENNReal.ofReal_eq_zero, not_le]
       have : (0 : ℝ) < (δ : ℝ) := lt_of_le_of_ne δ.coe_nonneg (by simpa [eq_comm] using hδ)
@@ -664,6 +737,25 @@ theorem measure_le_mul_packingNumber_range (Enc : Encoding S C) (μ : Measure C)
   gcongr
   exact packingNumber_mono_set δ hA
 
+omit [MeasurableSpace C] in
+/-- **The comparison, running the other way.** Where the code space holds at
+most `2 ^ b` mutually resolvable codes, the declared family is capped at
+`2 ^ b` — which is `card_le_two_pow`'s conclusion, reached without an alphabet
+to count.
+
+This is why `two_pow_lt_packingNumber_of_lt_measure` is a comparison and not a
+claim about continuity: at a coarse enough resolution a region of any volume
+holds few codes, and the `b`-bit alphabet is the larger of the two. Which holds
+is a question about `δ` and the volume, and this module measures neither. -/
+theorem encard_le_two_pow_of_packingNumber_le (Enc : Encoding S C) {L δ : ℝ≥0} {ε r : ℝ}
+    {b : ℕ} (hL : LipschitzWith L Enc.readout) (hL0 : 0 < L) (hrec : Enc.Reconstructs ε)
+    {F : Set S} (hF : F ⊆ Enc.relevant)
+    (hsep : ∀ s ∈ F, ∀ t ∈ F, s ≠ t → r < dist s t)
+    (hδ : (δ : ℝ) * L ≤ r - 2 * ε)
+    (hpack : Metric.packingNumber δ (Set.range Enc.encode) ≤ ((2 ^ b : ℕ) : ℕ∞)) :
+    F.encard ≤ ((2 ^ b : ℕ) : ℕ∞) :=
+  (encard_le_packingNumber_range hL hL0 hrec hF hsep hδ).trans hpack
+
 end Encoding
 
 end Floor
@@ -671,6 +763,9 @@ end Floor
 #print axioms measure_le_mul_packingNumber
 #print axioms measure_le_pow_mul_packingNumber
 #print axioms Encoding.measure_le_mul_packingNumber_range
+#print axioms two_pow_lt_packingNumber_of_lt_measure
+#print axioms two_pow_lt_packingNumber_of_lt_measure_haar
+#print axioms Encoding.encard_le_two_pow_of_packingNumber_le
 
 end PhysicsOfConsciousness.Reconstruction
 
