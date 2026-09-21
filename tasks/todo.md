@@ -203,7 +203,7 @@ that makes it survive a reviewer who does not share the prior.
       needs — a substrate with `nbhd v = univ` models a physical field only while
       transit is short against the phase time scale.
 
-- [ ] **C9 — Landauer forced by the memory budget, not chosen by the
+- [x] **C9 — Landauer forced by the memory budget, not chosen by the
       implementation.** C4 as it stands is answerable: `clearingSum` erases
       because it is defined to clear, and `recordingSum` proves the reversible
       reply correct at zero cost. The general lemma closes it by pigeonhole —
@@ -601,3 +601,36 @@ satisfied as it stands, and naming any of them there requires a Table S1 row in
 the same commit. `lake build` is clean with no warnings; the axiom audit covers
 5614 declarations in 91 modules, up from 5604, all resting only on `propext`,
 `Classical.choice` and `Quot.sound`.
+
+### 2026-09-21 — C9 built, the budget charges instead of the implementation
+
+**`Phase3_LandauerBridge.lean` §4.** The answerable half of C4 was that
+`clearingSum` erases because it is defined to clear.
+`erasedEntropy_ge_of_card_image_le` quantifies over implementations instead of
+exhibiting two: an update whose reachable set fits in `m` states destroys at
+least `log (|sys| / m)`, by pigeonhole on the states it fails to reach.
+`is_erasure_of_card_image_lt` routes a budget below the phase space through
+`is_erasure_of_not_surjective`, where finiteness does the work, and
+`temperature_mul_log_le_heat_of_card_image_le` prices it.
+
+`log_card_div_card_reg` and `erasedEntropy_clearingSum_of_budget` check the
+general lemma against the instance it generalizes: charged only for the states
+it fails to reach, the clearing evaluation still owes the `N log |Val|` that
+`erasedEntropy_clearingSum` computes from its definition. The bound is tight
+there, so it replaces the exhibited comparison rather than standing weaker
+beside it.
+
+*Does not establish.* A barrier. This is a **trade**: memory sufficient to
+retain every intermediate pays exactly zero, which is `recordingSum_injective`,
+and enlarging the budget to the whole phase space sends the bound to zero. The
+theorem prices the exchange between memory and dissipation and closes neither
+end of it. It prices nothing in watts either, until the decomposition of the
+field into site values is declared — the same `κ` problem, in the same place, as
+C4 and the installed-coupling argument. And nothing here says a digital machine
+must take the clearing route; reversible computing remains the standing
+counterexample §4's scope note already concedes.
+
+**What remains in this block.** C5–C7, and D4–D5 in the D block. No publication
+file is touched: none of the new identifiers is named in `main.tex`. `lake
+build` is clean with no warnings; the axiom audit covers 5619 declarations in 91
+modules, up from 5614.

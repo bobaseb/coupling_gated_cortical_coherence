@@ -73,7 +73,11 @@ site array and is injective, so it destroys nothing; `clearingSum` clears it and
 destroys `N log |Val|`, which Landauer's bound prices at temperature times that.
 The comparison is between two evaluations of one functional on one finite phase
 space, and it prices nothing until the decomposition into site values is
-declared.
+declared. `erasedEntropy_ge_of_card_image_le` then removes the exhibited pair
+from the statement: *any* evaluation whose results fit in a register space of
+`m` states destroys at least `log (|sys| / m)`, so the charge follows from a
+memory budget rather than from an implementation's choice to clear. It is a
+trade and not a barrier — memory enough to keep every intermediate pays zero.
 
 Witness: `Examples.lean` §18.5.
 -/
@@ -361,6 +365,87 @@ is the same `κ` problem the installed-coupling argument has, in the same place:
 a quantity linear in `N` with an undetermined coefficient is a scaling law and
 not an energy. -/
 
+/-! ### The budget charges, not the implementation
+
+`erasedEntropy_clearingSum` computes a charge for one map, and that map erases
+because it is *defined* to clear. The obvious reply is that the implementation
+chose to clear, and `recordingSum` is the proof that it did not have to. The
+lemmas below close the reply by quantifying over implementations instead of
+exhibiting two.
+
+`erasedEntropy_ge_of_card_image_le` is the general form, and it is extraction
+rather than new mathematics: `erasedEntropy_clearingSum` already performs this
+computation at one image cardinality, through `card_image_clearingSum`. Any
+evaluation whose reachable set fits in a register space of `m` states destroys
+at least `log (|sys| / m)`, by pigeonhole — the phase space has not moved, and
+everything the update fails to reach is entropy it removed. Below the size of
+the phase space the map is not surjective, hence not injective on a finite
+space, hence an erasure (`is_erasure_of_card_image_lt`), and
+`temperature_mul_log_le_heat_of_card_image_le` prices it.
+
+So the claim upgrades from *one implementation pays* to *every implementation
+within a memory budget pays*, at a stated exchange rate.
+
+**And it is a trade, not a barrier**, which is the whole of its content. Memory
+sufficient to retain every intermediate costs zero, which is exactly
+`recordingSum_injective`; the theorem prices the exchange between memory and
+dissipation and closes neither end of it. It also still prices nothing in watts
+until the decomposition of the field into site values is declared — the same `κ`
+problem, in the same place, as the comparison above and as the
+installed-coupling argument. -/
+
+/-- **The entropy a memory budget forces.** An update whose reachable set has at
+most `m` states destroys at least `log (|sys| / m)`, whatever the update is.
+
+The hypothesis is a *budget*: it says where the evaluation may put its results
+and nothing about how it computes them. What the quantifier buys over
+`erasedEntropy_clearingSum` is that no map has to be exhibited — a map that
+reaches few states is charged for the states it does not reach. -/
+theorem erasedEntropy_ge_of_card_image_le [Nonempty sys] {t : sys → sys} {m : ℕ}
+    (hm : 0 < m) (h : (Finset.image t Finset.univ).card ≤ m) :
+    Real.log ((Fintype.card sys : ℝ) / m) ≤ erasedEntropy t := by
+  have hN : (0 : ℝ) < Fintype.card sys := by exact_mod_cast Fintype.card_pos (α := sys)
+  have hm' : (0 : ℝ) < m := by exact_mod_cast hm
+  have himg : 0 < (Finset.image t Finset.univ).card :=
+    Finset.card_pos.mpr ⟨t (Classical.arbitrary sys),
+      Finset.mem_image.mpr ⟨Classical.arbitrary sys, Finset.mem_univ _, rfl⟩⟩
+  have hid : entropy (id : sys → sys) = Real.log (Fintype.card sys) := by
+    unfold entropy boltzmann_entropy
+    rw [Finset.image_id, Finset.card_univ]
+  have hlog : Real.log ((Finset.image t Finset.univ).card : ℝ) ≤ Real.log m :=
+    Real.log_le_log (by exact_mod_cast himg) (by exact_mod_cast h)
+  rw [erasedEntropy, hid, Real.log_div (ne_of_gt hN) (ne_of_gt hm')]
+  unfold entropy boltzmann_entropy
+  linarith
+
+/-- **A budget below the phase space is an erasure.** An update that reaches
+fewer states than the space holds is not surjective, hence — on a finite phase
+space, and only there — not injective, which is what `is_erasure` is. The step
+is `is_erasure_of_not_surjective`, where finiteness does the work. -/
+theorem is_erasure_of_card_image_lt {t : sys → sys}
+    (h : (Finset.image t Finset.univ).card < Fintype.card sys) : is_erasure t := by
+  refine is_erasure_of_not_surjective t fun hsurj => ?_
+  have himg : Finset.image t Finset.univ = Finset.univ :=
+    Finset.eq_univ_of_forall fun y => by
+      obtain ⟨x, hx⟩ := hsurj y
+      exact Finset.mem_image.2 ⟨x, Finset.mem_univ x, hx⟩
+  rw [himg, Finset.card_univ] at h
+  exact lt_irrefl _ h
+
+/-- **Landauer's bill for a memory budget.** Temperature times
+`log (|sys| / m)`, for any evaluation that puts its results in `m` states.
+
+This is the exchange rate between memory and dissipation, and it closes neither
+end: enlarging `m` to the whole phase space sends the bound to zero, which is
+the reversible route and not a failure of the theorem. -/
+theorem temperature_mul_log_le_heat_of_card_image_le [Nonempty sys] [StatisticalMechanics sys]
+    {t : sys → sys} {m : ℕ} (hm : 0 < m) (h : (Finset.image t Finset.univ).card ≤ m) :
+    Thermodynamics.temperature (sys := sys) * Real.log ((Fintype.card sys : ℝ) / m)
+      ≤ heat_dissipation t := by
+  refine le_trans ?_ (temperature_mul_erasedEntropy_le_heat (sys := sys) t)
+  exact mul_le_mul_of_nonneg_left (erasedEntropy_ge_of_card_image_le hm h)
+    (le_of_lt Thermodynamics.temperature_pos)
+
 section Reduction
 
 variable {Reg Val : Type*} [Fintype Reg] [DecidableEq Reg] [AddCommGroup Reg]
@@ -487,6 +572,36 @@ theorem temperature_mul_le_heat_clearingSum [Nonempty Reg] [Nonempty Val] {N : �
     (clearingSum (N := N) site val₀)
   rwa [erasedEntropy_clearingSum] at hbound
 
+omit [DecidableEq Reg] [AddCommGroup Reg] [DecidableEq Val] in
+/-- The budget the clearing evaluation keeps to: one register's worth of states
+out of `|Reg| · |Val|^N`, so the ratio the general bound charges for is exactly
+`|Val|^N`. -/
+theorem log_card_div_card_reg [Nonempty Reg] [Nonempty Val] {N : ℕ} :
+    Real.log ((Fintype.card (Reg × (Fin N → Val)) : ℝ) / Fintype.card Reg)
+      = N * Real.log (Fintype.card Val) := by
+  have hReg : (0 : ℝ) < Fintype.card Reg := by exact_mod_cast Fintype.card_pos (α := Reg)
+  have hcard : Fintype.card (Reg × (Fin N → Val)) = Fintype.card Reg * Fintype.card Val ^ N := by
+    rw [Fintype.card_prod, Fintype.card_fun, Fintype.card_fin]
+  rw [hcard]
+  push_cast
+  rw [mul_comm, mul_div_assoc, div_self (ne_of_gt hReg), mul_one, Real.log_pow]
+
+/-- **The budget bound is tight here.** Charged only for the states it fails to
+reach, the clearing evaluation still owes `N log |Val|` — the quantity
+`erasedEntropy_clearingSum` computes from the map's definition. The general
+lemma therefore loses nothing on the instance it generalizes, which is what
+makes it a replacement for the exhibited comparison rather than a weaker
+statement beside it. -/
+theorem erasedEntropy_clearingSum_of_budget [Nonempty Reg] [Nonempty Val] {N : ℕ}
+    (site : Val → Reg) (val₀ : Val) :
+    (N : ℝ) * Real.log (Fintype.card Val)
+      ≤ erasedEntropy (clearingSum (N := N) site val₀) := by
+  have h := erasedEntropy_ge_of_card_image_le
+    (sys := Reg × (Fin N → Val)) (t := clearingSum (N := N) site val₀)
+    (m := Fintype.card Reg) Fintype.card_pos
+    (le_of_eq (card_image_clearingSum site val₀))
+  rwa [log_card_div_card_reg] at h
+
 end Reduction
 
 #print axioms recordingSum_injective
@@ -494,5 +609,9 @@ end Reduction
 #print axioms erasedEntropy_clearingSum
 #print axioms erasedEntropy_recordingSum_lt_clearingSum
 #print axioms temperature_mul_le_heat_clearingSum
+#print axioms erasedEntropy_ge_of_card_image_le
+#print axioms is_erasure_of_card_image_lt
+#print axioms temperature_mul_log_le_heat_of_card_image_le
+#print axioms erasedEntropy_clearingSum_of_budget
 
 end PhysicsOfConsciousness
