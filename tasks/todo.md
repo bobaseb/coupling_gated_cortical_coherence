@@ -1316,21 +1316,21 @@ a concrete future-work target. A staff engineer reading the diff would say:
       **Verify:** `check_prose` and `check_hedging` pass; §8.6 reads as
       calibration, not as evidence.
 
-- [ ] **G8 — Reframe consciousness identification as interpretive
+- [x] **G8 — Reframe consciousness identification as interpretive
       motivation.**
       *Review concern: Major §8.* The glued state and reconstruction are
       proposed as correlates but no independent measurement for "experience"
       is offered.
       **Action:**
       (a) In §1 and §10.1, reframe: the framework's *empirical* content is
-          the coupling-gated onset prediction and the spatial signature. The
-          identification of the glued state with experiential unity is
-          interpretive motivation — it says *why* the mathematics might matter,
-          not *what* the test measures.
+      the coupling-gated onset prediction and the spatial signature. The
+      identification of the glued state with experiential unity is
+      interpretive motivation — it says *why* the mathematics might matter,
+      not *what* the test measures.
       (b) Keep the identification as explicit, labelled motivation. Do not
-          delete it — it is the paper's reason for existing — but do not call
-          it a testable proposal without a proposed measurement on the
-          experiential side.
+      delete it — it is the paper's reason for existing — but do not call
+      it a testable proposal without a proposed measurement on the
+      experiential side.
       **Verify:** §1 and §10.1 carry the reframing; `check_prose` passes.
 
 ---
