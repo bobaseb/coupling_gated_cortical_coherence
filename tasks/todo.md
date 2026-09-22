@@ -1449,7 +1449,7 @@ a concrete future-work target. A staff engineer reading the diff would say:
       prose paragraphs; `check_table_coverage` still passes; abstract reads
       to a non-Lean reader.
 
-- [ ] **G13 — Fix notation collisions.**
+- [x] **G13 — Fix notation collisions.**
       *Review concern: Minor §1.* E is both encoder and field amplitude; λ is
       eigenvalue and tortuosity; U is stored energy and patch; T is rounds and
       temperature; D is diffusion and phase spread.
