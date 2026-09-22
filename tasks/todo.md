@@ -1433,7 +1433,7 @@ a concrete future-work target. A staff engineer reading the diff would say:
       **Verify:** New heterogeneous-frequency `.npz` files present; exponent
       comparison in `DYNAMIC_RAMP_REPORT.md`; no hardcoded numerals.
 
-- [ ] **G12 — Move Lean identifiers out of main text.**
+- [x] **G12 — Move Lean identifiers out of main text.**
       *Review concern: Major §10.* Inline `PhysicsOfConsciousness.Kuramoto.
       stationaryThreshold_eq` breaks reading flow.
       **Action:**
