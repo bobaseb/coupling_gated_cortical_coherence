@@ -1285,7 +1285,7 @@ a concrete future-work target. A staff engineer reading the diff would say:
       **Verify:** §9.3 reads as a protocol, not a wish list; neural inertia
       refs in `.bib`; discriminating alternative stated.
 
-- [ ] **G6 — Compress E78 / compatibility saturation.**
+- [x] **G6 — Compress E78 / compatibility saturation.**
       *Review concern: Major §5.* ~2000 words establishing the uniform bound
       saturates at ~0.2mm, then keeping it as a "non-standard ingredient."
       **Action:** Compress §4.2 to one paragraph stating the result and its
