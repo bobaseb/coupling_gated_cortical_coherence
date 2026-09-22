@@ -1116,3 +1116,386 @@ audit's footprint and the proof companion are untouched.
 
 **The V block is closed.** The R research programme in
 `tasks/research_programme.md` stays live and is untouched by this pass.
+
+## G — PRX Life consolidated review response (major revision)
+
+**Context.** Two synthetic referees (anthropic/claude-fable-5.1 +
+openai/gpt-astra-latest, consolidated 2026-09-22) recommend major revision:
+restructuring, not a patch. The review lands 11 major and 14 minor concerns.
+The previous Block G addressed a gentler single-model Gemini review and is
+superseded in full. The consolidated review is at
+`prx-life-review-consolidated.md`; its assessment at
+`.gemini/antigravity-cli/brain/f8590112-f885-4848-970d-3a16b4afb781/review-assessment.md`.
+
+**Principles for the revision.**
+
+1. Rederive where possible; delete only as a last resort.
+2. Salvage thermodynamics (main §7) and GPU/LLM (main §6) with non-trivial
+   Lean derivations and/or simulations; demote to supplement only if no
+   substantive strengthening is found.
+3. The bootstrap on existing data *confirms* α = 0.5 is excluded at p < 0.02 —
+   the fix is not a different statistical method but a different framing (what
+   the prediction discriminates) plus larger-N / tighter-threshold runs.
+4. Every publication edit is a present-tense statement of scope, not a
+   narration of what the development used to claim (AGENTS.md §5).
+5. Items are ordered by dependency and priority (P0 → P3). Each item states
+   its proof hook. Nothing is marked complete without running it.
+
+**Constraints.** `lake build` must pass with the audit's footprint unchanged.
+Anything reaching `main.tex` has a Table S1 row in the same commit
+(`check_table_coverage.py`, AGENTS.md §9). `.lean` edits are followed by
+`proof_companion/run.sh extract` then `pdf`. The three tracked PDFs are
+rebuilt and `arxiv_submit/` refreshed or removed in the same commit
+(AGENTS.md §6–7). New references are verified via web search before commit
+(AGENTS.md §4).
+
+**Success criteria.** Every major concern is either resolved (derivation,
+simulation, or restructuring) or explicitly scoped as a stated limitation with
+a concrete future-work target. A staff engineer reading the diff would say:
+"this is a restructuring, not a patch."
+
+---
+
+### P0 — Fixes that block everything else
+
+- [ ] **G1 — Bootstrap the delay exponent over replicas.**
+      *Review concern: Major §4.* The 95% CI [0.394, 0.494] is OLS on 6
+      ensemble-mean points. The per-replica data exists: 32 replicas × 8 speeds
+      in `simulations/figures/dynamic_ramp_replicas_v*.npz`, stored as
+      `order_replicas` of shape `(n_samples, 32)`.
+      **Action:**
+      (a) Add `bootstrap_delay_exponent(speeds, escape_matrix, n_boot=10000)`
+          to `dynamic_ramp_analysis.py`. For each bootstrap iteration, resample
+          32 replica indices with replacement per speed, compute resampled mean
+          delay, fit the power law, collect exponent. Report percentile CI.
+      (b) Wire into `dynamic_ramp_report.py` so `DYNAMIC_RAMP_REPORT.md` and
+          the TeX macros carry both OLS and bootstrap CIs.
+      (c) The bootstrap will *confirm* α ≈ 0.444 with CI still excluding 0.5
+          (preliminary: [0.397, 0.495], p(α ≥ 0.5) < 2%). This is the honest
+          result. The response to the reviewer is: the finite-N escape-threshold
+          artefact is the known source of downward bias (manuscript already shows
+          0.490 at r ≥ 0.05 vs 0.425 at r ≥ 0.2). The bootstrap CI is now the
+          replica-level one, which is what the reviewer asked for.
+      **Verify:** `pytest simulations/test_dynamic_ramp.py` passes; bootstrap
+      CI appears in `DYNAMIC_RAMP_REPORT.md`; generated TeX macros updated.
+
+- [ ] **G2 — Larger-N and tighter-threshold delay runs.**
+      *Review concern: Major §4 cont'd.* The reviewer asks for "larger N
+      (floor ~1/√N)" with the stochastic ensemble rerun at the tightened
+      criterion. The repository already has N=500 and N=8000 runs.
+      **Action:**
+      (a) If N=8000 runs already have per-replica data, extract and bootstrap.
+          If not, run N=8000 with 32 replicas at 8 speeds (reuse existing
+          `dynamic_ramp.py` infrastructure).
+      (b) Run the r ≥ 0.05 criterion on the N=2000 ensemble (the supplement
+          says 0.490 but this was never bootstrapped).
+      (c) Report the three-way comparison: N=2000/r≥0.2, N=2000/r≥0.05,
+          N=8000/r≥0.05. If the exponent converges toward 0.5 as N→∞ and
+          threshold→0, say so. If not, say so.
+      **Verify:** New `.npz` files present; `DYNAMIC_RAMP_REPORT.md` updated
+      with all three conditions; no hardcoded numerals in `main.tex`.
+
+- [ ] **G3 — Fix the installed-energy inconsistency: derive stored field
+      energy.**
+      *Review concern: Major §2.* The cortical U_inst = 1.0×10⁻⁶ J is
+      metabolic signalling power × residence time. The theorem bounds *stored*
+      energy in field modes. These are different quantities.
+      **Action:**
+      (a) Derive a Fermi estimate of stored electromagnetic field energy in a
+          cortical volume. Use measured LFP amplitudes (~1 mV/mm extracellular
+          gradient) and tissue permittivity/conductivity (σ ≈ 0.3 S/m,
+          ε_r ≈ 10⁵ at low frequency; Logothetis et al. 2007, Gabriel et al.
+          1996). Electrostatic energy density w = ½ε|E|² gives
+          ~10⁻¹⁹–10⁻¹⁶ J in a 0.2mm-radius sphere, i.e. 10¹–10⁴ k_BT.
+          This is 10 orders of magnitude below the metabolic number.
+      (b) If the stored-field number is too small to satisfy the bound
+          (U_inst > 2D/κ), this is informative: it means the field's *static*
+          energy is not what funds coupling — the continuous metabolic
+          *replenishment* is. Rewrite the bound's cortical discussion: the
+          theorem says "you need this much stored energy to maintain K > 2D";
+          cortex achieves it via continuous metabolic power, not via a static
+          capacitor. The distinction between stored and dissipated is the
+          distinction between a battery and a generator.
+      (c) Add the stored-field calculation to `fermi_estimate_check.py` and
+          generate TeX macros for both numbers. Update `supplementary.tex`
+          §2.2 to present both: stored field energy (tiny, insufficient alone)
+          and metabolic power budget (large, sufficient via continuous
+          replenishment). The main text states the conclusion in one sentence.
+      (d) Verify reference: "Barbour 2017" for σ = 0.3–0.6 S/m. Cross-check
+          against Logothetis et al. 2007 and Gabriel et al. 1996. If Barbour
+          2017 is not the right source, replace.
+      **Verify:** `pytest simulations/test_fermi_estimate.py` passes; both
+      energy numbers appear in generated TeX; `supplementary.tex` §2.2
+      distinguishes stored from metabolic; `main.tex` carries no hardcoded
+      joule value.
+
+---
+
+### P1 — Structural revision and missing citations
+
+- [ ] **G4 — Reframe the "unconditional results" with Kuramoto citations.**
+      *Review concern: Major §3.* The five results are presented as "what holds
+      without the cortical hypothesis." They are elementary but the framing
+      invites the overstatement reading. The relevant Kuramoto literature is
+      largely uncited.
+      **Action:**
+      (a) Retitle §2 to something like "The landscape any phase-coherence
+          account inherits" — positioning these as inherited constraints, not
+          novel results.
+      (b) Add citations: Acebrón et al. 2005 (Rev. Mod. Phys. review),
+          Ott & Antonsen 2008 (dimensionality reduction), Dörfler & Bullo
+          2014 (survey on synchronization), Wiley, Strogatz & *Girvan* 2006
+          (twisted/winding states, r=0).
+      (c) For K_c = 2D (main:150), add Strogatz & Mirollo 1991 and
+          Acebrón 2005 alongside Sakaguchi 1988.
+      (d) Correct the propagation-of-chaos scope: cite Dai Pra & den Hollander
+          1996 and Bertini, Giacomin & Pakdaman 2010. Replace "is a research
+          programme rather than a lemma" with a properly scoped sentence in the
+          supplement.
+      (e) Verify all new references via web search before commit.
+      **Verify:** `check_prose` and `check_hedging` pass; new citations are in
+      `.bib`; all verified via web search.
+
+- [ ] **G5 — Add neural inertia literature and operationalise the emergence
+      protocol.**
+      *Review concern: Major §1.* The emergence prediction (v^{1/2} delay) is
+      the generic delayed-bifurcation result (Baer, Erneux & Rinzel 1989;
+      Berglund & Gentz 2002) and doesn't test the field hypothesis. The neural
+      inertia literature is uncited. The protocol is a wish list, not a design.
+      **Action:**
+      (a) Cite Friedman et al. 2010 (PLoS ONE — neural inertia in Drosophila
+          and mice), Hudson et al. 2014 (PNAS — metastable states in
+          emergence), Proekt & Hudson 2018 (BJA — stochastic basis for neural
+          inertia). Position the framework's prediction relative to this
+          literature: the v^{1/2} exponent is generic; the framework's
+          *discriminating* content is the spatial onset pattern — coherence
+          should nucleate in regions of highest κ (mode density × field
+          strength), not uniformly.
+      (b) Rewrite §9.3 as a concrete protocol sketch: manipulate emergence
+          rate v via propofol infusion rate (within-subject, multiple rates);
+          measure time-to-response as the observable (not ΔK); specify that
+          the discriminating test is the *spatial* signature (high-density
+          ECoG or Neuropixels), not the exponent alone.
+      (c) State the competing null: any supercritical bifurcation gives ~0.5.
+          The field hypothesis predicts *where* coherence nucleates (high-κ
+          regions) and that onset correlates with local field amplitude.
+          A synaptic-only model predicts onset at hub nodes of the connectome.
+          These are distinguishable with high-density intracranial recordings.
+      (d) Verify all new references via web search before commit.
+      **Verify:** §9.3 reads as a protocol, not a wish list; neural inertia
+      refs in `.bib`; discriminating alternative stated.
+
+- [ ] **G6 — Compress E78 / compatibility saturation.**
+      *Review concern: Major §5.* ~2000 words establishing the uniform bound
+      saturates at ~0.2mm, then keeping it as a "non-standard ingredient."
+      **Action:** Compress §4.2 to one paragraph stating the result and its
+      scope limitation. Move the detailed derivation to the supplement (it may
+      already be there — check for duplication). State once: at the sheet's own
+      patch order the bound is informative for ≤ 3 sites; beyond that, the
+      coherence-to-content link requires the cortical hypothesis (H8).
+      **Verify:** `main.tex` §4.2 is ≤ 1 paragraph; supplement carries the
+      full argument; no duplication.
+
+- [x] **G7 — Present EEG exercise honestly.**
+      *Review concern: Major §7.* At a = 0.104, I₁/I₀(a) = a/2 to within
+      10⁻³. The data cannot distinguish the Bessel relation from a straight
+      line.
+      **Action:**
+      (a) Retitle §8.6 to "Estimator calibration on exploratory EEG."
+      (b) State explicitly: bipolar-montage scalp EEG sits in the linear
+          Bessel regime (a_max = 0.542, deviation from a/2 < 1%). The exercise
+          confirms the estimator is well-behaved in this regime but does not
+          test the nonlinear prediction.
+      (c) State what *would* test it: intracranial recordings (ECoG/sEEG/LFP)
+          where local synchrony reaches a > 1, or narrowband alpha-spindle
+          burst analysis. Cite the sample-size requirement (≥ 31,000 pooled
+          phase samples or ≥ 1000 independent sites).
+      (d) Do NOT claim the data are "compatible with the Bessel relation" —
+          say "compatible with the Bessel relation and with any monotone
+          alternative in this regime."
+      **Verify:** `check_prose` and `check_hedging` pass; §8.6 reads as
+      calibration, not as evidence.
+
+- [ ] **G8 — Reframe consciousness identification as interpretive
+      motivation.**
+      *Review concern: Major §8.* The glued state and reconstruction are
+      proposed as correlates but no independent measurement for "experience"
+      is offered.
+      **Action:**
+      (a) In §1 and §10.1, reframe: the framework's *empirical* content is
+          the coupling-gated onset prediction and the spatial signature. The
+          identification of the glued state with experiential unity is
+          interpretive motivation — it says *why* the mathematics might matter,
+          not *what* the test measures.
+      (b) Keep the identification as explicit, labelled motivation. Do not
+          delete it — it is the paper's reason for existing — but do not call
+          it a testable proposal without a proposed measurement on the
+          experiential side.
+      **Verify:** §1 and §10.1 carry the reframing; `check_prose` passes.
+
+---
+
+### P2 — Salvage thermodynamics and GPU/LLM with new derivations
+
+- [ ] **G9 — Thermodynamic section: derive continuous dissipation rate for
+      maintaining coherence.**
+      *Review concern: Major §6.* The thermodynamic chain states its own regime
+      is "two-bit systems with interaction energies of order k_BT" and that
+      "cortex is not in it." The reviewer says to cut it.
+      **Preferred alternative: derive a non-trivial bound that applies at the
+      cortical scale.**
+      **Action:**
+      (a) *New derivation (Lean + simulation):* In the non-equilibrium steady
+          state of the noisy Kuramoto system, maintaining phase order r > 0
+          requires continuous entropy production. Derive a lower bound on the
+          dissipation rate: Ẇ_diss ≥ f(D, r, K). The key insight is that noise
+          D continuously destroys coherence and coupling K continuously restores
+          it, so the system must dissipate at a rate proportional to the noise
+          power times the maintained order.
+          - Lean: extend `Phase8_ContinuousField.lean` (`entropy_production_rate`
+            already exists). The theorem should say: if a noisy Kuramoto system
+            maintains time-averaged order ⟨r⟩ ≥ r₀ > 0 with noise D, then the
+            time-averaged dissipation rate satisfies Ẇ ≥ h(D, r₀).
+          - Simulation: verify numerically in `dynamic_ramp.py` or a new script
+            that the bound is tight to within an order of magnitude.
+      (b) *Fallback:* If the Lean derivation proves too ambitious for this
+          revision cycle, compress §7 to a paragraph in the main text citing
+          the Landauer bound, its macroscopic slack, and the continuous-
+          dissipation open question. Move the full chain to the supplement.
+          State the open question: "a non-trivial thermodynamic bound on
+          cortical coherence maintenance is an open problem."
+      (c) *Thermodynamic speed limits (stretch goal):* Use thermodynamic
+          uncertainty relations (TURs) to bound the ramp speed dK/dt by the
+          entropy production rate σ̇. This would connect the dynamic
+          bifurcation delay directly to metabolic cost. If achieved, this is
+          the section's strongest result and justifies its place in the main
+          text.
+      **Verify:** If (a): `lake build` passes, audit footprint unchanged,
+      new theorem has Table S1 row, simulation validates the bound. If (b):
+      §7 is ≤ 1 paragraph in main text, full chain in supplement.
+
+- [ ] **G10 — GPU/LLM section: derive non-trivial attention-rank bound.**
+      *Review concern: Major §6.* Current theorems are pigeonhole
+      (`card_le_card_tokens`) and basic DAG reachability
+      (`mask_ball_subset_le`). The reviewer calls these trivial.
+      **Preferred alternative: prove a non-trivial approximation bound.**
+      **Action:**
+      (a) *New derivation (Lean):* An attention matrix A = softmax(QKᵀ/√d_k)
+          has effective rank ≤ d_k. A full-rank continuous spatial coupling
+          kernel K(x,y) (e.g. exponential decay) has Mercer eigenvalues
+          λ_1 ≥ λ_2 ≥ … The approximation error of a rank-d_k projection is
+          bounded below by Σ_{i>d_k} λ_i. This is a genuine structural
+          limitation of attention relative to continuous-field coupling.
+          - Lean: add to `Phase6_Locality.lean` or a new
+            `Phase6_AttentionRank.lean`. The theorem should say: for any
+            rank-d attention map on N positions, the L²-approximation error
+            against a kernel with eigenvalue tail Σ_{i>d} λ_i is at least
+            that tail sum.
+          - This is the spectral approximation theorem (Eckart-Young-Mirsky)
+            applied to the kernel-vs-attention comparison. Non-trivial because
+            it gives a *quantitative* gap, not just "digital can't do it."
+      (b) *KV-cache information bottleneck (secondary):* Formalize that
+          emitting token y_t ∈ V transmits at most log₂|V| bits about the
+          internal state, bounding the channel capacity of the output interface.
+          This strengthens `card_le_card_tokens` from a counting bound to an
+          information-theoretic one.
+      (c) *Fallback:* If neither Lean derivation lands in this revision cycle,
+          compress §6 to a paragraph in the main text and move the full
+          analysis to the supplement. State: "the causal mask and token
+          cardinality impose structural limits; the quantitative gap between
+          low-rank attention and full-rank spatial coupling is an open
+          formalization target."
+      **Verify:** If (a): `lake build` passes, audit footprint unchanged,
+      new theorem has Table S1 row. If (c): §6 is ≤ 1 paragraph in main text.
+
+---
+
+### P3 — Biological realism, prose, and minor concerns
+
+- [ ] **G11 — Heterogeneous-frequency control on the delay scaling.**
+      *Review concern: Major §9.* All threshold results assume identical
+      frequencies, mean-field sinusoidal coupling, no delays, and positive
+      couplings.
+      **Action:**
+      (a) Run the delay-scaling simulation with quenched frequency
+          heterogeneity: Lorentzian g(ω) with half-width γ = 0.5, 1.0,
+          1.5 rad/s (the supplement already reports K_c shift at γ = 1.5).
+          Check whether the exponent changes or only the prefactor shifts.
+      (b) Cite Kuramoto 1984 and Strogatz 2000 for K_c = 2γ under Lorentzian
+          heterogeneity. Note that heterogeneity softens the transition.
+      (c) Acknowledge conduction delays and E/I balance as open questions.
+          The supplement's Dale-balanced rescue (K_eff/D ∈ [1.88, 2.06]) is
+          a numerical finding, not a theorem.
+      (d) Scope the claim: results hold for the mean-field idealisation; the
+          qualitative prediction (delay scaling ∝ v^α with α near 0.5) is
+          expected to be robust to moderate heterogeneity on normal-form
+          grounds.
+      **Verify:** New heterogeneous-frequency `.npz` files present; exponent
+      comparison in `DYNAMIC_RAMP_REPORT.md`; no hardcoded numerals.
+
+- [ ] **G12 — Move Lean identifiers out of main text.**
+      *Review concern: Major §10.* Inline `PhysicsOfConsciousness.Kuramoto.
+      stationaryThreshold_eq` breaks reading flow.
+      **Action:**
+      (a) Replace inline Lean identifiers in `main.tex` with mathematical
+          English. State each result as: hypotheses, conclusion, scope, one
+          paragraph. The Lean name goes into the Table S1 row.
+      (b) Keep `\texttt{}` spans only where Table S1 / `check_table_coverage`
+          requires them — i.e. one occurrence per result, typically in a
+          "the Lean identifier is X" parenthetical or footnote.
+      (c) Rewrite the abstract to remove sentences like "That grain is the
+          uniform bound's, not phase order's."
+      **Verify:** No inline Lean path longer than one dot-segment in main
+      prose paragraphs; `check_table_coverage` still passes; abstract reads
+      to a non-Lean reader.
+
+- [ ] **G13 — Fix notation collisions.**
+      *Review concern: Minor §1.* E is both encoder and field amplitude; λ is
+      eigenvalue and tortuosity; U is stored energy and patch; T is rounds and
+      temperature; D is diffusion and phase spread.
+      **Action:** Audit the notation table (main:591+). Reassign where the
+      collision crosses a single section: e.g. rename the encoder to Φ or
+      use script-E (ℰ) for the field amplitude. Keep collisions that are
+      standard in their respective sub-literatures and separated by ≥ 2
+      sections, but note them in the notation table.
+      **Verify:** Notation table updated; no single section uses the same
+      symbol for two things.
+
+- [ ] **G14 — Minor citations and data availability.**
+      *Review concerns: Minor §§2–14.*
+      **Action (batch):**
+      (a) Add Strogatz & Mirollo 1991 alongside Sakaguchi 1988 for K_c = 2D.
+      (b) Plasticity controls (main:477): add seeds or label as illustrative.
+          Three seeds is acknowledged as few.
+      (c) Compatibility estimator AUC = 0.986 (main:492): add "on synthetic
+          data" qualifier.
+      (d) Verify "Barbour 2017" for cortical conductivity; cross-check against
+          Logothetis et al. 2007 and Gabriel et al. 1996.
+      (e) State ds005620 subject/run list and preprocessing code path.
+      (f) State Lean toolchain version and Mathlib commit hash in data
+          availability.
+      (g) Harmonise "Supplemental Material" vs "supplementary.tex".
+      (h) Add comparison paragraph with IIT, GWT, and predictive processing
+          in §10.3 or the supplement's §20. Frame as: "IIT derives Φ from
+          intrinsic information; GWT from broadcast; this framework from
+          phase coherence under physical coupling. The coupling gate is the
+          differentiator."
+      (i) Fix Eq. (14) framing: state as "deterministic tracking
+          approximation that fails at onset" rather than "benchmark."
+      (j) §9.1 columns: either offer a candidate alternative content cover
+          or explicitly scope as "the content cover remains an open empirical
+          question."
+      (k) Fig. 3: show per-replica points or a bootstrap band, not only the
+          ensemble mean ± 1 SE. (Follows from G1 bootstrap.)
+      (l) Fix typographic `\allowbreak` rendering; consider footnotes or a
+          table for long Lean identifiers.
+      (m) Verify all 2026 references at submission time.
+      **Verify:** Each sub-item checked individually; `check_prose`,
+      `check_hedging`, `check_table_coverage` pass.
+
+---
+
+### Review section
+
+*To be filled as items complete. Format: G# — date — outcome — proof hook
+results.*
