@@ -1259,7 +1259,7 @@ a concrete future-work target. A staff engineer reading the diff would say:
       **Verify:** `check_prose` and `check_hedging` pass; new citations are in
       `.bib`; all verified via web search.
 
-- [ ] **G5 — Add neural inertia literature and operationalise the emergence
+- [x] **G5 — Add neural inertia literature and operationalise the emergence
       protocol.**
       *Review concern: Major §1.* The emergence prediction (v^{1/2} delay) is
       the generic delayed-bifurcation result (Baer, Erneux & Rinzel 1989;

@@ -589,17 +589,17 @@ This follows from Eq.~\eqref{eq:onset} at fixed $D$ and concerns the stationary 
 \subsection{A protocol for the awakening experiment}
 \label{sec:protocol}
 
-The physical test has six requirements:
+The resistance of the central nervous system to state transitions, known as neural inertia, manifests as a behavioural barrier and hysteresis between anaesthetic induction and emergence \cite{friedman2010}. The recovery of responsiveness is not linear, but rather mediated by stochastic transitions through a network of metastable activity states \cite{hudson2014, proekt2018}. While the dynamic sweep of a bifurcation parameter provides a distinct temporal scaling, the $v^{1/2}$ exponent derived in Section~\ref{sec:ramp} is a generic feature of delayed supercritical bifurcations \cite{baer1989} and cannot by itself discriminate a field mechanism from a synaptic one. The framework's discriminating content is instead the spatial onset pattern: coherence must nucleate in regions of highest $\kappa$ (mode density times field strength) and correlate locally with field amplitude, rather than appearing first at the structural hub nodes a synaptic-only model predicts.
+
+Testing this requires a within-subject protocol manipulating emergence rate, with high-density intracranial recordings (e.g., ECoG or Neuropixels) to resolve the spatial signature:
 \begin{enumerate}
-\item \textbf{Coupling and diffusion in the same units.} Estimate them from resolved phase dynamics, separating heterogeneity and observation noise. Measure the drive or perturb the system to distinguish endogenous coupling.
-\item \textbf{Geometry calibrated to coupling.} Validate the geometry observable and its relation to effective coupling, with uncertainty. The conductivity argument supplies only the expected direction.
-\item \textbf{Calibrated phase measurements.} Estimate $r$ by resultant length and $a$ by unweighted regression of log density on centered cosine. Choose site count and binning from a dependence-aware calibration over the intended concentration range. The tested designs require thousands of sites at the observed concentrations; temporal pooling changes the spatial estimand.
-\item \textbf{An independent recovery endpoint.} Measure behavioural recovery separately from phase organization.
-\item \textbf{A predeclared dynamical onset criterion.} Set a coherence threshold above the finite-size floor and evaluate its latency under the measured coupling trajectory, including ramp speed or fluctuations. Record a spatial observable beside the resultant, since a winding field reports a low resultant at coupling that sustains local order (Section~\ref{sec:wave}).
-\item \textbf{Matched model comparison.} Compare coupling increase, diffusion change, common drive and alternative recovery models under the same observation and filtering assumptions.
+\item \textbf{Manipulate emergence rate.} Vary the rate $v$ of anaesthetic (e.g., propofol) clearance via infusion rate across multiple sessions within the same subject.
+\item \textbf{Measure behavioural recovery.} Record time-to-response to a standard stimulus as the independent behavioural endpoint, rather than estimating $\Delta K$ directly.
+\item \textbf{Resolve spatial onset.} Identify the precise anatomical locations where phase coherence first reaches threshold. The competing null is that onset occurs at the connectome's hub nodes or uniformly; the field hypothesis predicts onset in high-$\kappa$ regions where extracellular geometry best supports field coupling.
+\item \textbf{Match physical controls.} Confirm that the observed coherence-to-amplitude relation holds under the specific local diffusion $D$ and observation noise, estimable from the quadratic variation of resolved phase traces.
 \end{enumerate}
 
-Failure of the concentration--coherence relation over an informative range constrains the density model. Failure of the calibrated geometry--coupling association constrains the physical gate. Better prediction of independent recovery by a competing mechanism counts against its proposed role. A favorable outcome still leaves the content of coordinated activity to be explained.
+Failure of the onset location to track regional $\kappa$, or better prediction of spatial onset by structural network centrality, falsifies the field coupling mechanism. A favorable outcome still leaves the content of coordinated activity to be explained.
 
 \section{Discussion}
 
