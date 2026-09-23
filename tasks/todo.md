@@ -1195,7 +1195,7 @@ a concrete future-work target. A staff engineer reading the diff would say:
       **Verify:** New `.npz` files present; `DYNAMIC_RAMP_REPORT.md` updated
       with all three conditions; no hardcoded numerals in `main.tex`.
 
-- [ ] **G3 — Fix the installed-energy inconsistency: derive stored field
+- [x] **G3 — Fix the installed-energy inconsistency: derive stored field
       energy.**
       *Review concern: Major §2.* The cortical U_inst = 1.0×10⁻⁶ J is
       metabolic signalling power × residence time. The theorem bounds *stored*
