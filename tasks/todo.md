@@ -1158,7 +1158,7 @@ a concrete future-work target. A staff engineer reading the diff would say:
 
 ### P0 — Fixes that block everything else
 
-- [ ] **G1 — Bootstrap the delay exponent over replicas.**
+- [x] **G1 — Bootstrap the delay exponent over replicas.**
       *Review concern: Major §4.* The 95% CI [0.394, 0.494] is OLS on 6
       ensemble-mean points. The per-replica data exists: 32 replicas × 8 speeds
       in `simulations/figures/dynamic_ramp_replicas_v*.npz`, stored as
@@ -1233,7 +1233,7 @@ a concrete future-work target. A staff engineer reading the diff would say:
 
 ### P1 — Structural revision and missing citations
 
-- [ ] **G4 — Reframe the "unconditional results" with Kuramoto citations.**
+- [x] **G4 — Reframe the "unconditional results" with Kuramoto citations.**
       *Review concern: Major §3.* The five results are presented as "what holds
       without the cortical hypothesis." They are elementary but the framing
       invites the overstatement reading. The relevant Kuramoto literature is
@@ -1244,8 +1244,11 @@ a concrete future-work target. A staff engineer reading the diff would say:
           novel results.
       (b) Add citations: Acebrón et al. 2005 (Rev. Mod. Phys. review),
           Ott & Antonsen 2008 (dimensionality reduction), Dörfler & Bullo
-          2014 (survey on synchronization), Wiley, Strogatz & *Girvan* 2006
-          (twisted/winding states, r=0).
+          2014 (network topologies), Breakspear 2017 (brain dynamics review).
+          Add these to `.bib` and cite them in the opening paragraph of §2.
+          State that the mathematical features below reflect standard
+          properties of phase oscillators, and this framework's contribution
+          is tracking their implications for content decoding.
       (c) For K_c = 2D (main:150), add Strogatz & Mirollo 1991 and
           Acebrón 2005 alongside Sakaguchi 1988.
       (d) Correct the propagation-of-chaos scope: cite Dai Pra & den Hollander
@@ -1337,76 +1340,48 @@ a concrete future-work target. A staff engineer reading the diff would say:
 
 ### P2 — Salvage thermodynamics and GPU/LLM with new derivations
 
-- [ ] **G9 — Thermodynamic section: derive continuous dissipation rate for
-      maintaining coherence.**
-      *Review concern: Major §6.* The thermodynamic chain states its own regime
-      is "two-bit systems with interaction energies of order k_BT" and that
-      "cortex is not in it." The reviewer says to cut it.
-      **Preferred alternative: derive a non-trivial bound that applies at the
-      cortical scale.**
-      **Action:**
-      (a) *New derivation (Lean + simulation):* In the non-equilibrium steady
-          state of the noisy Kuramoto system, maintaining phase order r > 0
-          requires continuous entropy production. Derive a lower bound on the
-          dissipation rate: Ẇ_diss ≥ f(D, r, K). The key insight is that noise
-          D continuously destroys coherence and coupling K continuously restores
-          it, so the system must dissipate at a rate proportional to the noise
-          power times the maintained order.
-          - Lean: extend `Phase8_ContinuousField.lean` (`entropy_production_rate`
-            already exists). The theorem should say: if a noisy Kuramoto system
-            maintains time-averaged order ⟨r⟩ ≥ r₀ > 0 with noise D, then the
-            time-averaged dissipation rate satisfies Ẇ ≥ h(D, r₀).
-          - Simulation: verify numerically in `dynamic_ramp.py` or a new script
-            that the bound is tight to within an order of magnitude.
-      (b) *Fallback:* If the Lean derivation proves too ambitious for this
-          revision cycle, compress §7 to a paragraph in the main text citing
-          the Landauer bound, its macroscopic slack, and the continuous-
-          dissipation open question. Move the full chain to the supplement.
-          State the open question: "a non-trivial thermodynamic bound on
-          cortical coherence maintenance is an open problem."
-      (c) *Thermodynamic speed limits (stretch goal):* Use thermodynamic
-          uncertainty relations (TURs) to bound the ramp speed dK/dt by the
-          entropy production rate σ̇. This would connect the dynamic
-          bifurcation delay directly to metabolic cost. If achieved, this is
-          the section's strongest result and justifies its place in the main
-          text.
-      **Verify:** If (a): `lake build` passes, audit footprint unchanged,
-      new theorem has Table S1 row, simulation validates the bound. If (b):
-      §7 is ≤ 1 paragraph in main text, full chain in supplement.
+- [x] **G9 — Resolve the continuous-dissipation target with corrected premises.**
+      The proposed positive order-only bound is false for the declared
+      identical-frequency gradient model. `supercritical_zero_dissipation`
+      constructs positive self-consistent stationary order at every D > 0,
+      K > 2D with zero probability-current dissipation;
+      `no_positive_order_only_bound` refutes every bound strictly positive at
+      all positive orders. The constant stationary trajectory also refutes the
+      time-averaged version. The valid quantitative replacement,
+      `current_integral_sq_le`, proves `(integral J)^2 <= D * sigma_J` for a
+      continuous positive normalized density and continuous current. A uniform
+      density under constant drive is stationary and attains equality with
+      `sigma_J = omega^2 / D`; the D = 1, omega = 2 witness pays four.
+      Exact analytic equality replaces a numerical tightness check.
+      Main text, supplement, Table S1 and primer state the distinction.
+      **Open physical follow-up:** identify a cortical nonequilibrium drive,
+      its current and thermal conversion. The ramp-speed target G9(c) is resolved in scope: `cosine_rate_sq_le_dissipation`
+      proves the operator's cosine-moment speed bound, and
+      `arbitrary_coupling_speed_zero_cost` refutes an unrestricted K-dot bound.
+      `uniform_time_dependent_solution` checks the actual nonautonomous PDE for
+      the uniform counterexample. An ordered actuator-cost relation remains a
+      physical follow-up; no TUR or cortical power calibration is claimed.
 
-- [ ] **G10 — GPU/LLM section: derive non-trivial attention-rank bound.**
-      *Review concern: Major §6.* Current theorems are pigeonhole
-      (`card_le_card_tokens`) and basic DAG reachability
-      (`mask_ball_subset_le`). The reviewer calls these trivial.
-      **Preferred alternative: prove a non-trivial approximation bound.**
-      **Action:**
-      (a) *New derivation (Lean):* An attention matrix A = softmax(QKᵀ/√d_k)
-          has effective rank ≤ d_k. A full-rank continuous spatial coupling
-          kernel K(x,y) (e.g. exponential decay) has Mercer eigenvalues
-          λ_1 ≥ λ_2 ≥ … The approximation error of a rank-d_k projection is
-          bounded below by Σ_{i>d_k} λ_i. This is a genuine structural
-          limitation of attention relative to continuous-field coupling.
-          - Lean: add to `Phase6_Locality.lean` or a new
-            `Phase6_AttentionRank.lean`. The theorem should say: for any
-            rank-d attention map on N positions, the L²-approximation error
-            against a kernel with eigenvalue tail Σ_{i>d} λ_i is at least
-            that tail sum.
-          - This is the spectral approximation theorem (Eckart-Young-Mirsky)
-            applied to the kernel-vs-attention comparison. Non-trivial because
-            it gives a *quantitative* gap, not just "digital can't do it."
-      (b) *KV-cache information bottleneck (secondary):* Formalize that
-          emitting token y_t ∈ V transmits at most log₂|V| bits about the
-          internal state, bounding the channel capacity of the output interface.
-          This strengthens `card_le_card_tokens` from a counting bound to an
-          information-theoretic one.
-      (c) *Fallback:* If neither Lean derivation lands in this revision cycle,
-          compress §6 to a paragraph in the main text and move the full
-          analysis to the supplement. State: "the causal mask and token
-          cardinality impose structural limits; the quantitative gap between
-          low-rank attention and full-rank spatial coupling is an open
-          formalization target."
-      **Verify:** If (a): `lake build` passes, audit footprint unchanged,
-      new theorem has Table S1 row. If (c): §6 is ≤ 1 paragraph in main text.
+- [x] **G10 — Prove the spectral approximation bound with an actual rank budget.**
+      `Phase6_AttentionRank.lean` proves the finite-dimensional spectral tail
+      lower bound against every competing rank-constrained linear map, including
+      maps mixing the eigenmodes. Squared Hilbert--Schmidt error pays the tail
+      of the **squared** eigenvalues. `spectralTruncation_rank` and
+      `spectralTruncation_error` establish attainability. The reconstruction
+      corollary derives the rank budget from a linear encoder/readout's
+      intermediate dimension. A two-mode witness (eigenvalues three and one)
+      attains error one and proves every rank-one competitor pays at least one.
+      `softmax_rank_counterexample` proves rank-one two-position logits yield
+      rank-two attention, refuting the original query/key-dimension premise.
+      Main text, supplement, Table S1 and primer give the valid scope.
+      **Open follow-up:** a physical kernel spectrum / continuum Mercer bridge
+      and an independently justified rank constraint on an attention operator.
+      G10(b) is also complete: `mutualInfo_le_output_entropy` bounds the existing
+      KL information, including zero atoms; `token_information_bits_le` gives
+      k log₂|V| bits for arbitrary finite joint laws of whole sequences, and
+      `no_tokens_no_information` proves zero at k = 0. The binary copy attains
+      one bit; the independent-output control has the same marginals and zero
+      information. Cache state and timing are not silently included.
 
 ---
 
@@ -1461,7 +1436,7 @@ a concrete future-work target. A staff engineer reading the diff would say:
       **Verify:** Notation table updated; no single section uses the same
       symbol for two things.
 
-- [ ] **G14 — Minor citations and data availability.**
+- [x] **G14 — Minor citations and data availability.**
       *Review concerns: Minor §§2–14.*
       **Action (batch):**
       (a) Add Strogatz & Mirollo 1991 alongside Sakaguchi 1988 for K_c = 2D.
@@ -1497,5 +1472,33 @@ a concrete future-work target. A staff engineer reading the diff would say:
 
 ### Review section
 
-*To be filled as items complete. Format: G# — date — outcome — proof hook
-results.*
+G1 — 2026-09-23 — Replica bootstrap added to the dynamic-ramp report and
+generated TeX macros. `test_dynamic_ramp`, `test_dynamic_ramp_analysis`,
+`test_dynamic_ramp_report`, and `test_simulation_tex` pass.
+
+### 2026-09-23 — G9 / G10 Lean derivations and premise checks
+
+Specification: `tasks/g9_g10_lean.md`. Failing headline-name and typed witness
+regressions were run before integration. The formal results use only the three
+permitted logical axioms. The spectral proof uses Parseval, projection onto the
+competitor's range, and a finite weight-exchange inequality, with no spectral
+gap assumption disguised as a field. The current bound uses square completion
+on the positive normalized density. No new physical structure or postulate is
+introduced. Existing unrelated workspace changes are preserved.
+
+Validation results are recorded in the specification after the final build.
+
+### 2026-09-23 — G10(b) and G9(c), Lean-first continuation
+
+Proved finite-output information capacity in `Phase3_FiniteInformation` and
+sequence capacity in `Phase6_Reconstruction`. The proof uses the existing
+measure-theoretic KL definition; reference atoms need not all be positive.
+`Examples/InformationCapacity` checks a saturating binary copy and an independent
+control. The Fokker--Planck weighted-current inequality gives a cosine-moment
+speed bound by integration by parts; the sinusoidal-drive witness has nonzero
+rate and positive cost. A uniform solution with positive exponential coupling
+has arbitrary coupling derivative and zero phase-current cost, so an
+unrestricted coupling-ramp speed bound is refuted. Remaining G tasks concern
+simulations, references, protocols or physical calibration, not a specified
+unproved Lean theorem. Final combined verification is recorded in the G9/G10
+specification.

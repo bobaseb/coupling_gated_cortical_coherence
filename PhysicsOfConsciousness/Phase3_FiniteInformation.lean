@@ -1,4 +1,5 @@
 import PhysicsOfConsciousness.Phase3_PredictiveThermodynamics
+import PhysicsOfConsciousness.Phase1_PhaseSpaceCapacity
 
 /-!
 # Finite probability laws and the measure-theoretic information API
@@ -247,5 +248,88 @@ theorem mutualInfo_finite {X S : Type*} [Fintype X] [Fintype S]
   have hcover : s = ⋃ z : s, ({z.val} : Set (X × S)) := by ext z; simp
   rw [hcover]
   exact measure_iUnion_null fun z => hatom z.val z.property
+
+/-! ## The information capacity of a finite output -/
+
+variable {X V : Type*} [Fintype X] [Fintype V]
+  [MeasurableSpace X] [MeasurableSpace V] [MeasurableSingletonClass X]
+  [MeasurableSingletonClass V]
+
+/-- The existing KL-based mutual information is at most the output marginal
+entropy on finite discrete spaces, allowing zero atoms and stochastic emissions.
+No channel independence, dynamics or thermodynamic identification is assumed. -/
+lemma mutualInfo_le_output_entropy (μ : Measure (X × V)) [IsProbabilityMeasure μ] :
+    (mutualInfo μ).toReal ≤ shannon_entropy (fun v => μ.snd.real {v}) := by
+  have hac := (klDiv_ne_top_iff.mp (mutualInfo_finite μ)).1
+  have hrepr : (mutualInfo μ).toReal =
+      ∑ z, μ.real {z} * llr μ (μ.fst.prod μ.snd) z := by
+    rw [mutualInfo, toReal_klDiv_of_measure_eq hac (by simp), integral_fintype Integrable.of_finite]
+    rfl
+  have hterm (z : X × V) : μ.real {z} * llr μ (μ.fst.prod μ.snd) z ≤
+      μ.real {z} * (-Real.log (μ.snd.real {z.2})) := by
+    have hp : 0 ≤ μ.real {z} := ENNReal.toReal_nonneg
+    rcases hp.eq_or_lt with hz | hp
+    · rw [← hz]; simp
+    have hxle : μ.real {z} ≤ μ.fst.real {z.1} := by
+      simp only [Measure.real]
+      rw [Measure.fst_apply (measurableSet_singleton _)]
+      exact ENNReal.toReal_mono (measure_ne_top _ _) (measure_mono (by intro w hw; simpa using congrArg Prod.fst (Set.mem_singleton_iff.mp hw)))
+    have hyle : μ.real {z} ≤ μ.snd.real {z.2} := by
+      simp only [Measure.real]
+      rw [Measure.snd_apply (measurableSet_singleton _)]
+      exact ENNReal.toReal_mono (measure_ne_top _ _) (measure_mono (by intro w hw; simpa using congrArg Prod.snd (Set.mem_singleton_iff.mp hw)))
+    have hx := hp.trans_le hxle
+    have hy := hp.trans_le hyle
+    have hprod : (μ.fst.prod μ.snd).real {z} = μ.fst.real {z.1} * μ.snd.real {z.2} := by
+      have heq : ({z} : Set (X × V)) = {z.1} ×ˢ {z.2} := by ext w; simp [Prod.ext_iff]
+      simp only [Measure.real, heq, Measure.prod_prod, ENNReal.toReal_mul]
+    have hr := Measure.setLIntegral_rnDeriv hac {z}
+    rw [lintegral_singleton] at hr
+    have hr' := congrArg ENNReal.toReal hr
+    simp only [ENNReal.toReal_mul] at hr'
+    change (μ.rnDeriv (μ.fst.prod μ.snd) z).toReal * (μ.fst.prod μ.snd).real {z} = μ.real {z} at hr'
+    rw [hprod] at hr'
+    have hrn : (μ.rnDeriv (μ.fst.prod μ.snd) z).toReal =
+        μ.real {z} / (μ.fst.real {z.1} * μ.snd.real {z.2}) :=
+      (eq_div_iff (mul_pos hx hy).ne').mpr hr'
+    have hratio : μ.real {z} / (μ.fst.real {z.1} * μ.snd.real {z.2}) ≤
+        1 / μ.snd.real {z.2} := by
+      apply (div_le_div_iff₀ (mul_pos hx hy) hy).mpr
+      nlinarith
+    apply mul_le_mul_of_nonneg_left _ hp.le
+    rw [llr, hrn]
+    calc
+      _ ≤ Real.log (1 / μ.snd.real {z.2}) := Real.log_le_log (div_pos hp (mul_pos hx hy)) hratio
+      _ = _ := by rw [one_div, Real.log_inv]
+  rw [hrepr]
+  refine (Finset.sum_le_sum (fun z _ => hterm z)).trans_eq ?_
+  have hmap : (∫ v, -Real.log (μ.snd.real {v}) ∂μ.snd) =
+      ∫ z, -Real.log (μ.snd.real {z.2}) ∂μ := by
+    exact integral_map measurable_snd.aemeasurable
+      (measurable_of_countable (fun v => -Real.log (μ.snd.real {v}))).aestronglyMeasurable
+  rw [integral_fintype Integrable.of_finite, integral_fintype Integrable.of_finite] at hmap
+  simp only [smul_eq_mul] at hmap
+  rw [← hmap, shannon_entropy]
+  simp only [mul_neg, Finset.sum_neg_distrib]
+
+/-- Every finite joint law transmits at most log of the output alphabet size
+in nats. The input and output spaces here are finite; this is a channel ceiling,
+not a guarantee that any output is informative. -/
+lemma mutualInfo_le_log_card [Nonempty V] (μ : Measure (X × V)) [IsProbabilityMeasure μ] :
+    (mutualInfo μ).toReal ≤ Real.log (Fintype.card V) := by
+  apply (mutualInfo_le_output_entropy μ).trans
+  apply shannon_entropy_le_log_card
+  exact ⟨fun _ => ENNReal.toReal_nonneg, by simp⟩
+
+/-- The finite-output information ceiling in bits. It prices this observed
+output only; an internal cache or other side channel is not counted by the
+alphabet unless it is included in the declared output variable. -/
+lemma mutualInfo_bits_le_log_card [Nonempty V] (μ : Measure (X × V)) [IsProbabilityMeasure μ] :
+    (mutualInfo μ).toReal / Real.log 2 ≤ Real.log (Fintype.card V) / Real.log 2 :=
+  div_le_div_of_nonneg_right (mutualInfo_le_log_card μ) (Real.log_nonneg (by norm_num))
+
+#print axioms mutualInfo_le_output_entropy
+#print axioms mutualInfo_le_log_card
+#print axioms mutualInfo_bits_le_log_card
 
 end PhysicsOfConsciousness

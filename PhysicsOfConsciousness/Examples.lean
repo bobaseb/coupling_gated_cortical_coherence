@@ -170,3 +170,6 @@ import PhysicsOfConsciousness.Examples.AgencyFoundations
 import PhysicsOfConsciousness.Examples.VectorContent
 import PhysicsOfConsciousness.Examples.Reconstruction
 import PhysicsOfConsciousness.Examples.Locality
+
+import PhysicsOfConsciousness.Examples.AttentionRank
+import PhysicsOfConsciousness.Examples.InformationCapacity

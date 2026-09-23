@@ -1,4 +1,6 @@
 import PhysicsOfConsciousness.Phase6_ReflexiveTopology
+import PhysicsOfConsciousness.Phase6_AttentionRank
+import PhysicsOfConsciousness.Phase3_FiniteInformation
 import Mathlib.Topology.MetricSpace.CoveringNumbers
 import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
 
@@ -766,6 +768,58 @@ end Floor
 #print axioms two_pow_lt_packingNumber_of_lt_measure
 #print axioms two_pow_lt_packingNumber_of_lt_measure_haar
 #print axioms Encoding.encard_le_two_pow_of_packingNumber_le
+
+/-- A linear encoder/readout factoring a target spatial operator through a
+finite-dimensional code space incurs its omitted squared spectral tail. The
+code-space dimension derives the rank constraint. This is an average squared
+error on the supplied eigenbasis, not a uniform reconstruction guarantee, a
+finite-bit capacity bound, or a rank bound for nonlinear softmax attention. -/
+lemma linear_bottleneck_error {ι E F : Type*} [Fintype ι] [DecidableEq ι]
+    [NormedAddCommGroup E] [InnerProductSpace ℝ E] [FiniteDimensional ℝ E]
+    [AddCommGroup F] [Module ℝ F] [FiniteDimensional ℝ F]
+    (b : OrthonormalBasis ι ℝ E) (K : E →ₗ[ℝ] E)
+    (encode : E →ₗ[ℝ] F) (decode : F →ₗ[ℝ] E)
+    (lam : ι → ℝ) (S : Finset ι) (τ : ℝ)
+    (heigen : ∀ i, K (b i) = lam i • b i)
+    (hbudget : Module.finrank ℝ F ≤ S.card)
+    (hτ : 0 ≤ τ) (hin : ∀ i ∈ S, τ ≤ lam i ^ 2)
+    (hout : ∀ i ∉ S, lam i ^ 2 ≤ τ) :
+    ∑ i ∈ Sᶜ, lam i ^ 2 ≤ ∑ i, ‖K (b i) - decode (encode (b i))‖ ^ 2 := by
+  apply AttentionRank.spectral_tail_le_error b K (decode.comp encode) lam S τ heigen
+  · exact (Submodule.finrank_mono (LinearMap.range_comp_le_range encode decode)).trans
+      (decode.finrank_range_le.trans hbudget)
+  · exact hτ
+  · exact hin
+  · exact hout
+
+#print axioms linear_bottleneck_error
+
+open MeasureTheory
+/-- A fixed-length sequence of k vocabulary symbols carries at most k log₂|V|
+bits about a finite input state. The entire joint law is arbitrary, so token
+independence is unnecessary. Cache state and timing are separate outputs unless
+explicitly included in this alphabet; variable-length termination is not free. -/
+lemma token_information_bits_le {X V : Type*} [Fintype X] [Fintype V] [Nonempty V]
+    [MeasurableSpace X] [MeasurableSpace V] [MeasurableSingletonClass X]
+    [MeasurableSingletonClass V] (k : ℕ) (μ : Measure (X × (Fin k → V)))
+    [IsProbabilityMeasure μ] :
+    (mutualInfo μ).toReal / Real.log 2 ≤ k * (Real.log (Fintype.card V) / Real.log 2) := by
+  calc
+    _ ≤ Real.log (Fintype.card (Fin k → V)) / Real.log 2 := mutualInfo_bits_le_log_card μ
+    _ = _ := by rw [Fintype.card_fun, Fintype.card_fin, Nat.cast_pow, Real.log_pow]; ring
+/-- With no emitted symbols the output is a singleton and conveys exactly
+zero information, including for a nontrivial hidden state. -/
+lemma no_tokens_no_information {X V : Type*} [Fintype X] [Fintype V] [Nonempty V]
+    [MeasurableSpace X] [MeasurableSpace V] [MeasurableSingletonClass X]
+    [MeasurableSingletonClass V] (μ : Measure (X × (Fin 0 → V)))
+    [IsProbabilityMeasure μ] : mutualInfo μ = 0 := by
+  have h := mutualInfo_le_log_card μ
+  simp only [Fintype.card_fun, Fintype.card_fin, pow_zero, Nat.cast_one, Real.log_one] at h
+  exact ((ENNReal.toReal_eq_zero_iff _).mp (le_antisymm h ENNReal.toReal_nonneg)).resolve_right
+    (mutualInfo_finite μ)
+
+#print axioms token_information_bits_le
+#print axioms no_tokens_no_information
 
 end PhysicsOfConsciousness.Reconstruction
 

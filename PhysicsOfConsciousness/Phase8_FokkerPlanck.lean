@@ -236,4 +236,209 @@ theorem supercritical_stationary_existsUnique {D K : ℝ} (hD : 0 < D)
 #print axioms stationary_iff_vonMises
 #print axioms supercritical_stationary_existsUnique
 
+/-! ## Order, current, and dissipation -/
+
+
+/-- Above threshold, positive self-consistent stationary order coexists with
+zero current dissipation. The constant-in-time state also refutes a strictly
+positive time-averaged bound based only on order and diffusion. No driven
+cortical steady state or convergence to this equilibrium is asserted. -/
+theorem supercritical_zero_dissipation {D K : ℝ} (hD : 0 < D)
+    (hKD : critical_coupling D < K) :
+    ∃ r ρ, 0 < r ∧ r ≤ 1 ∧ IsStationary D (drift K r) ρ ∧
+      circularOrderParameter ρ = (r : ℂ) ∧ currentDissipation D (drift K r) ρ = 0 := by
+  obtain ⟨r, ⟨hr, hr1, ρ, hstat, horder⟩, _⟩ :=
+    supercritical_stationary_existsUnique hD hKD
+  refine ⟨r, ρ, hr, hr1, hstat, horder, ?_⟩
+  rw [(stationary_iff_vonMises hD K r ρ).mp hstat]
+  simp [currentDissipation, vonMises_current_zero hD.ne']
+
+/-- A bounded test function's integrated current has squared magnitude at
+most diffusion times current dissipation. The proof is weighted square
+completion, not a physical speed postulate. Normalization, positivity and
+continuity are explicit; a bound on the test function is required. -/
+lemma weighted_current_sq_le {D : ℝ} (hD : 0 < D) {v ρ g : ℝ → ℝ}
+    (hρ : Continuous ρ) (hpos : ∀ θ, 0 < ρ θ)
+    (hnorm : (∫ θ in (-π)..π, ρ θ) = 1)
+    (hJ : Continuous (current D v ρ)) (hg : Continuous g) (hgb : ∀ θ, g θ ^ 2 ≤ 1) :
+    (∫ θ in (-π)..π, g θ * current D v ρ θ) ^ 2 ≤ D * currentDissipation D v ρ := by
+  let m := ∫ θ in (-π)..π, g θ * current D v ρ θ
+  have hq : Continuous (fun θ => current D v ρ θ ^ 2 / ρ θ) :=
+    (hJ.pow 2).div hρ (fun θ => (hpos θ).ne')
+  have hw : Continuous (fun θ => g θ ^ 2 * ρ θ) := (hg.pow 2).mul hρ
+  have hmass : (∫ θ in (-π)..π, g θ ^ 2 * ρ θ) ≤ 1 := by
+    rw [← hnorm]
+    apply intervalIntegral.integral_mono_on (by linarith [Real.pi_pos])
+      (hw.intervalIntegrable _ _) (hρ.intervalIntegrable _ _)
+    intro θ _
+    nlinarith [hgb θ, hpos θ]
+  have hexpand : (∫ θ in (-π)..π,
+      (current D v ρ θ - m * g θ * ρ θ) ^ 2 / ρ θ) =
+      (∫ θ in (-π)..π, current D v ρ θ ^ 2 / ρ θ) - 2 * m ^ 2 +
+        m ^ 2 * (∫ θ in (-π)..π, g θ ^ 2 * ρ θ) := by
+    have heq : (fun θ => (current D v ρ θ - m * g θ * ρ θ) ^ 2 / ρ θ) =
+        fun θ => current D v ρ θ ^ 2 / ρ θ - 2 * m * (g θ * current D v ρ θ) +
+          m ^ 2 * (g θ ^ 2 * ρ θ) := by
+      funext θ
+      field_simp [(hpos θ).ne']
+      ring
+    have hiq : IntervalIntegrable (fun θ => current D v ρ θ ^ 2 / ρ θ)
+        volume (-π) π := hq.intervalIntegrable _ _
+    have hiJ : IntervalIntegrable (fun θ => 2 * m * (g θ * current D v ρ θ))
+        volume (-π) π := ((hg.mul hJ).const_mul _).intervalIntegrable _ _
+    have hir : IntervalIntegrable (fun θ => m ^ 2 * (g θ ^ 2 * ρ θ))
+        volume (-π) π := (hw.const_mul _).intervalIntegrable _ _
+    have hisub : IntervalIntegrable
+        (fun θ => current D v ρ θ ^ 2 / ρ θ - 2 * m * (g θ * current D v ρ θ))
+        volume (-π) π := hiq.sub hiJ
+    rw [heq, intervalIntegral.integral_add hisub hir,
+      intervalIntegral.integral_sub hiq hiJ,
+      intervalIntegral.integral_const_mul, intervalIntegral.integral_const_mul]
+    dsimp [m]
+    ring
+  have hnonneg : 0 ≤ ∫ θ in (-π)..π,
+      (current D v ρ θ - m * g θ * ρ θ) ^ 2 / ρ θ :=
+    intervalIntegral.integral_nonneg (by linarith [Real.pi_pos])
+      (fun θ _ => div_nonneg (sq_nonneg _) (hpos θ).le)
+  have hscale : D * currentDissipation D v ρ =
+      ∫ θ in (-π)..π, current D v ρ θ ^ 2 / ρ θ := by
+    rw [currentDissipation, ← intervalIntegral.integral_const_mul]
+    apply intervalIntegral.integral_congr
+    intro θ _
+    field_simp
+  rw [hexpand] at hnonneg
+  rw [hscale]
+  have hmass' := mul_le_mul_of_nonneg_left hmass (sq_nonneg m)
+  dsimp [m] at *
+  nlinarith
+
+
+/-- The normalized positive density pays at least squared mean current divided
+by diffusion. This square-completion bound uses the density and its own current;
+positive order alone does not ensure nonzero mean current. Conversion to power
+requires a thermal scale and a physical identification of this entropy production. -/
+theorem current_integral_sq_le {D : ℝ} (hD : 0 < D) {v ρ : ℝ → ℝ}
+    (hρ : Continuous ρ) (hpos : ∀ θ, 0 < ρ θ)
+    (hnorm : (∫ θ in (-π)..π, ρ θ) = 1)
+    (hJ : Continuous (current D v ρ)) :
+    (∫ θ in (-π)..π, current D v ρ θ) ^ 2 ≤ D * currentDissipation D v ρ := by
+  simpa using weighted_current_sq_le hD hρ hpos hnorm hJ
+    (continuous_const : Continuous (fun _ : ℝ => (1 : ℝ))) (fun _ => by norm_num)
+
+/-- No bound strictly positive at every positive order holds for all stationary
+self-consistent states above threshold. A nonequilibrium drive or current constraint
+is additional physical information; this result does not rule out bounds using it. -/
+theorem no_positive_order_only_bound {D K : ℝ} (hD : 0 < D)
+    (hKD : critical_coupling D < K) (f : ℝ → ℝ) (hf : ∀ r, 0 < r → 0 < f r) :
+    ¬ ∀ r ρ, 0 < r → r ≤ 1 → IsStationary D (drift K r) ρ →
+      circularOrderParameter ρ = (r : ℂ) → f r ≤ currentDissipation D (drift K r) ρ := by
+  obtain ⟨r, ρ, hr, hr1, hs, ho, hd⟩ := supercritical_zero_dissipation hD hKD
+  intro h
+  have hb := h r ρ hr hr1 hs ho
+  rw [hd] at hb
+  exact (not_le_of_gt (hf r hr)) hb
+
+/-- Uniform density under a constant drive carries its explicit constant current. -/
+theorem uniform_current (D ω θ : ℝ) :
+    current D (fun _ => ω) (fun _ => 1 / (2 * π)) θ = ω / (2 * π) := by
+  simp [current, div_eq_mul_inv]
+
+/-- A uniform driven state attains the current lower bound exactly. The drive
+is prescribed; its units and physical work source are not derived here. -/
+theorem uniform_current_dissipation (D ω : ℝ) :
+    currentDissipation D (fun _ => ω) (fun _ => 1 / (2 * π)) = ω ^ 2 / D := by
+  simp only [currentDissipation, uniform_current, intervalIntegral.integral_const, smul_eq_mul]
+  by_cases hD : D = 0
+  · simp [hD]
+  · field_simp
+    ring
+
+/-- The constant-drive uniform state solves the stationary equation. With
+nonzero drive it has nonzero current, so the current bound has nontrivial
+equality cases. This witness has zero phase order. -/
+theorem uniform_driven_stationary (D ω : ℝ) :
+    IsStationary D (fun _ => ω) (fun _ => 1 / (2 * π)) := by
+  have hcur : current D (fun _ => ω) (fun _ => 1 / (2 * π)) = fun _ => ω / (2 * π) :=
+    funext (uniform_current D ω)
+  refine ⟨differentiable_const _, fun _ => rfl, fun _ => by positivity, ?_, ?_, ?_⟩
+  · rw [intervalIntegral.integral_const]
+    simp only [smul_eq_mul]
+    field_simp
+    ring
+  · rw [hcur]
+    exact differentiable_const _
+  · intro θ
+    simp only [operator, hcur, deriv_const, neg_zero]
+
+
+#print axioms supercritical_zero_dissipation
+#print axioms current_integral_sq_le
+#print axioms no_positive_order_only_bound
+#print axioms uniform_current_dissipation
+#print axioms uniform_driven_stationary
+
+/-- The cosine moment of the Fokker--Planck operator obeys a speed bound.
+Integration by parts identifies its rate with minus the sine-weighted current.
+For a classical evolving density, this is its mean-cosine speed whenever time
+differentiation under the integral is justified. This theorem constructs no
+evolution and bounds neither the magnitude of the complex order parameter nor
+the speed of an externally specified coupling parameter. -/
+lemma cosine_rate_sq_le_dissipation {D : ℝ} (hD : 0 < D) {v ρ : ℝ → ℝ}
+    (hρ : Continuous ρ) (hpos : ∀ θ, 0 < ρ θ)
+    (hnorm : (∫ θ in (-π)..π, ρ θ) = 1)
+    (hJ : Differentiable ℝ (current D v ρ))
+    (hJ' : Continuous (deriv (current D v ρ)))
+    (hper : Function.Periodic (current D v ρ) (2 * π)) :
+    (∫ θ in (-π)..π, Real.cos θ * operator D v ρ θ) ^ 2 ≤
+      D * currentDissipation D v ρ := by
+  have hb := weighted_current_sq_le hD hρ hpos hnorm hJ.continuous
+    Real.continuous_sin (fun θ => by nlinarith [Real.sin_sq_add_cos_sq θ, sq_nonneg (Real.cos θ)])
+  have hi := intervalIntegral.integral_mul_deriv_eq_deriv_mul_of_hasDerivAt
+    Real.continuous_cos.continuousOn hJ.continuous.continuousOn
+    (fun θ _ => Real.hasDerivAt_cos θ) (fun θ _ => (hJ θ).hasDerivAt)
+    (Real.continuous_sin.neg.intervalIntegrable (-π) π) (hJ'.intervalIntegrable (-π) π)
+  have hends : current D v ρ π = current D v ρ (-π) := by
+    simpa only [show -π + 2 * π = π by ring] using hper (-π)
+  simp only [Real.cos_pi, Real.cos_neg, hends, sub_self, neg_mul,
+    intervalIntegral.integral_neg, zero_sub, neg_neg] at hi
+  have hrate : (∫ θ in (-π)..π, Real.cos θ * operator D v ρ θ) =
+      -(∫ θ in (-π)..π, Real.sin θ * current D v ρ θ) := by
+    simp only [operator, mul_neg, intervalIntegral.integral_neg, hi]
+  rwa [hrate, neg_sq]
+
+/-- A positive coupling can have any prescribed derivative while the uniform
+self-consistent state has zero current dissipation at all times. This refutes
+an unrestricted coupling-speed bound from phase-current cost alone. It does not
+refute a bound assuming positive order, an actuator cost, or a calibrated
+relation between coupling and the changing density. -/
+lemma arbitrary_coupling_speed_zero_cost (D a : ℝ) (hD : 0 < D) :
+    ∃ K : ℝ → ℝ, HasDerivAt K a 0 ∧ ∀ t, 0 < K t ∧
+      IsStationary D (drift (K t) 0) (vonMisesDensity 0) ∧
+      currentDissipation D (drift (K t) 0) (vonMisesDensity 0) = 0 := by
+  refine ⟨fun t => Real.exp (a * t), ?_, fun t => ?_⟩
+  · simpa using ((hasDerivAt_id (0 : ℝ)).const_mul a).exp
+  · have hs := vonMises_stationary hD (Real.exp (a * t)) 0
+    simp only [mul_zero, zero_div] at hs
+    refine ⟨Real.exp_pos _, hs, ?_⟩
+    have hzero (θ : ℝ) : current D (drift (Real.exp (a * t)) 0) (vonMisesDensity 0) θ = 0 := by
+      simpa only [mul_zero, zero_div] using vonMises_current_zero hD.ne' (Real.exp (a * t)) 0 θ
+    simp [currentDissipation, hzero]
+
+/-- The uniform density is an actual constant-in-time solution of the
+nonautonomous continuity equation for every prescribed coupling schedule.
+This rules out dismissing the zero-cost ramp as merely successive unrelated
+stationary states. It is an incoherent solution, not an ordered recovery path. -/
+theorem uniform_time_dependent_solution {D : ℝ} (hD : 0 < D) (K : ℝ → ℝ) (t θ : ℝ) :
+    HasDerivAt (fun _t : ℝ => vonMisesDensity 0 θ)
+      (operator D (drift (K t) 0) (vonMisesDensity 0) θ) t := by
+  have hs := vonMises_stationary hD (K t) 0
+  simp only [mul_zero, zero_div] at hs
+  rw [hs.2.2.2.2.2 θ]
+  exact hasDerivAt_const t _
+
+#print axioms weighted_current_sq_le
+#print axioms cosine_rate_sq_le_dissipation
+#print axioms arbitrary_coupling_speed_zero_cost
+#print axioms uniform_time_dependent_solution
+
 end PhysicsOfConsciousness.FokkerPlanck

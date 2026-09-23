@@ -2991,6 +2991,32 @@ stationary density on a line, or under a drift that is not the slope of a
 potential, can carry nonzero current, so the word ``stationary'' alone does not
 justify setting $J=0$.
 
+\subsection{Order does not by itself cost dissipation}
+
+The ordered stationary state has a nonuniform density and zero probability
+current. Its current-based entropy production,
+$\sigma_J=\int J^2/(D\rho)$, is therefore zero even when its order is positive.
+Keeping that density fixed in time also keeps its time-averaged cost zero.
+Positive order alone cannot force continuous heat production in this model.
+
+There is a quantitative statement when current is specified. For a continuous
+positive normalized density and continuous current,
+\[
+ \left(\int_{-\pi}^{\pi}J\right)^2\leq D\sigma_J.
+\]
+To see it, put $m=\int J$ and expand the nonnegative integral
+$\int(J-m\rho)^2/\rho=D\sigma_J-m^2$.
+A uniform density driven at constant angular velocity $\omega$ attains equality:
+$J=\omega/(2\pi)$ and $\sigma_J=\omega^2/D$. The formalization checks both
+this stationary witness and an ordered zero-cost witness. Applying the bound
+to cortical power requires the physical drive, its current and a thermal scale;
+the squared-drift objective used for coupling plasticity is a separate quantity.
+For the cosine moment of a sufficiently regular evolving density, the continuity
+equation also gives $\dot m^2\leq D\sigma_J$. This limits density change.
+It places no general limit on an external coupling ramp: the uniform density
+solves the time-dependent equation with zero current cost even for
+$K(t)=e^{at}$ and arbitrary slope $K'(0)=a$.
+
 \subsection{Make the population reproduce its own average}
 
 \why
@@ -4765,6 +4791,40 @@ bound is an obligation on each instance, not a consequence of field dynamics,
 and no field dynamics in the development produces the read-out map. E89 carries
 both the Lipschitz law and the identification of the glued section with the
 fixed point---Banach supplies uniqueness, not that identification.
+
+\subsection{An output's information ceiling}
+
+An emitted token can distinguish at most its vocabulary's worth of outcomes.
+The information statement is $I(X;Y)\leq H(Y)\leq\log_2|V|$ bits for a finite
+joint law of internal state and emitted symbol. Over $k$ tokens the ceiling is
+$k\log_2|V|$, even when emissions depend on one another. No tokens convey zero
+information. The formalization checks both a binary copy carrying one bit and
+an independent binary output carrying none. This counts what is emitted;
+internal cache state or a timing channel is a different output variable.
+
+\subsection{The error of a linear bottleneck}
+
+A linear encoder can retain only as many independent directions as its code
+space has real coordinates. This gives a quantitative comparison when the
+target is a finite spatial coupling operator with orthonormal eigenmodes.
+Order their eigenvalues by magnitude. If the encoder and readout factor through
+$d$ coordinates, their composite $A$ satisfies
+\[
+ \sum_{i=1}^N\|Ke_i-Ae_i\|^2\geq\sum_{i=d+1}^N\lambda_i^2.
+\]
+Retaining the first $d$ eigenmodes attains equality. With eigenvalues three and
+one, retaining one mode pays squared error one, and every other rank-one
+linear approximation pays at least one. The proof allows approximations that
+mix the modes; it does not assume they discard eigenmodes individually.
+
+The restriction must describe the actual operator. A softmax attention matrix
+need not have the rank of its logits: logits
+$\left(\begin{smallmatrix}0&0\\0&1\end{smallmatrix}\right)$ have rank one,
+whereas their row softmax has rank two. Consequently query/key dimension alone
+does not make this bound a restriction on ordinary softmax attention.
+The target spectrum also has to be supplied. These are finite-dimensional
+linear approximation results, not a universal distinction between digital
+machines and continuous media or a bound on the number of stored bits.
 
 \subsection{Approximate reconstruction}
 

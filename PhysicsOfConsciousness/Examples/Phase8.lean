@@ -454,7 +454,84 @@ theorem incoherent_stable_one_one : ¬ ∃ n : ℕ, 0 < n ∧ 0 < incoherentRate
   have := (incoherent_instability_iff one_pos 1).mp h
   linarith
 
+/-- Positive self-consistent order with zero current dissipation at D = 1,
+K = 3. The witness rules out an order-only positive cost even for a constant
+trajectory; it does not model a driven cortical state. -/
+theorem ordered_zero_cost : ∃ (r : ℝ) (ρ : ℝ → ℝ), 0 < r ∧ r ≤ 1 ∧
+    FokkerPlanck.IsStationary 1 (FokkerPlanck.drift 3 r) ρ ∧ circularOrderParameter ρ = (r : ℂ) ∧
+      currentDissipation 1 (FokkerPlanck.drift 3 r) ρ = 0 :=
+  supercritical_zero_dissipation one_pos (by norm_num [critical_coupling])
+
+/-- A nonzero imposed drive exercises the sharp current-cost bound: the
+uniform stationary density has cost four. This state has zero order. -/
+theorem driven_uniform_cost :
+    IsStationary 1 (fun _ => 2) (fun _ => 1 / (2 * Real.pi)) ∧
+    currentDissipation 1 (fun _ => 2) (fun _ => 1 / (2 * Real.pi)) = 4 := by
+  refine ⟨uniform_driven_stationary 1 2, ?_⟩
+  rw [uniform_current_dissipation]
+  norm_num
+
+#print axioms ordered_zero_cost
+#print axioms driven_uniform_cost
+
 end StationaryWitness
+
+/-! ## 22. A nonzero cosine-moment rate under a sinusoidal drive -/
+namespace CurrentSpeedWitness
+open Real intervalIntegral FokkerPlanck
+
+noncomputable def density (_θ : ℝ) : ℝ := 1 / (2 * π)
+/-- The sinusoidal external drive gives a nonconstant probability current. -/
+lemma current_sine (θ : ℝ) : current 1 Real.sin density θ = Real.sin θ / (2 * π) := by
+  rw [current, (show HasDerivAt density 0 θ from hasDerivAt_const θ (1 / (2 * π))).deriv]
+  simp [density]; ring
+/-- The forward operator has a nonzero cosine component on the uniform density. -/
+lemma operator_sine (θ : ℝ) : operator 1 Real.sin density θ = -Real.cos θ / (2 * π) := by
+  have hc : current 1 Real.sin density = fun θ => Real.sin θ / (2 * π) := funext current_sine
+  rw [operator, hc, ((Real.hasDerivAt_sin θ).div_const (2 * π)).deriv]
+  ring
+/-- The instantaneous cosine-moment rate is nonzero. This is an operator
+calculation at the density, not a constructed global trajectory. -/
+lemma sine_cosine_rate :
+    (∫ θ in (-π)..π, Real.cos θ * operator 1 Real.sin density θ) = -(1 / 2 : ℝ) := by
+  have hf : (fun θ => Real.cos θ * operator 1 Real.sin density θ) =
+      fun θ => -(1 / (2 * π)) * Real.cos θ ^ 2 := by
+    funext θ; rw [operator_sine]; ring
+  rw [hf, intervalIntegral.integral_const_mul, integral_cos_sq]
+  simp only [Real.cos_pi, Real.sin_pi, Real.cos_neg, Real.sin_neg, neg_zero, mul_zero,
+    sub_zero, zero_add, sub_neg_eq_add]
+  field_simp; ring
+/-- The nonconstant-current witness has strictly positive dissipation. -/
+lemma sine_dissipation : currentDissipation 1 Real.sin density = (1 / 2 : ℝ) := by
+  have hf : (fun θ => current 1 Real.sin density θ ^ 2 / (1 * density θ)) =
+      fun θ => 1 / (2 * π) * Real.sin θ ^ 2 := by
+    funext θ; rw [current_sine, density]; field_simp
+  rw [currentDissipation, hf, intervalIntegral.integral_const_mul, integral_sin_sq]
+  simp only [Real.cos_pi, Real.sin_pi, Real.cos_neg, Real.sin_neg, neg_zero, zero_mul,
+    sub_zero, zero_add, sub_neg_eq_add]
+  field_simp; ring
+/-- The general speed bound applies to the nonzero-rate, positive-cost
+witness. It bounds the operator moment and supplies no actuator-cost model. -/
+lemma sine_speed_bound :
+    (∫ θ in (-π)..π, Real.cos θ * operator 1 Real.sin density θ) ^ 2 ≤
+      currentDissipation 1 Real.sin density := by
+  have hc : current 1 Real.sin density = fun θ => Real.sin θ / (2 * π) := funext current_sine
+  have hd : deriv (current 1 Real.sin density) = fun θ => Real.cos θ / (2 * π) := by
+    funext θ
+    rw [hc, ((Real.hasDerivAt_sin θ).div_const (2 * π)).deriv]
+  have hn : (∫ θ in (-π)..π, density θ) = 1 := by
+    simp only [density, intervalIntegral.integral_const, smul_eq_mul]
+    field_simp; ring
+  have h := cosine_rate_sq_le_dissipation (v := Real.sin) (ρ := density) one_pos (continuous_const : Continuous density)
+    (fun _ => by change 0 < 1 / (2 * π); positivity) hn
+    (by rw [hc]; exact Real.differentiable_sin.div_const _)
+    (by rw [hd]; fun_prop)
+    (by intro θ; rw [hc]; simp [Real.sin_add_two_pi])
+  simpa only [one_mul] using h
+#print axioms sine_cosine_rate
+#print axioms sine_dissipation
+#print axioms sine_speed_bound
+end CurrentSpeedWitness
 
 end Examples
 end PhysicsOfConsciousness

@@ -70,7 +70,7 @@ The mathematical contribution is to specify connections between these requiremen
 
 The empirical contribution is to identify what observations can decide. Stationary phase distributions can be shared by stronger coupling, weaker diffusion and a matched common drive. Finite ramps change the observable onset. A winding field is stationary at the same coupling as a uniform one and has the opposite resultant, so that observable does not determine the state. Coherent adaptation can lose alignment with a designated environmental template, and a compatibility estimator needs diagnostics that distinguish content from decoder artifacts. These findings determine the measurements needed to test the proposed connections.
 
-Three of the ingredients are standard: the synchronization threshold $K_c=2D$ for the noisy mean-field model \cite{sakaguchi1988}, the unique gluing of compatible local sections, and the Banach fixed-point theorem \cite{banach1922}. Four things here are not. The installed-energy condition makes coupling a purchased quantity: a declared actuator's stored energy bounds the mean coupling it supplies, so coherence on the stationary branch carries a resource requirement in units a measurement can reach, and for cortex that requirement reduces to a figure the mode prices must deliver. The coherence-to-content bound converts phase order into a statement about descriptions rather than about timing, and its patch-local form is what keeps it from being vacuous in a large population. A stability criterion on the reweighted coupling kernel, together with an existence condition on an amplitude layer, settles when a low resultant reports weak coupling and when it reports a winding field. And the composition is machine-checked together with a witness discharging all eight hypotheses at once, which is what makes their conjunction non-empty rather than a list no object satisfies.
+Three of the ingredients are standard: the synchronization threshold $K_c=2D$ for the noisy mean-field model \cite{sakaguchi1988,strogatz1991}, the unique gluing of compatible local sections, and the Banach fixed-point theorem \cite{banach1922}. Four things here are not. The installed-energy condition makes coupling a purchased quantity: a declared actuator's stored energy bounds the mean coupling it supplies, so coherence on the stationary branch carries a resource requirement in units a measurement can reach, and for cortex that requirement reduces to a figure the mode prices must deliver. The coherence-to-content bound converts phase order into a statement about descriptions rather than about timing, and its patch-local form is what keeps it from being vacuous in a large population. A stability criterion on the reweighted coupling kernel, together with an existence condition on an amplitude layer, settles when a low resultant reports weak coupling and when it reports a winding field. And the composition is machine-checked together with a witness discharging all eight hypotheses at once, which is what makes their conjunction non-empty rather than a list no object satisfies.
 
 Granting those premises, collected in Table~\ref{tab:summary}, the account runs as follows. Extracellular contraction on awakening raises endogenous field amplitude and with it the effective coupling between cortical oscillators. Once that coupling passes $2D$, a coherent phase branch exists, and from an initial spread within a quarter turn the population settles onto it; other initial data leave windings stationary at the same coupling. Encoders shared where cortical territories overlap turn that phase order into agreement about the quantities the territories describe in common, so the local descriptions glue: there is one state of which each is a restriction. Part of that state encodes the state itself, and a readout of that part reconstructs it accurately enough, and sensitively enough across the states that matter, to make it the unique state the system models itself as being. On this account the glued state is what makes distributed activity one situation, and its accurate self-reconstruction is what gives that situation a perspective. Every step of it is conditional.
 
@@ -108,10 +108,10 @@ Section~\ref{sec:unconditional} collects the results that hold whatever physical
 \label{fig:chain}
 \end{figure}
 
-\section{What holds without the cortical hypothesis}
+\section{The landscape any phase-coherence account inherits}
 \label{sec:unconditional}
 
-Most of what follows is conditional. Table~\ref{tab:summary} names eight hypotheses that the composition consumes rather than derives, and the cortical identification of Section~\ref{sec:prediction} is a further commitment on top of them. Five results are not conditional in that way. They constrain any account that reads unity off phase coherence, whatever physical field is proposed to carry the coupling and whatever substrate carries the field. Each is stated below where it is used; collected here, they are the article's fixed points.
+Most of what follows is conditional. Table~\ref{tab:summary} names eight hypotheses that the composition consumes rather than derives, and the cortical identification of Section~\ref{sec:prediction} is a further commitment on top of them. The five results below, by contrast, are not conditional in that way. The mathematical features they rely on reflect standard properties of phase oscillators \cite{acebron2005,ott2008,dorfler2014,breakspear2017}, and this framework's contribution is tracking their implications for content decoding. They constrain any account that reads unity off phase coherence, whatever physical field is proposed to carry the coupling and whatever substrate carries the field. Each is stated below where it is used; collected here, they are the inherited constraints of the problem.
 
 \paragraph{Phase order constrains content only inside a patch too small to carry unity.} Assign every patch the same phase and let two local mass profiles disagree at a shared site. The profiles are chosen independently of phase, so synchrony places no constraint on their disagreement, and they have no common extension: perfect locking is consistent with local descriptions that do not glue (Section~\ref{sec:unity}). What the positive result of Section~\ref{sec:content-connection} costs is exactly this gap. A bound on content disagreement needs encoders already related on overlaps, and that relation is a supplied fact about the descriptions rather than a consequence of the dynamics. Supplying it relocates the limit rather than lifting it. Eq.~\eqref{eq:main-content-coherence} bounds every pair at once and a chord never exceeds $2$, so at the patch-local order of the sheet in Section~\ref{sec:wave} that uniform reading carries information only at \wavePatchInformativeSites{} sites or fewer. The grain is the uniform reading's and not phase order's, and Section~\ref{sec:content-connection} states three results without it: a scale-free count of the pairs that can disagree, which names none of them; a bound chained through the sites a cover's patches share, which travels a distance linear in the hops taken; and, at a frequency-locked configuration, a bound read off the coupling graph's algebraic connectivity, which carries no population count at all. What none of the three changes is the constraint stated here: a count locates no site, and the other two consume a declared cover or declared hardware data, so phase order by itself still says nothing about territories too far apart to share a patch, which is where the compatibility claim is made.
 
@@ -147,7 +147,7 @@ For identical frequencies in their rotating frame, the positive normalized stati
  r=R(a):=\frac{I_1(a)}{I_0(a)},
  \label{eq:selfconsistency}
 \end{equation}
-where $I_n$ are modified Bessel functions and $\psi$ is the collective phase. The formal derivation uses the absence of stationary current for a periodic gradient drift to obtain this density, then verifies normalization and self-consistency. At $K\leq K_c=2D$, only $r=0$ is self-consistent \cite{sakaguchi1988}. Above threshold, exactly one positive solution coexists with zero and increases strictly with $K$. Its onset is
+where $I_n$ are modified Bessel functions and $\psi$ is the collective phase. The formal derivation uses the absence of stationary current for a periodic gradient drift to obtain this density, then verifies normalization and self-consistency. At $K\leq K_c=2D$, only $r=0$ is self-consistent \cite{sakaguchi1988,strogatz1991}. Above threshold, exactly one positive solution coexists with zero and increases strictly with $K$. Its onset is
 \begin{equation}
  \frac{r^2}{K-K_c}\longrightarrow\frac1D,
  \qquad r\sim\sqrt{\frac{K-K_c}{D}}.
@@ -288,7 +288,33 @@ Throughout this section \emph{prediction} names a reconstruction map, and the re
 
 The results of Section~\ref{sec:unconditional} hold for any candidate, and for a large language model (LLM) running on graphics processing units (GPUs) four of them are checkable rather than merely stateable. Those four are where this framework bears on claims made for such systems. It does not exclude them, and no result here could; what it does is fix what a claim of unity or self-representation commits its maker to measuring.
 
+\paragraph{A quantitative bound for a linear bottleneck.}
+Let a finite spatial coupling operator $K$ have orthonormal eigenmodes
+$e_i$ with $|\lambda_1|\geq\cdots\geq|\lambda_N|$. Every linear
+approximation $A$ of rank at most $d$ satisfies
+\begin{equation}
+ \sum_{i=1}^{N}\|Ke_i-Ae_i\|^2\geq\sum_{i=d+1}^{N}\lambda_i^2.
+ \label{eq:spectral-bottleneck}
+\end{equation}
+Retaining the first $d$ modes attains equality. A linear encoder and readout
+factoring through $d$ real coordinates therefore pay this error. Applying the
+bound requires a spectrum for the target and a rank constraint on the actual
+approximation. Query/key dimension alone supplies no such constraint on
+softmax attention: even a two-position rank-one logit matrix can yield rank-two
+attention. The result prices an explicitly linear bottleneck in a finite
+representation of a spatial kernel; it gives no universal gap between
+transformers and continuous fields. Supplemental Material derives the bound
+and checks the softmax counterexample.
+
 \paragraph{Codes, not reports.} Reconstruction across a family is a counting constraint before it is anything else. If two macrostates the candidate is said to represent satisfy $\Phi(s)=\Phi(t)$ while $d(s,t)>2\varepsilon$, Eq.~\eqref{eq:reconstruction-separation} rules out reconstructing both within $\varepsilon$, whatever the readout. A system's reports are readouts. Identical verbal reports across two conditions are therefore consistent with identical internal codes and settle nothing about the states. The converse claim---that the system represents its own condition across a declared family---asserts that its internal code separates that family, which is a statement about activations under intervention and not about text. Naming the channel makes the count concrete. Where the code is the token sequence a model emits---which is what its next step reads---the alphabet is the deployed vocabulary (\texttt{tokenChannel}), and a family reconstructed through it is no larger than the vocabulary size raised to the number of steps (\texttt{card\_\allowbreak le\_\allowbreak card\_\allowbreak tokens}). Over an extended exchange that number is large and the bound slack. At a single step it is one vocabulary's worth, so claiming that a single emission reports the model's own condition across a declared family asserts that the vocabulary separates it (\texttt{card\_\allowbreak le\_\allowbreak card\_\allowbreak tokens\_\allowbreak one}). A claim resting on activations rather than on text has declared a different channel, to which the same count applies with that channel's alphabet. The measurement follows from the statement: declare the family and the fidelity first, then test whether the encoding region distinguishes its members.
+
+The same interface has an information ceiling. For any finite joint law of
+an internal state $X$ and a length-$k$ token sequence $Y$ over vocabulary $V$,
+$I(X;Y)\leq H(Y)\leq k\log_2|V|$ bits. The proof uses the full joint law and
+allows dependent emissions and zero-probability outcomes. A binary copy attains
+one bit per emitted binary symbol; an independent output conveys zero.
+This counts the declared output sequence, so a cache, timing signal or other
+accessible state must be included separately when it forms part of the channel.
 
 \paragraph{The region, not the readout.} Where the encoding is read as the state's restriction to a region of the machine, the demand falls on the region before any readout exists. For a decoder-only transformer the causal mask makes the network an instance of the update model of Section~\ref{sec:self}: the activation at position $t$ and layer $\ell$ reads positions at most $t$ at layer $\ell-1$ and nothing else. A region's causal past is therefore fixed by the architecture rather than chosen by interpretation. That instance is formal, and sharper than slow growth: the causal past of position $t$ stays inside the positions at most $t$ at every depth (\texttt{mask\_\allowbreak ball\_\allowbreak subset\_\allowbreak le}). The deadline bound of Section~\ref{sec:self} therefore fires at every deadline at once rather than at a chosen one, its communication graph given rather than assumed (\texttt{mask\_\allowbreak no\_\allowbreak guarantee}). That is a statement about one forward pass; across steps a model does read its own prior output, which is the channel the preceding paragraph counts. Read against the coupling proposed here the asymmetry runs both ways, and neither way is an advantage. A kernel of full support has no neighbourhood structure for the bound to bite on: after one round the causal past is the whole substrate, so the hypothesis that fires the obstruction is unsatisfiable at any deadline but zero (\texttt{not\_\allowbreak outside\_\allowbreak past\_\allowbreak of\_\allowbreak isFullSupport}). A physical field propagates at a finite speed, so treating one that way is a calibration against the phase time scale and not a theorem. What the comparison does fix is where the bound has force. Not on the attention graph, where a position reads every position at or before it and the fan-in is the context length. On the physical interconnect, fan-in is genuinely bounded: a graph whose sites each hear from at most $\nu$ others reaches at most $(T+1)\nu^{T}$ sites in $T$ rounds (\texttt{card\_\allowbreak ball\_\allowbreak le\_\allowbreak mul\_\allowbreak pow}), so a model sharded across many devices pays a number of rounds growing like $\log_{\nu}$ of the device count. Buying that deadline back costs wiring: reaching every site in one round requires a device hearing from all but one of the others (\texttt{le\_\allowbreak degree\_\allowbreak of\_\allowbreak reaches\_\allowbreak one}). Both $\nu$ and the device count are declared, as the communication graph and the deadline already are, and what the count bounds is the graph a guarantee requires rather than what hardware is buildable. A claim that a model reports on its own processing consequently carries an obligation to say which positions and layers the report's causal past contains. A report that appears to track an intervention outside it indicates a confound or a different region, not a faster channel.
 
@@ -306,6 +332,32 @@ The neuroscientific case against \emph{human-like} consciousness in text-only LL
 \label{sec:chain}
 
 The phase and representation results concern coupling, content disagreement and reconstruction error. Thermodynamics constrains the physical operations that could implement them, and it does so from the side rather than along the spine: no edge below derives coherence, compatibility or reconstruction from a heat bound, and the resource condition these edges terminate in is necessary without being restrictive for any macroscopic candidate (Section~\ref{sec:installation}). What this half contributes is a ledger in which a resource claim is stated in checkable units. Finite-register capacity obeys $H(p)\leq\log|X|$; erasure heat depends on specified system--bath assumptions \cite{landauer1961,norton2005,shenker2000}. A separate boundary result concerns a field reaching disconnected vacuum components \cite{kibble1976}. The composition connects these objects through the explicit hypotheses in Table~\ref{tab:summary}.
+
+\subsection{Probability current supplies a dissipation bound}
+
+For a positive normalized phase density $\rho$, diffusion $D>0$ and current
+$J=v\rho-D\partial_\theta\rho$, define
+$\sigma_J=\int_{-\pi}^{\pi}J^2/(D\rho)\,d\theta$. Continuous density and
+current give the sharp bound
+\begin{equation}
+ \left(\int_{-\pi}^{\pi}J\,d\theta\right)^2\leq D\sigma_J.
+ \label{eq:current-cost}
+\end{equation}
+A uniform density under constant drive $\omega$ attains
+$\sigma_J=\omega^2/D$. In contrast, the identical-frequency gradient model
+has positive self-consistent stationary order above $K=2D$ with $J=0$ and
+$\sigma_J=0$. Thus neither positive order nor its time average forces positive
+dissipation: a stationary ordered density is already a counterexample.
+A cortical maintenance-power bound requires an identified nonequilibrium drive,
+its probability current and a thermal conversion; phase order alone does not
+supply them. The current functional is distinct from the substrate squared-drift
+objective used in the plasticity controls. It also bounds the rate of the
+cosine moment $m=\int\cos\theta\,\rho(\theta)\,d\theta$:
+$\dot m^2\leq D\sigma_J$, when the classical continuity equation and sufficient
+regularity justify differentiating this moment. This constrains density change.
+It does not bound an externally chosen $\dot K$: the uniform density is an
+exact time-dependent solution of zero current cost for every coupling schedule,
+including positive schedules with any prescribed derivative.
 
 \subsection{Feedback changes the information constraint}
 
@@ -466,7 +518,7 @@ An adaptive coupling rule might supply representational structure, but its objec
 
 The formalization proves descent of the squared-drift objective for a specified gradient flow at fixed phases. Its functional differs from thermodynamic entropy production: at a coherent stationary density the probability current vanishes while phase-averaged squared drift is positive. Supplemental Material gives the operator, its gradient and the conditions of the descent result.
 
-The finite control co-evolves noisy phases and symmetric, nonnegative couplings at fixed total resource. Its template is a diagnostic covariance of latent signals, never a training input. Across three seeds, second-half order remains between $\plasticityOrderMin$ and $\plasticityOrderMax$, while the within-cluster to between-cluster coupling ratio falls from $\plasticityRatioInitialMin$--$\plasticityRatioInitialMax$ to $\plasticityRatioMin$--$\plasticityRatioMax$ (Fig.~\ref{fig:resonance}). Random-update, permuted-gradient and frozen-kernel controls are reported in Supplemental Material.
+The finite control co-evolves noisy phases and symmetric, nonnegative couplings at fixed total resource. Its template is a diagnostic covariance of latent signals, never a training input. Across three illustrative seeds, second-half order remains between $\plasticityOrderMin$ and $\plasticityOrderMax$, while the within-cluster to between-cluster coupling ratio falls from $\plasticityRatioInitialMin$--$\plasticityRatioInitialMax$ to $\plasticityRatioMin$--$\plasticityRatioMax$ (Fig.~\ref{fig:resonance}). Random-update, permuted-gradient and frozen-kernel controls are reported in Supplemental Material.
 
 The immediate post-update objective reduction disappears when averaged over complete update intervals. A prespecified grid of $\plasticityStudyCaseCount$ rate--cadence combinations contains no case meeting the $5\%$ sustained-reduction criterion while retaining coherence and losing alignment. The finding is coherent adaptation away from the specified structure, with no demonstrated sustained cost reduction.
 
@@ -481,7 +533,7 @@ Kernel alignment and overlap compatibility are different observables. This contr
 
 \subsection{Content agreement needs independent decoders}
 
-A neural test needs independently identified domains, local descriptions and restriction maps. Two decoders should estimate a shared content on overlapping domains before their agreement is examined. Discrepancy requires a null under decoding noise and controls using deliberately compatible and incompatible examples. An implementation on constructed data separates these cases at $\mathrm{AUC}=\overlapIncompatibleAuc$, on a $95\%$ interval of $[\overlapIncompatibleAucLow,\overlapIncompatibleAucHigh]$ resampled by trial; the compatible construction scores $\overlapCompatibleAuc$ on an interval containing one half. Shared-prior shrinkage can nevertheless manufacture agreement, and regional bias can manufacture disagreement. Per-patch decoding diagnostics detect these failures; the compatibility statistic alone does not.
+A neural test needs independently identified domains, local descriptions and restriction maps. Two decoders should estimate a shared content on overlapping domains before their agreement is examined. Discrepancy requires a null under decoding noise and controls using deliberately compatible and incompatible examples. An implementation on synthetic data separates these cases at $\mathrm{AUC}=\overlapIncompatibleAuc$, on a $95\%$ interval of $[\overlapIncompatibleAucLow,\overlapIncompatibleAucHigh]$ resampled by trial; the compatible construction scores $\overlapCompatibleAuc$ on an interval containing one half. Shared-prior shrinkage can nevertheless manufacture agreement, and regional bias can manufacture disagreement. Per-patch decoding diagnostics detect these failures; the compatibility statistic alone does not.
 
 Phase agreement cannot replace that measurement. On constructed content, phase carries a share \overlapPhaseShareBuilt{} of the content entropy when content is built from it and \overlapPhaseShareFree{} when it is not. A phase-derived statistic reports compatibility on phase-locked patches whose local descriptions disagree. The implemented content statistic detects their incompatibility. These controls validate a measurement on known constructions; a neural content model and decoder remain to be established.
 
@@ -640,7 +692,7 @@ $s$, $s_*$ & \S\ref{sec:unity}--\ref{sec:self} & A global section and the one th
 
 \section*{Data and code availability}
 
-The Lean development, simulation scripts, tests and saved numerical summaries are maintained in the GitHub repository \href{https://github.com/bobaseb/coupling_gated_cortical_coherence}{\nolinkurl{bobaseb/coupling_gated_cortical_coherence}}. Publication simulation values are generated from saved summaries without rerunning production sweeps. The exploratory EEG analysis uses OpenNeuro dataset ds005620 \cite{bajwa2025}; preprocessing and selection are described in Supplemental Material. The repository contains the reproducible analysis and does not redistribute the raw recordings.
+The Lean development, simulation scripts, tests and saved numerical summaries are maintained in the GitHub repository \href{https://github.com/bobaseb/coupling_gated_cortical_coherence}{\nolinkurl{bobaseb/coupling_gated_cortical_coherence}}. Publication simulation values are generated from saved summaries without rerunning production sweeps. The exploratory EEG analysis uses OpenNeuro dataset ds005620 \cite{bajwa2025} (subjects \texttt{1010}, \texttt{1016}, \texttt{1022}, \texttt{1033}, \texttt{1045}, \texttt{1056}, resting awake and sedation runs 1--2); preprocessing and selection are described in Supplemental Material and implemented in \texttt{simulations/empirical\_collapse.py}. The repository contains the reproducible analysis and does not redistribute the raw recordings.
 
 \section*{Funding and competing interests}
 

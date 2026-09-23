@@ -123,6 +123,65 @@ Scope is inherited unchanged from the file above: this is asymptotics of the sol
 
 \noindent The gap between these stationary-density results and any statement about a finite trajectory is the dynamical mean-field limit --- propagation of chaos for the Kuramoto system, which is a research programme rather than a lemma \cite{sznitman1991}. No theorem in this development closes it.
 
+\subsection{Order and the cost of probability current}
+
+The current functional in Eq.~\eqref{eq:current-cost} has a sharp bound that
+requires no stationarity assumption. Write $m=\int_{-\pi}^{\pi}J$.
+For continuous $J$, continuous positive $\rho$ and $\int\rho=1$,
+\[
+ 0\leq\int_{-\pi}^{\pi}\frac{(J-m\rho)^2}{\rho}
+   =\int_{-\pi}^{\pi}\frac{J^2}{\rho}-m^2
+   =D\sigma_J-m^2.
+\]
+Strict positivity on this compact interval ensures that the reciprocal density
+and the displayed integrands are integrable. The Lean theorem
+\texttt{current\_\allowbreak integral\_\allowbreak sq\_\allowbreak le}
+proves this expansion using the density's own Fokker--Planck current.
+The equality witness has $\rho=1/(2\pi)$ and $v=\omega$, hence
+$J=\omega/(2\pi)$ and $\sigma_J=\omega^2/D$;
+\texttt{uniform\_\allowbreak driven\_\allowbreak stationary} and
+\texttt{uniform\_\allowbreak current\_\allowbreak dissipation} verify both
+the stationary equation and the cost. The concrete case $D=1$, $\omega=2$
+has cost four and zero phase order.
+
+Conversely, \texttt{supercritical\_\allowbreak zero\_\allowbreak dissipation}
+constructs, for every $D>0$, $K>2D$, a positive self-consistent stationary
+order and its density with zero current dissipation.
+\texttt{no\_\allowbreak positive\_\allowbreak order\_\allowbreak only\_\allowbreak bound}
+therefore rules out every universal bound strictly positive at all positive
+orders. Keeping this density constant in time also refutes such a bound on
+time averages. This concerns the identical-frequency rotating-frame gradient
+model; it does not impose detailed balance on cortex. A positive cortical
+power bound needs an additional drive or current constraint and a physical
+thermal scale. For a bounded continuous test function $g$ with $g^2\leq1$,
+\texttt{weighted\_\allowbreak current\_\allowbreak sq\_\allowbreak le}
+proves $(\int gJ)^2\leq D\sigma_J$ by expanding
+$\int[J-(\int gJ)g\rho]^2/\rho$ and using $\int g^2\rho\leq1$.
+For a differentiable periodic current with continuous derivative, integration
+by parts gives
+\[
+ \int_{-\pi}^{\pi}\cos\theta\,(-\partial_\theta J)
+ =-\int_{-\pi}^{\pi}\sin\theta\,J,\qquad
+ \left(\int\cos\theta\,(-\partial_\theta J)\right)^2\leq D\sigma_J.
+\]
+This is \texttt{cosine\_\allowbreak rate\_\allowbreak sq\_\allowbreak le\_\allowbreak dissipation}.
+It bounds the rate of the cosine moment for evolving densities when time
+differentiation under the integral is valid; it constructs no evolution and
+makes no assertion about the derivative of the complex order's magnitude.
+The uniform density with imposed drift $v=\sin\theta$, $D=1$ has cosine rate
+$-1/2$ and dissipation $1/2$, providing a nonzero-rate checked example.
+
+A coupling parameter is a different observable.
+\texttt{arbitrary\_\allowbreak coupling\_\allowbreak speed\_\allowbreak zero\_\allowbreak cost}
+uses $K(t)=e^{at}$, so $K>0$ and $K'(0)=a$ for any real $a$, while the uniform
+self-consistent density has zero current dissipation at every time.
+\texttt{uniform\_\allowbreak time\_\allowbreak dependent\_\allowbreak solution}
+checks the nonautonomous continuity equation for this constant density under
+any coupling schedule. Thus an unrestricted bound on coupling speed from
+phase-current cost alone is false. These examples do not rule out a bound with
+positive order, a calibrated actuator model or a measured relation between
+coupling and the changing density.
+
 \subsection{Deterministic trajectories and their limits}
 
 \textit{Lean 4 Implementation (\texttt{Phase4\_\allowbreak RotatingFrame.lean}):} The full potential includes the natural frequency term $-\sum_i \omega_i\theta_i$ that appears in the Lyapunov descent result \texttt{dV\_\allowbreak dt\_\allowbreak le\_\allowbreak zero} in the combinatorial thermodynamics module. With any $\omega_i \ne 0$ the full potential is unbounded below (\texttt{kuramoto\_\allowbreak potential\_\allowbreak unbounded\_\allowbreak below}), so it has no minimum for a phase-locked state to attain, so the reduced and full potentials must be distinguished.
@@ -913,6 +972,76 @@ candidate implementations, not consequences of \texttt{Self} or
 declared, and $b$ counts distinguishable codes; physical bits, channel
 capacity and delivery times need further hardware assumptions.
 
+\subsection{Information carried by a finite token output}
+
+For a finite joint probability law $\mu$ on an input state $X$ and output
+alphabet $V$, \texttt{mutualInfo\_\allowbreak le\_\allowbreak output\_\allowbreak entropy}
+proves $I(X;V)\leq H(V)$ using the same KL-based mutual information as the
+thermodynamic information results. On an atom of positive joint mass,
+$p(x,v)\leq p_X(x)$ gives
+$\log[p(x,v)/(p_X(x)p_V(v))]\leq-\log p_V(v)$.
+Summing proves the inequality; zero joint atoms contribute zero, so neither
+strict positivity nor deterministic emission is needed.
+The finite entropy bound then gives $I(X;V)\leq\log|V|$ nats, or
+$\log_2|V|$ bits (\texttt{mutualInfo\_\allowbreak bits\_\allowbreak le\_\allowbreak log\_\allowbreak card}).
+
+\texttt{token\_\allowbreak information\_\allowbreak bits\_\allowbreak le}
+applies this to the whole sequence space $V^k$, giving $k\log_2|V|$ without
+assuming independence between emissions.
+\texttt{no\_\allowbreak tokens\_\allowbreak no\_\allowbreak information}
+proves exact zero at $k=0$. Checked binary laws attain the one-bit ceiling
+for a perfect copy and zero for an independent output with identical marginals.
+The input space is finite in these statements. They count a specified output
+interface, not a model's internal activation or cache capacity. Additional
+accessible state, timing or a variable-length termination signal changes the
+output variable and must be counted explicitly.
+
+\subsection{Spectral error through a linear code space}
+
+\texttt{Phase6\_\allowbreak AttentionRank.lean} proves the finite-dimensional
+bound in Eq.~\eqref{eq:spectral-bottleneck}. It accepts an orthonormal
+eigenbasis $Ke_i=\lambda_i e_i$ and bounds the error of an arbitrary linear
+map $A$; $A$ need not preserve the eigenmodes. Let $P$ project onto
+$\operatorname{range}A$ and set $p_i=\|Pe_i\|^2$. Parseval gives
+$0\leq p_i\leq1$ and $\sum_i p_i=\operatorname{rank}A\leq d$.
+Projection onto the orthogonal complement of the range then gives
+\[
+ \|Ke_i-Ae_i\|^2\geq\lambda_i^2(1-p_i).
+\]
+For the $d$ largest squared eigenvalues, the unit-capacity weights $p_i$
+retain at most their sum: weight outside these modes can be exchanged for
+unused weight inside without decreasing the retained sum. Summing yields
+\texttt{spectral\_\allowbreak tail\_\allowbreak le\_\allowbreak error}.
+The ordered-index corollary is
+\texttt{spectral\_\allowbreak tail\_\allowbreak le\_\allowbreak error\_\allowbreak of\_\allowbreak antitone}.
+The explicit truncation has range dimension at most $d$ and exactly the tail
+error (\texttt{spectralTruncation\_\allowbreak rank},
+\texttt{spectralTruncation\_\allowbreak error}). A two-mode witness with
+eigenvalues three and one pays exactly one at rank one, and every rank-one
+competitor pays at least one.
+
+In \texttt{Phase6\_\allowbreak Reconstruction.lean},
+\texttt{linear\_\allowbreak bottleneck\_\allowbreak error} derives the rank
+hypothesis when $A=\mathcal{D}\mathcal{E}$ factors through a code space of
+dimension at most $d$. This is a bound on summed squared errors over basis
+inputs, not a worst-case reconstruction theorem or a finite-bit memory bound.
+The target spectrum and finite spatial representation are inputs; no Mercer
+expansion or physical kernel spectrum is constructed.
+
+The rank budget cannot be inferred from query/key dimension after softmax.
+The logits $L=\left(\begin{smallmatrix}0&0\\0&1\end{smallmatrix}\right)$
+come from scalar queries and keys $(0,1)$. They have rank one, but row softmax
+gives
+\[
+ \begin{pmatrix}1/2&1/2\\1/(1+e)&e/(1+e)\end{pmatrix},
+\]
+whose determinant is $(e-1)/(2(1+e))>0$.
+\texttt{softmax\_\allowbreak rank\_\allowbreak counterexample} proves its
+rank is two. The spectral bound therefore applies to an actual linear rank
+constraint, including a declared factorization, and supplies no universal
+softmax-attention exclusion. An effective numerical rank additionally needs
+a specified error tolerance.
+
 \subsection{When restriction resonance fails}
 \label{sec:supp-resonance-failure}
 
@@ -1048,6 +1177,9 @@ A winding's degree, read from the state & \texttt{ringTransition}, \texttt{windi
 An amplitude layer and its defects & \texttt{Phase4\_\allowbreak KuramotoDynamics}~\S7 adds the real Stuart--Landau field $\dot z_i=(\Gamma-|z_i|^2)z_i+\sum_j A_{ij}(z_j-z_i)$, the gradient flow of a potential against the real inner product on $\mathbb{C}^V$, which is what makes it an extension of this development rather than a replacement: the convergence results above rest on gradient structure and complex coefficients destroy it. \texttt{deriv\_\allowbreak phase\_\allowbreak of\_\allowbreak amplitude\_\allowbreak trajectory} gives the exact phase equation at a site of positive amplitude, with no slow-amplitude assumption, and \texttt{amplitude\_\allowbreak phase\_\allowbreak is\_\allowbreak kuramoto} specializes it to equal amplitudes: the phase model is this model's phase equation with the amplitude ratios set to one. \texttt{charState\_\allowbreak is\_\allowbreak amplitude\_\allowbreak trajectory\_\allowbreak iff} makes $z_g=a\chi(g)$ stationary exactly when $a^2=\Gamma+\lambda_\chi$, \texttt{exists\_\allowbreak charState\_\allowbreak iff} turns that into an existence band, and \texttt{phase\_\allowbreak model\_\allowbreak admits\_\allowbreak winding\_\allowbreak outside\_\allowbreak band} states the disagreement with the phase model, which admits every winding at every coupling. \texttt{standing\_\allowbreak wave\_\allowbreak of\_\allowbreak amplitude\_\allowbreak band} reads the $q=n/2$ state in the lab frame as one spatial profile times one time factor. \texttt{plaquetteCirculation\_\allowbreak eq\_\allowbreak zero\_\allowbreak of\_\allowbreak winding} proves every such state defect-free on every plaquette, \texttt{norm\_\allowbreak charState} supplying the equal modulus it turns on, and \texttt{sum\_\allowbreak plaquetteCirculation\_\allowbreak eq\_\allowbreak zero} with \texttt{no\_\allowbreak isolated\_\allowbreak defect} proves a lone defect impossible on a torus for \emph{any} phase field, exact or not. The band is one of existence: no stability result is proved and the persisting states occupy a narrower range. $\Gamma$ is estimated nowhere, $|z|$ is a normal-form radius and not a measured envelope, the normal form assumes a supercritical Hopf bifurcation where much cortical wave phenomenology is excitable, and relaxational dynamics supplies no propagation speed & Theorem \\ \hline
 Wiring support and finite-region coupling & \texttt{rigid\_\allowbreak gap} (\texttt{Phase7\_\allowbreak Rigidity}) gives a strict resource-matched disadvantage when a better-correlated pair is unwired. \texttt{Phase7\_\allowbreak FiniteRegion} preserves a matrix's total weight and phase correlation under a positive-mass cell embedding (\texttt{kernelIntegral\_\allowbreak cellKernel}, \texttt{fieldCorrelation\_\allowbreak cellKernel}). Point-supported vanishing under an atomless measure is therefore not a consequence of having finitely many components. \texttt{no\_\allowbreak forced\_\allowbreak gap\_\allowbreak of\_\allowbreak best\_\allowbreak wired} gives an optimal wired allocation under its global pairwise maximum hypothesis, including diagonal pairs; the chosen distinct pair must then have correlation one. No energy pricing, dynamics or device exclusion follows & Theorem \\ \hline
 Critical Coupling Threshold ($K_c = 2D$) & Self-consistency equation (\texttt{Phase8\_\allowbreak SelfConsistency}): at or below $K_c$, threshold included, only $r = 0$ solves it; above $K_c$ \emph{exactly one} $r > 0$ does (\texttt{supercritical\_\allowbreak fixed\_\allowbreak point\_\allowbreak existsUnique}), so the non-negative solutions are $\{0\}$ below and $\{0, r\}$ above; that $r$ tends to $0$ as $K \downarrow K_c$ and increases strictly with $K$ (\texttt{coherent\_\allowbreak branch\_\allowbreak strictMono}); that it does so at the mean-field rate $r^2/(K-K_c) \to 1/D$, i.e.\ $\beta = 1/2$ (\texttt{Phase8\_\allowbreak CriticalExponent}: \texttt{coherent\_\allowbreak solution\_\allowbreak critical\_\allowbreak exponent}, witnessed by \texttt{coherentBranch\_\allowbreak critical\_\allowbreak exponent}); a solution is a density reproducing its own order parameter. The von Mises density enters this claim by classification rather than by hypothesis: \texttt{Phase8\_\allowbreak FokkerPlanck} classifies the stationary densities of the equation and \texttt{supercritical\_\allowbreak stationary\_\allowbreak existsUnique} restates the bifurcation in those terms. Conditional still on no link to a trajectory and on no finite-$N$ limit & Theorem (conditional) \\ \hline
+Order and probability-current dissipation & \texttt{Phase8\_\allowbreak FokkerPlanck}: \texttt{current\_\allowbreak integral\_\allowbreak sq\_\allowbreak le} proves $(\int J)^2\leq D\sigma_J$ for continuous current and a continuous positive normalized density. \texttt{uniform\_\allowbreak current\_\allowbreak dissipation} attains equality under constant drive. \texttt{supercritical\_\allowbreak zero\_\allowbreak dissipation} and \texttt{no\_\allowbreak positive\_\allowbreak order\_\allowbreak only\_\allowbreak bound} give ordered self-consistent equilibria of zero cost and refute universal strictly positive order-only bounds. \texttt{cosine\_\allowbreak rate\_\allowbreak sq\_\allowbreak le\_\allowbreak dissipation} bounds the continuity operator's cosine moment. \texttt{arbitrary\_\allowbreak coupling\_\allowbreak speed\_\allowbreak zero\_\allowbreak cost} and \texttt{uniform\_\allowbreak time\_\allowbreak dependent\_\allowbreak solution} refute an unrestricted coupling-speed bound on a genuine uniform solution. No cortical drive, thermal conversion or ordered actuator cost is derived & Theorem \\ \hline
+Information ceiling of a token interface & \texttt{mutualInfo\_\allowbreak le\_\allowbreak output\_\allowbreak entropy} and \texttt{mutualInfo\_\allowbreak bits\_\allowbreak le\_\allowbreak log\_\allowbreak card} bound the existing KL information for arbitrary finite joint laws, including zero atoms. \texttt{token\_\allowbreak information\_\allowbreak bits\_\allowbreak le} gives $k\log_2|V|$ for the entire sequence, without independent emissions; \texttt{no\_\allowbreak tokens\_\allowbreak no\_\allowbreak information} gives zero at $k=0$. The input is finite and the output is fixed-length; cache state, timing and other channels are outside the bound unless included in that output & Theorem \\ \hline
+Spectral error of a linear bottleneck & \texttt{Phase6\_\allowbreak AttentionRank}: \texttt{spectral\_\allowbreak tail\_\allowbreak le\_\allowbreak error} bounds arbitrary rank-constrained linear competitors by the omitted squared eigenvalues; \texttt{spectralTruncation\_\allowbreak error} and \texttt{spectralTruncation\_\allowbreak rank} prove attainability. \texttt{linear\_\allowbreak bottleneck\_\allowbreak error} derives the rank budget from a linear encoder/readout's intermediate dimension. \texttt{softmax\_\allowbreak rank\_\allowbreak counterexample} checks rank-one logits yielding rank-two attention. The finite eigenbasis is supplied; no Mercer expansion, neural spectrum, numerical rank tolerance or universal transformer limitation is derived & Theorem \\ \hline
 Stationary densities and linear stability & \texttt{Phase8\_\allowbreak FokkerPlanck}: a periodic gradient drift carries no stationary current (\texttt{stationary\_\allowbreak current\_\allowbreak zero}), so the positive normalized stationary densities for the cosine drift are exactly von Mises (\texttt{stationary\_\allowbreak iff\_\allowbreak vonMises}). \texttt{Phase8\_\allowbreak Linearization} expands the current exactly and gives each Fourier mode of the uniform state its rate, $K/2-D$ at the first harmonic and $-Dn^2$ above, so a growing mode exists exactly above $2D$ (\texttt{incoherent\_\allowbreak instability\_\allowbreak iff}). \texttt{Phase8\_\allowbreak CoherentStability} proves the coherent branch's gap inequality transverse to its rotation orbit with a positive rate (\texttt{coherent\_\allowbreak linear\_\allowbreak stability}), the orbit direction having zero rate (\texttt{rotation\_\allowbreak generator\_\allowbreak zero}), on a strict moment inequality derived from a Riccati identity rather than assumed. At the coherent state current dissipation is zero while the phase-averaged squared drift is positive (\texttt{stationary\_\allowbreak current\_\allowbreak separation}). No evolution equation is solved, no semigroup or operator closure is built, no nonlinear stability or selection follows, and the stochastic differential equation is not connected to the Fokker--Planck equation & Theorem \\ \hline
 Conditional composition & \texttt{Chain.lean}: \texttt{chain} and \texttt{chain\_active} each take eight named hypotheses, a \texttt{ThermodynamicCover} and a \texttt{ReflexiveBoundary}, and conclude \texttt{UnifiedSelf} through the shared downstream proof. \texttt{E89} supplies the Lipschitz law and identifies the particular glued section with a fixed point; Banach supplies uniqueness. \texttt{E34} requires a passive predictive structure with the register's temperature, heat and nonzero waste. \texttt{E34Active} supplies physical premises and a heat allocation for the named finite feedback process; its entropy bound is derived, and \texttt{e34Active\_\allowbreak of\_\allowbreak ledger} derives the allocation itself inside one register's resource ledger. \texttt{E45} is discharged for named hardware holding a declared predictive system's own joint law. \texttt{E45Active} is discharged for a scalar actuation law with supplied gain, profile and regular meshes, whose limit is bounded using the named process's heat budget, and for a microscopic arrangement whose product-space kernel is built from occupancies that step changes. \texttt{E78} requires the supplied cover to be reached by relaxation at coupling at least $K$. \texttt{chain\_hypotheses\_jointly\_satisfiable} and \texttt{chain\_active\_\allowbreak hypotheses\_\allowbreak jointly\_\allowbreak satisfiable} witness the two branches with distinct toy components. The active witnesses reject a zero heat budget, an incompatible energy limit, a compressive operation above the register's whole dissipation and a ledger whose other operation draws heat out of the reservoir. Joint satisfiability establishes no common microscopic mechanism; the actuated witness ties the scalar density to the process through a supplied constitutive law and the microscopic witness ties a kernel to it through declared hardware, while mesh regularity supplies convergence in both. \texttt{E12} is equivalent to its conclusion, so the first two links are independent roots. The supplied structures' physical fields and the representational assumptions remain additional inputs & Conditional theorem with eight named hypotheses \\ \hline
 What a deadline reaches, and what it costs in wiring & \texttt{Phase6\_\allowbreak Locality} carries a synchronous network as data --- who hears from whom, what is sent, and a local update reading only its own state and the messages it received --- so locality is structural and \texttt{run\_\allowbreak eq\_\allowbreak of\_\allowbreak agree\_\allowbreak on\_\allowbreak ball} is derived rather than assumed. Three ways to bound a causal past. \texttt{ball\_\allowbreak rank\_\allowbreak le}: a rank no neighbourhood increases confines the past below it at every depth, and \texttt{Examples}~\S31 instantiates that on a decoder-only forward pass indexed by token position and layer, where \texttt{mask\_\allowbreak ball\_\allowbreak subset\_\allowbreak le} keeps the past of position $t$ inside the positions at most $t$ at every number of rounds and \texttt{mask\_\allowbreak no\_\allowbreak guarantee} fires the obstruction at every deadline at once. \texttt{card\_\allowbreak ball\_\allowbreak le}: a graph of fan-in $d$ reaches at most $\sum_{i\leq T}d^{\,i}$ sites in $T$ rounds, so \texttt{not\_\allowbreak reconstructs\_\allowbreak of\_\allowbreak bounded\_\allowbreak degree} produces the outside site by counting rather than by structure, and \texttt{card\_\allowbreak ball\_\allowbreak le\_\allowbreak mul\_\allowbreak pow} reads the deadline a guarantee needs as $\log_d$ of the site count; \texttt{card\_\allowbreak le\_\allowbreak geomSum\_\allowbreak of\_\allowbreak reaches} and \texttt{le\_\allowbreak degree\_\allowbreak of\_\allowbreak reaches\_\allowbreak one} run the count backwards, a one-round guarantee requiring a site that hears from all but one of the others. \texttt{not\_\allowbreak outside\_\allowbreak past\_\allowbreak of\_\allowbreak isFullSupport} is the other side: where every site hears from every site the obstruction's hypothesis is unsatisfiable at any deadline but zero, so the bound is silent there. The count is of hops and not of time, so none of this is a latency or a speed claim; the graph, the deadline, $d$ and the site count are declared inputs, and whether an execution is a given graph is not a question this development answers; the wiring corollary bounds the communication graph a guarantee requires and says nothing about what hardware is buildable; and a full-support kernel models a physical field only while transit is short against the phase time scale, which is a calibration performed nowhere here & Theorem \\ \hline
