@@ -124,7 +124,7 @@ action points. N7 closed in the same pass; the rest are open.
   each region's fidelity. Move no-report designs from caveat into the main
   design. Consider a schematic figure of the experiment.
 
-- [ ] **N11 — Self-reconstruction condition.** The fixed contraction (E89)
+- [x] **N11 — Self-reconstruction condition.** The fixed contraction (E89)
   reconstructs only a bounded-diameter family, a single state at zero error.
   Either formalize the input-conditioned map the text says is needed, or
   demote the minimal-self claim accordingly. Derive or explicitly flag the
@@ -315,6 +315,21 @@ classes are secondary. Shared upstream noise is named as the remaining
 non-specificity, with an upstream-region comparison. The self-model analogue
 matches scene-variable accuracy. New schematic Figure `fig:test` (TikZ); the
 abstract states the matched design.
+
+### 2026-09-24 — N11 self-reconstruction demoted, Λ flagged, self link argued
+
+Took the demotion route; no input-conditioned map is formalized. §6 now says
+Λ is stipulated, borrowing the uniform density's first-harmonic growth rate
+(a rate about a different state from the one `F` acts on), and that under E89
+the minimal-self correlate is a condition on one self-state; a self that
+follows a changing scene needs a family `F_u` with its own fixed points, not
+constructed. The Discussion argues the Gallagher link from two structural
+features (perspective built into the scene ↔ fixed point read through part of
+itself; immediacy ↔ no higher-order state) and compares with self-model theory
+(`metzinger2003`, verified: MIT Press 2003) and interoceptive inference
+(`seth2013`, verified: *TiCS* 17(11), 565–573). Formalizing `F_u` remains
+possible future Lean work but would be close to trivial without a physical
+readout.
 
 ## C — What a continuous medium buys, and what is electromagnetic about it
 
