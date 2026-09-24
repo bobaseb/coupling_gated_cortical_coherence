@@ -179,7 +179,7 @@ action points. N7 closed in the same pass; the rest are open.
   that the pooled bipolar estimand cannot measure spatial coherence; keep a
   one-sentence methods caution in the article.
 
-- [ ] **N16 — Readability and journal structure.** Gloss "section",
+- [x] **N16 — Readability and journal structure.** Gloss "section",
   "restriction resonance" and "Lipschitz" on first use. Reduce double
   negatives and hedging density. Say where Methods live for a theoretical
   article (journal expects a Methods/Results structure). Add the cover-
@@ -379,6 +379,20 @@ keeps one methods caution at the end of `sec:identifiability`: pooled bipolar
 phase statistics place a locked signal at `\eegCheckLockedPooledR`, so a
 spatial test needs a rotation-removing estimand and a modelled montage.
 Macro suites pass.
+
+### 2026-09-24 — N16 readability and journal structure
+
+First-use glosses: sheaf, section and global section open §4; "Lipschitz" is
+glossed where `L` is introduced; restriction resonance is defined in words at
+Eq. `selfmap`. The introduction's roadmap says where Methods and Results live
+for a theoretical article (definitions, proofs and simulations; Table S1 and
+the supplement; theorems of §3–6 and controls of §8). Negation-heavy
+sentences in §2, §6 and the limitations were turned positive; `check-hedging`
+flags nothing. The abstract carries the cover-selection limitation (from N9)
+and was rewritten to 247 words by `detex -n` after N9–N12 had pushed it to
+~299. Main text is 8,578 words by `detex -n` excluding TikZ (8,621 at N6 by
+the same count); the submission notes record the part counts and the matched
+design in the significance statement.
 
 ## C — What a continuous medium buys, and what is electromagnetic about it
 

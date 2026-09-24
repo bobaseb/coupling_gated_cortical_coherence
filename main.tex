@@ -53,7 +53,7 @@ ORCID: \href{https://orcid.org/0000-0002-5951-0772}{0000-0002-5951-0772}}
 \begin{abstract}
 \singlespacing
 \small
-Synchrony accounts treat collective phase order as the mechanism that integrates distributed cortical activity. We show formally that phase order alone establishes neither shared content nor a self-model, and state what additionally does. We separate three conditions: coherence (collective phase order), compatibility (agreement of independently decoded local descriptions where regions overlap) and self-reconstruction (accurate recovery of the global state from an internal encoding). Compatible local descriptions determine a unique global state. Coherence bounds disagreement between overlapping descriptions only through shared Lipschitz encoders, and the bound grows as the square root of the population read: at the patch order of a simulated cortical sheet it constrains at most \wavePatchInformativeSites{} sites, so on a larger population the positive link from coherence to content rests entirely on a bridge assumption. A contracting self-map fixes one state but reconstructs accurately only states within a diameter set by its error and contraction factor; a broad family needs input-conditioned maps and discriminating codes. Lean~4 verifies these implications, and one model satisfies all eight connecting hypotheses together; this shows consistency, not cortical realization. The conditions yield a disconfirmable comparison: the agreement of decoders fitted independently on two regions, in excess of what their separate accuracies imply, should be larger for perceived than for unperceived stimuli at matched phase coherence and single-region accuracy, with perception classified by a no-report marker. An exploratory EEG analysis is a measurement check only; its pooled estimator places a perfectly synchronized signal at zero coherence. Resource and implementation constraints, and a held-out onset comparison during anaesthetic emergence, are stated briefly. No principle yet selects the cover, and the sheaf's overlaps are spatial where the example's are overlaps of content, so the proposed correlate of unity has no operational definition. Unity and a minimal self remain interpretations that need an independent experiential endpoint.
+Synchrony accounts treat collective phase order as the mechanism that integrates distributed cortical activity. We show formally that phase order alone establishes neither shared content nor a self-model, and state what additionally does. Three conditions are separated: coherence (collective phase order), compatibility (agreement of independently decoded local descriptions where regions overlap) and self-reconstruction (accurate recovery of the global state from an internal encoding). Compatible local descriptions determine a unique global state. Coherence bounds disagreement between overlapping descriptions only through shared encoders of bounded sensitivity, and the bound grows as the square root of the population read: at the patch order of a simulated cortical sheet it constrains at most \wavePatchInformativeSites{} sites, so on larger populations the link from coherence to content is an assumption. A contracting self-map fixes one state but reconstructs accurately only states within a diameter set by its error and contraction factor. Lean~4 verifies these implications, and one model satisfies all connecting hypotheses together, which shows consistency, not cortical realization. The conditions yield a disconfirmable comparison: at matched phase coherence and matched single-region decoding accuracy, decoders fitted independently on two regions should agree more, beyond their separate accuracies, on perceived than on unperceived stimuli classified by a no-report marker. The regions on which compatibility is assessed still need a selection principle, so the proposed correlate of unity awaits an operational definition. An exploratory EEG analysis is a measurement check only. Unity and a minimal self remain interpretations that need an independent experiential endpoint.
 \end{abstract}
 \linenumbers
 
@@ -132,7 +132,13 @@ candidate. Section~\ref{sec:chain} states what the formal composition
 establishes, and Sections~\ref{sec:observations}--\ref{sec:prediction} examine
 observables and the cortical test. Table~\ref{tab:summary} lists the connecting
 hypotheses the article argues from; Supplemental Material gives the full chain,
-derivations and controls.
+derivations and controls. For a theoretical article the Methods are the
+definitions, proofs and simulations. Each result is stated in the section that
+uses it, Supplemental Material Table~S1 maps it to its Lean declaration, and
+every simulation's model, parameters and controls are given in Supplemental
+Material. The Results are the theorems of
+Sections~\ref{sec:field}--\ref{sec:self} and the numerical controls of
+Section~\ref{sec:observations}.
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[
@@ -172,9 +178,9 @@ Several limits hold without the cortical hypothesis. Equal phases can coexist
 with incompatible local descriptions; phase order constrains shared content
 only through encoders related on overlaps. A winding field can have zero global
 resultant while remaining locally ordered. A constant readout can have a unique
-fixed point without reconstructing its input. A region that does not distinguish
-relevant states cannot encode them, and a site cannot report a change outside
-its causal past by a declared deadline. These limits reflect familiar phase
+fixed point without reconstructing its input. A region encodes only the states it
+distinguishes, and by a declared deadline a site can report only changes inside
+its causal past. These limits reflect familiar phase
 oscillator and information constraints \cite{acebron2005,ott2008,dorfler2014,breakspear2017}.
 The sections below state each one beside the condition or measurement it
 motivates.
@@ -232,7 +238,7 @@ while $0<r<1$. A change of coherence completed in time $\tau$ therefore has a mi
 
 \subsection{Why common timing is insufficient}
 
-For overlapping patches $U$ and $V$, compatibility means that restricting either local description to $U\cap V$ gives the same object. Descriptions can agree on shared quantities while contributing different information elsewhere. Compatible sections of the specified sheaf have a unique global extension. On a finite cover, local finite spatial measures agreeing as measures on every overlap also have a unique finite-measure extension whose sheaf image is the glued section. No mass-one normalization is imposed.
+The formal setting is a sheaf: each patch of the substrate carries local descriptions, and restriction maps cut a description on a patch down to any smaller patch. A \emph{section} is a description on one patch, and a \emph{global section} is a description on the whole substrate. For overlapping patches $U$ and $V$, compatibility means that restricting either local description to $U\cap V$ gives the same object. Descriptions can agree on shared quantities while contributing different information elsewhere. Compatible sections of the specified sheaf have a unique global extension. On a finite cover, local finite spatial measures agreeing as measures on every overlap also have a unique finite-measure extension whose sheaf image is the glued section. No mass-one normalization is imposed.
 
 In the cup example, visual and reaching descriptions must express a shared quantity, such as cup location, in common coordinates. Restriction retains that quantity while dropping details particular to each description. Agreement permits surface appearance and hand configuration to contribute to one situation. The mathematical counterexample assigns the same phase to every patch while two local mass profiles disagree on a shared site. Those profiles have no common extension. Because they are chosen independently of phase, synchrony places no constraint on their disagreement.
 
@@ -245,7 +251,7 @@ The cup example exposes a second gap, between two kinds of overlap. The sheaf is
 \subsection{When coherence does constrain content}
 \label{sec:content-connection}
 
-A declared relation between phase and content gives a positive result. Let contents take values in a real normed vector space $\mathcal{C}$. Patch $i$ reads an assigned oscillator through $e_{i,x}$ at site $x$, evaluated on the circle point $(\cos\theta,\sin\theta)$. Assume a uniform Lipschitz constant $L$ in chord distance and require $e_{i,x}=e_{j,x}$ wherever patches $i$ and $j$ overlap. Encoders may vary across sites; their equality on overlaps is a supplied relation between descriptions of the shared quantity. Write $z_k=e^{i\theta_k}$ and $m=N^{-1}\sum_k z_k$, so $|m|=r$. The phasors' squared deviations from their mean sum to $\sum_k|z_k-m|^2=N(1-r^2)$, and $|z_i-z_j|\leq|z_i-m|+|z_j-m|$ gives $|z_i-z_j|^2\leq2N(1-r^2)$ for each pair. Consequently every overlap discrepancy is bounded by
+A declared relation between phase and content gives a positive result. Let contents take values in a real normed vector space $\mathcal{C}$. Patch $i$ reads an assigned oscillator through $e_{i,x}$ at site $x$, evaluated on the circle point $(\cos\theta,\sin\theta)$. Assume a uniform Lipschitz constant $L$ in chord distance, meaning that an encoder's output moves by at most $L$ times the chord between two input phases, and require $e_{i,x}=e_{j,x}$ wherever patches $i$ and $j$ overlap. Encoders may vary across sites; their equality on overlaps is a supplied relation between descriptions of the shared quantity. Write $z_k=e^{i\theta_k}$ and $m=N^{-1}\sum_k z_k$, so $|m|=r$. The phasors' squared deviations from their mean sum to $\sum_k|z_k-m|^2=N(1-r^2)$, and $|z_i-z_j|\leq|z_i-m|+|z_j-m|$ gives $|z_i-z_j|^2\leq2N(1-r^2)$ for each pair. Consequently every overlap discrepancy is bounded by
 \begin{equation}
  \delta_r=L\sqrt{2N(1-r^2)}.
  \label{eq:main-content-coherence}
@@ -276,7 +282,7 @@ These constructions concern declared objects: a specified cover, contents valued
 
 \subsection{The reflexive construction}
 
-Compatibility gives a global state. Reflexivity relates it to an encoding within that state. Equip global sections with a complete metric. If the additional restriction-resonance condition identifies encoding with restriction to a region $\mathcal{A}$, the reconstruction map is
+Compatibility gives a global state. Reflexivity relates it to an encoding within that state. Equip global sections with a complete metric. \emph{Restriction resonance} is the additional condition that the encoding is the state's own restriction to a region $\mathcal{A}$, so that the region encodes the state by being part of it. Under that condition the reconstruction map is
 \begin{equation}
  F(s)=\operatorname{readout}(s|_{\mathcal{A}}).
  \label{eq:selfmap}
@@ -309,7 +315,7 @@ This is an additional accuracy criterion on a family, with no requirement for mu
 
 Where the encoding is read as the state's own restriction to a region, the criterion becomes a condition on the region. Restriction resonance requires the encoder and that restriction to identify the same pairs of states, so a boundary reconstructing two relevant states more than $2\varepsilon$ apart while its region reads them identically is not resonant. Read forwards, a resonant boundary that reconstructs a pairwise separated family restricts injectively on it. Which states a region reads identically is fixed by where the region sits, before an encoding is chosen, so the resolution the family demands is the region's and no readout supplies it. The implication runs one way: a region that does resolve the family is not thereby shown to carry a resonant encoding, and E89 supplies no such resolution.
 
-Resonance and resolution are jointly satisfiable without a local fold. Take the region to be the whole substrate and use the identity readout: restriction is the identity, so this boundary is resonant and reconstructs every declared family exactly. Its map has Lipschitz factor one and does not satisfy E89's strict contraction premise on a nontrivial metric space. A properness condition on the region is therefore a separate requirement, and the fixed-contraction diameter bound remains in force when E89 is also required. With an $L$-Lipschitz readout, a family reconstructed within $\varepsilon$ whose members lie pairwise more than $d_{\min}$ apart has $\delta$-separated codes whenever $\delta L\leq d_{\min}-2\varepsilon$, so the family is no larger than the $\delta$-packing number of what the region carries. That is the shape a continuous family of states needs, and at the whole substrate it says nothing, because the region's range is everything. The gain $L$ is declared and derived here for no physical readout, and at unbounded gain the bound says nothing.
+Resonance and resolution are jointly satisfiable without a local fold. Take the region to be the whole substrate and use the identity readout: restriction is the identity, so this boundary is resonant and reconstructs every declared family exactly. Its map has Lipschitz factor one and does not satisfy E89's strict contraction premise on a nontrivial metric space. A properness condition on the region is therefore a separate requirement, and the fixed-contraction diameter bound remains in force when E89 is also required. With an $L$-Lipschitz readout, a family reconstructed within $\varepsilon$ whose members lie pairwise more than $d_{\min}$ apart has $\delta$-separated codes whenever $\delta L\leq d_{\min}-2\varepsilon$, so the family is no larger than the $\delta$-packing number of what the region carries. That is the shape a continuous family of states needs, and at the whole substrate it says nothing, because the region's range is everything. The gain $L$ is a declared input, derived here for no physical readout, and the bound weakens without limit as the gain grows.
 
 \subsection{Agreement after a change takes communication}
 
@@ -683,8 +689,8 @@ the conditions are proposed correlates to be tested against report or another
 independent endpoint. The present EEG analysis checks a measurement pipeline
 and does not validate any experiential claim. The formal results are
 conditional on declared encoders, covers and maps whose cortical counterparts
-are unmeasured. No principle selects the cover on which compatibility is
-assessed, so the unity correlate is not yet operationally defined.
+are unmeasured. The cover on which compatibility is assessed still needs a
+selection principle, so the unity correlate awaits an operational definition.
 
 The remaining explanatory question is whether these relations occur in neural
 activity and matter for experience. The framework identifies candidate
