@@ -310,12 +310,12 @@ slower half {_fit_text(slow_fit)}. The point estimates
 {"agree" if agree else "disagree"} to within {_SPLIT_AGREEMENT}, but each half is
 three legs over one decade and its own interval is far wider than the shortfall
 being tested, so the split is a consistency check and not a second measurement:
-it shows the apparent exponent does not drift across the span, and neither half
+it does not resolve drift across the span, and neither half
 resolves the shortfall by itself."""
 
 
 def _bootstrap_paragraph(legs: list[Leg], metrics: list[LegMetrics]) -> str:
-    """The bootstrapped confidence interval and p-value for the exponent."""
+    """The replica-bootstrap interval and fraction above one-half."""
     speeds = []
     replica_delays = []
     for leg, metric in zip(legs, metrics, strict=True):
@@ -368,6 +368,45 @@ def _followup_row(label: str, item: dict[str, Any]) -> str:
     )
 
 
+def _residual_diagnostics(data: dict[str, dict[str, Any]], names: tuple[str, ...]) -> str:
+    """Read saved fit residuals and deletion sensitivity."""
+    if all(data[name].get("rms_log_residual") is not None for name in names):
+        rms = [float(data[name]["rms_log_residual"]) for name in names]
+        ranges = [
+            (min(data[name]["leave_one_out_exponents"]), max(data[name]["leave_one_out_exponents"]))
+            for name in names
+        ]
+        return (
+            "In table order, log-residual RMS is "
+            + ", ".join(f"{value:.3f}" for value in rms)
+            + "; leave-one-speed-out slopes span "
+            + ", ".join(f"[{low:.3f}, {high:.3f}]" for low, high in ranges)
+            + ". The N=8000 low-threshold fit has material log scatter, so a single "
+            "power law is not established across these settings. "
+        )
+    return "Fit residual diagnostics are unavailable. "
+
+
+def _threshold_diagnostics(data: dict[str, dict[str, Any]], names: tuple[str, ...]) -> str:
+    """Read threshold placement, initialization, resolution and censoring."""
+    if all(data[name].get("largest_precritical_order") is not None for name in names):
+        peak = [float(data[name]["largest_precritical_order"]) for name in names]
+        initial = [float(data[name]["largest_initial_order"]) for name in names]
+        step = max(float(data[name]["largest_coupling_step"]) for name in names)
+        censored = [int(data[name]["censored_replicas"]) for name in names]
+        return (
+            "In table order, maximum precritical order is "
+            + ", ".join(f"{value:.3f}" for value in peak)
+            + "; maximum initial order is "
+            + ", ".join(f"{value:.3f}" for value in initial)
+            + f"; largest saved coupling step is {step:.3f}; censored replica legs total "
+            + ", ".join(str(value) for value in censored)
+            + ". A postcritical threshold crossing can therefore be immediate "
+            "when the trace is already above the absolute criterion before Kc. "
+        )
+    return ""
+
+
 def _delay_comparison(data: dict[str, dict[str, Any]]) -> str:
     """State what the three saved delay fits say about approach to one half."""
     names = ("N2000_r0.20", "N2000_r0.05", "N8000_r0.05")
@@ -391,9 +430,9 @@ def _delay_comparison(data: dict[str, dict[str, Any]]) -> str:
         f"v=0.01--0.0001, the exponents are {matched_baseline:.3f}, "
         f"{matched_tight:.3f}, and {matched_large:.3f}. "
         f"On the matched subset, the sequence {matched_direction}. "
-        "Replica uncertainty alone does not establish adequacy across ramp rates; "
-        "residuals must be inspected. "
-        "The tighter criterion produces zero-delay crossings. These finite-sweep estimates "
+        + _residual_diagnostics(data, names)
+        + _threshold_diagnostics(data, names)
+        + "The tighter criterion produces zero-delay crossings. These finite-sweep estimates "
         "do not establish an asymptotic exponent. Do not assume tightening the criterion "
         "restores one-half."
     )

@@ -1586,7 +1586,7 @@ individual wording ideas checked against current results, not as a replacement
 manuscript. Conversational fillers and metaphors such as "magically", "cranks
 up" and "buy the distance back" are not the requested clear scientific voice.
 
-- [ ] **G15 — Resolve what the G2/G11 ramp results establish.**
+- [x] **G15 — Resolve what the G2/G11 ramp results establish.**
       Complete and audit the existing G2/G11 analyses before choosing the final
       empirical headline. Saved summaries inspected on 2026-09-23 report
       approximately 0.444 at N=2000/r≥0.20, 0.637 at N=2000/r≥0.05, and
@@ -1640,7 +1640,7 @@ up" and "buy the distance back" are not the requested clear scientific voice.
       main text explains why each retained resource result matters. Moving a
       result preserves its hypotheses and creates no duplicate exposition.
 
-- [ ] **G18 — Rewrite in a direct scientific voice using the stash selectively.**
+- [x] **G18 — Rewrite in a direct scientific voice using the stash selectively.**
       Write from G16's outline using the current corrected claims. Use concrete
       subjects, active verbs, short paragraphs and familiar words; introduce
       mathematical terms when the argument needs them. State the result, its
@@ -1671,7 +1671,7 @@ up" and "buy the distance back" are not the requested clear scientific voice.
       **Verify:** Each proposed observation has a stated inferential target and
       failure condition; outstanding physical and experimental inputs are named.
 
-- [ ] **G20 — Audit scientific meaning after compression.**
+- [x] **G20 — Audit scientific meaning after compression.**
       Compare the rewrite against the corrected manuscript and source results.
       Check especially stored energy versus expenditure, necessity versus
       sufficiency, mathematical existence versus physical realization, budget
@@ -1683,7 +1683,7 @@ up" and "buy the distance back" are not the requested clear scientific voice.
       **Verify:** Each headline has evidence, hypotheses and a scope limitation;
       no shorter sentence strengthens a theorem or turns a proposal into a result.
 
-- [ ] **G21 — Validate and deliver the rewritten publication.**
+- [x] **G21 — Validate and deliver the rewritten publication.**
       Run the relevant prose, hedging, Table S1, coverage, figure and generated
       macro checks. Verify new references online if introduced. Rebuild every
       affected tracked PDF with cross-references resolved; inspect the rendered
@@ -1804,13 +1804,11 @@ up" and "buy the distance back" are not the requested clear scientific voice.
       main-text GPU section is warranted only if the comparison yields a result
       that changes how the framework's reconstruction conditions are assessed.
 
-**Open questions for execution.** G15 determines the defensible delay claim.
-Cortical mode prices, supply-to-occupancy calibration, independent content
-decoders and an experiential endpoint remain empirical gaps; editorial
-compression cannot discharge them. The pilot inputs needed to judge the spatial
-comparison are now listed in the supplement. G22--G24 are research proposals;
-their inclusion does not assert that a stronger theorem or an informative
-comparison has already been obtained.
+**Remaining empirical questions.** Cortical mode prices,
+supply-to-occupancy calibration, independent content decoders and an
+experiential endpoint remain gaps. The spatial field/connectivity comparator
+needs independent covariate maps and held-out emergence recordings. The finite
+ramp results establish no common asymptotic delay exponent.
 
 **G16/G19 progress (2026-09-23).** `tasks/g16_outline.md` fixes the article's
 central argument, a section-by-section 8,005-word working budget and the
@@ -1832,7 +1830,7 @@ The G18 abstract pass replaced the five-result inventory with a 155-word
 statement of the conditions, their mathematical and physical scopes, and the
 held-out spatial comparison. The shorter length keeps the full abstract on
 page one in the rendered PDF. The body and introduction receive their planned
-rewrite in the main-text pass below; G15 must settle the final finite-ramp wording.
+rewrite in the main-text pass below.
 
 **G18 main-text pass (2026-09-23).** The article's TeX-stripped prose count,
 excluding figures and longtables, is now 8,141 words versus 12,576 at commit
@@ -1840,13 +1838,12 @@ excluding figures and longtables, is now 8,141 words versus 12,576 at commit
 same method. The introduction, inherited-limit survey, winding discussion and
 discussion now state each result once with its assumptions nearby; derivation
 details remain in Supplemental Material. The abstract still fits on page one.
-The supplement's wider compression and final empirical wording remain open
-pending G15. The main-text scientific audit checked installed energy against
+The main-text scientific audit checked installed energy against
 metabolic expenditure, necessity against sufficiency, mathematical witnesses
 against cortical realization, stationary branch against observed onset, EEG
 calibration against evidence, and synthetic decoder scope. The article's
-headline results have corresponding limitation rows in Table S1; the final
-G20 audit remains open until the G15 wording is fixed.
+headline results have corresponding limitation rows in Table S1. The completed
+cross-document audit is recorded below.
 
 **arXiv artifact (2026-09-23).** `./prepare_arxiv.sh` rebuilt the merged
 submission after the main-text compression. It compiled from the unpacked
@@ -2231,3 +2228,71 @@ tarball compiled from its unpacked files, and freshness checks pass. No Lean
 source or reference changed. These are presentation and artifact-audit
 corrections; a physical sensing/reset reservoir model and cortical mode-price
 calibration remain separate research questions.
+
+### G15, G18, G20 and G21 closure — 2026-09-24
+
+**G15 conclusion.** All saved G2/G11 checkpoints are complete. The
+artifact-only analysis now records log-fit residuals, slopes after omitting
+each speed, maximum precritical and initial order, coupling-grid step and
+censoring for the three size/threshold settings. On all eligible legs the
+fitted delay exponents are 0.444, 0.637 and 0.720; on matched speeds they are
+0.444, 0.634 and 0.710. Their log-residual RMS values are 0.059, 0.091 and
+0.240, and the N=8000 low-threshold fit contains a log residual whose
+magnitude is 0.474. The N=2000/high-threshold fit is a usable finite-window
+description, while the larger-population low-threshold fit has appreciable
+scatter and the three fits support no common asymptotic exponent. Across the
+saved legs, precritical order can exceed the absolute escape criterion;
+first-postcritical detection can then be immediate. The largest saved
+coupling step is 0.010, so delays near that scale are resolution-limited.
+The N=2000/high-threshold and N=8000/low-threshold settings contain censored
+replica legs. The low-threshold N=2000 bootstrap has zero-delay draws, which
+are excluded from log fits; its bootstrap fraction above one-half is a
+resampling summary, not a hypothesis-test probability. The stationary
+square-root exponent is a separate theorem, not a finite-ramp finding. The
+three-speed heterogeneous fits and the two-speed width-1.5 control cannot
+settle exponent robustness; conduction delays and E/I balance remain open.
+The existing `acebron2005` citation and its Lorentzian-threshold discussion
+were checked against the publisher record and the review's equation. The
+article, supplement and primer now state the same finite-range conclusion.
+
+**G18 completion.** The abstract, introduction, body and discussion follow
+the G16 coherence/compatibility/reconstruction outline. The supplement keeps
+the derivations and controls, including the G22–G24 additions, while the
+article carries their scope and empirical implications. The main-text
+compression audit in `tasks/g16_outline.md` gives the migration map. Under a
+single source-token proxy that removes figures and longtables and counts the
+abstract through the last discussion section, the article changes from
+13,459 words at `7d8c5ba` to 9,130 now, a 32.2% reduction. This proxy counts
+math and TeX arguments and is wider than the earlier `detex` prose count.
+PDF text extraction, which includes tables and references, changes from
+18,201 to 13,860 words for the article. The supplement changes from 50,465
+to 51,665 extracted words because the later G22–G24 methods and theorem map
+add technical content; its repeated introductory argument is not kept as a
+second article. The abstract has 160 tokens by the source proxy and remains
+entirely on the first rendered page. The attempted-rewrite stash remains
+untouched.
+
+**G20 claim audit.** Each article headline was read against its model,
+supporting Table S1 row and failure condition:
+
+| Article claim | Table S1 or empirical support | Limit retained in the article |
+| --- | --- | --- |
+| Stored modes bound mean coupling and the stationary branch has a threshold | Installed-energy and Critical Coupling Threshold rows | Prices, spatial reduction and cortical identification are inputs; energy above the necessary bound is insufficient. |
+| Phase order constrains shared content only through encoders | Coherence bounds vector-content disagreement, pair-count, patch-nerve and locked-graph rows | Overlap encoders, cover geometry or locking data are supplied; synchrony alone does not identify content. |
+| Compatible sections glue and reconstruction fixes a state | Global gluing, Reflexive Topology and Reconstruction rows | Cover, shared quantities, map accuracy and readout gain are supplied; physical realization and experience do not follow. |
+| Changing order has current cost; feedback has a conditional heat budget | Order and probability-current dissipation and Agency/feedback rows | Stationary order has zero-current examples; current needs thermal conversion, and sensing/reset heat needs a full protocol. |
+| A digital candidate can be tested for rank, code resolution and deadline | Spectral error, Input-weighted reconstruction floor, Information ceiling and Locality rows | The linear rank premise and specified channels/graphs are essential; the CPU task gives no GPU energy or LLM-wide result. |
+| Finite ramp and EEG results guide an awakening test | Saved ramp/EEG analyses; not Lean claims | Operational escape depends on threshold, noise and sampling; EEG is estimator calibration, and the held-out field/connectivity comparison is proposed. |
+| Unity and minimal self are interpretations | Conditional composition and joint-witness rows | Mathematical satisfiability gives neither cortical realization nor an experiential endpoint. |
+
+**G21 delivery.** The ramp-analysis tests and generated-macro drift checks
+pass. Ruff, strict mypy, Bandit, Vulture, Xenon and Tach, the prose and
+hedging checks, Table S1 status and claim coverage, figure duplication,
+PDF freshness and arXiv freshness all pass. No Lean source or new reference
+was introduced. Both publication PDFs and the primer PDF were compiled twice;
+the abstract is fully on page one, figure captions and Table S1 were checked
+by PDF text extraction, and the merged arXiv document compiled from its
+unpacked tarball. Its retained content is a conditional mathematical
+framework with finite numerical controls and a proposed spatial onset
+comparison. Cortical coupling, content decoding, complete feedback heat
+accounting and experience remain empirical questions.

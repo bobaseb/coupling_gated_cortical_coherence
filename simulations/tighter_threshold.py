@@ -26,6 +26,25 @@ MATCHED_SPEEDS = (0.01, 0.005, 0.002, 0.001, 0.0002, 0.0001)
 ExponentSummary: TypeAlias = dict[str, bool | int | float | list[float] | None]
 
 
+def fit_diagnostics(speeds: np.ndarray, delays: np.ndarray) -> dict[str, float | list[float]]:
+    """Inspect log-fit residuals and sensitivity to any one speed leg."""
+    if speeds.shape != delays.shape or speeds.size < 3:
+        raise ValueError("Fit diagnostics require at least three matched speed legs")
+    fit = fit_power_law(speeds, delays)
+    residuals = np.log(delays) - np.log(fit.prefactor * speeds**fit.exponent)
+    slopes = [
+        fit_power_law(
+            speeds[np.arange(speeds.size) != index], delays[np.arange(delays.size) != index]
+        ).exponent
+        for index in range(speeds.size)
+    ]
+    return {
+        "log_residuals": residuals.tolist(),
+        "rms_log_residual": float(np.sqrt(np.mean(residuals**2))),
+        "leave_one_out_exponents": slopes,
+    }
+
+
 def _path(n_oscillators: int, speed: float, figure_dir: Path) -> Path:
     stem = "dynamic_ramp_replicas" if n_oscillators == 2000 else f"dynamic_ramp_N{n_oscillators}"
     return figure_dir / f"{stem}_v{speed:.0e}.npz"
@@ -57,6 +76,12 @@ def compute_exponent(
     replica_delays: list[np.ndarray] = []
     missing: list[float] = []
     artifact_count = 0
+    largest_precritical_order = 0.0
+    largest_coupling_step = 0.0
+    largest_initial_order = 0.0
+    censored_replicas = 0
+    precritical_max_by_speed: list[float] = []
+    censored_count_by_speed: list[float] = []
     for speed in speeds:
         leg = _read_completed(_path(n_oscillators, speed, figure_dir))
         if leg is None:
@@ -64,10 +89,18 @@ def compute_exponent(
             continue
         artifact_count += 1
         coupling, order, critical = leg
+        largest_precritical_order = max(
+            largest_precritical_order, float(np.max(order[coupling < critical]))
+        )
+        precritical_max_by_speed.append(float(np.max(order[coupling < critical])))
+        largest_coupling_step = max(largest_coupling_step, float(np.max(np.diff(coupling))))
+        largest_initial_order = max(largest_initial_order, float(np.max(order[0])))
         escape = replica_escape_couplings(
             coupling, order, level=level, sustain=3, critical_coupling=critical
         )
         delays = escape - critical
+        censored_replicas += int(np.sum(~np.isfinite(delays)))
+        censored_count_by_speed.append(float(np.sum(~np.isfinite(delays))))
         if np.all(np.isfinite(delays)) and float(np.mean(delays)) > 0:
             fit_speeds.append(speed)
             replica_delays.append(delays)
@@ -86,6 +119,15 @@ def compute_exponent(
         "p_above_05": None,
         "zero_delay_resamples": None,
         "matched_exponent_ols": None,
+        "fit_log_residuals": None,
+        "rms_log_residual": None,
+        "leave_one_out_exponents": None,
+        "largest_precritical_order": largest_precritical_order,
+        "largest_coupling_step": largest_coupling_step,
+        "largest_initial_order": largest_initial_order,
+        "censored_replicas": censored_replicas,
+        "precritical_max_by_speed": precritical_max_by_speed,
+        "censored_count_by_speed": censored_count_by_speed,
     }
     if len(fit_speeds) >= 3:
         x = np.asarray(fit_speeds)
@@ -99,6 +141,10 @@ def compute_exponent(
         result["exponent_boot_high"] = boot.ci_high
         result["p_above_05"] = boot.p_above
         result["zero_delay_resamples"] = boot.n_invalid
+        diagnostics = fit_diagnostics(x, y)
+        result["fit_log_residuals"] = diagnostics["log_residuals"]
+        result["rms_log_residual"] = diagnostics["rms_log_residual"]
+        result["leave_one_out_exponents"] = diagnostics["leave_one_out_exponents"]
 
         # Compute matched exponent
         matched_indices = [i for i, v in enumerate(fit_speeds) if v in matched_speeds_subset]

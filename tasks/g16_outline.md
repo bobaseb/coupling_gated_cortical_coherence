@@ -14,8 +14,8 @@ prose is roughly 8,000--9,000 words under one recorded counting method. The
 initial abstract target was 200--250 words. The first 203-word draft ran onto
 page two under the article's title layout, so the current 155-word abstract is
 a deliberate exception that fits on page one. These are editorial targets, not
-journal requirements. G15 must settle the finite-ramp wording before the final
-abstract and conclusion are fixed.
+journal requirements. The completed ramp audit scopes finite escape fits
+separately from the ideal stationary exponent.
 
 ## Article structure and prose budget
 

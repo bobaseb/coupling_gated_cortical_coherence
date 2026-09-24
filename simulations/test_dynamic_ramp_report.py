@@ -9,6 +9,7 @@ import numpy as np
 from matplotlib.collections import PathCollection
 
 from dynamic_ramp_report import (
+    FIGURE_DIR,
     SizeMetrics,
     Leg,
     _followup_report,
@@ -19,6 +20,13 @@ from dynamic_ramp_report import (
 
 
 class FollowupReportTest(unittest.TestCase):
+    def test_saved_followup_report_matches_completed_summaries(self) -> None:
+        generated = _followup_report(
+            FIGURE_DIR / "tighter_threshold_summary.json",
+            FIGURE_DIR / "hetero" / "hetero_summary.json",
+        )
+        self.assertIn(generated, (FIGURE_DIR / "DYNAMIC_RAMP_REPORT.md").read_text())
+
     def test_completed_controls_state_nonconvergence_and_censoring(self) -> None:
         def row(
             exponent: float | None, fit_legs: int, matched_exponent: float | None = 0.5
@@ -30,6 +38,12 @@ class FollowupReportTest(unittest.TestCase):
                 "missing_speeds": [],
                 "exponent_ols": exponent,
                 "matched_exponent_ols": matched_exponent,
+                "rms_log_residual": 0.24 if exponent == 0.720 else 0.06,
+                "leave_one_out_exponents": [0.68, 0.76] if exponent == 0.720 else [0.43, 0.47],
+                "largest_precritical_order": 0.30,
+                "largest_initial_order": 0.04,
+                "largest_coupling_step": 0.01,
+                "censored_replicas": 9,
             }
 
         with TemporaryDirectory() as directory:
@@ -59,6 +73,9 @@ class FollowupReportTest(unittest.TestCase):
             )
             report = _followup_report(threshold, hetero)
         self.assertIn("does not show convergence toward 0.5", report)
+        self.assertIn("log-residual RMS", report)
+        self.assertIn("precritical order", report)
+        self.assertNotIn("residuals must be inspected", report)
         self.assertIn("fit censored", report)
 
     def test_missing_sweeps_are_reported_as_pending(self) -> None:

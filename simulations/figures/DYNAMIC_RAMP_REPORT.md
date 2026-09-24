@@ -25,7 +25,7 @@ slower half 0.447 [-0.406, 1.299]. The point estimates
 agree to within 0.05, but each half is
 three legs over one decade and its own interval is far wider than the shortfall
 being tested, so the split is a consistency check and not a second measurement:
-it shows the apparent exponent does not drift across the span, and neither half
+it does not resolve drift across the span, and neither half
 resolves the shortfall by itself.
 
 Bootstrapping the 10000 resamples over replicas within each of the 6
@@ -50,7 +50,7 @@ Only completed checkpoints enter these fits. Pending rows are provisional. Zero-
 | 1.0 | complete | 4 | 3 | 0.178 | [0.107, 0.255] | 0 | — |
 | 1.5 | fit censored | 4 | 2 | — | — | — | — |
 
-The three delay exponents are 0.444, 0.637, and 0.720 in table order on all eligible legs. Over the matched six-leg subset v=0.01--0.0001, the exponents are 0.444, 0.634, and 0.710. On the matched subset, the sequence does not show convergence toward 0.5. Replica uncertainty alone does not establish adequacy across ramp rates; residuals must be inspected. The tighter criterion produces zero-delay crossings. These finite-sweep estimates do not establish an asymptotic exponent. Do not assume tightening the criterion restores one-half.
+The three delay exponents are 0.444, 0.637, and 0.720 in table order on all eligible legs. Over the matched six-leg subset v=0.01--0.0001, the exponents are 0.444, 0.634, and 0.710. On the matched subset, the sequence does not show convergence toward 0.5. In table order, log-residual RMS is 0.059, 0.091, 0.240; leave-one-speed-out slopes span [0.429, 0.466], [0.631, 0.642], [0.679, 0.759]. The N=8000 low-threshold fit has material log scatter, so a single power law is not established across these settings. In table order, maximum precritical order is 0.303, 0.303, 0.214; maximum initial order is 0.041, 0.041, 0.019; largest saved coupling step is 0.010; censored replica legs total 28, 0, 9. A postcritical threshold crossing can therefore be immediate when the trace is already above the absolute criterion before Kc. The tighter criterion produces zero-delay crossings. These finite-sweep estimates do not establish an asymptotic exponent. Do not assume tightening the criterion restores one-half.
 
 At Lorentzian half-width 1.5, the completed sweep has too few uncensored speed legs for an exponent interval. The control therefore cannot decide whether heterogeneity changes only the prefactor or the exponent. A lower, predeclared escape criterion or wider coupling window is needed.
 
