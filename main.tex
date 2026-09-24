@@ -23,8 +23,8 @@
 \renewcommand{\cite}[1]{\citep{#1}}
 \doublespacing
 
-\title{Coupling-gated cortical coherence:\\
- a conditional framework for unity and self-representation}
+\title{When does cortical coherence carry shared content?\\
+ Compatibility and self-reconstruction as testable conditions}
 \author{Sebastian Bobadilla-Suarez\\
 Independent Researcher\\
 \texttt{sebastian.bobadilla.s@gmail.com}\\
@@ -53,7 +53,7 @@ ORCID: \href{https://orcid.org/0000-0002-5951-0772}{0000-0002-5951-0772}}
 \begin{abstract}
 \singlespacing
 \small
-Collective phase order can coordinate distributed cortex, but does not establish shared content or self-representation. We distinguish coherence, compatibility and accurate reconstruction. Shared content requires independently identified quantities on overlapping regions; compatible local descriptions determine a unique global state. A contraction fixes that state uniquely if it reconstructs the state exactly; fidelity across other states separately requires discriminating codes. Counterexamples show why a phase resultant and fixed-point uniqueness cannot replace these measurements. Lean~4 verifies the conditional implications and a model jointly satisfies their eight connecting hypotheses. This establishes mathematical consistency, not cortical realization. A declared actuator's stored mode energy bounds mean coupling and yields a necessary condition for a coherent stationary branch; cortical mode prices remain unknown. We propose a held-out comparison of field-score and structural-connectivity onset models during anaesthetic emergence. A predictive advantage would support the specified spatial model; causal field identification requires intervention. Unity and a minimal self remain interpretations without an independent measure of experience.
+Synchrony accounts treat collective phase order as the mechanism that integrates distributed cortical activity. We show formally that phase order alone establishes neither shared content nor a self-model, and state what additionally does. We separate three conditions: coherence (collective phase order), compatibility (agreement of independently decoded local descriptions where regions overlap) and self-reconstruction (accurate recovery of the global state from an internal encoding). Compatible local descriptions determine a unique global state. Coherence bounds disagreement between overlapping descriptions only through shared Lipschitz encoders, and the bound grows as the square root of the population read, so on a large population it constrains nothing. A contracting self-map fixes one state but reconstructs accurately only states within a diameter set by its error and contraction factor; a broad family needs input-conditioned maps and discriminating codes. Lean~4 verifies these implications, and one model satisfies all eight connecting hypotheses together; this shows consistency, not cortical realization. The conditions yield a disconfirmable comparison: decoders fitted independently on overlapping regions should agree more on reported than on matched unreported stimuli at equal phase coherence. An exploratory EEG analysis is a measurement check only; its pooled estimator places a perfectly synchronized signal at zero coherence. Resource and implementation constraints, and a held-out onset comparison during anaesthetic emergence, are stated briefly. Unity and a minimal self remain interpretations that need an independent experiential endpoint.
 \end{abstract}
 \linenumbers
 
@@ -75,6 +75,20 @@ requirements \emph{coherence} (collective phase order), \emph{compatibility}
 are spatial measures and fields; identifying them with perceptual content
 requires independent decoding evidence.
 
+Binding-by-synchrony and communication-through-coherence accounts treat phase
+relations as the medium of integration or of selective routing
+\cite{singer1995,fries2015}, and field theories place integration in the
+endogenous electromagnetic field \cite{mcfadden2020,pockett2012}. Both leave
+open what fact about synchronized activity makes it one content rather than
+coordinated activity carrying several. The contribution here is to separate the
+three requirements and prove which follow from which. Phase order constrains
+shared content only through encoders related on overlaps, with a bound that
+grows as the square root of the population it is read on. Compatible local
+descriptions, not synchrony, determine a unique global state. A contracting
+self-map fixes one state but can reconstruct accurately only a family of
+bounded diameter. Each result names a measurement that phase data alone cannot
+supply.
+
 The familiar noisy mean-field oscillator supplies a stationary coherence
 threshold \cite{sakaguchi1988,strogatz1991}. We add a resource condition for a
 declared actuator, bounds that connect phase order to content only through
@@ -85,15 +99,16 @@ hypotheses in a specified model. It proves neither that cortex satisfies those
 hypotheses nor that the glued state is experienced. The latter identification
 motivates the framework and needs its own endpoint.
 
-The empirical question is which measurements could support the proposed
-connections. A phase resultant can miss a locally ordered winding field;
+The empirical question is which measurements could support or disconfirm the
+proposed connections. A phase resultant can miss a locally ordered winding field;
 stationary phase distributions can leave the coupling mechanism unidentified;
 and coherent adaptation can lose alignment with a designated content
 template. Independent decoders must identify shared quantities before their
 agreement can be tested. We therefore distinguish stationary branches from
 finite observed onset, and compare prespecified field and connectivity onset
 models on held-out emergence recordings. The comparison tests a specified
-spatial prediction, not the presence of experience.
+spatial prediction, not the presence of experience. Section~\ref{sec:full-test}
+states the comparison that bears on conscious content directly.
 
 Sections~\ref{sec:unconditional}--\ref{sec:self} develop the three requirements;
 Section~\ref{sec:gpu} applies their measurement obligations to a digital
@@ -692,7 +707,8 @@ Predeclare the recording window, regional fluctuation thresholds, and a shared t
 
 We propose the state glued from compatible local descriptions as a formal
 correlate of conscious unity, and its accurate internal reconstruction as a
-correlate of a minimal self. In the cup example, this would mean one description
+correlate of a minimal self in the sense of a pre-reflective point of view on
+the scene \cite{gallagher2000}. In the cup example, this would mean one description
 that preserves the cup's relation to the perceiver as well as the scene.
 Compatibility permits distinct contents and uncertainty; the shared
 quantities must be chosen from independent evidence about what each region
@@ -701,8 +717,24 @@ Its proposed relation to experienced perspective remains an interpretation.
 Neither identification is among the eight hypotheses in
 Table~\ref{tab:summary}, and satisfying them would not measure experience.
 
-\subsection{What a test of the full proposal must establish}
+\subsection{A comparison that could disconfirm the link to content}
 \label{sec:full-test}
+
+The framework predicts that conscious content tracks compatibility, not
+coherence. Present matched stimuli that are reported on some trials and not
+on others, for example at masking or rivalry threshold, and fit decoders for a
+shared stimulus quantity independently on two overlapping cortical regions.
+Compare decoded agreement on the overlap between reported and unreported
+trials after matching their phase coherence. The proposed link predicts higher
+agreement on reported trials at equal coherence. Equal agreement, or agreement
+that follows coherence and not report, counts against it. A self-model
+comparison has the same form: reconstruction of perceiver-relative variables,
+such as hand position relative to the target, from a declared local encoding
+should be more accurate on reported trials. These are correlational tests of the
+proposed correlates; report is itself an access measure, and a no-report
+design would be needed to separate content from access.
+
+\subsection{What a test of the full proposal must establish}
 
 A test needs separate estimates of effective coupling and diffusion, shared
 content on overlapping regions, and reconstruction from a specified encoding
@@ -738,6 +770,14 @@ interpretation needs the separate calibration of
 Section~\ref{sec:prediction}. The joint witness shows that the formal
 hypotheses can hold together in a declared model. A cortical realization and
 an experiential interpretation require additional evidence.
+
+Three limitations bound every claim above. Synchrony is not itself an
+experiential measure, and nothing here establishes a consciousness criterion:
+the conditions are proposed correlates to be tested against report or another
+independent endpoint. The present EEG analysis checks a measurement pipeline
+and does not validate any experiential claim. The formal results are
+conditional on declared encoders, covers and maps whose cortical counterparts
+are unmeasured.
 
 The remaining explanatory question is whether these relations occur in neural
 activity and matter for experience. The framework identifies candidate

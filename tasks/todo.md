@@ -56,7 +56,7 @@ format and length rules, agree with each other, and pass repository gates.
   Revise claims and generated publication macros from saved artifacts as
   needed; do not regenerate macros by rerunning a production sweep.
 
-- [ ] **N4 — Rewrite the article around its consciousness contribution.**
+- [x] **N4 — Rewrite the article around its consciousness contribution.**
   State what is new relative to standard synchrony and field accounts, and
   distinguish coherence, content reconstruction, and self-model claims.
   Specify an observable comparison that could disconfirm the proposed link
@@ -125,6 +125,19 @@ with a drift test. The design ladder keeps its own declared
 `\designLadderConcentration`. The pooled estimand has 61 bipolar pairs, not
 62 sites. Every source says eight subjects; no six-subject wording remains.
 No recording was re-read and no sweep rerun.
+
+### 2026-09-24 — N4 consciousness framing
+
+The title, abstract and introduction now lead with the distinct result:
+phase order does not establish shared content or a self-model, and three
+separable conditions say what additionally does. The introduction places the
+work against binding-by-synchrony, communication-through-coherence and field
+accounts (`singer1995`, `fries2015`, verified online). The Discussion opens
+with a disconfirmable comparison: decoded overlap agreement on reported versus
+unreported trials at matched coherence, plus a self-model analogue. It ties
+the minimal self to `gallagher2000` (verified) and closes with explicit
+limitations. Synchrony is not an experiential measure, no consciousness
+criterion is claimed, and the EEG analysis is a measurement check.
 
 ## C — What a continuous medium buys, and what is electromagnetic about it
 
