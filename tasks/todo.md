@@ -1179,7 +1179,7 @@ a concrete future-work target. A staff engineer reading the diff would say:
       **Verify:** `pytest simulations/test_dynamic_ramp.py` passes; bootstrap
       CI appears in `DYNAMIC_RAMP_REPORT.md`; generated TeX macros updated.
 
-- [ ] **G2 — Larger-N and tighter-threshold delay runs.**
+- [x] **G2 — Larger-N and tighter-threshold delay runs.**
       *Review concern: Major §4 cont'd.* The reviewer asks for "larger N
       (floor ~1/√N)" with the stochastic ensemble rerun at the tightened
       criterion. The repository already has N=500 and N=8000 runs.
@@ -1271,19 +1271,19 @@ a concrete future-work target. A staff engineer reading the diff would say:
           emergence), Proekt & Hudson 2018 (BJA — stochastic basis for neural
           inertia). Position the framework's prediction relative to this
           literature: the v^{1/2} exponent is generic; the framework's
-          *discriminating* content is the spatial onset pattern — coherence
-          should nucleate in regions of highest κ (mode density × field
-          strength), not uniformly.
+          *discriminating* content requires a separately specified spatial
+          onset model. The homogeneous threshold result supplies no ordering
+          of regions.
       (b) Rewrite §9.3 as a concrete protocol sketch: manipulate emergence
           rate v via propofol infusion rate (within-subject, multiple rates);
           measure time-to-response as the observable (not ΔK); specify that
           the discriminating test is the *spatial* signature (high-density
           ECoG or Neuropixels), not the exponent alone.
-      (c) State the competing null: any supercritical bifurcation gives ~0.5.
-          The field hypothesis predicts *where* coherence nucleates (high-κ
-          regions) and that onset correlates with local field amplitude.
-          A synaptic-only model predicts onset at hub nodes of the connectome.
-          These are distinguishable with high-density intracranial recordings.
+      (c) Compare matched, prespecified field-score and structural-connectivity
+          onset models on held-out sessions. Both use the same baseline order,
+          diffusion, drug drive, threshold and observation model. Earlier
+          field-score onset is conditional on those inputs; hub-first is one
+          declared comparator, not a universal synaptic-model prediction.
       (d) Verify all new references via web search before commit.
       **Verify:** §9.3 reads as a protocol, not a wish list; neural inertia
       refs in `.bib`; discriminating alternative stated.
@@ -1387,7 +1387,7 @@ a concrete future-work target. A staff engineer reading the diff would say:
 
 ### P3 — Biological realism, prose, and minor concerns
 
-- [ ] **G11 — Heterogeneous-frequency control on the delay scaling.**
+- [x] **G11 — Heterogeneous-frequency control on the delay scaling.**
       *Review concern: Major §9.* All threshold results assume identical
       frequencies, mean-field sinusoidal coupling, no delays, and positive
       couplings.
@@ -1472,9 +1472,52 @@ a concrete future-work target. A staff engineer reading the diff would say:
 
 ### Review section
 
+2026-09-23 audit of completed G items, excluding running G2/G11 sweeps:
+G1's replica interval is now stated in both publication files and the article
+no longer treats the finite estimate as proof of the ideal exponent. G3's
+metabolic expenditure and electrostatic field energy are separated from the
+formal installed actuator energy; a supply-to-occupancy model remains open.
+G4's cited Kuramoto references are now present in the bibliography, and the
+mean-field scope has relevant citations. G6--G10 and G12--G13 have their stated
+source and manuscript scope; G12's inline Lean identifiers were removed from
+article prose. G5 and G14 were reopened here for a specified spatial comparator,
+replica-level figure, identifier typography and reference verification. The
+Lean toolchain and Mathlib revision are now stated
+in data availability. Verification: `lake build` completed with the audit's
+5797-declaration footprint restricted to the three permitted axioms; 34 focused
+simulation tests passed; `check_prose`, `check_hedging`, `check_tableS1`,
+`check_table_coverage`, `check_figures`, `check_pdf_freshness` and
+`check_arxiv_freshness` passed; both publication PDFs compiled without final
+LaTeX warnings. The new bibliography entries were checked against journal or
+PubMed records before insertion.
+
+G5/G14 completion — 2026-09-23 — The article and supplement now define
+field-score and structural-degree models with matched inputs, one scale each,
+and a held-out onset comparison. The figure shows the first sustained escape
+of each uncensored replica at its recorded order, alongside mean curves and
+standard-error bands. In the supplement, manually broken identifiers use
+breakable literal code formatting instead of embedded `\allowbreak`; the
+remaining mathematical use was rewritten. All nine 2026 references were
+checked against publisher or preprint records. The neural-inertia reference
+check also corrected the Proekt--Hudson DOI from `.036` (an unrelated case
+report) to `.035`. Focused ramp tests (22) and Ruff, strict mypy, Bandit,
+Vulture, Xenon, and Tach passed. Both publication PDFs were rebuilt; final
+LaTeX passes had no undefined references or overfull boxes. The prose,
+hedging, Table S1, claim-coverage, figure, PDF-freshness, and arXiv-freshness
+gates passed. The production sweeps were not rerun.
+
 G1 — 2026-09-23 — Replica bootstrap added to the dynamic-ramp report and
 generated TeX macros. `test_dynamic_ramp`, `test_dynamic_ramp_analysis`,
 `test_dynamic_ramp_report`, and `test_simulation_tex` pass.
+
+G2/G11 — 2026-09-23 — All eight N=8000 ramp checkpoints and all twelve
+heterogeneous-frequency checkpoints completed. The saved summaries and
+`DYNAMIC_RAMP_REPORT.md` give the three threshold/size fits and the
+heterogeneity comparison. The N=8000 tighter-threshold fit moves farther from
+one-half; the largest frequency width leaves only two uncensored legs, so no
+three-width exponent conclusion is supported. G15 carries the remaining
+matched-window audit and publication interpretation. The production runners
+reported `complete`; focused analysis/report tests and static checks passed.
 
 ### 2026-09-23 — G9 / G10 Lean derivations and premise checks
 
@@ -1502,3 +1545,554 @@ unrestricted coupling-ramp speed bound is refuted. Remaining G tasks concern
 simulations, references, protocols or physical calibration, not a specified
 unproved Lean theorem. Final combined verification is recorded in the G9/G10
 specification.
+
+### G15–G24 — Scientific focus, stronger tests and a shorter manuscript
+
+**Intent (2026-09-23).** Following the G review response, rewrite the article
+around one scientific argument: phase coherence alone is insufficient evidence
+for a unified representation; specify the additional decoding and reconstruction
+conditions, demonstrate failures of common observables, and state independently
+measurable tests. Preserve the cortical field hypothesis and the motivation from
+unity and self-representation, with their evidential status explicit. The user
+requests a clearer voice and reduced text. This is a planned editorial revision;
+the tasks below are not completed by adding this plan.
+
+**Constraints and success criteria.** Use the current manuscript and corrected G
+results as the scientific baseline. Keep assumptions needed to interpret each
+claim next to that claim. Give each result and its limitation one primary home.
+Preserve proofs and reproducibility in the supplement/repository while reducing
+repetition across both documents. Working editorial target: reduce article prose
+by at least 30%, aiming for roughly 8,000–9,000 words and a 200–250-word abstract;
+these are project targets, not asserted journal limits. Establish a consistent
+prose-count method before comparing drafts, excluding bibliography and the
+notation/claim tables. Record exceptions if a necessary explanation exceeds the
+budget. No new production sweep or formal extension is implied by this rewrite.
+
+**Stash inspection.** Read `attempted-rewrite`, currently `stash@{0}`, at immutable
+commit `5cdd8bef02bdcd4e5fe50ac37366867e6e1b93f4`; it was not applied or dropped.
+It changes `main.tex`, two PDFs and `scratch/main_diff.patch`. Simple whitespace
+counts from abstract through discussion are 14,020 tokens in its parent and
+12,473 in the rewrite (about 11% reduction); the current article has 13,617 by
+the same rough measure. These are TeX token counts, not publication word counts.
+The rewrite largely preserves the section structure. Useful features include
+shorter sentences, concrete subjects and the cup example. It also retains the
+obsolete claim that the delay prediction needs no absolute calibration and
+introduces overstatements: toy witnesses "prove they can exist in reality";
+the work identity "ensur[es]" an allowance that must instead be assumed;
+"the past strictly causes the future" replaces a specific Markov condition.
+Its claims of a "definitive" test, generic positive learning cost and physical
+proof from favourable observations also need correction. Use it as a source of
+individual wording ideas checked against current results, not as a replacement
+manuscript. Conversational fillers and metaphors such as "magically", "cranks
+up" and "buy the distance back" are not the requested clear scientific voice.
+
+- [ ] **G15 — Resolve what the G2/G11 ramp results establish.**
+      Complete and audit the existing G2/G11 analyses before choosing the final
+      empirical headline. Saved summaries inspected on 2026-09-23 report
+      approximately 0.444 at N=2000/r≥0.20, 0.637 at N=2000/r≥0.05, and
+      0.720 at N=8000/r≥0.05, using different uncensored speed sets. All
+      production checkpoints are complete. The heterogeneous summary has fits
+      near 0.24 and 0.18 from only three usable speeds each, with insufficient
+      fit legs for the third width. These are provisional
+      artifact readings, not independently validated scientific conclusions.
+      Compare matched speed windows as well as all eligible legs; check threshold
+      placement relative to fluctuations, initialization, critical coupling,
+      censoring, zero delays, sampling resolution and bootstrap exclusions.
+      Inspect residuals and whether a single power law is an adequate description;
+      replica uncertainty alone does not establish adequacy across ramp rates.
+      Distinguish stationary onset, ideal dynamical delay and finite operational
+      escape. Do not assume tightening the criterion restores one-half or that
+      heterogeneity only shifts a prefactor. Treat the bootstrap fraction above
+      one-half as a bootstrap summary, not automatically a hypothesis-test p-value.
+      Carry G11's publication work here: verify and cite the Lorentzian threshold
+      literature, state conduction delays and E/I balance as open controls, and
+      scope any robustness statement to the mean-field idealisation actually tested.
+      **Verify:** Completed artifacts and analysis support one explicit conclusion
+      with its regime; generated macros, report and both publication files agree.
+      Add failing tests first for any analysis correction. Further simulations
+      require a specific unresolved diagnostic question and separate scope.
+
+- [x] **G16 — Select the central argument and allocate section budgets.**
+      Draft a short outline with a purpose and word budget for each section.
+      Organize around coherence, compatibility and reconstruction; connect the
+      winding, identifiability and decoder controls to the measurements each
+      requirement needs. Separate inherited mathematics, the framework's
+      contribution, numerical findings and proposed physical interpretation.
+      Integrate elementary counterexamples where they motivate a condition;
+      remove the repeated five-result inventories in abstract, introduction,
+      standalone survey and discussion. Present formal verification as assurance
+      of specified implications, with joint witnesses establishing mathematical
+      satisfiability. Explain the biological question those implications clarify.
+      **Verify:** Each retained main-text section advances the central argument;
+      the outline meets the total budget and carries an explicit destination for
+      material moved out. Outline work can proceed while G15 is unfinished.
+
+- [x] **G17 — Integrate G9/G10 in proportion to their role.**
+      Keep a concise current/dissipation result where it limits physical resource
+      claims, including ordered zero-current equilibrium and the distinction
+      between density-change cost and actuator cost. Give installed energy a
+      short statement with the unidentified cortical calibration clearly named.
+      Move extended feedback, learning, supply ledgers and machine-candidate
+      discussion to existing relevant supplement sections where they do not
+      advance G16's argument. Retain the actual linear-rank premise, softmax
+      counterexample and finite-output information scope in their destinations.
+      **Verify:** A migration map accounts for substantive claims and citations;
+      main text explains why each retained resource result matters. Moving a
+      result preserves its hypotheses and creates no duplicate exposition.
+
+- [ ] **G18 — Rewrite in a direct scientific voice using the stash selectively.**
+      Write from G16's outline using the current corrected claims. Use concrete
+      subjects, active verbs, short paragraphs and familiar words; introduce
+      mathematical terms when the argument needs them. State the result, its
+      necessary assumptions and its consequence together. Replace long defensive
+      qualifications with precise scope statements and remove repeated warnings.
+      Avoid rhetorical contrasts, colloquial intensifiers, unsupported universal
+      claims and numbered inventories in the abstract. Keep the cup example if it
+      helps readers distinguish timing, shared content and perspective.
+      Rewrite the abstract and introduction after the body establishes the final
+      emphasis. Reduce the supplement's duplicated explanations as well; preserve
+      its technical derivations and methods.
+      **Verify:** Before/after prose counts meet the agreed working budget; every
+      claim borrowed from the stash is checked against the current theorem or
+      evidence. A reader needs neither Lean identifiers nor drafting history to
+      follow the article. Final empirical wording depends on G15.
+
+- [x] **G19 — Make the proposed biological test assessable.**
+      Preserve G5's matched field/connectivity comparison and explain what a
+      held-out advantage would establish. Specify independent covariate estimation,
+      train/test separation, onset and behavioural endpoints, nuisance controls,
+      missing/censored observations and a declared predictive scoring rule.
+      Address correlated field/connectivity scores and regimes where the models
+      cannot discriminate; avoid treating structural degree as every synaptic
+      alternative. State which calibration/pilot inputs are needed for precision
+      or power planning instead of inventing a sample size. Distinguish a protocol
+      sketch from a demonstrated cortical mechanism and retain the separate
+      measurement problem for experience.
+      **Verify:** Each proposed observation has a stated inferential target and
+      failure condition; outstanding physical and experimental inputs are named.
+
+- [ ] **G20 — Audit scientific meaning after compression.**
+      Compare the rewrite against the corrected manuscript and source results.
+      Check especially stored energy versus expenditure, necessity versus
+      sufficiency, mathematical existence versus physical realization, budget
+      assumptions versus conclusions, phase order versus content, and measured
+      onset versus a stationary branch. Preserve G7's EEG calibration status,
+      synthetic decoder scope and G8's interpretive identification. Manually map
+      article claims to Table S1 even when removal of inline identifiers means
+      the automated coverage gate cannot see them.
+      **Verify:** Each headline has evidence, hypotheses and a scope limitation;
+      no shorter sentence strengthens a theorem or turns a proposal into a result.
+
+- [ ] **G21 — Validate and deliver the rewritten publication.**
+      Run the relevant prose, hedging, Table S1, coverage, figure and generated
+      macro checks. Verify new references online if introduced. Rebuild every
+      affected tracked PDF with cross-references resolved; inspect the rendered
+      abstract, figures and tables. Review the primer for content drift and keep
+      the assembled arXiv submission current under repository rules. Run analysis
+      tests for changed analysis and the Lean audit if formal sources change.
+      **Verify:** Report final word counts, material moved, scientific conclusions
+      and remaining empirical questions; source/PDF deliverables and applicable
+      gates agree. Keep the attempted-rewrite stash intact as a reference.
+
+- [x] **G22 — Bound the current cost of changing phase-order magnitude.**
+      *Motivation:* the current theorem bounds the rate of a fixed cosine moment,
+      while a cortical or simulated onset is commonly summarized by the
+      rotation-invariant magnitude $r=|\int e^{i\theta}\rho|$. The existing
+      positive-order stationary counterexample rules out a universal cost of
+      maintaining order; it does not rule out a cost for changing order within
+      a finite time.
+      **Proof target:** for a positive normalized periodic density evolving by
+      $\partial_t\rho=-\partial_\theta J$, constant $D>0$, and current
+      $\sigma_J(t)=\int J^2/(D\rho)$, derive or refute
+      $\dot r^2\leq D\sigma_J(1-r^2)$ under explicit regularity assumptions.
+      Where $r(t)$ is absolutely continuous and stays below one, integrate it
+      to obtain
+      $\int_0^\tau\sigma_J(t)\,dt\geq
+      [\arcsin r(\tau)-\arcsin r(0)]^2/(D\tau)$.
+      Treat times with $r=0$ or $r\to1$ by a separate argument or state the
+      theorem's domain precisely. The bound concerns probability-current cost;
+      it is not heat or metabolic power without a physical conversion.
+      **Numerical test:** add failing tests first. Simulate regular periodic
+      density evolution under prespecified coupling schedules and save $r(t)$,
+      $J(t,\theta)$, accumulated $\sigma_J$, duration, initial condition and
+      numerical resolution. Compare ramps and alternative schedules with the
+      same endpoints and duration; include the exact uniform zero-cost path and
+      ordered relaxation controls. Check the bound and report its slack over
+      the regimes where an operational onset occurs. Repeat across diffusion,
+      ramp rate and moderate heterogeneity; identify where the homogeneous
+      proof ceases to apply.
+      **Verify:** Lean proves the stated functional inequality and integrated
+      consequence with explicit periodicity, positivity and differentiability
+      assumptions; simulations recover the bound within numerical error and
+      expose informative tightness or a clear counterexample; the report and
+      any publication macro read only saved artifacts. A main-text claim is
+      useful only if it constrains the measured finite-onset protocol beyond
+      the stationary zero-cost counterexample. No cortical work or power claim
+      follows without calibrated current and thermal conversion.
+
+- [x] **G23 — Close the learning–phase–actuator feedback loop.**
+      *Motivation:* the existing learned-coupling construction attaches an
+      actuator to a learner's executed law, but supplies phase observations
+      rather than evolving the phase dynamics under the coupling that learner
+      installs. Build one explicit process in which a register update changes
+      actuator occupancy and installed coupling, phases evolve under that
+      coupling and declared noise, a sensor samples those phases, and the
+      resulting observation updates the same register.
+      **Model:** specify finite or discretized phase state, update order,
+      observation channel, learning rule, coupling readout, mode prices, thermal
+      scale and reservoir. Carry the joint law through every stage. State local
+      detailed balance and path-support conditions where a heat theorem uses
+      them; otherwise report work and phase-current cost as distinct ledgers.
+      Include preparation, sensing, reset, installation work and depletion or
+      replenishment of the work store. A finite source with positive net cost
+      must eventually stop; continuing operation needs a named replenishment
+      mechanism.
+      **Controls:** compare an informative phase sensor to a matched blind or
+      shuffled sensor with the same marginal phase order, initial law, actuator,
+      learning rule and resource allowance. Also include an unchanging actuator,
+      an uninformative prior and a control that has the same learned marginal
+      but no phase feedback. Measure held-out task accuracy, shared-content
+      agreement, reconstruction error, coherence, installed energy, cumulative
+      work, heat and any current cost separately. Use training data only to fit
+      readouts and thresholds; score on held-out episodes and state families.
+      **Verify:** failing tests precede implementation; the formal development
+      proves the joint transition and resource ledger for the named process;
+      simulation recovers analytical small-state cases and distinguishes the
+      matched controls. A positive result establishes a closed-loop witness for
+      its supplied model, not cortical realization. Mapping its register,
+      actuator, noise and replenishment to cortex remains an explicit physical
+      follow-up. This item can support a concise resource paragraph only if
+      phase dynamics, learning and the work ledger materially constrain one
+      another in the resulting process.
+
+- [x] **G24 — Test reconstruction limits on one shared digital and phase task.**
+      *Motivation:* the finite-rank theorem and token/causal-past bounds state
+      measurement obligations, but the current GPU section has no comparison
+      showing how those limits affect a task relevant to compatibility and
+      self-reconstruction. Construct a benchmark with a known global state,
+      independently specified local observations, shared quantities on
+      overlaps and a declared encoding region. Require each candidate to
+      reconstruct the state and its own relation to it after interventions.
+      **Candidates and budgets:** include (i) the article's explicit linear
+      bottleneck class, where the spectral-tail theorem applies, (ii) a
+      nonlinear decoder-only transformer, for which query/key dimension alone
+      is not treated as an operator-rank budget, and (iii) a phase-based network
+      with a declared coupling graph. The transformer control must be small
+      enough to train and evaluate on CPU for the fixed synthetic task; specify
+      its size, sequence length and runtime budget. Measure the actual internal
+      code, its effective rank under a prespecified tolerance, token output,
+      causal past, communication rounds, parameter count, memory and latency.
+      Hardware energy measurement is an optional follow-up, not a prerequisite.
+      Do not infer a physical coupling or consciousness from architecture labels.
+      **Design:** vary bottleneck dimension, local observation noise, overlap
+      agreement, communication deadline and intervention distance. Train on
+      some state families and score on held-out families, unseen combinations
+      and interventions that alter the encoded self-state while preserving the
+      external scene. Include full-capacity and shuffled-code controls, a
+      compatible/incompatible decoder control and a same-order/different-content
+      control. Use the measured target-operator spectrum to predict the linear
+      model's error floor, then test that prediction on held-out inputs; report
+      nonlinear architectures as controls for the theorem's linear premise.
+      **Verify:** preregister scoring rules and splits; derive the input-weighted
+      rank bound if task inputs are not isotropic; tests first for all analysis
+      and simulation changes; publish seeds, checkpoints and machine-readable
+      results. The experiment must separate theorem-predicted linear error,
+      general reconstruction failure and hardware cost. A successful result
+      supports claims about these candidates and budgets only. Record whether
+      the CPU benchmark fits its declared runtime budget. Any hardware energy
+      study is a separate follow-up requiring access to the named hardware. A
+      main-text GPU section is warranted only if the comparison yields a result
+      that changes how the framework's reconstruction conditions are assessed.
+
+**Open questions for execution.** G15 determines the defensible delay claim.
+Cortical mode prices, supply-to-occupancy calibration, independent content
+decoders and an experiential endpoint remain empirical gaps; editorial
+compression cannot discharge them. The pilot inputs needed to judge the spatial
+comparison are now listed in the supplement. G22--G24 are research proposals;
+their inclusion does not assert that a stronger theorem or an informative
+comparison has already been obtained.
+
+**G16/G19 progress (2026-09-23).** `tasks/g16_outline.md` fixes the article's
+central argument, a section-by-section 8,005-word working budget and the
+migration destinations for resource and machine material. G17 prose migration
+placed machine interpretation and the finite-resolution capacity scope in the
+supplement, and shortened the article's code/causal-reach, installed-energy,
+learning and hardware comparisons while retaining their load-bearing premises.
+The awakening protocol now predeclares training and held-out sessions, a
+regional log predictive score that retains
+censored onsets, behavioural recovery as a separate endpoint, nuisance and
+negative controls, discrimination limits for correlated covariates, and the
+pilot measurements needed for precision planning. A held-out advantage is
+restricted to the specified comparator; the causal and experiential questions
+remain separate. Publication prose, hedging, Table S1, coverage and figure
+gates passed. Both publication PDFs were rebuilt twice; their rendered protocol
+paragraphs were checked with PDF text extraction. The PDF and arXiv freshness
+gates passed. No new references or simulation numerals were introduced.
+The G18 abstract pass replaced the five-result inventory with a 155-word
+statement of the conditions, their mathematical and physical scopes, and the
+held-out spatial comparison. The shorter length keeps the full abstract on
+page one in the rendered PDF. The body and introduction receive their planned
+rewrite in the main-text pass below; G15 must settle the final finite-ramp wording.
+
+**G18 main-text pass (2026-09-23).** The article's TeX-stripped prose count,
+excluding figures and longtables, is now 8,141 words versus 12,576 at commit
+`7d8c5ba21e3b25b8f9459cc67aff9b8da6f55752`, a 35.3% reduction by the
+same method. The introduction, inherited-limit survey, winding discussion and
+discussion now state each result once with its assumptions nearby; derivation
+details remain in Supplemental Material. The abstract still fits on page one.
+The supplement's wider compression and final empirical wording remain open
+pending G15. The main-text scientific audit checked installed energy against
+metabolic expenditure, necessity against sufficiency, mathematical witnesses
+against cortical realization, stationary branch against observed onset, EEG
+calibration against evidence, and synthetic decoder scope. The article's
+headline results have corresponding limitation rows in Table S1; the final
+G20 audit remains open until the G15 wording is fixed.
+
+**arXiv artifact (2026-09-23).** `./prepare_arxiv.sh` rebuilt the merged
+submission after the main-text compression. It compiled from the unpacked
+`arxiv_submit/ax.tar.gz` in three passes and produced a 96-page PDF.
+`check_arxiv_freshness.py` reports the new manifest current. The assembled
+PDF's first page and appendix marker were checked by text extraction.
+
+**G22–G24 first increment (2026-09-23).** Lean-first foundations are in
+`Phase8_OrderCurrent.lean` (weighted current second-moment bound and the
+arbitrary-direction order factor), `Phase3_PhaseFeedback.lean` (joint
+phase/sensor/register transition and a declared finite work-store ledger), and
+`Phase6_InputWeightedRank.lean` (diagonal input-second-moment spectral tail).
+New examples exercise a two-phase feedback/blind-sensor distinction and the
+anisotropic reversal of the retained rank-one mode. These are partial results:
+G22 now has a smooth positive-order magnitude derivative and integrated arcsine
+theorem in `Phase8_OrderSpeed.lean`; G23 now ties declared stage prices to the
+joint law in `Phase3_FeedbackLedger.lean`, with physical calibration and full
+controls open; G24 now has a sampled-basis input-law error theorem in
+`Phase6_SampledRank.lean`, with general covariance and the shared CPU benchmark
+open.
+`simulations/followup_foundations.py` supplies analytical counterparts with nine
+regression tests, including a manufactured continuity path, exact joint-channel
+probabilities, and weighted rank floors. No sweep or training run is claimed.
+Detailed scope and remaining obligations are in `tasks/g22_g24_foundations.md`.
+All three checklist items remain open. Manuscript edits are deferred by explicit
+user instruction.
+
+**G22 numerical pilot (2026-09-24).** A conservative periodic-density solver
+and artifact-only report now save and compare five initial protocols in
+`simulations/figures/g22_pilot/`. Equal-endpoint early, linear and late ramps
+produce distinct final order and positive current costs above the endpoint
+bound; uniform and ordered-relaxation controls behave as expected. A grid test
+checks convergence toward exact diffusion relaxation. The first pilot has no
+operational onset or heterogeneity and does not close G22; quantitative
+resolution study and broader parameter sweeps remain open. See
+`tasks/g22_g24_foundations.md` for numerical values and scope.
+
+**G22 Lean continuation (2026-09-24).** `Phase8_OrderSpeed.lean` proves the
+rotation-invariant magnitude rate and finite-time arcsine current-cost bound
+for a positive normalized periodic classical density. The proof identifies
+its real first-harmonic magnitude with the norm of the existing complex order
+parameter, derives both moment rates by spatial integration by parts, and
+requires a pointwise continuity equation plus justified time differentiation
+under the spatial integral. The integrated theorem assumes smooth order and
+cost and a strict 0 < r < 1 domain; zero-order instants, the limiting
+unit-order case and an absolutely continuous extension remain open. The
+numerical breadth and operational-onset assessment in G22 also remain open.
+No manuscript changes were made in this increment.
+
+**G23/G24 Lean continuation (2026-09-24).** `Phase3_FeedbackLedger.lean` proves
+the closed joint-law recurrence, expected installation-energy balance on the
+actual phase/register paths, its finite-horizon telescoping form, a funded
+ledger with sensing, reset, preparation and replenishment, and eventual
+exhaustion under a positive expected net-cost floor without replenishment.
+The deterministic Bool witness has a nonzero signed installation change.
+These are declared work prices, not heat; local detailed balance, a bath,
+physical price calibration, a stop rule and matched feedback controls remain
+open. `Phase6_SampledRank.lean` specializes the weighted rank theorem to a
+normalized nonisotropic eigenbasis input law and proves truncation attains its
+expected-error floor. The two-mode witness has an exact 9/17 floor. General
+correlated inputs and the shared digital/phase CPU benchmark remain open.
+
+**G22–G24 analytical continuation (2026-09-24).** A new Lean identity in
+`Phase3_PhaseFeedback.lean` proves that summing the updated register out of
+one joint transition recovers exactly the installed phase channel. Python now
+propagates the full finite joint law and checks an informative sensor against
+a blind sensor with the same phase marginal on a symmetric two-state model;
+the register's next-phase prediction differs. This is an analytical control,
+not a held-out task benchmark or a calibrated work/heat model. For G24, a
+Python singular-value calculation gives the optimal linear rank-error floor
+for a supplied positive-semidefinite input second-moment matrix, including
+correlations; random rank-one competitors check it. This general covariance
+formula is not yet a Lean theorem or a shared digital/phase benchmark. G22
+solver tests now cover three diffusion values, two durations and three ramp
+schedules, checking density positivity, mass conservation, monotone current
+cost and the endpoint bound within a fixed numerical tolerance. Saved sweep
+artifacts, heterogeneity and operational onset are still open. No manuscript
+files were edited in this continuation.
+
+**G22–G24 saved-grid and ledger continuation (2026-09-24).** The G22 solver
+now saves a declared 30-trajectory grid at 48 cells, three diffusion values
+(0.25, 0.5, 1.0), two durations (0.4, 1.0), three equal-endpoint ramps, and
+uniform and ordered-relaxation controls. The separate report reads only the
+saved artifacts in `simulations/figures/g22_grid/`; it checks normalization,
+positive density, increasing time, accumulated cost, and recomputes the
+endpoint bound before summarizing. All saved protocols have nonnegative
+bound slack, positive density and mass error below 4e-16; uniform controls
+have zero cost. This fixed grid still shows no declared operational onset,
+contains no heterogeneity, and is not a continuum error estimate.
+For G23, finite joint-law costs now use the executed transition and reject
+inconsistent supplied laws. A declared preparation/sensing/reset/installation
+account telescopes against installed-mode energy in the two-state check;
+the new Lean phase-marginal recurrence shows that the current joint law
+averages the installed phase channel. The account is not heat or a physical
+reservoir model. For G24, a numerical truncated
+linear decoder attains the general covariance rank floor for positive-definite
+and singular two-dimensional input laws. The general covariance result is
+still unformalized in Lean, and the shared digital/phase CPU benchmark remains
+open. No manuscript files were edited.
+
+**G22–G24 operational and shared-task continuation (2026-09-24).** An
+exploratory order threshold `r = 0.3`, chosen after inspecting the saved G22
+grid, is crossed only by the `D = 0.25`, duration-one early ramp among the
+30 saved protocols. The artifact-only report interpolates its first
+upcrossing. A separate seven-grid resolution set (32–256 cells) moves the
+crossing estimate from 0.976945 to 0.923921; the last 192-to-256 change is
+about 0.00193. At 256 cells, integrated current cost is about 2.576 times
+the endpoint floor. This is a late crossing under an exploratory threshold,
+not preregistered onset evidence or a continuum error bound.
+For G23, an explicit next-phase prediction score retains the joint law and
+installed action. In the symmetric two-state model, informative and matched
+blind sensors preserve the same phase marginal while scoring 0.90 and 0.65
+after feedback begins. It is a model control, not held-out cortical behavior.
+For G24, `g24_shared_task.py` now fixes a four-bit global state, two local
+views overlapping on two bits, a self-state flip intervention, even-parity
+training combinations and odd-parity held-out combinations. The saved linear
+baseline includes the task arrays, fitted rank-0-through-4 decoder matrices,
+seed, effective ranks, dense storage, CPU fitting time and squared-error
+scores. In the noiseless task, held-out errors (6, 3, 2, 1, approximately 0)
+match the measured covariance-tail floors. With independent local noise 0.1,
+the rank-4 held-out error is about 0.041 versus a training floor of 0.0401.
+Fitting took below the declared two-second CPU budget. These are linear-only
+results; transformer and phase candidates, broader state families, fixed
+communication budgets, and hardware measurements remain open. No manuscript
+files were edited.
+
+**G22–G24 audit and matched control (2026-09-24).** The existing G22
+heterogeneous grid now has 18 saved two-frequency trajectories spanning two
+diffusion values, three frequency spreads and three equal-endpoint schedules.
+For each cohort the density stays positive and normalized; the marginal
+density obeys continuity with the aggregate current. Its current-cost bound
+therefore still applies to that marginal, while the larger cohort-resolved
+cost is a separate account. The lone crossing at the exploratory `r = 0.3`
+threshold remains a late-onset numerical example, not a prespecified onset
+test or a continuum error estimate. The homogeneous drift model itself no
+longer describes either frequency cohort when spread is nonzero.
+
+G23 now includes a replay control that takes the informed process's register
+marginal at each step from an external schedule and removes its correlation
+with phase. It preserves the same phase and installed-action marginals on the
+symmetric two-state example, but final next-phase prediction accuracy is
+0.5822 versus 0.8092 with feedback; the blind control also scores 0.5822.
+The replayed schedule is a diagnostic requiring external control, not an
+autonomous learner or a thermodynamic implementation of that schedule.
+Its saved joint laws, installation work, declared sensing/reset prices, bath
+heat and finite-store trajectory are in `simulations/figures/g23_closed_loop/`.
+The conservative pathwise funding rule executes two steps without a charger
+and eight with the declared charger. Shared-content agreement, reconstruction
+and held-out state-family scores still require an expanded model.
+
+G24 now has saved CPU comparisons among the full linear map, a two-token
+width-four attention decoder, and a two-node phase graph at zero, one and
+three communication rounds, at seeds 24--26 and one noisy setting. The new
+artifact-only `g24_artifact_audit.py` recomputes training and held-out errors
+and code rank from the saved datasets and checkpoints, and rejects checkpoint
+drift. The noiseless held-out squared errors across seeds are about
+0.053--0.329 for attention and 4.679--17.188 for the three-round phase
+candidate; the full linear map has floating-point-zero error. These are
+candidate- and training-budget-specific outcomes. The task splits and scores
+were declared in code before these runs but were not externally preregistered;
+further task families and a controlled communication-deadline sweep remain
+open. None of the three G items is marked complete by this audit, and no
+publication claim or physical energy estimate has been added.
+
+**G24 overlap stress (2026-09-24).** A held-out perturbation now changes only
+the second local view's two overlapping quantities while holding the global
+target and first view fixed. Distances 0.5 and 1.0 are saved in each candidate
+dataset, and the artifact audit recomputes their scores from checkpoints.
+At distance 1.0 in the noiseless seed-24 run, squared error is 0.5 for the
+full linear map, about 2.185 for attention, and about 88.20 for the three-round
+phase candidate. The phase score varies sharply with seed (about 44.49 and
+2332.39 at seeds 25 and 26), exposing poor robustness of this fitted readout
+rather than an architecture-wide limit. This intervention creates incompatible
+local observations, so the target is a declared robustness reference; the
+exact-gluing premise does not hold for the perturbed pair.
+
+**G22–G24 closure (2026-09-24).** The three checklist items above are closed
+for their stated formal and finite-model acceptance criteria; none establishes
+cortical realization or an experience measure. Publication claims and tracked
+PDFs are current, and `simulations/g_followup_results.tex` is generated by
+`g_followup_macros.py` from saved JSON summaries without rerunning any solver
+or training. Its drift test passes. The arXiv submission was repacked and
+compiled from its tarball after the source changes.
+
+G22's `Phase8_OrderSpeed.lean` proves the rotation-invariant speed inequality
+and integrated arcsine bound for a smooth positive normalized periodic path
+with `0 < r < 1`. The proof makes its continuity, periodicity and
+differentiation-under-the-integral hypotheses explicit; it claims no
+absolutely continuous extension through zero order. The finite-volume report
+now recomputes both discrete continuity and trapezoidal current cost from
+saved density and flux, and rejects tampered trajectories. At the exploratory
+`r = 0.3` crossing, the 256-cell run reaches the threshold at about 0.9239,
+with current cost about 0.1201 against a floor of 0.04623. The crossing time
+changes by about 0.00193 from 192 to 256 cells. The 30-path homogeneous
+schedule/diffusion/duration grid includes uniform and relaxation controls;
+the 18-path two-frequency grid separates aggregate from cohort-resolved cost.
+Its report recomputes both ledgers from saved cohort flux. Frequency spread
+invalidates the homogeneous drift description of each cohort, while the
+aggregate continuity bound still applies to their marginal. The threshold
+was selected after exploratory inspection; these are numerical onset
+illustrations, not a prospective cortical test or a continuum error theorem.
+
+G23's formal joint transition and finite-store ledger are paired with the
+binary process in `g23_closed_loop.py`: register orientation installs a signed
+phase coupling, the bath-supported phase transition obeys local detailed
+balance and positive support, the sensor observes the new phase, and the
+observation updates the same register. The saved path law charges preparation,
+sensing, reset and installation work; bath heat covers the phase flip only.
+Without replenishment, its positive continuing expected work drives the
+unrestricted store below zero, while the conservative stop rule halts safely;
+the named external charger sustains the declared horizon. The independent
+training episodes and two held-out field families in `g23_benchmark.py` use
+one frozen register readout. In the lower-field held-out family, informative
+next-phase accuracy is 0.7832 versus 0.5522 blind and 0.5576 replayed; the
+matched controls have zero marginal phase order. The artifact-only benchmark
+audit verifies the sampled accuracy, binary symbol agreement and phase
+reconstruction error. This symbol agreement is the model's toy shared-content
+measure; independent semantic decoders, sensing/reset reverse protocols,
+physical replenishment and cortical calibration remain empirical work.
+
+G24's shared task varies linear bottleneck rank, independent local noise,
+overlap disagreement, self-state shift, communication rounds and graph-hop
+intervention distance. Saved checkpoints contain the actual internal codes;
+artifact-only audits recompute their ranks and scores and the weighted linear
+spectral-tail floor. The parity split has rank-two predicted and held-out
+errors both equal to 2 in the noiseless task. The scene-family split gives
+near-zero full-linear training error and about 2.667 held-out error, showing
+failure under a changed input family rather than a failure of the training-law
+rank theorem. The small attention and phase controls also fail on that held-out
+family under their declared CPU budget; no architecture-wide ranking follows.
+The three-node phase chain's encoding is unaffected by a two-hop intervention
+until two synchronous rounds. A protocol-only commit `033522c` fixed seeds,
+splits, scoring, success rule and source hashes before the confirmation batch.
+Seeds 27--29 and the noisy seed-27 run passed all artifact audits and the
+120-second per-candidate CPU budget; the prespecified noiseless full-linear
+criterion (training error below 0.1 and held-out error above 1) held at all
+three seeds. Hardware energy was not measured and is not inferred from model
+labels. A named-hardware energy study and independent biological content
+decoders are separate follow-ups.
+
+The Lean leaf gate records `Phase8_OrderSpeed`, `Phase3_FeedbackLedger`,
+`Phase6_CovarianceRank` and `Phase6_SampledRank` as terminal results rather
+than inventing downstream chain claims. The three predecessor modules
+`Phase8_OrderCurrent`, `Phase3_PhaseFeedback` and
+`Phase6_InputWeightedRank` now have genuine consumers and their leaf
+exemptions were removed. `check_leaves` passes with the updated baseline.
+The exact G24 source bytes named in the timestamped protocol are retained
+under `simulations/figures/g24_confirm_source/`; active copies were formatted
+after the confirmation run, and artifact audits still pass.

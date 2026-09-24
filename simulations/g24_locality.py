@@ -1,0 +1,148 @@
+"""Three-node phase-chain locality control on the shared G24 task.
+
+Inputs from the first local view enter node 0, the second view's shared
+coordinates enter node 1, and its exclusive coordinate enters encoding node 2.
+Synchronous nearest-neighbour phase updates travel at most one edge per round.
+The graph is a finite code comparison, not a cortical coupling model.
+"""
+
+import json
+from pathlib import Path
+from time import perf_counter
+
+import numpy as np
+from numpy.typing import NDArray
+
+from g24_shared_task import Split, build_task
+
+FloatArray = NDArray[np.float64]
+WEIGHTS = np.array([0.7, 0.2, 0.3, 0.2, 0.3, 0.5])
+COUPLING = 0.8
+
+
+def _phases(inputs: FloatArray, rounds: int) -> FloatArray:
+    if inputs.ndim != 2 or inputs.shape[1] != 6 or not np.isfinite(inputs).all():
+        raise ValueError("Three-node chain expects finite six-coordinate inputs")
+    if not isinstance(rounds, int) or rounds < 0:
+        raise ValueError("Communication rounds must be nonnegative")
+    phases = np.column_stack(
+        (
+            inputs[:, :3] @ WEIGHTS[:3],
+            inputs[:, 3:5] @ WEIGHTS[3:5],
+            inputs[:, 5] * WEIGHTS[5],
+        )
+    )
+    for _ in range(rounds):
+        left = 0.2 * COUPLING * np.sin(phases[:, 1] - phases[:, 0])
+        right = 0.2 * COUPLING * np.sin(phases[:, 2] - phases[:, 1])
+        phases = phases + np.column_stack((left, -left + right, -right))
+    return np.asarray(phases, dtype=np.float64)
+
+
+def chain_code(inputs: FloatArray, rounds: int) -> FloatArray:
+    """Read five harmonics at node 2 after a fixed communication deadline."""
+    phase = _phases(inputs, rounds)[:, 2]
+    return np.asarray(
+        np.column_stack(
+            [
+                value
+                for harmonic in range(1, 6)
+                for value in (np.cos(harmonic * phase), np.sin(harmonic * phase))
+            ]
+        ),
+        dtype=np.float64,
+    )
+
+
+def _predict(code: FloatArray, head: FloatArray) -> FloatArray:
+    return np.asarray(np.column_stack((code, np.ones(len(code)))) @ head, dtype=np.float64)
+
+
+def _error(prediction: FloatArray, target: FloatArray) -> float:
+    return float(np.mean(np.sum((prediction - target) ** 2, axis=1)))
+
+
+def save_locality_comparison(
+    output: Path,
+    *,
+    repeats: int = 16,
+    noise: float = 0.0,
+    seed: int = 24,
+    split: Split = "parity",
+) -> None:
+    """Fit only a readout and save deadline and graph-distance measurements."""
+    task = build_task(repeats, noise, seed, split)
+    original = task.test_input
+    distance_one = original.copy()
+    distance_two = original.copy()
+    distance_one[:, 3] += 0.5
+    distance_two[:, 0] += 0.5
+    output.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(
+        output / "dataset.npz",
+        train_input=task.train_input,
+        train_target=task.train_target,
+        test_input=task.test_input,
+        test_target=task.test_target,
+        distance_one_input=distance_one,
+        distance_two_input=distance_two,
+    )
+    rows: list[dict[str, int | float]] = []
+    for rounds in range(4):
+        started = perf_counter()
+        train_code = chain_code(task.train_input, rounds)
+        head = np.asarray(
+            np.linalg.lstsq(
+                np.column_stack((train_code, np.ones(len(train_code)))),
+                task.train_target,
+                rcond=None,
+            )[0],
+            dtype=np.float64,
+        )
+        fit_seconds = perf_counter() - started
+        started = perf_counter()
+        test_code = chain_code(original, rounds)
+        test_prediction = _predict(test_code, head)
+        latency = 1000 * (perf_counter() - started) / len(original)
+        singular = np.linalg.svd(train_code - train_code.mean(axis=0), compute_uv=False)
+        rank = int(np.sum(singular > 1e-6 * singular[0])) if singular.size else 0
+        one_change = float(np.linalg.norm(chain_code(distance_one, rounds) - test_code))
+        two_change = float(np.linalg.norm(chain_code(distance_two, rounds) - test_code))
+        np.savez_compressed(
+            output / f"round_{rounds}.npz",
+            head=head,
+            train_code=train_code,
+            test_code=test_code,
+        )
+        rows.append(
+            {
+                "communication_rounds": rounds,
+                "causal_past_nodes": min(rounds + 1, 3),
+                "effective_code_rank_tol_1e_6": rank,
+                "train_squared_error": _error(_predict(train_code, head), task.train_target),
+                "test_squared_error": _error(test_prediction, task.test_target),
+                "test_self_relation_error": float(
+                    np.mean((test_prediction[:, -1] - task.test_target[:, -1]) ** 2)
+                ),
+                "distance_one_code_change": one_change,
+                "distance_two_code_change": two_change,
+                "parameter_count": int(WEIGHTS.size + 2 + head.size),
+                "code_and_parameter_bytes": int(
+                    train_code.nbytes + WEIGHTS.nbytes + 16 + head.nbytes
+                ),
+                "fit_seconds": fit_seconds,
+                "inference_ms_per_sample": latency,
+            }
+        )
+    summary = {
+        "source": "g24_locality.py",
+        "seed": seed,
+        "noise": noise,
+        "split": split,
+        "phase_graph_edges": [[0, 1], [1, 2]],
+        "encoding_node": 2,
+        "intervention_amplitude": 0.5,
+        "intervention_distances_hops": [1, 2],
+        "rows": rows,
+    }
+    (output / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")

@@ -23,6 +23,43 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-24 — Finite-onset, feedback and reconstruction follow-ups
+
+- The cosine-moment current bound is strengthened to a rotation-invariant
+  magnitude speed bound and finite-time arcsine floor on a specified smooth
+  positive-order domain. Saved onset trajectories test the bound; no cortical
+  heat or power conversion follows.
+- The statement that evolving phase feedback is unspecified is narrowed to
+  the original learned-installation example. A separate binary process now
+  evolves phase, senses it, updates the same actuator register and keeps a
+  declared work store and phase-bath heat ledger. Its symbol task has no
+  independently decoded cortical content.
+- The reconstruction discussion now includes a CPU comparison on one shared
+  task. A linear train-law rank floor agrees with the matched held-out split;
+  a different state-family split exposes generalization failure even at full
+  linear capacity. Nonlinear controls and a graph-distance check are scoped to
+  their declared codes and budgets. A timestamped protocol precedes the
+  confirmation batch; hardware energy remains unmeasured.
+
+---
+
+## 2026-09-23 — Sharp spectral error and current-cost bounds
+
+- Proved the finite spectral approximation lower bound for arbitrary linear
+  competitors with an explicit rank budget, plus attaining spectral truncation
+  and a linear encoder/readout corollary. A checked rank-one-logit/rank-two-softmax
+  example corrects the proposed universal attention-rank premise.
+- Proved the sharp probability-current dissipation bound and its driven uniform
+  equality case. Positive self-consistent ordered equilibria with zero cost
+  refute the proposed universal positive order-only maintenance bound.
+- Proved the finite-output KL information ceiling and its fixed-length token
+  sequence bound in bits, including zero atoms and dependent emissions.
+- Proved a dissipation bound on the Fokker--Planck cosine-moment rate. A uniform
+  nonautonomous solution with arbitrary positive coupling ramp refutes an
+  unrestricted coupling-speed bound without an actuator model.
+- Updated the manuscript, claim map and primer with the assumptions and remaining
+  cortical calibration questions. No new physical axioms are introduced.
+
 ## 2026-09-21 — A spectral bound measured against the maximum chord
 
 The coupling-graph route bounds the content residual at a named pair by

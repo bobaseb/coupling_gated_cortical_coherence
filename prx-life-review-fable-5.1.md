@@ -1,0 +1,77 @@
+# Referee Report — PRX Life
+
+**Manuscript:** "Coupling-gated cortical coherence: a conditional framework for unity and self-representation" (main.tex, 664 lines / ~14,300 words; supplementary.tex, 2,647 lines / ~33,400 words)
+
+**Reviewer:** anthropic/claude-fable-5.1 via OpenRouter
+
+**Date:** 2026-09-22
+
+---
+
+## SUMMARY
+
+The manuscript proposes three formal requirements for a distributed cortical state to constitute "one experienced situation": coherence (Kuramoto phase order), compatibility (sheaf-theoretic gluing of local descriptions on overlaps), and self-representation (the glued state as the unique fixed point of a contracting reconstruction map). The author connects these through eight explicitly named hypotheses (Table 1), machine-checks the composition in Lean 4, and adds (i) an "installed-energy" bound K_mf <= kappa\*U_inst, (ii) a coherence-to-content disagreement bound and two refinements (Markov count, nerve chaining, algebraic-connectivity bound at frequency locking), (iii) a winding-state analysis showing r does not determine the state, (iv) a set of numerical controls (identifiability, finite ramps, plasticity, a synthetic compatibility estimator), (v) an exploratory (a, r) check on public propofol EEG, and (vi) one prediction: onset delay scaling as v^{1/2} in the rate at which coupling crosses threshold, proposed as a within-subject anaesthesia-emergence test. The manuscript is unusually honest about its own limits, and the Lean development with an audited axiom footprint is a genuine methodological contribution. However, the physical and biological content that is new, testable, and specific to the proposed mechanism is thin relative to the length and apparatus; most of the mathematics is textbook or elementary; the single prediction is generic to any supercritical bifurcation crossed at finite rate and does not test the field hypothesis; and the exposition is so hedged and self-referential that a PRX Life reader will struggle to extract a positive claim. I recommend major revision, with the caveat that the revision required is a restructuring rather than a patch.
+
+---
+
+## MAJOR CONCERNS
+
+1. **Novelty and significance of the "unconditional results" (main.tex:111-126).** The five results presented as the article's "fixed points" are: (a) same phase, different mass profiles -> no gluing (a one-line counterexample); (b) twisted/winding states are stationary with r = 0 (known since at least Wiley, Strogatz & Girnyk, Chaos 2006, and standard in the Kuramoto-on-lattices literature, none of which is cited); (c) M states pairwise > 2 eps apart need M distinct codes (pigeonhole); (d) an encoding that is a restriction cannot resolve states the region reads identically (tautological); (e) causal-cone locality in synchronous networks (standard). None is wrong, but presenting them as five results that "any account reading unity off coherence has to meet" (main.tex:562) overstates their content. The paper should state plainly that these are elementary observations organised into a framework, and cite the prior Kuramoto literature (Strogatz 2000; Acebron et al. 2005; Wiley et al. 2006; Ott & Antonsen 2008; Dörfler & Bullo 2014 for the algebraic-connectivity synchronisation conditions that main.tex:225 rederives).
+
+2. **The one prediction does not test the proposed mechanism (main.tex:429-431; supp:1190-1250).** Delay scaling as v^{1/2} for a slow passage through a supercritical bifurcation is the classic delayed-bifurcation result (Baer, Erneux & Rinzel, SIAM J. Appl. Math. 1989; Berglund & Gentz 2002, which is cited only in passing). It holds for any control parameter crossing any pitchfork/Hopf threshold at finite rate, so a positive outcome is equally consistent with synaptic, thalamocortical or neuromodulatory coupling crossing a threshold, and is silent on the electromagnetic-field, extracellular-geometry and installed-energy content of Secs. 3, 8 and 9. The manuscript half-acknowledges substrate neutrality at main.tex:587 but frames the anaesthesia test as bearing on "the cortical hypothesis" (main.tex:506-509). Please state explicitly what the emergence test can and cannot discriminate, and add a competing-model analysis (the supplement's "exponential relaxation" comparator at supp:1271 is named but never quantified).
+
+3. **Operationalisation of the emergence test is missing.** Delta K is not observable; only time is. If Delta K ~ v^{1/2}, then Delta t = Delta K / v ~ v^{-1/2}, which requires v in coupling units per second — i.e. exactly the uncalibrated mapping from drug concentration to K that the paper says it cannot supply. Moreover t_0 (the moment K crosses K_c) is unobserved. Nor does the paper say how the rate of emergence would be manipulated within subject (infusion taper? this is bounded by pharmacokinetics), how many subjects/rates give power to distinguish an exponent of 0.5 from 0.44 or from 0, or what the competing null exponent is. Without this the "prediction" is not yet a protocol. The Sec. 9.3 six-item list is a wish list, not a design. Relevant literature on emergence hysteresis/"neural inertia" (Friedman et al. 2010; Hudson et al. PNAS 2014; Proekt & Hudson 2018) is directly on point and uncited.
+
+4. **Statistical treatment of the delay exponent (main.tex:429; supp:1205-1245).** The 95% interval [0.394, 0.494] is an OLS interval on a 6-point log-log fit of ensemble means, not an interval over seeds; the supplement admits this (supp:1208-1211). The exclusion of 1/2 is then attributed to the escape criterion, using a deterministic mean-field reference that returns 0.425 at r >= 0.2 and 0.490 at r >= 0.05. That argument is plausible, but the stochastic ensemble was never rerun at the tightened criterion. A clean demonstration would be an ensemble at larger N (floor ~1/sqrt(N)) with a criterion referred to that floor, with a bootstrap over replicas. As it stands, the headline "prediction" is supported by a fit whose point estimate contradicts it and whose interval is not the relevant one.
+
+5. **The installed-energy bound has no discriminating power and its cortical evaluation is internally inconsistent (main.tex:167-192; supp:291-295).** The paper states that the bound "excludes no macroscopic candidate" and "binds through kappa", and that kappa is "hardware data" with no canonical cortical decomposition, so "choosing the basis would choose the answer". A necessary condition with one free parameter that absorbs all the physics is not a constraint. Furthermore, the cortical number U_inst = 1.0e-6 J is obtained by multiplying metabolic signalling power (Attwell & Laughlin) by 1/D = 2 s — i.e. dissipated energy over an interval — while the same section insists installed energy "is not heat" and is stored energy in field modes. The quantity computed is not the quantity the theorem bounds. Either derive a stored field energy (e.g. from measured LFP amplitudes and tissue permittivity/conductivity) or drop the numerical evaluation.
+
+6. **Hypothesis E78 undermines the compatibility route as stated (Table 1, main.tex:393).** "Patches and oscillators carry one index, so one oscillator carries exactly one content patch" is acknowledged as "not an innocent one". Together with the vacuity of the uniform bound beyond 3 sites at the sheet's own patch order (main.tex:219, wavePatchInformativeSites = 3) and the chained bound saturating at ~0.2 mm (main.tex:223), the article spends ~2,000 words establishing that the coherence-to-content estimate is useless at the scale the unity claim concerns, then keeps it as a "non-standard ingredient" (main.tex:73). This should be compressed to a paragraph and its conclusion stated once.
+
+7. **The thermodynamic chain (Sec. 6, main.tex:313-366) should be removed from the main text.** The author states that its regime is "two-bit systems with interaction energies of order k_BT", that "Cortex is not in it", that the bound "is satisfied by any macroscopic candidate and excludes none of them", and that "no result of Section 3 passes through it". A section whose own conclusion is that it constrains nothing relevant to the biological claim does not belong in a PRX Life article. Likewise Sec. 5 (GPU/LLM) rests on trivial counts (token-vocabulary cardinality; the causal mask) and is tangential.
+
+8. **The EEG exercise is null and should be presented as such (main.tex:500-504; supp:1608-1675).** Mean a = 0.104, r = 0.052: for a < 0.15, I_1/I_0(a) = a/2 to within 1e-3, so agreement with the Bessel relation is agreement with a straight line through the origin. The pooled estimand (62 channels x 500 samples) is not the spatial order parameter of the theory; the bootstrap over time bins ignores autocorrelation (acknowledged). This is at most an estimator calibration and cannot be described as data "compatible with the Bessel relation" (main.tex:502) without adding "and with any monotone alternative".
+
+9. **The consciousness identification is not empirically anchored.** Sec. 10.1 proposes the glued state and its reconstruction as correlates of unity and a minimal self; Sec. 10.2 says a test requires "an independent endpoint for experience" but does not say what it would be, and the supplement concedes "absence of report cannot define absence of experience". PRX Life publishes quantitative biology; a correlate whose experiential side has no proposed measurement is philosophy, and should be labelled as motivation rather than as a scientific proposal. The "eight hypotheses" also do not contain the identification (main.tex:567), so the Lean composition, however carefully audited, does not bear on the paper's title claim.
+
+10. **Biological realism of the phase model.** All threshold results assume identical frequencies, mean-field sinusoidal coupling, no delays, and positive couplings (supp:72 notes positivity is "not free" and excludes frustration). Cortical oscillators have heterogeneous frequencies, conduction delays, inhibitory interactions and non-sinusoidal phase-response curves. The only heterogeneity control moves the operational threshold by ~50% (supp:1704). The manuscript should either add a heterogeneous/delayed control for the delay-scaling prediction or restrict the claim explicitly to the mean-field idealisation.
+
+11. **Length and clarity.** Main text ~14k words plus a 33k-word supplement with ~50 table rows of Lean identifiers is well beyond PRX Life norms. More importantly, the prose is nearly opaque: the abstract contains sentences such as "That grain is the uniform bound's, not phase order's" and "for a kappa derived here for neither cortex nor a processor"; main.tex:116, 221, 225 and 284 are single paragraphs of 200+ words each carrying inline Lean names. Almost every paragraph ends by retracting part of what it began with. Please rewrite for a reader who has not seen the Lean code: state each result, its hypotheses and its scope in one place, and move Lean identifiers to the supplement table (with the check_table_coverage gate adjusted accordingly).
+
+---
+
+## MINOR CONCERNS
+
+1. **Notation collisions:** E is both the encoder (Eq. 10) and field amplitude (Eq. 13); lambda is both a kernel eigenvalue and tortuosity; U is both stored energy and a patch; T is rounds to deadline while k_BT uses T as temperature and script-T is timing sensitivity; D is diffusion in the main text and the phase spread in supp:148. The notation table acknowledges some of these; better to rename.
+
+2. **main.tex:150** attributes K_c = 2D to Sakaguchi 1988; the result is correct, but Strogatz & Mirollo 1991 (stability of incoherence) and the Acebron 2005 review should accompany it.
+
+3. **main.tex:158**, "exchange symmetry alone does not establish the needed independence [Sznitman]" — propagation of chaos for the noisy Kuramoto model is in fact established (e.g. Dai Pra & den Hollander 1996; Bertini, Giacomin & Pakdaman 2010). The supplement's statement that it "is a research programme rather than a lemma" (supp:124) is out of date; cite and scope correctly.
+
+4. **Fig. 3 (ramp)** shows +-1 SE bands over 32 replicas; the delay exponent fit should show per-replica points or a bootstrap band, not only the ensemble mean.
+
+5. **main.tex:477, plasticity:** three seeds is too few for the reported ranges; either add seeds or report as illustrative.
+
+6. **main.tex:492**, the AUC = 0.986 for the compatibility estimator is on constructed data with a known generative model; the sentence "An implementation … separates these cases" should say "on synthetic data" in the main text.
+
+7. **main.tex:533**, "Barbour 2017" for cortical conductivity 0.3-0.6 S/m: please verify; the usual sources are Logothetis et al. 2007 and Miceli et al. 2017. Per the author's own anti-hallucination rule (AGENTS.md Sec. 4), all 2026 references (seth2026, seth2026response, milinkovic2026, gurnee2026, corberi2026, oomoto2026, kiyooka2026, rosas2026, nicoletti2026) should be re-verified at submission.
+
+8. **main.tex:190**, "the first identification delivering less refutes the coupling-gated account": since kappa is by the author's own account not measurable without choosing a mode basis, this is not a falsification condition in practice.
+
+9. **Eq. (14)** r_ss ~ sqrt(Kdot/D)(t - t_0)^{1/2} is stated as a "benchmark" but the paper's own Sec. 7.2 shows the tracking approximation fails at onset; consider removing to avoid the impression of a quantitative recovery law.
+
+10. **main.tex:504**, the 7.65 Hz frame rate remark about Oomoto 2026 calcium imaging is a non sequitur in a section about EEG design; move to the supplement or cut.
+
+11. **Sec. 9.1, columns:** the three objections to columns as a content cover are well made, but no alternative cover candidate is offered; say so.
+
+12. **Data availability:** state the ds005620 subject/run list and preprocessing code path explicitly, and give the Lean toolchain and Mathlib commit hash for reproducibility.
+
+13. **"Supplemental Material"** is used in the main text while the file is "supplementary.tex"; harmonise.
+
+14. **Typographic:** repeated "\\allowbreak" Lean identifiers render awkwardly at 12 pt double spacing; several tables will need landscape or smaller fonts in a two-column journal format.
+
+---
+
+## RECOMMENDATION
+
+**Major revision.** The Lean-verified composition with an audited axiom footprint and the candour about hypotheses are strengths, and the winding/amplitude-layer analysis (Sec. 7.3) and the synthetic compatibility estimator (supp Sec. on overlap measurement) are worth publishing. But in its present form the manuscript is a very long catalogue of conditional statements whose physical content is either textbook, vacuous by the author's own admission (installed energy, thermodynamic chain, uniform content bound), or generic (the v^{1/2} delay). A publishable version for PRX Life would (i) cut Secs. 5 and 6 and most of Sec. 4.2 to a paragraph each, (ii) recast the "unconditional results" as motivation with proper citations, (iii) turn the emergence prediction into an actual design with a discriminating alternative, calibrated observables, and a replicate-level uncertainty on the exponent, (iv) either derive a genuine stored-field energy or drop the cortical evaluation of the installed-energy bound, and (v) present the consciousness identification as interpretive framing rather than as a testable proposal. I would be willing to review a substantially restructured resubmission; I would not recommend acceptance of a lightly edited version.

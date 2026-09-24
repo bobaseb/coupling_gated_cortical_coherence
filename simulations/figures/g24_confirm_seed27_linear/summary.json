@@ -1,0 +1,62 @@
+{
+  "source": "g24_shared_task.py",
+  "seed": 27,
+  "repeats": 16,
+  "noise": 0.0,
+  "train_family": "scene_equal",
+  "test_family": "scene_opposite",
+  "fit_seconds": 0.0038337400183081627,
+  "runtime_budget_seconds": 2.0,
+  "ranks": [
+    {
+      "rank": 0,
+      "effective_rank": 0,
+      "stored_parameter_count": 30,
+      "decoder_bytes": 240,
+      "predicted_train_floor": 5.999999939631282,
+      "train_squared_error": 6.0,
+      "test_squared_error": 6.0,
+      "test_self_relation_squared_error": 2.0
+    },
+    {
+      "rank": 1,
+      "effective_rank": 4,
+      "stored_parameter_count": 30,
+      "decoder_bytes": 240,
+      "predicted_train_floor": 2.3819660002318392,
+      "train_squared_error": 2.3819660091896497,
+      "test_squared_error": 4.510345739962212,
+      "test_self_relation_squared_error": 0.4481596577630496
+    },
+    {
+      "rank": 2,
+      "effective_rank": 4,
+      "stored_parameter_count": 30,
+      "decoder_bytes": 240,
+      "predicted_train_floor": 1.000000000000002,
+      "train_squared_error": 1.0000000000000002,
+      "test_squared_error": 3.6666666581660374,
+      "test_self_relation_squared_error": 0.4444444486037762
+    },
+    {
+      "rank": 3,
+      "effective_rank": 5,
+      "stored_parameter_count": 30,
+      "decoder_bytes": 240,
+      "predicted_train_floor": 3.3145403707672204e-16,
+      "train_squared_error": 3.31454037076722e-16,
+      "test_squared_error": 2.6666666581660374,
+      "test_self_relation_squared_error": 0.4444444486037762
+    },
+    {
+      "rank": 4,
+      "effective_rank": 5,
+      "stored_parameter_count": 30,
+      "decoder_bytes": 240,
+      "predicted_train_floor": 3.31454037076722e-16,
+      "train_squared_error": 3.31454037076722e-16,
+      "test_squared_error": 2.6666666581660374,
+      "test_self_relation_squared_error": 0.4444444486037762
+    }
+  ]
+}

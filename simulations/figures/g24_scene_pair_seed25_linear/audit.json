@@ -1,0 +1,40 @@
+{
+  "source": "g24_artifact_audit.py",
+  "ranks": [
+    {
+      "rank": 0,
+      "train_squared_error": 6.0,
+      "test_squared_error": 6.0,
+      "predicted_train_floor": 5.999999939631282,
+      "effective_rank": 0
+    },
+    {
+      "rank": 1,
+      "train_squared_error": 2.3819660091896497,
+      "test_squared_error": 4.510345739962212,
+      "predicted_train_floor": 2.3819660002318392,
+      "effective_rank": 4
+    },
+    {
+      "rank": 2,
+      "train_squared_error": 1.0000000000000002,
+      "test_squared_error": 3.6666666581660374,
+      "predicted_train_floor": 1.000000000000002,
+      "effective_rank": 4
+    },
+    {
+      "rank": 3,
+      "train_squared_error": 3.31454037076722e-16,
+      "test_squared_error": 2.6666666581660374,
+      "predicted_train_floor": 3.3145403707672204e-16,
+      "effective_rank": 5
+    },
+    {
+      "rank": 4,
+      "train_squared_error": 3.31454037076722e-16,
+      "test_squared_error": 2.6666666581660374,
+      "predicted_train_floor": 3.31454037076722e-16,
+      "effective_rank": 5
+    }
+  ]
+}

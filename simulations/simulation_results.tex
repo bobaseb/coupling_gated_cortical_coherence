@@ -21,6 +21,11 @@
 \newcommand{\rampDelayExponentSlow}{0.447}
 \newcommand{\rampDelayExponentSlowLow}{-0.406}
 \newcommand{\rampDelayExponentSlowHigh}{1.299}
+\newcommand{\rampBootstrapExponent}{0.444}
+\newcommand{\rampBootstrapLow}{0.398}
+\newcommand{\rampBootstrapHigh}{0.496}
+\newcommand{\rampBootstrapPAbove}{0.019}
+\newcommand{\rampBootstrapCount}{10000}
 \newcommand{\rampNDelayOne}{0.0619}
 \newcommand{\rampNDelayTwo}{0.1947}
 \newcommand{\rampNDelayThree}{0.2341}
@@ -65,6 +70,23 @@
 \newcommand{\rampCollapseThree}{0.00689}
 \newcommand{\rampCollapseFour}{0.00705}
 \newcommand{\rampCollapseThreshold}{0.01410}
+
+% G15: tighter threshold controls
+\newcommand{\tighterBaseExponent}{0.444}
+\newcommand{\tighterBaseMatched}{0.444}
+\newcommand{\tighterTightExponent}{0.637}
+\newcommand{\tighterTightMatched}{0.634}
+\newcommand{\tighterLargeExponent}{0.720}
+\newcommand{\tighterLargeMatched}{0.710}
+% G11: heterogeneous frequency delay scaling control
+\newcommand{\heteroHalfwidthA}{0.5}
+\newcommand{\heteroExponentA}{0.2408}
+\newcommand{\heteroExponentALow}{-0.4082}
+\newcommand{\heteroExponentAHigh}{0.8897}
+\newcommand{\heteroHalfwidthB}{1.0}
+\newcommand{\heteroExponentB}{0.1783}
+\newcommand{\heteroExponentBLow}{-0.5320}
+\newcommand{\heteroExponentBHigh}{0.8887}
 
 % S2: spatial kernel
 \newcommand{\spatialCriticalDecay}{0.0140}

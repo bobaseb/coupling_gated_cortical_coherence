@@ -227,3 +227,39 @@ depends_on = ["check_leaves", "repo_root"]
 path = "check_leaves"
 layer = "gate"
 depends_on = ["repo_root"]
+
+[[modules]]
+path = "followup_foundations"
+layer = "analysis"
+
+[[modules]]
+path = "g22_current_sim"
+layer = "simulation"
+
+[[modules]]
+path = "g22_current_report"
+layer = "report"
+
+[[modules]]
+path = "g24_shared_task"
+layer = "analysis"
+depends_on = ["followup_foundations"]
+
+[[modules]]
+path = "g22_heterogeneous"
+layer = "simulation"
+depends_on = ["g22_current_sim"]
+
+[[modules]]
+path = "g22_heterogeneous_report"
+layer = "report"
+
+[[modules]]
+path = "g23_closed_loop"
+layer = "analysis"
+depends_on = ["followup_foundations"]
+
+[[modules]]
+path = "g24_candidates"
+layer = "analysis"
+depends_on = ["g24_shared_task"]

@@ -10,10 +10,18 @@ from typing import Any, cast
 
 import numpy as np
 
-from dynamic_ramp_analysis import fit_power_law, split_span_exponents
+from dynamic_ramp_analysis import (
+    bootstrap_delay_exponent,
+    fit_power_law,
+    replica_escape_couplings,
+    split_span_exponents,
+)
 from dynamic_ramp_report import (
     DELAY_SPEEDS,
+    ESCAPE_LEVEL,
     SPEEDS,
+    SUSTAIN,
+    Leg,
     LegMetrics,
     _load_leg,
     _metrics,
@@ -93,7 +101,7 @@ def _ramp_onset_macros(metrics: list[LegMetrics]) -> list[str]:
     ]
 
 
-def _ramp_delay_macros(delays: list[LegMetrics]) -> list[str]:
+def _ramp_delay_macros(legs: list[Leg], delays: list[LegMetrics]) -> list[str]:
     """The delay scaling, over every leg the sweep ran.
 
     The exponent travels with an interval and with the two half-span fits,
@@ -105,6 +113,18 @@ def _ramp_delay_macros(delays: list[LegMetrics]) -> list[str]:
     means = np.asarray([item.delay_mean for item in uncensored])
     delay_fit = fit_power_law(speeds, means)
     fast_fit, slow_fit = split_span_exponents(speeds, means)
+
+    b_speeds = []
+    b_delays = []
+    for leg, metric in zip(legs, delays, strict=True):
+        if metric.escaped == 32:
+            escape = replica_escape_couplings(
+                leg.coupling, leg.order_replicas, ESCAPE_LEVEL, SUSTAIN
+            )
+            b_speeds.append(leg.speed)
+            b_delays.append(escape - 2.0)
+    boot = bootstrap_delay_exponent(np.array(b_speeds), b_delays)
+
     return [
         _macro("rampDelaySpeedCount", len(delays)),
         _macro("rampDelayUncensoredCount", len(uncensored)),
@@ -120,14 +140,19 @@ def _ramp_delay_macros(delays: list[LegMetrics]) -> list[str]:
         _macro("rampDelayExponentSlow", f"{slow_fit.exponent:.3f}"),
         _macro("rampDelayExponentSlowLow", f"{slow_fit.exponent_low:.3f}"),
         _macro("rampDelayExponentSlowHigh", f"{slow_fit.exponent_high:.3f}"),
+        _macro("rampBootstrapExponent", f"{boot.exponent:.3f}"),
+        _macro("rampBootstrapLow", f"{boot.ci_low:.3f}"),
+        _macro("rampBootstrapHigh", f"{boot.ci_high:.3f}"),
+        _macro("rampBootstrapPAbove", f"{boot.p_above:.3f}"),
+        _macro("rampBootstrapCount", boot.n_boot),
     ]
 
 
 def _ramp_macros() -> list[str]:
-    delays = [
-        _metrics(_load_leg(FIGURES / f"dynamic_ramp_replicas_v{speed:.0e}.npz"))
-        for speed in DELAY_SPEEDS
+    legs = [
+        _load_leg(FIGURES / f"dynamic_ramp_replicas_v{speed:.0e}.npz") for speed in DELAY_SPEEDS
     ]
+    delays = [_metrics(leg) for leg in legs]
     metrics = [item for item in delays if item.speed in SPEEDS]
     floor = metrics[-1].collapse_deviation
     return [
@@ -136,7 +161,7 @@ def _ramp_macros() -> list[str]:
         _macro("rampDelaySlowOne", f"{metrics[1].delay_mean:.4f}"),
         _macro("rampDelaySlowTwo", f"{metrics[2].delay_mean:.4f}"),
         _macro("rampDelaySlowThree", f"{metrics[3].delay_mean:.4f}"),
-        *_ramp_delay_macros(delays),
+        *_ramp_delay_macros(legs, delays),
         *_ramp_size_macros(),
         *_ramp_onset_macros(metrics),
         *_indexed_macros("rampCollapse", [item.collapse_deviation for item in metrics], 5),
@@ -903,6 +928,30 @@ def _fluctuating_macros() -> list[str]:
     ]
 
 
+def _heterogeneous_ramp_macros() -> list[str]:
+    summary_path = FIGURES / "hetero" / "hetero_summary.json"
+    if not summary_path.exists():
+        return []
+    data = _read_json(summary_path)
+    lines: list[str] = []
+    words = ["A", "B", "C"]
+    for idx, (gamma_str, raw_fit) in enumerate(data.items()):
+        if idx < len(words):
+            fit = cast(JsonObject, raw_fit)
+            if not fit.get("complete") or fit.get("exponent") is None:
+                continue
+            word = words[idx]
+            lines.append(_macro(f"heteroHalfwidth{word}", f"{float(gamma_str):.1f}"))
+            lines.append(_macro(f"heteroExponent{word}", f"{cast(float, fit['exponent']):.4f}"))
+            low = fit.get("exponent_low")
+            if low is not None and not math.isnan(cast(float, low)):
+                lines.append(_macro(f"heteroExponent{word}Low", f"{cast(float, low):.4f}"))
+                lines.append(
+                    _macro(f"heteroExponent{word}High", f"{cast(float, fit['exponent_high']):.4f}")
+                )
+    return lines
+
+
 def generate_simulation_tex(output: Path) -> None:
     """Write all completed simulation macros from compact saved results."""
     chaos_summary = cast(
@@ -923,6 +972,11 @@ def generate_simulation_tex(output: Path) -> None:
         "",
         "% S1: dynamic ramp",
         *_ramp_macros(),
+        "",
+        "% G15: tighter threshold controls",
+        *_tighter_threshold_macros(),
+        "% G11: heterogeneous frequency delay scaling control",
+        *_heterogeneous_ramp_macros(),
         "",
         "% S2: spatial kernel",
         *_spatial_macros(),
@@ -980,6 +1034,33 @@ def main() -> None:
     args = parser.parse_args()
     generate_simulation_tex(args.output)
     print(f"wrote {args.output}")
+
+
+def _tighter_threshold_macros() -> list[str]:
+    summary_path = FIGURES / "tighter_threshold_summary.json"
+    if not summary_path.exists():
+        return []
+    import json
+
+    with summary_path.open() as f:
+        data = json.load(f)
+    lines = []
+
+    # N2000_r0.20
+    d1 = data["N2000_r0.20"]
+    lines.append(_macro("tighterBaseExponent", f"{d1['exponent_ols']:.3f}"))
+    lines.append(_macro("tighterBaseMatched", f"{d1['matched_exponent_ols']:.3f}"))
+
+    # N2000_r0.05
+    d2 = data["N2000_r0.05"]
+    lines.append(_macro("tighterTightExponent", f"{d2['exponent_ols']:.3f}"))
+    lines.append(_macro("tighterTightMatched", f"{d2['matched_exponent_ols']:.3f}"))
+
+    # N8000_r0.05
+    d3 = data["N8000_r0.05"]
+    lines.append(_macro("tighterLargeExponent", f"{d3['exponent_ols']:.3f}"))
+    lines.append(_macro("tighterLargeMatched", f"{d3['matched_exponent_ols']:.3f}"))
+    return lines
 
 
 if __name__ == "__main__":

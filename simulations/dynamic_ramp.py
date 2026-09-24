@@ -2,8 +2,8 @@
 
 This supplies heuristic numerical evidence about bifurcation delay. It proves no
 trajectory theorem and does not discharge the manuscript's adiabatic assumption.
-Natural frequencies are identically zero because the comparison target is the
-identical-frequency von Mises stationary curve with critical coupling ``2D``.
+The default has identical natural frequencies for comparison with the von Mises
+stationary curve. A quenched Lorentzian spread is available as a separate control.
 """
 
 from __future__ import annotations
@@ -39,11 +39,12 @@ class RampConfig:
     sample_every: int = 10
     concentration_bins: int = 36
     seed: int = 20260903
+    frequency_halfwidth: float = 0.0
 
     @property
     def critical_coupling(self) -> float:
-        """Return the identical-frequency threshold ``K_c = 2D``."""
-        return 2.0 * self.diffusion
+        """Return the threshold ``K_c = 2(D + gamma)``."""
+        return 2.0 * (self.diffusion + self.frequency_halfwidth)
 
 
 @dataclass(frozen=True)
@@ -66,6 +67,7 @@ class _RampState:
     phases: FloatArray
     rng: np.random.Generator
     step: int = 0
+    natural_frequencies: FloatArray | None = None
     times: list[float] = field(default_factory=list)
     couplings: list[float] = field(default_factory=list)
     order_means: list[float] = field(default_factory=list)
@@ -88,6 +90,8 @@ def _validate_config(config: RampConfig) -> None:
     )
     if any(value <= 0 for value in positive):
         raise ValueError("all ramp configuration scales must be positive")
+    if not np.isfinite(config.frequency_halfwidth) or config.frequency_halfwidth < 0:
+        raise ValueError("frequency half-width must be finite and non-negative")
 
 
 def estimate_log_density_concentration(phases: FloatArray, bins: int = 36) -> float:
@@ -138,7 +142,14 @@ def _total_steps(config: RampConfig) -> int:
 def _new_state(config: RampConfig) -> _RampState:
     rng = np.random.default_rng(config.seed)
     phases = rng.uniform(-np.pi, np.pi, (config.n_replicas, config.n_oscillators))
-    return _RampState(phases=phases, rng=rng)
+    if config.frequency_halfwidth > 0.0:
+        natural_frequencies = (
+            rng.standard_cauchy((config.n_replicas, config.n_oscillators))
+            * config.frequency_halfwidth
+        )
+    else:
+        natural_frequencies = None
+    return _RampState(phases=phases, rng=rng, natural_frequencies=natural_frequencies)
 
 
 def _record(state: _RampState, config: RampConfig) -> None:
@@ -161,6 +172,8 @@ def _advance(state: _RampState, config: RampConfig) -> None:
     order = np.abs(complex_order)[:, None]
     mean_phase = np.angle(complex_order)[:, None]
     drift = coupling * order * np.sin(mean_phase - state.phases)
+    if state.natural_frequencies is not None:
+        drift += state.natural_frequencies
     noise_scale = np.sqrt(2.0 * config.diffusion * config.dt)
     state.phases += config.dt * drift + noise_scale * state.rng.standard_normal(state.phases.shape)
     state.phases = (state.phases + np.pi) % (2.0 * np.pi) - np.pi
@@ -181,15 +194,18 @@ def _to_result(state: _RampState, steps: int) -> RampResult:
 
 
 def _config_json(config: RampConfig) -> str:
-    return json.dumps(asdict(config), sort_keys=True)
+    values = asdict(config)
+    if config.frequency_halfwidth == 0.0:
+        # Existing identical-frequency checkpoints predate this control.
+        values.pop("frequency_halfwidth")
+    return json.dumps(values, sort_keys=True)
 
 
 def _save_checkpoint(path: Path, config: RampConfig, state: _RampState) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(dir=path.parent, suffix=".npz", delete=False) as temporary:
         temporary_path = Path(temporary.name)
-        np.savez_compressed(
-            temporary,
+        kwargs: dict[str, Any] = dict(
             config=np.asarray(_config_json(config)),
             rng_state=np.asarray(json.dumps(state.rng.bit_generator.state)),
             step=np.asarray(state.step),
@@ -202,6 +218,9 @@ def _save_checkpoint(path: Path, config: RampConfig, state: _RampState) -> None:
             order_replicas=np.asarray(state.order_replicas),
             concentration_replicas=np.asarray(state.concentration_replicas),
         )
+        if state.natural_frequencies is not None:
+            kwargs["natural_frequencies"] = state.natural_frequencies
+        np.savez_compressed(temporary, **kwargs)
     os.replace(temporary_path, path)
 
 
@@ -213,10 +232,14 @@ def _load_checkpoint(path: Path, config: RampConfig) -> _RampState:
         rng = np.random.default_rng()
         rng_state: dict[str, Any] = json.loads(str(saved["rng_state"]))
         rng.bit_generator.state = rng_state
+        natural_frequencies = None
+        if "natural_frequencies" in saved:
+            natural_frequencies = np.asarray(saved["natural_frequencies"])
         return _RampState(
             phases=np.asarray(saved["phases"]),
             rng=rng,
             step=int(saved["step"]),
+            natural_frequencies=natural_frequencies,
             times=np.asarray(saved["time"]).tolist(),
             couplings=np.asarray(saved["coupling"]).tolist(),
             order_means=np.asarray(saved["order_mean"]).tolist(),
@@ -333,6 +356,26 @@ def production_config(speed: float, seed: int, n_oscillators: int = 2000) -> Ram
         sample_every=sample_every,
         concentration_bins=36,
         seed=seed,
+    )
+
+
+def production_config_heterogeneous(
+    speed: float, seed: int, frequency_halfwidth: float, n_oscillators: int = 2000
+) -> RampConfig:
+    """Build a heterogeneous production configuration with useful decimation."""
+    steps = int(round(1.0 / (speed * 0.01)))
+    sample_every = max(1, min(1000, steps // 100))
+    return RampConfig(
+        n_oscillators=n_oscillators,
+        n_replicas=32,
+        diffusion=1.0,
+        ramp_speed=speed,
+        coupling_half_window=0.5,
+        dt=0.01,
+        sample_every=sample_every,
+        concentration_bins=36,
+        seed=seed,
+        frequency_halfwidth=frequency_halfwidth,
     )
 
 

@@ -173,3 +173,5 @@ import PhysicsOfConsciousness.Examples.Locality
 
 import PhysicsOfConsciousness.Examples.AttentionRank
 import PhysicsOfConsciousness.Examples.InformationCapacity
+import PhysicsOfConsciousness.Examples.PhaseFeedback
+import PhysicsOfConsciousness.Examples.InputWeightedRank

@@ -1,0 +1,161 @@
+"""Recompute G24 candidate scores from saved task arrays and checkpoints only."""
+
+import json
+from pathlib import Path
+from typing import Any, Callable
+
+import numpy as np
+from numpy.typing import NDArray
+
+from g24_candidates import PhaseModel, TransformerModel
+from g24_shared_task import reconstruction_scores
+from followup_foundations import covariance_rank_tail
+
+FloatArray = NDArray[np.float64]
+
+
+def _score(prediction: FloatArray, target: FloatArray) -> float:
+    if prediction.shape != target.shape or not np.isfinite(prediction).all():
+        raise ValueError("Checkpoint prediction shape or values are invalid")
+    return float(np.mean(np.sum((prediction - target) ** 2, axis=1)))
+
+
+def _load_array(path: Path, name: str) -> FloatArray:
+    with np.load(path, allow_pickle=False) as saved:
+        return np.asarray(saved[name], dtype=np.float64)
+
+
+def _predictions(
+    output: Path, name: str, train: FloatArray, test: FloatArray,
+    overlap_half: FloatArray, overlap_full: FloatArray,
+) -> tuple[FloatArray, FloatArray, FloatArray, FloatArray, FloatArray, FloatArray]:
+    checkpoint = output / f"{name}.npz"
+    head = _load_array(checkpoint, "head")
+    if name == "linear_full":
+        code = train
+        test_code = test
+        def predict(inputs: FloatArray) -> FloatArray:
+            return np.asarray(np.column_stack((inputs, np.ones(len(inputs)))) @ head)
+    elif name == "transformer":
+        model = TransformerModel(_load_array(checkpoint, "params"), head, 0.0)
+        code = model.code(train)
+        test_code = model.code(test)
+        predict = model.predict
+    else:
+        rounds = {"phase_round0": 0, "phase_round1": 1, "phase_network": 3}[name]
+        phase = PhaseModel(_load_array(checkpoint, "params"), head, 0.0, rounds)
+        code = phase.code(train)
+        test_code = phase.code(test)
+        predict = phase.predict
+    predictor: Callable[[FloatArray], FloatArray] = predict
+    return (
+        np.asarray(code, dtype=np.float64),
+        np.asarray(test_code, dtype=np.float64),
+        predictor(train), predictor(test), predictor(overlap_half), predictor(overlap_full),
+    )
+
+
+def _rank(code: FloatArray) -> int:
+    singular = np.linalg.svd(code - code.mean(axis=0), compute_uv=False)
+    return int(np.sum(singular > 1e-6 * singular[0])) if singular.size else 0
+
+
+def _check_codes(output: Path, name: str, code: FloatArray, test_code: FloatArray) -> None:
+    checkpoint = output / f"{name}.npz"
+    saved_train = _load_array(checkpoint, "train_code")
+    saved_test = _load_array(checkpoint, "test_code")
+    if (
+        saved_train.shape != code.shape or saved_test.shape != test_code.shape
+        or not np.allclose(saved_train, code, rtol=1e-10, atol=1e-12)
+        or not np.allclose(saved_test, test_code, rtol=1e-10, atol=1e-12)
+    ):
+        raise ValueError(f"{name} internal code drift from saved checkpoint")
+
+
+def _check_scores(
+    name: str, row: dict[str, Any], train_error: float, test_error: float,
+    half_error: float, full_error: float, rank: int,
+) -> None:
+    if (
+        not np.isclose(train_error, row["train_squared_error"], atol=1e-8, rtol=1e-8)
+        or not np.isclose(test_error, row["test_squared_error"], atol=1e-8, rtol=1e-8)
+        or not np.isclose(half_error, row["overlap_disagreement_error_d0p5"], atol=1e-8)
+        or not np.isclose(full_error, row["overlap_disagreement_error_d1p0"], atol=1e-8)
+        or rank != row["effective_code_rank_tol_1e_6"]
+    ):
+        raise ValueError(f"{name} score drift from saved checkpoint")
+
+
+def audit_candidates(output: Path) -> None:
+    """Fail on drift and save an audit of measured test errors and code ranks."""
+    summary: dict[str, Any] = json.loads((output / "summary.json").read_text())
+    dataset = output / "dataset.npz"
+    train = _load_array(dataset, "train_input")
+    test = _load_array(dataset, "test_input")
+    train_target = _load_array(dataset, "train_target")
+    test_target = _load_array(dataset, "test_target")
+    overlap_half = _load_array(dataset, "overlap_disagreement_d0p5_input")
+    overlap_full = _load_array(dataset, "overlap_disagreement_d1p0_input")
+    rows: list[dict[str, str | float | int]] = []
+    expected = {"linear_full", "transformer", "phase_round0", "phase_round1", "phase_network"}
+    if {row["candidate"] for row in summary["candidates"]} != expected:
+        raise ValueError("Candidate roster drift")
+    for row in summary["candidates"]:
+        name = str(row["candidate"])
+        predictions = _predictions(output, name, train, test, overlap_half, overlap_full)
+        code, test_code, train_prediction, test_prediction, half_prediction, full_prediction = (
+            predictions
+        )
+        _check_codes(output, name, code, test_code)
+        train_error = _score(train_prediction, train_target)
+        test_error = _score(test_prediction, test_target)
+        half_error = _score(half_prediction, test_target)
+        full_error = _score(full_prediction, test_target)
+        rank = _rank(code)
+        _check_scores(name, row, train_error, test_error, half_error, full_error, rank)
+        rows.append({
+            "candidate": name, "train_squared_error": train_error,
+            "test_squared_error": test_error,
+            "overlap_disagreement_error_d0p5": half_error,
+            "overlap_disagreement_error_d1p0": full_error,
+            "effective_code_rank_tol_1e_6": rank,
+        })
+    audit = {"source": "g24_artifact_audit.py", "candidates": rows}
+    (output / "audit.json").write_text(json.dumps(audit, indent=2) + "\n")
+
+
+def audit_linear_baseline(output: Path) -> None:
+    """Check saved rank decoders and empirical train-covariance tail floors."""
+    summary: dict[str, Any] = json.loads((output / "summary.json").read_text())
+    dataset = output / "dataset.npz"
+    train = _load_array(dataset, "train_input")
+    test = _load_array(dataset, "test_input")
+    train_target = _load_array(dataset, "train_target")
+    test_target = _load_array(dataset, "test_target")
+    covariance = train.T @ train / len(train)
+    checkpoint = output / "decoders.npz"
+    full = _load_array(checkpoint, "rank_4")
+    baseline = reconstruction_scores(train, train_target, full)["squared_error"]
+    rows: list[dict[str, float | int]] = []
+    for row in summary["ranks"]:
+        rank = int(row["rank"])
+        name = f"rank_{rank}"
+        decoder = _load_array(checkpoint, name)
+        train_error = reconstruction_scores(train, train_target, decoder)["squared_error"]
+        test_error = reconstruction_scores(test, test_target, decoder)["squared_error"]
+        floor = baseline + covariance_rank_tail(full, covariance, rank)
+        effective_rank = int(np.linalg.matrix_rank(decoder, tol=1e-10))
+        if (
+            not np.isclose(train_error, row["train_squared_error"], atol=1e-8)
+            or not np.isclose(test_error, row["test_squared_error"], atol=1e-8)
+            or not np.isclose(floor, row["predicted_train_floor"], atol=1e-8)
+            or effective_rank != row["effective_rank"]
+        ):
+            raise ValueError(f"{name} decoder or spectral floor drift")
+        rows.append({
+            "rank": rank, "train_squared_error": train_error,
+            "test_squared_error": test_error, "predicted_train_floor": floor,
+            "effective_rank": effective_rank,
+        })
+    audit = {"source": "g24_artifact_audit.py", "ranks": rows}
+    (output / "audit.json").write_text(json.dumps(audit, indent=2) + "\n")

@@ -1,0 +1,45 @@
+{
+  "source": "g24_artifact_audit.py",
+  "candidates": [
+    {
+      "candidate": "linear_full",
+      "train_squared_error": 3.31454037076722e-16,
+      "test_squared_error": 2.6666666581660374,
+      "overlap_disagreement_error_d0p5": 2.7916666476404766,
+      "overlap_disagreement_error_d1p0": 3.166666616063794,
+      "effective_code_rank_tol_1e_6": 3
+    },
+    {
+      "candidate": "transformer",
+      "train_squared_error": 7.881431252492826e-08,
+      "test_squared_error": 3.6482652915609184,
+      "overlap_disagreement_error_d0p5": 4.210659164808283,
+      "overlap_disagreement_error_d1p0": 5.890380626480878,
+      "effective_code_rank_tol_1e_6": 4
+    },
+    {
+      "candidate": "phase_round0",
+      "train_squared_error": 1.0034255493521094e-29,
+      "test_squared_error": 4.0,
+      "overlap_disagreement_error_d0p5": 15.71583696182971,
+      "overlap_disagreement_error_d1p0": 20.91768810025433,
+      "effective_code_rank_tol_1e_6": 7
+    },
+    {
+      "candidate": "phase_round1",
+      "train_squared_error": 1.2980107275832462e-29,
+      "test_squared_error": 3.862826278091954,
+      "overlap_disagreement_error_d0p5": 19.22426925904002,
+      "overlap_disagreement_error_d1p0": 25.755602897019852,
+      "effective_code_rank_tol_1e_6": 7
+    },
+    {
+      "candidate": "phase_network",
+      "train_squared_error": 1.2420450266962604e-29,
+      "test_squared_error": 3.6616186950832788,
+      "overlap_disagreement_error_d0p5": 40.79112857741669,
+      "overlap_disagreement_error_d1p0": 54.44328894259519,
+      "effective_code_rank_tol_1e_6": 7
+    }
+  ]
+}

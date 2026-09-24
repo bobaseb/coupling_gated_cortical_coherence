@@ -1,0 +1,138 @@
+{
+  "source": "g23_benchmark.py",
+  "seed": 230,
+  "train_family": "field_0p4",
+  "train_episodes": 4096,
+  "test_episodes_per_control_and_family": 4096,
+  "trained_readout": [
+    0,
+    1
+  ],
+  "initial_joint_law": [
+    [
+      0.25,
+      0.25
+    ],
+    [
+      0.25,
+      0.25
+    ]
+  ],
+  "initial_prior": "uninformative_phase_register_product",
+  "external_charger_per_step": 1.3,
+  "content_scope": "phase/register binary-symbol agreement proxy",
+  "rows": [
+    {
+      "family": "field_0p25",
+      "control": "informed",
+      "heldout_accuracy": 0.783203125,
+      "shared_content_agreement_proxy": 0.8984375,
+      "phase_reconstruction_error": 0.1015625,
+      "phase_order": 5.551115123125783e-17,
+      "installed_energy": -0.14999999999999997,
+      "cumulative_work": 1.339002150133072,
+      "cumulative_phase_heat_to_bath": -0.26099784986692826,
+      "available_store": 9.360997849866928,
+      "continuous_current_cost": null,
+      "bath_inverse_temperature": 1.0
+    },
+    {
+      "family": "field_0p25",
+      "control": "blind",
+      "heldout_accuracy": 0.55224609375,
+      "shared_content_agreement_proxy": 0.49267578125,
+      "phase_reconstruction_error": 0.50732421875,
+      "phase_order": 0.0,
+      "installed_energy": 0.049999999999999996,
+      "cumulative_work": 1.9515673900849015,
+      "cumulative_phase_heat_to_bath": 0.151567390084901,
+      "available_store": 8.748432609915099,
+      "continuous_current_cost": null,
+      "bath_inverse_temperature": 1.0
+    },
+    {
+      "family": "field_0p25",
+      "control": "replayed",
+      "heldout_accuracy": 0.5576171875,
+      "shared_content_agreement_proxy": 0.512451171875,
+      "phase_reconstruction_error": 0.487548828125,
+      "phase_order": 0.0,
+      "installed_energy": 0.04999999999999995,
+      "cumulative_work": 1.9515673900849009,
+      "cumulative_phase_heat_to_bath": 0.15156739008490083,
+      "available_store": 8.748432609915099,
+      "continuous_current_cost": null,
+      "bath_inverse_temperature": 1.0
+    },
+    {
+      "family": "field_0p25",
+      "control": "frozen",
+      "heldout_accuracy": 0.748779296875,
+      "shared_content_agreement_proxy": 0.906005859375,
+      "phase_reconstruction_error": 0.093994140625,
+      "phase_order": 0.23485445155931323,
+      "installed_energy": -0.05871361288982831,
+      "cumulative_work": 1.8,
+      "cumulative_phase_heat_to_bath": 0.05871361288982826,
+      "available_store": 8.9,
+      "continuous_current_cost": null,
+      "bath_inverse_temperature": 1.0
+    },
+    {
+      "family": "field_0p55",
+      "control": "informed",
+      "heldout_accuracy": 0.821044921875,
+      "shared_content_agreement_proxy": 0.893310546875,
+      "phase_reconstruction_error": 0.106689453125,
+      "phase_order": 2.220446049250313e-16,
+      "installed_energy": -0.39,
+      "cumulative_work": 1.1066708725122916,
+      "cumulative_phase_heat_to_bath": -0.25332912748770836,
+      "available_store": 9.593329127487708,
+      "continuous_current_cost": null,
+      "bath_inverse_temperature": 1.0
+    },
+    {
+      "family": "field_0p55",
+      "control": "blind",
+      "heldout_accuracy": 0.61083984375,
+      "shared_content_agreement_proxy": 0.501953125,
+      "phase_reconstruction_error": 0.498046875,
+      "phase_order": 0.0,
+      "installed_energy": 0.04999999999999999,
+      "cumulative_work": 2.563160116941361,
+      "cumulative_phase_heat_to_bath": 0.7631601169413601,
+      "available_store": 8.13683988305864,
+      "continuous_current_cost": null,
+      "bath_inverse_temperature": 1.0
+    },
+    {
+      "family": "field_0p55",
+      "control": "replayed",
+      "heldout_accuracy": 0.6103515625,
+      "shared_content_agreement_proxy": 0.497314453125,
+      "phase_reconstruction_error": 0.502685546875,
+      "phase_order": 1.1102230246251565e-16,
+      "installed_energy": 0.050000000000000044,
+      "cumulative_work": 2.56316011694136,
+      "cumulative_phase_heat_to_bath": 0.76316011694136,
+      "available_store": 8.13683988305864,
+      "continuous_current_cost": null,
+      "bath_inverse_temperature": 1.0
+    },
+    {
+      "family": "field_0p55",
+      "control": "frozen",
+      "heldout_accuracy": 0.7470703125,
+      "shared_content_agreement_proxy": 0.890625,
+      "phase_reconstruction_error": 0.109375,
+      "phase_order": 0.48838859146036695,
+      "installed_energy": -0.2686137253032018,
+      "cumulative_work": 1.8000000000000003,
+      "cumulative_phase_heat_to_bath": 0.26861372530320193,
+      "available_store": 8.9,
+      "continuous_current_cost": null,
+      "bath_inverse_temperature": 1.0
+    }
+  ]
+}

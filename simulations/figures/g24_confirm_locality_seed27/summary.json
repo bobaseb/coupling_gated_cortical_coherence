@@ -1,0 +1,80 @@
+{
+  "source": "g24_locality.py",
+  "seed": 27,
+  "noise": 0.0,
+  "split": "scene_pair",
+  "phase_graph_edges": [
+    [
+      0,
+      1
+    ],
+    [
+      1,
+      2
+    ]
+  ],
+  "encoding_node": 2,
+  "intervention_amplitude": 0.5,
+  "intervention_distances_hops": [
+    1,
+    2
+  ],
+  "rows": [
+    {
+      "communication_rounds": 0,
+      "causal_past_nodes": 1,
+      "effective_code_rank_tol_1e_6": 1,
+      "train_squared_error": 5.0,
+      "test_squared_error": 5.0,
+      "test_self_relation_error": 2.0,
+      "distance_one_code_change": 0.0,
+      "distance_two_code_change": 0.0,
+      "parameter_count": 63,
+      "code_and_parameter_bytes": 10744,
+      "fit_seconds": 0.0002435743808746338,
+      "inference_ms_per_sample": 0.0008694987627677619
+    },
+    {
+      "communication_rounds": 1,
+      "causal_past_nodes": 2,
+      "effective_code_rank_tol_1e_6": 7,
+      "train_squared_error": 8.592634374720368e-20,
+      "test_squared_error": 3.999999999974766,
+      "test_self_relation_error": 5.500729681560781e-20,
+      "distance_one_code_change": 1.1260297522525349,
+      "distance_two_code_change": 0.0,
+      "parameter_count": 63,
+      "code_and_parameter_bytes": 10744,
+      "fit_seconds": 0.0002176659181714058,
+      "inference_ms_per_sample": 0.0009402428986504674
+    },
+    {
+      "communication_rounds": 2,
+      "causal_past_nodes": 3,
+      "effective_code_rank_tol_1e_6": 7,
+      "train_squared_error": 5.353648699601558e-21,
+      "test_squared_error": 223.813360709351,
+      "test_self_relation_error": 125.93396559821062,
+      "distance_one_code_change": 1.863865182643507,
+      "distance_two_code_change": 0.5221561468461757,
+      "parameter_count": 63,
+      "code_and_parameter_bytes": 10744,
+      "fit_seconds": 0.00022474024444818497,
+      "inference_ms_per_sample": 0.0011370066204108298
+    },
+    {
+      "communication_rounds": 3,
+      "causal_past_nodes": 3,
+      "effective_code_rank_tol_1e_6": 7,
+      "train_squared_error": 9.423548995762275e-21,
+      "test_squared_error": 3020.8370990354765,
+      "test_self_relation_error": 1738.0042611921453,
+      "distance_one_code_change": 2.2993388006927593,
+      "distance_two_code_change": 1.379740647743114,
+      "parameter_count": 63,
+      "code_and_parameter_bytes": 10744,
+      "fit_seconds": 0.00023864861577749252,
+      "inference_ms_per_sample": 0.0011304946383461356
+    }
+  ]
+}

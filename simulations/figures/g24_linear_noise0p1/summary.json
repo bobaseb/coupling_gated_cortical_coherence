@@ -1,0 +1,62 @@
+{
+  "source": "g24_shared_task.py",
+  "seed": 24,
+  "repeats": 16,
+  "noise": 0.1,
+  "train_family": "even_parity",
+  "test_family": "odd_parity",
+  "fit_seconds": 0.004879768006503582,
+  "runtime_budget_seconds": 2.0,
+  "ranks": [
+    {
+      "rank": 0,
+      "effective_rank": 0,
+      "stored_parameter_count": 30,
+      "decoder_bytes": 240,
+      "predicted_train_floor": 6.000000000000007,
+      "train_squared_error": 6.0,
+      "test_squared_error": 6.0,
+      "test_self_relation_squared_error": 2.0
+    },
+    {
+      "rank": 1,
+      "effective_rank": 1,
+      "stored_parameter_count": 30,
+      "decoder_bytes": 240,
+      "predicted_train_floor": 3.0164277253863627,
+      "train_squared_error": 3.016427725386359,
+      "test_squared_error": 3.0143166883828094,
+      "test_self_relation_squared_error": 0.009540527623440943
+    },
+    {
+      "rank": 2,
+      "effective_rank": 2,
+      "stored_parameter_count": 30,
+      "decoder_bytes": 240,
+      "predicted_train_floor": 2.0205483755684566,
+      "train_squared_error": 2.020548375568453,
+      "test_squared_error": 2.0198864932054414,
+      "test_self_relation_squared_error": 0.009540567414260678
+    },
+    {
+      "rank": 3,
+      "effective_rank": 3,
+      "stored_parameter_count": 30,
+      "decoder_bytes": 240,
+      "predicted_train_floor": 1.02783560988515,
+      "train_squared_error": 1.0278356098851502,
+      "test_squared_error": 1.0303113886814037,
+      "test_self_relation_squared_error": 0.009531397024420404
+    },
+    {
+      "rank": 4,
+      "effective_rank": 4,
+      "stored_parameter_count": 30,
+      "decoder_bytes": 240,
+      "predicted_train_floor": 0.04006821002953285,
+      "train_squared_error": 0.04006821002953284,
+      "test_squared_error": 0.04098262862428306,
+      "test_self_relation_squared_error": 0.009540940511714863
+    }
+  ]
+}

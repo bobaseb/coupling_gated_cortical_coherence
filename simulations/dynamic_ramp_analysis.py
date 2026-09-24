@@ -24,6 +24,16 @@ _BOUND_TOLERANCE = 1e-8
 
 
 @dataclass(frozen=True)
+class BootstrapResult:
+    exponent: float
+    ci_low: float
+    ci_high: float
+    n_boot: int
+    p_above: float
+    n_invalid: int = 0
+
+
+@dataclass(frozen=True)
 class PowerLawFit:
     """Least-squares fit of ``y = prefactor * x**exponent`` in log space.
 
@@ -187,4 +197,65 @@ def fit_onset_exponent(
         excess_max=float(x.max()) - critical_coupling,
         samples=int(x.size),
         onset_pinned=onset - critical_coupling <= _BOUND_TOLERANCE,
+    )
+
+
+def _bootstrap_means(rng: np.random.Generator, replica_delays: list[FloatArray]) -> FloatArray:
+    """Resample replicas independently at each speed."""
+    means = np.empty(len(replica_delays), dtype=np.float64)
+    for index, delays in enumerate(replica_delays):
+        means[index] = float(np.mean(rng.choice(delays, size=len(delays), replace=True)))
+    return means
+
+
+def _validate_bootstrap_inputs(
+    speeds: FloatArray, replica_delays: list[FloatArray], n_boot: int
+) -> None:
+    if len(speeds) != len(replica_delays):
+        raise ValueError("speeds and replica_delays must have the same length")
+    if n_boot <= 0:
+        raise ValueError("n_boot must be positive")
+    if any(len(delays) == 0 or not np.all(np.isfinite(delays)) for delays in replica_delays):
+        raise ValueError("each speed needs finite replica delays")
+
+
+def bootstrap_delay_exponent(
+    speeds: FloatArray,
+    replica_delays: list[FloatArray],
+    n_boot: int = 10000,
+    threshold: float = 0.5,
+    seed: int = 20260903,
+) -> BootstrapResult:
+    _validate_bootstrap_inputs(speeds, replica_delays, n_boot)
+    rng = np.random.default_rng(seed)
+
+    boot_exponents = np.empty(n_boot, dtype=np.float64)
+
+    # Original data estimate
+    orig_means = np.array([np.mean(delays) for delays in replica_delays])
+    orig_fit = fit_power_law(speeds, orig_means)
+
+    valid = 0
+    invalid = 0
+    while valid < n_boot:
+        boot_means = _bootstrap_means(rng, replica_delays)
+        if np.any(boot_means <= 0):
+            invalid += 1
+            if invalid > 10 * n_boot:
+                raise ValueError("too many zero-delay resamples for a log-log fit")
+            continue
+        boot_exponents[valid] = fit_power_law(speeds, boot_means).exponent
+        valid += 1
+
+    ci_low = float(np.percentile(boot_exponents, 2.5))
+    ci_high = float(np.percentile(boot_exponents, 97.5))
+    p_above = float(np.mean(boot_exponents >= threshold))
+
+    return BootstrapResult(
+        exponent=orig_fit.exponent,
+        ci_low=ci_low,
+        ci_high=ci_high,
+        n_boot=n_boot,
+        p_above=p_above,
+        n_invalid=invalid,
     )

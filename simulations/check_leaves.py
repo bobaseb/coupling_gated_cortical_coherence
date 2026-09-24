@@ -89,6 +89,28 @@ WITNESS_DIR = "Examples"
 # be one*, with the reason it is tolerated. Adding to this dict is a decision;
 # it should be made in the ledger, not in passing.
 ALLOWED_LEAVES: dict[str, str] = {
+    "Phase3_FeedbackLedger.lean": (
+        "deliberate — a terminal work-store result for one joint phase/register "
+        "transition. Routing it into the chain's thermal edge would claim local "
+        "detailed balance and a common reservoir for sensing and reset, which "
+        "this ledger deliberately prices as declared work instead"
+    ),
+    "Phase6_CovarianceRank.lean": (
+        "deliberate — the covariance-factor singular-tail inequality is a "
+        "terminal linear reconstruction limit. The task's covariance and "
+        "singular bases are measured inputs; no nonlinear decoder or physical "
+        "encoding in the chain satisfies its rank hypothesis by default"
+    ),
+    "Phase6_SampledRank.lean": (
+        "deliberate — the sampled-eigenbasis input law is a terminal witness "
+        "that attains the weighted linear floor. No chain edge assumes that "
+        "the candidate's inputs follow this law"
+    ),
+    "Phase8_OrderSpeed.lean": (
+        "deliberate — the finite-time magnitude bound is a terminal "
+        "probability-current constraint. The chain has no calibrated mapping "
+        "from that current cost to heat, work or cortical mode prices"
+    ),
     "Phase3_LandauerBridge.lean": (
         "deliberate — the module is the discharge route for the chain's n3 → n4 "
         "edge, and the edge stays a named hypothesis. `PredictiveDissipation."

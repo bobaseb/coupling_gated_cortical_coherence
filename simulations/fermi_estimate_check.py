@@ -57,6 +57,20 @@ FERMI_FIELD_MAX = 5
 FERMI_LAM_MIN = 0.1
 FERMI_LAM_MAX = 0.3
 
+
+def stored_field_energy(field_v_per_m: float, epsilon_r: float, radius_m: float) -> float:
+    """Electrostatic field energy in a spherical volume, in joules.
+
+    This uses ``(epsilon_0 * epsilon_r * E**2 / 2) * volume``. It is a
+    stored-energy estimate, separate from metabolic energy spent over time.
+    """
+    if field_v_per_m < 0 or epsilon_r <= 0 or radius_m <= 0:
+        raise ValueError("field, permittivity, and radius must be physical")
+    epsilon_0 = 8.8541878128e-12
+    volume = 4.0 / 3.0 * math.pi * radius_m**3
+    return 0.5 * epsilon_0 * epsilon_r * field_v_per_m**2 * volume
+
+
 # Band-specific parameters: (field_mVmm, freq_Hz)
 BANDS = {
     "gamma": (0.5, 40),

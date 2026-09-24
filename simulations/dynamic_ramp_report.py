@@ -6,6 +6,7 @@ import json
 import math
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -21,6 +22,7 @@ from dynamic_ramp_analysis import (
     fit_power_law,
     replica_escape_couplings,
     split_span_exponents,
+    bootstrap_delay_exponent,
 )
 
 
@@ -146,8 +148,8 @@ def _plot_bifurcation(legs: list[Leg]) -> None:
     static_k = np.linspace(1.5, 2.5, 180)
     static_r = np.array([coherent_r(float(value)) for value in static_k])
     ax.plot(static_k, static_r, color="black", lw=2.0, label="stationary coherent branch")
-    for leg in legs:
-        ax.plot(leg.coupling, leg.order_mean, lw=1.7, label=rf"$v={leg.speed:g}$")
+    for leg_index, leg in enumerate(legs):
+        (mean_line,) = ax.plot(leg.coupling, leg.order_mean, lw=1.7, label=rf"$v={leg.speed:g}$")
         sem = leg.order_std / np.sqrt(leg.order_replicas.shape[1])
         ax.fill_between(
             leg.coupling,
@@ -155,9 +157,26 @@ def _plot_bifurcation(legs: list[Leg]) -> None:
             leg.order_mean + sem,
             alpha=0.12,
         )
+        escape = replica_escape_couplings(leg.coupling, leg.order_replicas, ESCAPE_LEVEL, SUSTAIN)
+        valid = np.isfinite(escape)
+        if np.any(valid):
+            sample_index = np.searchsorted(leg.coupling, escape[valid])
+            replica_index = np.flatnonzero(valid)
+            ax.scatter(
+                escape[valid],
+                leg.order_replicas[sample_index, replica_index],
+                color=mean_line.get_color(),
+                edgecolors="white",
+                linewidths=0.3,
+                s=18,
+                alpha=0.8,
+                label="replica escapes" if leg_index == 0 else "_nolegend_",
+                zorder=4,
+            )
+    ax.axhline(ESCAPE_LEVEL, color="0.6", ls="-.", lw=0.8)
     ax.axhline(1.0 / np.sqrt(2000), color="0.4", ls=":", label=r"$1/\sqrt{2000}$")
     ax.axvline(2.0, color="0.5", ls="--", lw=1.0)
-    ax.set(xlabel=r"coupling $K$", ylabel=r"ensemble mean $r$", ylim=(0.0, 0.7))
+    ax.set(xlabel=r"coupling $K$", ylabel=r"phase order $r$", ylim=(0.0, 0.7))
     ax.legend(fontsize=8, ncol=2)
     ax.grid(alpha=0.25)
     _save_figure(fig, "dynamic_ramp_bifurcation_delay.png")
@@ -295,6 +314,28 @@ it shows the apparent exponent does not drift across the span, and neither half
 resolves the shortfall by itself."""
 
 
+def _bootstrap_paragraph(legs: list[Leg], metrics: list[LegMetrics]) -> str:
+    """The bootstrapped confidence interval and p-value for the exponent."""
+    speeds = []
+    replica_delays = []
+    for leg, metric in zip(legs, metrics, strict=True):
+        if metric.escaped == 32:
+            escape = replica_escape_couplings(
+                leg.coupling, leg.order_replicas, ESCAPE_LEVEL, SUSTAIN
+            )
+            speeds.append(leg.speed)
+            replica_delays.append(escape - 2.0)
+
+    result = bootstrap_delay_exponent(np.array(speeds), replica_delays)
+
+    return (
+        f"Bootstrapping the {result.n_boot} resamples over replicas within each of the "
+        f"{len(speeds)}\nuncensored legs gives a 95% CI of [{result.ci_low:.3f}, "
+        f"{result.ci_high:.3f}] for the exponent. The\nfraction of bootstrap samples "
+        f"with an exponent at or above 0.5 is {result.p_above:.3f}."
+    )
+
+
 def _collapse_paragraph(metrics: list[LegMetrics], diagnostics: list[LegMetrics]) -> str:
     """The Bessel-collapse floor, and whether any leg reaches twice it."""
     floor = next(item.collapse_deviation for item in diagnostics if item.speed == min(SPEEDS))
@@ -307,7 +348,112 @@ v={legs}. The slowest-ramp deviation floor is Dev_0={floor:.5f};
 {"bracketed" if bracketed else "not bracketed"} by the sweep."""
 
 
-def _write_report(metrics: list[LegMetrics], diagnostics: list[LegMetrics]) -> None:
+def _followup_row(label: str, item: dict[str, Any]) -> str:
+    exponent = item.get("exponent_ols", item.get("exponent"))
+    display = "—" if exponent is None else f"{exponent:.3f}"
+    boot_low = item.get("exponent_boot_low", item.get("bootstrap_low"))
+    boot_high = item.get("exponent_boot_high", item.get("bootstrap_high"))
+    interval = "—"
+    if boot_low is not None and boot_high is not None:
+        interval = f"[{boot_low:.3f}, {boot_high:.3f}]"
+    invalid = item.get("zero_delay_resamples")
+    status = "complete" if item["complete"] else "pending"
+    if item["complete"] and exponent is None:
+        status = "fit censored"
+    missing = ", ".join(f"{value:g}" for value in item["missing_speeds"])
+    return (
+        f"| {label} | {status} | {item['n_artifacts']} | "
+        f"{item['n_fit_legs']} | {display} | {interval} | "
+        f"{'—' if invalid is None else invalid} | {missing or '—'} |"
+    )
+
+
+def _delay_comparison(data: dict[str, dict[str, Any]]) -> str:
+    """State what the three saved delay fits say about approach to one half."""
+    names = ("N2000_r0.20", "N2000_r0.05", "N8000_r0.05")
+    if any(name not in data or data[name].get("exponent_ols") is None for name in names):
+        return ""
+    baseline, tight, large = (float(data[name]["exponent_ols"]) for name in names)
+    matched_baseline, matched_tight, matched_large = (
+        float(data[name]["matched_exponent_ols"]) for name in names
+    )
+    matched_errors = [
+        abs(value - 0.5) for value in (matched_baseline, matched_tight, matched_large)
+    ]
+    matched_direction = (
+        "moves toward 0.5"
+        if matched_errors[2] < matched_errors[1] < matched_errors[0]
+        else "does not show convergence toward 0.5"
+    )
+    return (
+        f"The three delay exponents are {baseline:.3f}, {tight:.3f}, and {large:.3f} "
+        f"in table order on all eligible legs. Over the matched six-leg subset "
+        f"v=0.01--0.0001, the exponents are {matched_baseline:.3f}, "
+        f"{matched_tight:.3f}, and {matched_large:.3f}. "
+        f"On the matched subset, the sequence {matched_direction}. "
+        "Replica uncertainty alone does not establish adequacy across ramp rates; "
+        "residuals must be inspected. "
+        "The tighter criterion produces zero-delay crossings. These finite-sweep estimates "
+        "do not establish an asymptotic exponent. Do not assume tightening the criterion "
+        "restores one-half."
+    )
+
+
+def _heterogeneous_limit(data: dict[str, dict[str, Any]]) -> str:
+    """Disclose completed frequency sweeps whose exponent remains unidentifiable."""
+    censored = [
+        label for label, item in data.items() if item["complete"] and item.get("exponent") is None
+    ]
+    if not censored:
+        return ""
+    widths = ", ".join(censored)
+    return (
+        f"At Lorentzian half-width {widths}, the completed sweep has too few uncensored "
+        "speed legs for an exponent interval. The control therefore cannot decide "
+        "whether heterogeneity changes only the prefactor or the exponent. "
+        "A lower, predeclared escape criterion or wider coupling window is needed."
+    )
+
+
+def _followup_report(threshold_path: Path, hetero_path: Path) -> str:
+    """Summarize saved follow-up analyses, marking incomplete sweeps explicitly."""
+    rows: list[str] = []
+    conclusions: list[str] = []
+    for path in (threshold_path, hetero_path):
+        if path.exists():
+            data: dict[str, dict[str, Any]] = json.loads(path.read_text(encoding="utf-8"))
+            rows.extend(_followup_row(label, item) for label, item in data.items())
+            conclusion = (
+                _delay_comparison(data) if path == threshold_path else _heterogeneous_limit(data)
+            )
+            if conclusion:
+                conclusions.append(conclusion)
+    if not rows:
+        return ""
+    return "\n".join(
+        [
+            "## Follow-up controls",
+            "",
+            "Only completed checkpoints enter these fits. Pending rows are provisional. "
+            "Zero-delay resamples cannot enter a log fit; the reported bootstrap "
+            "intervals condition on a positive mean delay at every speed.",
+            "",
+            "| condition | status | artifacts | fit legs | OLS exponent | "
+            "bootstrap 95% CI | zero draws | missing speeds |",
+            "|:--|:--|--:|--:|--:|:--|--:|:--|",
+            *rows,
+            "",
+            "\n\n".join(conclusions),
+        ]
+    )
+
+
+def _write_report(
+    legs: list[Leg], metrics: list[LegMetrics], diagnostics: list[LegMetrics]
+) -> None:
+    followup = _followup_report(
+        FIGURE_DIR / "tighter_threshold_summary.json", FIGURE_DIR / "hetero" / "hetero_summary.json"
+    )
     report = f"""# Dynamic-ramp numerical report
 
 Finite-N heuristic evidence only; these runs prove no trajectory theorem and do
@@ -321,7 +467,11 @@ r >= {ESCAPE_LEVEL}; pre-critical crossings are excluded.
 
 {_delay_paragraph(metrics)}
 
+{_bootstrap_paragraph(legs, metrics)}
+
 {_collapse_paragraph(metrics, diagnostics)}
+
+{followup}
 
 Using D_phys=1.5 rad/s, v_phys=v D_phys^2. A 100--1000 s crossing of a coupling
 window of width 1.5 rad/s corresponds to v=0.000667--0.00667 in simulation
@@ -341,7 +491,7 @@ def main() -> None:
     _plot_delay_scaling(delay_metrics)
     _plot_collapse(diagnostic_legs, diagnostic_metrics)
     _plot_onset(diagnostic_metrics)
-    _write_report(delay_metrics, diagnostic_metrics)
+    _write_report(delay_legs, delay_metrics, diagnostic_metrics)
     print("wrote dynamic-ramp figures and DYNAMIC_RAMP_REPORT.md")
 
 

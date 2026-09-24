@@ -2198,6 +2198,17 @@ calculation describes a coherent trajectory. No evolving phase dynamics feeds
 the installed kernel back into the sensor. Work here is an expectation under
 the declared reservoir model, not a demonstration of a physical power source.
 
+A separate two-state process closes the phase--register loop. The register
+installs a signed coupling to a binary phase; a bath-supported phase step
+changes the phase, a sensor reads it, and that reading updates the register
+for the next step. The joint law keeps phase--register correlations. With a
+fixed readout trained on one family, an informative sensor predicts the next
+phase better on held-out families than blind and replayed controls with the
+same marginal phase order. A finite work store pays declared preparation,
+sensing, reset and installation prices; heat to the named bath is recorded
+for phase flips alone. The example shows a closed loop under supplied toy
+prices, not a cortical coupling or a heat theorem for the whole protocol.
+
 \lean{
 \id{Examples/LearnedCoupling.lean}, \S28:
 \id{installedEnergy\_learned}, \id{continuumEnergy\_learned},
@@ -3013,6 +3024,20 @@ to cortical power requires the physical drive, its current and a thermal scale;
 the squared-drift objective used for coupling plasticity is a separate quantity.
 For the cosine moment of a sufficiently regular evolving density, the continuity
 equation also gives $\dot m^2\leq D\sigma_J$. This limits density change.
+For the rotation-invariant magnitude $r$ of the density's average arrow, a
+stronger statement keeps track of how much room the density has to change:
+\[
+ \dot r^2\leq D\sigma_J(1-r^2).
+\]
+Over a finite interval on which $0<r<1$, it gives the arcsine endpoint floor
+$\int_0^\tau\sigma_J\,dt\geq
+[\arcsin r(\tau)-\arcsin r(0)]^2/(D\tau)$.
+The proof needs a positive normalized periodic density, a classical
+continuity equation and valid differentiation of its moments. The bound
+prices a change in order, not its maintenance: the ordered stationary
+counterexample still has zero current cost. Saved finite-volume trajectories
+check the floor at an exploratory order threshold, with no conversion of
+current cost to cortical heat.
 It places no general limit on an external coupling ramp: the uniform density
 solves the time-dependent equation with zero current cost even for
 $K(t)=e^{at}$ and arbitrary slope $K'(0)=a$.
@@ -4825,6 +4850,18 @@ does not make this bound a restriction on ordinary softmax attention.
 The target spectrum also has to be supplied. These are finite-dimensional
 linear approximation results, not a universal distinction between digital
 machines and continuous media or a bound on the number of stored bits.
+
+When task inputs have unequal or correlated second moments, the linear floor
+uses the singular values of the target after an input-covariance factor.
+On a shared synthetic task, saved linear decoders attain that training-law
+floor. They need not preserve their accuracy on a new family: a full-capacity
+decoder trained where two scene coordinates always agree fails when those
+coordinates disagree. Small attention and coupled-phase controls also fail
+under the declared training budget. A three-node phase chain gives a separate
+causal-past check: an intervention two graph edges from its encoding node
+cannot change the code in fewer than two synchronous rounds. These are
+measurements of the specified codes and task, without hardware-energy or
+experience claims.
 
 \subsection{Approximate reconstruction}
 

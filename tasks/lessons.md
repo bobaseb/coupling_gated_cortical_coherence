@@ -320,3 +320,58 @@
 - **Mathlib has more of the Kuramoto spectral argument than expected (2026-09-21).** `Real.mul_le_sin`, `Real.sin_le_mul` and `Real.mul_abs_le_abs_sin` are Jordan's inequality in all three forms (`Analysis/SpecialFunctions/Trigonometric/Bounds.lean`), so the sine need not be linearized — the whole cost of keeping it is a factor `2/π`. `Real.one_sub_sq_div_two_le_cos` in the same file gives `chord ≤ |Δ|` immediately. `Finset.sum_mul_sq_le_sq_mul_sq` is Cauchy–Schwarz for sums. `SimpleGraph.lapMatrix_toLinearMap₂'` states `xᵀLx = (∑ᵢⱼ if Adj then (xᵢ−xⱼ)² else 0)/2`, which matches a weighted Dirichlet form after one `split <;> ring`. What is genuinely absent is `λ₂` itself: no Fiedler value, no Courant–Fischer on the Laplacian's kernel complement, so the Rayleigh inequality has to be declared.
 
 - **State the conclusion squared and keep `π` out of the denominator (2026-09-21).** `‖θ‖ ≤ π‖ω−Ω‖/(2λ)` needs square roots on both sides and fights `nlinarith`; `4λ²∑(θᵢ−θ̄)² ≤ π²∑(ωᵢ−Ω)²` is the same statement, is square-root-free, and its proof is four `nlinarith` calls with the Cauchy–Schwarz product supplied as a hint. Divide by the spread only at the end, as a `rcases` on `0 = S ∨ 0 < S`, because the degenerate case is where the division would fail and it is discharged by nonnegativity alone.
+
+- **A section whose own conclusion is "this constrains nothing" invites removal (2026-09-22).** The thermodynamic chain (§7) and GPU/LLM (§6) both conclude they constrain nothing at the cortical scale. A reviewer reading those conclusions treats the entire section as deletable. If the section stays, it must end with a non-trivial constraint or an explicit open problem — never with "this does not bind." The fix is either to derive a tighter bound or to compress to a paragraph and move the full argument to the supplement.
+
+- **OLS on ensemble means is not a replica-level CI (2026-09-22).** The delay exponent CI [0.394, 0.494] was OLS on 6 points (one per speed). The per-replica data (32 replicas per speed) existed in `.npz` files but was never bootstrapped. A reviewer will always ask for the replica-level uncertainty. Run the bootstrap as part of the analysis pipeline, not as an afterthought.
+
+- **Metabolic power × time ≠ stored field energy (2026-09-22).** Attwell & Laughlin gives dissipated signalling power. Multiplying by a residence time gives dissipated energy. The installed-energy theorem bounds *stored* energy in field modes. These are different physical quantities. A Fermi estimate of stored electromagnetic field energy (½ε|E|² integrated over the volume) gives a number 10 orders of magnitude smaller. The distinction matters and must be stated.
+
+- **Scalp EEG concentration a ≤ 0.54 sits in the linear Bessel regime (2026-09-22).** At a = 0.1, I₁/I₀(a) = a/2 to within 10⁻³. Any monotone function fits. Presenting this as "compatible with the Bessel relation" without adding "and with any monotone alternative" is misleading. The nonlinear prediction requires a > 1, which needs intracranial data or narrowband burst analysis.
+
+- **A generic bifurcation exponent is not a discriminating test (2026-09-22).** v^{1/2} delay scaling holds for any supercritical bifurcation crossed at finite rate. The discriminating content of the field hypothesis is the *spatial* onset pattern (where coherence nucleates), not the temporal exponent. Frame protocol designs around the spatial signature.
+
+- **Softmax does not preserve logit rank (2026-09-23).** Scalar queries and keys
+  `(0,1)` produce logits `[[0,0],[0,1]]` of rank one; row softmax has determinant
+  `(exp 1 - 1)/(2*(1 + exp 1))` and rank two. Any rank-constrained approximation
+  theorem must constrain the actual operator. Squared Hilbert--Schmidt error
+  uses squared eigenvalues, not their unsquared sum. Effective rank needs a
+  declared tolerance.
+
+- **Order is not a probability current (2026-09-23).** Above the mean-field
+  threshold, the positive self-consistent gradient equilibrium has exactly zero
+  current dissipation. No universal strictly positive cost follows from order,
+  including constant-in-time averages. The sharp current bound instead follows
+  by expanding `integral ((J - m*rho)^2/rho)` with `m = integral J`.
+
+- **Projection proves the finite spectral tail bound without an SVD API
+  (2026-09-23).** Project each supplied eigenvector onto the approximating map's
+  range. Parseval yields weights in `[0,1]` summing to range dimension; exchanging
+  weight toward the largest squared eigenvalues proves the tail lower bound.
+  `Submodule.starProjection` is ambient-valued; `orthogonalProjectionOnto` is
+  subtype-valued. `change` exposes equality of their norms before using Parseval.
+  Supply explicitly typed `IntervalIntegrable (fun x => ...) volume a b`
+  facts when rewriting integrals: inferred pointwise `Pi.sub` expressions can
+  prevent `rw` from matching an otherwise identical displayed integrand.
+
+- **A finite-output information ceiling does not need positive reference atoms
+  everywhere (2026-09-23).** The joint law is absolutely continuous with respect
+  to the product of its marginals. On a positive joint atom both marginals are
+  positive, and `Measure.setLIntegral_rnDeriv` on its singleton supplies the
+  likelihood ratio. Joint mass is at most its input marginal, so the log ratio
+  is at most minus log output mass. Zero joint atoms contribute zero. Summing
+  and using `integral_map` for the output projection gives I <= H(output)
+  directly for the existing KL definition, without introducing a second MI API.
+
+- **A phase-density speed is not a parameter-ramp speed (2026-09-23).** Weighted
+  square completion and periodic integration by parts bound the cosine moment
+  of the continuity operator by D times current dissipation. The uniform
+  density remains an exact nonautonomous solution under arbitrary K(t), so
+  K(t) = exp(a*t) has arbitrary slope at zero and zero phase-current cost.
+  A bound on coupling speed needs actuator physics or further density constraints.
+
+- **Run pre-commit from the repository root (2026-09-23).** `uv run --directory
+  simulations pre-commit run --files PhysicsOfConsciousness/...` resolves the
+  supplied paths relative to simulations and can report every hook skipped.
+  Use `uv run --project simulations pre-commit ...` from the root and inspect
+  which required hooks actually ran.

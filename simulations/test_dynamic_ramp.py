@@ -8,6 +8,7 @@ import numpy as np
 from dynamic_ramp import (
     RampConfig,
     RampResult,
+    _config_json,
     detect_escape_coupling,
     estimate_log_density_concentration,
     production_config,
@@ -17,6 +18,31 @@ from dynamic_ramp import (
 
 
 class DynamicRampTest(unittest.TestCase):
+    def test_zero_frequency_width_keeps_existing_checkpoint_format(self) -> None:
+        import json
+
+        encoded = json.loads(_config_json(RampConfig()))
+        self.assertNotIn("frequency_halfwidth", encoded)
+        self.assertEqual(
+            json.loads(_config_json(RampConfig(frequency_halfwidth=0.5)))["frequency_halfwidth"],
+            0.5,
+        )
+
+    def test_heterogeneous_analysis_rejects_smoke_artifacts(self) -> None:
+        from heterogeneous_ramp import read_completed_leg
+
+        with TemporaryDirectory() as directory:
+            config = RampConfig(n_oscillators=64, frequency_halfwidth=0.5)
+            path = Path(directory) / "leg.npz"
+            np.savez_compressed(
+                path,
+                config=_config_json(config),
+                step=100,
+                coupling=np.array([1.0, 2.0]),
+                order_replicas=np.zeros((2, config.n_replicas)),
+            )
+            self.assertIsNone(read_completed_leg(path, n_oscillators=2000, gamma=0.5))
+
     def test_the_integrator_reproduces_the_recorded_trajectory(self) -> None:
         """Pin what the dynamics produce, not just that they are deterministic.
 
@@ -109,6 +135,56 @@ class DynamicRampTest(unittest.TestCase):
         self.assertAlmostEqual(first.coupling[-1], config.critical_coupling + 0.2)
         self.assertTrue(np.any(first.coupling == config.critical_coupling))
         self.assertEqual(first.phase_snapshots, 0)
+
+    def test_heterogeneous_frequencies_shift_the_critical_coupling(self) -> None:
+        config = RampConfig(
+            n_oscillators=64,
+            n_replicas=3,
+            diffusion=0.2,
+            ramp_speed=0.4,
+            coupling_half_window=0.2,
+            dt=0.02,
+            sample_every=5,
+            seed=1729,
+            frequency_halfwidth=0.5,
+        )
+
+        self.assertAlmostEqual(config.critical_coupling, 2.0 * (0.2 + 0.5))
+        result = simulate_ramp(config)
+        self.assertAlmostEqual(result.coupling[0], config.critical_coupling - 0.2)
+        self.assertAlmostEqual(result.coupling[-1], config.critical_coupling + 0.2)
+
+    def test_zero_halfwidth_reproduces_identical_frequency_result(self) -> None:
+        config = RampConfig(
+            n_oscillators=64,
+            n_replicas=3,
+            diffusion=0.2,
+            ramp_speed=0.4,
+            coupling_half_window=0.2,
+            dt=0.02,
+            sample_every=5,
+            seed=1729,
+            frequency_halfwidth=0.0,
+        )
+        result = simulate_ramp(config)
+        np.testing.assert_allclose(
+            result.order_mean,
+            [
+                0.087656,
+                0.097129,
+                0.116877,
+                0.110800,
+                0.103871,
+                0.103416,
+                0.111525,
+                0.097664,
+                0.095649,
+                0.090785,
+                0.094078,
+            ],
+            rtol=0,
+            atol=5e-7,
+        )
 
     def test_summary_is_decimated_and_includes_both_endpoints(self) -> None:
         config = RampConfig(

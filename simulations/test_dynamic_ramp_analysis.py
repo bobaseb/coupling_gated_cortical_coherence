@@ -135,5 +135,64 @@ class DynamicRampAnalysisTest(unittest.TestCase):
         self.assertFalse(past_threshold.onset_pinned)
 
 
+class BootstrapTest(unittest.TestCase):
+    def test_bootstrap_records_zero_delay_resamples(self) -> None:
+        from dynamic_ramp_analysis import bootstrap_delay_exponent
+
+        speeds = np.array([0.1, 0.01, 0.001])
+        replica_delays = [np.array([0.0, 0.0, 0.0, v]) for v in speeds]
+        result = bootstrap_delay_exponent(speeds, replica_delays, n_boot=100, seed=7)
+        self.assertGreater(result.n_invalid, 0)
+        self.assertTrue(np.isfinite(result.ci_low))
+
+    def test_bootstrap_recovers_known_exponent_from_exact_data(self) -> None:
+        from dynamic_ramp_analysis import bootstrap_delay_exponent
+
+        speeds = np.geomspace(1e-4, 1e-1, 6)
+        replica_delays = [np.full(32, 3.0 * v**0.5) for v in speeds]
+        result = bootstrap_delay_exponent(speeds, replica_delays, n_boot=100)
+        self.assertAlmostEqual(result.exponent, 0.5, places=8)
+        self.assertAlmostEqual(result.ci_low, 0.5, places=8)
+        self.assertAlmostEqual(result.ci_high, 0.5, places=8)
+
+    def test_bootstrap_ci_widens_with_replica_variability(self) -> None:
+        from dynamic_ramp_analysis import bootstrap_delay_exponent
+
+        speeds = np.geomspace(1e-4, 1e-1, 6)
+        rng = np.random.default_rng(123)
+
+        tight_delays = []
+        loose_delays = []
+        for v in speeds:
+            base = 3.0 * v**0.5
+            tight_delays.append(base * rng.uniform(0.99, 1.01, size=32))
+            loose_delays.append(base * rng.uniform(0.8, 1.2, size=32))
+
+        tight = bootstrap_delay_exponent(speeds, tight_delays, n_boot=1000)
+        loose = bootstrap_delay_exponent(speeds, loose_delays, n_boot=1000)
+
+        tight_width = tight.ci_high - tight.ci_low
+        loose_width = loose.ci_high - loose.ci_low
+        self.assertLess(tight_width, loose_width)
+
+    def test_bootstrap_p_above_is_one_for_exponent_well_below_threshold(self) -> None:
+        from dynamic_ramp_analysis import bootstrap_delay_exponent
+
+        speeds = np.geomspace(1e-4, 1e-1, 6)
+        rng = np.random.default_rng(456)
+        # Exponent is 0.3
+        replica_delays = [3.0 * v**0.3 * rng.uniform(0.9, 1.1, size=32) for v in speeds]
+        result = bootstrap_delay_exponent(speeds, replica_delays, n_boot=500, threshold=0.5)
+        self.assertEqual(result.p_above, 0.0)
+
+    def test_bootstrap_rejects_mismatched_inputs(self) -> None:
+        from dynamic_ramp_analysis import bootstrap_delay_exponent
+
+        speeds = np.geomspace(1e-4, 1e-1, 6)
+        replica_delays = [np.full(32, 3.0 * v**0.5) for v in speeds[:5]]
+        with self.assertRaises(ValueError):
+            bootstrap_delay_exponent(speeds, replica_delays)
+
+
 if __name__ == "__main__":
     unittest.main()

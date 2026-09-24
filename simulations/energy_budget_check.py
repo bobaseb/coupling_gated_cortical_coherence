@@ -66,7 +66,13 @@ import argparse
 from dataclasses import dataclass
 from pathlib import Path
 
-from fermi_estimate_check import DEFAULTS, neurons_within
+from fermi_estimate_check import (
+    DEFAULTS,
+    FERMI_LAM_MAX,
+    FERMI_LAM_MIN,
+    neurons_within,
+    stored_field_energy,
+)
 
 # ── declared inputs ─────────────────────────────────────────────────────
 
@@ -91,6 +97,24 @@ DIFFUSION = 0.5
 # "the energy is not the scarce quantity" is a statement rather than a feeling.
 BOLTZMANN = 1.380649e-23
 BODY_TEMPERATURE_K = 310.15
+
+# Physics constants for stored field energy
+# Declared illustrative value; dielectric permittivity depends strongly on
+# frequency and tissue type (Gabriel et al. 1996). It is not a measured value
+# for this particular cortical region.
+TISSUE_PERMITTIVITY_LOW_FREQ = 1e5
+LFP_FIELD_LOW = 0.1  # 1 mV/mm in V/m
+LFP_FIELD_HIGH = 0.5  # 5 mV/mm in V/m
+
+
+@dataclass(frozen=True)
+class StoredFieldBudget:
+    """The stored electromagnetic field energy bounds."""
+
+    low_joules: float
+    high_joules: float
+    low_kT: float
+    high_kT: float
 
 
 @dataclass(frozen=True)
@@ -142,6 +166,24 @@ def cortical_budget() -> Budget:
     return budget(float(DEFAULTS["lam"]), float(DEFAULTS["rho"]), DIFFUSION)
 
 
+def cortical_stored_energy() -> StoredFieldBudget:
+    """Evaluate the stored field energy for the parameter extremes."""
+    lam_low_m = FERMI_LAM_MIN / 1000.0
+    lam_high_m = FERMI_LAM_MAX / 1000.0
+
+    low_joules = stored_field_energy(LFP_FIELD_LOW, TISSUE_PERMITTIVITY_LOW_FREQ, lam_low_m)
+    high_joules = stored_field_energy(LFP_FIELD_HIGH, TISSUE_PERMITTIVITY_LOW_FREQ, lam_high_m)
+
+    thermal = BOLTZMANN * BODY_TEMPERATURE_K
+
+    return StoredFieldBudget(
+        low_joules=low_joules,
+        high_joules=high_joules,
+        low_kT=low_joules / thermal,
+        high_kT=high_joules / thermal,
+    )
+
+
 # ── Tex generation ──────────────────────────────────────────────────────
 
 
@@ -164,6 +206,7 @@ def _tc(name: str, value: object, comment: str) -> str:
 def write_tex(path: str) -> None:
     """Write energy_budget.tex from this script's constants and one budget."""
     result = cortical_budget()
+    stored = cortical_stored_energy()
     lines = [
         TEX_HEADER,
         "",
@@ -185,6 +228,20 @@ def write_tex(path: str) -> None:
         "",
         "% --- What the bound then demands of the conversion factor ---",
         _tc("energyKappaRequired", _sci(result.kappa_required), "minimum kappa (J$^{-1}$s$^{-1}$)"),
+        "",
+        "% --- Stored field energy ---",
+        _tc("energyStoredLow", _sci(stored.low_joules), "stored field energy, low estimate (J)"),
+        _tc("energyStoredHigh", _sci(stored.high_joules), "stored field energy, high estimate (J)"),
+        _tc(
+            "energyStoredThermalLow",
+            _sci(stored.low_kT, 0),
+            "stored field energy, low estimate in $kT$",
+        ),
+        _tc(
+            "energyStoredThermalHigh",
+            _sci(stored.high_kT, 0),
+            "stored field energy, high estimate in $kT$",
+        ),
     ]
     Path(path).write_text("\n".join(lines) + "\n")
     print(f"Wrote {path}")
@@ -232,6 +289,18 @@ def main() -> None:
     print()
     print("  kappa is declared hardware data and is derived nowhere here, so")
     print("  this is what the identification must deliver, not a verdict on it.")
+    print()
+
+    stored = cortical_stored_energy()
+    print("=" * 64)
+    print("  Stored field energy bounds")
+    print("=" * 64)
+    print()
+    print(f"  low estimate (1 mV/mm, lambda=0.1 mm) : {stored.low_joules:.3e} J")
+    print(f"  ... in units of kT at 37 C            : {stored.low_kT:.0f}")
+    print(f"  high estimate (5 mV/mm, lambda=0.3 mm): {stored.high_joules:.3e} J")
+    print(f"  ... in units of kT at 37 C            : {stored.high_kT:.0f}")
+    print()
 
 
 if __name__ == "__main__":

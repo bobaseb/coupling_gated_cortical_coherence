@@ -28,10 +28,31 @@ being tested, so the split is a consistency check and not a second measurement:
 it shows the apparent exponent does not drift across the span, and neither half
 resolves the shortfall by itself.
 
+Bootstrapping the 10000 resamples over replicas within each of the 6
+uncensored legs gives a 95% CI of [0.398, 0.496] for the exponent. The
+fraction of bootstrap samples with an exponent at or above 0.5 is 0.019.
+
 Collapse deviations and onset exponents are read on the decade-spaced legs
 v=0.1, 0.01, 0.001, 0.0001. The slowest-ramp deviation floor is Dev_0=0.00705;
 2 Dev_0=0.01410. The critical-speed crossing is
 not bracketed by the sweep.
+
+## Follow-up controls
+
+Only completed checkpoints enter these fits. Pending rows are provisional. Zero-delay resamples cannot enter a log fit; the reported bootstrap intervals condition on a positive mean delay at every speed.
+
+| condition | status | artifacts | fit legs | OLS exponent | bootstrap 95% CI | zero draws | missing speeds |
+|:--|:--|--:|--:|--:|:--|--:|:--|
+| N2000_r0.20 | complete | 8 | 6 | 0.444 | [0.398, 0.496] | 0 | — |
+| N2000_r0.05 | complete | 8 | 8 | 0.637 | [0.525, 0.788] | 68 | — |
+| N8000_r0.05 | complete | 8 | 7 | 0.720 | [0.631, 0.827] | 0 | — |
+| 0.5 | complete | 4 | 3 | 0.241 | [0.179, 0.306] | 0 | — |
+| 1.0 | complete | 4 | 3 | 0.178 | [0.107, 0.255] | 0 | — |
+| 1.5 | fit censored | 4 | 2 | — | — | — | — |
+
+The three delay exponents are 0.444, 0.637, and 0.720 in table order on all eligible legs. Over the matched six-leg subset v=0.01--0.0001, the exponents are 0.444, 0.634, and 0.710. On the matched subset, the sequence does not show convergence toward 0.5. Replica uncertainty alone does not establish adequacy across ramp rates; residuals must be inspected. The tighter criterion produces zero-delay crossings. These finite-sweep estimates do not establish an asymptotic exponent. Do not assume tightening the criterion restores one-half.
+
+At Lorentzian half-width 1.5, the completed sweep has too few uncensored speed legs for an exponent interval. The control therefore cannot decide whether heterogeneity changes only the prefactor or the exponent. A lower, predeclared escape criterion or wider coupling window is needed.
 
 Using D_phys=1.5 rad/s, v_phys=v D_phys^2. A 100--1000 s crossing of a coupling
 window of width 1.5 rad/s corresponds to v=0.000667--0.00667 in simulation

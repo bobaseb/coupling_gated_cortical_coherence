@@ -15,7 +15,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from energy_budget_check import DIFFUSION, cortical_budget
+from energy_budget_check import DIFFUSION, cortical_budget, cortical_stored_energy
 from energy_budget_check import write_tex as write_energy_tex
 from fermi_estimate_check import compute_k
 from fermi_estimate_check import write_tex as write_fermi_tex
@@ -131,6 +131,25 @@ class EnergyBudgetTest(unittest.TestCase):
     def test_energy_is_far_above_the_thermal_floor(self) -> None:
         """The one comparison the budget settles on its own."""
         self.assertGreater(cortical_budget().thermal_quanta, 1e12)
+
+    def test_stored_field_energy_is_far_below_metabolic(self) -> None:
+        """The stored field energy should be many orders of magnitude below the installed energy."""
+        budget = cortical_budget()
+        stored = cortical_stored_energy()
+        self.assertLess(stored.high_joules, budget.installed_energy * 1e-8)
+
+    def test_stored_field_energy_is_above_thermal_floor(self) -> None:
+        """The stored field energy in kT should be > 1."""
+        stored = cortical_stored_energy()
+        self.assertGreater(stored.low_kT, 1.0)
+
+    def test_committed_macros_include_stored_field(self) -> None:
+        with TemporaryDirectory() as directory:
+            content = self._regenerated(directory)
+        self.assertIn("energyStoredLow", content)
+        self.assertIn("energyStoredHigh", content)
+        self.assertIn("energyStoredThermalLow", content)
+        self.assertIn("energyStoredThermalHigh", content)
 
 
 if __name__ == "__main__":
