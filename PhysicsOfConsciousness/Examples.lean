@@ -45,6 +45,8 @@
     `Examples/Phase6.lean`  §10, §33 (both signs of the capacity comparison)
     `Examples/MeasureGluing.lean` -- actual measures on a finite open cover
     `Examples/Reconstruction.lean` §24 (bounded-error self-reconstruction)
+    `Examples/ConditionedReconstruction.lean` §36 (a readout conditioned on the
+      scene, and the codes each scene still needs)
     `Examples/Locality.lean` §25 (a delay line and its deadline), §31 (a causal
       mask, and the positions no depth reaches)
     `Examples/Phase7.lean`  §8
@@ -169,6 +171,7 @@ import PhysicsOfConsciousness.Examples.Phase8
 import PhysicsOfConsciousness.Examples.AgencyFoundations
 import PhysicsOfConsciousness.Examples.VectorContent
 import PhysicsOfConsciousness.Examples.Reconstruction
+import PhysicsOfConsciousness.Examples.ConditionedReconstruction
 import PhysicsOfConsciousness.Examples.Locality
 
 import PhysicsOfConsciousness.Examples.AttentionRank

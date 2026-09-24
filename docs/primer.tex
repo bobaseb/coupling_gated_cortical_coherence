@@ -5108,6 +5108,22 @@ using a nonconstant, contracting map. Its blinded version fails at tolerance
 $1/2$ even though it has a unique fixed point. Another example needs three
 codes to distinguish three separated states.
 
+One map cannot reconstruct much. If a single contraction by a factor
+$\Lambda<1$ reconstructs every member of a family within $\varepsilon$, any two
+members lie within $2\varepsilon/(1-\Lambda)$ of each other, and at zero error
+the family is one state. A self that follows a changing scene applies a
+different map for each scene $u$, each with its own fixed point. If the map
+moves by at most $L$ times the change in scene, two members lie within
+$(2\varepsilon+L\,d(u,v))/(1-\Lambda)$ and the fixed points within
+$L\,d(u,v)/(1-\Lambda)$, so the family can be as wide as the scenes are. That
+opens a shortcut: a readout that stores one state per scene and ignores the code
+reconstructs perfectly and encodes nothing. The code criterion therefore
+applies within one scene. A claim of \emph{self}-reconstruction, as opposed to
+reconstruction of the scene, is a claim about several separated states per
+scene, and only there must the code tell them apart. A four-state example with
+two scenes and one bit shows all of this. No single contraction
+reconstructs it, each scene needs both codes, and no constant code works.
+
 On its own the packing bound is a \emph{ceiling}: it says what a code space
 cannot exceed, never that a code space supplies anything. So "a continuous
 medium has room for more states" stays a hand-wave until the other direction
@@ -5164,7 +5180,11 @@ criterion waiting on two numbers, not a result about hardware.
 directions of the comparison, both signs witnessed on the unit interval in
 \id{Examples/Phase6.lean}, \S33. \id{topAvatar},
 \id{topAvatar\_satisfies\_obligations}, \id{IsProperAvatar}.
-\id{Examples/Reconstruction.lean}, \S24, checks the positive and blinded cases.}
+\id{Examples/Reconstruction.lean}, \S24, checks the positive and blinded cases.
+\id{Phase6\_ConditionedReconstruction.lean}:
+\id{dist\_le\_of\_conditioned\_contracting}, \id{dist\_selfState\_le},
+\id{card\_le\_card\_codes\_fibre}, \id{dist\_le\_of\_encode\_const};
+\id{Examples/ConditionedReconstruction.lean}, \S36, is the two-scene example.}
 
 %======================================================================
 \part*{Part XIV. Coupling support, atomless measures, and hardware}

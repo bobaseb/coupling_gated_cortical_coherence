@@ -23,6 +23,18 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-24 — The input-conditioned reconstruction map (N18)
+
+- The article said a self that follows a changing scene needs an
+  input-conditioned reconstruction map and that no such map is formalized.
+  It is now formalized (`Phase6_ConditionedReconstruction.lean`): with each
+  `F_u` a `Λ`-contraction and `F` `L`-Lipschitz in the input, members lie
+  within `(2ε + L·d(u,v))/(1−Λ)` and the fixed points within
+  `L·d(u,v)/(1−Λ)`. The code criterion binds within one input, which excludes
+  the stored-state readout. No physical readout is constructed, so the
+  article's minimal-self correlate is still a condition on one self-state
+  under E89.
+
 ## 2026-09-24 — Mock-review revision (N8–N16)
 
 - The disconfirming comparison predicted more decoded agreement on reported

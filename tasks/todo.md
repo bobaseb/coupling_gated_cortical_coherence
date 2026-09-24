@@ -87,8 +87,9 @@ format and length rules, agree with each other, and pass repository gates.
 ### N7–N16 — Mock *Neuroscience of Consciousness* review (2026-09-24)
 
 A mock referee report recommended major revision. The items below are its
-action points. N7 closed in the same pass and N8–N16 on 2026-09-24. Open:
-N14b (optional, new work), the stretch items N17–N18 below, and the author's
+action points. N7 closed in the same pass and N8–N16 on 2026-09-24, N18 later
+the same day. Open: N14b (optional, new work), the stretch item N17 below, and
+the author's
 decision whether to split the awakening/ephaptic material into a separate
 paper (see the N14 record).
 
@@ -196,7 +197,7 @@ paper (see the N14 record).
   say which spatial-measure results do not transfer. Would let the article
   drop "the formal results are stated for spatial covers".
 
-- [ ] **N18 (stretch) — Input-conditioned reconstruction map.** Formalize a family
+- [x] **N18 (stretch) — Input-conditioned reconstruction map.** Formalize a family
   `F_u` indexed by input, each contracting with its own fixed point `s_u`, and
   state what replaces the fixed-map diameter bound
   (`Encoding.dist_le_of_contracting_reconstructs`) — presumably a Lipschitz
@@ -460,6 +461,31 @@ condition, the plasticity descent paragraph, the ramp's second paragraph
 support-comparison paragraphs (now pointing to the decodability cover), and
 the introduction's repeated result summary. Main text 8,729 + abstract 249 =
 8,978 by `detex -n`. Notation rows for the removed winding symbols dropped.
+
+### 2026-09-24 — N18 input-conditioned reconstruction map
+
+Specification: `tasks/n17_n18_lean.md`. `Phase6_ConditionedReconstruction.lean`
+adds `ConditionedEncoding` (relevant family, declared `input`, encoder, readout
+`U → C → S`). `dist_le_of_conditioned_contracting` replaces the fixed-map
+diameter by `(2ε + L·d(u_s,u_t))/(1−Λ)` under a per-input contraction on the
+family and an `L`-Lipschitz input dependence; `dist_le_of_same_input` is the
+fixed-map limit inside one fibre. `selfState` (Banach on a complete space),
+`dist_selfState_le` and `dist_selfState_input_le` are the scene-following
+self-states. The degenerate witness is named (`stored`, a `Λ = 0` contraction
+reconstructing any family whose state is a function of the input), and the
+guard is `card_le_card_codes_fibre` / `dist_le_of_encode_const`: the code
+criterion binds within an input fibre only. `Examples/ConditionedReconstruction.lean`
+§36: four reals in two scenes, one bit, `Λ = 1/2`, `ε = 3/4`; no fixed
+contraction reconstructs it, each fibre attains the fixed-map limit and needs
+both codes, the stored readout fails on it, and an affine whole-line
+contraction's self-states `u + 3/2` attain the fixed-point bound.
+
+Not done: no physical readout, scene variable or derivation of `Λ`. The
+article's §5 states the result in prose and keeps the minimal-self correlate a
+condition on one self-state under E89; main-text word count is unchanged
+(a sentence of the resonance paragraph was cut). Supplement proof paragraph
+and a Table S1 row "A self that follows a scene"; primer paragraph in the
+reconstruction part.
 
 ## C — What a continuous medium buys, and what is electromagnetic about it
 
