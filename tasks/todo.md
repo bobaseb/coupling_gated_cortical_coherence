@@ -137,20 +137,43 @@ action points. N7 closed in the same pass; the rest are open.
   E78 carries the whole positive coherence-to-content link. Say so in the
   abstract and Conclusions.
 
-- [ ] **N13 — Move the thermodynamic chain out of the article.** The paper
-  concedes that every edge is supplied and that only the final
+- [ ] **N13 — Keep the speed limit; move the thermodynamic chain.** The
+  paper concedes that every edge is supplied and that only the final
   contraction-to-uniqueness step infers anything. E12–E45 ("vacuum
   manifold", "register") are opaque to the readership and unconnected to the
-  consciousness argument. Move the chain and the installed-energy section to
-  the supplement; the article should rest on the three-condition analysis.
-  Coordinate with Table 1 and `check-table-coverage`.
+  consciousness argument: move that chain, its Landauer/register ledger and
+  the active-branch bound to the supplement. Keep one article paragraph
+  built on the proved current-cost bound
+  `∫σ_J ≥ [arcsin r(τ) − arcsin r(0)]²/(Dτ)`, framed as a speed limit: a
+  fast change in coherence has a minimum cost growing as `1/τ`, which bears
+  on ignition-like transitions and on recovery latency. State its thermal
+  conversion assumptions as now. Reduce the installed-energy condition to
+  one sentence beside it (necessary energy price; no cortical `κ`). Cut
+  Table 1 to the edges the article argues from (E56–E89) and leave the full
+  eight-edge chain to the supplement's table. Coordinate with
+  `check-table-coverage`, `check_tableS1.py` and the E78/E89 references
+  added in N7.
 
-- [ ] **N14 — Tighten the scope.** Consider splitting the awakening/ephaptic
-  material (extracellular geometry, onset protocol, ramp exponents) into a
-  separate paper. Shorten or move the GPU section, whose one-task rank floor
-  does not bear on machine consciousness. Shorten the ramp paragraph and
-  figure, given that the fitted exponent's CI excludes 1/2 and no common
-  exponent is claimed.
+- [ ] **N14 — Tighten the scope; keep and reframe the GPU section.**
+  Consider splitting the awakening/ephaptic material (extracellular
+  geometry, onset protocol) into a separate paper. Shorten the ramp
+  paragraph and figure, given that the fitted exponent's CI excludes 1/2 and
+  no common exponent is claimed. Keep the GPU section and change what it
+  claims: a digital system is where the three conditions can be measured
+  today, with full state access and exact interventions. Open with what a
+  claim of unity or self-representation for such a system commits its maker
+  to; position against the indicator-properties approach to AI
+  consciousness (Butlin et al. 2023 — verify online before citing). Keep the
+  causal-mask deadline result as the lead technical content. Move the
+  synthetic rank-two task to the supplement.
+
+- [ ] **N14b (optional) — Run the protocol on a real model.** Fit decoders
+  for one shared quantity on two separate parts of a real model (layers,
+  heads or token positions), test their agreement and whether
+  reconstruction survives intervention. This would be the only place the
+  proposed measurement is actually carried out. Optional: needs hardware
+  not currently available; a small open model on rented or CPU compute is
+  the cheapest route. New work, not a condition of the revision.
 
 - [ ] **N15 — Move the EEG exercise to the supplement.** It establishes only
   that the pooled bipolar estimand cannot measure spatial coherence; keep a
