@@ -717,6 +717,23 @@ def _largest_usable_bin_count(rows: list[JsonObject], dependence: float) -> tupl
     return max(usable, key=lambda pair: pair[0])
 
 
+def _eeg_pipeline_check_macros() -> list[str]:
+    """Emit what the EEG pipeline reports for signals of known coherence."""
+    data = _read_json(FIGURES / "eeg_pipeline_check" / "eeg_pipeline_check_summary.json")
+    rows = {cast(str, row["case"]): row for row in cast(list[JsonObject], data["rows"])}
+    locked = rows["locked_rotation"]
+    field = rows["noisy_field_kappa_4"]
+    rates = cast(dict[str, float], data["quadratic_variation_rate"])
+    return [
+        _macro("eegCheckLockedPooledR", f"{cast(float, locked['pooled_r']):.4f}"),
+        _macro("eegCheckLockedPooledA", f"{cast(float, locked['pooled_a']):.4f}"),
+        _macro("eegCheckFieldRawR", f"{cast(float, field['raw_instantaneous_r']):.2f}"),
+        _macro("eegCheckFieldBipolarR", f"{cast(float, field['instantaneous_r']):.2f}"),
+        _macro("eegCheckFieldPooledR", f"{cast(float, field['pooled_r']):.3f}"),
+        _macro("eegCheckQvRatio", f"{rates['100'] / rates['1']:.0f}"),
+    ]
+
+
 def _design_macros() -> list[str]:
     """Emit what the proposed site count and bin count can discriminate (N7)."""
     data = _read_json(FIGURES / "collapse_design" / "collapse_design_summary.json")
@@ -731,7 +748,7 @@ def _design_macros() -> list[str]:
         _macro("designPublishedBins", data["bins"]),
         _macro("designUsableBins", bins),
         _macro("designUsableConcentration", f"{floor:.1f}"),
-        _macro("designObservedMax", f"{cast(float, observed['observed_max']):.3f}"),
+        _macro("designLadderConcentration", f"{cast(float, observed['observed_max']):.3f}"),
         _macro("designSitesIndependent", required["0"]),
         _macro("designSitesHalfClustered", required["0.5"]),
         _macro("designSitesClustered", required["1"]),
@@ -1005,6 +1022,7 @@ def generate_simulation_tex(output: Path) -> None:
         "% Empirical (a, r) collapse: what the observed range discriminates",
         *_collapse_macros(),
         *_eeg_macros(),
+        *_eeg_pipeline_check_macros(),
         "",
         "% F5/F6: bounded follow-up studies",
         *_followup_macros(),

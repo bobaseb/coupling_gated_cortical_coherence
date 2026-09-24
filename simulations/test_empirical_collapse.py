@@ -1,4 +1,6 @@
+import json
 import unittest
+from pathlib import Path
 
 import numpy as np
 
@@ -143,6 +145,20 @@ class MontagePaddingTest(unittest.TestCase):
         self.assertEqual(raw.shape[1], expected_samples)
         self.assertEqual(bipolar.shape[1], expected_samples)
         self.assertEqual(car.shape[1], expected_samples)
+
+
+class ObservedRangeProvenanceTest(unittest.TestCase):
+    def test_observed_range_is_the_saved_cross_subject_range(self) -> None:
+        summary = json.loads(
+            (
+                Path(__file__).resolve().parent / "figures" / "empirical_collapse_summary.json"
+            ).read_text(encoding="utf-8")
+        )
+        cross = summary["cross_subject"]
+        self.assertEqual(
+            OBSERVED_CONCENTRATION_RANGE,
+            (round(cross["a_min"], 3), round(cross["a_max"], 3)),
+        )
 
 
 class TangentSeparationTest(unittest.TestCase):

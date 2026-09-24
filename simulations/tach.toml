@@ -88,6 +88,11 @@ layer = "analysis"
 depends_on = ["empirical_collapse"]
 
 [[modules]]
+path = "eeg_pipeline_check"
+layer = "analysis"
+depends_on = ["empirical_collapse"]
+
+[[modules]]
 path = "compatibility_estimator"
 layer = "analysis"
 

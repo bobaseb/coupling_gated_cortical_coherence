@@ -5,7 +5,6 @@ import numpy as np
 from hypothesis import given, settings
 
 import collapse_design as design
-import empirical_collapse as collapse
 
 
 class BesselGeometryTest(unittest.TestCase):
@@ -121,8 +120,8 @@ class SpecificationTest(unittest.TestCase):
         self.assertIsNone(design.minimum_separating_concentration(rows, 100, 0.0))
         self.assertIsNone(design.maximum_tolerable_dependence(rows, 100))
 
-    def test_the_observed_range_is_read_rather_than_recomputed(self) -> None:
-        low, high = collapse.OBSERVED_CONCENTRATION_RANGE
+    def test_the_ladder_range_is_declared_rather_than_measured(self) -> None:
+        low, high = design.LADDER_CONCENTRATION_RANGE
         self.assertLess(design.tangent_gap(high), 0.01)
         self.assertLess(low, high)
 

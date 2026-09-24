@@ -23,6 +23,29 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-24 — What the exploratory EEG statistic measures
+
+- The article called `a = 0.542` the "observed concentration ceiling" of the
+  bipolar EEG and put the scalp EEG "in the linear Bessel regime (deviation
+  < 1%)". That range, 0.302-0.542, was a hard-coded constant left over from an
+  earlier estimator. The saved bipolar summary gives 0.087-0.142. The design
+  site counts were computed at 0.542, so they are now reported at a declared
+  design concentration, not an observed one. `collapseLinearDeviation` falls
+  from 0.0095 to 0.0002.
+- The supplement counted 62 sites in the pooled estimand. The bipolar montage
+  has 61 pairs.
+- The EEG agreement with `I1/I0` was described as "compatible with the
+  relation" and a "necessary condition" for the stationary density. Signals of
+  known coherence passed through the same pipeline (`eeg_pipeline_check.py`)
+  show otherwise. A perfectly phase-locked rotation pools to `r ~ 1e-4` with
+  zero residual, and the bipolar montage cuts a coherent field's resultant
+  from 0.89 to 0.06. The agreement is therefore uninformative, and the
+  exercise is now described as establishing estimator behaviour only.
+- The protocol said `D` is "estimable from the quadratic variation of resolved
+  phase traces". For a band-limited analytic phase, the squared-increment rate
+  depends on the step (37x between 0.2 ms and 20 ms), so this requires an
+  observation model.
+
 ## 2026-09-24 — Reconstruction diameter and the phase-content bound
 
 - The article said resonance and resolution are jointly satisfiable "with

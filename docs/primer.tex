@@ -5722,59 +5722,58 @@ so treating them as independent in resampling can misstate uncertainty.
 
 \statement
 On public propofol-sedation EEG (OpenNeuro ds005620, \citealp{bajwa2025}),
-21 subjects at 65 channels and 5~kHz, analysed in non-overlapping 100~ms bins:
+21 subjects at 65 channels and 5~kHz, the pipeline forms 61 adjacent bipolar
+pairs from the 62 scalp channels, band-passes and Hilbert-transforms them, and
+pools phases over all pairs and non-overlapping 100~ms bins.
 
 \begin{itemize}[leftmargin=*]
-\item \textbf{Cross-subject (8 subjects), bipolar montage.} Mean residual
-$-0.0002\pm0.0002$ (SEM), RMSE $0.0005$, max $|r-I_1/I_0(a)|=0.0013$. Group
-$a=0.373$ (range $0.302$--$0.542$), $r=0.173$.
-\item \textbf{Common-reference montage.} Mean residual $-0.0057\pm0.0028$,
-RMSE $0.0093$, max $0.0246$---an order of magnitude worse, and
-\emph{systematically negative} in every block and every subject.
-\item \textbf{Narrowband.} Theta, alpha, beta, gamma and broadband all
-collapse (mean residuals $-0.0018$, $+0.0001$, $+0.0001$, $+0.0000$,
-$+0.0000$). The collapse is not band-specific.
-\item \textbf{Window sensitivity.} Stable over 20--100~ms pooling windows; not
-at 5--10~ms.
+\item \textbf{Cross-subject (\eegCrossSubjectCount{} subjects), bipolar montage.}
+Pooled $a$ spans \eegAMin--\eegAMax{} (mean \eegAMean), pooled $r$ averages
+\eegRMean, and the mean residual from $I_1/I_0$ is \eegResidualMean{} (RMSE
+\eegResidualRmse).
+\item \textbf{Narrowband.} Theta, alpha, beta, gamma and broadband mean
+residuals are \eegBandTheta, \eegBandAlpha, \eegBandBeta, \eegBandGamma{} and
+\eegBandBroad.
+\item \textbf{The same pipeline on signals of known coherence.} A perfectly
+phase-locked 10~Hz rotation, whose instantaneous resultant is one, comes out at
+$r=\eegCheckLockedPooledR$ and $a=\eegCheckLockedPooledA$, squarely on the
+curve. A field with raw-channel resultant \eegCheckFieldRawR{} has bipolar
+resultant \eegCheckFieldBipolarR{} and pooled resultant \eegCheckFieldPooledR.
 \end{itemize}
 
 \noindent
-The montage gap is the one systematic feature. A common-mode component that
-simply raised $r$ would push the residual the other way, so that is not the
-mechanism; the sign is instead consistent with the top-hat synthetic control,
-suggesting a shared reference imposes a sharp common-mode peak on channels that
-remain broadly distributed around it, steepening the fitted $a$ more than it
-raises the pooled resultant length. This is reported as a candidate mechanism
-whose direction fits, not a demonstrated one.
+The third item decides how to read the first two. Within 100~ms the common
+phase of an alpha rhythm turns through a whole cycle, and pooling reads that
+turn as dispersion; subtracting adjacent electrodes adds a second loss, because
+the phase of a difference of two offset rhythms depends on their amplitudes as
+much as on the shared phase. Any nearly uniform pooled distribution has
+$r\approx a/2$, and the Bessel ratio is $a/2$ to within
+\collapseLinearDeviation{} over the observed range. Sitting on the curve here is
+therefore what a perfectly synchronized signal would also do.
 
 \scope
-Four limits, and the third is the one that matters most.
+Four limits, and the first is the one that matters most.
 
 \begin{enumerate}[leftmargin=*]
-\item \textbf{The estimand is not what the protocol asks for.} 62 channels
-pooled over a 100~ms window estimates a \emph{spatiotemporal} distribution, not
-an instantaneous spatial one---a departure forced by channel count. Adequate
-precision depends on concentration, binning and dependence; the spatial design
-calibration below requires many more sites over the observed concentration range.
+\item \textbf{The estimand is not what the protocol asks for.} Pooling over
+pairs and time without removing the common rotation measures neither the
+spatial concentration nor the coherence of the model; centring each sample on
+its instantaneous mean phase would. The bipolar montage changes spatial phase
+too, so it needs its own observation model.
 \item \textbf{Referencing is a material analysis choice}, not a preprocessing
-detail. Bipolar and common-reference give different answers.
-\item \textbf{The concentration range is too narrow to be informative about the
-curve.} Across the eight subjects $a$ spans only $0.302$--$0.542$. Over so
-short an arc the Bessel ratio is nearly straight: it departs from the naive
-linear form $a/2$ by at most $0.0094$ and from $\tanh(a/2)$ by at most
-$0.0030$, while per-bin residual scatter is $0.02$--$0.03$. \textbf{The data
-are compatible with the relation but do not discriminate $I_1/I_0$ from a
-straight line.} Doing so needs recordings reaching $a\gtrsim1.5$, where the two
-separate by more than $0.17$.
-\item \textbf{Bootstrap intervals are exploratory.} Resampling time bins (2000
-resamples, percentile method) does not preserve dependence between neighbouring
-bins.
+detail.
+\item \textbf{The range cannot discriminate the curve.} Separating $I_1/I_0$
+from a straight line needs concentrations near $a\gtrsim\collapseProbe$, where
+the two differ by \collapseProbeSeparation, and an estimator calibrated at the
+actual spatial sample count.
+\item \textbf{Bootstrap intervals are exploratory.} Resampling time bins does
+not preserve dependence between neighbouring bins.
 \end{enumerate}
 
 \noindent
 And the purpose was never to test the awakening hypothesis, for which these are
 the wrong data: they concern propofol sedation, not recovery from sleep. The
-exercise demonstrates what the protocol produces and where it is fragile.
+exercise shows what a pooled bipolar estimand cannot measure.
 
 \section{The awakening experiment}
 
@@ -5825,8 +5824,8 @@ nothing more.
 \item \textbf{Calibrated spatial resolution.} Estimate $r$ by resultant length
 and $a$ by unweighted log-density regression. At \designProtocolSites{} sites
 the tested \designPublishedBins{}-bin estimator fails the bias-floor criterion
-at every scanned concentration. At the observed ceiling
-$a=\designObservedMax$, the scanned designs require
+at every scanned concentration. At the declared design concentration
+$a=\designLadderConcentration$, the scanned designs require
 \designSitesIndependent{} independent sites, rising to
 \designSitesClustered{} under the declared clustering model. These counts are
 specific to the estimator and dependence model; the recording design needs

@@ -367,14 +367,20 @@ def required_sites(
     return found, rows
 
 
-def observed_range_verdict(
-    observed: tuple[float, float] = collapse.OBSERVED_CONCENTRATION_RANGE,
-) -> dict[str, object]:
-    """Where the saved ds005620 concentration range sits against the specification.
+# Concentrations at which the saved site ladder was computed. They are a
+# declared design point near the low end of the scanned grid, not an EEG
+# measurement: the exploratory recording's pooled estimand lies below them
+# (`empirical_collapse.OBSERVED_CONCENTRATION_RANGE`).
+LADDER_CONCENTRATION_RANGE = (0.302, 0.542)
 
-    The range is read from the saved constant rather than recomputed: this item
-    re-analyses no recording. The verdict is reported at the *upper* end, which
-    is the most favourable concentration the recording offers.
+
+def observed_range_verdict(
+    observed: tuple[float, float] = LADDER_CONCENTRATION_RANGE,
+) -> dict[str, object]:
+    """Site counts needed at the upper end of the declared ladder range.
+
+    The saved summary keeps the historical keys ``observed_min`` and
+    ``observed_max`` for the two ends of `LADDER_CONCENTRATION_RANGE`.
     """
     ceiling = max(observed)
     ladders: dict[str, object] = {}

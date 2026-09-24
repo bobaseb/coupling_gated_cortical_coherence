@@ -581,9 +581,11 @@ def bessel_ratio(a: float) -> float:
     return M / Z
 
 
-# Group concentration range measured across the eight subjects of the
-# cross-subject block (`run_multi_subject`, sed run-1, bipolar montage).
-OBSERVED_CONCENTRATION_RANGE = (0.302, 0.542)
+# Range of per-subject mean pooled concentration across the eight subjects of
+# the cross-subject block (`empirical_collapse_summary.py`, sed run-1, bipolar
+# montage), rounded from the saved summary; a test fails if the two drift.
+# This is a pooled spatiotemporal estimand, not a spatial concentration.
+OBSERVED_CONCENTRATION_RANGE = (0.087, 0.142)
 
 
 @dataclass(frozen=True)

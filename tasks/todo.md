@@ -46,7 +46,7 @@ format and length rules, agree with each other, and pass repository gates.
   Lean result, article, supplement, and claim map if the tighter statement
   changes the published conclusion.
 
-- [ ] **N3 — Recheck the EEG observation and numerical provenance.** Pass
+- [x] **N3 — Recheck the EEG observation and numerical provenance.** Pass
   perfectly phase-locked rotating signals and noisy spatial fields through
   the same filter, Hilbert, montage, and 100 ms pooling pipeline used for the
   reported statistic; compare instantaneous and pooled coherence. Recheck
@@ -108,6 +108,23 @@ The saved wave summary is unchanged. Regenerated macros give a patch bound of
 (0.312 mm) nerve reach. The article, supplement, Table S1, primer and
 CHANGELOG state the sharper bound, and the published conclusion holds
 qualitatively.
+
+### 2026-09-24 — N3 EEG observation and provenance
+
+`eeg_pipeline_check.py` passes constructed signals through the reported
+bipolar/filter/Hilbert/100 ms pipeline. A perfectly locked 10 Hz rotation
+gives pooled `r ≈ 1e-4`, `a ≈ 4e-4` and zero Bessel residual; centring each
+sample recovers `r = 1`. The bipolar montage cuts a κ = 4 field's
+instantaneous resultant from 0.89 to 0.06. The filtered phase's
+squared-increment rate changes 37× across steps, so the QV rate `2D` needs an
+observation model. The Bessel relation `a = Kr/D`, `r = I₁/I₀` checks against
+the zero-flux Fokker–Planck solution. Provenance: 0.542 was a stale
+hard-coded range. `OBSERVED_CONCENTRATION_RANGE` is now the saved 0.087–0.142,
+with a drift test. The design ladder keeps its own declared
+`LADDER_CONCENTRATION_RANGE`, and `\designObservedMax` is renamed
+`\designLadderConcentration`. The pooled estimand has 61 bipolar pairs, not
+62 sites. Every source says eight subjects; no six-subject wording remains.
+No recording was re-read and no sweep rerun.
 
 ## C — What a continuous medium buys, and what is electromagnetic about it
 

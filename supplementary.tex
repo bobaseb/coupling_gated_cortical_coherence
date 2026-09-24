@@ -1915,10 +1915,10 @@ For each recording block, 20 seconds of data and 3 seconds of padding on each si
 
 \subsection{(a, r) estimation}
 
-Each recording was divided into non-overlapping 100 ms bins (500 samples at 5 kHz). The estimand is the pooled spatiotemporal phase distribution over 62 sites and 100~ms, not an instantaneous 62-site spatial distribution. Pooling increases the sample count for log-density estimation; statistical adequacy still requires the bias and dependence calibration below. For each bin $t$:
+Each recording was divided into non-overlapping 100 ms bins (500 samples at 5 kHz). The estimand is the pooled spatiotemporal phase distribution over 61 bipolar pairs and 100~ms, not an instantaneous spatial distribution. Pooling increases the sample count for log-density estimation; statistical adequacy still requires the bias and dependence calibration below. For each bin $t$:
 
 \begin{itemize}
-\item \textbf{Order parameter $r$:} $r_b = \left|\frac{1}{NM}\sum_{j=1}^{N}\sum_{m=1}^{M} e^{i\theta_j(t_{bm})}\right|$, where $N=62$ channels and $M=500$ samples per bin. This is the resultant length of the pooled sample, not an average of instantaneous spatial resultant lengths.
+\item \textbf{Order parameter $r$:} $r_b = \left|\frac{1}{NM}\sum_{j=1}^{N}\sum_{m=1}^{M} e^{i\theta_j(t_{bm})}\right|$, where $N=61$ bipolar pairs and $M=500$ samples per bin. This is the resultant length of the pooled sample, not an average of instantaneous spatial resultant lengths.
 \item \textbf{Concentration $a$:} The slope of the log-density of the same phase distribution regressed on $\cos\theta$, as specified in the main text. Phases are centred on their circular mean, binned into 40 bins on $[-\pi,\pi]$, and $\log$ of the binned density (with a $0.5$ pseudocount) is regressed on $\cos\theta$ by \emph{unweighted} ordinary least squares. Under the von Mises model $\log\rho(\theta) = a\cos\theta - \log(2\pi I_0(a))$, so the slope is $a$.
 \end{itemize}
 
@@ -1933,10 +1933,19 @@ The pseudocount biases the estimator, so its null residual must be calibrated at
 
 The estimator also separates synthetic non-von-Mises alternatives from correctly sampled high-count von Mises data. This confirms that the choice of unweighted log-density regression avoids the maximum-likelihood tautology; it does not calibrate a low-count or dependent neural measurement.
 
+\subsection{Constructed signals through the same pipeline}
+\label{sec:supp-eeg-check}
+
+Signals of known coherence were passed through the same bipolar montage, filter, Hilbert transform, trimming and 100-ms binning (\nolinkurl{eeg_pipeline_check.py}). A perfectly phase-locked 10-Hz rotation, with amplitudes falling along the montage so that every bipolar pair is locked as well, has instantaneous spatial resultant one on both raw channels and bipolar pairs. The pooled estimand returns $r=\eegCheckLockedPooledR$ and $a=\eegCheckLockedPooledA$, with a residual from the Bessel relation indistinguishable from zero: within 100~ms the common phase sweeps a full cycle, and pooling reads that rotation as dispersion. Centring each sample on its instantaneous circular mean before pooling recovers $r=1$.
+
+A rotating field with fixed von Mises spatial offsets ($\kappa=4$) and additive white noise has raw-channel instantaneous resultant \eegCheckFieldRawR. Its bipolar pairs have instantaneous resultant \eegCheckFieldBipolarR, because the phase of a difference of two offset sinusoids depends on their amplitudes and offsets as well as on the common phase, and the pooled estimand reads \eegCheckFieldPooledR. The montage and the pooling therefore each remove spatial coherence, and a pooled residual near zero is what any nearly uniform distribution produces: at small $a$ both $r$ and $I_1(a)/I_0(a)$ are close to $a/2$.
+
+The same constructed field tests the quadratic-variation reading. For the latent phase of Eq.~\eqref{eq:kuramoto}, squared increments accumulate at rate $2D$ at every step. The detrended squared increments of the band-limited analytic phase accumulate \eegCheckQvRatio{} times faster per unit time at 20-ms steps than at 0.2-ms steps, because the filtered phase is smooth below its correlation time. The rate $2D$ is recovered from a resolved trace only under an observation model for filtering and sampling.
+
 \subsection{Dependence-aware spatial design}
 \label{sec:supp-density-design}
 
-The spatial design uses resultant length for $r$ and unweighted regression of log density on centered cosine for $a$. At \designProtocolSites{} sites, \designPublishedBins{} bins clear the declared bias floor at no scanned concentration or dependence. Reducing to \designUsableBins{} bins or fewer permits discrimination only from $a=\designUsableConcentration$ upward under independence. At the observed ceiling $a=\designObservedMax$, the scanned designs instead require \designSitesIndependent{} independent sites, rising to \designSitesHalfClustered{} at half clustering and \designSitesClustered{} when sites share a mean in groups of \designSitesPerCluster. These are results for the specified estimator, concentration grid, dependence model and bias-floor criterion. A recording design must calibrate those choices in its own observation regime; its minimum site count cannot be inferred from the number of fitted parameters.
+The spatial design uses resultant length for $r$ and unweighted regression of log density on centered cosine for $a$. At \designProtocolSites{} sites, \designPublishedBins{} bins clear the declared bias floor at no scanned concentration or dependence. Reducing to \designUsableBins{} bins or fewer permits discrimination only from $a=\designUsableConcentration$ upward under independence. At the declared design concentration $a=\designLadderConcentration$, near the low end of the scanned grid, the scanned designs instead require \designSitesIndependent{} independent sites, rising to \designSitesHalfClustered{} at half clustering and \designSitesClustered{} when sites share a mean in groups of \designSitesPerCluster. These are results for the specified estimator, concentration grid, dependence model and bias-floor criterion. A recording design must calibrate those choices in its own observation regime; its minimum site count cannot be inferred from the number of fitted parameters.
 
 \subsection{Bootstrap confidence intervals}
 
@@ -1966,9 +1975,9 @@ Reference choice remains a material analysis decision. The corrected summary fix
 
 \subsection{Interpretation}
 
-The exploratory bipolar data are compatible with the relation at their observed range and pooling choice. This is a necessary condition for the stationary-density model, not evidence for an electromagnetic coupling medium or a test of the awakening prediction.
+The exploratory bipolar data lie near the relation at their observed range and pooling choice, and Section~\ref{sec:supp-eeg-check} shows why that is uninformative: the same pipeline puts a perfectly locked signal on the relation at $r\approx0$. The pooled estimand measures neither the spatial concentration of the model nor its coherence. The exercise establishes estimator behaviour and a reference choice that matters; it is not evidence for the stationary density, for an electromagnetic coupling medium or for the awakening prediction.
 
-The observed range is still too narrow to discriminate the Bessel ratio from its linear approximation at the trace's scatter. The curve departs from that approximation by at most $\collapseLinearDeviation$ over the observed concentration range; a discriminating awakening experiment must span concentrations around $\collapseProbe$, where the separation is $\collapseProbeSeparation$, and must calibrate its estimator at the actual spatial sample count.
+The observed pooled range is also too narrow to discriminate the Bessel ratio from its linear approximation at the trace's scatter. The curve departs from that approximation by at most $\collapseLinearDeviation$ over the observed concentration range; a discriminating awakening experiment must span concentrations around $\collapseProbe$, where the separation is $\collapseProbeSeparation$, and must estimate concentration from phases centred on their instantaneous mean, with its estimator calibrated at the actual spatial sample count.
 
 The result does not test the empirical commitment that the endogenous electromagnetic field is the coupling medium, nor the stipulation that the global section is experience. The coupling-gated awakening prediction remains untested here; these recordings concern propofol sedation rather than recovery from sleep.
 

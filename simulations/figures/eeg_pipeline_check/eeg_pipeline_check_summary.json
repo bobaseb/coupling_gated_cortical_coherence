@@ -1,0 +1,41 @@
+{
+  "frequency_hz": 10.0,
+  "noise_sd": 0.5,
+  "quadratic_variation_rate": {
+    "1": 0.15966904913438143,
+    "10": 1.39599588559329,
+    "100": 5.840720840386898
+  },
+  "rows": [
+    {
+      "case": "locked_rotation",
+      "centred_r": 1.0,
+      "instantaneous_r": 1.0,
+      "pooled_a": 0.0003604080613324844,
+      "pooled_r": 0.00014796063503161566,
+      "pooled_residual": -3.2243094362247396e-05,
+      "raw_instantaneous_r": 1.0
+    },
+    {
+      "case": "noisy_field_kappa_1",
+      "centred_r": 0.12440322273271029,
+      "instantaneous_r": 0.12440322273271029,
+      "pooled_a": 0.015244807606657257,
+      "pooled_r": 0.007650835291871755,
+      "pooled_residual": 2.8876801040208295e-05,
+      "raw_instantaneous_r": 0.48264359362946935
+    },
+    {
+      "case": "noisy_field_kappa_4",
+      "centred_r": 0.05990147878160419,
+      "instantaneous_r": 0.05990147878160419,
+      "pooled_a": 0.013560820257331473,
+      "pooled_r": 0.006863798773312425,
+      "pooled_residual": 8.390005826623451e-05,
+      "raw_instantaneous_r": 0.8881840018261015
+    }
+  ],
+  "seconds": 2.0,
+  "seed": 20260924,
+  "source": "eeg_pipeline_check.py"
+}
