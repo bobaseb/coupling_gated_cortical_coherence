@@ -106,7 +106,7 @@ action points. N7 closed in the same pass; the rest are open.
   argument; the core results are elementary: gluing uniqueness, Banach,
   triangle-inequality and pigeonhole bounds. Verify every reference online.
 
-- [ ] **N9 — Spatial overlap versus content overlap.** The sheaf is over a
+- [x] **N9 — Spatial overlap versus content overlap.** The sheaf is over a
   spatial substrate, but the cup example is overlap in *content* between
   distant regions (E78 concedes this in one clause). A disjoint cover
   satisfies compatibility trivially, and columns are rejected as the content
@@ -290,6 +290,17 @@ The abstract and Conclusions now say that the √N coherence-to-content bound
 constrains at most `\wavePatchInformativeSites` sites at the simulated sheet's
 patch order, so for cortical-size populations the positive link from
 coherence to content is the bridge assumption E78, not a derived result.
+
+### 2026-09-24 — N9 spatial overlap versus content overlap
+
+Took the second option: state the gap rather than rebuild the sheaf. §4 now
+says the sheaf's overlaps are spatial while the cup example's are overlaps of
+content, sketches the content-variable recasting (regions as partial decoders,
+overlap = a commonly estimated variable) as the route, and says no result is
+stated for it. The abstract, the Discussion's unity subsection and the
+limitations paragraph say that no principle selects the cover, so the unity
+correlate has no operational definition yet. Recasting the Lean sheaf over
+content variables is not attempted; it would be new work.
 
 ## C — What a continuous medium buys, and what is electromagnetic about it
 

@@ -53,7 +53,7 @@ ORCID: \href{https://orcid.org/0000-0002-5951-0772}{0000-0002-5951-0772}}
 \begin{abstract}
 \singlespacing
 \small
-Synchrony accounts treat collective phase order as the mechanism that integrates distributed cortical activity. We show formally that phase order alone establishes neither shared content nor a self-model, and state what additionally does. We separate three conditions: coherence (collective phase order), compatibility (agreement of independently decoded local descriptions where regions overlap) and self-reconstruction (accurate recovery of the global state from an internal encoding). Compatible local descriptions determine a unique global state. Coherence bounds disagreement between overlapping descriptions only through shared Lipschitz encoders, and the bound grows as the square root of the population read: at the patch order of a simulated cortical sheet it constrains at most \wavePatchInformativeSites{} sites, so on a larger population the positive link from coherence to content rests entirely on a bridge assumption. A contracting self-map fixes one state but reconstructs accurately only states within a diameter set by its error and contraction factor; a broad family needs input-conditioned maps and discriminating codes. Lean~4 verifies these implications, and one model satisfies all eight connecting hypotheses together; this shows consistency, not cortical realization. The conditions yield a disconfirmable comparison: decoders fitted independently on overlapping regions should agree more on reported than on matched unreported stimuli at equal phase coherence. An exploratory EEG analysis is a measurement check only; its pooled estimator places a perfectly synchronized signal at zero coherence. Resource and implementation constraints, and a held-out onset comparison during anaesthetic emergence, are stated briefly. Unity and a minimal self remain interpretations that need an independent experiential endpoint.
+Synchrony accounts treat collective phase order as the mechanism that integrates distributed cortical activity. We show formally that phase order alone establishes neither shared content nor a self-model, and state what additionally does. We separate three conditions: coherence (collective phase order), compatibility (agreement of independently decoded local descriptions where regions overlap) and self-reconstruction (accurate recovery of the global state from an internal encoding). Compatible local descriptions determine a unique global state. Coherence bounds disagreement between overlapping descriptions only through shared Lipschitz encoders, and the bound grows as the square root of the population read: at the patch order of a simulated cortical sheet it constrains at most \wavePatchInformativeSites{} sites, so on a larger population the positive link from coherence to content rests entirely on a bridge assumption. A contracting self-map fixes one state but reconstructs accurately only states within a diameter set by its error and contraction factor; a broad family needs input-conditioned maps and discriminating codes. Lean~4 verifies these implications, and one model satisfies all eight connecting hypotheses together; this shows consistency, not cortical realization. The conditions yield a disconfirmable comparison: decoders fitted independently on overlapping regions should agree more on reported than on matched unreported stimuli at equal phase coherence. An exploratory EEG analysis is a measurement check only; its pooled estimator places a perfectly synchronized signal at zero coherence. Resource and implementation constraints, and a held-out onset comparison during anaesthetic emergence, are stated briefly. No principle yet selects the cover, and the sheaf's overlaps are spatial where the example's are overlaps of content, so the proposed correlate of unity has no operational definition. Unity and a minimal self remain interpretations that need an independent experiential endpoint.
 \end{abstract}
 \linenumbers
 
@@ -252,6 +252,8 @@ In the cup example, visual and reaching descriptions must express a shared quant
 This distinction limits the biological interpretation. Receptive territories and content domains must be related to spatial patches, and the descriptions must support the required extension. Matching overlap marginals of decoded probability laws need not determine a unique global joint distribution \cite{abramsky2011}.
 
 The cover is itself a choice, and the construction constrains it in one way only: synchronized patches agree where they overlap. Where they do not overlap there is nothing to compare, so a cover by pairwise disjoint patches satisfies that obligation for \emph{every} assignment of local descriptions and phases and the gluing theorem still returns a unique global section, which is the tuple it was handed. Membership of the class then reports nothing about the system beyond the patches covering it. What a gluing claim asks of a cover is therefore a non-degeneracy the theorem does not assume: that distinct patches meet, and that what they share is a quantity fixed independently of the agreement it is being used to establish.
+
+The cup example exposes a second gap, between two kinds of overlap. The sheaf is built over a spatial substrate, so its patches overlap where they share sites. Visual and motor territories that agree on cup location overlap in what they describe, not in where they lie, and the construction supplies no relation between the two. One route recasts the construction over content variables: each region becomes a partial decoder whose domain is the set of variables it estimates, and two regions overlap exactly where they estimate a common variable. The gluing argument needs only a cover and restriction maps, so it applies formally to such a cover, but no result here is stated for one, and which variables and decoders form it is an empirical question. Until a principle selects the cover, the proposed correlate of unity has no operational definition: gluing on a declared cover is proved, and which cover cortex realizes is open.
 
 \subsection{When coherence does constrain content}
 \label{sec:content-connection}
@@ -589,6 +591,11 @@ encodes. The reconstruction need not be a verbal or autobiographical account.
 Its proposed relation to experienced perspective remains an interpretation.
 Neither identification is among the eight hypotheses in
 Table~\ref{tab:summary}, and satisfying them would not measure experience.
+The unity proposal also lacks an operational definition. The gluing theorem
+holds for whatever cover it is given, a disjoint cover satisfies it trivially,
+and the cover of interest overlaps in content rather than in space
+(Section~\ref{sec:unity}); until a principle fixes that cover, the correlate is
+a schema awaiting one.
 
 \subsection{A comparison that could disconfirm the link to content}
 \label{sec:full-test}
@@ -644,13 +651,14 @@ Section~\ref{sec:prediction}. The joint witness shows that the formal
 hypotheses can hold together in a declared model. A cortical realization and
 an experiential interpretation require additional evidence.
 
-Three limitations bound every claim above. Synchrony is not itself an
+Four limitations bound every claim above. Synchrony is not itself an
 experiential measure, and nothing here establishes a consciousness criterion:
 the conditions are proposed correlates to be tested against report or another
 independent endpoint. The present EEG analysis checks a measurement pipeline
 and does not validate any experiential claim. The formal results are
 conditional on declared encoders, covers and maps whose cortical counterparts
-are unmeasured.
+are unmeasured. No principle selects the cover on which compatibility is
+assessed, so the unity correlate is not yet operationally defined.
 
 The remaining explanatory question is whether these relations occur in neural
 activity and matter for experience. The framework identifies candidate
