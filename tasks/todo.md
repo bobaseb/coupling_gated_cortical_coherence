@@ -437,6 +437,30 @@ them. The abstract, Discussion and limitations say so, and the N10 design
 selects its two regions by this criterion. Rebuilding the sheaf over such a
 cover is N17 (stretch). Abstract 249 words by `detex -n` with macros expanded.
 
+### 2026-09-24 — Rules for the decodability cover's inputs; length trim
+
+§4 now gives a rule for each input of the decodability cover, none of which
+consults agreement. Variables: experimenter-manipulated and task-relevant,
+fixed before recording; shared-variance methods (CCA-like) are excluded as
+selecting for agreement. Criterion: cross-validated decoding above a
+permutation null at a pre-registered level, reported over a declared range;
+exactness is unnecessary because the N10 statistic is excess agreement.
+Decoder class: bounded above (unrestricted decoders make every region overlap
+every other) and below by the bound's own requirement of `L`-Lipschitz
+encoders; linear readout as explicit information (`dicarlo2007`,
+`kriegeskorte2019`, both verified online); decoder and discrepancy metric
+chosen by held-out decoding accuracy, citing the author's
+`bobadillasuarez2020` (verified: *Comput. Brain Behav.* 3, 369–383). The
+residue stated as scope: the cover is the experimenter's.
+
+The additions put the main text at 9,110 words. Trimmed, with the supplement
+already carrying the content: the winding linearization and amplitude
+condition, the plasticity descent paragraph, the ramp's second paragraph
+(repeated in the protocol), the Section 7 cover paragraph and the columns and
+support-comparison paragraphs (now pointing to the decodability cover), and
+the introduction's repeated result summary. Main text 8,729 + abstract 249 =
+8,978 by `detex -n`. Notation rows for the removed winding symbols dropped.
+
 ## C — What a continuous medium buys, and what is electromagnetic about it
 
 **Intent.** Two questions the development cannot currently answer about itself:

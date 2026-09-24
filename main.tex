@@ -53,7 +53,7 @@ ORCID: \href{https://orcid.org/0000-0002-5951-0772}{0000-0002-5951-0772}}
 \begin{abstract}
 \singlespacing
 \small
-Synchrony accounts treat collective phase order as the mechanism that integrates distributed cortical activity. We show formally that phase order alone establishes neither shared content nor a self-model, and state what additionally does. Three conditions are separated: coherence (collective phase order), compatibility (agreement of independently decoded local descriptions where regions overlap) and self-reconstruction (accurate recovery of the global state from an internal encoding). Compatible local descriptions determine a unique global state. Coherence bounds disagreement between overlapping descriptions only through shared encoders of bounded sensitivity, and the bound grows as the square root of the population read: on a simulated cortical sheet it constrains at most \wavePatchInformativeSites{} sites, chaining through overlapping patches extends it to \waveNerveReachMm~mm, and across distant regions the link from coherence to content is an assumption. A contracting self-map fixes one state but reconstructs accurately only states within a diameter set by its error and contraction factor. Lean~4 verifies these implications; one model satisfies all connecting hypotheses at once, showing consistency, not cortical realization. The conditions yield a disconfirmable comparison: at matched phase coherence and single-region decoding accuracy, decoders fitted independently on two regions should agree more, beyond their separate accuracies, on perceived than on unperceived stimuli classified by a no-report marker. Choosing the overlapping regions by what each decodes makes the unity correlate operational relative to a declared decoder and criterion. An exploratory EEG analysis is a measurement check only. Unity and a minimal self remain interpretations that need an independent experiential endpoint.
+Synchrony accounts treat collective phase order as the mechanism that integrates distributed cortical activity. We show formally that phase order alone establishes neither shared content nor a self-model, and state what additionally does. Three conditions are separated: coherence (collective phase order), compatibility (agreement of independently decoded local descriptions where regions overlap) and self-reconstruction (accurate recovery of the global state from an internal encoding). Compatible local descriptions determine a unique global state. Coherence bounds disagreement between overlapping descriptions only through shared encoders of bounded sensitivity, and the bound grows as the square root of the population read: on a simulated cortical sheet it constrains at most \wavePatchInformativeSites{} sites, chaining through overlapping patches extends it to \waveNerveReachMm~mm, and across distant regions the link from coherence to content is an assumption. A contracting self-map fixes one state but reconstructs accurately only states within a diameter set by its error and contraction factor. Lean~4 verifies these implications; one model satisfies all connecting hypotheses at once, showing consistency, not cortical realization. The conditions yield a disconfirmable comparison: at matched phase coherence and single-region decoding accuracy, decoders fitted independently on two regions should agree more, beyond their separate accuracies, on perceived than on unperceived stimuli classified by a no-report marker. Choosing the overlapping regions by what each decodes makes the unity correlate operational relative to a pre-registered decoder and criterion. An exploratory EEG analysis is a measurement check only. Unity and a minimal self remain interpretations that need an independent experiential endpoint.
 \end{abstract}
 \linenumbers
 
@@ -82,13 +82,8 @@ relations as the medium of integration or of selective routing
 endogenous electromagnetic field \cite{mcfadden2020,pockett2012}. Both leave
 open what fact about synchronized activity makes it one content rather than
 coordinated activity carrying several. The contribution here is to separate the
-three requirements and prove which follow from which. Phase order constrains
-shared content only through encoders related on overlaps, with a bound that
-grows as the square root of the population it is read on. Compatible local
-descriptions, not synchrony, determine a unique global state. A contracting
-self-map fixes one state but can reconstruct accurately only a family of
-bounded diameter. Each result names a measurement that phase data alone cannot
-supply.
+three requirements and prove which follow from which; each result names a
+measurement that phase data alone cannot supply.
 
 The objection that synchrony does not fix content is older than this work.
 Critiques of the temporal binding hypothesis argued that synchrony, where it
@@ -98,29 +93,26 @@ represent: that grouping has to be computed before synchrony could signal it
 gluing, Banach's fixed-point theorem, the triangle inequality and a pigeonhole
 count. What formalization adds to the informal argument is quantitative and
 bookkeeping content. It gives the rate at which a coherence bound on content
-weakens with population size and the population at which it stops constraining
-anything, the diameter within which one contracting map can reconstruct, and
+weakens with population size, the population at which it stops constraining
+anything and how far chaining through overlapping patches extends it, the diameter within which one contracting map can reconstruct, and
 the number of codes a separated family of states requires. It also gives a
 complete inventory of the premises a synchrony-to-content argument consumes,
 each of which names a measurement, together with one model in which all of
 them hold at once.
 
 The familiar noisy mean-field oscillator supplies a stationary coherence
-threshold \cite{sakaguchi1988,strogatz1991}. We add a resource condition for a
-declared actuator, bounds that connect phase order to content only through
-specified encoders, and conditions under which compatible descriptions glue
-and an accurate reconstruction fixes the glued state. A Lean~4 development
-checks these implications and a joint witness satisfies their eight connecting
-hypotheses in a specified model. It proves neither that cortex satisfies those
-hypotheses nor that the glued state is experienced. The latter identification
-motivates the framework and needs its own endpoint.
+threshold \cite{sakaguchi1988,strogatz1991}; we add a minimum cost for changing
+coherence quickly. A Lean~4 development checks the implications, and a joint
+witness satisfies the eight connecting hypotheses of the formal composition in
+a specified model. It proves neither that cortex satisfies those hypotheses nor
+that the glued state is experienced; that identification needs its own
+endpoint.
 
 The empirical question is which measurements could support or disconfirm the
 proposed connections. A phase resultant can miss a locally ordered winding field;
 stationary phase distributions can leave the coupling mechanism unidentified;
 and coherent adaptation can lose alignment with a designated content
-template. Independent decoders must identify shared quantities before their
-agreement can be tested. We therefore distinguish stationary branches from
+template. We therefore distinguish stationary branches from
 finite observed onset, and compare prespecified field and connectivity onset
 models on held-out emergence recordings. The comparison tests a specified
 spatial prediction, not the presence of experience. Section~\ref{sec:full-test}
@@ -246,7 +238,9 @@ This distinction limits the biological interpretation. Receptive territories and
 
 The cover is itself a choice, and the construction constrains it in one way only: synchronized patches agree where they overlap. Where they do not overlap there is nothing to compare, so a cover by pairwise disjoint patches satisfies that obligation for \emph{every} assignment of local descriptions and phases and the gluing theorem still returns a unique global section, which is the tuple it was handed. Membership of the class then reports nothing about the system beyond the patches covering it. What a gluing claim asks of a cover is therefore a non-degeneracy the theorem does not assume: that distinct patches meet, and that what they share is a quantity fixed independently of the agreement it is being used to establish.
 
-The cup example exposes a second gap, between two kinds of overlap. The sheaf is built over a spatial substrate, so its patches overlap where they share sites. Visual and motor territories that agree on cup location overlap in what they describe, not in where they lie, and the construction supplies no relation between the two. One route recasts the construction over content variables: each region becomes a partial decoder whose domain is the set of variables it estimates, and two regions overlap exactly where they estimate a common variable. The gluing argument needs only a cover and restriction maps, so it applies formally to such a cover, but no result here is stated for one, and which variables and decoders form it is an empirical question. One principle selects such a cover without presupposing the agreement it is used to test. Assign each region the variables that can be decoded from its activity above a declared criterion, on data held out from the agreement test, and let two regions overlap on exactly the variables decodable from both. Decodability is fixed by what each region carries before any comparison is made, so the cover cannot be chosen to make agreement come out. It is non-degenerate exactly when its nerve is connected, meaning that every region is linked to every other through a chain of shared decodable variables, and recordings can fail that condition. The principle keeps free inputs: the decoder class, the criterion and the candidate variables, each of which must be declared before the agreement test. It therefore makes the unity correlate operational relative to those choices rather than absolutely, and carrying the formal results to such a cover is the recasting sketched above.
+The cup example exposes a second gap, between two kinds of overlap. The sheaf is built over a spatial substrate, so its patches overlap where they share sites. Visual and motor territories that agree on cup location overlap in what they describe, not in where they lie, and the construction supplies no relation between the two. One route recasts the construction over content variables: each region becomes a partial decoder whose domain is the set of variables it estimates, and two regions overlap exactly where they estimate a common variable. The gluing argument needs only a cover and restriction maps, so it applies formally to such a cover, but no result here is stated for one, and which variables and decoders form it is an empirical question. One principle selects such a cover without presupposing the agreement it is used to test. Assign each region the variables that can be decoded from its activity above a declared criterion, on data held out from the agreement test, and let two regions overlap on exactly the variables decodable from both. Decodability is fixed by what each region carries before any comparison is made, so the cover cannot be chosen to make agreement come out. It is non-degenerate exactly when its nerve is connected, meaning that every region is linked to every other through a chain of shared decodable variables, and recordings can fail that condition. The principle has three inputs, the candidate variables, the criterion and the decoder class, and each has a rule that does not consult agreement.
+
+The candidate variables are those the experiment manipulates and the task makes behaviourally relevant, fixed before recording. Data-driven alternatives, such as directions of maximal shared variance between two regions, select for the agreement under test and are excluded. The criterion becomes a statistical one: a region encodes a variable when its cross-validated decoding exceeds a permutation null at a pre-registered level, and results are reported across a declared range of levels. The level need not be exact, because two accurate decoders agree automatically (Eq.~\eqref{eq:agreement-decomposition}); the statistic of Section~\ref{sec:full-test} is agreement in excess of what each region's accuracy implies, which remains valid at any admitted level. The decoder class is bounded on both sides. Unrestricted nonlinear decoders recover a variable from any region carrying information about it, so nearly every pair of regions overlaps and the cover again constrains nothing. The positive bound of Section~\ref{sec:content-connection} requires encoders with a declared Lipschitz constant $L$, which enters $\delta_r$ directly, so the class should consist of $L$-Lipschitz maps; linear readout, the usual operationalization of information explicitly available to downstream neurons \cite{dicarlo2007,kriegeskorte2019}, is one such class. Within the admitted family, the decoder and the distance in which content discrepancy is measured are chosen by held-out decoding accuracy and never by agreement. Neither is neutral: which similarity measure best describes neural activity differs across tasks \cite{bobadillasuarez2020}. What remains is that the cover is the experimenter's. Whether cortex realizes unity over the chosen variables is the empirical claim under test, and no choice of decoder settles it. The correlate is therefore operational relative to these pre-registered inputs, and carrying the formal results to such a cover is the recasting sketched above.
 
 \subsection{When coherence does constrain content}
 \label{sec:content-connection}
@@ -382,7 +376,6 @@ Resolved dynamics supply additional information. In the ideal model with continu
 
 The square-root law in Eq.~\eqref{eq:onset} describes stationary solutions, and a changing coupling needs time for the phase distribution to approach them. In a deterministic mean-field control crossing the threshold, none of the scanned rates meets the declared tracking tolerance at onset, so a slow control variable supplies no general guarantee of branch tracking. In a finite-population ramp study ($N=2000$, $D=1$, $\rampReplicas$ replicas, $\rampDelaySpeedCount$ speeds), faster ramps delay escape. The fitted delay exponent $\rampDelayExponent$ has a replica-bootstrap interval $[\rampBootstrapLow,\rampBootstrapHigh]$ that excludes the ideal $1/2$, a deterministic reference shows that the escape criterion changes the fitted exponent, and no common asymptotic exponent is established. Delayed passage through a noisy bifurcation \cite{berglund2002} makes the apparent exponent depend on ramp speed and fitting window. Supplemental Material gives the sweep and its figure, the fluctuating-coupling and population-size controls, and the signed-network crossing bracket.
 
-The ideal delayed-onset calculation motivates a square-root scaling hypothesis; its exponent is generic to suitable bifurcations and does not identify the coupling medium. A within-subject emergence design can vary the propofol taper and test how an operational onset changes with that manipulation, but interpreting the result as a coupling-rate law requires a measured or calibrated relation between taper and $\dot K$. The escape criterion must be set relative to each recording's pre-threshold fluctuation scale. Section~\ref{sec:identifiability} describes how $D$ could be estimated from resolved phase traces.
 
 \subsection{A winding state leaves the order parameter ambiguous}
 \label{sec:wave}
@@ -413,17 +406,10 @@ wave identification or a derived transition.
 \label{fig:winding}
 \end{figure}
 
-Linearization about a winding reweights each separation's coupling by the
-cosine of its phase advance. The resulting symmetric kernel has explicit mode
-rates: nonnegative reweighted coupling gives no growing mode, while a positive
-rate destabilizes that winding. The criterion concerns linear rates, not
-asymptotic stability, and the measured retention boundary need not equal its
-limit. An amplitude extension adds an existence condition:
-$\Gamma+\lambda>0$, where $\Gamma$ is linear gain and
-$\lambda=\sum_d f_d(\cos\Delta\theta_d-1)$ comes from the same kernel.
-For the nonnegative kernels used here, a broad kernel can remove a winding
-from that model even though the
-phase-only equations retain it as a stationary state.
+Linearization about a winding gives explicit mode rates, which concern linear
+stability rather than the measured retention boundary. An amplitude extension
+adds an existence condition under which a broad kernel can remove a winding
+that the phase-only equations retain as a stationary state.
 
 Neither model turns these states into measured cortical spirals. The periodic
 sheet cannot carry a lone phase defect, the relaxational dynamics has no
@@ -439,9 +425,7 @@ Section~\ref{sec:protocol} needs a spatial phase observable.
 \subsection{Coherent adaptation can lose environmental alignment}
 \label{sec:plasticity}
 
-An adaptive coupling rule might supply representational structure, but its objective must reward the relevant agreement. For symmetric coupling, pairwise sine terms cancel in the population mean drift. Minimizing squared drift at that fixed mean therefore rewards equalizing drift across nodes. In the frequency-cluster control, this favors coupling between unlike-frequency clusters, whereas the diagnostic environmental template rewards coupling within clusters.
-
-The formalization proves descent of the squared-drift objective for a specified gradient flow at fixed phases. Its functional differs from thermodynamic entropy production: at a coherent stationary density the probability current vanishes while phase-averaged squared drift is positive. Supplemental Material gives the operator, its gradient and the conditions of the descent result.
+An adaptive coupling rule might supply representational structure, but its objective must reward the relevant agreement. For symmetric coupling, pairwise sine terms cancel in the population mean drift. Minimizing squared drift at that fixed mean therefore rewards equalizing drift across nodes. In the frequency-cluster control, this favors coupling between unlike-frequency clusters, whereas the diagnostic environmental template rewards coupling within clusters. Supplemental Material proves descent of this objective for a specified gradient flow at fixed phases and distinguishes it from entropy production.
 
 The finite control co-evolves noisy phases and symmetric, nonnegative couplings at fixed total resource. Its template is a diagnostic covariance of latent signals, never a training input. Across three illustrative seeds, second-half order remains between $\plasticityOrderMin$ and $\plasticityOrderMax$, while the within-cluster to between-cluster coupling ratio falls from $\plasticityRatioInitialMin$--$\plasticityRatioInitialMax$ to $\plasticityRatioMin$--$\plasticityRatioMax$ (Fig.~\ref{fig:resonance}). Random-update, permuted-gradient and frozen-kernel controls are reported in Supplemental Material.
 
@@ -462,7 +446,7 @@ A neural test needs independently identified domains, local descriptions and res
 
 Phase agreement cannot replace that measurement. On constructed content, phase carries a share \overlapPhaseShareBuilt{} of the content entropy when content is built from it and \overlapPhaseShareFree{} when it is not. A phase-derived statistic reports compatibility on phase-locked patches whose local descriptions disagree. The implemented content statistic detects their incompatibility. These controls validate a measurement on known constructions; a neural content model and decoder remain to be established.
 
-Choosing the cover also chooses a candidate subject: trivial descriptions can agree while carrying little content, and a partition can conceal disagreement. The useful choice must therefore be constrained by what neural activity encodes. The exact composition assumes compatibility of its supplied cover. The content mechanisms above identify additional hypotheses under which agreement can arise; they leave the empirical choice of content and the connection to that cover explicit.
+Choosing the cover also chooses a candidate subject: trivial descriptions can agree while carrying little content, and a partition can conceal disagreement. Section~\ref{sec:unity} gives the decodability rule that fixes the cover without consulting agreement.
 
 \section{The cortical hypothesis and an awakening test}
 \label{sec:prediction}
@@ -476,11 +460,11 @@ The cortical hypothesis identifies part of effective coupling with endogenous ex
 
 The formal field predicate requires a jointly continuous kernel, a normalized substrate, coupling equal to the kernel average, and no single site providing more than half that strength. Toy constructions satisfy it. A cortical realization must specify the scale at which the kernel and its reduction apply: calcium imaging reports different state-dependent modularity patterns at single-cell and mesoscale resolution \cite{kiyooka2026}.
 
-Cortical columns are the obvious candidate unit, and they answer one of the two demands the formalism makes. As the oscillator index they are a serious proposal: they are delineated by response properties and anatomy rather than by the agreement they would be used to establish \cite{mountcastle1997}, and a phase can be estimated from a column-sized territory at the electrode spacings used for cortical wave measurements \cite{townsend2015}. As the content cover they are a poor one, for three separate reasons. A parcellation into non-overlapping columns is a disjoint cover, which satisfies the compatibility obligation without constraining anything (Section~\ref{sec:unity}). The cover condition additionally requires the patches to exhaust the substrate, while much of association cortex has no accepted columnar parcellation. And the column's standing as a canonical cortical unit is contested \cite{horton2005,rakic2008}. Offering columns for both roles at once therefore supplies the oscillator index; the content cover remains an open empirical question, which the bridge assumption E78 records.
+Cortical columns are a serious candidate for the oscillator index. They are delineated by response properties and anatomy rather than by the agreement they would be used to establish \cite{mountcastle1997}, and a phase can be estimated from a column-sized territory at the electrode spacings used for cortical wave measurements \cite{townsend2015}. They are a poor content cover: non-overlapping columns form a disjoint cover (Section~\ref{sec:unity}), much of association cortex has no accepted columnar parcellation, and the column's standing as a canonical unit is contested \cite{horton2005,rakic2008}. The content cover is the decodability cover of Section~\ref{sec:unity}, and the bridge assumption E78 records its identification with the oscillator index.
 
 The spatial reduction is also testable. A row-sum aggregation at zero diagonal tracks the uniform-coupling control over the tested spatial decay range, while frequency heterogeneity displaces the operational threshold. The fit window biases both estimates relative to $2D$; agreement with the control is therefore the supported conclusion. Supplemental Material reports the reduction, its numerical error and the distinct assumptions needed to identify the kernel average with the scalar coupling of the installed-energy condition.
 
-The field commitment requires physical evidence beyond a choice of mathematical representation, and the available support comparisons do not supply it. A finite matrix spread over positive-mass cells preserves its total coupling and phase correlation exactly, while point-supported vanishing under an atomless measure and a disadvantage from excluding a better-correlated pair concern specified support constraints; Supplemental Material reads the same comparisons against a digital candidate. Neither supplies energy prices.
+The field commitment requires physical evidence beyond a choice of mathematical representation. The support comparisons in Supplemental Material concern specified support constraints and supply neither that evidence nor energy prices.
 
 A spike-time shift alone supplies no coupling rate. The dimensionless product of population size $N$, timing sensitivity $\mathcal{T}$, field amplitude $E$ and frequency $f$ needs a conversion rate $\gamma$:
 \begin{equation}
@@ -570,8 +554,7 @@ holds for whatever cover it is given, a disjoint cover satisfies it trivially,
 and the cover of interest overlaps in content rather than in space.
 Section~\ref{sec:unity} proposes fixing that cover by decodability on held-out
 data, which excludes covers chosen for agreement and makes non-degeneracy a
-testable property of the recordings. The decoder class and criterion remain
-declared inputs, and the formal results are stated for spatial covers.
+testable property of the recordings. Its variables, criterion and decoder class are pre-registered by rules that never consult agreement, and the formal results are stated for spatial covers.
 
 \subsection{A comparison that could disconfirm the link to content}
 \label{sec:full-test}
@@ -691,7 +674,7 @@ the conditions are proposed correlates to be tested against report or another
 independent endpoint. The present EEG analysis checks a measurement pipeline
 and does not validate any experiential claim. The formal results are
 conditional on declared encoders, covers and maps whose cortical counterparts
-are unmeasured. The cover on which compatibility is assessed is fixed only relative to a declared decoder class and criterion, and the formal results are stated for spatial covers rather than for the content cover that criterion yields.
+are unmeasured. The cover on which compatibility is assessed is fixed only relative to pre-registered variables, decoder class and criterion, and the formal results are stated for spatial covers rather than for the content cover that criterion yields.
 
 The remaining explanatory question is whether these relations occur in neural
 activity and matter for experience. The framework identifies candidate
@@ -743,14 +726,12 @@ $T$ & Section~\ref{sec:self} & Number of communication rounds to a deadline \\
 $\nu$ & Supplemental Material & Fan-in of a communication graph: the most sites any one site hears from \\
 $\gamma$, $\mathcal{T}$, $f$ & Eq.~\eqref{eq:keff} & Field-to-coupling conversion rate, timing sensitivity and frequency \\
 $\alpha$ & Section~\ref{sec:prediction} & Extracellular volume fraction \\
-$\lambda$ & \S\ref{sec:wave}, \S\ref{sec:prediction} & Eigenvalue the coupling kernel supplies at a winding; extracellular tortuosity \\
+$\lambda$ & Section~\ref{sec:prediction} & Extracellular tortuosity \\
 $\Omega$, $\lambda_2$ & Section~\ref{sec:content-connection} & Common rotation rate of a frequency-locked configuration, and the algebraic connectivity of the coupling graph \\
 $\beta$, $k$ & Section~\ref{sec:content-connection} & Chord diameter of a patch and the diameter of a cover's nerve, in hops \\
 $\mathcal{C}$, $e_{i,x}$ & Section~\ref{sec:content-connection} & Content space and the phase encoder patch $i$ reads at site $x$ \\
 $\Phi$, $R$ & Eq.~\eqref{eq:reconstruction-separation} & Encoder and readout of the reconstruction criterion \\
 $\mathcal{A}$, $F$ & Eq.~\eqref{eq:selfmap} & Encoding region and the reconstruction map $F(s)=\operatorname{readout}(s|_{\mathcal{A}})$ \\
-$z_i$, $\Gamma$, $A_{ij}$ & Section~\ref{sec:wave} & Complex amplitude, linear gain and coupling matrix of the amplitude layer \\
-$\Delta\theta_d$ & Section~\ref{sec:wave} & Phase a winding advances across separation $d$ \\
 $E$ & Eq.~\eqref{eq:keff} & Field amplitude, in the cortical identification \\
 $s$, $s_*$ & \S\ref{sec:unity}--\ref{sec:self} & A global section and the one the reconstruction fixes \\
 \end{longtable}
