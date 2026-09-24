@@ -65,7 +65,7 @@ format and length rules, agree with each other, and pass repository gates.
   introduction, discussion, and limitations accordingly. Verify every new
   reference online before adding it.
 
-- [ ] **N5 — Retain concise thermodynamics and GPU passages.** Give each
+- [x] **N5 — Retain concise thermodynamics and GPU passages.** Give each
   topic approximately one article paragraph. For thermodynamics, separate
   the proved cost of changing order from the conditional installed-energy
   estimate and state the thermal-conversion assumptions. For GPU comparison,
@@ -138,6 +138,23 @@ unreported trials at matched coherence, plus a self-model analogue. It ties
 the minimal self to `gallagher2000` (verified) and closes with explicit
 limitations. Synchrony is not an experiential measure, no consciousness
 criterion is claimed, and the EEG analysis is a measurement check.
+
+### 2026-09-24 — N5 thermodynamics and GPU passages condensed
+
+The article's digital-candidate section is now one paragraph. It names the
+linear rank premise, one synthetic two-view task and its held-out numbers, and
+the causal-mask deadline, and it disclaims architecture ranking, general GPU
+inferiority and machine experience. The thermodynamics section, renamed
+"Resource premises and composition", opens with one paragraph. That paragraph
+separates the proved order-change current bound from the conditional
+installed-energy condition and states the thermal-conversion premises
+(physical flux, reservoir temperature, local detailed balance). The composition
+subsection and Table 1 stay. Removed article text moved verbatim, with its
+labels, to the head of the matching supplement sections: current cost,
+spectral bottleneck, predictive memory and feedback, and learning/repeated
+operation. There is also a new `sec:supp-gpu` subsection. Supplement cross-refs
+now resolve natively. Every macro is still cited, and the article is about 8,400
+words by `detex`.
 
 ## C — What a continuous medium buys, and what is electromagnetic about it
 

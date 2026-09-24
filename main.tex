@@ -318,154 +318,12 @@ Throughout this section \emph{prediction} names a reconstruction map, and the re
 \section{What the conditions constrain in a digital candidate}
 \label{sec:gpu}
 
-The results of Section~\ref{sec:unconditional} hold for any candidate, and for a large language model (LLM) running on graphics processing units (GPUs) four of them are checkable rather than merely stateable. Those four are where this framework bears on claims made for such systems. It does not exclude them, and no result here could; what it does is fix what a claim of unity or self-representation commits its maker to measuring.
+The conditions bear on a large language model (LLM) running on graphics processing units (GPUs) only through measurements, and only for a declared task. For a finite spatial coupling operator with eigenvalues $|\lambda_1|\geq\cdots\geq|\lambda_N|$, any linear encoder and readout factoring through $d$ real coordinates pays reconstruction error at least $\sum_{i>d}\lambda_i^2$. That rank premise is a property of an explicitly linear bottleneck; query/key dimension does not supply it for softmax attention. On one synthetic two-view task whose target is the glued state and a self-relative coordinate, a rank-two linear decoder has predicted training-error floor \gParityRankTwoFloor{} and held-out error \gParityRankTwoHeldout{} on a parity-held-out family. The deadline premise is similarly specific: within one forward pass, the causal mask confines position $t$ to its causal past, so an intervention outside it cannot be reconstructed there by that step. These results rank no architecture family, imply no general inferiority of GPU hardware, and settle no question of machine experience; a claim of unity or self-representation for such a system commits its maker to identifying the shared quantities, the code and its separation of the declared family under intervention. Supplemental Material gives the bottleneck derivation, the task controls, the information ceiling of token outputs and the hardware scope.
 
-\paragraph{A quantitative bound for a linear bottleneck.}
-Let a finite spatial coupling operator $K$ have orthonormal eigenmodes
-$e_i$ with $|\lambda_1|\geq\cdots\geq|\lambda_N|$. Every linear
-approximation $A$ of rank at most $d$ satisfies
-\begin{equation}
- \sum_{i=1}^{N}\|Ke_i-Ae_i\|^2\geq\sum_{i=d+1}^{N}\lambda_i^2.
- \label{eq:spectral-bottleneck}
-\end{equation}
-Retaining the first $d$ modes attains equality. A linear encoder and readout
-factoring through $d$ real coordinates therefore pay this error. Applying the
-bound requires a spectrum for the target and a rank constraint on the actual
-approximation. Query/key dimension alone supplies no such constraint on
-softmax attention: even a two-position rank-one logit matrix can yield rank-two
-attention. The result prices an explicitly linear bottleneck in a finite
-representation of a spatial kernel; it gives no universal gap between
-transformers and continuous fields. Supplemental Material derives the bound
-and checks the softmax counterexample.
-
-A fixed synthetic task makes the scope visible. Two local views share scene
-and self coordinates; the target is the global state and a self-relative
-coordinate. On the parity-held-out family, a rank-two linear decoder's
-input-weighted predicted training-error floor is \gParityRankTwoFloor{}, and
-its held-out error is \gParityRankTwoHeldout{}. Equal numerical values do
-not make the training-law floor a held-out guarantee. On a separate
-scene-family shift, the fitted full linear decoder has training error
-\gSceneFullTrainError{} and held-out error \gSceneFullHeldoutError{}.
-The task's declared target map reconstructs the noiseless held-out inputs
-with error \gSceneDeclaredMapHeldout{}; the restricted training family leaves
-one direction unidentified. A small causal attention decoder and a coupled
-phase code also lose held-out accuracy on that shift under their stated CPU
-fits; neither is governed by the linear rank floor. The measured codes,
-overlap perturbations, self-state interventions and communication deadlines
-are described in Supplemental Material. These task results rank no
-architecture family and supply no hardware-energy or experiential claim.
-
-\paragraph{Codes, not reports.} Reconstruction across a declared family requires the encoder to distinguish states more than $2\varepsilon$ apart when the target error is $\varepsilon$ (Eq.~\eqref{eq:reconstruction-separation}). Verbal reports alone do not establish that condition. For a proposed self-model, declare the family and fidelity, identify the internal code under intervention, then test whether it separates the family. A token sequence is one possible code; an activation region is another and requires its own measurement.
-
-The same interface has an information ceiling. For any finite joint law of
-an internal state $X$ and a length-$k$ token sequence $Y$ over vocabulary $V$,
-$I(X;Y)\leq H(Y)\leq k\log_2|V|$ bits. The proof uses the full joint law and
-allows dependent emissions and zero-probability outcomes. A binary copy attains
-one bit per emitted binary symbol; an independent output conveys zero.
-This counts the declared output sequence, so a cache, timing signal or other
-accessible state must be included separately when it forms part of the channel.
-
-\paragraph{The region, not the readout.} If the code is a restriction of the candidate's state to a region, that region must distinguish the relevant family before a readout is chosen. In one forward pass of a decoder-only transformer, the causal mask restricts position $t$ to positions at or before $t$; an intervention outside that causal past cannot be reconstructed from its activation alone. Across passes, prior output adds a separate channel. The bounded-fan-in communication result of Section~\ref{sec:self} applies to a declared physical interconnect and deadline; a full-support attention graph does not satisfy its sparse-neighbourhood premise. Supplemental Material gives the graph bounds and their hardware scope.
-
-\paragraph{Agreement about what.} Unity requires the candidate's local descriptions to agree on independently identified shared quantities (Section~\ref{sec:unity}). Common timing, a shared residual stream and fluent output supply none of that, for the reason Section~\ref{sec:unconditional} gives: coordination bounds content disagreement only through encoders already related on overlaps. Which quantities two parts of a model describe in common is a decoding question, carrying the failure modes of Section~\ref{sec:observations}. The cover is a choice, and choosing it to secure agreement empties the claim.
-
-\paragraph{Physical scope.} Digital representations can satisfy compatibility and reconstruction. The coupling-gated route additionally requires a calibrated physical coupling, its noise regime and an independently identified relation from phase order to shared content. An attention matrix or a shared clock supplies none of these; the cortical proposal carries the same physical obligations. Finite-resolution capacity depends on code-space volume, resolution and readout gain, so continuity alone favours no substrate. Supplemental Material gives the capacity and hardware-support comparisons. Neither the installed-energy condition nor those comparisons exclude a digital realization.
-
-The conditions impose measurements on a digital candidate but settle no question of machine experience. Supplemental Material places this comparison beside biological naturalism, substrate-dependent computation and current proposals about LLM organization.
-
-\section{Thermodynamics and composition}
+\section{Resource premises and composition}
 \label{sec:chain}
 
-The phase and representation results concern coupling, content disagreement and reconstruction error. A finite change in phase order has a probability-current cost bound under the conditions below. Thermodynamic heat requires a separate physical identification of the current and reservoir. The installed-energy condition of Section~\ref{sec:installation} is necessary for its declared actuator; whether it restricts a physical candidate depends on measured mode prices, coupling reduction and diffusion. No composition edge derives coherence, compatibility or reconstruction from a heat bound. Finite-register capacity obeys $H(p)\leq\log|X|$; erasure heat depends on specified system--bath assumptions \cite{landauer1961,norton2005,shenker2000}. A separate boundary result concerns a field reaching disconnected vacuum components \cite{kibble1976}. Table~\ref{tab:summary} states the connecting assumptions.
-
-\subsection{Changing order carries a probability-current cost}
-
-For a smooth positive normalized periodic phase density $\rho$ satisfying
-$\partial_t\rho=-\partial_\theta J$, with diffusion $D>0$, define
-$\sigma_J=\int_{-\pi}^{\pi}J^2/(D\rho)\,d\theta$ and
-$r=|\int e^{i\theta}\rho\,d\theta|$. Differentiation under the integral
-gives $\dot r^2\leq D\sigma_J(1-r^2)$ wherever $0<r<1$. A smooth path
-staying in that interval therefore obeys
-\begin{equation}
- \int_0^\tau\sigma_J\,dt\geq
- \frac{[\arcsin r(\tau)-\arcsin r(0)]^2}{D\tau}.
- \label{eq:order-change-cost}
-\end{equation}
-Endpoint order, duration, diffusion and the probability current determine
-this floor. In an exploratory finite-volume onset calculation, a threshold
-chosen after inspecting pilot runs gives current cost
-\gOnsetCurrentCost{} versus a floor of \gOnsetCurrentFloor{}. These numbers
-describe the discretized model, not thermal or metabolic power.
-
-The current $J=v\rho-D\partial_\theta\rho$ also satisfies
-\begin{equation}
- \left(\int_{-\pi}^{\pi}J\,d\theta\right)^2\leq D\sigma_J.
- \label{eq:current-cost}
-\end{equation}
-A uniform density under constant drive $\omega$ attains
-$\sigma_J=\omega^2/D$. The identical-frequency gradient model has positive
-self-consistent stationary order above $K=2D$ with $J=0$ and
-$\sigma_J=0$. Stationary order therefore has no positive current-cost floor.
-Nor does the bound price an externally chosen $\dot K$: in the
-identical-frequency zero-drive model, the uniform density remains an exact
-zero-current solution under any coupling schedule.
-A cortical power claim needs the physical current, reservoir and thermal
-conversion to be identified. This current functional is distinct from the
-substrate squared-drift objective used in the plasticity controls.
-
-\subsection{Feedback changes the information constraint}
-
-For passive memory $X_t$ driven by an environmental signal $S_t$, the predictive bound is
-\begin{equation}
- W_{\mathrm{diss}}\geq k_BT\left[I(X_t;S_t)-I(X_t;S_{t+1})\right].
- \label{eq:predictive}
-\end{equation}
-The Markov structure $X_t\to S_t\to S_{t+1}$ makes the bracket nonnegative \cite{still2012}. Zero retained information also satisfies it, so a task and a learning rule require additional specification. Relating this bound to Landauer heat requires a common thermal scale and budget, and memory waste bounded by erased entropy.
-
-An acting agent changes the signal it will receive. Specify policy, world, observation and memory-update channels. For their finite laws,
-\begin{equation}
-\begin{split}
- I(X_t;S_t)-I(X_t;S_{t+1})
- ={}&I(X_t;S_t\mid S_{t+1})\\
- &-I(X_t;S_{t+1}\mid S_t).
-\end{split}
-\label{eq:feedback-information}
-\end{equation}
-The second conditional term vanishes in the passive model. With feedback, the signed difference can be negative as action creates correlations with the future. A causal reading requires an environmental state sufficient to describe the relevant dynamics.
-
-For a controlled substep, the active thermodynamic bound instead uses the joint entropy. Forward and reverse path laws give
-$\Sigma=D_{KL}(P_F\|P_R)=\Delta H(X,S)+\langle Q\rangle/(k_BT)\geq0$
-under local detailed balance, with thermal scale $k_BT>0$ and heat positive into the reservoir \cite{horowitz2014,ito2013}. Every forward path of positive probability must have a positive-probability reverse for this finite identity. A missing reverse gives infinite divergence. The supplement develops the support conditions and composes actuation with memory updates on their shared intermediate law.
-
-\subsection{Learning and repeated operation need explicit resources}
-
-The finite models in Supplemental Material separate policy selection, learning
-from a phase-derived sensor and repeated operation. A binary closed-loop
-witness lets a register install the phase energy landscape, lets the phase
-evolve under a bath-supported channel, senses the new phase and updates that
-same register. A fixed decoder trained on one family predicts the next phase
-on a held-out family with accuracy \gFeedbackInformedAccuracy{} under an
-informative sensor, versus \gFeedbackBlindAccuracy{} under a matched blind
-sensor. Their marginal phase order is the same. The executed law also charges
-installation, sensing, reset and preparation against a finite work store;
-phase-flip bath heat is recorded separately. The symbol task and mode prices
-are supplied toy inputs, so this does not identify a cortical mechanism or a
-heat cost for the full sensing and reset protocol.
-
-For a complete cycle with a common energy observable $\mathcal{E}$ and
-thermal scale $k_BT$, positive forward and reverse path support, and local
-detailed balance at each stage, the conditional joint-law budget is
-\begin{equation}
- k_BT[H(p_0)-H(p_N)]\leq Q_{<N}
- =W_{<N}+\langle \mathcal{E}\rangle_0-\langle \mathcal{E}\rangle_N
- \leq B+\langle \mathcal{E}\rangle_0-\langle \mathcal{E}\rangle_N,
- \label{eq:continuing-budget}
-\end{equation}
-when expected cumulative work stays within the supplied allowance $B$ at every prefix. This bounds expectations. The numerical witness specifies a bath for the phase transition; its sensing, reset and preparation prices do not establish reverse protocols or heat for the complete cycle. Separate constructions track a store on each trajectory and specify when a mean allowance represents an available resource; an expected budget alone permits overdrawn paths.
-
-For the declared process, a finite source with positive net cost funds finitely
-many cycles. A common physical ledger for the sensing and reset channels, and
-a cortical calibration of every mode price, remain separate obligations.
+Two thermodynamic statements enter, with different standing. The first is proved for the phase model: for a smooth positive periodic density with probability current $J$ and diffusion $D$, the current functional $\sigma_J=\int J^2/(D\rho)\,d\theta$ bounds how fast order can change, $\int_0^\tau\sigma_J\,dt\geq[\arcsin r(\tau)-\arcsin r(0)]^2/(D\tau)$ while $0<r<1$, and stationary order has no positive floor. The second is conditional: the installed-energy condition of Section~\ref{sec:installation} is necessary for its declared actuator, and restricts a physical candidate only once mode prices, coupling reduction and diffusion are measured. Neither is a heat or power statement until the current is identified with a physical flux, a reservoir at a stated temperature is specified and local detailed balance holds for the steps concerned; only then does $\sigma_J$ convert to entropy production and the finite register budgets to Landauer heat \cite{landauer1961,norton2005,shenker2000}. No composition edge derives coherence, compatibility or reconstruction from a heat bound. Finite-register capacity obeys $H(p)\leq\log|X|$, and a separate boundary result concerns a field reaching disconnected vacuum components \cite{kibble1976}; Table~\ref{tab:summary} states the connecting assumptions. Supplemental Material gives the current-cost derivation, predictive-memory and feedback balances, learning and repeated-operation budgets, and the sensitivity of the metabolic comparison to its assumptions.
 
 \subsection{What the composition establishes}
 
@@ -822,7 +680,7 @@ $\varepsilon$, $\delta$ & Section~\ref{sec:content-connection} & Content and obs
 $M$, $b$ & Eq.~\eqref{eq:reconstruction-separation} & Size of a declared family of states and code length in bits \\
 $\Lambda$, $\tau$ & Eq.~\eqref{eq:selfmap} & Contraction factor $\Lambda=e^{-(K-2D)\tau/2}$ and its relaxation time \\
 $T$ & \S\ref{sec:installation}, \S\ref{sec:self} & Temperature in the thermal scale $k_BT$; number of communication rounds to a deadline \\
-$\nu$ & Section~\ref{sec:gpu} & Fan-in of a communication graph: the most sites any one site hears from \\
+$\nu$ & Supplemental Material & Fan-in of a communication graph: the most sites any one site hears from \\
 $k_BT$, $B$ & Eq.~\eqref{eq:active-chain-bound} & Thermal scale, read as one symbol, and heat budget of a register \\
 $\gamma$, $\mathcal{T}$, $f$ & Eq.~\eqref{eq:keff} & Field-to-coupling conversion rate, timing sensitivity and frequency \\
 $\alpha$ & Section~\ref{sec:prediction} & Extracellular volume fraction \\
@@ -832,7 +690,6 @@ $\beta$, $k$ & Section~\ref{sec:content-connection} & Chord diameter of a patch 
 $\mathcal{C}$, $e_{i,x}$ & Section~\ref{sec:content-connection} & Content space and the phase encoder patch $i$ reads at site $x$ \\
 $\Phi$, $R$ & Eq.~\eqref{eq:reconstruction-separation} & Encoder and readout of the reconstruction criterion \\
 $\mathcal{A}$, $F$ & Eq.~\eqref{eq:selfmap} & Encoding region and the reconstruction map $F(s)=\operatorname{readout}(s|_{\mathcal{A}})$ \\
-$\mathcal{E}$ & Eq.~\eqref{eq:continuing-budget} & Energy observable shared by the stages of a continuing protocol \\
 $z_i$, $\Gamma$, $A_{ij}$ & Section~\ref{sec:wave} & Complex amplitude, linear gain and coupling matrix of the amplitude layer \\
 $\Delta\theta_d$ & Section~\ref{sec:wave} & Phase a winding advances across separation $d$ \\
 $E$ & Eq.~\eqref{eq:keff} & Field amplitude, in the cortical identification \\
