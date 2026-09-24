@@ -88,8 +88,9 @@ format and length rules, agree with each other, and pass repository gates.
 
 A mock referee report recommended major revision. The items below are its
 action points. N7 closed in the same pass and N8–N16 on 2026-09-24. Open:
-N14b (optional, new work) and the author's decision whether to split the
-awakening/ephaptic material into a separate paper (see the N14 record).
+N14b (optional, new work), the stretch items N17–N18 below, and the author's
+decision whether to split the awakening/ephaptic material into a separate
+paper (see the N14 record).
 
 - [x] **N7 — Factual and presentation fixes.** The Data availability subject
   list named six subjects (including `1056`, which was never analysed) against
@@ -186,6 +187,23 @@ awakening/ephaptic material into a separate paper (see the N14 record).
   negatives and hedging density. Say where Methods live for a theoretical
   article (journal expects a Methods/Results structure). Add the cover-
   selection limitation to the abstract.
+
+- [ ] **N17 (stretch) — Rebuild the sheaf over content variables.** Recast the
+  construction with regions as partial decoders: the base is the set of
+  content variables, a region's domain is the variables decodable from it
+  (the decodability cover of `sec:unity`), restriction forgets variables. Prove
+  gluing uniqueness and the approximate-selection result on that cover, and
+  say which spatial-measure results do not transfer. Would let the article
+  drop "the formal results are stated for spatial covers".
+
+- [ ] **N18 (stretch) — Input-conditioned reconstruction map.** Formalize a family
+  `F_u` indexed by input, each contracting with its own fixed point `s_u`, and
+  state what replaces the fixed-map diameter bound
+  (`Encoding.dist_le_of_contracting_reconstructs`) — presumably a Lipschitz
+  condition on `u ↦ s_u` plus uniform contraction. Guard against the
+  degenerate witness (constant `F_u` returning a stored `s_u`), which
+  reconstructs everything and encodes nothing; the code-separation criterion
+  must still bind. Would let §6 restore a minimal self that follows a scene.
 
 ### 2026-09-24 — N1 fixed-map diameter limit
 
@@ -395,6 +413,29 @@ and was rewritten to 247 words by `detex -n` after N9–N12 had pushed it to
 ~299. Main text is 8,578 words by `detex -n` excluding TikZ (8,621 at N6 by
 the same count); the submission notes record the part counts and the matched
 design in the significance statement.
+
+### 2026-09-24 — N9/N12 follow-up: decodability cover, 10-site overstatement
+
+N12 had the abstract and Conclusions say that beyond
+`\wavePatchInformativeSites` sites the coherence-to-content link "rests
+entirely on a bridge assumption". That overstated it: the V-block results
+already extend it. `chord_le_of_patch_walk_coherence` chains the bound
+through overlapping patches for `\waveNerveHops` hops (`\waveNerveReachMm` mm
+of the sheet), and `chord_le_of_frequency_locked` removes `N` for a declared
+`λ₂` at a locked configuration. The abstract, §4 and Conclusions now state
+all three routes and put E78 where it belongs: across centimetre-separated
+territories, beyond the chain's reach, with no measured connectivity for the
+spectral route. (The §4 sentence making the same overstatement predated N12.)
+
+N9 said no principle selects the cover. §4 now proposes one: the
+decodability cover, in which each region gets the variables decodable from it
+above a declared criterion on held-out data, and regions overlap on variables
+both decode. It cannot be tuned for agreement, and its non-degeneracy
+(connected nerve) is testable. Free inputs (decoder class, criterion,
+candidate variables) remain, so the correlate is operational relative to
+them. The abstract, Discussion and limitations say so, and the N10 design
+selects its two regions by this criterion. Rebuilding the sheaf over such a
+cover is N17 (stretch). Abstract 249 words by `detex -n` with macros expanded.
 
 ## C — What a continuous medium buys, and what is electromagnetic about it
 

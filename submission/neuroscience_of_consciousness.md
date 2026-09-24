@@ -11,7 +11,7 @@ preparation instructions on 2026-09-24:
 | Requirement | Limit / rule | Status |
 |---|---|---|
 | Research Article length | ≤ 9,000 words | 8,578 words of main text by `detex -n` (TikZ excluded, references not followed); 247 abstract, 434 notation table, 275 back matter. Main text plus abstract is 8,825; with notation and back matter 9,534, so confirm with the editorial office whether the notation table counts |
-| Abstract | ≤ 250 words | 247 words by `detex -n` |
+| Abstract | ≤ 250 words | 249 words by `detex -n`, generated macros expanded |
 | Significance statement | ~120 words, not published | Draft below |
 | Sections | Abstract, Introduction, Methods and Materials, Results, Discussion, Summary or Conclusions | Theoretical article; Conclusions section added. Methods live in the Supplemental Material. **Author to confirm this structure is acceptable, or rename sections.** |
 | Data availability | Statement after acknowledgements | Present ("Data and code availability") |

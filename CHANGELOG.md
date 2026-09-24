@@ -39,9 +39,15 @@ published, so nothing below is a correction to the scholarly record.
   `Λ = e^{-(K-2D)τ/2}` is flagged as borrowed from the uniform density's
   first-harmonic rate, not derived.
 - The article treated the glued state as the correlate of unity without
-  saying that no principle selects the cover. It now says so, and that the
-  sheaf's overlaps are spatial where the motivating example's are overlaps of
-  content.
+  saying how the cover is selected. It now proposes a decodability cover,
+  fixed on held-out data before agreement is tested, which makes the
+  correlate operational relative to a declared decoder and criterion, and
+  says the sheaf's overlaps are spatial where the motivating example's are
+  overlaps of content.
+- The article said that beyond the uniform bound's informative range the
+  coherence-to-content link required E78. The nerve-chain and spectral-gap
+  results already extend it; E78 is now said to carry the link only across
+  centimetre-separated territories.
 - The article's thermodynamic chain (E12–E45, the register ledger and the
   active-branch bound), installed-energy derivation, ramp figure, EEG
   exercise and synthetic rank-two task moved to the supplement; nothing was
