@@ -195,6 +195,35 @@ def Reconstructs (ε : ℝ) : Prop := ∀ s ∈ Enc.relevant, Enc.error s ≤ ε
 
 variable {Enc}
 
+/-- A single contracting reconstruction map can be accurate only on a small
+family. This is a restriction on a fixed map; it does not apply when the readout
+is conditioned on an external input. -/
+theorem dist_le_of_contracting_reconstructs {q : ℝ≥0} (hq : q < 1) {ε : ℝ}
+    (hmap : LipschitzWith q (fun s => Enc.readout (Enc.encode s)))
+    (hrec : Enc.Reconstructs ε) {s t : S}
+    (hs : s ∈ Enc.relevant) (ht : t ∈ Enc.relevant) :
+    dist s t ≤ 2 * ε / (1 - (q : ℝ)) := by
+  have hq1 : (q : ℝ) < 1 := by exact_mod_cast hq
+  have hsplit : dist s t ≤ Enc.error s +
+      dist (Enc.readout (Enc.encode s)) (Enc.readout (Enc.encode t)) + Enc.error t := by
+    calc
+      dist s t ≤ dist s (Enc.readout (Enc.encode s)) +
+          dist (Enc.readout (Enc.encode s)) t := dist_triangle _ _ _
+      _ ≤ dist s (Enc.readout (Enc.encode s)) +
+          (dist (Enc.readout (Enc.encode s)) (Enc.readout (Enc.encode t)) +
+            dist (Enc.readout (Enc.encode t)) t) := by
+            gcongr
+            exact dist_triangle _ _ _
+      _ = _ := by simp only [Encoding.error, dist_comm t]; ring
+  apply (le_div_iff₀ (sub_pos.mpr hq1)).2
+  have hsε := hrec s hs
+  have htε := hrec t ht
+  have hlip := hmap.dist_le_mul s t
+  dsimp [Encoding.error] at hsε htε
+  dsimp [Encoding.error] at hsplit
+  nlinarith
+
+
 /-- The bound, in the structure's language. -/
 theorem dist_le_add_error_of_encode_eq {s t : S} (h : Enc.encode s = Enc.encode t) :
     dist s t ≤ Enc.error s + Enc.error t :=

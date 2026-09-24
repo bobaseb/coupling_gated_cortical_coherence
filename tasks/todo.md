@@ -8,6 +8,94 @@ falsifiable, and the cover and the region — closed in full, is
 before it are `dde1a36:tasks/todo.md`. The R research programme (R1–R12) is
 live in `tasks/research_programme.md`.
 
+## N — Neuroscience of Consciousness submission
+
+**Intent.** Prepare a Research Article for *Neuroscience of Consciousness* that
+states the framework's contribution to consciousness research in testable
+terms. Keep thermodynamics and GPU implications in the article as short,
+qualified passages; put derivations and implementation detail in the
+supplement.
+
+**Constraints.** Make the scientific corrections before shortening or
+reframing the article. Keep claims at the level supported by the proofs and
+data: synchrony is not itself an experiential measure, and the model does not
+establish a consciousness criterion. Follow the generated-results,
+reference-verification, Table S1, and tracked-PDF rules in AGENTS.md. Use
+small, reviewable commits; no new production sweep is a prerequisite for
+this submission track.
+
+**Success criteria.** The article identifies its distinct theoretical result,
+states an operational route to testing content and self-model predictions,
+and gives readers a clear account of what the empirical demonstration does
+and does not show. Manuscript and supplement meet the journal's current
+format and length rules, agree with each other, and pass repository gates.
+
+- [x] **N1 — Resolve the reconstruction-map limitation.** Check the
+  fixed-map reconstruction argument against the diameter bound
+  `d(s,t) ≤ 2ε/(1-Λ)` when one `Λ < 1` Lipschitz map reconstructs every state
+  within `ε`. Decide whether the theorem applies to a restricted state
+  family or requires an input-conditioned map. Update the formal interface,
+  manuscript claim, and Table S1 together; add a failing test or proof
+  obligation before any code or Lean implementation change.
+
+- [ ] **N2 — Tighten the phase-content bound and its interpretation.** Use
+  `Σᵢ|zᵢ-m|² = N(1-r²)` to check the pairwise estimate
+  `|zᵢ-zⱼ| ≤ √(2N(1-r²))` and propagate the encoder Lipschitz factor.
+  Compare this with the currently reported bound and reassess how much
+  content difference a high-coherence patch can still carry. Update the
+  Lean result, article, supplement, and claim map if the tighter statement
+  changes the published conclusion.
+
+- [ ] **N3 — Recheck the EEG observation and numerical provenance.** Pass
+  perfectly phase-locked rotating signals and noisy spatial fields through
+  the same filter, Hilbert, montage, and 100 ms pooling pipeline used for the
+  reported statistic; compare instantaneous and pooled coherence. Recheck
+  the Bessel-function relation and quadratic-variation interpretation.
+  Reconcile the six-versus-eight subject description, 61-bipolar-versus-62-
+  scalp channel wording, and provenance of the reported 0.542 ceiling.
+  Revise claims and generated publication macros from saved artifacts as
+  needed; do not regenerate macros by rerunning a production sweep.
+
+- [ ] **N4 — Rewrite the article around its consciousness contribution.**
+  State what is new relative to standard synchrony and field accounts, and
+  distinguish coherence, content reconstruction, and self-model claims.
+  Specify an observable comparison that could disconfirm the proposed link
+  to conscious content; state that the present EEG analysis is a measurement
+  check rather than an experiential validation. Revise title, abstract,
+  introduction, discussion, and limitations accordingly. Verify every new
+  reference online before adding it.
+
+- [ ] **N5 — Retain concise thermodynamics and GPU passages.** Give each
+  topic approximately one article paragraph. For thermodynamics, separate
+  the proved cost of changing order from the conditional installed-energy
+  estimate and state the thermal-conversion assumptions. For GPU comparison,
+  identify the particular reconstruction task, deadline, and rank premise;
+  avoid claims of general GPU inferiority or machine experience. Keep
+  derivations, hardware assumptions, and sensitivity analysis in the
+  supplement, cross-referenced from the article.
+
+- [ ] **N6 — Complete the journal-fit and submission audit.** Recheck the
+  current *Neuroscience of Consciousness* Research Article instructions,
+  including the article word limit, abstract limit, and significance
+  statement, then prepare the required components. Trim repeated exposition
+  in the supplement while keeping enough methods and proof detail to audit
+  the claims. Resolve any mismatch between the article's requirements and
+  the supplement's count. Run the relevant repository checks, rebuild tracked
+  PDFs with source changes, and refresh the assembled arXiv submission if
+  present.
+
+### 2026-09-24 — N1 fixed-map diameter limit
+
+`Encoding.dist_le_of_contracting_reconstructs` proves that one fixed
+`Λ < 1` map with reconstruction error at most `ε` across a relevant family
+restricts every pair in that family to distance at most `2ε/(1-Λ)`.
+The article, supplement and Table S1 state this limit beside the code-count
+criterion. A full-substrate identity readout illustrates resonance and exact
+reconstruction, but has Lipschitz factor one on a nontrivial metric space and
+does not discharge E89. A broad state family requires a separately specified,
+possibly input-conditioned map; no such map or physical readout is constructed
+here. N2–N6 remain open.
+
 ## C — What a continuous medium buys, and what is electromagnetic about it
 
 **Intent.** Two questions the development cannot currently answer about itself:
