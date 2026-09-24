@@ -175,7 +175,7 @@ action points. N7 closed in the same pass; the rest are open.
   not currently available; a small open model on rented or CPU compute is
   the cheapest route. New work, not a condition of the revision.
 
-- [ ] **N15 — Move the EEG exercise to the supplement.** It establishes only
+- [x] **N15 — Move the EEG exercise to the supplement.** It establishes only
   that the pooled bipolar estimand cannot measure spatial coherence; keep a
   one-sentence methods caution in the article.
 
@@ -367,6 +367,18 @@ whose existing prose already carried every moved number.
 **Not done: splitting the awakening/ephaptic material into a separate paper.**
 That is an authorial scope decision (it would remove §8.2–8.4 and the onset
 protocol, and change the title's reach); left open for the author.
+
+### 2026-09-24 — N15 EEG exercise moved to the supplement
+
+The article's "Estimator calibration on exploratory EEG" subsection is gone.
+Its numbers and argument were already in `sec:supp-eeg` (design counts,
+cross-subject range, pipeline check, linear deviation), so only its closing
+paragraph on what an informative dataset needs (intracranial recordings,
+`oomoto2026`) moved, to the supplement's Interpretation subsection. The article
+keeps one methods caution at the end of `sec:identifiability`: pooled bipolar
+phase statistics place a locked signal at `\eegCheckLockedPooledR`, so a
+spatial test needs a rotation-removing estimand and a modelled montage.
+Macro suites pass.
 
 ## C — What a continuous medium buys, and what is electromagnetic about it
 
