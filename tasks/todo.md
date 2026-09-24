@@ -84,6 +84,84 @@ format and length rules, agree with each other, and pass repository gates.
   PDFs with source changes, and refresh the assembled arXiv submission if
   present.
 
+### N7–N16 — Mock *Neuroscience of Consciousness* review (2026-09-24)
+
+A mock referee report recommended major revision. The items below are its
+action points. N7 closed in the same pass; the rest are open.
+
+- [x] **N7 — Factual and presentation fixes.** The Data availability subject
+  list named six subjects (including `1056`, which was never analysed) against
+  the eight in `empirical_collapse.MULTI_SUBJECTS`; it now lists all eight.
+  The notation table gave `$D$` a wrong defining location and an unlabelled
+  second meaning; it now points at Eq. (1) and labels the phase spread as the
+  supplement's convergence-proof usage. `$T$` now points at §6 and §5, where
+  it is used. E78 and E89 now point to Table 1 at their first mention
+  before it. The AI disclosure in `main.tex`, `index.html` and `README.md`
+  adds Claude Opus 5.5 (Claude Code) and GPT-6 Sol (Codex).
+
+- [ ] **N8 — Engage the synchrony-critique literature.** The point that
+  synchrony does not fix content predates this work (binding-by-synchrony
+  critiques, e.g. Shadlen & Movshon, *Neuron* 1999). Cite and position
+  against it. State exactly what the formalization adds beyond the informal
+  argument; the core results are elementary: gluing uniqueness, Banach,
+  triangle-inequality and pigeonhole bounds. Verify every reference online.
+
+- [ ] **N9 — Spatial overlap versus content overlap.** The sheaf is over a
+  spatial substrate, but the cup example is overlap in *content* between
+  distant regions (E78 concedes this in one clause). A disjoint cover
+  satisfies compatibility trivially, and columns are rejected as the content
+  cover, so no principle currently selects a cover. Either recast the
+  construction over content variables with regions as partial decoders, or
+  state in the abstract and Discussion that the unity correlate has no
+  operational definition yet.
+
+- [ ] **N10 — Remove the accuracy confound from the disconfirming test.**
+  Two accurate decoders agree automatically: their disagreement is at most
+  the sum of their errors. Reported stimuli are usually decoded better, so
+  "more agreement on reported trials" follows from single-region fidelity.
+  Match per-region decoding accuracy (or signal strength) as well as phase
+  coherence, and add a condition that separates inter-region agreement from
+  each region's fidelity. Move no-report designs from caveat into the main
+  design. Consider a schematic figure of the experiment.
+
+- [ ] **N11 — Self-reconstruction condition.** The fixed contraction (E89)
+  reconstructs only a bounded-diameter family, a single state at zero error.
+  Either formalize the input-conditioned map the text says is needed, or
+  demote the minimal-self claim accordingly. Derive or explicitly flag the
+  stipulated `Λ = e^{-(K-2D)τ/2}`. Argue the link to Gallagher's
+  pre-reflective self rather than asserting it, and compare with existing
+  self-model accounts.
+
+- [ ] **N12 — Say where the content bound is vacuous.** The √N bound is
+  informative for at most `\wavePatchInformativeSites` sites, so the bridge
+  E78 carries the whole positive coherence-to-content link. Say so in the
+  abstract and Conclusions.
+
+- [ ] **N13 — Move the thermodynamic chain out of the article.** The paper
+  concedes that every edge is supplied and that only the final
+  contraction-to-uniqueness step infers anything. E12–E45 ("vacuum
+  manifold", "register") are opaque to the readership and unconnected to the
+  consciousness argument. Move the chain and the installed-energy section to
+  the supplement; the article should rest on the three-condition analysis.
+  Coordinate with Table 1 and `check-table-coverage`.
+
+- [ ] **N14 — Tighten the scope.** Consider splitting the awakening/ephaptic
+  material (extracellular geometry, onset protocol, ramp exponents) into a
+  separate paper. Shorten or move the GPU section, whose one-task rank floor
+  does not bear on machine consciousness. Shorten the ramp paragraph and
+  figure, given that the fitted exponent's CI excludes 1/2 and no common
+  exponent is claimed.
+
+- [ ] **N15 — Move the EEG exercise to the supplement.** It establishes only
+  that the pooled bipolar estimand cannot measure spatial coherence; keep a
+  one-sentence methods caution in the article.
+
+- [ ] **N16 — Readability and journal structure.** Gloss "section",
+  "restriction resonance" and "Lipschitz" on first use. Reduce double
+  negatives and hedging density. Say where Methods live for a theoretical
+  article (journal expects a Methods/Results structure). Add the cover-
+  selection limitation to the abstract.
+
 ### 2026-09-24 — N1 fixed-map diameter limit
 
 `Encoding.dist_le_of_contracting_reconstructs` proves that one fixed

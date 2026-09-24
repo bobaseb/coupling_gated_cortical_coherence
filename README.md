@@ -167,8 +167,8 @@ A third document is a companion rather than part of the publication:
 This project was heavily AI-assisted, across the Lean 4 development, the simulation and analysis code, and the drafting and revision of the manuscript and supplement. Several assistants were used in an interleaved way throughout:
 
 - **Google Antigravity CLI** — Gemini 3.1, Claude 4.6 Opus, Claude 4.6 Sonnet
-- **OpenAI Codex CLI** — Astra, Terra, Luna, Sol
-- **Claude Code** — Claude Opus 5
+- **OpenAI Codex CLI** — GPT-6 Astra and Sol; GPT-5.6 Terra, Luna and Sol
+- **Claude Code** — Claude Opus 5, Claude Opus 5.5
 - **Gemini Pro**, through its web interface
 - **Fable (Claude Opus 4)** — through OpenRouter, accessed with the Hermes CLI
 
