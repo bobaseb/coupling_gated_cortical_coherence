@@ -308,6 +308,32 @@ Run with $\cos\theta$ in place of $\sin^2\!\theta$ the same argument needs no fo
 
 The mode construction connects a declared hardware configuration to its kernel and stored energy. The scalar threshold applies only after identifying the kernel average with the phase model's coupling.
 
+\subsection{Installed energy bounds mean coupling}
+\label{sec:installation}
+
+A spatial model replaces the finite sum by integration against a kernel. One declared implementation carries response modes with continuous profiles $\phi_i$, installation prices $u_i$ and nonnegative occupancies $c_i(\Xi)$ in configuration $\Xi$:
+\begin{equation}
+ K_\Xi(x,y)=\sum_i c_i(\Xi)\phi_i(x)\phi_i(y),
+ \qquad U(\Xi)=\sum_i u_i c_i(\Xi).
+ \label{eq:microscopic-kernel}
+\end{equation}
+The same configuration sets the reciprocal kernel and stored energy. An executed transition changes the kernel through its changed occupancies and requires work $U(\Xi')-U(\Xi)+Q$, with $Q$ positive into the reservoir. The installed kernel is averaged over the resulting configuration law $p(\Xi)$. Cell-pair reconstruction on refining spatial partitions converges to its product-measure integral under the specified compactness and sampling assumptions; the refinement index is independent of the number of control updates.
+
+Normalize the substrate measure $\mu$ to one. Write $m_i=\int\phi_i\,d\mu$ and declare $\kappa>0$ with $m_i^2\leq\kappa u_i$ for every mode. Factorizing each mode's integral gives
+\begin{equation}
+ \begin{aligned}
+ U_{\mathrm{inst}}&=\sum_\Xi p(\Xi)U(\Xi),\\
+ K_{\mathrm{mf}}&=\iint K(x,y)\,d\mu(x)\,d\mu(y)
+ =\sum_\Xi p(\Xi)\sum_i c_i(\Xi)m_i^2
+ \leq\kappa U_{\mathrm{inst}}.
+ \end{aligned}
+ \label{eq:installed-coupling-bound}
+\end{equation}
+If this mean coupling is the $K$ of the scalar model, $\kappa U_{\mathrm{inst}}\leq2D$ excludes a coherent stationary branch and any growing Fourier mode about the uniform density. Thus coherence on that branch requires $U_{\mathrm{inst}}>2D/\kappa$. The condition is necessary: energy above it need not produce sufficient coupling because the bound can be loose.
+
+The theorem concerns stored energy in the declared actuator modes. The estimated cortical signalling expenditure and extracellular electrostatic energy in Supplemental Material measure different quantities; neither identifies the occupancies, mode prices or their relation to metabolic supply. Consequently the bound supplies a necessary condition for a declared actuator, but no cortical value of $\kappa$ or demonstration that cortex meets it. Applying the scalar threshold to heterogeneous or signed spatial dynamics also needs a justified reduction.
+
+
 \subsection{Microscopic modes and a spatial kernel}
 \label{sec:supp-microscopic}
 
@@ -315,7 +341,7 @@ The mode construction connects a declared hardware configuration to its kernel a
 
 \texttt{LocalActuator} carries mode occupancies $c_i$ on configurations, fixed
 spatial profiles $\phi_i$ and installation prices $u_i$; its \texttt{kernel}
-and \texttt{storedEnergy} are the two sums of the article's
+and \texttt{storedEnergy} are the two sums of
 Eq.~\eqref{eq:microscopic-kernel}. \nolinkurl{kernel_update} computes
 a transition's kernel change from its changed occupancies alone, and
 \nolinkurl{kernel_update_local} leaves a pair untouched
@@ -390,7 +416,7 @@ select this hardware.
 \label{sec:supp-installed}
 In \nolinkurl{Phase9_InstalledCoupling.lean}, the theorem
 \nolinkurl{continuumEnergy_eq_mean_field_coupling}
-in \texttt{KernelArrangement} proves the Fubini identity in the article's
+in \texttt{KernelArrangement} proves the Fubini identity in
 Eq.~\eqref{eq:installed-coupling-bound}. Compactness, finite substrate mass and
 continuous profiles supply integrability; the identity itself needs no
 probability normalization. Its hypotheses equate the arrangement's measure
@@ -1321,7 +1347,7 @@ The table below is the claim-by-claim map, kept here rather than in the main
 text. It is here because it is a reference rather than an argument: each row names
 the Lean identifier that carries a claim and states the scope limitation of that
 identifier, and no step of the main text depends on the reader working through it.
-Figure~\ref{fig:chain} in the main text separates the three requirements and their inputs; Table~\ref{tab:summary} records the eight connecting hypotheses of the formal composition. The present table records node-level results and their implementation scope. The cover's compatibility is a supplied field. The boundary's restriction-resonance condition is a separate predicate, needed for the interpretation of self-encoding as restriction but not consumed by \texttt{chain}.
+Figure~\ref{fig:chain} in the main text separates the three requirements and their inputs; Table~\ref{tab:edges} records the eight connecting hypotheses of the formal composition, and the article's Table~\ref{tab:summary} the four it argues from. The present table records node-level results and their implementation scope. The cover's compatibility is a supplied field. The boundary's restriction-resonance condition is a separate predicate, needed for the interpretation of self-encoding as restriction but not consumed by \texttt{chain}.
 
 \begingroup
 \scriptsize
@@ -2837,9 +2863,56 @@ The composition needs identifications beyond a heat inequality. A register ledge
 \subsection{Active and passive composition}
 \label{sec:supp-composition}
 
+Two thermodynamic statements enter, with different standing. The first is proved for the phase model: for a smooth positive periodic density with probability current $J$ and diffusion $D$, the current functional $\sigma_J=\int J^2/(D\rho)\,d\theta$ bounds how fast order can change, $\int_0^\tau\sigma_J\,dt\geq[\arcsin r(\tau)-\arcsin r(0)]^2/(D\tau)$ while $0<r<1$, and stationary order has no positive floor. The second is conditional: the installed-energy condition of Section~\ref{sec:installation} is necessary for its declared actuator, and restricts a physical candidate only once mode prices, coupling reduction and diffusion are measured. Neither is a heat or power statement until the current is identified with a physical flux, a reservoir at a stated temperature is specified and local detailed balance holds for the steps concerned; only then does $\sigma_J$ convert to entropy production and the finite register budgets to Landauer heat \cite{landauer1961,norton2005,shenker2000}. No composition edge derives coherence, compatibility or reconstruction from a heat bound. Finite-register capacity obeys $H(p)\leq\log|X|$, and a separate boundary result concerns a field reaching disconnected vacuum components \cite{kibble1976}; Table~\ref{tab:edges} states the connecting assumptions. Section~\ref{sec:supp-phase} gives the current-cost derivation; Sections~\ref{sec:supp-feedback}--\ref{sec:supp-resources} give the predictive-memory and feedback balances, learning and repeated-operation budgets, and the sensitivity of the metabolic comparison to its assumptions.
+
+
+The passive and feedback composition theorems each accept eight connecting implications (Table~\ref{tab:edges}). In the active branch, a named substep at the register's thermal scale satisfies
+\begin{equation}
+ k_BT>0,\qquad k_BT[H(p)-H(p')]\leq\langle Q\rangle\leq B,
+ \label{eq:active-chain-bound}
+\end{equation}
+with $B$ the register's heat. The upper allocation follows from a ledger whose operations deliver that total heat to one reservoir and whose other operations do not increase joint entropy. Those ledger assumptions are physical inputs. Neither Landauer's lower bound nor microscopic reversibility supplies them. Finite two-bit witnesses exhibit positive forward and reverse elementary paths, local detailed balance at one thermal scale, and interaction energies of order $k_BT$; these conditions alone do not quantify proximity to equilibrium. Cortex has not been shown to satisfy these premises. The illustrative cortical metabolic expenditure over one region and one phase-diffusion time is $\energyThermalQuanta$ times $kT$ at body temperature, but identifying it with the register heat budget $B$ requires a common physical ledger. Reading the register at the scale where its premises are physical, such as a single channel, requires E45Active to carry that step's budget to the convergence of a continuum kernel. The active branch is an alternative route to the same node rather than a stronger one, and no result of Section~\ref{sec:installation} passes through it: the installed-energy condition is derived from E56 and E67.
+
+\begingroup
+\singlespacing
+\small
+\setlength{\LTcapwidth}{\linewidth}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.17\linewidth}>{\raggedright\arraybackslash}p{0.19\linewidth}>{\raggedright\arraybackslash}p{0.54\linewidth}}
+\caption{Connecting hypotheses of the formal composition, eight per branch, and the installed-energy consequence. The branches share E12, E23 and E56--E89. Exact overlap compatibility and the encoding--readout structure are additional inputs. Table~\ref{tab:full} maps the node-level results.}
+\label{tab:edges}\\
+\hline
+Connection & Status & Required assumption \\
+\hline
+\endfirsthead
+\multicolumn{3}{l}{\small\itshape Table \thetable\ (continued)}\\
+\hline
+Connection & Status & Required assumption \\
+\hline
+\endhead
+\hline
+\endfoot
+E12\newline\textit{capacity and boundary} & Physical premise & A finite-capacity system realizes a field leaving its vacuum manifold. Capacity and boundary are independent roots. \\
+E23\newline\textit{boundary to register} & Bridge assumption & The boundary is associated with a finite register whose update leaves states unreachable. \\
+E34 / E34Active\newline\textit{register to dissipation} & Bridge assumption & Passive: predictive memory at the register's thermal scale and heat budget, with nonzero waste. Active: positive paths, local detailed balance and allocation of register heat to the named substep; the allocation uses the ledger identity and other operations' compressiveness. Both are exhibited at thermal-scale heats on finite state spaces with positive reverse paths, which is not the regime a cortical register occupies. \\
+E45 / E45Active\newline\textit{couplings to continuum} & Modelling assumption & Convergent spatial coupling energies. Declared mode hardware supplies a kernel limit for either branch. A learning witness computes installation and work from its own executed law. Convergence follows from mesh refinement rather than from the budget, which selects no regime at macroscopic scale. Refinement and physical identifications remain inputs. \\
+E56\newline\textit{field identification} & Physical commitment & A specified physical field realizes the limiting coupling and satisfies the kernel conditions. \\
+E67\newline\textit{above threshold} & Physical commitment & That field operates above the synchronization threshold. \\
+E78\newline\textit{coherence to cover} & Bridge assumption & Coherence relaxes the supplied cover at coupling at least the named mean-field value. Shared phase encoders bound vector-content mismatch; the exact cover and timely responsiveness remain separate requirements. Patches and oscillators carry one index, so one oscillator carries exactly one content patch: a modelling assumption rather than a consequence, and not an innocent one, since field-mediated coupling is spatial while two territories describing one quantity need not be neighbours. Where the cover's nerve is connected the same edge carries through the sites its patches share, at a residual linear in that nerve's diameter; where the configuration is frequency-locked it carries through the coupling graph's algebraic connectivity $\lambda_2$ instead of through any patch count, which asks the cover for nothing and is declared hardware data in the standing of $\kappa$. \\
+E89\newline\textit{contraction to fixed point} & Modelling assumption & A map mediated by local self-encoding fixes the glued section and has the stipulated Lipschitz factor $\Lambda<1$. Reconstruction over a declared family imposes an additional code-separation criterion. \\
+Installed energy & Conditional theorem & Under Section~\ref{sec:installation}'s occupancy and mode-price conditions, E56 and E67 require $U_{\mathrm{inst}}>2D/\kappa$. The learning witness clears this necessary bound; its matched control does not. Neither physical premise follows. \\
+\end{longtable}
+\endgroup
+
+
+Both branches also take a thermodynamic cover carrying exact overlap compatibility and a reflexive boundary specifying encoding and readout. They conclude that the glued section is the unique fixed point of self-prediction. Compatibility and accuracy at that section enter as premises; uniqueness follows. Identifying encoding with restriction needs the separate resonance condition of Eq.~\eqref{eq:selfmap}.
+
+Each of the eight edges is supplied rather than derived from the one above it. E12 is equivalent to its conclusion, so capacity and boundary are independent roots rather than a step from one to the other; both E45 discharges take their convergence from refinement data and not from the thermodynamic bound; E78 states that coherence relaxes the supplied cover, and the coherence-to-content estimate of Eq.~\eqref{eq:main-content-coherence} bounds disagreement only for encoders already shared on overlaps. The inferential content of the composition is its last step, where contraction and a fixed glued section give uniqueness. What composing them establishes is that the premises are consistent, named in one place and machine-checked together, and not that coherence follows from installed energy or self-representation from coherence.
+
+Joint witnesses combine a register, boundary, refining mesh and small spatial cover; active witnesses add controlled thermal updates and a priced installation. They establish satisfiability under their stated identifications. Mesh convergence follows from refinement data, and the witnesses establish no common cortical mechanism. Table~\ref{tab:full} maps the claims to their Lean declarations and records the counterexamples. The development declares no additional axioms beyond its libraries' foundational axioms.
+
 \textit{Formalization: \texttt{Chain.lean}.}
 
-The theorem \texttt{chain} uses the passive predictive node; \texttt{chain\_active} uses the article's Eq.~\eqref{eq:active-chain-bound} for a named \texttt{FiniteFeedbackStep} $M$, heat observable $q$, thermal scale $k_BT$ and budget $B$. The process's controller has the register's state type. \texttt{E34Active} requires positivity, local detailed balance at that register's temperature and $\langle Q\rangle_M\leq B$, with $B$ the register's heat. The entropy lower bound is derived by \nolinkurl{activeBound_of_e34Active}. A lower bound on erasure heat supplies no upper bound for an actuator and equates no operations; the upper-budget allocation comes from a resource model instead. \texttt{RegisterLedger} carries one register's update, its operations as elementary steps controlled by that register, local detailed balance for each at that register's own temperature, and the accounting identity $Q_{\mathrm{reg}}=\sum_i\langle Q\rangle_i$ for the heat its operations deliver to its reservoir. \nolinkurl{opHeat_nonneg_of_compressive} applies the left inequality of the article's Eq.~\eqref{eq:active-chain-bound} to an operation with $H(p')\leq H(p)$, so its share is nonnegative; \nolinkurl{opHeat_le_dissipation} then bounds an operation whose companions all compress by $Q_{\mathrm{reg}}$, and \nolinkurl{e34Active_of_ledger} turns that bound into the edge. Under Landauer's heat equation, \nolinkurl{ledger_bathEntropy} exhibits the same total as the register's own bath entropy change. The identity and the compressiveness are the model's physical inputs. Equation~\eqref{eq:finite-update-balance} accounts for both finite update substeps at a common thermal scale; it supplies neither this allocation nor the coupling-convergence implication of E45Active, and the ledger's index labels operations rather than sequencing them into one evolving law.
+The theorem \texttt{chain} uses the passive predictive node; \texttt{chain\_active} uses Eq.~\eqref{eq:active-chain-bound} for a named \texttt{FiniteFeedbackStep} $M$, heat observable $q$, thermal scale $k_BT$ and budget $B$. The process's controller has the register's state type. \texttt{E34Active} requires positivity, local detailed balance at that register's temperature and $\langle Q\rangle_M\leq B$, with $B$ the register's heat. The entropy lower bound is derived by \nolinkurl{activeBound_of_e34Active}. A lower bound on erasure heat supplies no upper bound for an actuator and equates no operations; the upper-budget allocation comes from a resource model instead. \texttt{RegisterLedger} carries one register's update, its operations as elementary steps controlled by that register, local detailed balance for each at that register's own temperature, and the accounting identity $Q_{\mathrm{reg}}=\sum_i\langle Q\rangle_i$ for the heat its operations deliver to its reservoir. \nolinkurl{opHeat_nonneg_of_compressive} applies the left inequality of Eq.~\eqref{eq:active-chain-bound} to an operation with $H(p')\leq H(p)$, so its share is nonnegative; \nolinkurl{opHeat_le_dissipation} then bounds an operation whose companions all compress by $Q_{\mathrm{reg}}$, and \nolinkurl{e34Active_of_ledger} turns that bound into the edge. Under Landauer's heat equation, \nolinkurl{ledger_bathEntropy} exhibits the same total as the register's own bath entropy change. The identity and the compressiveness are the model's physical inputs. Equation~\eqref{eq:finite-update-balance} accounts for both finite update substeps at a common thermal scale; it supplies neither this allocation nor the coupling-convergence implication of E45Active, and the ledger's index labels operations rather than sequencing them into one evolving law.
 
 \texttt{E45Active} consumes \texttt{ActiveBound} for these same process, heat observable, thermal scale and budget, and requires convergence of the specified coupling-energy sequence to its named limit. Neither an unspecified agent nor a bound for a different process discharges this edge. The scalar constitutive model below discharges this edge for its own process-dependent density, and the microscopic model below discharges it for a kernel on the product space built from mode occupancies the step actually changes. \texttt{E45} is discharged the same way for named hardware holding a declared \texttt{PredictiveDissipation}'s own joint law. Both proofs discard their premise, because the refinement data and not the bound supplies convergence. Both branches then use \nolinkurl{chain_from_coarseGrains}, sharing E56--E89 and preserving the particular cover and its fixed section. Each composition has eight named edges; local-state compatibility, contraction and the fixed-state identification remain supplied physical content.
 

@@ -137,7 +137,7 @@ action points. N7 closed in the same pass; the rest are open.
   E78 carries the whole positive coherence-to-content link. Say so in the
   abstract and Conclusions.
 
-- [ ] **N13 — Keep the speed limit; move the thermodynamic chain.** The
+- [x] **N13 — Keep the speed limit; move the thermodynamic chain.** The
   paper concedes that every edge is supplied and that only the final
   contraction-to-uniqueness step infers anything. E12–E45 ("vacuum
   manifold", "register") are opaque to the readership and unconnected to the
@@ -330,6 +330,23 @@ itself; immediacy ↔ no higher-order state) and compares with self-model theory
 (`seth2013`, verified: *TiCS* 17(11), 565–573). Formalizing `F_u` remains
 possible future Lean work but would be close to trivial without a physical
 readout.
+
+### 2026-09-24 — N13 speed limit kept, thermodynamic chain moved
+
+The article's installed-energy subsection moved verbatim, with its labels
+(`sec:installation`, `eq:microscopic-kernel`, `eq:installed-coupling-bound`), to
+the head of the supplement's installation section. The "Resource premises and
+composition" section's thermodynamic paragraph, active-branch bound
+(`eq:active-chain-bound`), composition paragraphs and the full eight-edge table
+(now `tab:edges`) moved to the head of `sec:supp-composition`. In their place:
+§3 gains `sec:speed-limit`, one paragraph on
+`∫σ_J ≥ [Δ arcsin r]²/(Dτ)` (Eq. `speed-limit`) framed as a `1/τ` cost floor /
+minimum duration for a current budget, bearing on ignition-like transitions
+(`dehaene2014`) and recovery latency, with the thermal-conversion premises and
+a one-sentence installed-energy price (no cortical κ). §7 is now "The formal
+composition": one paragraph and Table 1 cut to E56–E89. Figure 1's box and
+caption, the roadmap, notation rows and the primer's overview follow. Macro
+suites, `check_tableS1.py` and `check_table_coverage.py` pass.
 
 ## C — What a continuous medium buys, and what is electromagnetic about it
 
