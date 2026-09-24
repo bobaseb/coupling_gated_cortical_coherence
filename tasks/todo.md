@@ -154,7 +154,7 @@ action points. N7 closed in the same pass; the rest are open.
   `check-table-coverage`, `check_tableS1.py` and the E78/E89 references
   added in N7.
 
-- [ ] **N14 — Tighten the scope; keep and reframe the GPU section.**
+- [x] **N14 — Tighten the scope; keep and reframe the GPU section.**
   Consider splitting the awakening/ephaptic material (extracellular
   geometry, onset protocol) into a separate paper. Shorten the ramp
   paragraph and figure, given that the fitted exponent's CI excludes 1/2 and
@@ -347,6 +347,26 @@ a one-sentence installed-energy price (no cortical κ). §7 is now "The formal
 composition": one paragraph and Table 1 cut to E56–E89. Figure 1's box and
 caption, the roadmap, notation rows and the primer's overview follow. Macro
 suites, `check_tableS1.py` and `check_table_coverage.py` pass.
+
+### 2026-09-24 — N14 GPU section reframed, ramp shortened
+
+The digital-candidate section ("What the conditions ask of a digital
+candidate") now opens with what a unity or self-representation claim commits
+a system's maker to, positions against the indicator-properties approach
+(`butlin2023`, verified online: arXiv:2308.08708, Butlin, Long, Elmoznino,
+Bengio, Birch et al.), says a digital system is where the conditions can be
+measured today (full state access, exact interventions) and names the
+two-part decoder measurement (N14b) as the direct route. The causal-mask
+deadline is the lead technical content; the rank premise follows in one
+sentence; the synthetic rank-two task and its macros live only in
+`sec:supp-gpu`. The ramp subsection is two paragraphs: the fitted exponent,
+its bootstrap interval excluding 1/2, the criterion dependence and no common
+exponent. Figure `fig:ramp` moved to the supplement's finite-ramp section,
+whose existing prose already carried every moved number.
+
+**Not done: splitting the awakening/ephaptic material into a separate paper.**
+That is an authorial scope decision (it would remove §8.2–8.4 and the onset
+protocol, and change the title's reach); left open for the author.
 
 ## C — What a continuous medium buys, and what is electromagnetic about it
 

@@ -1582,6 +1582,16 @@ Before recruitment or acquisition, pilot data must estimate regional phase-noise
 
 \subsection{Finite-ramp numerical check}
 
+Figure~\ref{fig:ramp} shows the ensemble-mean order and each replica's escape across the sweep.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.90\linewidth]{simulations/figures/dynamic_ramp_bifurcation_delay.png}
+\caption{Finite-rate departures from the stationary branch. Curves show ensemble-mean order for four ramp speeds $v$, with one-standard-error bands. Coloured points mark each replica's first sustained escape, plotted at its recorded order; censored replicas have no point. The dashed vertical line is the static threshold, the dash-dotted horizontal line is the escape criterion, and the dotted horizontal line is the finite-size reference. The replica-bootstrap interval for the delay exponent is reported below.}
+\label{fig:ramp}
+\end{figure}
+
+
 A finite-$N$ Euler--Maruyama ensemble quantifies the range over which the
 adiabatic reading is accurate.  With identical frequencies, $D=1$, $N=2000$ and
 $32$ seeded replicas, escape is defined as the first of three consecutive
