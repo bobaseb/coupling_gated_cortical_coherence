@@ -7,7 +7,11 @@ from pathlib import Path
 
 import numpy as np
 
-from g24_artifact_audit import audit_candidates, audit_linear_baseline
+from g24_artifact_audit import (
+    audit_candidates,
+    audit_confirmation_arrays,
+    audit_linear_baseline,
+)
 from g24_candidates import save_candidate_comparison
 from g24_shared_task import save_linear_baseline
 
@@ -21,6 +25,7 @@ class ArtifactAuditTests(unittest.TestCase):
             audit = json.loads((output / "audit.json").read_text())
             self.assertEqual(len(audit["ranks"]), 5)
             self.assertGreater(audit["ranks"][-1]["test_squared_error"], 0)
+            self.assertAlmostEqual(audit["declared_target_map"]["test_squared_error"], 0)
             with np.load(output / "decoders.npz", allow_pickle=False) as saved:
                 arrays = {name: saved[name] for name in saved.files}
             arrays["rank_3"][0, 0] += 1
@@ -68,6 +73,29 @@ class ArtifactAuditTests(unittest.TestCase):
             np.savez_compressed(output / "phase_network.npz", **arrays)
             with self.assertRaisesRegex(ValueError, "phase_network.*code drift"):
                 audit_candidates(output)
+
+    def test_confirmation_array_audit_distinguishes_repeated_states(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for seed in (27, 28, 29):
+                save_linear_baseline(
+                    root / f"g24_confirm_seed{seed}_linear",
+                    repeats=2,
+                    seed=seed,
+                    split="scene_pair",
+                )
+            audit_confirmation_arrays(root)
+            report = json.loads((root / "g24_confirmation_arrays.json").read_text())
+            self.assertTrue(report["noiseless_arrays_identical"])
+            with np.load(
+                root / "g24_confirm_seed29_linear" / "dataset.npz", allow_pickle=False
+            ) as saved:
+                arrays = {name: saved[name] for name in saved.files}
+            arrays["test_input"][0, 0] += 1
+            np.savez_compressed(root / "g24_confirm_seed29_linear" / "dataset.npz", **arrays)
+            audit_confirmation_arrays(root)
+            report = json.loads((root / "g24_confirmation_arrays.json").read_text())
+            self.assertFalse(report["noiseless_arrays_identical"])
 
 
 if __name__ == "__main__":

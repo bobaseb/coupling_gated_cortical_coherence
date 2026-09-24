@@ -12,6 +12,7 @@ class FollowupMacroTests(unittest.TestCase):
     def test_generated_file_matches_saved_summaries(self) -> None:
         self.assertEqual(OUTPUT.read_text(), render(FIGURES))
         self.assertIn("Do not edit manually", OUTPUT.read_text())
+        self.assertIn("\\gSceneDeclaredMapHeldout", OUTPUT.read_text())
 
     def test_missing_onset_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

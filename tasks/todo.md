@@ -2096,3 +2096,138 @@ exemptions were removed. `check_leaves` passes with the updated baseline.
 The exact G24 source bytes named in the timestamped protocol are retained
 under `simulations/figures/g24_confirm_source/`; active copies were formatted
 after the confirmation run, and artifact audits still pass.
+
+### G25–G30 — Fast followers from the G22–G24 manuscript review
+
+The thermodynamic section has a defensible main-text role through the cost of
+changing order and the explicit conditions on feedback and resource supply.
+Its physical interpretation remains conditional. The digital section supplies
+reconstruction and causal-access measurements; the current CPU examples do
+not establish a GPU or LLM limitation. These small follow-ups tighten those
+claims and feed the still-open G20/G21 audit and delivery work.
+
+- [x] **G25 — Remove the remaining macroscopic-energy overclaim.**
+      The opening of “Thermodynamics and composition” still calls the resource
+      condition nonrestrictive for every macroscopic candidate, while the
+      corrected installation section leaves mode energy and conversion factor
+      uncalibrated. Replace that universal conclusion with the actual scope:
+      restrictiveness for a physical candidate depends on its specified modes,
+      prices, coupling reduction and diffusion. Audit the composition table,
+      supplement and primer for the same inference. Keep stored mode energy,
+      metabolic expenditure, work allowance and register heat distinct.
+      **Verify:** no passage infers satisfaction or vacuity of the installed
+      energy condition from macroscopic size or a large metabolic budget alone.
+
+- [x] **G26 — Center the thermodynamic section on its useful bound.**
+      Lead with G22's finite-time order-change current-cost floor and the
+      stationary ordered zero-current control. Explain the measurable inputs
+      (endpoint order, elapsed time, diffusion and a reconstructed current)
+      and retain the smooth positive-density and 0 < r < 1 domain. State that
+      the result constrains a change in order, not an arbitrary coupling ramp
+      or maintenance of stationary order. Keep the exploratory status of the
+      numerical onset threshold visible. Use the saved cost/floor macros if
+      a numerical illustration helps; do not rerun sweeps for prose changes.
+      Compress the feedback and repeated-operation material to the conclusions
+      needed in the article, with derivations in the supplement. Preserve the
+      distinction between a standalone result and an edge consumed by the
+      eight-hypothesis composition.
+      **Verify:** a reader can identify what the bound rules out, its domain,
+      and the additional physical conversion needed before calling it thermal
+      dissipation or cortical power. No implication from heat to compatibility
+      or self-reconstruction is suggested.
+
+- [x] **G27 — Audit the feedback witness against the thermodynamic prose.**
+      Map each main-text heat/work assertion to the formal theorem and the
+      implemented stage that supports it. In particular, check whether “For
+      that model” before the cumulative entropy/heat/work inequality suggests
+      that the numerical G23 sensor and reset stages satisfy the full thermal
+      protocol: their assigned prices and phase-flip bath heat do not by
+      themselves supply reverse channels and local detailed balance for the
+      whole cycle. Make any additional assumptions explicit at that sentence.
+      Audit the “near-equilibrium” characterization separately: positive path
+      support, local detailed balance and energies of order kT do not alone
+      specify proximity to equilibrium. Retain the label only with a defined
+      criterion and evidence for the witness. Preserve expected-budget versus
+      trajectory-store distinctions and the passive Markov premise.
+      **Verify:** the text distinguishes proved conditional inequalities,
+      numerical stage accounting and an implemented physical heat protocol.
+      Every retained regime claim has an explicit supporting condition; a
+      complete sensing/reset reservoir model remains a separate research task
+      if it is not already available.
+
+- [x] **G28 — State what the G24 confirmation actually replicates.**
+      Artifact review found identical train/test arrays at noiseless seeds
+      27–29. The deterministic linear fit repeats the same calculation;
+      nonlinear initialization changes are a different source of variation.
+      Describe the noiseless linear result as numerical reproducibility and
+      distinguish it from robustness across independent datasets or state
+      families. Preserve the timestamped protocol and its actual success rule,
+      while stating which runs were exploratory and which were fixed before
+      execution. Do not retroactively reinterpret repeated zero-noise rows as
+      independent observations.
+      **Verify:** an artifact-only check reports array equality and the actual
+      sources of variation; the article, supplement and working summary agree
+      on the limited evidential meaning of the confirmation batch. Any new
+      noisy/family replication is separately specified before execution.
+
+- [x] **G29 — Add the successful target-map control to the G24 account.**
+      The saved task supplies a target operator that reconstructs every
+      noiseless held-out state exactly, including all three confirmation
+      datasets checked in review. Add this explicitly supplied-map control to
+      the artifact report alongside the fitted full-linear decoder. Label it
+      as an oracle using the declared task map, not a decoder learned from the
+      restricted training family. Explain how the scene-equality training
+      constraint leaves a direction unidentified and why the fitted decoder's
+      failure does not establish an intrinsic capacity limit. Keep the parity
+      training-law rank floor distinct from a held-out error guarantee.
+      **Verify:** failing tests precede analysis changes; the report recomputes
+      control error from saved arrays, and any publication number comes from
+      a saved summary through a drift-tested macro. No production training is
+      needed for this control and no architecture-wide ranking is inferred.
+
+- [x] **G30 — Tighten the digital section and deliver the corrected prose.**
+      Correct “earlier positions” to “positions at or before t” in the
+      decoder-only causal-mask paragraph, matching the formal causal past.
+      Keep the section proportionate to its demonstrated contribution:
+      reconstruction across a declared family, interventions on internal codes,
+      independently decoded shared quantities and access within a deadline.
+      Preserve the actual linear-rank premise, the softmax counterexample and
+      the absence of a measured GPU energy or actual LLM benchmark. Present
+      G24 as a finite task illustration with the G28/G29 qualifications.
+      **Verify:** manually compare compressed claims to their theorem premises
+      and saved controls under G20. For G25–G30 publication edits, run applicable
+      gates, rebuild each affected tracked PDF with two LaTeX passes, review
+      primer consistency and refresh an existing arXiv build under G21. Record
+      validation without treating code tests as a scientific meaning audit.
+
+**G25–G30 completion (2026-09-24).** The article now leads its thermodynamic
+discussion with the G22 finite-time probability-current floor, states its
+smooth positive-order domain and gives the saved exploratory cost and floor
+through generated macros. The stationary zero-current control and the lack of
+a physical heat conversion remain explicit. The universal macroscopic-energy
+claim was removed: mode prices and coupling calibration decide whether the
+installed-energy condition restricts a candidate. The G23 cycle inequality is
+identified as conditional on a shared physical ledger and stagewise local
+detailed balance; the numerical witness specifies phase-flip bath heat and
+declared sensing/reset work prices, not a complete heat protocol. The
+two-bit witness is no longer described as near equilibrium without a measured
+criterion.
+
+The G24 artifact audit now computes the declared target map's training and
+held-out errors directly from saved arrays. It gives zero noiseless held-out
+error on the scene-family task, while the fitted full-linear decoder gives
+about 2.667. A separate artifact report shows that noiseless confirmation
+seeds 27–29 have identical train/test arrays; the noisy seed-27 inputs differ.
+The manuscript distinguishes repetition of the deterministic linear fit from
+variation in nonlinear initialization and states the training-family rank
+limit. The causal-mask wording now includes position $t$ itself. The primer
+was brought into agreement with these results and with the finite G23
+feedback model.
+
+Focused analysis tests (28) pass, along with Ruff, strict mypy, Bandit,
+Vulture, Xenon, Tach, prose, Table S1, coverage and figure checks. Main,
+supplement and primer PDFs were rebuilt with two LaTeX passes each; the arXiv
+tarball compiled from its unpacked files, and freshness checks pass. No Lean
+source or reference changed. These are presentation and artifact-audit
+corrections; a physical sensing/reset reservoir model and cortical mode-price
+calibration remain separate research questions.

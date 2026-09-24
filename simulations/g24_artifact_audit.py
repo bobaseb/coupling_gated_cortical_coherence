@@ -149,6 +149,7 @@ def audit_linear_baseline(output: Path) -> None:
     test = _load_array(dataset, "test_input")
     train_target = _load_array(dataset, "train_target")
     test_target = _load_array(dataset, "test_target")
+    declared_map = _load_array(dataset, "target_operator")
     covariance = train.T @ train / len(train)
     checkpoint = output / "decoders.npz"
     full = _load_array(checkpoint, "rank_4")
@@ -178,5 +179,51 @@ def audit_linear_baseline(output: Path) -> None:
                 "effective_rank": effective_rank,
             }
         )
-    audit = {"source": "g24_artifact_audit.py", "ranks": rows}
+    if declared_map.shape != (train_target.shape[1], train.shape[1]):
+        raise ValueError("Declared target map shape drift")
+    audit = {
+        "source": "g24_artifact_audit.py",
+        "ranks": rows,
+        "declared_target_map": {
+            "train_squared_error": reconstruction_scores(train, train_target, declared_map)[
+                "squared_error"
+            ],
+            "test_squared_error": reconstruction_scores(test, test_target, declared_map)[
+                "squared_error"
+            ],
+        },
+    }
     (output / "audit.json").write_text(json.dumps(audit, indent=2) + "\n")
+
+
+def audit_confirmation_arrays(root: Path) -> None:
+    """Report whether the noiseless confirmation seeds contain distinct data."""
+    fields = (
+        "train_input",
+        "train_target",
+        "train_state",
+        "test_input",
+        "test_target",
+        "test_state",
+    )
+    first = root / "g24_confirm_seed27_linear" / "dataset.npz"
+    identical = all(
+        np.array_equal(
+            _load_array(first, field),
+            _load_array(root / f"g24_confirm_seed{seed}_linear" / "dataset.npz", field),
+        )
+        for seed in (28, 29)
+        for field in fields
+    )
+    report = {
+        "source": "g24_artifact_audit.py",
+        "noiseless_seeds": [27, 28, 29],
+        "noiseless_arrays_identical": identical,
+        "compared_fields": list(fields),
+    }
+    noisy = root / "g24_confirm_seed27_noise0p1_linear" / "dataset.npz"
+    if noisy.exists():
+        report["noisy_seed27_inputs_differ"] = not np.array_equal(
+            _load_array(first, "train_input"), _load_array(noisy, "train_input")
+        )
+    (root / "g24_confirmation_arrays.json").write_text(json.dumps(report, indent=2) + "\n")

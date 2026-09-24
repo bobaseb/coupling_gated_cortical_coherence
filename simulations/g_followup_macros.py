@@ -46,6 +46,7 @@ def render(figures: Path) -> str:
     parity_rank_two = _match(parity["ranks"], "rank", 2)
     shifted = _read(figures / "g24_scene_pair_linear" / "summary.json")
     shifted_full = _match(shifted["ranks"], "rank", 4)
+    declared_map = _read(figures / "g24_scene_pair_linear" / "audit.json")["declared_target_map"]
     candidates = _read(figures / "g24_scene_pair" / "summary.json")
     attention = _match(candidates["candidates"], "candidate", "transformer")
     phase = _match(candidates["candidates"], "candidate", "phase_network")
@@ -59,6 +60,7 @@ def render(figures: Path) -> str:
         ("gParityRankTwoHeldout", _number(parity_rank_two, "test_squared_error")),
         ("gSceneFullTrainError", _number(shifted_full, "train_squared_error")),
         ("gSceneFullHeldoutError", _number(shifted_full, "test_squared_error")),
+        ("gSceneDeclaredMapHeldout", _number(declared_map, "test_squared_error")),
         ("gSceneAttentionHeldoutError", _number(attention, "test_squared_error")),
         ("gScenePhaseHeldoutError", _number(phase, "test_squared_error")),
     )

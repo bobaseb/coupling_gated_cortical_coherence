@@ -1131,13 +1131,21 @@ where they disagree. In the saved seed-24 noiseless run, the full linear map
 has training error
 \gSceneFullTrainError{} but held-out error
 \gSceneFullHeldoutError{}: the training covariance lacks a direction needed
-by the test family. The attention and two-node phase candidates have held-out
+by the test family. The declared task map, supplied independently of the
+restricted fit, has noiseless held-out error \gSceneDeclaredMapHeldout{}.
+Thus the fitted map's error measures failure to identify that direction from
+the training family; the task itself admits exact linear reconstruction.
+The attention and two-node phase candidates have held-out
 errors \gSceneAttentionHeldoutError{} and \gScenePhaseHeldoutError{} under
 the declared short CPU training budget. A protocol-only commit fixed a
 separate confirmation batch's seeds, scoring rule and source hashes before
 that batch was run; its saved artifacts passed the audits and its declared
 full-linear distribution-shift criterion at every noiseless confirmation
-seed. These figures assess the fitted candidates; they neither rank
+seed. The noiseless training and test arrays are identical across those
+seeds, so the deterministic linear fit repeats one numerical calculation;
+varying nonlinear initializations probes only fitting variation on those
+same states. The noisy confirmation run changes its sampled observations.
+These figures assess the fitted candidates; they neither rank
 architecture families nor measure hardware energy. Independent noise,
 local-view disagreement, and shifts to the
 encoded self coordinate holding the scene fixed are scored separately. A

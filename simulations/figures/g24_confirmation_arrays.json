@@ -1,0 +1,18 @@
+{
+  "source": "g24_artifact_audit.py",
+  "noiseless_seeds": [
+    27,
+    28,
+    29
+  ],
+  "noiseless_arrays_identical": true,
+  "compared_fields": [
+    "train_input",
+    "train_target",
+    "train_state",
+    "test_input",
+    "test_target",
+    "test_state"
+  ],
+  "noisy_seed27_inputs_differ": true
+}

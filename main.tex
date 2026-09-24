@@ -328,16 +328,19 @@ and checks the softmax counterexample.
 A fixed synthetic task makes the scope visible. Two local views share scene
 and self coordinates; the target is the global state and a self-relative
 coordinate. On the parity-held-out family, a rank-two linear decoder's
-input-weighted predicted squared-error floor is \gParityRankTwoFloor{}, and
-its held-out error is \gParityRankTwoHeldout{}. On a separate scene-family
-shift, the full linear decoder fits training inputs to
-\gSceneFullTrainError{} error but has \gSceneFullHeldoutError{} held-out
-error. This is failure of training-family coverage, not a violation of the
-spectral theorem. A small causal attention decoder and a coupled phase code
-also lose held-out accuracy on that shift; neither is governed by the linear
-rank floor. The measured code, overlap perturbations, self-state
-interventions and communication deadlines are described in Supplemental
-Material. The comparison supplies no hardware-energy or experiential claim.
+input-weighted predicted training-error floor is \gParityRankTwoFloor{}, and
+its held-out error is \gParityRankTwoHeldout{}. Equal numerical values do
+not make the training-law floor a held-out guarantee. On a separate
+scene-family shift, the fitted full linear decoder has training error
+\gSceneFullTrainError{} and held-out error \gSceneFullHeldoutError{}.
+The task's declared target map reconstructs the noiseless held-out inputs
+with error \gSceneDeclaredMapHeldout{}; the restricted training family leaves
+one direction unidentified. A small causal attention decoder and a coupled
+phase code also lose held-out accuracy on that shift under their stated CPU
+fits; neither is governed by the linear rank floor. The measured codes,
+overlap perturbations, self-state interventions and communication deadlines
+are described in Supplemental Material. These task results rank no
+architecture family and supply no hardware-energy or experiential claim.
 
 \paragraph{Codes, not reports.} Reconstruction across a declared family requires the encoder to distinguish states more than $2\varepsilon$ apart when the target error is $\varepsilon$ (Eq.~\eqref{eq:reconstruction-separation}). Verbal reports alone do not establish that condition. For a proposed self-model, declare the family and fidelity, identify the internal code under intervention, then test whether it separates the family. A token sequence is one possible code; an activation region is another and requires its own measurement.
 
@@ -349,7 +352,7 @@ one bit per emitted binary symbol; an independent output conveys zero.
 This counts the declared output sequence, so a cache, timing signal or other
 accessible state must be included separately when it forms part of the channel.
 
-\paragraph{The region, not the readout.} If the code is a restriction of the candidate's state to a region, that region must distinguish the relevant family before a readout is chosen. In one forward pass of a decoder-only transformer, the causal mask restricts position $t$ to earlier positions; an intervention outside that causal past cannot be reconstructed from its activation alone. Across passes, prior output adds a separate channel. The bounded-fan-in communication result of Section~\ref{sec:self} applies to a declared physical interconnect and deadline; a full-support attention graph does not satisfy its sparse-neighbourhood premise. Supplemental Material gives the graph bounds and their hardware scope.
+\paragraph{The region, not the readout.} If the code is a restriction of the candidate's state to a region, that region must distinguish the relevant family before a readout is chosen. In one forward pass of a decoder-only transformer, the causal mask restricts position $t$ to positions at or before $t$; an intervention outside that causal past cannot be reconstructed from its activation alone. Across passes, prior output adds a separate channel. The bounded-fan-in communication result of Section~\ref{sec:self} applies to a declared physical interconnect and deadline; a full-support attention graph does not satisfy its sparse-neighbourhood premise. Supplemental Material gives the graph bounds and their hardware scope.
 
 \paragraph{Agreement about what.} Unity requires the candidate's local descriptions to agree on independently identified shared quantities (Section~\ref{sec:unity}). Common timing, a shared residual stream and fluent output supply none of that, for the reason Section~\ref{sec:unconditional} gives: coordination bounds content disagreement only through encoders already related on overlaps. Which quantities two parts of a model describe in common is a decoding question, carrying the failure modes of Section~\ref{sec:observations}. The cover is a choice, and choosing it to secure agreement empties the claim.
 
@@ -360,41 +363,42 @@ The conditions impose measurements on a digital candidate but settle no question
 \section{Thermodynamics and composition}
 \label{sec:chain}
 
-The phase and representation results concern coupling, content disagreement and reconstruction error. Thermodynamics constrains the physical operations that could implement them, and it does so from the side rather than along the spine: no edge below derives coherence, compatibility or reconstruction from a heat bound, and the resource condition these edges terminate in is necessary without being restrictive for any macroscopic candidate (Section~\ref{sec:installation}). What this half contributes is a ledger in which a resource claim is stated in checkable units. Finite-register capacity obeys $H(p)\leq\log|X|$; erasure heat depends on specified system--bath assumptions \cite{landauer1961,norton2005,shenker2000}. A separate boundary result concerns a field reaching disconnected vacuum components \cite{kibble1976}. The composition connects these objects through the explicit hypotheses in Table~\ref{tab:summary}.
+The phase and representation results concern coupling, content disagreement and reconstruction error. A finite change in phase order has a probability-current cost bound under the conditions below. Thermodynamic heat requires a separate physical identification of the current and reservoir. The installed-energy condition of Section~\ref{sec:installation} is necessary for its declared actuator; whether it restricts a physical candidate depends on measured mode prices, coupling reduction and diffusion. No composition edge derives coherence, compatibility or reconstruction from a heat bound. Finite-register capacity obeys $H(p)\leq\log|X|$; erasure heat depends on specified system--bath assumptions \cite{landauer1961,norton2005,shenker2000}. A separate boundary result concerns a field reaching disconnected vacuum components \cite{kibble1976}. Table~\ref{tab:summary} states the connecting assumptions.
 
-\subsection{Probability current supplies a dissipation bound}
+\subsection{Changing order carries a probability-current cost}
 
-For a positive normalized phase density $\rho$, diffusion $D>0$ and current
-$J=v\rho-D\partial_\theta\rho$, define
-$\sigma_J=\int_{-\pi}^{\pi}J^2/(D\rho)\,d\theta$. Continuous density and
-current give the sharp bound
+For a smooth positive normalized periodic phase density $\rho$ satisfying
+$\partial_t\rho=-\partial_\theta J$, with diffusion $D>0$, define
+$\sigma_J=\int_{-\pi}^{\pi}J^2/(D\rho)\,d\theta$ and
+$r=|\int e^{i\theta}\rho\,d\theta|$. Differentiation under the integral
+gives $\dot r^2\leq D\sigma_J(1-r^2)$ wherever $0<r<1$. A smooth path
+staying in that interval therefore obeys
+\begin{equation}
+ \int_0^\tau\sigma_J\,dt\geq
+ \frac{[\arcsin r(\tau)-\arcsin r(0)]^2}{D\tau}.
+ \label{eq:order-change-cost}
+\end{equation}
+Endpoint order, duration, diffusion and the probability current determine
+this floor. In an exploratory finite-volume onset calculation, a threshold
+chosen after inspecting pilot runs gives current cost
+\gOnsetCurrentCost{} versus a floor of \gOnsetCurrentFloor{}. These numbers
+describe the discretized model, not thermal or metabolic power.
+
+The current $J=v\rho-D\partial_\theta\rho$ also satisfies
 \begin{equation}
  \left(\int_{-\pi}^{\pi}J\,d\theta\right)^2\leq D\sigma_J.
  \label{eq:current-cost}
 \end{equation}
 A uniform density under constant drive $\omega$ attains
-$\sigma_J=\omega^2/D$. In contrast, the identical-frequency gradient model
-has positive self-consistent stationary order above $K=2D$ with $J=0$ and
-$\sigma_J=0$. Thus neither positive order nor its time average forces positive
-dissipation: a stationary ordered density is already a counterexample.
-A cortical maintenance-power bound requires an identified nonequilibrium drive,
-its probability current and a thermal conversion; phase order alone does not
-supply them. The current functional is distinct from the substrate squared-drift
-objective used in the plasticity controls. For a positive normalized periodic
-density satisfying the classical continuity equation, the rotation-invariant
-order magnitude $r=|\int e^{i\theta}\rho\,d\theta|$ obeys
-$\dot r^2\leq D\sigma_J(1-r^2)$ wherever $0<r<1$ and differentiation under
-the integral is valid. For a smooth path staying in that interval,
-$\int_0^\tau\sigma_J\,dt\geq
-[\arcsin r(\tau)-\arcsin r(0)]^2/(D\tau)$.
-This gives a positive current-cost floor for a specified finite change in
-order, even though a stationary ordered density can have zero cost. A
-finite-volume onset test with a declared order threshold exceeds the floor;
-its threshold was selected after exploratory runs, and its cost is a
-probability-current account rather than thermal or metabolic power.
-It does not bound an externally chosen $\dot K$: the uniform density is an
-exact time-dependent solution of zero current cost for every coupling schedule,
-including positive schedules with any prescribed derivative.
+$\sigma_J=\omega^2/D$. The identical-frequency gradient model has positive
+self-consistent stationary order above $K=2D$ with $J=0$ and
+$\sigma_J=0$. Stationary order therefore has no positive current-cost floor.
+Nor does the bound price an externally chosen $\dot K$: in the
+identical-frequency zero-drive model, the uniform density remains an exact
+zero-current solution under any coupling schedule.
+A cortical power claim needs the physical current, reservoir and thermal
+conversion to be identified. This current functional is distinct from the
+substrate squared-drift objective used in the plasticity controls.
 
 \subsection{Feedback changes the information constraint}
 
@@ -435,14 +439,16 @@ phase-flip bath heat is recorded separately. The symbol task and mode prices
 are supplied toy inputs, so this does not identify a cortical mechanism or a
 heat cost for the full sensing and reset protocol.
 
-For that model, common energy observable $\mathcal{E}$, thermal scale $k_BT$, local detailed balance and positive support at each stage give
+For a complete cycle with a common energy observable $\mathcal{E}$ and
+thermal scale $k_BT$, positive forward and reverse path support, and local
+detailed balance at each stage, the conditional joint-law budget is
 \begin{equation}
  k_BT[H(p_0)-H(p_N)]\leq Q_{<N}
  =W_{<N}+\langle \mathcal{E}\rangle_0-\langle \mathcal{E}\rangle_N
  \leq B+\langle \mathcal{E}\rangle_0-\langle \mathcal{E}\rangle_N,
  \label{eq:continuing-budget}
 \end{equation}
-where expected cumulative work stays within the supplied allowance $B$ at every prefix. This bounds expectations. Separate constructions track a store on each trajectory, include finite sources, charge sensor clearing and prepend preparation. They specify when a mean allowance represents an available resource; an expected budget alone permits overdrawn paths.
+when expected cumulative work stays within the supplied allowance $B$ at every prefix. This bounds expectations. The numerical witness specifies a bath for the phase transition; its sensing, reset and preparation prices do not establish reverse protocols or heat for the complete cycle. Separate constructions track a store on each trajectory and specify when a mean allowance represents an available resource; an expected budget alone permits overdrawn paths.
 
 For the declared process, a finite source with positive net cost funds finitely
 many cycles. A common physical ledger for the sensing and reset channels, and
@@ -455,7 +461,7 @@ The passive and feedback composition theorems each accept eight connecting impli
  k_BT>0,\qquad k_BT[H(p)-H(p')]\leq\langle Q\rangle\leq B,
  \label{eq:active-chain-bound}
 \end{equation}
-with $B$ the register's heat. The upper allocation follows from a ledger whose operations deliver that total heat to one reservoir and whose other operations do not increase joint entropy. Those ledger assumptions are physical inputs. Neither Landauer's lower bound nor microscopic reversibility supplies them. The regime in which those premises are exhibited is a near-equilibrium one: strictly positive forward and reverse elementary paths, local detailed balance at one thermal scale, and entropy differences and heats of order $k_BT$, the witnesses being two-bit systems with interaction energies of that size. Cortex has not been shown to satisfy these premises. The illustrative cortical metabolic expenditure over one region and one phase-diffusion time is $\energyThermalQuanta$ times $kT$ at body temperature, but identifying it with the register heat budget $B$ requires a common physical ledger. Reading the register at the scale where its premises are physical, such as a single channel, requires E45Active to carry that step's budget to the convergence of a continuum kernel. The active branch is an alternative route to the same node rather than a stronger one, and no result of Section~\ref{sec:installation} passes through it: the installed-energy condition is derived from E56 and E67.
+with $B$ the register's heat. The upper allocation follows from a ledger whose operations deliver that total heat to one reservoir and whose other operations do not increase joint entropy. Those ledger assumptions are physical inputs. Neither Landauer's lower bound nor microscopic reversibility supplies them. Finite two-bit witnesses exhibit positive forward and reverse elementary paths, local detailed balance at one thermal scale, and interaction energies of order $k_BT$; these conditions alone do not quantify proximity to equilibrium. Cortex has not been shown to satisfy these premises. The illustrative cortical metabolic expenditure over one region and one phase-diffusion time is $\energyThermalQuanta$ times $kT$ at body temperature, but identifying it with the register heat budget $B$ requires a common physical ledger. Reading the register at the scale where its premises are physical, such as a single channel, requires E45Active to carry that step's budget to the convergence of a continuum kernel. The active branch is an alternative route to the same node rather than a stronger one, and no result of Section~\ref{sec:installation} passes through it: the installed-energy condition is derived from E56 and E67.
 
 \begingroup
 \nolinenumbers

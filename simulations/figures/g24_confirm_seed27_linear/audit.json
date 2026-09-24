@@ -36,5 +36,9 @@
       "predicted_train_floor": 3.31454037076722e-16,
       "effective_rank": 5
     }
-  ]
+  ],
+  "declared_target_map": {
+    "train_squared_error": 0.0,
+    "test_squared_error": 0.0
+  }
 }

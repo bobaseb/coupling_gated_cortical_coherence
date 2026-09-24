@@ -4856,7 +4856,10 @@ uses the singular values of the target after an input-covariance factor.
 On a shared synthetic task, saved linear decoders attain that training-law
 floor. They need not preserve their accuracy on a new family: a full-capacity
 decoder trained where two scene coordinates always agree fails when those
-coordinates disagree. Small attention and coupled-phase controls also fail
+coordinates disagree. The declared task map reconstructs the noiseless test
+states exactly; the restricted training family cannot identify that map
+uniquely. Repeating the noiseless linear fit at different seeds leaves the
+input arrays unchanged. Small attention and coupled-phase controls also fail
 under the declared training budget. A three-node phase chain gives a separate
 causal-past check: an intervention two graph edges from its encoding node
 cannot change the code in fewer than two synchronous rounds. These are
@@ -6317,7 +6320,7 @@ Learning from outcomes (\S\ref{sec:observational-learning}) & Expected reward of
 \raggedright Phase sensor (\S\ref{sec:phase-sensor}) & \raggedright Symbol probabilities follow from oscillator counts; equal coherence can carry different task information & \raggedright\arraybackslash Theorem for supplied phase law, sampling and readout; no phase dynamics \\
 Register's bath (\S\ref{sec:register-bath}) & \raggedright A reversible register--bath gate delivers the erasure heat, and a map-indexed budget needs a prepared bath and a work supply & \raggedright\arraybackslash Theorem (negative); positivity, local detailed balance and the ledger identity do not follow from reversibility \\
 Installed energy (\S\ref{sec:installed-energy}) & \raggedright $K\leq\kappa U$ excludes the scalar coherent branch when $\kappa U\leq2D$ & \raggedright\arraybackslash Conditional theorem; hardware sets $\kappa$, installed energy is not heat, and exceeding the line does not guarantee coherence \\
-\raggedright Learning installs coupling (\S\ref{sec:learned-installation}) & \raggedright Reward, kernel and installation work use the same executed law & \raggedright\arraybackslash Exact witness; clears a necessary energy bound, with evolving phase feedback open \\
+\raggedright Learning installs coupling (\S\ref{sec:learned-installation}) & \raggedright Reward, kernel and installation work use the same executed law & \raggedright\arraybackslash Exact witness; clears a necessary energy bound. A separate finite phase/register model closes feedback under supplied sensor and price rules; its full sensing and reset heat protocol remains unspecified \\
 KL bound; free-energy critique (\S\ref{sec:fep}) & Blocks ``dissipation $\Rightarrow$ true model'' & Instance postulate; the limit does \emph{not} follow \\
 Squared-drift gradient (\S\ref{sec:sigma}) & A descendable objective for plasticity & Theorem at fixed phases; \emph{not} entropy production \\
 Kuramoto SDE & The physical core & Model \\
