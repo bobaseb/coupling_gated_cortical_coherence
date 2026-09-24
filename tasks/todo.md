@@ -115,7 +115,7 @@ action points. N7 closed in the same pass; the rest are open.
   state in the abstract and Discussion that the unity correlate has no
   operational definition yet.
 
-- [ ] **N10 — Remove the accuracy confound from the disconfirming test.**
+- [x] **N10 — Remove the accuracy confound from the disconfirming test.**
   Two accurate decoders agree automatically: their disagreement is at most
   the sum of their errors. Reported stimuli are usually decoded better, so
   "more agreement on reported trials" follows from single-region fidelity.
@@ -301,6 +301,20 @@ stated for it. The abstract, the Discussion's unity subsection and the
 limitations paragraph say that no principle selects the cover, so the unity
 correlate has no operational definition yet. Recasting the Lean sheaf over
 content variables is not attempted; it would be new work.
+
+### 2026-09-24 — N10 accuracy confound removed from the disconfirming test
+
+§`sec:full-test` now states the confound as Eq. `agreement-decomposition`
+(`|d_A−d_B| ≤ |e_A|+|e_B|`, and at matched marginal error agreement differs only
+through the error covariance). The design matches phase coherence *and* each
+region's decoding error (or signal strength), and its statistic is excess
+agreement over a fidelity-matched null that pairs decodes across trials within
+a stimulus and error stratum. Trials are classed by a no-report marker
+(`tsuchiya2015`, verified online: *TiCS* 19(12), 757–770), report-based
+classes are secondary. Shared upstream noise is named as the remaining
+non-specificity, with an upstream-region comparison. The self-model analogue
+matches scene-variable accuracy. New schematic Figure `fig:test` (TikZ); the
+abstract states the matched design.
 
 ## C — What a continuous medium buys, and what is electromagnetic about it
 

@@ -53,7 +53,7 @@ ORCID: \href{https://orcid.org/0000-0002-5951-0772}{0000-0002-5951-0772}}
 \begin{abstract}
 \singlespacing
 \small
-Synchrony accounts treat collective phase order as the mechanism that integrates distributed cortical activity. We show formally that phase order alone establishes neither shared content nor a self-model, and state what additionally does. We separate three conditions: coherence (collective phase order), compatibility (agreement of independently decoded local descriptions where regions overlap) and self-reconstruction (accurate recovery of the global state from an internal encoding). Compatible local descriptions determine a unique global state. Coherence bounds disagreement between overlapping descriptions only through shared Lipschitz encoders, and the bound grows as the square root of the population read: at the patch order of a simulated cortical sheet it constrains at most \wavePatchInformativeSites{} sites, so on a larger population the positive link from coherence to content rests entirely on a bridge assumption. A contracting self-map fixes one state but reconstructs accurately only states within a diameter set by its error and contraction factor; a broad family needs input-conditioned maps and discriminating codes. Lean~4 verifies these implications, and one model satisfies all eight connecting hypotheses together; this shows consistency, not cortical realization. The conditions yield a disconfirmable comparison: decoders fitted independently on overlapping regions should agree more on reported than on matched unreported stimuli at equal phase coherence. An exploratory EEG analysis is a measurement check only; its pooled estimator places a perfectly synchronized signal at zero coherence. Resource and implementation constraints, and a held-out onset comparison during anaesthetic emergence, are stated briefly. No principle yet selects the cover, and the sheaf's overlaps are spatial where the example's are overlaps of content, so the proposed correlate of unity has no operational definition. Unity and a minimal self remain interpretations that need an independent experiential endpoint.
+Synchrony accounts treat collective phase order as the mechanism that integrates distributed cortical activity. We show formally that phase order alone establishes neither shared content nor a self-model, and state what additionally does. We separate three conditions: coherence (collective phase order), compatibility (agreement of independently decoded local descriptions where regions overlap) and self-reconstruction (accurate recovery of the global state from an internal encoding). Compatible local descriptions determine a unique global state. Coherence bounds disagreement between overlapping descriptions only through shared Lipschitz encoders, and the bound grows as the square root of the population read: at the patch order of a simulated cortical sheet it constrains at most \wavePatchInformativeSites{} sites, so on a larger population the positive link from coherence to content rests entirely on a bridge assumption. A contracting self-map fixes one state but reconstructs accurately only states within a diameter set by its error and contraction factor; a broad family needs input-conditioned maps and discriminating codes. Lean~4 verifies these implications, and one model satisfies all eight connecting hypotheses together; this shows consistency, not cortical realization. The conditions yield a disconfirmable comparison: the agreement of decoders fitted independently on two regions, in excess of what their separate accuracies imply, should be larger for perceived than for unperceived stimuli at matched phase coherence and single-region accuracy, with perception classified by a no-report marker. An exploratory EEG analysis is a measurement check only; its pooled estimator places a perfectly synchronized signal at zero coherence. Resource and implementation constraints, and a held-out onset comparison during anaesthetic emergence, are stated briefly. No principle yet selects the cover, and the sheaf's overlaps are spatial where the example's are overlaps of content, so the proposed correlate of unity has no operational definition. Unity and a minimal self remain interpretations that need an independent experiential endpoint.
 \end{abstract}
 \linenumbers
 
@@ -601,18 +601,76 @@ a schema awaiting one.
 \label{sec:full-test}
 
 The framework predicts that conscious content tracks compatibility, not
-coherence. Present matched stimuli that are reported on some trials and not
-on others, for example at masking or rivalry threshold, and fit decoders for a
-shared stimulus quantity independently on two overlapping cortical regions.
-Compare decoded agreement on the overlap between reported and unreported
-trials after matching their phase coherence. The proposed link predicts higher
-agreement on reported trials at equal coherence. Equal agreement, or agreement
-that follows coherence and not report, counts against it. A self-model
-comparison has the same form: reconstruction of perceiver-relative variables,
-such as hand position relative to the target, from a declared local encoding
-should be more accurate on reported trials. These are correlational tests of the
-proposed correlates; report is itself an access measure, and a no-report
-design would be needed to separate content from access.
+coherence. The comparison must also separate compatibility from how well each
+region encodes the stimulus, because two accurate decoders agree
+automatically. If decoders $d_A$ and $d_B$ estimate a shared stimulus quantity
+$x$ with errors $e_A=d_A-x$ and $e_B=d_B-x$, then
+\begin{equation}
+ |d_A-d_B|\leq|e_A|+|e_B|,
+ \qquad
+ |d_A-d_B|^2=|e_A|^2+|e_B|^2-2\langle e_A,e_B\rangle.
+ \label{eq:agreement-decomposition}
+\end{equation}
+Consciously perceived stimuli are usually decoded better, so higher agreement
+on those trials would follow from single-region fidelity alone. At matched
+single-region error, agreement differs only through the covariance of the two
+errors, which is the term compatibility bears on: two regions describing one
+content should err together.
+
+Present matched stimuli that are perceived on some trials and not on others,
+for example at masking or rivalry threshold, and fit decoders for one shared
+stimulus quantity independently on two regions that both encode it. Classify
+trials by perceptual state with a no-report measure, such as reflexive eye
+movements or pupil responses that track the dominant percept in rivalry
+\cite{tsuchiya2015}, so that the classification does not also select for the
+neural correlates of reporting; report-based classification is a secondary
+analysis. Match the two classes on phase coherence between the regions and on
+each region's own decoding error (or, where the stimulus value is uncertain,
+on each region's signal strength). The statistic is the excess agreement over
+a fidelity-matched null: pair region $A$'s decode on one trial with region
+$B$'s decode on another trial of the same stimulus and error stratum, which
+preserves both marginal accuracies and removes any coupling of the errors.
+
+The proposed link predicts a larger excess on perceived trials at matched
+coherence and matched single-region accuracy (Fig.~\ref{fig:test}). Equal
+excess across classes, or excess that follows coherence and not perceptual
+state, counts against it. A positive result is not yet specific: noise shared
+upstream of both regions also correlates their errors, so the excess should be
+compared against an upstream region's decoding error, matched in the same way.
+A self-model comparison has the same form: at matched accuracy for the scene
+variable, the reconstruction of perceiver-relative variables, such as hand
+position relative to the target, from a declared local encoding should be
+more accurate on perceived trials. These are correlational tests of proposed
+correlates, and the no-report classification is itself an indirect marker of
+experience.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+ font=\footnotesize,
+ box/.style={draw, rounded corners=2pt, align=center, text width=30mm,
+             minimum height=10mm, inner sep=3pt, fill=black!5},
+ plain/.style={align=center, text width=27mm, font=\scriptsize},
+ arr/.style={-{Latex[length=2mm]}}
+]
+\nolinenumbers
+\node[box] (stim) at (0,0) {Threshold stimulus\\shared quantity $x$};
+\node[box] (A) at (-30mm,-18mm) {Region $A$\\decoder $d_A$};
+\node[box] (B) at (30mm,-18mm) {Region $B$\\decoder $d_B$};
+\node[box, text width=44mm] (stat) at (0,-38mm) {Excess agreement: $|d_A-d_B|$\\against a fidelity-matched shuffled null};
+\node[plain] (match) at (-50mm,-38mm) {Matched:\\$A$--$B$ coherence,\\errors $|e_A|$, $|e_B|$};
+\node[plain] (class) at (50mm,-38mm) {No-report marker:\\perceived or\\not perceived};
+\draw[arr] (stim) -- (A);
+\draw[arr] (stim) -- (B);
+\draw[arr] (A) -- (stat);
+\draw[arr] (B) -- (stat);
+\draw[arr, densely dashed] (match) -- (stat);
+\draw[arr, densely dashed] (class) -- (stat);
+\node[plain, text width=120mm] at (0,-54mm) {Prediction: larger excess on perceived trials. Equal excess, or excess tracking coherence rather than perceptual state, counts against the link.};
+\end{tikzpicture}
+\caption{Design of the disconfirming comparison. Decoders for one shared stimulus quantity are fitted independently on two regions. Trials are classed by a no-report marker of perceptual state and matched on inter-regional phase coherence and on each region's own decoding error, so that agreement cannot follow from single-region fidelity (Eq.~\eqref{eq:agreement-decomposition}). The statistic is agreement in excess of a null that pairs decodes across trials within the same stimulus and error stratum.}
+\label{fig:test}
+\end{figure}
 
 \subsection{What a test of the full proposal must establish}
 
