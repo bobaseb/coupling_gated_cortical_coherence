@@ -99,7 +99,7 @@ action points. N7 closed in the same pass; the rest are open.
   before it. The AI disclosure in `main.tex`, `index.html` and `README.md`
   adds Claude Opus 5.5 (Claude Code) and GPT-6 Sol (Codex).
 
-- [ ] **N8 — Engage the synchrony-critique literature.** The point that
+- [x] **N8 — Engage the synchrony-critique literature.** The point that
   synchrony does not fix content predates this work (binding-by-synchrony
   critiques, e.g. Shadlen & Movshon, *Neuron* 1999). Cite and position
   against it. State exactly what the formalization adds beyond the informal
@@ -273,6 +273,16 @@ comparison was the second derivation of the three routes off the population
 count, now cut to the sheet-specific numbers. Hypothesis counts ("eight")
 agree across article, supplement and primer. The PDFs and `arxiv_submit/` are
 rebuilt (101 pages, compiled from the tarball).
+
+### 2026-09-24 — N8 synchrony-critique positioning
+
+The introduction now cites the temporal-binding critique (`shadlen1999`,
+verified online: *Neuron* 24(1), 67–77) as the older source of the point that
+synchrony does not fix content. It names the core results as elementary
+(gluing uniqueness, Banach, triangle inequality, pigeonhole) and states what
+formalization adds: the √N rate and the population at which the bound becomes
+vacuous, the fixed-map diameter limit, the code count, and a complete premise
+inventory with a joint witness.
 
 ## C — What a continuous medium buys, and what is electromagnetic about it
 
