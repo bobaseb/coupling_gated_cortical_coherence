@@ -23,6 +23,31 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-24 — Mock-review revision (N8–N16)
+
+- The disconfirming comparison predicted more decoded agreement on reported
+  than on unreported trials at matched phase coherence. Two accurate decoders
+  agree automatically (`|d_A−d_B| ≤ |e_A|+|e_B|`), so that prediction followed
+  from single-region fidelity. It now matches each region's decoding error as
+  well as coherence, tests excess agreement over a fidelity-matched null, and
+  classes trials with a no-report marker.
+- The article presented the accurate internal reconstruction as a correlate
+  of a minimal self without restriction. Under E89 one fixed contraction
+  reconstructs one state at zero error, so the correlate is now stated as a
+  condition on one self-state; a self that follows a changing scene needs an
+  input-conditioned map that is not constructed. The contraction factor
+  `Λ = e^{-(K-2D)τ/2}` is flagged as borrowed from the uniform density's
+  first-harmonic rate, not derived.
+- The article treated the glued state as the correlate of unity without
+  saying that no principle selects the cover. It now says so, and that the
+  sheaf's overlaps are spatial where the motivating example's are overlaps of
+  content.
+- The article's thermodynamic chain (E12–E45, the register ledger and the
+  active-branch bound), installed-energy derivation, ramp figure, EEG
+  exercise and synthetic rank-two task moved to the supplement; nothing was
+  withdrawn. The article keeps the current-cost bound as a speed limit and
+  Table 1 lists E56–E89 only.
+
 ## 2026-09-24 — What the exploratory EEG statistic measures
 
 - The article called `a = 0.542` the "observed concentration ceiling" of the

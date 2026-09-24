@@ -87,7 +87,9 @@ format and length rules, agree with each other, and pass repository gates.
 ### N7–N16 — Mock *Neuroscience of Consciousness* review (2026-09-24)
 
 A mock referee report recommended major revision. The items below are its
-action points. N7 closed in the same pass; the rest are open.
+action points. N7 closed in the same pass and N8–N16 on 2026-09-24. Open:
+N14b (optional, new work) and the author's decision whether to split the
+awakening/ephaptic material into a separate paper (see the N14 record).
 
 - [x] **N7 — Factual and presentation fixes.** The Data availability subject
   list named six subjects (including `1056`, which was never analysed) against
