@@ -32,6 +32,7 @@ import PhysicsOfConsciousness.Axioms
 import PhysicsOfConsciousness.Phase4_MacroscopicScaling
 import PhysicsOfConsciousness.Phase5_ContentDynamics
 import PhysicsOfConsciousness.Phase5_GlobalSection
+import PhysicsOfConsciousness.Phase5_ContentCover
 import PhysicsOfConsciousness.Phase5_EquilibriumBridge
 import PhysicsOfConsciousness.Phase5_TwistedGluing
 import PhysicsOfConsciousness.Phase5_PhaseLifts

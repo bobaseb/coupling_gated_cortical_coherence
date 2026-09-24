@@ -88,8 +88,8 @@ format and length rules, agree with each other, and pass repository gates.
 
 A mock referee report recommended major revision. The items below are its
 action points. N7 closed in the same pass and N8–N16 on 2026-09-24, N18 later
-the same day. Open: N14b (optional, new work), the stretch item N17 below, and
-the author's
+the same day and N17 on 2026-09-25. Open: N14b (optional, new work) and the
+author's
 decision whether to split the awakening/ephaptic material into a separate
 paper (see the N14 record).
 
@@ -189,7 +189,7 @@ paper (see the N14 record).
   article (journal expects a Methods/Results structure). Add the cover-
   selection limitation to the abstract.
 
-- [ ] **N17 (stretch) — Rebuild the sheaf over content variables.** Recast the
+- [x] **N17 (stretch) — Rebuild the sheaf over content variables.** Recast the
   construction with regions as partial decoders: the base is the set of
   content variables, a region's domain is the variables decodable from it
   (the decodability cover of `sec:unity`), restriction forgets variables. Prove
@@ -486,6 +486,39 @@ condition on one self-state under E89; main-text word count is unchanged
 (a sentence of the resonance paragraph was cut). Supplement proof paragraph
 and a Table S1 row "A self that follows a scene"; primer paragraph in the
 reconstruction part.
+
+### 2026-09-25 — N17 gluing over the decodability cover
+
+Specification: `tasks/n17_n18_lean.md`. `Phase5_ContentCover.lean` adds
+`DecodingSetup` (relevant family, true values, region readouts, per-variable
+decoders) and `domain θ i`, the variables region `i` decodes within `θ` on every
+relevant state. With the discrete topology on the variables, Mathlib's
+`presheafToTypes` is the sheaf and `decode_glue_unique` is `sheaf_glue_unique`
+verbatim; `decode_glue_value` identifies the glued section with the true content
+at `θ = 0`. `decode_compatible` derives `LocalContent.Compatible` at `2θ` from
+decodability (the N10 accuracy confound as a theorem). `ContentCover.select_close`
+/ `select_dist` restate the weighted selection for signed and vector contents on
+any index; `select_decode_near_value` puts it within `θ` of the content.
+`exists_exact_decoder_of_injOn` and `not_decodes_of_read_eq` bound the decoder
+class. `Examples/ContentCover.lean` §37: three variables, two regions with
+opposite offsets `b` on the shared variable; exact domains, cover and connected
+nerve for `0 ≤ b < 1/2`, exact gluing to the content at `b = 0`, the `2θ` bound
+attained and no exact section at `b = 1/10`.
+
+Not transferred, stated in the module docstring, the supplement and the
+article: the measure representation and the `√N` phase-to-content bounds, and
+anything relating a region's phase order to what it decodes (E78). The
+tolerance is worst-case, idealizing the article's statistical criterion.
+Article §4 now states the transfer (word count unchanged); the Discussion and
+limitations say the phase-to-content bounds, rather than "the formal results",
+are stated for spatial covers. Supplement subsection `sec:supp-content-cover`
+and Table S1 row "Gluing over content variables"; primer subsection.
+
+**Gate finding.** `check_leaves.py` passed `Phase6_ConditionedReconstruction`
+in the N18 commit because `Chain.lean` spells `map` and `stored`, which resolved
+to the new `ConditionedEncoding.map` and `stored`. Renamed to `conditionedMap`
+and `storedReadout`; both new modules are now recorded in `ALLOWED_LEAVES` as
+deliberate terminal results. See `tasks/lessons.md`.
 
 ## C — What a continuous medium buys, and what is electromagnetic about it
 

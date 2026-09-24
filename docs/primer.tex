@@ -4274,11 +4274,48 @@ its regressions in \id{Examples/Phase5.lean} \S21
 (\id{apx\_select\_dist}, \id{apx\_no\_global\_section},
 \id{chainW\_select\_dist\_gt}).
 
+\subsection{Covers of content rather than of space}
+\label{sec:content-cover-primer}
+
+\what
+The patches so far overlap where they share sites. Visual and motor territories
+that agree on where a cup is overlap in \emph{what they describe}, not in where
+they lie. The manuscript proposes a cover of that second kind: take the content
+variables as the base, give each region the variables it can decode, and let
+two regions overlap on the variables both decode.
+
+\statement
+The gluing results carry over. A section over a set of variables is a list of
+values for them, forgetting a variable is restriction, and that presheaf is a
+sheaf, so compatible decodes glue to exactly one assignment of values to every
+variable. Weighted selection works the same way with signed values. One thing
+changes: compatibility stops being a hypothesis. If two regions each decode a
+variable to within $\delta$ of its true value, the triangle inequality puts
+their decodes within $2\delta$ of each other, whatever else is true. Agreement
+up to that level is what two accurate decoders deliver anyway, which is why the
+manuscript's proposed experiment looks for agreement \emph{beyond} each
+region's accuracy. A two-region example attains the $2\delta$ exactly.
+
+\scope
+The decoder class has to be limited. A region that carries the whole relevant
+state can, with an unrestricted decoder, decode every variable exactly, and
+then every region overlaps every other on everything. The measure picture and
+the coherence bounds of the next subsection do not carry over: they bound
+disagreement between spatial patches of oscillators, and nothing here connects
+a region's phase order to what it decodes. The tolerance is a worst case,
+standing in for the statistical criterion a real experiment would use.
+
+\lean{
+\id{Phase5\_ContentCover.lean}: \id{decode\_glue\_unique},
+\id{decode\_glue\_value}, \id{decode\_compatible},
+\id{select\_decode\_near\_value}, \id{exists\_exact\_decoder\_of\_injOn},
+\id{not\_decodes\_of\_read\_eq}; \id{Examples/ContentCover.lean}, \S37.}
+
 \subsection{Where the agreement comes from}
 \label{sec:coherence-agreement-primer}
 
 \what
-Everything above takes the agreement as given. The obvious question is what
+On spatial covers, everything above takes the agreement as given. The obvious question is what
 would produce it, and the answer is the coherence the rest of the framework is
 about --- but only for a particular kind of content, and the restriction is the
 interesting part.

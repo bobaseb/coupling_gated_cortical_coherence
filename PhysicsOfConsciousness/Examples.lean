@@ -42,6 +42,8 @@
       chained bound on a pair no patch contains)
     `Examples/Phase5.lean`  §13, §14, §17.1, §20 (overlap agreement)
     `Examples/VectorContent.lean` §22 (vector contents), §23 (the overlap encoder)
+    `Examples/ContentCover.lean` §37 (a decodability cover of two regions, its
+      attained compatibility and its exact gluing)
     `Examples/Phase6.lean`  §10, §33 (both signs of the capacity comparison)
     `Examples/MeasureGluing.lean` -- actual measures on a finite open cover
     `Examples/Reconstruction.lean` §24 (bounded-error self-reconstruction)
@@ -170,6 +172,7 @@ import PhysicsOfConsciousness.Examples.FiniteRegion
 import PhysicsOfConsciousness.Examples.Phase8
 import PhysicsOfConsciousness.Examples.AgencyFoundations
 import PhysicsOfConsciousness.Examples.VectorContent
+import PhysicsOfConsciousness.Examples.ContentCover
 import PhysicsOfConsciousness.Examples.Reconstruction
 import PhysicsOfConsciousness.Examples.ConditionedReconstruction
 import PhysicsOfConsciousness.Examples.Locality

@@ -111,6 +111,17 @@ ALLOWED_LEAVES: dict[str, str] = {
         "probability-current constraint. The chain has no calibrated mapping "
         "from that current cost to heat, work or cortical mode prices"
     ),
+    "Phase5_ContentCover.lean": (
+        "deliberate — gluing and selection restated over the decodability "
+        "cover of content variables. No chain edge rests on it: E78 identifies "
+        "the oscillator index with the content cover, and relating a region's "
+        "phase order to what it decodes is that assumption, not a theorem here"
+    ),
+    "Phase6_ConditionedReconstruction.lean": (
+        "deliberate — the input-conditioned reconstruction bound is terminal. "
+        "E89 is stated for one fixed contraction, and no chain edge supplies "
+        "the scene input, its gain or a physical conditioned readout"
+    ),
     "Phase3_LandauerBridge.lean": (
         "deliberate — the module is the discharge route for the chain's n3 → n4 "
         "edge, and the edge stays a named hypothesis. `PredictiveDissipation."

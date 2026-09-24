@@ -23,6 +23,15 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-25 — Gluing over the decodability cover (N17)
+
+- The article said the gluing argument applies formally to a cover over content
+  variables but that no result is stated for one, and that the formal results
+  are stated for spatial covers. Gluing uniqueness and approximate selection
+  are now proved on the decodability cover (`Phase5_ContentCover.lean`), where
+  compatibility at twice the decoding tolerance follows from decodability
+  itself. The phase-to-content bounds are still stated for spatial covers only.
+
 ## 2026-09-24 — The input-conditioned reconstruction map (N18)
 
 - The article said a self that follows a changing scene needs an

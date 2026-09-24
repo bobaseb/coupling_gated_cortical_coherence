@@ -49,23 +49,23 @@ private theorem sceneFamily_cases {s : ℝ} (hs : s ∈ sceneFamily) :
 theorem sceneBits_reconstructs : sceneBits.Reconstructs (3 / 4) := by
   intro s hs
   rcases sceneFamily_cases hs with rfl | rfl | rfl | rfl <;>
-    norm_num [ConditionedEncoding.error, ConditionedEncoding.map, sceneBits, sceneOf,
+    norm_num [ConditionedEncoding.error, ConditionedEncoding.conditionedMap, sceneBits, sceneOf,
       bitLevel, Real.dist_eq, abs_le]
 
 /-- Under either scene the map halves distances on the family. -/
 theorem sceneBits_contracting (u : ℝ) :
-    LipschitzOnWith (1 / 2) (sceneBits.map u) sceneFamily := by
+    LipschitzOnWith (1 / 2) (sceneBits.conditionedMap u) sceneFamily := by
   apply LipschitzOnWith.of_dist_le_mul
   intro s hs t ht
   rcases sceneFamily_cases hs with rfl | rfl | rfl | rfl <;>
     rcases sceneFamily_cases ht with rfl | rfl | rfl | rfl <;>
-    norm_num [ConditionedEncoding.map, sceneBits, sceneOf, bitLevel, Real.dist_eq, abs_le]
+    norm_num [ConditionedEncoding.conditionedMap, sceneBits, sceneOf, bitLevel, Real.dist_eq, abs_le]
 
 /-- Changing the scene moves the map by exactly the change. -/
 theorem sceneBits_input_lipschitz (u v : ℝ) :
-    ∀ s ∈ sceneBits.relevant, dist (sceneBits.map u s) (sceneBits.map v s) ≤ (1 : ℝ≥0) * dist u v := by
+    ∀ s ∈ sceneBits.relevant, dist (sceneBits.conditionedMap u s) (sceneBits.conditionedMap v s) ≤ (1 : ℝ≥0) * dist u v := by
   intro s _
-  simp [ConditionedEncoding.map, sceneBits, Real.dist_eq]
+  simp [ConditionedEncoding.conditionedMap, sceneBits, Real.dist_eq]
 
 /-- **The conditioned bound, applied.** The two extreme members are `13` apart,
 within the `(2 · 3/4 + 1 · 10) / (1 - 1/2) = 23` the library allows. -/
@@ -126,7 +126,7 @@ theorem no_constant_code_reconstructs_scenes {C : Type*} (Enc : ConditionedEncod
 reconstructs the family of lower states exactly, with one code and a map that
 ignores the state: every fibre is a single state. -/
 theorem stored_lower_reconstructs :
-    (ConditionedEncoding.stored ({0, 10} : Set ℝ) sceneOf id).Reconstructs 0 := by
+    (ConditionedEncoding.storedReadout ({0, 10} : Set ℝ) sceneOf id).Reconstructs 0 := by
   rw [ConditionedEncoding.stored_reconstructs_iff]
   intro s hs
   simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hs
@@ -135,7 +135,7 @@ theorem stored_lower_reconstructs :
 /-- **And where it does not.** On the four-state family the same readout has a
 constant encoder, so it fails at `3/4`. -/
 theorem stored_scenes_fails :
-    ¬ (ConditionedEncoding.stored sceneFamily sceneOf id).Reconstructs (3 / 4) :=
+    ¬ (ConditionedEncoding.storedReadout sceneFamily sceneOf id).Reconstructs (3 / 4) :=
   no_constant_code_reconstructs_scenes _ rfl rfl (fun _ _ => rfl)
 
 /-! ### Self-states that follow the scene
@@ -152,9 +152,9 @@ noncomputable def sceneAffine : ConditionedEncoding ℝ ℝ ℝ where
   readout := fun u c => (c + u) / 2 + 3 / 4
 
 /-- The affine map halves every distance on the line. -/
-theorem sceneAffine_contracting (u : ℝ) : ContractingWith (1 / 2) (sceneAffine.map u) := by
+theorem sceneAffine_contracting (u : ℝ) : ContractingWith (1 / 2) (sceneAffine.conditionedMap u) := by
   refine ⟨by norm_num, LipschitzWith.of_dist_le_mul fun s t => ?_⟩
-  simp only [ConditionedEncoding.map, sceneAffine, id, Real.dist_eq]
+  simp only [ConditionedEncoding.conditionedMap, sceneAffine, id, Real.dist_eq]
   rw [show (s + u) / 2 + 3 / 4 - ((t + u) / 2 + 3 / 4) = (s - t) / 2 by ring, abs_div]
   norm_num
   linarith
@@ -163,7 +163,7 @@ theorem sceneAffine_contracting (u : ℝ) : ContractingWith (1 / 2) (sceneAffine
 theorem sceneAffine_reconstructs : sceneAffine.Reconstructs (3 / 4) := by
   intro s hs
   rcases sceneFamily_cases hs with rfl | rfl | rfl | rfl <;>
-    norm_num [ConditionedEncoding.error, ConditionedEncoding.map, sceneAffine, sceneOf,
+    norm_num [ConditionedEncoding.error, ConditionedEncoding.conditionedMap, sceneAffine, sceneOf,
       Real.dist_eq, abs_le]
 
 /-- The self-state for scene `u` is `u + 3/2`. -/
@@ -171,8 +171,8 @@ theorem sceneAffine_selfState (u : ℝ) :
     sceneAffine.selfState sceneAffine_contracting u = u + 3 / 2 := by
   symm
   apply (sceneAffine_contracting u).fixedPoint_unique
-  show sceneAffine.map u (u + 3 / 2) = u + 3 / 2
-  simp only [ConditionedEncoding.map, sceneAffine, id]
+  show sceneAffine.conditionedMap u (u + 3 / 2) = u + 3 / 2
+  simp only [ConditionedEncoding.conditionedMap, sceneAffine, id]
   ring
 
 /-- **The self-states move with the scene.** Scene `10`'s self-state is `10`
@@ -192,7 +192,7 @@ theorem sceneAffine_selfState_le (u v : ℝ) :
       ((1 / 2 : ℝ≥0) : ℝ) * dist u v / (1 - ((1 / 2 : ℝ≥0) : ℝ)) := by
   apply ConditionedEncoding.dist_selfState_le
   intro u v s
-  simp only [ConditionedEncoding.map, sceneAffine, id, Real.dist_eq]
+  simp only [ConditionedEncoding.conditionedMap, sceneAffine, id, Real.dist_eq]
   rw [show (s + u) / 2 + 3 / 4 - ((s + v) / 2 + 3 / 4) = (u - v) / 2 by ring, abs_div]
   norm_num
   linarith

@@ -375,3 +375,23 @@
   supplied paths relative to simulations and can report every hook skipped.
   Use `uv run --project simulations pre-commit ...` from the root and inspect
   which required hooks actually ran.
+
+- **`check_leaves.py` can pass a real leaf by token collision (2026-09-25).** It
+  counts a module as consumed when an importer spells a token that resolves
+  uniquely to one of its declarations, comments stripped but code tokens
+  unfiltered. `Chain.lean` imports the whole library and spells `map` (as in
+  `F.map`) and `stored`, so a new `ConditionedEncoding.map` and `stored` made
+  `Phase6_ConditionedReconstruction` look consumed. Short generic declaration
+  names hide leaves; after adding a module, confirm it is either consumed on
+  purpose or listed in `ALLOWED_LEAVES`, and prefer specific names.
+
+- **`ContractingWith` needs `EMetricSpace`, its `fixedPoint` a `MetricSpace`
+  (2026-09-25).** A structure over `[PseudoMetricSpace S]` cannot state Banach
+  results in the same section; open a separate section with `[MetricSpace S]`.
+  `ContractingWith.dist_fixedPoint_fixedPoint_of_dist_le'` is the perturbation
+  estimate for two maps' fixed points. For content variables with the discrete
+  topology, `TopCat.presheafToTypes` and `TopCat.Presheaf.toTypes_isSheaf` give
+  a sheaf that `sheaf_glue_unique` accepts directly (universe 0 throughout).
+  After `fin_cases` on `Fin n`, state membership lemmas for the literals
+  `(0 : Fin 3)` etc. separately and close with plain `simp`: `simp only` does
+  not normalize the `⟨0, ⋯⟩` terms `fin_cases` produces.

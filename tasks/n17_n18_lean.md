@@ -59,3 +59,14 @@ is physically correct.
 No axioms, `sorry`, toolchain changes or new Python. Doc-strings state scope.
 Every name `main.tex` rests on gets a Table S1 row. PDFs, proof companion and
 `arxiv_submit/` rebuilt in the commit that changes their sources.
+
+## Validation — 2026-09-25
+
+Headline names were checked absent (failing `#check` file) before either
+module existed. After both: `lake build` clean with zero warnings; the axiom
+audit reports 6113 declarations in 107 modules on `propext`,
+`Classical.choice` and `Quot.sound` only; no `sorry`. Main, supplement and
+primer compile with zero overfull boxes and undefined references; main-text
+word count by `detex -n` is unchanged by both items. Publication gates, the
+generated-macro suites and `check_leaves.py` (both modules recorded as
+deliberate leaves) pass. Proof companion re-extracted after each item.
