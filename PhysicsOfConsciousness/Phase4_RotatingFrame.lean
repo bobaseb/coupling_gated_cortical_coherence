@@ -1406,7 +1406,7 @@ theorem rotating_frame_tendsto_global_minimum [Nonempty V] (sys : KuramotoSystem
 /-! ## 8. The spectral gap: what replaces the population count
 
 Every coherence bound in the development reads a phase difference off the order
-parameter, and pays a factor `card V` for doing so — the order parameter is a
+parameter, and pays a factor `sqrt (card V)` for doing so — the order parameter is a
 mean, and a pointwise guarantee drawn from a mean must pay for the one
 oscillator that can hide in it. This section does not read phase differences off
 `r` at all.

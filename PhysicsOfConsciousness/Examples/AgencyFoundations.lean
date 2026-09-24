@@ -272,12 +272,11 @@ theorem locked_is_phase_locked : is_phase_locked locked := by
 /-- Which oscillator each patch reads. -/
 def patchOf : Bool → Fin 2 := fun b => if b then 1 else 0
 
-/-- **At zero coherence the derived residual is `2√2`.** It is a genuine bound
-and not a tight one: the actual disagreement below is `2`. The gap is the `N²`
-that `cos_gap_le_of_coherence` pays to turn a global mean into a pointwise
-statement. -/
+/-- **At zero coherence the derived residual is `√2 · √2 = 2`.** The actual
+disagreement below is also `2`, so on this pair the bound is attained: the
+single factor `N` in `cos_gap_le_of_coherence` cannot be lowered in general. -/
 example : Compatible U (fun i (_ : Fin 3) => proj (circlePoint (antiphase (patchOf i))))
-    (1 * (Real.sqrt 2 * (Fintype.card (Fin 2) : ℝ) * Real.sqrt (1 - 0))) := by
+    (1 * (Real.sqrt 2 * Real.sqrt (Fintype.card (Fin 2) : ℝ) * Real.sqrt (1 - 0))) := by
   have h := compatible_of_coherence U patchOf antiphase proj 1 zero_le_one proj_lipschitz
   rwa [antiphase_incoherent] at h
 

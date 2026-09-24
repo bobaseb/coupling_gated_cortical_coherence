@@ -331,12 +331,12 @@ def _wave_macros() -> list[str]:
 def _wave_content_macros() -> list[str]:
     """Read the coherence-to-content bound at the two grains the same sweep fixes.
 
-    Eq. (main-content-coherence) bounds a chord by ``L*sqrt(2)*N*sqrt(1-r^2)``,
+    Eq. (main-content-coherence) bounds a chord by ``L*sqrt(2*N*(1-r^2))``,
     and a chord never exceeds 2, so the estimate says something only where the
     population is small enough. The winding sweep fixes both ends on one sheet:
     its own patch is a square of ``2*cells+1`` sites at the measured patch-local
     order, and a nearest-neighbour pair of the same winding is the smallest
-    patch there is, where the bound is exactly ``2*sqrt(2)*|sin psi|``.
+    patch there is, where the bound is exactly ``2*|sin psi|``.
 
     Three results decline the step that puts the population count there, and
     each is read on this same sheet rather than on a second one.
@@ -362,13 +362,13 @@ def _wave_content_macros() -> list[str]:
     sites = (2 * patch_cells(config) + 1) ** 2
     spread = math.sqrt(2.0) * math.sqrt(1.0 - order**2)
     advance = 2.0 * math.pi * config.winding_q / config.side
-    neighbour = 2.0 * math.sqrt(2.0) * abs(math.sin(advance))
+    neighbour = 2.0 * abs(math.sin(advance))
     diameters = int(2.0 / neighbour)
     spacing_mm = config.extent_mm / config.side
     return [
         _macro("wavePatchSites", sites),
-        _macro("wavePatchChordBound", f"{sites * spread:.1f}"),
-        _macro("wavePatchInformativeSites", int(2.0 / spread)),
+        _macro("wavePatchChordBound", f"{math.sqrt(sites) * spread:.1f}"),
+        _macro("wavePatchInformativeSites", int(4.0 / spread**2)),
         _macro("wavePatchPairFraction", f"{2.0 * (1.0 - order**2):.2f}"),
         _macro("waveNeighbourChordBound", f"{neighbour:.4f}"),
         _macro("waveNerveDiameters", diameters),

@@ -392,10 +392,12 @@ about how far apart two individual phases are. The results in this section
 supply that scale, and they are what carries coupling-gated coherence into the
 content agreement of `Phase5_ContentDynamics`.
 
-The step that makes it work is the identity `N² r² = ∑ᵢ∑ⱼ cos(θᵢ − θⱼ)`. Every
-summand of `1 − cos` is nonnegative, so a *single* pair is bounded by the whole
-double sum: a global average controls each local difference, with a factor `N²`
-that is the honest price of extracting a pointwise statement from a mean.
+The step that makes it work is the variance identity
+`∑ₖ |e^{iθₖ} − m|² = N(1 − r²)` for the phasors about their mean `m`. Every
+summand is nonnegative, so the deviations of any two sites are bounded by the
+whole sum: a global average controls each local difference, with a factor `N`
+that is the price of extracting a pointwise statement from a mean. One
+oscillator in antiphase attains it up to a constant.
 -/
 
 omit [DecidableEq V] in
@@ -439,37 +441,6 @@ theorem order_parameter_r_sq_eq_mean_cos [Nonempty V] (theta : V → ℝ) :
   unfold order_parameter_r_sq order_parameter_complex
   rw [← hS, Complex.normSq_mul, hnorm, h3, key]
   field_simp
-
-omit [DecidableEq V] in
-/-- **Coherence bounds every individual phase gap.** The `N²` is real and not an
-artifact: one badly placed oscillator among `N` moves the order parameter by
-`O(1/N)`, so a pointwise guarantee from a global mean must pay for it. -/
-theorem cos_gap_le_of_coherence [Nonempty V] (theta : V → ℝ) (i j : V) :
-    1 - Real.cos (theta i - theta j)
-      ≤ (Fintype.card V : ℝ) ^ 2 * (1 - order_parameter_r_sq theta) := by
-  have hid := order_parameter_r_sq_eq_mean_cos theta
-  have hcard : ∑ _a : V, ∑ _b : V, (1 : ℝ) = (Fintype.card V : ℝ) ^ 2 := by
-    simp [Finset.card_univ, sq]
-  have hsum : (Fintype.card V : ℝ) ^ 2 * (1 - order_parameter_r_sq theta)
-      = ∑ a, ∑ b, (1 - Real.cos (theta a - theta b)) := by
-    rw [mul_sub, mul_one, hid, ← hcard, ← Finset.sum_sub_distrib]
-    refine Finset.sum_congr rfl fun a _ => ?_
-    rw [← Finset.sum_sub_distrib]
-  have hrow : ∑ b, (1 - Real.cos (theta i - theta b))
-      ≤ ∑ a, ∑ b, (1 - Real.cos (theta a - theta b)) :=
-    Finset.single_le_sum
-      (f := fun a => ∑ b, (1 - Real.cos (theta a - theta b)))
-      (fun a _ => Finset.sum_nonneg fun b _ => by
-        linarith [Real.cos_le_one (theta a - theta b)])
-      (Finset.mem_univ i)
-  have hterm : 1 - Real.cos (theta i - theta j)
-      ≤ ∑ b, (1 - Real.cos (theta i - theta b)) :=
-    Finset.single_le_sum
-      (f := fun b => 1 - Real.cos (theta i - theta b))
-      (fun b _ => by linarith [Real.cos_le_one (theta i - theta b)])
-      (Finset.mem_univ j)
-  rw [hsum]
-  linarith
 
 /-- A phase read as the point of the unit circle it names. A content model that
 reads `θ` as a real number is not `2π`-periodic and so is not a function of the
@@ -527,34 +498,90 @@ theorem chord_le_abs_sub (a b : ℝ) : chord a b ≤ |a - b| := by
   exact (pow_le_pow_iff_left₀ (chord_nonneg a b) (abs_nonneg _) two_ne_zero).1 h
 
 omit [DecidableEq V] in
+/-- **The phasors' spread about their mean.** The squared deviations of the unit
+phasors from the order parameter sum to `N(1-r²)`: the variance identity for
+points on the unit circle. This is the sum every pointwise coherence bound below
+is drawn from. -/
+theorem sum_normSq_sub_order_parameter [Nonempty V] (theta : V → ℝ) :
+    ∑ k, Complex.normSq (Complex.exp (I * (theta k : ℂ)) - order_parameter_complex theta)
+      = (Fintype.card V : ℝ) * (1 - order_parameter_r_sq theta) := by
+  set m := order_parameter_complex theta with hm
+  have hN : (Fintype.card V : ℂ) ≠ 0 := Nat.cast_ne_zero.mpr Fintype.card_ne_zero
+  have hS : ∑ k, Complex.exp (I * (theta k : ℂ)) = (Fintype.card V : ℂ) * m := by
+    rw [hm, order_parameter_complex]; field_simp
+  have hterm : ∀ k, Complex.normSq (Complex.exp (I * (theta k : ℂ)) - m)
+      = 1 + Complex.normSq m - 2 * (Complex.exp (I * (theta k : ℂ)) * (starRingEnd ℂ) m).re := by
+    intro k
+    rw [Complex.normSq_sub, mul_comm I, Complex.normSq_eq_norm_sq, Complex.norm_exp_ofReal_mul_I]
+    ring
+  have hre : ∑ k, (Complex.exp (I * (theta k : ℂ)) * (starRingEnd ℂ) m).re
+      = (Fintype.card V : ℝ) * Complex.normSq m := by
+    rw [← Complex.re_sum, ← Finset.sum_mul, hS, mul_assoc, Complex.mul_conj]
+    simp
+  simp_rw [hterm]
+  rw [Finset.sum_sub_distrib, ← Finset.mul_sum, hre, Finset.sum_const, Finset.card_univ,
+    nsmul_eq_mul, order_parameter_r_sq]
+  ring
+
+omit [DecidableEq V] in
+/-- **Coherence bounds every squared chord by `2N(1-r²)`.** Two phasors are
+each within their own deviation of the mean, and those two deviations are two
+terms of `sum_normSq_sub_order_parameter`. The count enters once, not squared:
+one oscillator in antiphase among `N` leaves `N(1-r²)` near `4`, so the order of
+the factor cannot be improved. -/
+theorem chord_sq_le_of_coherence [Nonempty V] (theta : V → ℝ) (i j : V) :
+    chord (theta i) (theta j) ^ 2
+      ≤ 2 * ((Fintype.card V : ℝ) * (1 - order_parameter_r_sq theta)) := by
+  classical
+  set m := order_parameter_complex theta
+  set w : V → ℂ := fun k => Complex.exp (I * (theta k : ℂ))
+  have hsum := sum_normSq_sub_order_parameter theta
+  have hnn : ∀ k, 0 ≤ Complex.normSq (w k - m) := fun k => Complex.normSq_nonneg _
+  by_cases hij : i = j
+  · subst hij
+    have h0 : chord (theta i) (theta i) = 0 := by
+      rw [chord_eq_norm, sub_self, norm_zero]
+    rw [h0, ← hsum]
+    have := Finset.sum_nonneg (fun k (_ : k ∈ Finset.univ) => hnn k)
+    nlinarith
+  · have hpair : Complex.normSq (w i - m) + Complex.normSq (w j - m)
+        ≤ ∑ k, Complex.normSq (w k - m) := by
+      rw [← Finset.sum_pair (f := fun k => Complex.normSq (w k - m)) hij]
+      exact Finset.sum_le_sum_of_subset_of_nonneg (Finset.subset_univ _)
+        (fun k _ _ => hnn k)
+    have htri : chord (theta i) (theta j) ≤ ‖w i - m‖ + ‖w j - m‖ := by
+      rw [chord_eq_norm]
+      calc ‖w i - w j‖ = ‖(w i - m) - (w j - m)‖ := by ring_nf
+        _ ≤ ‖w i - m‖ + ‖w j - m‖ := norm_sub_le _ _
+    have hc := chord_nonneg (theta i) (theta j)
+    have ha : ‖w i - m‖ ^ 2 = Complex.normSq (w i - m) := (Complex.normSq_eq_norm_sq _).symm
+    have hb : ‖w j - m‖ ^ 2 = Complex.normSq (w j - m) := (Complex.normSq_eq_norm_sq _).symm
+    have hsq : chord (theta i) (theta j) ^ 2 ≤ (‖w i - m‖ + ‖w j - m‖) ^ 2 :=
+      pow_le_pow_left₀ hc htri 2
+    nlinarith [sq_nonneg (‖w i - m‖ - ‖w j - m‖)]
+
+omit [DecidableEq V] in
+/-- **Coherence bounds every individual phase gap.** `chord_sq_le_of_coherence`
+read through `chord_sq`. -/
+theorem cos_gap_le_of_coherence [Nonempty V] (theta : V → ℝ) (i j : V) :
+    1 - Real.cos (theta i - theta j)
+      ≤ (Fintype.card V : ℝ) * (1 - order_parameter_r_sq theta) := by
+  have h := chord_sq_le_of_coherence theta i j
+  rw [chord_sq] at h
+  linarith
+
+omit [DecidableEq V] in
 /-- **Coherence bounds the chord separation of any two phases.** This is
-`cos_gap_le_of_coherence` in the metric an encoder is Lipschitz for. At
-`r² = 1` the right side is zero, which recovers exact agreement. -/
+`chord_sq_le_of_coherence` with the square root taken. At `r² = 1` the right
+side is zero, which recovers exact agreement. -/
 theorem chord_le_of_coherence [Nonempty V] (theta : V → ℝ) (i j : V) :
     chord (theta i) (theta j)
-      ≤ Real.sqrt 2 * (Fintype.card V : ℝ) *
+      ≤ Real.sqrt 2 * Real.sqrt (Fintype.card V : ℝ) *
           Real.sqrt (1 - order_parameter_r_sq theta) := by
-  have hN : (0 : ℝ) ≤ (Fintype.card V : ℝ) := Nat.cast_nonneg _
-  have hgap := cos_gap_le_of_coherence theta i j
-  have hNpos : (0 : ℝ) < (Fintype.card V : ℝ) :=
-    Nat.cast_pos.mpr Fintype.card_pos
-  have hc : (0 : ℝ) ≤ 1 - order_parameter_r_sq theta := by
-    have hself := cos_gap_le_of_coherence theta i i
-    rw [sub_self, Real.cos_zero] at hself
-    have h2 : (0 : ℝ) < (Fintype.card V : ℝ) ^ 2 := pow_pos hNpos 2
-    have hm : (Fintype.card V : ℝ) ^ 2 * 0
-        ≤ (Fintype.card V : ℝ) ^ 2 * (1 - order_parameter_r_sq theta) := by
-      rw [mul_zero]; linarith
-    exact le_of_mul_le_mul_left hm h2
-  have hstep : chord (theta i) (theta j)
-      ≤ Real.sqrt (2 * ((Fintype.card V : ℝ) ^ 2 * (1 - order_parameter_r_sq theta))) := by
-    unfold chord
-    rw [chord_sq_eq]
-    exact Real.sqrt_le_sqrt (by linarith)
-  refine hstep.trans_eq ?_
-  rw [Real.sqrt_mul (by norm_num : (0:ℝ) ≤ 2),
-    Real.sqrt_mul (sq_nonneg (Fintype.card V : ℝ)), Real.sqrt_sq hN]
-  ring
+  rw [← Real.sqrt_mul (by norm_num : (0:ℝ) ≤ 2), ← Real.sqrt_mul (by positivity), mul_assoc]
+  calc chord (theta i) (theta j) = Real.sqrt (chord (theta i) (theta j) ^ 2) :=
+        (Real.sqrt_sq (chord_nonneg _ _)).symm
+    _ ≤ _ := Real.sqrt_le_sqrt (chord_sq_le_of_coherence theta i j)
 
 omit [Fintype V] [DecidableEq V] in
 /-- Perfect locking makes the chord bound vanish, so the quantitative statement
@@ -2488,9 +2515,9 @@ end WindingStability
 
 /-! ## 10. What a patch bound buys
 
-`chord_le_of_coherence` carries the factor `card V`, and on a winding it says
-nothing at all: `order_parameter_r_sq_char` puts the resultant at zero, so the
-bound reads `sqrt 2 * N`, while `chord_le_two` puts every chord below `2`
+`chord_le_of_coherence` carries the factor `sqrt (card V)`, and on a winding it
+says nothing at all: `order_parameter_r_sq_char` puts the resultant at zero, so
+the bound reads `sqrt (2 * N)`, while `chord_le_two` puts every chord below `2`
 whatever the state. The bound is not wrong; it is reading the wrong population.
 What it needs is a site type with an order parameter on it, and a patch supplies
 one.
@@ -2499,10 +2526,10 @@ one.
   subtype of a patch *is* that patch's resultant, so every coherence bound in
   the development is available patchwise with no new proof.
 * `chord_le_of_patch_coherence` — the same bound with `card P` in place of
-  `card V`, which answers rather than restates the remark that the factor `N`
-  makes the estimate weak in a large population.
+  `card V`, which answers rather than restates the remark that the factor
+  `sqrt N` makes the estimate weak in a large population.
 * `chord_le_of_char_patch` — on a winding the patch bound is
-  `2 * sqrt 2 * |sin (psi g)|`, finite and shrinking as the same winding is
+  `2 * |sin (psi g)|`, finite and shrinking as the same winding is
   spread over more sites, exactly where the global bound is vacuous. A state
   whose global resultant carries no content guarantee still constrains content
   locally.
@@ -2545,7 +2572,7 @@ constrains and one that does not. -/
 theorem chord_le_of_patch_coherence (theta : V → ℝ) {P : Finset V} {i j : V}
     (hi : i ∈ P) (hj : j ∈ P) :
     chord (theta i) (theta j)
-      ≤ Real.sqrt 2 * (P.card : ℝ)
+      ≤ Real.sqrt 2 * Real.sqrt (P.card : ℝ)
         * Real.sqrt (1 - Complex.normSq (patch_resultant theta P)) := by
   have : Nonempty {x // x ∈ P} := ⟨⟨i, hi⟩⟩
   have h := chord_le_of_coherence (V := {x // x ∈ P}) (fun v => theta v.1) ⟨i, hi⟩ ⟨j, hj⟩
@@ -2557,18 +2584,18 @@ variable {G : Type*} [AddCommGroup G] [Fintype G] [DecidableEq G]
 
 omit [DecidableEq G] in
 /-- **The global bound at a winding is the whole circle.** With the resultant at
-zero the estimate degrades to `sqrt 2 * N`, which `chord_le_two` makes vacuous
-for every population of two or more sites. -/
+zero the estimate degrades to `sqrt (2 * N)`, which `chord_le_two` makes
+vacuous for every population of two or more sites. -/
 theorem chord_bound_char_global [Nonempty G] (W : WindingData G) {g₀ : G}
     (hg : W.chi g₀ ≠ 1) :
-    Real.sqrt 2 * (Fintype.card G : ℝ) * Real.sqrt (1 - order_parameter_r_sq W.psi)
-      = Real.sqrt 2 * (Fintype.card G : ℝ) := by
+    Real.sqrt 2 * Real.sqrt (Fintype.card G : ℝ) * Real.sqrt (1 - order_parameter_r_sq W.psi)
+      = Real.sqrt 2 * Real.sqrt (Fintype.card G : ℝ) := by
   rw [order_parameter_r_sq_char W hg, sub_zero, Real.sqrt_one, mul_one]
 
 omit [Fintype G] in
 /-- **Y4's payoff: a winding still constrains content locally.** Across a
 nearest-neighbour patch the chord separation is at most
-`2 * sqrt 2 * |sin (psi g)|`, which shrinks to zero as the same winding is
+`2 * |sin (psi g)|`, which shrinks to zero as the same winding is
 spread over more sites — while `chord_bound_char_global` shows the global
 estimate on the same state constrains nothing. A vanishing order parameter is
 therefore not the absence of agreement but the absence of *global* agreement,
@@ -2577,7 +2604,7 @@ theorem chord_le_of_char_patch (W : WindingData G) {g : G}
     (hcos : 0 ≤ Real.cos (W.psi g)) (k : G) {i j : G}
     (hi : i ∈ pairCover g k) (hj : j ∈ pairCover g k) :
     chord (W.psi i) (W.psi j)
-      ≤ Real.sqrt 2 * ((pairCover g k).card : ℝ) * |Real.sin (W.psi g)| := by
+      ≤ Real.sqrt 2 * Real.sqrt ((pairCover g k).card : ℝ) * |Real.sin (W.psi g)| := by
   have hns : Real.cos (W.psi g) ^ 2
       ≤ Complex.normSq (patch_resultant W.psi (pairCover g k)) := by
     have h1 := cos_le_norm_patch_resultant_char W g k
@@ -2591,8 +2618,8 @@ theorem chord_le_of_char_patch (W : WindingData G) {g : G}
         ≤ Real.sqrt (1 - Real.cos (W.psi g) ^ 2) := Real.sqrt_le_sqrt (by linarith)
       _ = |Real.sin (W.psi g)| := by rw [hsin, Real.sqrt_sq_eq_abs]
   refine (chord_le_of_patch_coherence W.psi hi hj).trans ?_
-  have hnn : (0 : ℝ) ≤ Real.sqrt 2 * ((pairCover g k).card : ℝ) :=
-    mul_nonneg (Real.sqrt_nonneg 2) (Nat.cast_nonneg _)
+  have hnn : (0 : ℝ) ≤ Real.sqrt 2 * Real.sqrt ((pairCover g k).card : ℝ) :=
+    mul_nonneg (Real.sqrt_nonneg 2) (Real.sqrt_nonneg _)
   exact mul_le_mul_of_nonneg_left hsq hnn
 
 end PatchWinding
@@ -2600,11 +2627,11 @@ end PatchWinding
 /-! ## 11. How many pairs a coherence bound can miss
 
 `chord_le_of_coherence` and its patch form bound *every* pair, and pay a factor
-`card V` for it. The factor has exactly one source. From
-`order_parameter_r_sq_eq_mean_cos`, `∑ᵢⱼ (1 - cos(θᵢ-θⱼ)) = N²(1-r²)`; every
-term is nonnegative, so each term is at most the whole sum, and that single step
-permits all the disorder in a population to sit in the one pair the conclusion
-is about.
+`sqrt (card V)` for it. The factor has exactly one source. From
+`sum_normSq_sub_order_parameter`, the squared deviations of the phasors from
+their mean sum to `N(1-r²)`; every term is nonnegative, so the two terms for the
+pair in question are at most the whole sum, and that single step permits all the
+disorder in a population to sit at the two sites the conclusion is about.
 
 This section declines the step. Asking not how large a single gap can be but
 how *many* gaps can be large at once is Markov's inequality on the same sum, and
@@ -2846,7 +2873,7 @@ order parameter does not appear: a state whose global resultant is zero still
 constrains content across a connected cover, at a price linear in the distance
 travelled through it. -/
 theorem chord_le_of_patch_walk_coherence (theta : V → ℝ) (P : J → Finset V) {β : ℝ}
-    (hβ : ∀ a, Real.sqrt 2 * ((P a).card : ℝ)
+    (hβ : ∀ a, Real.sqrt 2 * Real.sqrt ((P a).card : ℝ)
       * Real.sqrt (1 - Complex.normSq (patch_resultant theta (P a))) ≤ β)
     {a b : J} (w : (patchNerve P).Walk a b) {x y : V} (hx : x ∈ P a) (hy : y ∈ P b) :
     chord (theta x) (theta y) ≤ ((w.length : ℝ) + 1) * β :=

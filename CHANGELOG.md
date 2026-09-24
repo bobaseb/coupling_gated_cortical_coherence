@@ -23,6 +23,27 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-24 — Reconstruction diameter and the phase-content bound
+
+- The article said resonance and resolution are jointly satisfiable "with
+  nothing folded anywhere", at the whole-substrate identity readout. That readout
+  has Lipschitz factor one and does not meet E89's contraction premise.
+  `Encoding.dist_le_of_contracting_reconstructs` now shows that one fixed
+  `Lambda`-contraction reconstructing a family within `epsilon` confines it to
+  diameter `2 epsilon / (1 - Lambda)`. A broad family needs a separately
+  specified, possibly input-conditioned map.
+- The pointwise coherence bound was `1 - cos <= N^2 (1 - r^2)`, and the chord
+  bound `sqrt 2 N sqrt(1 - r^2)`. A docstring called the `N^2` "real and not an
+  artifact", and the supplement said the antiphase pair was not tight. Both
+  claims were wrong. The phasor-spread identity `sum |z_k - m|^2 = N (1 - r^2)`
+  (`sum_normSq_sub_order_parameter`) gives `1 - cos <= N (1 - r^2)` and chord
+  `<= sqrt(2 N (1 - r^2))`. This is attained on the antiphase pair and tight
+  up to a constant for one antiphase oscillator among `N`. Every statement
+  downstream carries `sqrt N`. On the winding sheet, the patch bound falls from
+  382.5 L to 15.3 L (still vacuous), the informative-site limit rises from 3
+  to 10, and the nerve chain reaches 20 diameters, not 14. The qualitative
+  conclusion is unchanged.
+
 ## 2026-09-24 — Finite-onset, feedback and reconstruction follow-ups
 
 - The cosine-moment current bound is strengthened to a rotation-invariant

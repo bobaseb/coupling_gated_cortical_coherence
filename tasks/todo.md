@@ -38,7 +38,7 @@ format and length rules, agree with each other, and pass repository gates.
   manuscript claim, and Table S1 together; add a failing test or proof
   obligation before any code or Lean implementation change.
 
-- [ ] **N2 — Tighten the phase-content bound and its interpretation.** Use
+- [x] **N2 — Tighten the phase-content bound and its interpretation.** Use
   `Σᵢ|zᵢ-m|² = N(1-r²)` to check the pairwise estimate
   `|zᵢ-zⱼ| ≤ √(2N(1-r²))` and propagate the encoder Lipschitz factor.
   Compare this with the currently reported bound and reassess how much
@@ -94,7 +94,20 @@ criterion. A full-substrate identity readout illustrates resonance and exact
 reconstruction, but has Lipschitz factor one on a nontrivial metric space and
 does not discharge E89. A broad state family requires a separately specified,
 possibly input-conditioned map; no such map or physical readout is constructed
-here. N2–N6 remain open.
+here.
+
+### 2026-09-24 — N2 phase-content bound tightened
+
+`sum_normSq_sub_order_parameter` proves `∑ₖ|zₖ−m|² = N(1−r²)`, and
+`chord_sq_le_of_coherence` gives `chord² ≤ 2N(1−r²)`. `cos_gap_le_of_coherence`,
+`chord_le_of_coherence`, the patch, winding and nerve forms and the Phase5
+compatibility residuals now carry `√N`, not `N`. The antiphase pair attains
+the bound, and one antiphase oscillator among `N` shows the order is sharp.
+The saved wave summary is unchanged. Regenerated macros give a patch bound of
+15.3 L (still vacuous), at most 10 informative sites, and a 20-diameter
+(0.312 mm) nerve reach. The article, supplement, Table S1, primer and
+CHANGELOG state the sharper bound, and the published conclusion holds
+qualitatively.
 
 ## C — What a continuous medium buys, and what is electromagnetic about it
 

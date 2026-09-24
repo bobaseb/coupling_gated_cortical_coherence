@@ -174,7 +174,7 @@ all.
 This section answers it from coherence. Observations are a declared Lipschitz
 function of the local phase, read as a point of the circle; the population's
 order parameter then bounds their overlap disagreement, with no compatibility
-assumed anywhere. The chain is `cos_gap_le_of_coherence` →
+assumed anywhere. The chain is `chord_sq_le_of_coherence` →
 `chord_le_of_coherence` → `compatible_of_shared_coherence` → `update_residual`.
 
 **What is still declared and what is not.** The encoder and its Lipschitz
@@ -219,14 +219,14 @@ are compatible at a residual fixed by the population's order parameter alone.
 
 No premise of the form `Compatible U o δ` appears: the residual is computed from
 the phases. What does appear is `hshared`, and it carries the weight — the
-conclusion is false without it (`Examples/VectorContent.lean` §23). The `N` is
-inherited from `cos_gap_le_of_coherence` and is the price of a pointwise
+conclusion is false without it (`Examples/VectorContent.lean` §23). The `sqrt N` is
+inherited from `chord_sq_le_of_coherence` and is the price of a pointwise
 guarantee drawn from a global mean. -/
 theorem compatible_of_shared_coherence {V : Type*} [Fintype V] [Nonempty V]
     (U : I → Set A) (patch : I → V) (theta : V → ℝ) (e : I → A → ℝ × ℝ → E) (L : ℝ)
     (hL : 0 ≤ L) (hshared : SharedEncoder U e) (he : UniformLipschitzEncoder e L) :
     Compatible U (fun i x => e i x (circlePoint (theta (patch i))))
-      (L * (Real.sqrt 2 * (Fintype.card V : ℝ) *
+      (L * (Real.sqrt 2 * Real.sqrt (Fintype.card V : ℝ) *
         Real.sqrt (1 - order_parameter_r_sq theta))) := by
   intro i j x hi hj
   simp only [hshared i j x hi hj]
@@ -244,7 +244,7 @@ statement at the subtype of `P` rather than by weakening it.
 Two things this buys. In a large population read through small patches the
 bound constrains where the global one does not. And on a winding field it is
 not vacuous at all: `chord_le_of_char_patch` puts the nearest-neighbour patch
-bound at `2 √2 |sin (psi g)|` on a state whose global resultant is exactly
+bound at `2 |sin (psi g)|` on a state whose global resultant is exactly
 zero, so a population that no global observable calls coherent still supports
 content agreement inside each patch. -/
 theorem compatible_of_patch_coherence {V : Type*} [Fintype V] [DecidableEq V]
@@ -252,7 +252,7 @@ theorem compatible_of_patch_coherence {V : Type*} [Fintype V] [DecidableEq V]
     (theta : V → ℝ) (e : I → A → ℝ × ℝ → E) (L : ℝ)
     (hL : 0 ≤ L) (hshared : SharedEncoder U e) (he : UniformLipschitzEncoder e L) :
     Compatible U (fun i x => e i x (circlePoint (theta (patch i))))
-      (L * (Real.sqrt 2 * (P.card : ℝ) *
+      (L * (Real.sqrt 2 * Real.sqrt (P.card : ℝ) *
         Real.sqrt (1 - Complex.normSq (patch_resultant theta P)))) := by
   intro i j x hi hj
   have hne : Nonempty {v // v ∈ P} := ⟨⟨patch i, hpatch i⟩⟩
@@ -269,7 +269,7 @@ theorem compatible_of_coherence {V : Type*} [Fintype V] [Nonempty V]
     (U : I → Set A) (patch : I → V) (theta : V → ℝ) (e : ℝ × ℝ → E) (L : ℝ)
     (hL : 0 ≤ L) (he : LipschitzEncoder e L) :
     Compatible U (fun i _ => e (circlePoint (theta (patch i))))
-      (L * (Real.sqrt 2 * (Fintype.card V : ℝ) *
+      (L * (Real.sqrt 2 * Real.sqrt (Fintype.card V : ℝ) *
         Real.sqrt (1 - order_parameter_r_sq theta))) :=
   compatible_of_shared_coherence U patch theta (fun _ _ => e) L hL
     (fun _ _ _ _ _ => rfl) (fun _ _ => he)
@@ -333,14 +333,14 @@ theorem run_residual_of_shared_coherence {V : Type*} [Fintype V] [Nonempty V]
     (he : UniformLipschitzEncoder e L)
     (s : I → A → E) (ε η δ : ℝ) (hη : 0 ≤ η) (hη' : η ≤ 1)
     (hs : Compatible U s ε)
-    (hδ : ∀ n, L * (Real.sqrt 2 * (Fintype.card V : ℝ) *
+    (hδ : ∀ n, L * (Real.sqrt 2 * Real.sqrt (Fintype.card V : ℝ) *
       Real.sqrt (1 - order_parameter_r_sq (theta n))) ≤ δ) (n : ℕ) :
     Compatible U
       (run η (fun n i x => e i x (circlePoint (theta n (patch i)))) s n)
       ((1 - η) ^ n * ε + δ) := by
-  have hnn : (0 : ℝ) ≤ L * (Real.sqrt 2 * (Fintype.card V : ℝ) *
+  have hnn : (0 : ℝ) ≤ L * (Real.sqrt 2 * Real.sqrt (Fintype.card V : ℝ) *
       Real.sqrt (1 - order_parameter_r_sq (theta 0))) :=
-    mul_nonneg hL (mul_nonneg (mul_nonneg (Real.sqrt_nonneg 2) (Nat.cast_nonneg _))
+    mul_nonneg hL (mul_nonneg (mul_nonneg (Real.sqrt_nonneg 2) (Real.sqrt_nonneg _))
       (Real.sqrt_nonneg _))
   exact run_residual_floor U s _ ε δ η hη hη' (hnn.trans (hδ 0)) hs
     (fun m i j x hi hj =>
@@ -353,7 +353,7 @@ theorem run_residual_of_coherence {V : Type*} [Fintype V] [Nonempty V]
     (L : ℝ) (hL : 0 ≤ L) (he : LipschitzEncoder e L)
     (s : I → A → E) (ε η δ : ℝ) (hη : 0 ≤ η) (hη' : η ≤ 1)
     (hs : Compatible U s ε)
-    (hδ : ∀ n, L * (Real.sqrt 2 * (Fintype.card V : ℝ) *
+    (hδ : ∀ n, L * (Real.sqrt 2 * Real.sqrt (Fintype.card V : ℝ) *
       Real.sqrt (1 - order_parameter_r_sq (theta n))) ≤ δ) (n : ℕ) :
     Compatible U
       (run η (fun n i _ => e (circlePoint (theta n (patch i)))) s n)
@@ -409,7 +409,7 @@ theorem compatible_of_patch_nerve {V J : Type*} [Fintype V] [DecidableEq V]
     (hpatch : ∀ i, patch i ∈ P (home i))
     (theta : V → ℝ) (e : I → A → ℝ × ℝ → E) (L : ℝ) (hL : 0 ≤ L)
     (hshared : SharedEncoder U e) (he : UniformLipschitzEncoder e L)
-    {β : ℝ} (hβ : ∀ a, Real.sqrt 2 * ((P a).card : ℝ)
+    {β : ℝ} (hβ : ∀ a, Real.sqrt 2 * Real.sqrt ((P a).card : ℝ)
       * Real.sqrt (1 - Complex.normSq (patch_resultant theta (P a))) ≤ β)
     {k : ℕ} (hk : ∀ i i' : I, ∃ w : (patchNerve P).Walk (home i) (home i'), w.length ≤ k) :
     Compatible U (fun i x => e i x (circlePoint (theta (patch i))))

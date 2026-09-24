@@ -4288,15 +4288,23 @@ Start from an identity. Writing $r$ for the order parameter of $N$ oscillators,
  N^{2}r^{2}=\sum_{i,j}\cos(\theta_i-\theta_j),
 \]
 because $r^2$ is the squared length of the mean unit vector and expanding that
-square pairs every oscillator with every other. Subtract from $N^2$ and every
-term becomes $1-\cos(\theta_i-\theta_j)$, which is never negative. A sum of
-nonnegative things is at least any one of them, so for \emph{every} pair
+square pairs every oscillator with every other. The sharper form reads the
+same fact about the mean. Write $z_k=e^{i\theta_k}$ for the unit arrows and $m$
+for their mean, so $|m|=r$; then the squared distances of the arrows from their
+mean add up to
 \[
- 1-\cos(\theta_i-\theta_j)\;\le\;N^{2}\bigl(1-r^{2}\bigr).
+ \sum_k|z_k-m|^{2}=N\bigl(1-r^{2}\bigr),
 \]
-A single global number bounds every individual phase gap. The factor $N^{2}$
-comes from comparing one summand with the entire sum. It can make this estimate
-weak in large populations; the theorem does not show that this factor is optimal.
+the variance of points on the unit circle. Two arrows are each within their own
+distance of the mean, and those two distances are two terms of a sum of
+nonnegative things, so for \emph{every} pair
+\[
+ 1-\cos(\theta_i-\theta_j)=\tfrac12|z_i-z_j|^{2}\;\le\;N\bigl(1-r^{2}\bigr).
+\]
+A single global number bounds every individual phase gap. The factor $N$ comes
+from comparing two summands with the entire sum, and it cannot be removed: one
+oscillator in antiphase among $N$ has a gap of $2$ against every partner while
+$N(1-r^2)$ is just under $4$.
 
 Now the content. A phase is an angle, so a content that is a function of phase
 has to be a function of the point $(\cos\theta,\sin\theta)$ on the circle; a
@@ -4308,7 +4316,7 @@ encoder that can depend on the site being described. Its output may be a vector,
 such as two coordinates. All encoders must have one common Lipschitz bound $L$,
 and patches meeting at a site must use the same encoder there. The resulting
 observations agree on every overlap in norm to within
-$L\sqrt{2}\,N\sqrt{1-r^{2}}$. At $r^2=1$
+$L\sqrt{2N(1-r^{2})}$. At $r^2=1$
 the residual is zero and the agreement is exact, so perfect locking is the
 endpoint of this scale rather than a separate theorem.
 
@@ -4339,15 +4347,18 @@ share the encoder required by the bound.
 The encoder and its constant are declared hardware, in the same sense as
 anything else the model supplies. The agreement is derived rather than declared,
 which is the whole point of the section. The contents are normed vector fields
-identified with no neural variable, and the bound is not tight: two antiphase
-oscillators give a residual of $2\sqrt2$ where the actual disagreement is $2$.
+identified with no neural variable, and the bound is attained on the smallest
+example: two antiphase oscillators give a residual of $2$, which is the actual
+disagreement.
 The scalar case recovers the mass-profile setting only when nonnegative
 initial profiles and observations are supplied. Vector-valued agreement itself
 does not supply local coordinate changes or a probability-sheaf interpretation.
 
 \lean
 \id{Phase4\_KuramotoDynamics.lean}:
-\id{order\_parameter\_r\_sq\_eq\_mean\_cos}, \id{cos\_gap\_le\_of\_coherence},
+\id{order\_parameter\_r\_sq\_eq\_mean\_cos},
+\id{sum\_normSq\_sub\_order\_parameter}, \id{chord\_sq\_le\_of\_coherence},
+\id{cos\_gap\_le\_of\_coherence},
 \id{circlePoint}, \id{chord}, \id{chord\_le\_of\_coherence},
 \id{chord\_eq\_zero\_of\_phase\_locked}.
 \id{Phase5\_ContentDynamics.lean}: \id{SharedEncoder},
@@ -4362,18 +4373,18 @@ witness, its computed $r^2=0$ and the disagreement control in
 \label{sec:off-the-count}
 
 \what
-The factor $N^{2}$ above has exactly one source, and it is worth staring at:
-every term of $\sum_{ij}\bigl(1-\cos(\theta_i-\theta_j)\bigr)=N^{2}(1-r^{2})$ is
-nonnegative, so each term is at most the whole sum. That single step is what
-lets all the disorder in a population sit in the one pair you happen to be
-asking about, and it is why the estimate has to assume the worst. Three results
+The factor $N$ above has exactly one source, and it is worth staring at:
+every term of $\sum_k|z_k-m|^2=N(1-r^{2})$ is nonnegative, so the two terms for
+the pair in question are at most the whole sum. That single step is what lets
+all the disorder in a population sit at the two sites you happen to be asking
+about, and it is why the estimate has to assume the worst. Three results
 decline it, in the three ways it can be declined: by asking for fewer pairs, by
 asking over shorter distances, or by not reading phase differences off $r$ at
 all.
 
 \statement
 \emph{Count instead of bound.} Ask not how large one gap can be but how
-\emph{many} gaps can be large at once, and the same identity becomes Markov's
+\emph{many} gaps can be large at once, and the pair identity becomes Markov's
 inequality. If every pair in a set $S$ is separated by a chord of at least $c$,
 then $|S|/N^{2}\le2(1-r^{2})/c^{2}$ --- with the population size gone. At
 $r=0.99$ and $c$ one Lipschitz unit that is four per cent of pairs; at the
@@ -4427,8 +4438,8 @@ for.
 The chain supplies no walk. Connectivity of the nerve, and its diameter, are
 properties of the declared cover; a cover whose nerve is disconnected says
 nothing between its components. Accumulation is linear and nothing here makes it
-sublinear, so the reach is a dozen or so patch diameters rather than a
-hemisphere, and the per-hop constant is the cover's own.
+sublinear, so the reach is some \waveNerveDiameters{} patch diameters rather
+than a hemisphere, and the per-hop constant is the cover's own.
 
 The spectral-gap route declares four things and discharges none. $\lambda_2$ is
 hardware data, in the same standing as the mode-price constant $\kappa$: Mathlib
