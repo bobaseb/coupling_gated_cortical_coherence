@@ -74,7 +74,7 @@ format and length rules, agree with each other, and pass repository gates.
   derivations, hardware assumptions, and sensitivity analysis in the
   supplement, cross-referenced from the article.
 
-- [ ] **N6 — Complete the journal-fit and submission audit.** Recheck the
+- [x] **N6 — Complete the journal-fit and submission audit.** Recheck the
   current *Neuroscience of Consciousness* Research Article instructions,
   including the article word limit, abstract limit, and significance
   statement, then prepare the required components. Trim repeated exposition
@@ -155,6 +155,23 @@ spectral bottleneck, predictive memory and feedback, and learning/repeated
 operation. There is also a new `sec:supp-gpu` subsection. Supplement cross-refs
 now resolve natively. Every macro is still cited, and the article is about 8,400
 words by `detex`.
+
+### 2026-09-24 — N6 journal fit and submission audit; N block closed
+
+Checked the current *Neuroscience of Consciousness* instructions online:
+Research Articles are limited to 9,000 words, abstracts to 250 words, and the
+significance statement is ~120 words and unpublished. Data availability, funding,
+CRediT roles, ORCID and at least five suggested reviewers are also required.
+The article is ~8,000 words by `detex` and the abstract ~227. A Conclusions
+section is added for the required-sections list. `submission/neuroscience_of_consciousness.md`
+holds the limits table, a draft significance statement and draft CRediT
+roles. Open for the author: suggested reviewers, confirming the CRediT roles,
+confirming the theory-article section structure, and the editable-format
+upload. Supplement trim: the only repeated exposition found by shingle
+comparison was the second derivation of the three routes off the population
+count, now cut to the sheet-specific numbers. Hypothesis counts ("eight")
+agree across article, supplement and primer. The PDFs and `arxiv_submit/` are
+rebuilt (101 pages, compiled from the tarball).
 
 ## C — What a continuous medium buys, and what is electromagnetic about it
 
