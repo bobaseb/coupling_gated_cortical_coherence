@@ -132,7 +132,7 @@ action points. N7 closed in the same pass; the rest are open.
   pre-reflective self rather than asserting it, and compare with existing
   self-model accounts.
 
-- [ ] **N12 — Say where the content bound is vacuous.** The √N bound is
+- [x] **N12 — Say where the content bound is vacuous.** The √N bound is
   informative for at most `\wavePatchInformativeSites` sites, so the bridge
   E78 carries the whole positive coherence-to-content link. Say so in the
   abstract and Conclusions.
@@ -283,6 +283,13 @@ synchrony does not fix content. It names the core results as elementary
 formalization adds: the √N rate and the population at which the bound becomes
 vacuous, the fixed-map diameter limit, the code count, and a complete premise
 inventory with a joint witness.
+
+### 2026-09-24 — N12 where the content bound is vacuous
+
+The abstract and Conclusions now say that the √N coherence-to-content bound
+constrains at most `\wavePatchInformativeSites` sites at the simulated sheet's
+patch order, so for cortical-size populations the positive link from
+coherence to content is the bridge assumption E78, not a derived result.
 
 ## C — What a continuous medium buys, and what is electromagnetic about it
 
