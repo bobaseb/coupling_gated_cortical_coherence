@@ -206,6 +206,15 @@ ALLOWED_LEAVES: dict[str, str] = {
         "a finite cell reconstruction, which is a physical identification this "
         "development does not make"
     ),
+    "Phase10_PhysicalUnity.lean": (
+        "deliberate — the margin theorem is the formal core of the physical-"
+        "unity premise, which is a separate necessary condition and not a node "
+        "of the conditional chain. That chain is substrate-neutral by design; "
+        "routing `not_physicallyEnforced_of_margin` into `chain` would make its "
+        "edges exclude digital claimants on a premise they do not state. Its "
+        "consumers are the physical-unity paper and the witnesses of "
+        "`Examples/PhysicalUnity.lean`"
+    ),
 }
 
 # A declaration head: optional attributes and modifiers, the keyword, the name.

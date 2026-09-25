@@ -56,6 +56,8 @@
     `Examples/Phase8.lean`  §5, §9, §12, §20 (continuum operator), §21 (stationary
       equation and both stability branches)
     `Examples/AgencyFoundations.lean` -- regressions for the agency foundations
+    `Examples/PhysicalUnity.lean` §38 (a bit with a margin, and a diffusive pair
+      whose agreement is physically enforced)
 
   **Coverage — every class carrying a physical postulate is now inhabited.**
     ✓ `StatisticalMechanics` — a one-bit erasure model with a genuine bath.
@@ -181,3 +183,4 @@ import PhysicsOfConsciousness.Examples.AttentionRank
 import PhysicsOfConsciousness.Examples.InformationCapacity
 import PhysicsOfConsciousness.Examples.PhaseFeedback
 import PhysicsOfConsciousness.Examples.InputWeightedRank
+import PhysicsOfConsciousness.Examples.PhysicalUnity

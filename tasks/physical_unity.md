@@ -42,7 +42,8 @@ level whose dynamics `g` contracts overlap discrepancy. Contraction of
 discrepancy at the content level is computable, so it cannot separate the
 substrates. The separating property sits one level down:
 
-- A digital system's content map is **locally constant** in micro state:
+- A digital system's content map is **locally constant** in micro state on
+  its operating set (every micro state away from a switching threshold):
   noise margins restore every sub-threshold perturbation to the same logical
   value, per bit, toward that bit's own value. Its only physical restoring
   forces are *local self-agreement*. Cross-region influence exists only
@@ -71,8 +72,12 @@ footnote.
 - Content coarse-graining `π_i : X → C_i`; overlaps as in the decodability
   cover (companion paper, `Phase5_ContentCover`).
 - **Closed:** there is `g` with `π ∘ f = g ∘ π`.
-- **Margin (digital abstraction):** each `π_i` is locally constant — every
-  micro state has a neighbourhood on which `π_i` is constant.
+- **Margin (digital abstraction):** each `π_i` is locally constant *on an
+  open operating set `M`* — every micro state in `M` has a neighbourhood on
+  which `π_i` is constant — and correct operation keeps `f x ∈ M`. Not
+  "locally constant everywhere": on a connected micro-state space (a voltage
+  continuum) that forces `π_i` to be constant, so the margin can only hold
+  off the thresholds.
 - **Graded dependence:** `π_j ∘ f` is not locally constant in `x_i` for
   overlapping `i ≠ j`.
 - **Physically enforced agreement:** graded dependence, and the overlap
@@ -97,9 +102,12 @@ Reused from the companion (proved; Lean names as in the library):
 
 New targets:
 
-5. **Margin theorem (U7, revised).** If every `π_i` is locally constant, then
-   no sub-threshold perturbation of region A changes any content anywhere;
-   graded dependence fails, so P fails. Small, true, Lean-sized. Its content
+5. **Margin theorem (U7, revised).** If `π_j` has a margin on `M`, `f` is
+   continuous and `f x ∈ M`, then no sufficiently small perturbation of any
+   one region at `x` changes the next content; graded dependence fails, so P
+   fails. Proved: `Phase10_PhysicalUnity.not_physicallyEnforced_of_margin`,
+   with the margin discharged for any finite word of thresholded continuous
+   quantities (`not_physicallyEnforced_of_bits`). Small and true. Its content
    is not the proof but the observation that the margin is exactly what
    digital engineering designs in.
 6. **Typical-case agreement (U1–U2).** `Var(θ_a − θ_b) = D·R_eff(a,b)` in the

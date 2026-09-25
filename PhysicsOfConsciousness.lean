@@ -60,5 +60,6 @@ import PhysicsOfConsciousness.Phase8_WeightedPoincare
 import PhysicsOfConsciousness.Phase8_CoherentStability
 import PhysicsOfConsciousness.Phase9_EMIdentification
 import PhysicsOfConsciousness.Phase9_InstalledCoupling
+import PhysicsOfConsciousness.Phase10_PhysicalUnity
 import PhysicsOfConsciousness.Examples
 import PhysicsOfConsciousness.Chain

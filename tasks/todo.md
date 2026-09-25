@@ -94,8 +94,9 @@ The causal lens:
 
 - [ ] **U6 — Define physically enforced agreement.** Micro dynamics
   `x ↦ f(x)`, regions with micro states `x_i`, content coarse-grainings `π_i`.
-  *Closed*: `π∘f = g∘π`. *Margin*: each `π_i` locally constant in micro
-  state. *Graded dependence*: `π_j∘f` not locally constant in `x_i` for
+  *Closed*: `π∘f = g∘π`. *Margin*: each `π_i` locally constant on an open
+  operating set `M` kept by the dynamics (not everywhere: on a connected
+  micro-state space that makes `π_i` constant). *Graded dependence*: `π_j∘f` not locally constant in `x_i` for
   overlapping `i ≠ j`. *Physically enforced*: graded dependence plus
   contraction of overlap discrepancy under sub-threshold as well as logical
   perturbations. Full statement of premise P in `tasks/physical_unity.md`.
@@ -108,6 +109,15 @@ The causal lens:
   rejection of functionalism about unity (a perfect field simulation fails
   it); the paper must say so and answer the simulation objection directly.
   Lean-sized; lands beside `Phase6_Locality`.
+  *Theorem proved 2026-09-25:* `Phase10_PhysicalUnity.lean` —
+  `not_gradedDependence_of_margin`, `not_physicallyEnforced_of_margin`, and
+  `not_physicallyEnforced_of_bits` (margin discharged for any finite word of
+  thresholded continuous quantities via `hasMargin_threshold`,
+  `HasMargin.pi`). Stated on an operating set `M`, not everywhere (see U6).
+  Witnesses `Examples/PhysicalUnity.lean` §38: a non-constant bit, and a
+  diffusive pair whose agreement is physically enforced at every state.
+  Recorded in `ALLOWED_LEAVES`: the conditional chain is substrate-neutral
+  and must not rest on P. Open: the prose half (simulation objection).
 - [ ] **U8 — The unity window.** Lower bound: agreement cannot arrive before
   the causal cone allows (`not_reconstructs_of_outside_past`, C8
   quantitative deadline). Upper bound: disagreement decays at the relaxation
