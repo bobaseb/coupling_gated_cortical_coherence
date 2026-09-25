@@ -23,6 +23,19 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-25 — The article's scope statements move to one section
+
+`main.tex` now opens with six numbered claims, each pointing at the section
+that argues it, and states the scope of every result in a new Limitations
+section; `check-claims` is hard on it. No claim was withdrawn and no scope
+statement dropped: each disclaimer removed from a running section reappears in
+Limitations. Three negative results were restated positively with unchanged
+content (the abstract's first result, the Fig. 1 caption, the spike-time
+conversion rate). The "Explanatory scope" subsection of the Discussion is
+absorbed into Limitations.
+
+---
+
 ## 2026-09-25 — Structural hedging gate (H1–H5)
 
 New gate `simulations/check_claims.py`, hook `check-claims` (`AGENTS.md` §10):

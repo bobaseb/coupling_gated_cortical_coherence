@@ -7,7 +7,7 @@ sentence is a hedge, but nearly every paragraph carries a scope clause, so the
 article reads as a list of what it does not show. That is a property of *where*
 disclaimers sit, and position has a yes/no answer.
 
-The rules, for the physical-unity paper:
+The rules, for the physical-unity paper and the article ``main.tex``:
 
 * A section labelled ``sec:limitations`` exists, and disclaimers are unlimited
   there.
@@ -26,8 +26,9 @@ qualification, not to delete it.
 
 Usage::
 
-    uv run python check_claims.py                          # hard, on unity/main.tex
-    uv run python check_claims.py --advisory ../main.tex   # report, always exits 0
+    uv run python check_claims.py                   # hard, on unity/main.tex
+    uv run python check_claims.py ../main.tex       # hard, on the article
+    uv run python check_claims.py --advisory ../supplementary.tex  # report only
 
 A paper that does not exist yet passes: the gate predates the paper it guards.
 """

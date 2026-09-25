@@ -178,7 +178,7 @@ so an article reads as a list of what it does not show. `check-hedging` counts
 disclaimers and decides nothing. Where a disclaimer *sits* has a yes/no answer,
 so that part is a gate.
 
-- **The rules** (hard on `unity/main.tex`): a section labelled
+- **The rules** (hard on `unity/main.tex` and `main.tex`): a section labelled
   `sec:limitations` exists and disclaimers are unlimited there; every other
   section, the abstract included, carries at most one; the introduction states
   numbered claims as `\claim{label}{text}`, each label defined in the paper, so
@@ -190,9 +190,9 @@ so that part is a gate.
   calibrated on `main.tex` by hand labelling; a pattern that fires on plain
   claims ("the order cannot be improved") is narrowed, not tolerated, because a
   hard gate that punishes ordinary sentences teaches authors to avoid them.
-- **Advisory on the companion paper.** `main.tex` and `supplementary.tex` are
-  frozen in form; the hook reports their disclaimers per section and per claim,
-  worst sections first, and passes.
+- **Advisory on the supplement.** `supplementary.tex` carries the proofs and
+  the claim map, whose rows state scope by design; the hook reports its
+  disclaimers per section, worst first, and passes.
 - **Move qualification, never delete it.** The gate cannot read meaning. A
   disclaimer taken out of the running text must reappear in `sec:limitations`
   or in a theorem statement. Removing a scope statement to satisfy the count

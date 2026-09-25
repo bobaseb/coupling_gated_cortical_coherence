@@ -69,12 +69,12 @@ repos:
         verbose: true
 
       # Claims first, limitations in one place: AGENTS.md section 10. Hard on
-      # the physical-unity paper (and a pass while it does not exist yet);
-      # advisory on the frozen companion paper, whose disclaimer counts per
+      # the physical-unity paper (a pass while it does not exist yet) and on
+      # main.tex; advisory on supplementary.tex, whose disclaimer counts per
       # section are reported on every publication commit, hence `verbose`.
       - id: check-claims
         name: claims first, scope disclaimers in sec:limitations
-        entry: bash -c 'cd simulations && uv run python check_claims.py && uv run python check_claims.py --advisory ../main.tex ../supplementary.tex'
+        entry: bash -c 'cd simulations && uv run python check_claims.py && uv run python check_claims.py ../main.tex && uv run python check_claims.py --advisory ../supplementary.tex'
         language: system
         files: ^(unity/.*\.tex|(main|supplementary)\.tex|simulations/(test_)?check_(claims|hedging)\.py)$
         pass_filenames: false

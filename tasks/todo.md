@@ -237,6 +237,18 @@ advisory, reports its disclaimer count and positions.
   19. The companion is frozen in form, so nothing was rewritten; the U paper
   must pass hard from its first commit.
 
+### 2026-09-25 — H gates applied to `main.tex`
+
+The author asked for the gate on the current manuscript, which supersedes the
+"advisory, form frozen" constraint above for `main.tex`; the supplement stays
+advisory. Before: 46 disclaimers, 9 sections over the limit, no
+`sec:limitations`, no claims. After: 39, of which 28 in Limitations and at most
+1 elsewhere, six `\claim`s; `check-claims` is hard on `main.tex`. The drop of 7
+is merges inside Limitations plus three results restated positively; an audit
+of the before/after disclaimer lists mapped every moved item to a Limitations
+sentence. Open: the supplement's 145 (Table S1 section 27, reflexive topology
+19) if the author wants it held too; the primer was not touched.
+
 ## N — Neuroscience of Consciousness submission
 
 **Intent.** Prepare a Research Article for *Neuroscience of Consciousness* that

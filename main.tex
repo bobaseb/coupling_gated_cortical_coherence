@@ -35,6 +35,8 @@ ORCID: \href{https://orcid.org/0000-0002-5951-0772}{0000-0002-5951-0772}}
 \providecommand{\nolinenumbers}{}
 
 \usepackage{xfp}  % \fpeval for inline Fermi-parameter arithmetic
+% A numbered claim and the section that argues it (check_claims.py).
+\newcommand{\claim}[2]{\item #2 (Section~\ref{#1}).}
 
 \input{simulations/fermi_params}
 \input{simulations/simulation_results}
@@ -53,7 +55,7 @@ ORCID: \href{https://orcid.org/0000-0002-5951-0772}{0000-0002-5951-0772}}
 \begin{abstract}
 \singlespacing
 \small
-Synchrony accounts treat collective phase order as the mechanism that integrates distributed cortical activity. We show formally that phase order alone establishes neither shared content nor a self-model, and state what additionally does. Three conditions are separated: coherence (collective phase order), compatibility (agreement of independently decoded local descriptions where regions overlap) and self-reconstruction (accurate recovery of the global state from an internal encoding). Compatible local descriptions determine a unique global state. Coherence bounds disagreement between overlapping descriptions only through shared encoders of bounded sensitivity, and the bound grows as the square root of the population read: on a simulated cortical sheet it constrains at most \wavePatchInformativeSites{} sites, chaining through overlapping patches extends it to \waveNerveReachMm~mm, and across distant regions the link from coherence to content is an assumption. A contracting self-map fixes one state but reconstructs accurately only states within a diameter set by its error and contraction factor. Lean~4 verifies these implications; one model satisfies all connecting hypotheses at once, showing consistency, not cortical realization. The conditions yield a disconfirmable comparison: at matched phase coherence and single-region decoding accuracy, decoders fitted independently on two regions should agree more, beyond their separate accuracies, on perceived than on unperceived stimuli classified by a no-report marker. Choosing the overlapping regions by what each decodes makes the unity correlate operational relative to a pre-registered decoder and criterion. An exploratory EEG analysis is a measurement check only. Unity and a minimal self remain interpretations that need an independent experiential endpoint.
+Synchrony accounts treat collective phase order as the mechanism that integrates distributed cortical activity. We show formally that shared content and a self-model each need a condition beyond phase order, and state it. Three conditions are separated: coherence (collective phase order), compatibility (agreement of independently decoded local descriptions where regions overlap) and self-reconstruction (accurate recovery of the global state from an internal encoding). Compatible local descriptions determine a unique global state. Coherence bounds disagreement between overlapping descriptions only through shared encoders of bounded sensitivity, and the bound grows as the square root of the population read: on a simulated cortical sheet it constrains at most \wavePatchInformativeSites{} sites, chaining through overlapping patches extends it to \waveNerveReachMm~mm, and across distant regions the link from coherence to content is an assumption. A contracting self-map fixes one state but reconstructs accurately only states within a diameter set by its error and contraction factor. Lean~4 verifies these implications; one model satisfies all connecting hypotheses at once, showing consistency, not cortical realization. The conditions yield a disconfirmable comparison: at matched phase coherence and single-region decoding accuracy, decoders fitted independently on two regions should agree more, beyond their separate accuracies, on perceived than on unperceived stimuli classified by a no-report marker. Choosing the overlapping regions by what each decodes makes the unity correlate operational relative to a pre-registered decoder and criterion. An exploratory EEG analysis is a measurement check only. Unity and a minimal self remain interpretations that need an independent experiential endpoint.
 \end{abstract}
 \linenumbers
 
@@ -73,8 +75,8 @@ perceiver's relation to the cup asks for still more. We call the three
 requirements \emph{coherence} (collective phase order), \emph{compatibility}
 (agreement of local descriptions on overlaps), and \emph{self-representation}
 (accurate reconstruction from an internal encoding). The mathematical states
-are spatial measures and fields; identifying them with perceptual content
-requires independent decoding evidence.
+are spatial measures and fields, compared with perceptual content through
+independently fitted decoders (Section~\ref{sec:full-test}).
 
 Binding-by-synchrony and communication-through-coherence accounts treat phase
 relations as the medium of integration or of selective routing
@@ -103,10 +105,8 @@ them hold at once.
 The familiar noisy mean-field oscillator supplies a stationary coherence
 threshold \cite{sakaguchi1988,strogatz1991}; we add a minimum cost for changing
 coherence quickly. A Lean~4 development checks the implications, and a joint
-witness satisfies the eight connecting hypotheses of the formal composition in
-a specified model. It proves neither that cortex satisfies those hypotheses nor
-that the glued state is experienced; that identification needs its own
-endpoint.
+witness shows that the eight connecting hypotheses of the formal composition
+are jointly satisfiable.
 
 The empirical question is which measurements could support or disconfirm the
 proposed connections. A phase resultant can miss a locally ordered winding field;
@@ -118,11 +118,22 @@ models on held-out emergence recordings. The comparison tests a specified
 spatial prediction, not the presence of experience. Section~\ref{sec:full-test}
 states the comparison that bears on conscious content directly.
 
+The article makes six claims:
+\begin{enumerate}
+\claim{sec:unity}{Compatible local descriptions determine a unique global state, while equal phases coexist with incompatible descriptions}
+\claim{sec:content-connection}{Coherence bounds disagreement between overlapping descriptions through shared encoders of bounded sensitivity, by $L\sqrt{2N(1-r^2)}$ on the population read; on a simulated cortical sheet this constrains at most \wavePatchInformativeSites{} sites, and chaining through overlapping patches extends it to \waveNerveReachMm~mm}
+\claim{sec:self}{A contracting self-map fixes one state and reconstructs within error $\varepsilon$ only a family of diameter at most $2\varepsilon/(1-\Lambda)$; reconstructing $M$ states pairwise more than $2\varepsilon$ apart takes $M$ distinguishable codes}
+\claim{sec:speed-limit}{Changing coherence in time $\tau$ has a minimum current cost that grows as $1/\tau$}
+\claim{sec:observations}{Stationary phase statistics leave the coupling mechanism unidentified, finite ramps shift the observed onset, and a winding field keeps local order at global $r=0$}
+\claim{sec:full-test}{The link to content predicts that, at matched phase coherence and single-region accuracy, decoders fitted independently on two regions agree more, beyond their separate accuracies, on perceived than on unperceived stimuli; equal excess counts against the link to content}
+\end{enumerate}
+
 Sections~\ref{sec:unconditional}--\ref{sec:self} develop the three requirements;
 Section~\ref{sec:gpu} applies their measurement obligations to a digital
 candidate. Section~\ref{sec:chain} states what the formal composition
 establishes, and Sections~\ref{sec:observations}--\ref{sec:prediction} examine
-observables and the cortical test. Table~\ref{tab:summary} lists the connecting
+observables and the cortical test, and Section~\ref{sec:limitations} states the
+scope of every result in one place. Table~\ref{tab:summary} lists the connecting
 hypotheses the article argues from; Supplemental Material gives the full chain,
 derivations and controls. For a theoretical article the Methods are the
 definitions, proofs and simulations. Each result is stated in the section that
@@ -159,7 +170,7 @@ Section~\ref{sec:observations}.
  {Supporting constraint: changing coherence in time $\tau$ has a minimum current cost growing as $1/\tau$.\\
  Installed energy gives a necessary price for a declared actuator; the resource chain is in Supplemental Material.};
 \end{tikzpicture}
-\caption{Three requirements of the proposed account. Each requires the inputs shown below it. Dashed arrows mark proposed connections: phase coherence alone supplies neither compatible local descriptions nor an accurate self-model. Thermodynamics constrains a candidate implementation through separate assumptions. This is the explanatory structure of the article; Table~\ref{tab:summary} records the connecting hypotheses of the formal composition that the article argues from.}
+\caption{Three requirements of the proposed account. Each requires the inputs shown below it. Dashed arrows mark proposed connections, each of which needs the inputs of the condition it points to in addition to phase coherence. Thermodynamics constrains a candidate implementation through separate assumptions. This is the explanatory structure of the article; Table~\ref{tab:summary} records the connecting hypotheses of the formal composition that the article argues from.}
 \label{fig:chain}
 \end{figure}
 
@@ -223,7 +234,7 @@ One thermodynamic statement bears on coherence directly. For a smooth positive p
  \int_0^\tau\sigma_J\,dt\geq\frac{[\arcsin r(\tau)-\arcsin r(0)]^2}{D\tau}
  \label{eq:speed-limit}
 \end{equation}
-while $0<r<1$. A change of coherence completed in time $\tau$ therefore has a minimum current cost that grows as $1/\tau$, whereas holding a stationary order has no positive floor. Read the other way, a current budget $C$ sets a minimum duration $\tau\geq[\Delta\arcsin r]^2/(DC)$ for a given change. This bears on ignition-like transitions, in which large-scale coherence rises abruptly \cite{dehaene2014}, and on recovery latency after anaesthesia: each has a floor set by the current available to drive it. The bound is a heat or power statement only when $J$ is identified with a physical flux, a reservoir at a stated temperature is specified and local detailed balance holds for the steps concerned; only then does $\sigma_J$ convert to entropy production \cite{landauer1961,norton2005,shenker2000}. Installed energy supplies a separate, necessary price: for a declared actuator whose response modes carry installation prices, mean coupling is at most $\kappa U_{\mathrm{inst}}$ for a mode-data factor $\kappa$, so a coherent stationary branch requires installed energy $U_{\mathrm{inst}}>2D/\kappa$, and no cortical value of $\kappa$ is known. Supplemental Material gives both derivations, the register and feedback budgets, and the sensitivity of the metabolic comparison to its assumptions.
+while $0<r<1$. A change of coherence completed in time $\tau$ therefore has a minimum current cost that grows as $1/\tau$, whereas holding a stationary order has no positive floor. Read the other way, a current budget $C$ sets a minimum duration $\tau\geq[\Delta\arcsin r]^2/(DC)$ for a given change. This bears on ignition-like transitions, in which large-scale coherence rises abruptly \cite{dehaene2014}, and on recovery latency after anaesthesia: each has a floor set by the current available to drive it. The bound is a heat or power statement only when $J$ is identified with a physical flux, a reservoir at a stated temperature is specified and local detailed balance holds for the steps concerned; only then does $\sigma_J$ convert to entropy production \cite{landauer1961,norton2005,shenker2000}. Installed energy supplies a separate, necessary price: for a declared actuator whose response modes carry installation prices, mean coupling is at most $\kappa U_{\mathrm{inst}}$ for a mode-data factor $\kappa$, so a coherent stationary branch requires installed energy $U_{\mathrm{inst}}>2D/\kappa$. Supplemental Material gives both derivations, the register and feedback budgets, and the sensitivity of the metabolic comparison to its assumptions.
 
 \section{Compatibility: from coordinated activity to a global description}
 \label{sec:unity}
@@ -250,9 +261,9 @@ A declared relation between phase and content gives a positive result. Let conte
  \delta_r=L\sqrt{2N(1-r^2)}.
  \label{eq:main-content-coherence}
 \end{equation}
-Here discrepancy is the norm of the difference, and $r$ and $N$ are read on whichever population the bound is applied to. That choice is what decides whether the estimate says anything. A patch carries an order parameter of its own, and reading the bound there carries that patch's resultant and that patch's site count, so a large population observed through small patches is constrained by the small count. Read instead on the whole array, the factor $\sqrt N$ makes the estimate weak, because it draws a pointwise guarantee from an average over $N$ sites. The order cannot be improved in general: one oscillator in antiphase among $N$ leaves $N(1-r^2)$ near $4$. At $r=1$ the observations agree exactly at either scale. A shared scalar encoder is a special case. Dropping the overlap relation permits disagreement even at perfect locking. A common nonexpansive linear projection preserves agreement, but agreement of a projection does not establish agreement of the full vector.
+Here discrepancy is the norm of the difference, and $r$ and $N$ are read on whichever population the bound is applied to. That choice is what decides whether the estimate says anything. A patch carries an order parameter of its own, and reading the bound there carries that patch's resultant and that patch's site count, so a large population observed through small patches is constrained by the small count. Read instead on the whole array, the factor $\sqrt N$ makes the estimate weak, because it draws a pointwise guarantee from an average over $N$ sites. The order cannot be improved in general: one oscillator in antiphase among $N$ leaves $N(1-r^2)$ near $4$. At $r=1$ the observations agree exactly at either scale. A shared scalar encoder is a special case. Dropping the overlap relation permits disagreement even at perfect locking. A common nonexpansive linear projection preserves agreement.
 
-What Eq.~\eqref{eq:main-content-coherence} bounds is a chord, which never exceeds $2$, so the estimate constrains anything only where the right-hand side falls below that. At the sheet's own patch order, the bound is informative for at most \wavePatchInformativeSites{} sites. Three conditional results decline the step that puts $\sqrt N$ there. A pair count bounds the fraction of disagreeing pairs at any population size but names no pair. A chain across the sites that overlapping patches share compares distant territories through the patches between them, with error growing linearly in hops rather than with population: on the same sheet it stays informative for \waveNerveHops{} hops, \waveNerveReachMm~mm. A spectral gap removes the population count at a frequency-locked configuration, given a declared algebraic connectivity of the coupling graph. Territories whose agreement unity concerns lie centimetres apart, beyond the chain's reach, and no measured connectivity yet supplies the spectral route, so across them the coherence-to-content link is the bridge assumption E78 (Table~\ref{tab:summary}). Supplemental Material gives the three derivations and the sheet's numbers.
+What Eq.~\eqref{eq:main-content-coherence} bounds is a chord, which never exceeds $2$, so the estimate constrains anything only where the right-hand side falls below that. At the sheet's own patch order, the bound is informative for at most \wavePatchInformativeSites{} sites. Three conditional results decline the step that puts $\sqrt N$ there. A pair count bounds the fraction of disagreeing pairs at any population size but names no pair. A chain across the sites that overlapping patches share compares distant territories through the patches between them, with error growing linearly in hops rather than with population: on the same sheet it stays informative for \waveNerveHops{} hops, \waveNerveReachMm~mm. A spectral gap removes the population count at a frequency-locked configuration, given a declared algebraic connectivity of the coupling graph. Territories whose agreement unity concerns lie centimetres apart, beyond the chain's reach, and across them the coherence-to-content link is the bridge assumption E78 (Table~\ref{tab:summary}). Supplemental Material gives the three derivations and the sheet's numbers.
 
 Mix retained fields with observations at gain $\eta\in[0,1]$:
 $s_i\mapsto(1-\eta)s_i+\eta o_i$.
@@ -267,9 +278,9 @@ Thus agreeing observations preserve exact compatibility and, for $\eta>0$, reduc
 
 Exact gluing requires exact restrictions. For nonnegative profiles on a finite substrate, suppose every overlap discrepancy is at most $\varepsilon$ in uniform distance. Weights that vanish outside their patches and sum to one at each site select a global profile by weighted averaging. The selection lies within $\varepsilon$ of each patch there, and any two such selections differ by at most $\varepsilon$, independently of cover multiplicity. An $L$-Lipschitz readout consequently varies by at most $L\varepsilon$ across selections.
 
-At zero tolerance, the selection is the unique exact extension. At every positive tolerance there are families with no exact extension; selection then gives an approximation whose dependence on weights is bounded. Supplemental Material gives a three-site witness attaining the bound. The mass-profile construction uses the scalar case of the content dynamics and additionally requires nonnegativity of the initial profiles and observations. The general vector result supplies no identification with the spatial-measure sheaf.
+At zero tolerance, the selection is the unique exact extension. At every positive tolerance there are families with no exact extension; selection then gives an approximation whose dependence on weights is bounded. Supplemental Material gives a three-site witness attaining the bound. The mass-profile construction uses the scalar case of the content dynamics and additionally requires nonnegativity of the initial profiles and observations.
 
-These constructions concern declared objects: a specified cover, contents valued in a normed space, and encoders related on overlaps. They select neither the neural cover nor the decoder, and identifying their contents with perceptual content, or establishing that the identification bears on experience, is a further modelling task; Section~\ref{sec:observations} sets out what a measurement of it would have to establish.
+These constructions concern declared objects: a specified cover, contents valued in a normed space, and encoders related on overlaps. Section~\ref{sec:observations} sets out what a measurement of their neural counterparts would have to establish.
 
 \section{Self-representation: a state that models itself}
 \label{sec:self}
@@ -281,7 +292,7 @@ Compatibility gives a global state. Reflexivity relates it to an encoding within
  F(s)=\operatorname{readout}(s|_{\mathcal{A}}).
  \label{eq:selfmap}
 \end{equation}
-The region and readout are fixed across the state space. If $F$ contracts and fixes the section $s_*$ formed from the local descriptions, Banach's theorem makes $s_*$ its unique fixed point \cite{banach1922}. The formal bridge E89 (Table~\ref{tab:summary} gives the full composition and its edges) supplies the contraction and $F(s_*)=s_*$; restriction resonance is separate. Supercritical coupling makes the stipulated contraction factor $\Lambda=e^{-(K-2D)\tau/2}$ less than one for a relaxation time $\tau>0$. The factor is stipulated, not derived. It borrows the rate $(K-2D)/2$ at which the first harmonic of the uniform density grows (Section~\ref{sec:field}), a rate about a different state from the one $F$ acts on, and no result derives a Lipschitz law for an encoding or readout from the phase dynamics. Constructing a map with that factor remains a modelling obligation. A fixed contraction can reconstruct accurately only a restricted family of states: if its error is at most $\varepsilon$ throughout that family, any two members are at most $2\varepsilon/(1-\Lambda)$ apart.
+The region and readout are fixed across the state space. If $F$ contracts and fixes the section $s_*$ formed from the local descriptions, Banach's theorem makes $s_*$ its unique fixed point \cite{banach1922}. The formal bridge E89 (Table~\ref{tab:summary} gives the full composition and its edges) supplies the contraction and $F(s_*)=s_*$; restriction resonance is separate. Supercritical coupling makes the stipulated contraction factor $\Lambda=e^{-(K-2D)\tau/2}$ less than one for a relaxation time $\tau>0$; Section~\ref{sec:limitations} states the standing of that factor. A fixed contraction can reconstruct accurately only a restricted family of states: if its error is at most $\varepsilon$ throughout that family, any two members are at most $2\varepsilon/(1-\Lambda)$ apart.
 
 In the cup example, the global state includes the represented scene and the perceiver's relation to it. A local encoding must retain enough information for the readout to recover that modelled state; cup position alone would be insufficient if hand configuration and viewpoint could not be reconstructed.
 
@@ -305,11 +316,11 @@ Sensitivity can be required quantitatively. Declare relevant macrostates, an enc
 \end{equation}
 Thus $M$ relevant states pairwise more than $2\varepsilon$ apart require at least $M$ distinguishable codes; an alphabet of at most $2^b$ codes requires $M\leq2^b$. Applied to the reflexive boundary, $E$ is its local encoding and $R\circ E$ is the existing self-prediction map.
 
-This is an additional accuracy criterion on a family, with no requirement for multiple exact fixed points. For the same fixed contracting map used by E89, however, the diameter bound above is an additional restriction: at zero error the family contains at most one metric-distinct state. A broad family needs an input-conditioned map, one contraction $F_u$ per input $u$. If $F$ is $L$-Lipschitz in $u$, members with inputs $u,v$ lie within $(2\varepsilon+L\,d(u,v))/(1-\Lambda)$ and the fixed points within $L\,d(u,v)/(1-\Lambda)$, so a self-state can follow the scene. The code criterion then binds within each input: a readout storing one state per input reconstructs without encoding anything. No physical $F_u$ is constructed, so under E89 the minimal-self correlate is a condition on one self-state. A blind encoder or constant readout fails the criterion for separated states despite having a unique fixed point.
+This is an additional accuracy criterion on a family, with no requirement for multiple exact fixed points. For the same fixed contracting map used by E89, however, the diameter bound above is an additional restriction: at zero error the family contains at most one metric-distinct state. A broad family needs an input-conditioned map, one contraction $F_u$ per input $u$. If $F$ is $L$-Lipschitz in $u$, members with inputs $u,v$ lie within $(2\varepsilon+L\,d(u,v))/(1-\Lambda)$ and the fixed points within $L\,d(u,v)/(1-\Lambda)$, so a self-state can follow the scene. The code criterion then binds within each input: a readout storing one state per input reconstructs without encoding anything. Under the fixed map of E89 the minimal-self correlate is a condition on one self-state. A blind encoder or constant readout fails the criterion for separated states despite having a unique fixed point.
 
-Where the encoding is read as the state's own restriction to a region, the criterion becomes a condition on the region. Restriction resonance requires the encoder and that restriction to identify the same pairs of states, so a boundary reconstructing two relevant states more than $2\varepsilon$ apart while its region reads them identically is not resonant. Read forwards, a resonant boundary that reconstructs a pairwise separated family restricts injectively on it. Which states a region reads identically is fixed by where the region sits, before an encoding is chosen, so the resolution the family demands is the region's and no readout supplies it. The implication runs one way: a region that does resolve the family is not thereby shown to carry a resonant encoding, and E89 supplies no such resolution.
+Where the encoding is read as the state's own restriction to a region, the criterion becomes a condition on the region. Restriction resonance requires the encoder and that restriction to identify the same pairs of states, so a boundary reconstructing two relevant states more than $2\varepsilon$ apart while its region reads them identically is not resonant. Read forwards, a resonant boundary that reconstructs a pairwise separated family restricts injectively on it. Which states a region reads identically is fixed by where the region sits, before an encoding is chosen, so the resolution the family demands is the region's and no readout supplies it. The implication runs one way: a region that does resolve the family is not thereby shown to carry a resonant encoding.
 
-Resonance and resolution are jointly satisfiable without a local fold. Take the region to be the whole substrate and use the identity readout: restriction is the identity, so this boundary is resonant and reconstructs every declared family exactly. Its map has Lipschitz factor one and does not satisfy E89's strict contraction premise on a nontrivial metric space. A properness condition on the region is therefore a separate requirement, and the fixed-contraction diameter bound remains in force when E89 is also required. With an $L$-Lipschitz readout, a family reconstructed within $\varepsilon$ whose members lie pairwise more than $d_{\min}$ apart has $\delta$-separated codes whenever $\delta L\leq d_{\min}-2\varepsilon$, so the family is no larger than the $\delta$-packing number of what the region carries. At the whole substrate it says nothing, because the region's range is everything. The gain $L$ is a declared input, derived here for no physical readout, and the bound weakens without limit as the gain grows.
+Resonance and resolution are jointly satisfiable without a local fold. Take the region to be the whole substrate and use the identity readout: restriction is the identity, so this boundary is resonant and reconstructs every declared family exactly. Its map has Lipschitz factor one and does not satisfy E89's strict contraction premise on a nontrivial metric space. A properness condition on the region is therefore a separate requirement, and the fixed-contraction diameter bound remains in force when E89 is also required. With an $L$-Lipschitz readout, a family reconstructed within $\varepsilon$ whose members lie pairwise more than $d_{\min}$ apart has $\delta$-separated codes whenever $\delta L\leq d_{\min}-2\varepsilon$, so the family is no larger than the $\delta$-packing number of what the region carries. At the whole substrate it says nothing, because the region's range is everything. The gain $L$ is a declared input, and the bound weakens without limit as the gain grows.
 
 \subsection{Agreement after a change takes communication}
 
@@ -329,7 +340,7 @@ One constraint follows from the architecture alone. Within one forward pass of a
 \section{The formal composition}
 \label{sec:chain}
 
-The Lean development composes the three requirements into one conditional theorem. Its passive and feedback branches each accept eight connecting hypotheses, running from finite capacity through a register, dissipation and a continuum coupling to the field, coherence, the cover and the self-prediction fixed point. Each edge is supplied rather than derived from the one above it, and the inferential content of the composition is its last step, where contraction and a fixed glued section give uniqueness. Table~\ref{tab:summary} lists the four edges the article argues from; Supplemental Material gives the full chain, its thermodynamic edges and the register ledger of the feedback branch. Both branches also take a cover carrying exact overlap compatibility and a reflexive boundary specifying encoding and readout, and conclude that the glued section is the unique fixed point of self-prediction. Composing the edges establishes that the premises are consistent, named in one place and machine-checked together; it does not establish that self-representation follows from coherence. Joint witnesses satisfy every edge of each branch in a specified model, and establish no common cortical mechanism. The development declares no additional axioms beyond its libraries' foundational axioms.
+The Lean development composes the three requirements into one conditional theorem. Its passive and feedback branches each accept eight connecting hypotheses, running from finite capacity through a register, dissipation and a continuum coupling to the field, coherence, the cover and the self-prediction fixed point. Each edge is a hypothesis of the composition, and its inferential content is its last step, where contraction and a fixed glued section give uniqueness. Table~\ref{tab:summary} lists the four edges the article argues from; Supplemental Material gives the full chain, its thermodynamic edges and the register ledger of the feedback branch. Both branches also take a cover carrying exact overlap compatibility and a reflexive boundary specifying encoding and readout, and conclude that the glued section is the unique fixed point of self-prediction. Composing the edges establishes that the premises are consistent, named in one place and machine-checked together, and joint witnesses satisfy every edge of each branch at once. The development declares no additional axioms beyond its libraries' foundational axioms.
 
 \begingroup
 \nolinenumbers
@@ -374,7 +385,7 @@ Resolved dynamics supply additional information. In the ideal model with continu
 \subsection{Finite ramps change the observable onset}
 \label{sec:ramp}
 
-The square-root law in Eq.~\eqref{eq:onset} describes stationary solutions, and a changing coupling needs time for the phase distribution to approach them. In a deterministic mean-field control crossing the threshold, none of the scanned rates meets the declared tracking tolerance at onset, so a slow control variable supplies no general guarantee of branch tracking. In a finite-population ramp study ($N=2000$, $D=1$, $\rampReplicas$ replicas, $\rampDelaySpeedCount$ speeds), faster ramps delay escape. The fitted delay exponent $\rampDelayExponent$ has a replica-bootstrap interval $[\rampBootstrapLow,\rampBootstrapHigh]$ that excludes the ideal $1/2$, a deterministic reference shows that the escape criterion changes the fitted exponent, and no common asymptotic exponent is established. Delayed passage through a noisy bifurcation \cite{berglund2002} makes the apparent exponent depend on ramp speed and fitting window. Supplemental Material gives the sweep and its figure, the fluctuating-coupling and population-size controls, and the signed-network crossing bracket.
+The square-root law in Eq.~\eqref{eq:onset} describes stationary solutions, and a changing coupling needs time for the phase distribution to approach them. In a deterministic mean-field control crossing the threshold, none of the scanned rates meets the declared tracking tolerance at onset. In a finite-population ramp study ($N=2000$, $D=1$, $\rampReplicas$ replicas, $\rampDelaySpeedCount$ speeds), faster ramps delay escape. The fitted delay exponent $\rampDelayExponent$ has a replica-bootstrap interval $[\rampBootstrapLow,\rampBootstrapHigh]$ that excludes the ideal $1/2$, a deterministic reference shows that the escape criterion changes the fitted exponent, and no common asymptotic exponent is established. Delayed passage through a noisy bifurcation \cite{berglund2002} makes the apparent exponent depend on ramp speed and fitting window. Supplemental Material gives the sweep and its figure, the fluctuating-coupling and population-size controls, and the signed-network crossing bracket.
 
 
 \subsection{A winding state leaves the order parameter ambiguous}
@@ -402,7 +413,7 @@ wave identification or a derived transition.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.96\linewidth]{figures/travelling_wave/travelling_wave_sweep.png}
-\caption{A winding phase field on the spatial sheet, at identical frequencies. Left: global order (solid) against patch-local order (dashed) across a subset of coupling decay lengths. Right: the twisted and uniform initial conditions compared across lengths, with the shaded 0.1--0.3~mm band and the interpolated retention boundary. Below that boundary the two initial conditions reach different stationary values of $r$ at the same coupling, diffusion and kernel, so the resultant does not report the coupling. The sweep is sampled at the lengths marked; it establishes no transition and no biological identification.}
+\caption{A winding phase field on the spatial sheet, at identical frequencies. Left: global order (solid) against patch-local order (dashed) across a subset of coupling decay lengths. Right: the twisted and uniform initial conditions compared across lengths, with the shaded 0.1--0.3~mm band and the interpolated retention boundary. Below that boundary the two initial conditions reach different stationary values of $r$ at the same coupling, diffusion and kernel, so the resultant does not report the coupling. The sweep is sampled at the lengths marked.}
 \label{fig:winding}
 \end{figure}
 
@@ -444,7 +455,7 @@ Kernel alignment and overlap compatibility are different observables. This contr
 
 A neural test needs independently identified domains, local descriptions and restriction maps. Two decoders should estimate a shared content on overlapping domains before their agreement is examined. Discrepancy requires a null under decoding noise and controls using deliberately compatible and incompatible examples. An implementation on synthetic data separates these cases at $\mathrm{AUC}=\overlapIncompatibleAuc$, on a $95\%$ interval of $[\overlapIncompatibleAucLow,\overlapIncompatibleAucHigh]$ resampled by trial; the compatible construction scores $\overlapCompatibleAuc$ on an interval containing one half. Shared-prior shrinkage can nevertheless manufacture agreement, and regional bias can manufacture disagreement. Per-patch decoding diagnostics detect these failures; the compatibility statistic alone does not.
 
-Phase agreement cannot replace that measurement. On constructed content, phase carries a share \overlapPhaseShareBuilt{} of the content entropy when content is built from it and \overlapPhaseShareFree{} when it is not. A phase-derived statistic reports compatibility on phase-locked patches whose local descriptions disagree. The implemented content statistic detects their incompatibility. These controls validate a measurement on known constructions; a neural content model and decoder remain to be established.
+On constructed content, phase carries a share \overlapPhaseShareBuilt{} of the content entropy when content is built from it and \overlapPhaseShareFree{} when it is not. A phase-derived statistic reports compatibility on phase-locked patches whose local descriptions disagree. The implemented content statistic detects their incompatibility. These controls validate a measurement on known constructions; a neural content model and decoder remain to be established.
 
 Choosing the cover also chooses a candidate subject: trivial descriptions can agree while carrying little content, and a partition can conceal disagreement. Section~\ref{sec:unity} gives the decodability rule that fixes the cover without consulting agreement.
 
@@ -456,7 +467,7 @@ The cortical proposal identifies a physical source of coupling and asks whether 
 \subsection{Physical identification and calibration}
 \label{sec:scaling}
 
-The cortical hypothesis identifies part of effective coupling with endogenous extracellular electromagnetic interactions. Fields can modulate spike timing \cite{frohlich2010,anastassiou2015}, and field models propose coordination of distributed neural information \cite{pinotsis2022,mcfadden2020}. Phase organization under propofol motivates studying this regime \cite{bastos2021}, but does not measure coupling.
+The cortical hypothesis identifies part of effective coupling with endogenous extracellular electromagnetic interactions. Fields can modulate spike timing \cite{frohlich2010,anastassiou2015}, and field models propose coordination of distributed neural information \cite{pinotsis2022,mcfadden2020}. Phase organization under propofol motivates studying this regime \cite{bastos2021}.
 
 The formal field predicate requires a jointly continuous kernel, a normalized substrate, coupling equal to the kernel average, and no single site providing more than half that strength. Toy constructions satisfy it. A cortical realization must specify the scale at which the kernel and its reduction apply: calcium imaging reports different state-dependent modularity patterns at single-cell and mesoscale resolution \cite{kiyooka2026}.
 
@@ -464,14 +475,12 @@ Cortical columns are a serious candidate for the oscillator index. They are deli
 
 The spatial reduction is also testable. A row-sum aggregation at zero diagonal tracks the uniform-coupling control over the tested spatial decay range, while frequency heterogeneity displaces the operational threshold. The fit window biases both estimates relative to $2D$; agreement with the control is therefore the supported conclusion. Supplemental Material reports the reduction, its numerical error and the distinct assumptions needed to identify the kernel average with the scalar coupling of the installed-energy condition.
 
-The field commitment requires physical evidence beyond a choice of mathematical representation. The support comparisons in Supplemental Material concern specified support constraints and supply neither that evidence nor energy prices.
-
-A spike-time shift alone supplies no coupling rate. The dimensionless product of population size $N$, timing sensitivity $\mathcal{T}$, field amplitude $E$ and frequency $f$ needs a conversion rate $\gamma$:
+Converting a spike-time shift into coupling needs a rate: the dimensionless product of population size $N$, timing sensitivity $\mathcal{T}$, field amplitude $E$ and frequency $f$ becomes a coupling through a conversion rate $\gamma$,
 \begin{equation}
  K_{\mathrm{eff}}=\gamma N \mathcal{T} E f.
  \label{eq:keff}
 \end{equation}
-This rate describes how induced timing shifts accumulate into drift. Neither it nor the installation factor $\kappa$ follows from a heat bound. Testing the physical threshold requires independent estimates of the interaction kernel, its aggregation and diffusion in the same cortical regime.
+This rate describes how induced timing shifts accumulate into drift.
 
 \subsection{Extracellular geometry and recovery}
 
@@ -490,7 +499,7 @@ This is a deterministic tracking approximation from Eq.~\eqref{eq:onset} at fixe
 \subsection{A protocol for the awakening experiment}
 \label{sec:protocol}
 
-Neural inertia describes a behavioural barrier and hysteresis between anaesthetic induction and emergence \cite{friedman2010}; recovery can pass through metastable activity states \cite{hudson2014,proekt2018}. The $v^{1/2}$ exponent of an ideal delayed bifurcation is generic \cite{baer1989,berglund2002} and cannot alone discriminate a field mechanism from a synaptic one. A possible discriminator is spatial onset relative to independently estimated local field coupling and network connectivity. The present mean-field model has no spatially varying $\kappa$ and derives no nucleation order, so a field-based onset map needs a separate model specified before the observations are inspected.
+Neural inertia describes a behavioural barrier and hysteresis between anaesthetic induction and emergence \cite{friedman2010}; recovery can pass through metastable activity states \cite{hudson2014,proekt2018}. The $v^{1/2}$ exponent of an ideal delayed bifurcation is generic \cite{baer1989,berglund2002} and cannot alone discriminate a field mechanism from a synaptic one. A possible discriminator is spatial onset relative to independently estimated local field coupling and network connectivity. The field-based onset map below is a separate model from the mean-field one, specified before the observations are inspected.
 
 For that comparison, partition the recording into prespecified regions $i$ and measure pre-onset order $r_i(t_0)$ and diffusion $D_i$. Define a field score $h_i=N_i\mathcal{T}_iE_i f_i$ from independent pre-onset field and timing measurements, and a connectivity score $c_i$ from a separately estimated structural network. For the same measured emergence drive $g(t)$, compare $K_i^{F}(t)=a_Fg(t)h_i$ with $K_i^{C}(t)=a_Cg(t)c_i$. Each model has one fitted scale. The local first-harmonic approximation predicts
 \begin{equation}
@@ -532,8 +541,7 @@ reconstruction is not a second representation beside the glued state but a
 map whose fixed point is that state, read through a part of it. It is
 immediate rather than inferred from a higher-order state; correspondingly,
 the fixed point needs no further state that represents the first. The
-correspondence is structural and does not show that a fixed point is
-experienced as a perspective. Self-model theory locates the phenomenal self in
+correspondence is structural. Self-model theory locates the phenomenal self in
 a transparent model a system has of itself \cite{metzinger2003}, and
 interoceptive-inference accounts ground it in prediction of the body's own
 states \cite{seth2013}. The present condition is narrower than either: it asks
@@ -544,8 +552,8 @@ account could supply the family of states and the fidelity that the condition
 leaves as inputs. Under E89 that family is one state at zero error and a
 family of diameter at most $2\varepsilon/(1-\Lambda)$ within error $\varepsilon$
 (Section~\ref{sec:reconstruction-family}), so under E89 the condition
-constrains a single self-state; a self that persists through change needs an
-input-conditioned map, for which no physical readout is given. Its proposed relation to
+constrains a single self-state; a self that persists through change needs the
+input-conditioned map of Section~\ref{sec:reconstruction-family}. Its proposed relation to
 experienced perspective remains an interpretation.
 Neither identification is among the connecting hypotheses of the
 composition (Table~\ref{tab:summary}), and satisfying them would not measure experience.
@@ -650,36 +658,83 @@ The field/connectivity comparison in Section~\ref{sec:protocol} evaluates one
 spatial onset prediction. Controlled changes in coordination and independently
 decoded content agreement would address the representational connection.
 The synthetic decoder exercise calibrates part of these measurements, and the
-EEG exercise identifies what a pooled bipolar estimand cannot measure; neither
-identifies a neural content code or tests experience.
-
-\subsection{Explanatory scope}
-\label{sec:scope}
+EEG exercise identifies the estimand a spatial test needs.
 
 Integrated-information, global-workspace and predictive-processing accounts
 organize unity, access and modelling differently
 \cite{tononi2016,baars1997,dehaene2014,friston2010}. This account specifies
-conditional relations among coupling, local content and reconstruction. Its
-formal field condition requires a continuous kernel, a normalized substrate,
-a specified average coupling and noise, and a site-contribution bound. Those
-conditions do not identify an electromagnetic substrate; the extracellular
-interpretation needs the separate calibration of
-Section~\ref{sec:prediction}. The joint witness shows that the formal
-hypotheses can hold together in a declared model. A cortical realization and
-an experiential interpretation require additional evidence.
+conditional relations among coupling, local content and reconstruction, each
+tied to a measurement.
 
-Four limitations bound every claim above. Synchrony is not itself an
-experiential measure, and nothing here establishes a consciousness criterion:
-the conditions are proposed correlates to be tested against report or another
-independent endpoint. The present EEG analysis checks a measurement pipeline
-and does not validate any experiential claim. The formal results are
-conditional on declared encoders, covers and maps whose cortical counterparts
-are unmeasured. The cover on which compatibility is assessed is fixed only relative to pre-registered variables, decoder class and criterion, and the phase-to-content bounds are stated for spatial covers rather than for the content cover that criterion yields.
+\section{Limitations}
+\label{sec:limitations}
 
-The remaining explanatory question is whether these relations occur in neural
-activity and matter for experience. The framework identifies candidate
-correlates and tests of their physical and representational premises. It does
-not explain why satisfying them would be accompanied by experience.
+\emph{Experience and interpretation.} Synchrony is not itself an experiential
+measure, and nothing here establishes a consciousness criterion: the
+conditions are proposed correlates to be tested against report or another
+independent endpoint. The mathematical states are spatial measures and fields,
+and identifying them with perceptual content requires independent decoding
+evidence. The constructions of Section~\ref{sec:unity} select neither the
+neural cover nor the decoder, and identifying their contents with perceptual
+content, or establishing that the identification bears on experience, is a
+further modelling task. The correspondence between the reconstruction's fixed
+point and the minimal self is structural and does not show that a fixed point
+is experienced as a perspective. The remaining explanatory question is whether
+these relations occur in neural activity and matter for experience; the
+framework does not explain why satisfying them would be accompanied by
+experience.
+
+\emph{Formal scope.} The formal results are conditional on declared encoders,
+covers and maps whose cortical counterparts are unmeasured. Each edge of the
+composition is supplied rather than derived from the one above it, so the
+composition does not establish that self-representation follows from
+coherence. The joint witnesses satisfy every edge in a specified model: they
+prove neither that cortex satisfies those hypotheses nor that the glued state
+is experienced, and establish no common cortical mechanism. The contraction
+factor $\Lambda$ is stipulated, not derived. It borrows the rate $(K-2D)/2$ at
+which the first harmonic of the uniform density grows
+(Section~\ref{sec:field}), a rate about a different state from the one $F$
+acts on, and no result derives a Lipschitz law for an encoding or readout from
+the phase dynamics; constructing a map with that factor remains a modelling
+obligation. No physical input-conditioned map $F_u$ is constructed, the gain
+$L$ of Section~\ref{sec:reconstruction-family} is derived here for no physical
+readout, and E89 supplies no resolution of a declared family by the encoding
+region. Agreement of a common projection does not establish agreement of the
+full vector, and the general vector result of Section~\ref{sec:unity} supplies
+no identification with the spatial-measure sheaf. The cover on which
+compatibility is assessed is fixed only relative to pre-registered variables,
+decoder class and criterion, and the phase-to-content bounds are stated for
+spatial covers rather than for the content cover that criterion yields.
+
+\emph{Physical identification.} The formal field condition requires a
+continuous kernel, a normalized substrate, a specified average coupling and
+noise, and a site-contribution bound. Those conditions do not identify an
+electromagnetic substrate; the extracellular interpretation needs the separate
+calibration of Section~\ref{sec:prediction}, and the field commitment requires
+physical evidence beyond a choice of mathematical representation. Phase
+organization under propofol does not measure coupling, and the support
+comparisons in Supplemental Material concern specified support constraints and
+supply neither that evidence nor energy prices. Neither the conversion rate
+$\gamma$ nor the installation factor $\kappa$ follows from a heat bound, and no
+cortical value of $\kappa$ is known. Testing the physical threshold requires
+independent estimates of the interaction kernel, its aggregation and diffusion
+in the same cortical regime. No measured connectivity yet supplies the
+spectral route of Section~\ref{sec:content-connection}. The mean-field model
+has no spatially varying $\kappa$ and derives no nucleation order, which is
+why the onset comparison of Section~\ref{sec:protocol} rests on a separately
+specified model.
+
+\emph{Numerical and empirical controls.} The controls of
+Section~\ref{sec:observations} are finite regimes on declared models and
+calibrate no cortical quantity. A slow control variable supplies no general
+guarantee of branch tracking; the winding sweep establishes no transition and
+no biological identification; phase agreement cannot replace an independently
+decoded content measurement. The synthetic decoder exercise validates a
+measurement on known constructions, and the EEG exercise checks a measurement
+pipeline: it identifies what a pooled bipolar estimand cannot measure, and
+neither exercise identifies a neural content code, tests experience or
+validates any experiential claim.
+
 \section{Conclusions}
 \label{sec:conclusions}
 
