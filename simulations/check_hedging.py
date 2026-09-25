@@ -113,15 +113,29 @@ EMPTY_HEDGE: list[tuple[str, str]] = [
 SCOPE_DISCLAIMER: list[str] = [
     r"\b(?:does|do) not (?:imply|establish|show|prove|follow|determine|measure|derive"
     r"|require|specify|guarantee|settle|address|resolve|constitute|validate|replace)\b",
-    r"\bcannot\b",
+    # Bare "cannot" and "rather than" were half claims on main.tex ("the order
+    # cannot be improved", "linearly in hops rather than with population"), so
+    # only their scope-stating continuations count.
+    r"\bcannot (?:alone |by itself )?(?:supply|replace|measure|discriminate|establish|confirm"
+    r"|be (?:confirmed|derived|measured|identified|established|tested))\b",
     r"\bnot by itself\b",
     r"\bno theorem\b",
     r"\bis not (?:a |an )?(?:theorem|claim|proof|measurement|evidence|substitute)\b",
     r"\bconditional on\b",
-    r"\brather than\b",
+    r"\brather than (?:an? )?(?:derived|consequence|result|proved|measured)\b",
     r"\bwe (?:claim|assert|offer) no\b",
     r"\ban additional (?:assumption|hypothesis|modelling step|step|question)\b",
     r"\bremains? (?:an )?open\b",
+    # This project's own dialect: scope stated structurally rather than softened.
+    r"\b(?:supplies|establishes|derives|identifies|constructs|settles|measures|implies) no\b",
+    r"\bno (?:result|theorem|cortical|physical|measured)\b",
+    r"\bis (?:stipulated|an interpretation|an assumption)\b",
+    r"\bis not (?:derived|measured|identified|established|proved)\b",
+    r"\bremains? an? (?:modelling|empirical|open|separate) (?:obligation|question|step)\b",
+    r"\brequires? (?:independent|separate|additional|its own)\b",
+    r"\bin an? (?:specified|declared) model\b",
+    r"\bneither\b[^.;]*?\bnor\b",
+    r"\bnot yet\b",
 ]
 
 GUIDANCE = """
@@ -177,13 +191,14 @@ def find_hits(path: Path) -> list[Hit]:
     return hits
 
 
+def count_scope_text(text: str) -> int:
+    """How many scope statements a stretch of already-stripped prose makes."""
+    return sum(len(re.findall(pattern, text, flags=re.IGNORECASE)) for pattern in SCOPE_DISCLAIMER)
+
+
 def count_scope(path: Path) -> int:
     """How many scope statements the file makes."""
-    return sum(
-        len(re.findall(pattern, line, flags=re.IGNORECASE))
-        for _, line in _prose_lines(path)
-        for pattern in SCOPE_DISCLAIMER
-    )
+    return sum(count_scope_text(line) for _, line in _prose_lines(path))
 
 
 def scope_density(path: Path) -> float:

@@ -23,6 +23,18 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-25 — Structural hedging gate (H1–H5)
+
+New gate `simulations/check_claims.py`, hook `check-claims` (`AGENTS.md` §10):
+hard on the physical-unity paper, advisory on this one. It constrains where
+scope disclaimers sit rather than how they are worded. The disclaimer lexicon in
+`check_hedging.py` gained the project's structural forms ("supplies no", "is
+stipulated", "in a specified model", "neither … nor") and lost the bare
+"cannot" and "rather than", which on hand labelling were mostly claims. No
+publication text changed.
+
+---
+
 ## 2026-09-25 — Gluing over the decodability cover (N17)
 
 - The article said the gluing argument applies formally to a cover over content

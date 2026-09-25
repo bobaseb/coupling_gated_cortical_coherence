@@ -204,6 +204,11 @@ layer = "gate"
 depends_on = ["check_prose", "repo_root"]
 
 [[modules]]
+path = "check_claims"
+layer = "gate"
+depends_on = ["check_hedging", "repo_root"]
+
+[[modules]]
 path = "check_pdf_freshness"
 layer = "gate"
 depends_on = ["repo_root"]

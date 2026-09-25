@@ -169,3 +169,34 @@ results were cited in both publication files and mapped in neither.
   it are to give the identifier a row ending on what it does not reach, in the
   commit that introduces it, or — if the article does not in fact rest on it —
   to take the name out of the article and leave it to the supplement.
+
+## 10. Claims First, Limitations in One Place
+
+The hedging in this repository's prose is structural, not lexical: no single
+sentence softens anything, but nearly every paragraph carries a scope clause,
+so an article reads as a list of what it does not show. `check-hedging` counts
+disclaimers and decides nothing. Where a disclaimer *sits* has a yes/no answer,
+so that part is a gate.
+
+- **The rules** (hard on `unity/main.tex`): a section labelled
+  `sec:limitations` exists and disclaimers are unlimited there; every other
+  section, the abstract included, carries at most one; the introduction states
+  numbered claims as `\claim{label}{text}`, each label defined in the paper, so
+  every claim points at the section that argues it. A result that needs a
+  scope clause states it once, in its theorem statement, not again in every
+  paragraph that uses it.
+- **What a disclaimer is** lives in one place, `SCOPE_DISCLAIMER` in
+  `check_hedging.py`, so the two gates cannot disagree. The lexicon is
+  calibrated on `main.tex` by hand labelling; a pattern that fires on plain
+  claims ("the order cannot be improved") is narrowed, not tolerated, because a
+  hard gate that punishes ordinary sentences teaches authors to avoid them.
+- **Advisory on the companion paper.** `main.tex` and `supplementary.tex` are
+  frozen in form; the hook reports their disclaimers per section and per claim,
+  worst sections first, and passes.
+- **Move qualification, never delete it.** The gate cannot read meaning. A
+  disclaimer taken out of the running text must reappear in `sec:limitations`
+  or in a theorem statement. Removing a scope statement to satisfy the count
+  trades honesty for a metric, and a reviewer should ask where each removed
+  disclaimer went.
+- **The gate:** `simulations/check_claims.py`, as `check-claims`. No allowlist,
+  for the reason §5 gives.

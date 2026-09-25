@@ -188,7 +188,7 @@ manuscript's register fails the gate; one that states claims first and
 confines limitations to one section passes. The current `main.tex`, run
 advisory, reports its disclaimer count and positions.
 
-- [ ] **H1 — Widen the disclaimer lexicon to this project's dialect.** Add the
+- [x] **H1 — Widen the disclaimer lexicon to this project's dialect.** Add the
   structural forms: `(supplies|establishes|derives|identifies|constructs|
   settles|measures|implies) no`, `no (result|theorem|cortical|physical|
   measured) …`, `is (stipulated|an interpretation|an assumption)`, `remains a
@@ -196,25 +196,46 @@ advisory, reports its disclaimer count and positions.
   own)`, `in a (specified|declared) model`, `neither … nor`, `not yet`.
   Calibrate on `main.tex` and report precision on a hand-labelled sample
   before trusting the counts.
-- [ ] **H2 — Limitations live in one place (hard, U paper).** Scope
+- [x] **H2 — Limitations live in one place (hard, U paper).** Scope
   disclaimers are allowed freely in the section labelled `sec:limitations`
   and at most one per section elsewhere. A result that needs a scope clause
   states it once, in its theorem statement, not again in every paragraph
   that uses it.
-- [ ] **H3 — Claims first (hard, U paper).** The introduction carries a
+- [x] **H3 — Claims first (hard, U paper).** The introduction carries a
   numbered claim list (a `\claim{}` macro or `enumerate` under a labelled
   paragraph); each claim is cross-referenced to the section that argues it.
   The gate fails if the list is missing, empty, or a claim has no
   cross-reference. The abstract may contain no disclaimer from the H1 lexicon
   beyond one sentence.
-- [ ] **H4 — Disclaimer-to-claim ratio (advisory, both papers).** Report
+- [x] **H4 — Disclaimer-to-claim ratio (advisory, both papers).** Report
   disclaimers per numbered claim and per section, with the worst sections
   listed, so drift is visible on every commit even where no hard rule fires.
-- [ ] **H5 — Keep honesty auditable.** A disclaimer removed from the running
+- [x] **H5 — Keep honesty auditable.** A disclaimer removed from the running
   text must survive in `sec:limitations` or in a theorem's statement; the
   gate cannot check meaning, so the AGENTS.md entry states the rule and the
   review checklist asks it. The point is to move qualification, not delete
   it.
+
+### 2026-09-25 — H1–H5 built
+
+- **H1.** `SCOPE_DISCLAIMER` gained the structural forms. Hand-labelled every
+  `main.tex` match: new patterns 27/29 correct (misses: "neither … nor" stating
+  the paper's own negative result). Bare `cannot` (6/12) and `rather than`
+  (5/13) were mostly claims — tightness, contrast — and were narrowed to their
+  scope continuations. Final lexicon on `main.tex`: 43/45 (96%) precise;
+  density 3.3 → 4.3 per 1000 words.
+- **H2–H4.** `simulations/check_claims.py`, hook `check-claims`; hard on
+  `unity/main.tex` (passes while absent), advisory on the companion. `\claim`
+  is taken from the introduction, i.e. the first `\section`.
+- **H5.** AGENTS.md §10 states the move-don't-delete rule and the reviewer's
+  question. No separate review checklist exists in the repo; §10 is it.
+- **Advisory on the current manuscript.** `main.tex`: 46 disclaimers in 16
+  sections, no `sec:limitations`, no claim list; 9 sections over the limit —
+  Discussion 8, Self-representation 7, cortical hypothesis 7, Introduction 5,
+  Compatibility 5, formal composition 4, observations 4, Coherence 2, abstract
+  2. `supplementary.tex`: 145, worst Table S1 section 27, reflexive topology
+  19. The companion is frozen in form, so nothing was rewritten; the U paper
+  must pass hard from its first commit.
 
 ## N — Neuroscience of Consciousness submission
 

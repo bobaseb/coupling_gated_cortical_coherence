@@ -77,6 +77,57 @@ class CheckHedgingTest(unittest.TestCase):
 
         self.assertEqual(check_hedging.main(["check_hedging.py", str(absent)]), 2)
 
+    def test_structural_disclaimers_are_counted(self) -> None:
+        """The project's own dialect of scope statement, which the first lexicon missed."""
+        lines = [
+            "The factor is stipulated, not derived.",
+            "The comparison supplies no energy price.",
+            "No physical readout is constructed here.",
+            "Identifying the kernel requires independent estimates.",
+            "The identification remains a modelling obligation.",
+            "The witness holds in a specified model.",
+            "It proves neither cortical realization nor experience.",
+            "The link is not yet measured.",
+        ]
+        for line in lines:
+            with self.subTest(line=line):
+                path = self.write(line + "\n")
+                self.assertEqual(check_hedging.find_hits(path), [])
+                self.assertGreaterEqual(check_hedging.count_scope(path), 1)
+
+    def test_plain_claims_are_not_counted(self) -> None:
+        """Positive statements must not register as disclaimers."""
+        path = self.write(
+            "Compatible sections glue to a unique global state. "
+            "The bound grows as the square root of the population read.\n"
+        )
+
+        self.assertEqual(check_hedging.count_scope(path), 0)
+
+    def test_contrast_and_tightness_are_not_counted(self) -> None:
+        """Calibration on main.tex: bare 'rather than' and 'cannot' were mostly claims."""
+        lines = [
+            "Error grows linearly in hops rather than with population.",
+            "The order cannot be improved in general.",
+            "The cover cannot be chosen to make agreement come out.",
+        ]
+        for line in lines:
+            with self.subTest(line=line):
+                self.assertEqual(check_hedging.count_scope(self.write(line + "\n")), 0)
+
+    def test_narrowed_forms_still_count(self) -> None:
+        lines = [
+            "Each edge is supplied rather than derived.",
+            "It is the bridge assumption rather than a derived result.",
+            "Phase statistics cannot supply these estimates.",
+            "The exponent cannot alone discriminate a field mechanism.",
+            "Phase agreement cannot replace that measurement.",
+            "It cannot be confirmed against functionalism.",
+        ]
+        for line in lines:
+            with self.subTest(line=line):
+                self.assertEqual(check_hedging.count_scope(self.write(line + "\n")), 1)
+
     def test_publication_files_are_the_default_targets(self) -> None:
         self.assertEqual(check_hedging.FILES, ("main.tex", "supplementary.tex"))
 
