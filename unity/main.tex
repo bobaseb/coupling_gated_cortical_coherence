@@ -1,0 +1,131 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{setspace}
+\onehalfspacing
+
+% A numbered claim and the section that argues it (check_claims.py).
+\newcommand{\claim}[2]{\item #2 (Section~\ref{#1}).}
+
+\title{Unity requires physically enforced agreement}
+\author{Sebastian Bobadilla-Suarez\\
+Independent Researcher\\
+\texttt{sebastian.bobadilla.s@gmail.com}\\
+ORCID: \href{https://orcid.org/0000-0002-5951-0772}{0000-0002-5951-0772}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Human conscious experience is unified: the brain's many local descriptions of a
+shared situation agree. We argue that unity requires this agreement to be
+physically enforced, produced and maintained by a coupling through which the
+graded physical state of each region continuously pulls the regions it overlaps
+toward agreement. Clocked digital hardware computes agreement instead. Its
+noise margins make every content readout locally constant in micro state, and
+we prove that a readout with a margin, under continuous micro dynamics, depends
+on no region's graded state; content read from bits is therefore never
+physically enforced, whatever algorithm the bits run. For a coupled sheet of
+oscillators we show that the width of the coupling kernel sets how fast
+agreement decays with distance, and that only a kernel tail slower than
+$r^{-4}$ makes it independent of distance. The premise yields interventional
+tests on cortex and on artificial systems, and we state the outcomes that would
+refute it on each.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+\paragraph{Premise P (physical unity).} A system's contents are unified only if
+the content of each region depends continuously on the graded physical state of
+the regions it overlaps, through a coupling that contracts their disagreement.
+
+P is a necessary condition for unity. It rejects functionalism about unity: a
+perfect simulation of a coupled field reproduces the field's content-level
+dynamics and fails P. The paper makes three claims:
+\begin{enumerate}
+\claim{sec:enforcement}{A content readout with a noise margin, under continuous micro dynamics, depends on the graded state of no region, so content read from bits is not physically enforced whatever algorithm the bits run}
+\claim{sec:reach}{On a noisy coupled sheet, the width of the coupling kernel sets how fast agreement decays with distance, and only a kernel tail slower than $r^{-4}$ makes agreement independent of distance}
+\claim{sec:tests}{P predicts that a sub-threshold perturbation of one cortical region shifts the content decoded in an overlapping region toward agreement, and that no perturbation below a digital system's noise margin shifts any of its contents}
+\end{enumerate}
+
+\section{Synchrony is not unity}
+\label{sec:synchrony}
+
+Equal phases coexist with incompatible local descriptions, and compatible local
+descriptions determine a unique global state. Unity is therefore a property of
+what overlapping regions describe, and synchrony is at most a route to it.
+
+\section{Unity as agreement over a declared cover}
+\label{sec:cover}
+
+Agreement is measured between regions that decode a shared variable. The cover
+of regions is fixed by decodability before agreement is measured, so that the
+measurement cannot be emptied by the choice of cover.
+
+\section{Physical enforcement versus routed agreement}
+\label{sec:enforcement}
+
+A readout has a noise margin on an operating set when every micro state in that
+set has a neighbourhood on which the readout is constant. Content depends
+gradedly on a region when no neighbourhood of that region's micro state leaves
+the next content unchanged. If the micro dynamics is continuous and carries a
+state into a margin's operating set, no region's micro state enters the next
+content gradedly (\texttt{not\_physicallyEnforced\_of\_margin}). A thresholded
+continuous quantity has a margin off its threshold, and a finite word of such
+readouts has one too, so the conclusion holds for any content read from bits
+(\texttt{not\_physicallyEnforced\_of\_bits}).
+
+\section{How far a physical coupling enforces agreement}
+\label{sec:reach}
+
+At identical natural frequencies a noisy coupled sheet is a gradient system. In
+the harmonic approximation the variance of the phase difference between two
+sites is the noise strength times their effective resistance, with the coupling
+constants as conductances. Under short-range coupling that resistance grows as
+the logarithm of distance, with a coefficient inversely proportional to the
+kernel's second moment; a kernel tail slower than $r^{-4}$ bounds it.
+
+\section{The unity window}
+\label{sec:window}
+
+Agreement cannot arrive before the causal cone of the coupling allows, and
+disagreement decays at the relaxation rate of the coupling. Unity at a given
+time scale requires the interval between the two to be nonempty.
+
+\section{Current artificial systems}
+\label{sec:ai}
+
+A transformer running on clocked digital hardware reads every content from bits
+held within their noise margins, so the result of
+Section~\ref{sec:enforcement} applies to it. Hardware whose contents are graded
+physical quantities coupled without barriers, such as analog, in-memory or
+neuromorphic substrates, can satisfy P.
+
+\section{Tests}
+\label{sec:tests}
+
+In cortex, weak stimulation of one region below the behavioural threshold
+should shift the content decoded in an overlapping region, gradedly and toward
+agreement; an unchanged decoded content in the overlapping region counts
+against P. In an artificial system, activation patching below and above the
+scale at which the logical trajectory changes separates perturbations inside
+the margin from those that cross it.
+
+\section{Limitations}
+\label{sec:limitations}
+
+P is a premise and is not derived from the dynamics; the formal results show
+what follows from it and not that it holds. It is necessary for unity and not
+sufficient for consciousness: coupled pendulums satisfy it. The margin theorem
+concerns idealised digital readouts, and graded leakage in real hardware that
+carries content-relevant agreement would narrow its reach. The kernel result
+rests on the harmonic approximation at identical natural frequencies and is
+established numerically on finite sheets, not proved. Human data can falsify P
+but cannot by themselves confirm it against functionalism, because graded
+coupling and information flow co-vary in every manipulation available so far.
+
+\end{document}

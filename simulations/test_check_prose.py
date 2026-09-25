@@ -18,6 +18,7 @@ class CheckProseTest(unittest.TestCase):
 
     def write(self, body: str, name: str = "sample.tex") -> Path:
         path = self.root / name
+        path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(body, encoding="utf-8")
         return path
 
@@ -64,11 +65,13 @@ class CheckProseTest(unittest.TestCase):
 
         self.assertTrue(check_prose.find_hits(path))
 
-    def test_default_gate_rejects_markdown_in_either_publication(self) -> None:
-        for name in ("main.tex", "supplementary.tex"):
+    def test_default_gate_rejects_markdown_in_every_publication(self) -> None:
+        # The physical-unity paper is a publication from its first commit.
+        for name in ("main.tex", "supplementary.tex", "unity/main.tex"):
             with self.subTest(name=name):
                 self.write("The stated hypotheses imply the result.\n", "main.tex")
                 self.write("The proof is in Lean.\n", "supplementary.tex")
+                self.write("Unity is physically enforced.\n", "unity/main.tex")
                 path = self.write(r"See \texttt{tasks/f5\_f6\_design.md}.", name)
                 output = io.StringIO()
 

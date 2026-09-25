@@ -52,6 +52,7 @@ DOCUMENTS: tuple[tuple[str, str], ...] = (
     ("supplementary.pdf", "supplementary.tex"),
     ("docs/primer.pdf", "docs/primer.tex"),
     ("proof_companion/companion.pdf", "proof_companion/companion.tex"),
+    ("unity/main.pdf", "unity/main.tex"),
 )
 
 # The advisory pair: the publication, and the companion that explains it.
@@ -83,6 +84,7 @@ above and stage the PDF with the source change:
     pdflatex -interaction=nonstopmode main.tex          # twice, from the repo root
     pdflatex -interaction=nonstopmode supplementary.tex # twice, from the repo root
     cd docs && pdflatex -interaction=nonstopmode primer.tex  # twice, from docs/
+    cd unity && pdflatex -interaction=nonstopmode main.tex   # twice, from unity/
 
 Two passes: the second resolves the table of contents and cross-references the
 first one wrote. Splitting the rebuild into a later commit is what this gate

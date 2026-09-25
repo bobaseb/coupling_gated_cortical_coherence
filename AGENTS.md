@@ -41,10 +41,10 @@ If Python code is introduced to this repository, the following tooling MUST be c
 - **Verify All References:** Any time a new reference or citation is added to the project (e.g., in `main.tex`), it MUST be verified for correctness via an online web search before being committed. You must independently confirm the authors, title, year, and publication venue. No fabricated or unverified references are allowed.
 
 ## 5. The Publication Is Not a Changelog
-`main.tex` and `supplementary.tex` state the theory's current state only. The supplement is part of the publication and this rule covers it identically.
+`main.tex` and `supplementary.tex` state the theory's current state only. The supplement is part of the publication and this rule covers it identically, as it covers the physical-unity paper `unity/main.tex`.
 
 - **No drafting-history narration.** No "earlier drafts claimed X", no "we had recorded Y; that was a misdiagnosis", no "this is no longer assumed", and **no appendix or supplementary section collecting such material**.
-- **No internal Markdown references.** State methods and results in the publication instead of referring to `.md` or `.markdown` filenames or links, including design notes and generated reports. Lean theorem names and `.lean` source references are allowed, and code availability may link the repository itself. The same `check-prose` gate enforces this rule in both publication files.
+- **No internal Markdown references.** State methods and results in the publication instead of referring to `.md` or `.markdown` filenames or links, including design notes and generated reports. Lean theorem names and `.lean` source references are allowed, and code availability may link the repository itself. The same `check-prose` gate enforces this rule in every publication file.
 - **The test** is not "is this about our past" but: *does this sentence still make sense to a reader who has never seen a previous draft?* A refutation of an axiom shape is a permanent mathematical fact and stays. "Earlier drafts of this work declared five axioms" is autobiography and goes.
 - **Rewrite, do not delete blindly.** Each site becomes a present-tense statement of scope, or is removed once its content is recoverable from one of the destinations below.
 - **Where it goes instead:** `CHANGELOG.md` for what a reader of the repository needs; a Lean docstring where the content is technical; `tasks/todo.md` for the working record, whose superseded ledgers are read out of git history rather than kept in the tree.
@@ -54,7 +54,7 @@ The rule exists for the same reason the development declares no axioms: a constr
 
 ## 6. A Tracked PDF Is a Deliverable
 
-`main.pdf`, `supplementary.pdf` and `docs/primer.pdf` are tracked in git because `README.md` and `index.html` link them directly. A reader who follows one of those links never opens the `.tex` file beside it, so for that reader the PDF *is* the document.
+`main.pdf`, `supplementary.pdf` and `docs/primer.pdf` are tracked in git because `README.md` and `index.html` link them directly. `unity/main.pdf` is tracked and gated from the paper's first commit, before anything links it, so that the gate is already in place on the day a link is added. A reader who follows one of those links never opens the `.tex` file beside it, so for that reader the PDF *is* the document.
 
 - **A source change and its rebuilt PDF belong in the same commit.** Deferring the LaTeX run to a later commit leaves an interval in which the linked artifact says something nobody wrote any more, and nothing else in the repository notices: the sources stay consistent with each other, the Lean build is unaffected, and every other gate here reads `.tex` and `.lean` files rather than the artifacts built from them.
 - **The gate:** `simulations/check_pdf_freshness.py`, wired into `.pre-commit-config.yaml` as `check-pdf-freshness`. It derives each PDF's dependency set from the sources on every run — transitive `\input`s and every figure, resolved through `\graphicspath` — so a figure added to the article needs no edit to the script, on the same principle as `prepare_arxiv.sh`. A commit that stages any of those sources without the PDF fails. Rebuild is two `pdflatex` passes; the second resolves the table of contents and cross-references the first one wrote.

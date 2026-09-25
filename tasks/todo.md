@@ -55,6 +55,14 @@ against the thesis on either.
   paper, so sending the companion there too is disfavoured but not excluded.
   The U thesis is not staked by the companion (§5 covers only part of it):
   post U as its own preprint once U7 is settled.
+  *2026-09-25:* `unity/main.tex` skeleton committed with premise P on page
+  one and three `\claim`s (margin theorem; kernel width sets the decay and
+  only a σ<2 tail bounds it — the U3 restatement, chosen over dropping the
+  kernel result; interventional tests). Gated from the first commit:
+  `check-claims` (hard), `check-prose` and `check-pdf-freshness` now cover
+  it, and `unity/main.pdf` is tracked though not yet linked. No numerals or
+  citations yet: U3's numbers enter as generated macros with the section
+  that reports them, citations after online verification.
 
 Spatial agreement beyond the worst-case chain:
 

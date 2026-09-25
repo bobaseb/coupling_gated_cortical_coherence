@@ -123,6 +123,10 @@ class GateTest(unittest.TestCase):
     def test_primer_only_change_is_not_noted(self) -> None:
         self.assertFalse(check_pdf_freshness.companion_is_untouched({"docs/primer.tex"}))
 
+    def test_the_physical_unity_paper_is_a_deliverable(self) -> None:
+        """Gated from its first commit, before anything links it."""
+        self.assertIn(("unity/main.pdf", "unity/main.tex"), check_pdf_freshness.DOCUMENTS)
+
     def test_documents_are_the_tracked_deliverables(self) -> None:
         """A renamed or dropped deliverable must fail here rather than go unchecked."""
         tracked = subprocess.run(  # noqa: S603  # nosec B603 B607 -- fixed argv

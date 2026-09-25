@@ -1,6 +1,7 @@
 """Gate: publication prose stands alone, without drafting history or Markdown references.
 
-``main.tex`` and ``supplementary.tex`` state the theory's current state only. A
+``main.tex``, ``supplementary.tex`` and the physical-unity paper
+``unity/main.tex`` state the theory's current state only. A
 reader of the paper has never seen a previous draft, so a sentence that only
 makes sense to someone who has is not addressed to them. Drafting history
 belongs in the repository -- ``CHANGELOG.md``, Lean docstrings,
@@ -57,7 +58,7 @@ PATTERNS: list[tuple[str, str]] = [
     (r"\.(?:md|markdown)\b", "references a Markdown file instead of stating the content"),
 ]
 
-FILES: tuple[str, ...] = ("main.tex", "supplementary.tex")
+FILES: tuple[str, ...] = ("main.tex", "supplementary.tex", "unity/main.tex")
 
 GUIDANCE = """
 The publication must stand alone (AGENTS.md section 5).
@@ -106,7 +107,7 @@ def report(path: Path, hits: list[tuple[int, str, str, str]]) -> None:
 
 
 def main(argv: list[str]) -> int:
-    """Check every named file, or the two publication files by default."""
+    """Check every named file, or every publication file by default."""
     targets = [Path(a) for a in argv[1:]] or [REPO / name for name in FILES]
     total = 0
     for path in targets:
