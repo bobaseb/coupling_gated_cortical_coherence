@@ -117,7 +117,11 @@ Spatial agreement beyond the worst-case chain:
   the σ<2 side. U3's numbers in §reach as generated macros
   (`simulations/unity_macros.py` → `unity/unity_results.tex`, from
   `summary.json` and `resistance.json`, drift test `test_unity_macros.py`).
-  Open: verify Hong et al. 2007 before citing.
+  Cited 2026-09-25: the dimension-4 phase result is Hong, Park & Choi 2005
+  *PRE* 72, 036217 (the 2007 *PRL*, Hong–Chaté–Park–Tang, is about frequency
+  entrainment); Mermin–Wagner 1966 and Fröhlich–Spencer 1981 in §reach.
+  Ginibre 1970 verified only at abstract level (plane rotators covered) and
+  not cited. Open: the σ<2 side in Lean (flow construction).
 - [x] **U3 — Numerical check first.** Read discrepancy (phase difference /
   chord) vs distance from the saved sheet summaries if they hold it; else run
   a short-range vs power-law-kernel sheet comparison (separate command, not a
@@ -218,15 +222,19 @@ The causal lens:
   Witness §41: a halving map meets the edge exactly (≤1 at step 3, >1 at 2).
   Not proved: rate = spectral gap or ∝ 1/`R_eff`; that is linear response and
   stays in the text. *Prose 2026-09-25:* §window states both edges;
-  Limitations carries the linear-response identification. Open: the
-  magnitude estimate that decides whether the window is nonempty at cortical
-  time scales.
+  Limitations carries the linear-response identification. *Estimate
+  2026-09-25* (`simulations/unity_estimates.py` → `unity/unity_estimates.tex`):
+  deadline 18–31 ms over 15 cm fibres at 4.9–8.8 m/s plus 0.5 ms; against a
+  400 ms integration window and a declared tenfold reduction, the window is
+  open if the relaxation time is ≤ ~160 ms. Open: the cortical relaxation
+  time itself is unmeasured (the companion's rate-calibration problem).
 - [ ] **U9 — Field causal-cone signature.** A quasi-static field's cone is
   not the synaptic one: re-agreement between distant regions after a
   perturbation faster than axonal conduction plus synaptic delay would
   indicate non-synaptic coupling. Estimate magnitudes; assess measurability.
-  *Prose 2026-09-25:* §tests, qualitative. Open: magnitudes (conduction
-  delay vs field update, sourced).
+  *Prose 2026-09-25:* §tests, with the sourced 18–31 ms deadline and the
+  quasi-static field (Gratiy et al. 2017). Open: measurability (can
+  re-agreement be timed at ms resolution across that distance).
 - [x] **U10 — Agreement-as-attractor test on both substrates.** Perturb one
   region (cortex: stimulation; AI: activation patching of one layer/head/
   position) and measure whether agreement with its overlap partners is
@@ -260,14 +268,21 @@ Pitfalls to address in the text:
   the scale is sharp (a change of exactly 1 flips the bit). Reduction-order
   nondeterminism is a logical-level variation, not graded dependence, and the
   theorems do not speak to it. *Prose 2026-09-25:* §ai, leakage paragraph.
-  Open: estimates of δ, L, Lv for real hardware.
-- [ ] **U14 — Position against related work** (verify each online, AGENTS.md
+  *Estimate 2026-09-25:* expected supply variation is 0.24 of a textbook
+  inverter's static noise margin (Rabaey et al. 2003). L and Lv for real
+  hardware are not estimated; the ratio alone is stated.
+- [x] **U14 — Position against related work** (verify each online, AGENTS.md
   §4): Rosas, Mediano, Seth et al. on computational/causal closure ("software
   in the natural world") — closest formal neighbour, and they read closure as
   the mark of emergent computation, the opposite of U7's reading; Seth's
   biological-naturalism argument on conscious AI; "mortal computation"
   (Hinton 2022; Kleiner & Ororbia); IIT's hardware argument; McFadden's CEMI
   (closest ally); Mermin–Wagner; Fröhlich–Spencer; Hong et al. 2007.
+  *Done 2026-09-25:* §related, every reference verified online (Crossref
+  and publisher/arXiv). Kleiner & Ludwig 2024 (*NoC*, "dynamical
+  relevance") is the closest neighbour and reaches a related exclusion;
+  Rosas et al. 2024, Ororbia & Friston 2023 and Findlay et al. 2024 are
+  still arXiv preprints and cited as such.
 
 Human evidence for P:
 
@@ -283,7 +298,7 @@ Human evidence for P:
   *Prose 2026-09-25:* §tests, the matched-transfer-entropy tACS design with
   the outcome for each direction. Open: feasibility (can coherence be moved
   at matched transfer entropy in practice).
-- [ ] **U16 — Split-brain as a possible dissociation.** Behavioural
+- [x] **U16 — Split-brain as a possible dissociation.** Behavioural
   disunity after callosotomy is disunity of access; whether the phenomenal
   field divides is contested (Pinto et al. 2017 *Brain*, "divided perception
   but undivided consciousness"; de Haan et al. 2020 *Neuropsychol Rev*;
@@ -296,6 +311,8 @@ Human evidence for P:
   hemispheres at centimetre scale, so this supports graded coupling of any
   kind, not fields. State P accordingly and demote U2 from carrier of unity
   to one route among several.
+  *Prose 2026-09-25:* §tests, split-brain paragraph (Pinto 2017, de Haan
+  2020, Bayne 2010 switch model as a rival, not established). Closed.
 - [x] **U17 — Declare what counts as evidence about phenomenal unity.** If
   behavioural disunity can be set aside as mere access, P is shielded from
   every result. Before any test is run, name the observations that bear on
