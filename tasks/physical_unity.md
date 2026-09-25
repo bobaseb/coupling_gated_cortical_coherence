@@ -114,6 +114,9 @@ New targets:
    harmonic approximation; logarithmic decay on a 2D sheet with short-range
    coupling, distance-independent agreement with a power-law tail slower
    than `r^−4`. Gives the field a role about kernel shape, not strength.
+   Proved without the approximation (`Phase10_AgreementResistance`):
+   Rayleigh monotonicity, the direct-edge cap and the Lipschitz transfer to
+   content; the identity itself and the log growth are numerical (U3).
 7. **Unity window (U8).** Lower edge from result 3, upper edge from the
    relaxation rate of result 6.
 

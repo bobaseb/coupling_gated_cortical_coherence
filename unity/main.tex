@@ -89,6 +89,18 @@ constants as conductances. Under short-range coupling that resistance grows as
 the logarithm of distance, with a coefficient inversely proportional to the
 kernel's second moment; a kernel tail slower than $r^{-4}$ bounds it.
 
+Three facts hold without the harmonic approximation. Adding coupling never
+raises the effective resistance (\texttt{conductance\_mono}), so a long-range
+tail added to a short-range kernel can only improve agreement, whatever its
+shape. A direct coupling between two sites caps their resistance at its
+reciprocal, at any distance (\texttt{le\_conductance\_of\_edge}). A Lipschitz
+encoder carries phase agreement to content agreement: the mean-square content
+discrepancy is at most the squared Lipschitz constant times the mean-square
+phase difference (\texttt{integral\_dist\_sq\_le}). With the harmonic
+identity, an encoder of Lipschitz constant $L$ at noise strength $D$ therefore
+has root-mean-square content discrepancy at most $L\sqrt{D\,R_{\mathrm{eff}}}$
+between two sites of effective resistance $R_{\mathrm{eff}}$.
+
 \section{The unity window}
 \label{sec:window}
 
@@ -122,8 +134,9 @@ P is a premise and is not derived from the dynamics; the formal results show
 what follows from it and not that it holds. It is necessary for unity and not
 sufficient for consciousness: coupled pendulums satisfy it. The margin theorem
 concerns idealised digital readouts, and graded leakage in real hardware that
-carries content-relevant agreement would narrow its reach. The kernel result
-rests on the harmonic approximation at identical natural frequencies and is
+carries content-relevant agreement would narrow its reach. The identification of
+phase variance with effective resistance rests on the harmonic approximation at
+identical natural frequencies, and the growth of resistance with distance is
 established numerically on finite sheets, not proved. Human data can falsify P
 but cannot by themselves confirm it against functionalism, because graded
 coupling and information flow co-vary in every manipulation available so far.

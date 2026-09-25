@@ -215,6 +215,15 @@ ALLOWED_LEAVES: dict[str, str] = {
         "consumers are the physical-unity paper and the witnesses of "
         "`Examples/PhysicalUnity.lean`"
     ),
+    "Phase10_AgreementResistance.lean": (
+        "deliberate — the resistance bounds carry the physical-unity paper's "
+        "typical-case agreement result, a second route beside the worst-case "
+        "chaining of the conditional chain rather than a node of it. Routing "
+        "them into `chain` would make its edges rest on the harmonic "
+        "approximation that turns resistance into phase variance, which the "
+        "chain does not state. Their consumers are the physical-unity paper "
+        "and the witnesses of `Examples/AgreementResistance.lean`"
+    ),
 }
 
 # A declaration head: optional attributes and modifiers, the keyword, the name.

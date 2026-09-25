@@ -58,6 +58,8 @@
     `Examples/AgencyFoundations.lean` -- regressions for the agency foundations
     `Examples/PhysicalUnity.lean` §38 (a bit with a margin, and a diffusive pair
       whose agreement is physically enforced)
+    `Examples/AgreementResistance.lean` §39 (a series row whose resistance bound
+      is attained, and a direct edge that lowers it)
 
   **Coverage — every class carrying a physical postulate is now inhabited.**
     ✓ `StatisticalMechanics` — a one-bit erasure model with a genuine bath.
@@ -184,3 +186,4 @@ import PhysicsOfConsciousness.Examples.InformationCapacity
 import PhysicsOfConsciousness.Examples.PhaseFeedback
 import PhysicsOfConsciousness.Examples.InputWeightedRank
 import PhysicsOfConsciousness.Examples.PhysicalUnity
+import PhysicsOfConsciousness.Examples.AgreementResistance

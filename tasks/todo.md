@@ -66,7 +66,7 @@ against the thesis on either.
 
 Spatial agreement beyond the worst-case chain:
 
-- [ ] **U1 — Typical-case agreement bound via effective resistance.** At
+- [x] **U1 — Typical-case agreement bound via effective resistance.** At
   identical frequencies the model is a gradient system; the stationary
   density is `∝ exp(Σ K_ij cos(θ_i−θ_j)/D)`. In the harmonic approximation
   it is Gaussian with precision `Laplacian_K / D`, so
@@ -76,6 +76,24 @@ Spatial agreement beyond the worst-case chain:
   V4 (locked configuration, spectral gap). Decide Lean vs numerical;
   non-harmonic rigour needs correlation inequalities (Fröhlich–Spencer 1981
   for low-noise 2D XY — verify).
+  *Done 2026-09-25: split.* The harmonic identity stays numerical (U3's exact
+  Fourier sum against the nonlinear sheet); it is Gaussian algebra and a Lean
+  proof would need multivariate Gaussians with a degenerate precision for no
+  new content. What holds without the approximation is proved in
+  `Phase10_AgreementResistance.lean`: variational `conductance` (least energy
+  at unit drop), `conductance_mul_sq_le_energy`, Rayleigh monotonicity
+  `conductance_mono` (a tail added to any kernel never hurts),
+  `le_conductance_of_edge` (a direct coupling caps `R_eff` at `1/K_ab` at any
+  distance) and `integral_dist_sq_le` (Lipschitz encoder: mean-square content
+  discrepancy ≤ `L²` × mean-square phase difference, any distribution).
+  Witnesses `Examples/AgreementResistance.lean` §39: a three-site series row
+  with conductance exactly ½, raised to ≥ 1 by a direct edge. Recorded leaf.
+  `unity/main.tex` §reach states the three facts; Limitations narrowed to the
+  harmonic identity and the numerical log growth. Not done: the
+  non-harmonic monotonicity of `⟨cos(θa−θb)⟩` in the couplings (Ginibre's
+  inequality for plane rotators — verify before citing) would carry
+  `conductance_mono` beyond the harmonic regime; Fröhlich–Spencer not needed
+  for any current claim.
 - [ ] **U2 — The kernel's tail is what the field buys.** 2D short-range
   coupling: `R_eff ~ (1/πk) ln d`, agreement degrades logarithmically, reach
   `~ a·exp(πkε²/(L²D))`; Mermin–Wagner forbids true long-range order.
