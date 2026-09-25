@@ -24,6 +24,22 @@ class WindowTest(unittest.TestCase):
         self.assertGreater(estimates["coneSlowMs"], estimates["coneFastMs"])
         self.assertLess(estimates["tauSlowMs"], estimates["tauFastMs"])
 
+    def test_the_fastest_axons_set_the_strict_deadline(self) -> None:
+        estimates = ue.estimates()
+        self.assertLess(estimates["coneMaxMs"], estimates["coneFastMs"])
+
+
+class FieldTest(unittest.TestCase):
+    def test_the_field_reaches_detection_at_its_reach(self) -> None:
+        reach = ue.field_reach(peak=2.0, detection=0.25, near=1.0, exponent=3.0)
+        self.assertAlmostEqual(reach, 2.0)
+        self.assertAlmostEqual(
+            ue.field_deficit_orders(ue.estimates()["fieldReachMm"]), 0.0, places=9
+        )
+
+    def test_the_field_misses_detection_across_the_cortex(self) -> None:
+        self.assertGreater(ue.estimates()["fieldDeficitOrders"], 1.0)
+
 
 class HardwareTest(unittest.TestCase):
     def test_expected_supply_variation_sits_inside_the_margin(self) -> None:

@@ -235,15 +235,16 @@ content requires it to open before that content changes.
 
 In cortex the longest cortico-cortical fibres run about \ueFibreCm{}~cm
 \citep{nunez2014}, callosal axons conduct at median velocities of
-\ueVelocitySlow{} to \ueVelocityFast{}~m/s \citep{caminiti2009}, and a
-chemical synapse adds about \ueSynapseMs{}~ms
-\citep{katz1965,sabatini1996}. The synaptic causal deadline across the cortex
-is therefore \ueConeFastMs{} to \ueConeSlowMs{}~ms. The unconscious integration
+\ueVelocitySlow{} to \ueVelocityFast{}~m/s and the fastest of them at up to
+\ueVelocityMax{}~m/s \citep{caminiti2009}, and a chemical synapse adds about
+\ueSynapseMs{}~ms \citep{katz1965,sabatini1996}. The synaptic causal deadline
+across the cortex is therefore \ueConeMaxMs{}~ms along the fastest axons, and
+typical synaptic arrival takes \ueConeFastMs{} to \ueConeSlowMs{}~ms. The unconscious integration
 that precedes a conscious percept lasts up to \ueContentMs{}~ms
 \citep{herzog2016}. Reading agreement as a \ueReduction{}-fold reduction of
 disagreement, decaying exponentially, the window at that time scale is
 nonempty when the coupling's relaxation time is at most \ueTauSlowMs{}~ms with
-the slowest fibres and \ueTauFastMs{}~ms with the fastest. The causal deadline
+typical arrival along the slower fibres and \ueTauFastMs{}~ms along the faster. The causal deadline
 thus takes a small part of the content's time scale, and whether the window
 opens turns on the relaxation time.
 
@@ -332,23 +333,56 @@ or timing perturbation below the error threshold.
 extracellular field is quasi-static \citep{gratiy2017}: it reaches every point
 of the tissue it spans with no propagation delay, while synaptic influence
 between distant regions arrives only after axonal conduction and synaptic
-transmission, \ueConeFastMs{} to \ueConeSlowMs{}~ms across the longest
-cortico-cortical fibres. Re-agreement between distant regions after a local
+transmission, no sooner than \ueConeMaxMs{}~ms across the longest
+cortico-cortical fibres. Re-agreement between two regions after a local
 perturbation, faster than the synaptic route allows, would identify a
 non-synaptic contribution to the coupling and measure the reach of the kernel
 tail of Section~\ref{sec:reach} directly.
 
+The strength of the field sets the separation at which the test decides
+anything. Endogenous fields in cortex peak near \ueFieldPeak{}~mV/mm in vivo
+\citep{frohlich2010}, networks of neurons detect fields from
+\ueFieldDetection{}~mV/mm \citep{francis2003}, and the potential of a local
+cortical source decays as $r^{-2.1}$ across millimetres \citep{rebollo2021}.
+With the peak placed at the nearest distance of that measurement, the field of
+a local source falls to the detection threshold within \ueFieldReachMm{}~mm and
+misses it by \ueFieldDeficitOrders{} orders of magnitude at \ueFibreCm{}~cm.
+The field's cone is therefore tested at millimetre separations, where activity
+has been observed to synchronize across a cut through cortex by the field alone
+\citep{rebollo2021}; at centimetre separations P predicts that re-agreement
+arrives through synaptic coupling, which is graded as well. The timing is
+measurable with intracortical recording. The stimulation artefact saturates
+clinical amplifiers during the first milliseconds, masking the earliest
+monosynaptic responses \citep{keller2014}, and early responses at distant
+contacts carry a volume-conducted component that scales with distance as the
+artefact does \citep{prime2020}. Template subtraction of the artefact
+\citep{trebaul2016}, multi-unit activity or current-source density at the
+distant site, which the passive spread of the local field potential does not
+reach \citep{kajikawa2011}, and a deadline set for each subject from the
+tractography length of the connecting fibres \citep{caminiti2013} separate
+active re-agreement from the passive field that carries the stimulus.
+
 \paragraph{Separating coupling from information.} In every manipulation of
 cortex available so far, graded coupling and information flow move together:
 anaesthesia and callosal section remove both. A test that confirms P against
-functionalism must move one with the other held fixed. The candidate design
-applies weak alternating stimulation that shifts the coherence between two
-regions while a measured information-transfer quantity between them, such as
-transfer entropy estimated from their recorded activity, is held matched
-across conditions, and asks whether the agreement between the contents decoded
-from the two regions follows the coupling or the information. Agreement that
-follows coupling at matched information supports P over functionalism;
-agreement that follows information at matched coupling counts against P.
+functionalism must move one with the other held fixed. Coherence between
+cortical regions arises largely as a consequence of communication between them
+\citep{schneider2021}, and transcranial alternating current applied to two
+regions drives both from a common source: where in-phase stimulation raised
+their synchrony it raised directed information flow with it
+\citep{reinhart2019}. The coupling has to be supplied instead. Two regions
+whose natural connection is interrupted are bridged by stimulating each in
+proportion to the activity recorded at the other, through one of two loops: an
+analog loop, whose output moves with every graded change in its input, or a
+quantized loop, whose output is read from bits and so has a margin. Noise added
+to the analog loop matches the transfer entropy it carries, estimated from the
+recorded activity, to the quantized loop's. The two loops then carry the same
+information, and only the analog one couples the regions gradedly. Unity
+measured as in the next paragraph that follows the analog loop at matched
+transfer entropy supports P over functionalism, and unity that is the same
+under both loops counts against P. Intracortical stimulation in animals
+supports the design with decoded agreement as the measure; reported unity needs
+a bridged human preparation.
 
 \paragraph{What counts as evidence about the phenomenal field.} Every test
 above measures decoded agreement, which is agreement of the contents available
@@ -427,9 +461,13 @@ and leaves open whether cortex meets it; it also reads agreement as a declared
 reduction factor of disagreement. The step from phase agreement to content agreement assumes
 one oscillator population per content patch, which is a modelling choice about
 cortex. A long-range tail improves agreement only in proportion to its
-conductance against the short-range part, and the measured endogenous fields
-of cortex are weak, so the tail's contribution at cortical scale is a
-quantity to be measured. Above the order--disorder crossover of
+conductance against the short-range part, and the field of a local cortical
+source falls below the detection threshold within millimetres, by an estimate
+that places the field's peak at a declared distance; across centimetres graded
+coupling is carried chiefly by synapses, and the field's contribution there is
+a quantity to be measured. The dissociation of coupling from information has,
+so far, no human preparation in which reported unity can be measured across a
+bridged connection. Above the order--disorder crossover of
 Section~\ref{sec:reach} the harmonic identity fails and agreement is lost at
 every distance. Human data can falsify P
 but cannot by themselves confirm it against functionalism, because graded

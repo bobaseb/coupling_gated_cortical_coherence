@@ -228,13 +228,26 @@ The causal lens:
   400 ms integration window and a declared tenfold reduction, the window is
   open if the relaxation time is ≤ ~160 ms. Open: the cortical relaxation
   time itself is unmeasured (the companion's rate-calibration problem).
-- [ ] **U9 — Field causal-cone signature.** A quasi-static field's cone is
+- [x] **U9 — Field causal-cone signature.** A quasi-static field's cone is
   not the synaptic one: re-agreement between distant regions after a
   perturbation faster than axonal conduction plus synaptic delay would
   indicate non-synaptic coupling. Estimate magnitudes; assess measurability.
   *Prose 2026-09-25:* §tests, with the sourced 18–31 ms deadline and the
   quasi-static field (Gratiy et al. 2017). Open: measurability (can
   re-agreement be timed at ms resolution across that distance).
+  *Assessed 2026-09-25 (literature, refs Crossref-verified):* the deadline
+  was wrong — a causal bound needs the *fastest* axons (Caminiti 2009: up to
+  20 m/s), giving 8 ms over 15 cm, not the 18–31 ms median arrival; §window
+  and §tests corrected (`coneMaxMs`). Physics sets the scale: fields peak
+  2.36 mV/mm (Fröhlich 2010), detection 0.14 mV/mm (Francis 2003), potential
+  ~r^−2.1 (Rebollo 2021) → a local source's field reaches detection within
+  ~3.7 mm and misses it by ~5 orders at 15 cm (declared peak distance 1.5 mm;
+  `unity_estimates.py`). So the test runs at mm separations (Rebollo's
+  cross-cut synchronization); at cm P predicts synaptic re-agreement. Timing
+  measurable intracortically: artefact blinds the first ms (Keller 2014),
+  volume conduction scales like the artefact (Prime 2020); template
+  subtraction (Trebaul 2016), MUA/CSD (Kajikawa 2011), per-subject
+  tractography deadline (Caminiti 2013). Closed.
 - [x] **U10 — Agreement-as-attractor test on both substrates.** Perturb one
   region (cortex: stimulation; AI: activation patching of one layer/head/
   position) and measure whether agreement with its overlap partners is
@@ -286,7 +299,7 @@ Pitfalls to address in the text:
 
 Human evidence for P:
 
-- [ ] **U15 — Dissociate graded coupling from information flow.** Human data
+- [x] **U15 — Dissociate graded coupling from information flow.** Human data
   can falsify P but not confirm it against functionalism: anaesthesia and
   split-brain remove graded coupling and information flow together. Design a
   manipulation that moves one with the other held fixed — candidate: weak
@@ -298,6 +311,17 @@ Human evidence for P:
   *Prose 2026-09-25:* §tests, the matched-transfer-entropy tACS design with
   the outcome for each direction. Open: feasibility (can coherence be moved
   at matched transfer entropy in practice).
+  *Assessed 2026-09-25:* tACS design fails. Dual-site tACS is a common drive
+  (synchrony without coupling); coherence follows communication (Schneider
+  2021); Reinhart & Nguyen 2019 moved synchrony and directed flow together;
+  scalp fields ~0.5–0.8 mV/mm (Huang 2017, Opitz 2016) vs ≥1 mV/mm in rats
+  (Vöröslakos 2018); Lafon 2017 no intracranial entrainment; artefacts
+  (Noury 2016). Replaced in §tests by a bridge across an interrupted
+  connection through an analog vs a quantized closed loop, noise-matched in
+  transfer entropy: only the analog loop couples gradedly (the margin theorem
+  applied to the apparatus). Possible in principle; animals give decoded
+  agreement, reported unity needs a bridged human preparation (Limitations).
+  Closed as a design; running it is outside the paper.
 - [x] **U16 — Split-brain as a possible dissociation.** Behavioural
   disunity after callosotomy is disunity of access; whether the phenomenal
   field divides is contested (Pinto et al. 2017 *Brain*, "divided perception

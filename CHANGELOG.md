@@ -23,6 +23,18 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-25 — The synaptic deadline uses the fastest axons (U9, U15)
+
+The physical-unity draft gave the synaptic causal deadline across the cortex as
+18–31 ms, computed from median callosal conduction velocities. A causal bound
+needs the fastest axons: at 20 m/s it is 8 ms. The median figures are now
+described as typical arrival. The field-cone test is placed at millimetre
+separations, because a local source's field falls below detection within
+millimetres. The dissociation test no longer proposes tACS at matched transfer
+entropy: dual-site tACS is a common drive and does not couple the regions. It
+now bridges an interrupted connection through an analog or a quantized loop.
+Record: `tasks/todo.md` U9, U15.
+
 ## 2026-09-25 — Premise P is stated on graded carriers (U18)
 
 The physical-unity draft stated P on every content of every region: each must
