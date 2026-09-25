@@ -112,8 +112,10 @@ Spatial agreement beyond the worst-case chain:
   and the slope `c` grows with the kernel's width (U3(c)). Witness §39: the
   shell bound is attained on the series row. Not proved: the σ<2 side
   (bounded `R_eff`) needs a flow/Thomson construction over a multiscale path
-  family; it stays numerical (U3). Open: prose in `unity/main.tex` §reach;
-  verify Hong et al. 2007 before citing.
+  family; it stays numerical (U3). *Prose 2026-09-25:* §reach states the
+  shell bound and the log lower bound; Limitations narrowed to attainment and
+  the σ<2 side. Open: U3's numbers as generated macros; verify Hong et al.
+  2007 before citing.
 - [x] **U3 — Numerical check first.** Read discrepancy (phase difference /
   chord) vs distance from the saved sheet summaries if they hold it; else run
   a short-range vs power-law-kernel sheet comparison (separate command, not a
@@ -146,7 +148,7 @@ Spatial agreement beyond the worst-case chain:
   buys" holds only asymptotically.
   Not tested: heterogeneous frequencies (Hong et al. 2007 lower critical
   dimension claim), which is where linear growth and U4 would come in.
-- [ ] **U4 — Relative-phase encoders.** Show encoders reading phase relative
+- [x] **U4 — Relative-phase encoders.** Show encoders reading phase relative
   to the local gradient make travelling waves / windings harmless to content
   agreement (the worst case of the linear chain bound).
   *Lean done 2026-09-25* (`Phase10_RelativePhase`, recorded leaf): sites an
@@ -159,7 +161,7 @@ Spatial agreement beyond the worst-case chain:
   — independent of gradient and separation. Witness §40: a winding on
   `ZMod m` where the absolute encoder disagrees at every pair of sites and the
   relative one nowhere; a gradient on ℤ with absolute discrepancy `|δ||x−y|`.
-  Open: prose.
+  *Prose 2026-09-25:* §reach, last paragraph. Closed.
 - [ ] **U5 — Carry the honest costs.** E78 (one oscillator per content patch)
   still applies; the ephaptic amplitude objection remains — a long-range tail
   helps only if its conductance is not negligible against the short-range
@@ -175,7 +177,7 @@ The causal lens:
   overlapping `i ≠ j`. *Physically enforced*: graded dependence plus
   contraction of overlap discrepancy under sub-threshold as well as logical
   perturbations. Full statement of premise P in `tasks/physical_unity.md`.
-- [ ] **U7 — Target theorem: the margin excludes enforcement.** The first
+- [x] **U7 — Target theorem: the margin excludes enforcement.** The first
   formulation ("closure excludes enforcement") is false: a GPU running a
   consensus algorithm or a Kuramoto simulation has a closed logical level
   whose `g` contracts discrepancy. Revised: if every `π_i` is locally
@@ -192,7 +194,10 @@ The causal lens:
   Witnesses `Examples/PhysicalUnity.lean` §38: a non-constant bit, and a
   diffusive pair whose agreement is physically enforced at every state.
   Recorded in `ALLOWED_LEAVES`: the conditional chain is substrate-neutral
-  and must not rest on P. Open: the prose half (simulation objection).
+  and must not rest on P. *Prose 2026-09-25:* §enforcement states why the
+  criterion sits below the content dynamics (content-level contraction is
+  computable) and answers the simulation objection by denial, as a premise
+  with testable consequences. Closed.
 - [ ] **U8 — The unity window.** Lower bound: agreement cannot arrive before
   the causal cone allows (`not_reconstructs_of_outside_past`, C8
   quantitative deadline). Upper bound: disagreement decays at the relaxation
@@ -206,8 +211,10 @@ The causal lens:
   `lt_disc_iterate_of_lt_log` (no earlier than the slowest rate ρ allows).
   Witness §41: a halving map meets the edge exactly (≤1 at step 3, >1 at 2).
   Not proved: rate = spectral gap or ∝ 1/`R_eff`; that is linear response and
-  stays in the text. Open: prose, and the magnitude estimate that decides
-  whether the window is nonempty at cortical time scales.
+  stays in the text. *Prose 2026-09-25:* §window states both edges;
+  Limitations carries the linear-response identification. Open: the
+  magnitude estimate that decides whether the window is nonempty at cortical
+  time scales.
 - [ ] **U9 — Field causal-cone signature.** A quasi-static field's cone is
   not the synaptic one: re-agreement between distant regions after a
   perturbation faster than axonal conduction plus synaptic delay would
@@ -237,8 +244,8 @@ Pitfalls to address in the text:
   leakage must exceed). Witness §38: graded dependence at the threshold, and
   the scale is sharp (a change of exactly 1 flips the bit). Reduction-order
   nondeterminism is a logical-level variation, not graded dependence, and the
-  theorems do not speak to it. Open: prose; estimates of δ, L, Lv for real
-  hardware.
+  theorems do not speak to it. *Prose 2026-09-25:* §ai, leakage paragraph.
+  Open: estimates of δ, L, Lv for real hardware.
 - [ ] **U14 — Position against related work** (verify each online, AGENTS.md
   §4): Rosas, Mediano, Seth et al. on computational/causal closure ("software
   in the natural world") — closest formal neighbour, and they read closure as

@@ -79,6 +79,25 @@ continuous quantity has a margin off its threshold, and a finite word of such
 readouts has one too, so the conclusion holds for any content read from bits
 (\texttt{not\_physicallyEnforced\_of\_bits}).
 
+The theorem places the criterion one level below the content dynamics, and the
+placement is forced. Contraction of disagreement at the content level is
+computable: a digital system running a consensus algorithm, or integrating a
+coupled field, has a content map whose successor contracts the disagreement
+between overlapping regions exactly as the field does. A criterion stated on
+the content dynamics would classify that system with the field. P is stated on
+the dependence of content on graded micro state, and there the two differ: the
+field's content moves with every graded change in the regions it overlaps,
+while the simulation's content is read from bits held inside their margins and
+moves with none of them.
+
+This is the simulation objection, and P answers it by denial. A perfect
+simulation of a coupled cortical field reproduces the field's content-level
+trajectory and is not unified in the sense P requires, because the agreement
+in it is computed from contents rather than enforced by the graded state that
+carries them. That is the commitment P makes about unity, stated on the same
+footing as a workspace theory's identification of consciousness with broadcast:
+a premise whose consequences can be tested, which Section~\ref{sec:tests} does.
+
 \section{How far a physical coupling enforces agreement}
 \label{sec:reach}
 
@@ -88,6 +107,19 @@ sites is the noise strength times their effective resistance, with the coupling
 constants as conductances. Under short-range coupling that resistance grows as
 the logarithm of distance, with a coefficient inversely proportional to the
 kernel's second moment; a kernel tail slower than $r^{-4}$ bounds it.
+
+The logarithmic growth is a lower bound for every kernel of bounded range. Group
+the sites into shells around a site $a$, so that the coupling joins only sites
+in the same or adjacent shells. The shells then act as conductors in series,
+and the effective conductance from $a$ to any site beyond shell $n$ is at most
+$\bigl(\sum_{k<n} 1/C_k\bigr)^{-1}$, where $C_k$ is the coupling crossing from
+shell $k$ to shell $k+1$ (\texttt{conductance\_le\_shell}). On a planar sheet
+the perimeter of shell $k$ grows linearly in $k$, so $C_k \le c\,(k+1)$ for a
+constant $c$ set by the kernel's strength and width, and the effective
+resistance is at least $\log(n+1)/c$ (\texttt{conductance\_mul\_log\_le}).
+Widening the kernel enlarges its shells and raises $c$, which slows the growth
+and leaves it unbounded. Distance-independent agreement on a sheet therefore
+needs coupling of unbounded range.
 
 Three facts hold without the harmonic approximation. Adding coupling never
 raises the effective resistance (\texttt{conductance\_mono}), so a long-range
@@ -101,12 +133,40 @@ identity, an encoder of Lipschitz constant $L$ at noise strength $D$ therefore
 has root-mean-square content discrepancy at most $L\sqrt{D\,R_{\mathrm{eff}}}$
 between two sites of effective resistance $R_{\mathrm{eff}}$.
 
+Content can agree where phases differ. An encoder that reads the phases of a
+stencil around a site relative to the phase at that site reports the same
+content at every site of a plane wave, whatever its gradient, and at every site
+of a winding on a ring or torus (\texttt{relContent\_eq\_of\_wave}). For a wave
+plus a departure, the content discrepancy between two sites of a Lipschitz
+relative encoder is at most its Lipschitz constant times the departure's
+relative readings at the two sites, with the gradient of the wave and the
+separation of the sites absent from the bound
+(\texttt{dist\_relContent\_le}). Travelling waves and windings, the
+configurations that attain the worst case of a hop-by-hop chain bound, thus
+cost a relative encoder nothing; what it pays for is the local roughness of the
+field.
+
 \section{The unity window}
 \label{sec:window}
 
 Agreement cannot arrive before the causal cone of the coupling allows, and
 disagreement decays at the relaxation rate of the coupling. Unity at a given
 time scale requires the interval between the two to be nonempty.
+
+The lower edge is causal. A report at one site that tracks a variable at
+another to within $\varepsilon$, for two values of the variable more than
+$2\varepsilon$ apart, is possible after $T$ rounds of the coupling only if the
+second site lies in the first site's causal past for $T$ rounds
+(\texttt{mem\_ball\_of\_reconstructs}). The upper edge is relaxation. If the
+coupling contracts the overlap discrepancy by a factor $\kappa<1$ at every step
+on a set of states it keeps, a discrepancy starting at most $d_0$ is at most
+$\varepsilon$ from step $\log(d_0/\varepsilon)/\log(1/\kappa)$ on
+(\texttt{disc\_iterate\_le\_of\_log\_le}). The estimate is sharp in form: a
+discrepancy that shrinks by at most a factor $\rho$ per step is still above
+$\varepsilon$ at every earlier step than $\log(d_0/\varepsilon)/\log(1/\rho)$
+(\texttt{lt\_disc\_iterate\_of\_lt\_log}). The window opens at the later of the
+causal deadline and the relaxation time, and unity at the time scale of a
+content requires it to open before that content changes.
 
 \section{Current artificial systems}
 \label{sec:ai}
@@ -116,6 +176,21 @@ held within their noise margins, so the result of
 Section~\ref{sec:enforcement} applies to it. Hardware whose contents are graded
 physical quantities coupled without barriers, such as analog, in-memory or
 neuromorphic substrates, can satisfy P.
+
+Real digital hardware leaks: supply noise, crosstalk and temperature move the
+analog quantities behind every bit. The margin theorem locates where such
+leakage can reach content. If a content read as a word of thresholded
+continuous quantities depends gradedly on any region, some bit of the next state
+sits exactly on its threshold (\texttt{exists\_threshold\_of\_gradedDependence}),
+and correct operation keeps every state off that set. The margin also has a
+width. If every bit of the next state is at least $\delta$ from its threshold,
+each bit is read from an $L_v$-Lipschitz quantity and the micro dynamics is
+$L$-Lipschitz, a change to one region smaller than $\delta/(L L_v)$ changes no
+bit (\texttt{bits\_eq\_of\_lipschitz}). Leakage below that scale carries no
+content; leakage above it flips a bit, which is a logical error. The
+nondeterminism of floating-point reduction order is a choice among logical
+trajectories and is outside both theorems: it varies which content is computed,
+not how content depends on graded state.
 
 \section{Tests}
 \label{sec:tests}
@@ -136,8 +211,13 @@ sufficient for consciousness: coupled pendulums satisfy it. The margin theorem
 concerns idealised digital readouts, and graded leakage in real hardware that
 carries content-relevant agreement would narrow its reach. The identification of
 phase variance with effective resistance rests on the harmonic approximation at
-identical natural frequencies, and the growth of resistance with distance is
-established numerically on finite sheets, not proved. Human data can falsify P
+identical natural frequencies. The logarithmic lower bound on resistance is
+proved for kernels of bounded range; that it is attained, and that a tail slower
+than $r^{-4}$ bounds the resistance, are established numerically on finite
+sheets. The unity window's edges are proved for a given contraction factor; the
+identification of that factor with the coupling's spectral gap is linear
+response, and whether the window is nonempty at cortical time scales awaits a
+magnitude estimate. Human data can falsify P
 but cannot by themselves confirm it against functionalism, because graded
 coupling and information flow co-vary in every manipulation available so far.
 
