@@ -40,6 +40,8 @@ OUTPUT = Path(__file__).resolve().parent / "figures" / "unity_agreement"
 # Exponential decay length in lattice spacings: short range, but not nearest.
 EXPONENTIAL_DECAY = 2.0
 KERNEL_SHAPES = ("nearest", "exponential", "power_sigma1", "power_sigma3")
+# Sheet sides for the resistance scaling, beyond what the simulation reaches.
+SCALING_SIDES = (128, 512, 1024)
 
 
 @dataclass(frozen=True)
@@ -123,6 +125,41 @@ def effective_resistance(kernel: FloatArray) -> FloatArray:
     inverse[nonzero] = 1.0 / eigenvalue[nonzero]
     green = np.real(np.fft.ifft2(inverse))
     return cast(FloatArray, 2.0 * (green[0, 0] - green[0, : kernel.shape[0] // 2 + 1]))
+
+
+def stiffness(kernel: FloatArray) -> float:
+    """Half the kernel's second moment along one axis, ``½ Σ_r K(r) x_r²``.
+
+    The coefficient of the short-range logarithm is ``1/(π s)``; a tail slower
+    than ``r^-4`` has a second moment that grows without bound with the sheet.
+    """
+    coordinate = np.arange(kernel.shape[1])
+    axial = np.minimum(coordinate, kernel.shape[1] - coordinate).astype(float)
+    return float(0.5 * np.sum(kernel * axial[None, :] ** 2))
+
+
+def resistance_scaling(sides: tuple[int, ...], coupling: float) -> dict[str, Any]:
+    """Resistance at half the side for every shape and side, and each shape's stiffness.
+
+    Exact Fourier sums, no integration: this is how the kernels differ at sheet
+    sizes the simulation cannot reach. Stiffness is read at the largest side.
+    """
+    far = {
+        shape: [
+            float(effective_resistance(build_shape_kernel(shape, side, coupling))[side // 2])
+            for side in sides
+        ]
+        for shape in KERNEL_SHAPES
+    }
+    return {
+        "sides": list(sides),
+        "coupling": coupling,
+        "far_resistance": far,
+        "stiffness": {
+            shape: stiffness(build_shape_kernel(shape, max(sides), coupling))
+            for shape in KERNEL_SHAPES
+        },
+    }
 
 
 def _axial_moments(phases: FloatArray, half: int) -> tuple[FloatArray, FloatArray]:
@@ -276,6 +313,11 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--smoke", action="store_true", help="one small, short run")
     parser.add_argument("--output", type=Path, default=None)
     parser.add_argument(
+        "--resistance",
+        action="store_true",
+        help="save the far resistance at large sheet sizes, integrating nothing",
+    )
+    parser.add_argument(
         "--replot", action="store_true", help="redraw from the saved summary, integrating nothing"
     )
     return parser.parse_args()
@@ -285,6 +327,11 @@ def main() -> None:
     """Run the sweep (or redraw it) and print each run's growth classification."""
     args = _parse_args()
     output = args.output or (OUTPUT.with_name("unity_agreement_smoke") if args.smoke else OUTPUT)
+    if args.resistance:
+        output.mkdir(parents=True, exist_ok=True)
+        scaling = resistance_scaling(SCALING_SIDES, SheetConfig().coupling)
+        (output / "resistance.json").write_text(json.dumps(scaling, indent=2) + "\n")
+        return
     if not args.replot:
         summary = cast(list[dict[str, object]], run(production_configs(args.smoke), output)["runs"])
         for record in summary:

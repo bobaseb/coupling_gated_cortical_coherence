@@ -78,6 +78,21 @@ class EffectiveResistanceTest(unittest.TestCase):
         self.assertTrue(all(abs(step) < 0.05 * short[0] for step in tail))
 
 
+class ResistanceScalingTest(unittest.TestCase):
+    def test_scaling_reports_the_far_resistance_of_every_shape_at_every_side(self) -> None:
+        scaling = ua.resistance_scaling((16, 32), coupling=4.0)
+        self.assertEqual(scaling["sides"], [16, 32])
+        for shape in ua.KERNEL_SHAPES:
+            far = ua.effective_resistance(ua.build_shape_kernel(shape, 32, 4.0))[16]
+            self.assertAlmostEqual(scaling["far_resistance"][shape][1], float(far))
+
+    def test_stiffness_is_half_the_kernel_second_moment_along_one_axis(self) -> None:
+        # Nearest neighbour at row sum 4: two bonds of 1 at axial offset +-1.
+        scaling = ua.resistance_scaling((16,), coupling=4.0)
+        self.assertAlmostEqual(scaling["stiffness"]["nearest"], 1.0)
+        self.assertGreater(scaling["stiffness"]["exponential"], 10.0)
+
+
 class SimulationTest(unittest.TestCase):
     def test_low_noise_variance_matches_the_harmonic_prediction(self) -> None:
         config = ua.SheetConfig(

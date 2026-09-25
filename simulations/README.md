@@ -114,6 +114,11 @@ the torus by a Fourier sum, and the simulation measures how far the nonlinear
 sheet follows it. `--replot` redraws from `figures/unity_agreement/summary.json`;
 each record's `harmonic_ratio_max` says whether its unwrapped-variance fit is
 meaningful (it is not once phase slips occur).
+`--resistance` saves `resistance.json`, the exact resistance at half the side
+for sheets of side 128, 512 and 1024 and each kernel's stiffness; it sums
+Fourier series and integrates nothing. `unity_macros.py` reads both summaries
+and writes `unity/unity_results.tex`, the physical-unity paper's numerals;
+`test_unity_macros.py` fails when that file drifts from the summaries.
 
 ## The wave extension
 

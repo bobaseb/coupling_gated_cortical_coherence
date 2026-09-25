@@ -5,6 +5,7 @@
 \usepackage{hyperref}
 \usepackage{setspace}
 \onehalfspacing
+\input{unity_results}
 
 % A numbered claim and the section that argues it (check_claims.py).
 \newcommand{\claim}[2]{\item #2 (Section~\ref{#1}).}
@@ -120,6 +121,31 @@ resistance is at least $\log(n+1)/c$ (\texttt{conductance\_mul\_log\_le}).
 Widening the kernel enlarges its shells and raises $c$, which slows the growth
 and leaves it unbounded. Distance-independent agreement on a sheet therefore
 needs coupling of unbounded range.
+
+Simulated sheets at identical frequencies, of side \uSideSmall{} and
+\uSideLarge{}, with nearest-neighbour, exponential and power-law kernels of
+tail exponent $\sigma=1$ and $\sigma=3$ at a common row sum, follow the harmonic
+identity in the ordered phase. The measured phase variance is at most
+\uHarmonicRatioLow{} times $D\,R_{\mathrm{eff}}$ at $D=\uNoiseLow$ and at most
+\uHarmonicRatioMid{} times at $D=\uNoiseMid$, the excess rising with noise as
+the cosine coupling softens, and a logarithm fits its growth with distance
+better than a line in \uLogarithmicRuns{} of the \uOrderedRuns{} runs at those
+noise levels. At $D=\uNoiseHigh$ the nearest-neighbour sheet disorders: the
+mean chord discrepancy $\langle 1-\cos(\theta_a-\theta_b)\rangle$ at the
+largest separation is \uChordNearestHigh{}. The exponential and $\sigma=1$
+sheets stay ordered at that noise (\uChordExponentialHigh{} and
+\uChordSigmaOneHigh{}), and the $\sigma=3$ sheet nearly disorders
+(\uChordSigmaThreeHigh{}), so the kernel's width sets the order--disorder
+crossover as well as the rate of decay. Exact resistance sums at sheet sides
+\uScalingSideA{}, \uScalingSideB{} and \uScalingSideC{} separate width from
+tail. The exponential kernel, with \uStiffnessRatio{} times the
+nearest-neighbour stiffness, gives resistance at half the side of
+\uFarExponentialA{}, \uFarExponentialB{} and \uFarExponentialC{}, still
+growing; the $\sigma=1$ tail gives \uFarSigmaOneA{}, \uFarSigmaOneB{} and
+\uFarSigmaOneC{}. Over a finite cortical extent a wide short-range kernel and a
+slow tail therefore differ by a slowly growing logarithm, and the measurement
+that separates them needs the kernel's second moment as well as its tail
+exponent.
 
 Three facts hold without the harmonic approximation. Adding coupling never
 raises the effective resistance (\texttt{conductance\_mono}), so a long-range

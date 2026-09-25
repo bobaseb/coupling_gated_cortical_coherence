@@ -43,6 +43,10 @@ layers = ["publication", "report", "analysis", "simulation", "theory", "gate"]
 path = "simulation_tex"
 layer = "publication"
 
+[[modules]]
+path = "unity_macros"
+layer = "publication"
+
 # -- report -----------------------------------------------------------------
 [[modules]]
 path = "dynamic_ramp_report"
