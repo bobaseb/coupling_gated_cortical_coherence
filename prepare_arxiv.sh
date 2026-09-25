@@ -1,5 +1,7 @@
 #!/bin/bash
-# Build the arXiv submission from the manuscript sources.
+# Build the arXiv submission from the manuscript sources, and the bioRxiv pair
+# (the same NeurIPS-styled article and supplement as separate PDFs) beside it
+# in arxiv_submit/biorxiv/.
 #
 # Four rules keep this from going stale or shipping something broken. The file
 # set is *read from the .tex sources* on every run rather than listed here, so a
@@ -101,15 +103,16 @@ cd "$OUT"
 # matches is the failure this script cannot otherwise see: the document still
 # compiles, and it is the wrong document -- unstyled, double-spaced, or carrying
 # line numbers into a posted preprint.
-edit() {  # edit <description> <sed expression>
-  local what="$1" expression="$2" before
-  before="$(sha256sum main.tex | cut -d' ' -f1)"
-  sed -i "$expression" main.tex
-  if [ "$before" = "$(sha256sum main.tex | cut -d' ' -f1)" ]; then
-    echo "prepare_arxiv: '$what' changed nothing -- main.tex no longer matches this script" >&2
+edit_file() {  # edit_file <file> <description> <sed expression>
+  local file="$1" what="$2" expression="$3" before
+  before="$(sha256sum "$file" | cut -d' ' -f1)"
+  sed -i "$expression" "$file"
+  if [ "$before" = "$(sha256sum "$file" | cut -d' ' -f1)" ]; then
+    echo "prepare_arxiv: '$what' changed nothing -- $file no longer matches this script" >&2
     exit 1
   fi
 }
+edit() { edit_file main.tex "$@"; }  # edit <description> <sed expression>
 
 edit "apply the NeurIPS style" 's/\\documentclass\[12pt\]{article}/\\pdfoutput=1\n\\documentclass{article}\n\\usepackage[preprint]{neurips_2026}\n\\usepackage{longtable}/'
 edit "drop the article's own natbib" '/\\usepackage\[round\]{natbib}/d'
@@ -129,10 +132,59 @@ edit "drop \\linenumbers"            '/^\\linenumbers$/d'
 # \emergencystretch is the last-resort slack that keeps a citation too wide for
 # the space left from overfilling its line instead. Both belong here rather
 # than in main.tex: the standalone article paginates differently.
-edit "keep citation links off page breaks" \
-  's/\\renewcommand{\\cite}\[1\]{\\citep{#1}}/\\renewcommand{\\cite}[1]{\\citep{#1}}\n\\makeatletter\n\\AtBeginDocument{\\let\\NATlink@start\\hyper@natlinkstart\\let\\NATlink@end\\hyper@natlinkend\\def\\hyper@natlinkstart#1{\\leavevmode\\hbox\\bgroup\\NATlink@start{#1}}\\def\\hyper@natlinkend{\\NATlink@end\\egroup}}\n\\makeatother\n\\emergencystretch=6em/'
+CITE_BOXING='s/\\renewcommand{\\cite}\[1\]{\\citep{#1}}/\\renewcommand{\\cite}[1]{\\citep{#1}}\n\\makeatletter\n\\AtBeginDocument{\\let\\NATlink@start\\hyper@natlinkstart\\let\\NATlink@end\\hyper@natlinkend\\def\\hyper@natlinkstart#1{\\leavevmode\\hbox\\bgroup\\NATlink@start{#1}}\\def\\hyper@natlinkend{\\NATlink@end\\egroup}}\n\\makeatother\n\\emergencystretch=6em/'
+edit "keep citation links off page breaks" "$CITE_BOXING"
 
-# 4. Merge the supplement in as an appendix. Its preamble is dropped, and so is
+# 4. The bioRxiv pair: the same NeurIPS-styled article on its own, and the
+#    supplement styled to match as a separate file. bioRxiv takes the article
+#    as one PDF and supplemental material as separate files, so these two PDFs
+#    are built from the styled sources before the merge below absorbs the
+#    supplement. The supplement's \externaldocument{main} reads the styled
+#    article's .aux, so its pointers carry the article's own numbering. The
+#    supplement's edits are checked like the article's: an unmatched pattern
+#    would leave it unstyled or on the wrong page size.
+split="$(mktemp -d)"
+cp -r . "$split/"
+(
+  cd "$split"
+  edit_file supplementary.tex "style the supplement" 's/^\\documentclass{article}$/\\documentclass{article}\n\\usepackage[preprint]{neurips_2026}/'
+  edit_file supplementary.tex "drop the supplement's natbib" '/\\usepackage\[round\]{natbib}/d'
+  edit_file supplementary.tex "drop the supplement's geometry package" '/^\\usepackage{geometry}$/d'
+  edit_file supplementary.tex "drop the supplement's page geometry" '/^\\geometry{/d'
+  edit_file supplementary.tex "keep the supplement's citation links off page breaks" "$CITE_BOXING"
+  # A standalone supplement carries the article's byline. It is read out of
+  # main.tex rather than written here, so the author block lives in one place.
+  AUTHOR="$(awk '/^\\author\{/{f=1} f{print} f&&/\}\}$/{exit}' main.tex)"
+  [ -n "$AUTHOR" ] || { echo "prepare_arxiv: no \\author block found in main.tex" >&2; exit 1; }
+  before="$(sha256sum supplementary.tex)"
+  AUTHOR="$AUTHOR" awk '$0=="\\author{}"{print ENVIRON["AUTHOR"]; next} {print}' supplementary.tex > supp.tmp
+  mv supp.tmp supplementary.tex
+  [ "$before" != "$(sha256sum supplementary.tex)" ] || {
+    echo "prepare_arxiv: supplementary.tex no longer has an empty \\author{} to fill" >&2; exit 1; }
+  for doc in main supplementary; do
+    for pass in 1 2; do
+      pdflatex -interaction=nonstopmode -file-line-error "$doc.tex" > "$doc-pass$pass.out" 2>&1 || true
+    done
+  done
+)
+split_fail=0
+for doc in main supplementary; do
+  log="$split/$doc.log"
+  if grep -qE '^(\./)?[^ ]*:[0-9]+: |^! |LaTeX Warning: (Reference|Citation) .* undefined|File .* not found' "$log"; then
+    echo "prepare_arxiv: the standalone $doc.tex has errors or unresolved references" >&2
+    grep -E '^(\./)?[^ ]*:[0-9]+: |^! |LaTeX Warning: (Reference|Citation) .* undefined|File .* not found' "$log" | head -5 >&2
+    split_fail=1
+  fi
+  [ -f "$split/$doc.pdf" ] || { echo "prepare_arxiv: no standalone $doc.pdf produced" >&2; split_fail=1; }
+done
+[ "$split_fail" -eq 0 ] || { rm -rf "$split"; echo "prepare_arxiv: NOT shipping a broken bioRxiv pair" >&2; exit 1; }
+mkdir -p biorxiv
+cp "$split/main.pdf" biorxiv/main.pdf
+cp "$split/supplementary.pdf" biorxiv/supplementary.pdf
+rm -rf "$split"
+echo "prepare_arxiv: bioRxiv pair built, $(pdfinfo biorxiv/main.pdf | awk '/^Pages:/{print $2}') + $(pdfinfo biorxiv/supplementary.pdf | awk '/^Pages:/{print $2}') pages"
+
+# 5. Merge the supplement in as an appendix. Its preamble is dropped, and so is
 #    its own \input{references}: the merged document has one bibliography.
 #    Copying from the \section*{Overview} marker is what carries the S-prefix
 #    renumbering that sits just after it, so both the marker and the renumbering
@@ -167,7 +219,7 @@ grep -v '^%' merged.tex > final_main.tex
 mv final_main.tex main.tex
 rm -f supp_body.tex merged.tex supplementary.tex
 
-# 5. Pack the sources: main.tex as merged above, and everything copied in that
+# 6. Pack the sources: main.tex as merged above, and everything copied in that
 #    the merged document still reads. supplementary.tex is gone, absorbed.
 declare -a packed=(main.tex)
 while IFS= read -r src; do
@@ -181,7 +233,7 @@ done < <(printf '%s\n' "${sources[@]}" | sort -u)
 rm -f ./*.aux ./*.log ./*.out ./*.toc
 tar -czf ax.tar.gz "${packed[@]}"
 
-# 6. Compile what is about to be shipped, from the unpacked archive and nothing
+# 7. Compile what is about to be shipped, from the unpacked archive and nothing
 #    else. Compiling in place would pass on a file that exists in this directory
 #    and is missing from the tarball, which is the one failure a local build
 #    cannot distinguish from success.
@@ -215,7 +267,7 @@ cp "$verify/main.pdf" main.pdf
 pages=$(pdfinfo main.pdf | awk '/^Pages:/{print $2}')
 echo "prepare_arxiv: compiled cleanly from the tarball, $pages pages"
 
-# 7. Record what this was built from. arxiv_submit/ is not tracked, so nothing
+# 8. Record what this was built from. arxiv_submit/ is not tracked, so nothing
 #    else can tell whether the directory sitting here is the current manuscript
 #    or last week's; check_arxiv_freshness.py answers that from this file.
 {
