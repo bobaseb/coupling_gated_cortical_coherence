@@ -54,9 +54,15 @@ substrates. The separating property sits one level down:
 
 So:
 
-> **P (physical unity).** A system's contents are unified only if the content
-> of each region depends continuously on the graded physical state of the
-> regions it overlaps, through a coupling that contracts their disagreement.
+> **P (physical unity).** A system's contents are unified only if each
+> region's contents are read from graded content variables that depend
+> continuously on the graded physical state of the regions it overlaps,
+> through a coupling that contracts their disagreement.
+
+Categorical contents (rivalry, argmax classes) have margins in any substrate,
+so P is stated on their graded carriers (U18); a digital machine has no
+graded carrier because every variable it computes is a function of its bit
+word (`not_gradedDependence_iterate_of_bits`).
 
 P is an explicit **rejection of functionalism about unity**: a perfect
 simulation of the field reproduces `g` and fails P. That is the paper's

@@ -23,6 +23,20 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-25 — Premise P is stated on graded carriers (U18)
+
+The physical-unity draft stated P on every content of every region: each must
+depend continuously on the graded state of the regions it overlaps. Categorical
+contents (the dominant percept in rivalry, an argmax class) are locally
+constant away from their boundaries in cortex as in silicon, so under the
+margin theorem that P denied unity to humans for the reason it denies it to
+digital hardware. P now asks this of the graded content variables that
+categories are read from. `not_gradedDependence_iterate_of_bits` shows the
+restatement gives a digital machine nothing: every variable it computes is a
+function of its bit word. The spike question gets the same treatment. Spike
+timing is the graded carrier, and a clocked latch is a threshold on transition
+time. Record: `tasks/todo.md` U18.
+
 ## 2026-09-25 — EEG data statement and supplement editorial pass
 
 The main text said the exploratory EEG analysis used "resting awake and

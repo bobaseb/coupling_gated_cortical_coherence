@@ -15,6 +15,11 @@ import PhysicsOfConsciousness.Phase10_PhysicalUnity
   so agreement between them is physically enforced at every state. The
   definition is therefore not empty, and what excludes the bit is its margin,
   not the definition.
+* **A category of an enforced carrier.** The sign of region 1's quantity under
+  the diffusive pair has a margin, so it does not depend gradedly on region 0
+  off its boundary, although the quantity it is read from is physically
+  enforced there. Categorical contents fail graded dependence in any substrate;
+  the carrier is what the premise asks about.
 * **On the threshold.** At `![0, 0]` the bit does depend gradedly on region 0,
   so `exists_threshold_of_gradedDependence` has instances.
 * **The leakage scale is sharp.** At `![1, 0]`, a unit away from the threshold
@@ -67,6 +72,21 @@ theorem diffuse_physicallyEnforced (x : Pair) :
     PhysicallyEnforced (S := fun _ : Fin 2 => ℝ) diffuse (fun y => y 1) 0
       (fun y => |y 0 - y 1|) x :=
   ⟨diffuse_gradedDependence x, diffuse_contracts x⟩
+
+/-- **A category read from an enforced carrier.** Region 1's quantity is
+physically enforced under `diffuse` at every state, yet the category "region 1's
+quantity is positive" read from it does not depend gradedly on region 0 at
+`![0, 1]`, whose successor puts that quantity at `3/4`. -/
+theorem category_of_enforced_carrier :
+    ¬ GradedDependence (S := fun _ : Fin 2 => ℝ) diffuse^[1]
+        (fun y => (fun w : Unit → Bool => w ()) fun _ => decide ((0 : ℝ) < y 1)) 0
+        ![0, 1] := by
+  have hd : Continuous diffuse := by
+    refine continuous_pi fun j : Fin 2 => ?_
+    fin_cases j <;> simp [diffuse] <;> fun_prop
+  exact not_gradedDependence_iterate_of_bits (κ := Unit) hd
+    (fun _ => continuous_apply (1 : Fin 2)) (fun _ => 0) (fun w => w ()) (x := ![0, 1]) 1
+    (fun _ => by norm_num [diffuse]) 0
 
 /-- On its threshold the bit depends gradedly on region 0. -/
 theorem bit_gradedDependence_at_threshold :

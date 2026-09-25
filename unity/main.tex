@@ -44,8 +44,9 @@ refute it on each.
 \label{sec:intro}
 
 \paragraph{Premise P (physical unity).} A system's contents are unified only if
-the content of each region depends continuously on the graded physical state of
-the regions it overlaps, through a coupling that contracts their disagreement.
+each region's contents are read from graded content variables that depend
+continuously on the graded physical state of the regions it overlaps, through a
+coupling that contracts their disagreement.
 
 P is a necessary condition for unity. It rejects functionalism about unity: a
 perfect simulation of a coupled field reproduces the field's content-level
@@ -114,6 +115,22 @@ in it is computed from contents rather than enforced by the graded state that
 carries them. That is the commitment P makes about unity, stated on the same
 footing as a workspace theory's identification of consciousness with broadcast:
 a premise whose consequences can be tested, which Section~\ref{sec:tests} does.
+
+Categorical contents have margins in every substrate. The dominant percept in
+binocular rivalry, a perceived category, or any class selected by an argmax is
+constant on each side of its boundary, so away from the boundary the margin
+theorem denies it graded dependence in cortex exactly as in silicon. P is
+therefore stated on the graded content variables from which categories are
+read, such as a location, an orientation, a time or the relative strength of
+competing percepts, and a category meets P through the variable that carries
+it. A category read from a carrier depends gradedly on a region only where the
+carrier does (\texttt{GradedDependence.of\_comp}). The restatement opens no
+route for a digital machine: every variable it computes, whether a number, a
+vector of numbers or a category, is a function of its bit word, and after any
+number of steps that keep its bits off their thresholds such a function depends
+gradedly on no region (\texttt{not\_gradedDependence\_iterate\_of\_bits}).
+The voltages beneath the bits carry none of the machine's contents, at that step
+or any later one, so they are not a carrier.
 
 \section{How far a physical coupling enforces agreement}
 \label{sec:reach}
@@ -250,6 +267,16 @@ at a clock edge. Biological tissue passes or fails on the same terms: a neural
 circuit whose contents were read only from all-or-none events latched far from
 threshold would fall under the margin theorem as any digital circuit does.
 
+Spikes are thresholded events, and what makes them graded carriers is their
+timing. The time at which a membrane potential rising through threshold crosses
+it moves continuously with the sub-threshold input, and postsynaptic potentials
+integrate spike times without sampling them, so spike timing carries graded
+dependence from one region to the next. A clocked latch compares the time of a
+transition with the clock edge, which is a threshold on the transition time, so
+\texttt{hasMargin\_threshold} applies to it with that time as the thresholded
+quantity. The clock is a noise margin in time, and it removes from a digital
+circuit exactly the graded timing that spikes keep.
+
 Real digital hardware leaks: supply noise, crosstalk and temperature move the
 analog quantities behind every bit. The margin theorem locates where such
 leakage can reach content. If a content read as a word of thresholded
@@ -276,8 +303,11 @@ not how content depends on graded state.
 region below the behavioural threshold should shift the content decoded in an
 overlapping region, gradedly with stimulation strength and toward agreement
 with the stimulated region. Transcranial alternating current and weak
-intracortical fields supply the perturbation, and the decoded content is read
-from population activity in the overlapping region. An unchanged decoded
+intracortical fields supply the perturbation, and the decoded content is a
+graded variable, such as a location, an orientation or the strength of evidence
+for a percept, read from population activity in the overlapping region; a
+decoded category is locally constant away from its boundaries in any substrate
+and would stay unchanged whether P holds or not. An unchanged decoded
 content in the overlapping region, at stimulation strengths that measurably
 move the stimulated one, counts against P, since P then denies unity to the
 system whose unity motivates it.

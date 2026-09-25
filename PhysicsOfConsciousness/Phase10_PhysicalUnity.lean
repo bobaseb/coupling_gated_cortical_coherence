@@ -44,6 +44,11 @@ The results:
 * **`exists_threshold_of_gradedDependence`.** Conversely, where such a
   content does depend gradedly on a region, some bit sits exactly on its
   threshold: leakage is confined to the switching set.
+* **`GradedDependence.of_comp`** and **`not_gradedDependence_iterate_of_bits`**.
+  A category read from a carrier depends gradedly only through the carrier, and
+  no function of a bit word, at any number of steps, depends gradedly on any
+  region. Categorical human contents have margins too; the premise is stated on
+  their graded carriers, and a digital machine has none.
 * **`content_eq_of_lipschitz`** and **`bits_eq_of_lipschitz`.** The metric
   form. A margin of radius `r` (`HasMarginRadius`) under an `L`-Lipschitz micro
   dynamics makes every change to one region smaller than `r / L` invisible in
@@ -162,6 +167,47 @@ theorem exists_threshold_of_gradedDependence {κ : Type*} [Finite κ]
     HasMargin.pi fun k y hy =>
       hasMargin_threshold (hv k) (c k) y (show v k y ≠ c k from hy k)
   exact not_gradedDependence_of_margin hf hπ hx i h
+
+/-! ### Categories and their carriers
+
+A categorical content, such as the dominant percept in binocular rivalry or an
+argmax over decoded classes, is locally constant off its boundaries, in cortex as
+in silicon, so the margin theorem denies it graded dependence wherever it
+applies. The premise is therefore stated on the graded content variables from
+which categories are read. The two results below make that restatement
+non-vacuous on one side and closed on the other: a category depends gradedly
+only through its carrier, and a digital machine has no graded carrier to offer,
+because every variable it computes is a function of its bit word. -/
+
+/-- A readout computed from a readout with a margin has the same margin. -/
+theorem HasMargin.comp {X : Type*} [TopologicalSpace X] {D : Type*} {π : X → C}
+    {M : Set X} (h : HasMargin π M) (q : C → D) : HasMargin (q ∘ π) M :=
+  fun x hx => (h x hx).mono fun y hy => by simp [hy]
+
+/-- **A category depends gradedly only through its carrier.** A content `q ∘ ρ`
+read from a carrier `ρ` depends gradedly on a region only where the carrier
+does. The converse fails wherever `q` has a margin: a category read from an
+enforced graded carrier is locally constant off its boundaries. -/
+theorem GradedDependence.of_comp {f : (∀ i, S i) → ∀ i, S i} {ρ : (∀ i, S i) → C}
+    {D : Type*} {q : C → D} {i : ι} {x : ∀ i, S i}
+    (h : GradedDependence f (q ∘ ρ) i x) : GradedDependence f ρ i x :=
+  fun hρ => h (hρ.mono fun s hs => by simp [hs])
+
+/-- **A bit word offers no graded carrier, at any delay.** Every variable a
+digital machine computes, whether a number, a vector of numbers or a category,
+is some function `q` of its bit word. At any state whose `n`-th successor keeps
+every bit off its threshold, that variable after `n` steps depends gradedly on
+no region. The graded quantities beneath the bits reach none of the machine's
+contents, now or later. -/
+theorem not_gradedDependence_iterate_of_bits {κ : Type*} [Finite κ]
+    {f : (∀ i, S i) → ∀ i, S i} (hf : Continuous f) {v : κ → (∀ i, S i) → ℝ}
+    (hv : ∀ k, Continuous (v k)) (c : κ → ℝ) {D : Type*} (q : (κ → Bool) → D)
+    {x : ∀ i, S i} (n : ℕ) (hx : ∀ k, v k (f^[n] x) ≠ c k) (i : ι) :
+    ¬ GradedDependence f^[n] (fun y => q fun k => decide (c k < v k y)) i x := by
+  have hπ : HasMargin (fun y k => decide (c k < v k y)) {y | ∀ k, v k y ≠ c k} :=
+    HasMargin.pi fun k y hy =>
+      hasMargin_threshold (hv k) (c k) y (show v k y ≠ c k from hy k)
+  exact not_gradedDependence_of_margin (hf.iterate n) (hπ.comp q) hx i
 
 end PhysicsOfConsciousness.PhysicalUnity
 

@@ -322,7 +322,7 @@ Human evidence for P:
   *Prose 2026-09-25:* §tests, last paragraph: cross-region integrative
   responding and reports of one field, declared in advance, accepted against
   P in both directions. Closed.
-- [ ] **U18 — Categorical content has a margin too.** The margin theorem
+- [x] **U18 — Categorical content has a margin too.** The margin theorem
   (U7) applies to any readout locally constant off a threshold, and many
   human contents are: rivalry (one percept or the other), categorical
   perception, any argmax-decoded category. Off its boundaries such a `π_j`
@@ -335,6 +335,25 @@ Human evidence for P:
   categorical percepts read out of an enforced graded state. Decide before
   the U paper is posted; may reopen the U6 definitions. This is the first
   objection a philosopher raises, and it fits in one post.
+  *Decided 2026-09-25: carriers.* P is restated on the graded content
+  variables categories are read from (location, orientation, time, relative
+  strength of competing percepts); a category meets P through its carrier.
+  Lean (`Phase10_PhysicalUnity`): `HasMargin.comp`,
+  `GradedDependence.of_comp` (a category depends gradedly only through its
+  carrier) and `not_gradedDependence_iterate_of_bits` (every function of a bit
+  word, at every horizon `n` whose successor keeps bits off threshold, has no
+  graded dependence: the voltages beneath the bits are no carrier, so the
+  restatement opens no route for a GPU). Witness §38
+  `category_of_enforced_carrier`: the sign of the diffusive pair's enforced
+  quantity has no graded dependence off its boundary. Prose: P in
+  §intro restated; §enforcement "Categorical contents" paragraph; §ai spike
+  paragraph (spike *timing* is the graded carrier; a clocked latch is a
+  threshold on transition time, `hasMargin_threshold`, so the clock is a
+  margin in time); §tests decodes a graded variable, not a category. U6's
+  definitions unchanged: the Lean predicates already take any readout, and a
+  carrier is one. Not formalised: which variables count as content (the
+  decodability cover decides, as for any content); a carrier could otherwise
+  be gerrymandered as the raw micro state.
 
 Relation to the companion (raised 2026-09-25):
 
@@ -345,6 +364,8 @@ Relation to the companion (raised 2026-09-25):
   distance, but only with a kernel tail slower than `r^−4`. One sentence in
   each introduction so the pair reads as one program. Companion side goes in
   its v2 (U20).
+  *Blocked 2026-09-25:* the unity side needs a citation of the companion,
+  which has no arXiv identifier yet; write both halves once it is posted.
 - [ ] **U20 — Companion v2 when the U paper posts.** (a) Cite the U paper.
   (b) Scope `main.tex` §gpu "These results rank no architecture family, imply
   no general inferiority of GPU hardware and settle no question of machine
