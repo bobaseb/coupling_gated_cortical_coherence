@@ -28,6 +28,11 @@ The escape hatch is to have no built submission rather than to have a stale one:
 mistaken for the current one. While iterating on the manuscript, that is the
 state to be in.
 
+Each paper has its own build: ``prepare_arxiv.sh`` writes ``arxiv_submit/`` for
+the companion, and ``unity/prepare_arxiv.sh`` writes ``unity/arxiv_submit/`` for
+the physical-unity paper. Every submission present is checked, each against
+the sources of its own document, and either can be absent.
+
 Run: python simulations/check_arxiv_freshness.py
 
 Exit 0 if there is no built submission or it matches the sources, 1 otherwise.
@@ -37,27 +42,56 @@ from __future__ import annotations
 
 import hashlib
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
-from check_pdf_freshness import PUBLICATION, dependencies
+from check_pdf_freshness import dependencies
 from repo_root import REPO
 
-SUBMISSION = "arxiv_submit"
-MANIFEST = f"{SUBMISSION}/BUILD_MANIFEST"
+STYLE = "arxiv_assets/neurips_2026.sty"
+HELPERS = "arxiv_assets/arxiv_lib.sh"
 
-# Sources of the submission that no \input or \includegraphics names: the style
-# the arXiv build applies, and the script that assembles the document.
-UNREFERENCED: tuple[str, ...] = ("arxiv_assets/neurips_2026.sty", "prepare_arxiv.sh")
 
-GUIDANCE = f"""
+@dataclass(frozen=True)
+class Submission:
+    """One built submission: where it lands, what it is built from, and how."""
+
+    directory: str
+    documents: tuple[str, ...]
+    # Sources that no \input or \includegraphics names: the style the build
+    # applies, the helpers it shares, and the script that assembles it.
+    unreferenced: tuple[str, ...]
+    script: str
+
+    @property
+    def manifest(self) -> str:
+        """Where the build records the digest of every source it packed."""
+        return f"{self.directory}/BUILD_MANIFEST"
+
+
+COMPANION = Submission(
+    "arxiv_submit",
+    ("main.tex", "supplementary.tex"),
+    (STYLE, HELPERS, "prepare_arxiv.sh"),
+    "./prepare_arxiv.sh",
+)
+UNITY = Submission(
+    "unity/arxiv_submit",
+    ("unity/main.tex",),
+    (STYLE, HELPERS, "unity/prepare_arxiv.sh"),
+    "unity/prepare_arxiv.sh",
+)
+SUBMISSIONS: tuple[Submission, ...] = (COMPANION, UNITY)
+
+GUIDANCE = """
 The built arXiv submission is behind the manuscript (AGENTS.md section 7).
 
-{SUBMISSION}/ is not tracked, so nothing else here notices. Rebuild it, which
+{directory}/ is not tracked, so nothing else here notices. Rebuild it, which
 also recompiles and repacks it:
 
-    ./prepare_arxiv.sh
+    {script}
 
-Or delete it: rm -rf {SUBMISSION}. A submission that is not there cannot be
+Or delete it: rm -rf {directory}. A submission that is not there cannot be
 uploaded by mistake; one that is stale can.
 """
 
@@ -67,13 +101,13 @@ def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def expected_sources(root: Path) -> set[str]:
-    """Repository-relative files the submission is assembled from, read from the sources."""
+def expected_sources(root: Path, submission: Submission) -> set[str]:
+    """Repository-relative files *submission* is assembled from, read from the sources."""
     found: set[Path] = set()
-    for document in PUBLICATION:
+    for document in submission.documents:
         found |= dependencies(root / document) | {(root / document).resolve()}
     named = {path.relative_to(root.resolve()).as_posix() for path in found}
-    return named | set(UNREFERENCED)
+    return named | set(submission.unreferenced)
 
 
 def recorded_sources(manifest: Path) -> dict[str, str]:
@@ -87,10 +121,10 @@ def recorded_sources(manifest: Path) -> dict[str, str]:
     return entries
 
 
-def drift(root: Path, recorded: dict[str, str]) -> list[str]:
+def drift(root: Path, submission: Submission, recorded: dict[str, str]) -> list[str]:
     """One line per source the built submission does not match, empty if it is current."""
     reasons = []
-    expected = expected_sources(root)
+    expected = expected_sources(root, submission)
     for name in sorted(expected - set(recorded)):
         reasons.append(f"{name}: in the manuscript, not in the built submission")
     for name in sorted(set(recorded) - expected):
@@ -104,25 +138,32 @@ def drift(root: Path, recorded: dict[str, str]) -> list[str]:
     return reasons
 
 
-def main(argv: list[str]) -> int:
-    """Fail on a built submission that is behind its sources; pass if there is none."""
-    root = Path(argv[1]) if len(argv) > 1 else REPO
-    if not (root / SUBMISSION).is_dir():
-        print(f"check_arxiv_freshness: no {SUBMISSION}/ to be stale.")
-        return 0
-    manifest = root / MANIFEST
+def stale(root: Path, submission: Submission) -> bool:
+    """Report on one submission; true if it is present and behind its sources."""
+    if not (root / submission.directory).is_dir():
+        print(f"check_arxiv_freshness: no {submission.directory}/ to be stale.")
+        return False
+    manifest = root / submission.manifest
     if not manifest.is_file():
-        print(f"{MANIFEST}: missing -- {SUBMISSION}/ was not built by prepare_arxiv.sh")
-        print(GUIDANCE)
-        return 1
-    reasons = drift(root, recorded_sources(manifest))
-    for reason in reasons:
-        print(reason)
+        built_by = f"{submission.directory}/ was not built by {submission.script}"
+        print(f"{submission.manifest}: missing -- {built_by}")
+        reasons = ["no manifest"]
+    else:
+        reasons = drift(root, submission, recorded_sources(manifest))
+        for reason in reasons:
+            print(reason)
     if reasons:
-        print(GUIDANCE)
-        return 1
-    print(f"check_arxiv_freshness: {SUBMISSION}/ is current.")
-    return 0
+        print(GUIDANCE.format(directory=submission.directory, script=submission.script))
+        return True
+    print(f"check_arxiv_freshness: {submission.directory}/ is current.")
+    return False
+
+
+def main(argv: list[str]) -> int:
+    """Fail on any built submission that is behind its sources; pass if there is none."""
+    root = Path(argv[1]) if len(argv) > 1 else REPO
+    failures = [submission for submission in SUBMISSIONS if stale(root, submission)]
+    return 1 if failures else 0
 
 
 if __name__ == "__main__":

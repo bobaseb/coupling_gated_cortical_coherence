@@ -2,6 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{array}
 \usepackage[round]{natbib}
 \usepackage{hyperref}
 \usepackage{setspace}
@@ -508,7 +509,7 @@ of the bounds and show where they are attained.
 \small
 \caption{The paper's formal results and the Lean declarations that carry them.}
 \label{tab:formal}
-\begin{tabular}{p{0.47\textwidth}cp{0.34\textwidth}}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.47\textwidth}c>{\raggedright\arraybackslash}p{0.34\textwidth}}
 \hline
 Result & Section & Declaration \\
 \hline

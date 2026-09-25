@@ -424,10 +424,17 @@ Publication machinery (raised 2026-09-25):
   to a new appendix `app:formal` (Table `tab:formal`: result, section,
   declaration), with one intro sentence pointing at it. `check-table-coverage`
   retired (it could no longer fail); `check_tableS1.py` stays.
-- [ ] **U22 — arXiv build for the unity paper.** Same guarantees as
+- [x] **U22 — arXiv build for the unity paper.** Same guarantees as
   `prepare_arxiv.sh` (checked edits, compile from the unpacked tarball,
   `BUILD_MANIFEST` under `check-arxiv-freshness`), NeurIPS preprint style, plus
   a bioRxiv PDF.
+  *Done 2026-09-25:* `unity/prepare_arxiv.sh` → `unity/arxiv_submit/`
+  (`ax.tar.gz`, `main.pdf`, `biorxiv/main.pdf`, `BUILD_MANIFEST`), 10 pages.
+  Shared helpers moved to `arxiv_assets/arxiv_lib.sh` (`edit_file`,
+  `CITE_BOXING`, `NEURIPS_STYLE`, `verify_tarball`, `write_manifest`);
+  `prepare_arxiv.sh` uses them with a byte-identical tarball and unchanged
+  page counts (106 / 23 + 87). `check_arxiv_freshness.py` checks each
+  `Submission` present (companion and unity).
 
 ## H — Gates against hedging
 

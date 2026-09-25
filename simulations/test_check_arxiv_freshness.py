@@ -12,9 +12,12 @@ import unittest
 from pathlib import Path
 
 import check_arxiv_freshness
+from check_arxiv_freshness import COMPANION, UNITY, Submission
 
 
-class FreshnessTest(unittest.TestCase):
+class Tree(unittest.TestCase):
+    """A repository with both papers' sources, and no built submission."""
+
     def setUp(self) -> None:
         self._tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self._tmp.cleanup)
@@ -22,8 +25,9 @@ class FreshnessTest(unittest.TestCase):
         self.write("main.tex", "\\includegraphics{plot.png}\n")
         self.write("supplementary.tex", "text\n")
         self.write("plot.png", "png")
-        for name in check_arxiv_freshness.UNREFERENCED:
-            self.write(name, "asset\n")
+        for submission in check_arxiv_freshness.SUBMISSIONS:
+            for name in submission.unreferenced:
+                self.write(name, "asset\n")
 
     def write(self, name: str, body: str) -> Path:
         path = self.root / name
@@ -31,14 +35,23 @@ class FreshnessTest(unittest.TestCase):
         path.write_text(body, encoding="utf-8")
         return path
 
-    def build(self) -> None:
-        """What prepare_arxiv.sh leaves behind: the directory and its manifest."""
+    def build(self, submission: Submission = COMPANION) -> None:
+        """What a prepare_arxiv.sh leaves behind: the directory and its manifest."""
         lines = [
             f"{check_arxiv_freshness.digest(self.root / name)} {name}"
-            for name in sorted(check_arxiv_freshness.expected_sources(self.root))
+            for name in sorted(check_arxiv_freshness.expected_sources(self.root, submission))
         ]
-        self.write(check_arxiv_freshness.MANIFEST, "# built\n" + "\n".join(lines) + "\n")
+        self.write(submission.manifest, "# built\n" + "\n".join(lines) + "\n")
 
+    def drift(self, submission: Submission = COMPANION) -> list[str]:
+        return check_arxiv_freshness.drift(
+            self.root,
+            submission,
+            check_arxiv_freshness.recorded_sources(self.root / submission.manifest),
+        )
+
+
+class FreshnessTest(Tree):
     def test_no_built_submission_passes(self) -> None:
         self.assertEqual(check_arxiv_freshness.main(["prog", str(self.root)]), 0)
 
@@ -48,7 +61,7 @@ class FreshnessTest(unittest.TestCase):
         self.assertEqual(check_arxiv_freshness.main(["prog", str(self.root)]), 0)
 
     def test_a_directory_without_a_manifest_fails(self) -> None:
-        (self.root / check_arxiv_freshness.SUBMISSION).mkdir()
+        (self.root / COMPANION.directory).mkdir()
 
         self.assertEqual(check_arxiv_freshness.main(["prog", str(self.root)]), 1)
 
@@ -70,10 +83,7 @@ class FreshnessTest(unittest.TestCase):
         self.write("second.png", "png")
         self.write("supplementary.tex", "\\includegraphics{second.png}\n")
 
-        reasons = check_arxiv_freshness.drift(
-            self.root,
-            check_arxiv_freshness.recorded_sources(self.root / check_arxiv_freshness.MANIFEST),
-        )
+        reasons = self.drift()
 
         self.assertIn("second.png: in the manuscript, not in the built submission", reasons)
 
@@ -81,19 +91,59 @@ class FreshnessTest(unittest.TestCase):
         self.build()
         self.write("main.tex", "no figures now\n")
 
-        reasons = check_arxiv_freshness.drift(
-            self.root,
-            check_arxiv_freshness.recorded_sources(self.root / check_arxiv_freshness.MANIFEST),
-        )
+        reasons = self.drift()
 
         self.assertIn("plot.png: in the built submission, no longer a source", reasons)
 
     def test_manifest_comments_are_not_sources(self) -> None:
-        self.write(check_arxiv_freshness.MANIFEST, "# built today\n#\n")
+        self.write(COMPANION.manifest, "# built today\n#\n")
 
-        self.assertEqual(
-            check_arxiv_freshness.recorded_sources(self.root / check_arxiv_freshness.MANIFEST), {}
+        self.assertEqual(check_arxiv_freshness.recorded_sources(self.root / COMPANION.manifest), {})
+
+
+class UnityTest(Tree):
+    """The physical-unity paper has its own build, manifest and source set."""
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.write("unity/main.tex", "\\input{unity_results}\n")
+        self.write("unity/unity_results.tex", "macros\n")
+
+    def test_the_unity_sources_are_read_from_its_own_document(self) -> None:
+        sources = check_arxiv_freshness.expected_sources(self.root, UNITY)
+
+        self.assertIn("unity/unity_results.tex", sources)
+        self.assertIn("unity/prepare_arxiv.sh", sources)
+        self.assertNotIn("main.tex", sources)
+
+    def test_a_fresh_unity_build_passes(self) -> None:
+        self.build(UNITY)
+
+        self.assertEqual(check_arxiv_freshness.main(["prog", str(self.root)]), 0)
+
+    def test_an_edited_unity_source_fails(self) -> None:
+        self.build(UNITY)
+        self.write("unity/unity_results.tex", "regenerated\n")
+
+        self.assertEqual(check_arxiv_freshness.main(["prog", str(self.root)]), 1)
+        self.assertIn(
+            "unity/unity_results.tex: changed since the submission was built", self.drift(UNITY)
         )
+
+    def test_a_stale_unity_build_fails_beside_a_fresh_companion(self) -> None:
+        self.build(COMPANION)
+        self.build(UNITY)
+        self.write("unity/main.tex", "\\input{unity_results}\n% revised\n")
+
+        self.assertEqual(check_arxiv_freshness.main(["prog", str(self.root)]), 1)
+
+    def test_the_shared_helpers_are_a_source_of_both(self) -> None:
+        for submission in check_arxiv_freshness.SUBMISSIONS:
+            with self.subTest(submission=submission.directory):
+                self.assertIn(
+                    "arxiv_assets/arxiv_lib.sh",
+                    check_arxiv_freshness.expected_sources(self.root, submission),
+                )
 
 
 if __name__ == "__main__":

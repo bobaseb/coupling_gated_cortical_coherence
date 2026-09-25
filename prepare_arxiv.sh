@@ -22,6 +22,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUT="$ROOT/arxiv_submit"
 cd "$ROOT"
+# shellcheck source=arxiv_assets/arxiv_lib.sh
+source "$ROOT/arxiv_assets/arxiv_lib.sh"
 
 rm -rf "$OUT"
 mkdir -p "$OUT/simulations"
@@ -30,7 +32,8 @@ mkdir -p "$OUT/simulations"
 # The manifest written at the end is built from this, and so is the tar command:
 # a file that is copied is packed, and one that is not copied is not silently
 # expected to be there.
-sources=(prepare_arxiv.sh)
+# The shared helpers are a source of the build without being part of the paper.
+sources=(prepare_arxiv.sh arxiv_assets/arxiv_lib.sh)
 
 copy_in() {  # copy_in <repo-relative path> [destination directory]
   local src="$1" dest="${2:-$OUT}"
@@ -96,43 +99,16 @@ cd "$OUT"
 #    neurips_2026.sty loads natbib itself, so main.tex's own natbib line goes.
 #    longtable is added because it is in supplementary.tex's preamble, which is
 #    discarded by the merge below while its Table S1 still needs the package.
-# \pdfoutput=1 on the first line tells arXiv to run pdflatex rather than
-# guessing from the file set.
-#
-# Each edit is checked to have changed the file. A sed whose pattern no longer
-# matches is the failure this script cannot otherwise see: the document still
-# compiles, and it is the wrong document -- unstyled, double-spaced, or carrying
-# line numbers into a posted preprint.
-edit_file() {  # edit_file <file> <description> <sed expression>
-  local file="$1" what="$2" expression="$3" before
-  before="$(sha256sum "$file" | cut -d' ' -f1)"
-  sed -i "$expression" "$file"
-  if [ "$before" = "$(sha256sum "$file" | cut -d' ' -f1)" ]; then
-    echo "prepare_arxiv: '$what' changed nothing -- $file no longer matches this script" >&2
-    exit 1
-  fi
-}
+#    Each edit is checked to have changed the file (edit_file, arxiv_lib.sh).
 edit() { edit_file main.tex "$@"; }  # edit <description> <sed expression>
 
-edit "apply the NeurIPS style" 's/\\documentclass\[12pt\]{article}/\\pdfoutput=1\n\\documentclass{article}\n\\usepackage[preprint]{neurips_2026}\n\\usepackage{longtable}/'
+edit "apply the NeurIPS style"       "$NEURIPS_STYLE"
+edit "add longtable for Table S1"    's/^\\usepackage\[preprint\]{neurips_2026}$/&\n\\usepackage{longtable}/'
 edit "drop the article's own natbib" '/\\usepackage\[round\]{natbib}/d'
 edit "drop double spacing"           '/\\doublespacing/d'
 edit "drop the date"                 '/^\\date{/d'
 edit "drop the lineno package"       '/\\usepackage{lineno}/d'
 edit "drop \\linenumbers"            '/^\\linenumbers$/d'
-
-# A citation link broken across a page break makes pdfTeX abort with
-# "\pdfendlink ended up in different nesting level" -- a fatal signal, not a
-# warning, and one no source file can predict: which citation lands on a break
-# depends on every word before it, and the merged document paginates unlike
-# either half. Boxing each citation link removes the class of failure rather
-# than the instance. The box goes around each reference's link, not around the
-# whole group: a boxed group cannot break at its "; " either, and a two-reference
-# group then leaves the line before it stretched to a few words.
-# \emergencystretch is the last-resort slack that keeps a citation too wide for
-# the space left from overfilling its line instead. Both belong here rather
-# than in main.tex: the standalone article paginates differently.
-CITE_BOXING='s/\\renewcommand{\\cite}\[1\]{\\citep{#1}}/\\renewcommand{\\cite}[1]{\\citep{#1}}\n\\makeatletter\n\\AtBeginDocument{\\let\\NATlink@start\\hyper@natlinkstart\\let\\NATlink@end\\hyper@natlinkend\\def\\hyper@natlinkstart#1{\\leavevmode\\hbox\\bgroup\\NATlink@start{#1}}\\def\\hyper@natlinkend{\\NATlink@end\\egroup}}\n\\makeatother\n\\emergencystretch=6em/'
 edit "keep citation links off page breaks" "$CITE_BOXING"
 
 # 4. The bioRxiv pair: the same NeurIPS-styled article on its own, and the
@@ -224,7 +200,7 @@ rm -f supp_body.tex merged.tex supplementary.tex
 declare -a packed=(main.tex)
 while IFS= read -r src; do
   case "$src" in
-    main.tex|supplementary.tex|prepare_arxiv.sh) continue ;;
+    main.tex|supplementary.tex|prepare_arxiv.sh|arxiv_assets/arxiv_lib.sh) continue ;;
     arxiv_assets/*) packed+=("$(basename "$src")") ;;
     *) packed+=("$src") ;;
   esac
@@ -234,52 +210,11 @@ rm -f ./*.aux ./*.log ./*.out ./*.toc
 tar -czf ax.tar.gz "${packed[@]}"
 
 # 7. Compile what is about to be shipped, from the unpacked archive and nothing
-#    else. Compiling in place would pass on a file that exists in this directory
-#    and is missing from the tarball, which is the one failure a local build
-#    cannot distinguish from success.
-echo "prepare_arxiv: verifying the packed submission compiles"
-verify="$(mktemp -d)"
-trap 'rm -rf "$verify"' EXIT
-tar -xzf ax.tar.gz -C "$verify"
-(
-  cd "$verify"
-  for pass in 1 2 3; do
-    pdflatex -interaction=nonstopmode -file-line-error main.tex > "pass$pass.out" 2>&1 || true
-  done
-)
+#    else (verify_tarball, arxiv_lib.sh).
+verify_tarball ax.tar.gz
 
-fail=0
-check() {  # check <description> <grep-pattern>
-  if grep -qE "$2" "$verify/main.log"; then
-    echo "prepare_arxiv: $1" >&2
-    grep -E "$2" "$verify/main.log" | head -5 >&2
-    fail=1
-  fi
-}
-check "LaTeX errors in the assembled document" '^(\./)?[^ ]*:[0-9]+: |^! '
-check "undefined references"                   'LaTeX Warning: Reference .* undefined'
-check "undefined citations"                    'LaTeX Warning: Citation .* undefined'
-check "missing graphics"                       'File .* not found'
-[ -f "$verify/main.pdf" ] || { echo "prepare_arxiv: no main.pdf produced" >&2; fail=1; }
-[ "$fail" -eq 0 ] || { echo "prepare_arxiv: NOT shipping a broken submission" >&2; exit 1; }
-
-cp "$verify/main.pdf" main.pdf
-pages=$(pdfinfo main.pdf | awk '/^Pages:/{print $2}')
-echo "prepare_arxiv: compiled cleanly from the tarball, $pages pages"
-
-# 8. Record what this was built from. arxiv_submit/ is not tracked, so nothing
-#    else can tell whether the directory sitting here is the current manuscript
-#    or last week's; check_arxiv_freshness.py answers that from this file.
-{
-  printf '# arXiv submission built %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-  printf '# from commit %s%s\n' \
-    "$(git -C "$ROOT" rev-parse --short HEAD)" \
-    "$(git -C "$ROOT" diff --quiet HEAD 2>/dev/null || echo ' (working tree modified)')"
-  printf '# regenerate with ./prepare_arxiv.sh\n'
-  printf '%s\n' "${sources[@]}" | sort -u | while IFS= read -r src; do
-    sha256sum "$ROOT/$src" | sed "s| .*| $src|"
-  done
-} > BUILD_MANIFEST
+# 8. Record what this was built from, for check_arxiv_freshness.py.
+write_manifest "$ROOT" ./prepare_arxiv.sh "${sources[@]}" > BUILD_MANIFEST
 
 echo "prepare_arxiv: $OUT/ax.tar.gz is ready"
 tar -tzf ax.tar.gz

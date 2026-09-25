@@ -104,6 +104,14 @@ cannot disagree with the arXiv build about numbering.
   unpacked tarball*, so a file missing from the archive fails here rather than on
   arXiv's build.
 
+The physical-unity paper has its own build, `unity/prepare_arxiv.sh`, writing
+`unity/arxiv_submit/`: the same NeurIPS style, checked edits, compilation from
+the unpacked tarball and `BUILD_MANIFEST`, with no merge because its formal
+results are an appendix of the one file, and a bioRxiv copy of the same PDF.
+Both scripts take those guarantees from `arxiv_assets/arxiv_lib.sh` rather than
+from copies of each other, and `check-arxiv-freshness` checks every submission
+present against its own document's sources.
+
 The preprint notice in `arxiv_assets/neurips_2026.sty` reads "Preprint." and not
 the upstream "Preprint. Under review.": posting to arXiv is not a submission to
 anywhere, and the footer of page 1 is not the place to imply one. Local
