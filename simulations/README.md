@@ -119,6 +119,11 @@ for sheets of side 128, 512 and 1024 and each kernel's stiffness; it sums
 Fourier series and integrates nothing. `unity_macros.py` reads both summaries
 and writes `unity/unity_results.tex`, the physical-unity paper's numerals;
 `test_unity_macros.py` fails when that file drifts from the summaries.
+`unity_estimates.py --write-tex` writes `unity/unity_estimates.tex`, the
+paper's closed-form magnitudes (causal deadline across cortex, the relaxation
+time the unity window needs, a noise-to-margin ratio for digital logic) from
+declared, cited parameters; `test_unity_estimates.py` gates drift and unused
+macros.
 
 ## The wave extension
 

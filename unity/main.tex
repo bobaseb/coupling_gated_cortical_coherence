@@ -2,10 +2,13 @@
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage[round]{natbib}
 \usepackage{hyperref}
 \usepackage{setspace}
 \onehalfspacing
 \input{unity_results}
+\input{unity_estimates}
+\renewcommand{\cite}[1]{\citep{#1}}
 
 % A numbered claim and the section that argues it (check_claims.py).
 \newcommand{\claim}[2]{\item #2 (Section~\ref{#1}).}
@@ -120,7 +123,13 @@ the harmonic approximation the variance of the phase difference between two
 sites is the noise strength times their effective resistance, with the coupling
 constants as conductances. Under short-range coupling that resistance grows as
 the logarithm of distance, with a coefficient inversely proportional to the
-kernel's second moment; a kernel tail slower than $r^{-4}$ bounds it.
+kernel's second moment; a kernel tail slower than $r^{-4}$ bounds it. The
+logarithm is the Gaussian form of the absence of true long-range order in two
+dimensions under short-range coupling \citep{mermin1966}, and the
+plane-rotator sheet has a Kosterlitz--Thouless transition \citep{frohlich1981},
+the order--disorder crossover that the simulations below locate. Heterogeneous natural frequencies make short-range
+coupling weaker still: phases then desynchronize in every dimension up to four
+\citep{hong2005}.
 
 The logarithmic growth is a lower bound for every kernel of bounded range. Group
 the sites into shells around a site $a$, so that the coupling joins only sites
@@ -207,6 +216,20 @@ $\varepsilon$ at every earlier step than $\log(d_0/\varepsilon)/\log(1/\rho)$
 causal deadline and the relaxation time, and unity at the time scale of a
 content requires it to open before that content changes.
 
+In cortex the longest cortico-cortical fibres run about \ueFibreCm{}~cm
+\citep{nunez2014}, callosal axons conduct at median velocities of
+\ueVelocitySlow{} to \ueVelocityFast{}~m/s \citep{caminiti2009}, and a
+chemical synapse adds about \ueSynapseMs{}~ms
+\citep{katz1965,sabatini1996}. The synaptic causal deadline across the cortex
+is therefore \ueConeFastMs{} to \ueConeSlowMs{}~ms. The unconscious integration
+that precedes a conscious percept lasts up to \ueContentMs{}~ms
+\citep{herzog2016}. Reading agreement as a \ueReduction{}-fold reduction of
+disagreement, decaying exponentially, the window at that time scale is
+nonempty when the coupling's relaxation time is at most \ueTauSlowMs{}~ms with
+the slowest fibres and \ueTauFastMs{}~ms with the fastest. The causal deadline
+thus takes a small part of the content's time scale, and whether the window
+opens turns on the relaxation time.
+
 \section{Current artificial systems}
 \label{sec:ai}
 
@@ -237,7 +260,11 @@ width. If every bit of the next state is at least $\delta$ from its threshold,
 each bit is read from an $L_v$-Lipschitz quantity and the micro dynamics is
 $L$-Lipschitz, a change to one region smaller than $\delta/(L L_v)$ changes no
 bit (\texttt{bits\_eq\_of\_lipschitz}). Leakage below that scale carries no
-content; leakage above it flips a bit, which is a logical error. The
+content; leakage above it flips a bit, which is a logical error. Digital
+design places ordinary noise well below that scale: a textbook inverter's
+static noise margin is \ueMarginPercent{}\% of its supply voltage, against an
+expected supply variation of \ueSupplyPercent{}\% \citep{rabaey2003}, so the
+expected variation is \ueNoiseToMargin{} of the margin. The
 nondeterminism of floating-point reduction order is a choice among logical
 trajectories and is outside both theorems: it varies which content is computed,
 not how content depends on graded state.
@@ -271,10 +298,12 @@ decoded content in one region, toward agreement, driven by an analog
 perturbation of another that stays inside every bit's margin, such as a supply
 or timing perturbation below the error threshold.
 
-\paragraph{The field's causal cone.} A quasi-static extracellular field reaches
-every point of the tissue it spans within one field update, while synaptic
-influence between distant regions arrives only after axonal conduction and
-synaptic transmission. Re-agreement between distant regions after a local
+\paragraph{The field's causal cone.} At the frequencies of neural activity the
+extracellular field is quasi-static \citep{gratiy2017}: it reaches every point
+of the tissue it spans with no propagation delay, while synaptic influence
+between distant regions arrives only after axonal conduction and synaptic
+transmission, \ueConeFastMs{} to \ueConeSlowMs{}~ms across the longest
+cortico-cortical fibres. Re-agreement between distant regions after a local
 perturbation, faster than the synaptic route allows, would identify a
 non-synaptic contribution to the coupling and measure the reach of the kernel
 tail of Section~\ref{sec:reach} directly.
@@ -302,6 +331,52 @@ in which such responses and reports split while graded coupling between the
 regions is intact, or stay integrated after graded coupling between them is
 removed, is accepted as evidence against P.
 
+\paragraph{Split brain.} Callosal section removes the main route of both
+information and graded coupling between the hemispheres. Patients respond to
+stimuli in the two visual fields as if perception were divided, yet can report
+the presence of stimuli in either field with either hand, which has been read
+as divided perception with undivided consciousness \citep{pinto2017}; whether
+the phenomenal field divides remains contested \citep{dehaan2020}, and a
+switch model, on which consciousness alternates between the hemispheres, is a
+live rival \citep{bayne2010}. If the field stays undivided, unity survives on
+the residual subcortical routes. Those routes are synaptic and carry
+information too, so the case bears on P only if unity is preserved out of
+proportion to the information they carry, and it bears on graded coupling of
+any kind: synaptic coupling is graded through postsynaptic potentials and
+sub-threshold shifts in spike timing, and the extracellular field is one
+realization of it among several.
+
+\section{Related work}
+\label{sec:related}
+
+The closest formal neighbour is the account of computational closure of
+\citet{rosas2024}, on which a macroscopic level that is informationally,
+causally and computationally closed is the mark of emergent software in a
+physical system. The closure is the same property that
+Section~\ref{sec:enforcement} places at the content level of a digital system,
+and P reads it the other way: a level closed off from the graded state beneath
+it is one whose agreement is computed, not enforced. \citet{kleiner2024} reach a
+related exclusion from a different premise: if the physical dynamics of a
+system is relevant to its consciousness, processors designed and verified to
+suppress deviations from their computational dynamics cannot be conscious. The
+margin theorem gives the suppression a formal statement, and P confines the
+premise to unity and ties it to a coupling that contracts disagreement, which
+is what makes it testable on both substrates. \citet{seth2026} argues that
+consciousness may depend on biological properties that computation does not
+capture; P locates the relevant property in the organisation of the substrate
+and admits non-biological hardware that has it (Section~\ref{sec:ai}). Mortal
+computation, whose parameters are useful only on the hardware instance that
+learned them \citep{hinton2022,ororbia2023}, shares P's refusal to separate the
+computation from the medium. Integrated information theory also denies
+experience to digital computers running faithful simulations of a brain
+\citep{tononi2015,findlay2024}; it does so through the causal structure of the
+hardware at its logical grain, while P turns on the dependence of content on
+graded physical state and on the contraction of disagreement. The
+electromagnetic field theory of \citet{mcfadden2020} identifies consciousness
+with the brain's field, supported by evidence that endogenous fields entrain
+cortical activity \citep{frohlich2010}; P takes the field as one realization of
+graded coupling among several.
+
 \section{Limitations}
 \label{sec:limitations}
 
@@ -316,8 +391,10 @@ proved for kernels of bounded range; that it is attained, and that a tail slower
 than $r^{-4}$ bounds the resistance, are established numerically on finite
 sheets. The unity window's edges are proved for a given contraction factor; the
 identification of that factor with the coupling's spectral gap is linear
-response, and whether the window is nonempty at cortical time scales awaits a
-magnitude estimate. The step from phase agreement to content agreement assumes
+response. The relaxation time of cortical coupling is unmeasured, so the window
+estimate states the condition for the window to open at cortical time scales
+and leaves open whether cortex meets it; it also reads agreement as a declared
+reduction factor of disagreement. The step from phase agreement to content agreement assumes
 one oscillator population per content patch, which is a modelling choice about
 cortex. A long-range tail improves agreement only in proportion to its
 conductance against the short-range part, and the measured endogenous fields
@@ -327,5 +404,7 @@ Section~\ref{sec:reach} the harmonic identity fails and agreement is lost at
 every distance. Human data can falsify P
 but cannot by themselves confirm it against functionalism, because graded
 coupling and information flow co-vary in every manipulation available so far.
+
+\input{references}
 
 \end{document}

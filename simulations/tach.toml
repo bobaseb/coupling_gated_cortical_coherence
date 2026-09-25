@@ -185,6 +185,10 @@ path = "fermi_estimate_check"
 layer = "theory"
 
 [[modules]]
+path = "unity_estimates"
+layer = "theory"
+
+[[modules]]
 path = "energy_budget_check"
 layer = "theory"
 depends_on = ["fermi_estimate_check"]
