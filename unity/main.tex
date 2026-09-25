@@ -161,6 +161,21 @@ Widening the kernel enlarges its shells and raises $c$, which slows the growth
 and leaves it unbounded. Distance-independent agreement on a sheet therefore
 needs coupling of unbounded range.
 
+A tail slower than $r^{-4}$ bounds the resistance at every distance. Run a chain
+of site sets out from $a$ through discs of radius $2^j$ and back in to $b$, the
+two widest discs spanning the separation. The phase difference across $a$ and
+$b$ telescopes through the discs' mean phases, and the drop between the means of
+two consecutive discs is bounded by the coupling energy between them, shared
+among the pairs of their sites. A disc of radius $2^j$ on a planar sheet holds at
+least $\alpha\,4^j$ sites, and a kernel $K(r)\gtrsim r^{-(2+\sigma)}$ couples
+two sites of consecutive discs by at least $\beta\,2^{-(2+\sigma)j}$. The
+number of pairs grows as $16^j$ and their coupling falls as $2^{-(2+\sigma)j}$,
+so the drops shrink geometrically with ratio $q=2^{-(2-\sigma)/2}$, which is
+below one for $\sigma<2$, and the effective conductance is at least
+$(1-q)^2\alpha^2\beta/8$ however far apart $a$ and $b$ lie
+(\texttt{le\_conductance\_of\_powerLaw}, through the chain bound
+\texttt{one\_le\_conductance\_of\_chain}).
+
 Simulated sheets at identical frequencies, of side \uSideSmall{} and
 \uSideLarge{}, with nearest-neighbour, exponential and power-law kernels of
 tail exponent $\sigma=1$ and $\sigma=3$ at a common row sum, follow the harmonic
@@ -181,7 +196,9 @@ tail. The exponential kernel, with \uStiffnessRatio{} times the
 nearest-neighbour stiffness, gives resistance at half the side of
 \uFarExponentialA{}, \uFarExponentialB{} and \uFarExponentialC{}, still
 growing; the $\sigma=1$ tail gives \uFarSigmaOneA{}, \uFarSigmaOneB{} and
-\uFarSigmaOneC{}. Over a finite cortical extent a wide short-range kernel and a
+\uFarSigmaOneC{}, and the $\sigma=3$ tail, steeper than $r^{-4}$, gives
+\uFarSigmaThreeA{}, \uFarSigmaThreeB{} and \uFarSigmaThreeC{}, growing as a
+short-range kernel does. Over a finite cortical extent a wide short-range kernel and a
 slow tail therefore differ by a slowly growing logarithm, and the measurement
 that separates them needs the kernel's second moment as well as its tail
 exponent.
@@ -451,9 +468,11 @@ concerns idealised digital readouts, and graded leakage in real hardware that
 carries content-relevant agreement would narrow its reach. The identification of
 phase variance with effective resistance rests on the harmonic approximation at
 identical natural frequencies. The logarithmic lower bound on resistance is
-proved for kernels of bounded range; that it is attained, and that a tail slower
-than $r^{-4}$ bounds the resistance, are established numerically on finite
-sheets. The unity window's edges are proved for a given contraction factor; the
+proved for kernels of bounded range, and the bound at every distance under a tail
+slower than $r^{-4}$ is proved for a sheet that supplies the site counts and
+couplings of a dyadic chain of discs; that the logarithm is attained, and that a
+tail steeper than $r^{-4}$ leaves the resistance growing, are established
+numerically on finite sheets. The unity window's edges are proved for a given contraction factor; the
 identification of that factor with the coupling's spectral gap is linear
 response. The relaxation time of cortical coupling is unmeasured, so the window
 estimate states the condition for the window to open at cortical time scales

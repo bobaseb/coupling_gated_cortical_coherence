@@ -60,7 +60,8 @@
       whose agreement is physically enforced; a bit on its threshold, and a
       leakage scale that is sharp)
     `Examples/AgreementResistance.lean` §39 (a series row whose resistance bound
-      is attained, a direct edge that lowers it, and a shell bound attained)
+      is attained, a direct edge that lowers it, a shell bound attained, and a
+      power-law chain bound met)
     `Examples/RelativePhase.lean` §40 (a winding on which the absolute encoder
       disagrees everywhere and the relative encoder nowhere)
     `Examples/UnityWindow.lean` §41 (a halving map meeting the relaxation edge

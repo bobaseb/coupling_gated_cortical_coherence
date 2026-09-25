@@ -94,7 +94,7 @@ Spatial agreement beyond the worst-case chain:
   inequality for plane rotators — verify before citing) would carry
   `conductance_mono` beyond the harmonic regime; Fröhlich–Spencer not needed
   for any current claim.
-- [ ] **U2 — The kernel's tail is what the field buys.** 2D short-range
+- [x] **U2 — The kernel's tail is what the field buys.** 2D short-range
   coupling: `R_eff ~ (1/πk) ln d`, agreement degrades logarithmically, reach
   `~ a·exp(πkε²/(L²D))`; Mermin–Wagner forbids true long-range order.
   Power-law tail `K(r) ~ r^−(2+σ)`, `σ < 2` (volume-conducted dipole field
@@ -121,7 +121,22 @@ Spatial agreement beyond the worst-case chain:
   *PRE* 72, 036217 (the 2007 *PRL*, Hong–Chaté–Park–Tang, is about frequency
   entrainment); Mermin–Wagner 1966 and Fröhlich–Spencer 1981 in §reach.
   Ginibre 1970 verified only at abstract level (plane rotators covered) and
-  not cited. Open: the σ<2 side in Lean (flow construction).
+  not cited.
+  *σ<2 side 2026-09-25* (`Phase10_AgreementResistance`): not a flow but its
+  potential-side dual. `one_le_conductance_of_chain`: for site sets
+  `{a} = S₀, …, S_m = {b}` with coupling ≥ `κ_k` between consecutive sets, the
+  drop `u a − u b` telescopes through the sets' means, each level's drop² is
+  ≤ `2E/(κ_k #S_k #S_{k+1})` (Cauchy–Schwarz over the pairs), so
+  `R_eff ≤ 2(Σρ_k)²`. `le_conductance_of_geometric` (`ρ_k = A q^min(k,m−1−k)`,
+  `q<1`: `C ≥ (1−q)²/(8A²)`, length-free) and `le_conductance_of_powerLaw`
+  (sets at scale `2^j` with ≥ `α4^j` sites, coupling ≥ `β(2^j)^−(2+σ)`, `σ<2`:
+  `C ≥ (1−q)²α²β/8`, `q = 2^−(2−σ)/2`). As for the perimeter law, the planar
+  geometry (disc site counts, pair distances) is a hypothesis, not a lattice
+  construction. Witness §39: the series row as a three-level chain with σ=0
+  gives `1/512 ≤ ½`. Prose: §reach paragraph after the log bound; σ=3's
+  growing resistance now cited (`uFarSigmaThree*`, added to
+  `unity_macros.py`); Limitations narrowed to the geometry hypothesis,
+  attainment of the log and the σ≥2 growth. Closed.
 - [x] **U3 — Numerical check first.** Read discrepancy (phase difference /
   chord) vs distance from the saved sheet summaries if they hold it; else run
   a short-range vs power-law-kernel sheet comparison (separate command, not a

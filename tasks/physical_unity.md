@@ -121,8 +121,10 @@ New targets:
    coupling, distance-independent agreement with a power-law tail slower
    than `r^−4`. Gives the field a role about kernel shape, not strength.
    Proved without the approximation (`Phase10_AgreementResistance`):
-   Rayleigh monotonicity, the direct-edge cap and the Lipschitz transfer to
-   content; the identity itself and the log growth are numerical (U3).
+   Rayleigh monotonicity, the direct-edge cap, the Lipschitz transfer to
+   content, and the σ<2 bound at every distance (`le_conductance_of_powerLaw`,
+   via the averaging chain `one_le_conductance_of_chain`); the identity itself
+   and the attainment of the log growth are numerical (U3).
 7. **Unity window (U8).** Lower edge from result 3, upper edge from the
    relaxation rate of result 6.
    Proved: `Phase10_UnityWindow` (cone edge read forward; relaxation edge

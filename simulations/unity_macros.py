@@ -86,7 +86,7 @@ def _simulation_values(summary: dict[str, Any]) -> list[tuple[str, str]]:
 def _scaling_values(scaling: dict[str, Any]) -> list[tuple[str, str]]:
     sides = [int(side) for side in scaling["sides"]]
     values = [(f"uScalingSide{label}", str(side)) for label, side in zip("ABC", sides, strict=True)]
-    for shape in ("exponential", "power_sigma1"):
+    for shape in ("exponential", "power_sigma1", "power_sigma3"):
         far = scaling["far_resistance"][shape]
         for label, resistance in zip("ABC", far, strict=True):
             values.append((f"uFar{SHAPE_NAMES[shape]}{label}", f"{_finite(resistance):.3f}"))

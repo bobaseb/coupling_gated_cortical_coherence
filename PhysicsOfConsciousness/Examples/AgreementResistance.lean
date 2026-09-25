@@ -16,6 +16,10 @@ import PhysicsOfConsciousness.Phase10_AgreementResistance
   coupling, and `conductance_le_shell` gives `1 / (1 + 1) = ½`: the series
   value, so the Nash-Williams bound is attained. With `c = 1` the same row
   meets every hypothesis of `conductance_mul_log_le`.
+* **A power-law chain.** Taking the sites as the levels `{0}, {1}, {2}` of a
+  chain meets every hypothesis of `le_conductance_of_powerLaw` with `σ = 0`,
+  `α = ¼` and `β = 1`, and the bound `1/512` it gives lies below the series
+  value `½`.
 -/
 
 namespace PhysicsOfConsciousness.PhysicalUnity.Examples
@@ -81,5 +85,24 @@ theorem conductance_series_mul_log_le : conductance series 0 2 * Real.log (2 + 1
     rfl le_rfl (by norm_num) (fun k hk => by rw [shellCapacity_series k hk]; norm_num)
     (fun k hk => by rw [shellCapacity_series k hk]; linarith [(k.cast_nonneg : (0:ℝ) ≤ k)])
   exact_mod_cast this
+
+/-- Each site of the row is its own level of an averaging chain. -/
+def level : ℕ → Finset (Fin 3)
+  | 0 => {0}
+  | 1 => {1}
+  | _ => {2}
+
+theorem conductance_series_of_powerLaw : 1 / 512 ≤ conductance series 0 2 := by
+  have h := le_conductance_of_powerLaw series_nonneg (a := 0) (b := 2) (by decide) (m := 2)
+    (S := level) (fun k _ => by unfold level; split <;> simp) rfl rfl (α := 1 / 4) (β := 1) (σ := 0)
+    (by norm_num) one_pos (by norm_num)
+    (fun i hi => by interval_cases i <;> simp [level] <;> norm_num)
+    (fun k hk x hx y hy => by
+      interval_cases k <;> simp_all [level, series])
+  have hq : (2 : ℝ) ^ (-(2 - (0 : ℝ)) / 2) = 1 / 2 := by
+    rw [show -(2 - (0 : ℝ)) / 2 = -1 by norm_num, Real.rpow_neg_one]; norm_num
+  rw [hq] at h
+  norm_num at h ⊢
+  exact h
 
 end PhysicsOfConsciousness.PhysicalUnity.Examples

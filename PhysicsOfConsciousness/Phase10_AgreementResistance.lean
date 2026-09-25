@@ -37,6 +37,15 @@ The results:
   planar sheet, the resistance grows at least like `log n / c`. Short-range
   coupling therefore cannot give distance-independent agreement on a sheet;
   how slowly it degrades is set by `c`, which grows with the kernel's width.
+* **`one_le_conductance_of_chain`.** A lower bound on the conductance from a
+  chain of site sets running from `{a}` to `{b}`: the phase drop telescopes
+  through the chain's means, each level's drop is bounded by the energy, and the
+  resistance is at most `2 (Σ_k ρ k)²`, with `ρ k² κ_k #S_k #S_{k+1} ≥ 1`.
+* **`le_conductance_of_powerLaw`.** Through a dyadic chain out from `a` and in
+  to `b`, whose level weights shrink geometrically
+  (`le_conductance_of_geometric`), a coupling that decays no faster than
+  `r ^ −(2+σ)` with `σ < 2` gives a conductance bounded below independently of
+  the distance: agreement under noise that does not degrade with separation.
 * **`integral_dist_sq_le`.** A Lipschitz encoder transfers phase agreement to
   content agreement in mean square: the mean-square content discrepancy is at
   most `L²` times the mean-square phase difference, under any distribution of
@@ -44,11 +53,12 @@ The results:
   discrepancy is at most `L √(D / C)`.
 
 Non-vacuity — a series pair of couplings with conductance `½`, raised to at least
-`1` by a direct edge, and a shell bound attained on the same row — is
+`1` by a direct edge, a shell bound attained on the same row, and the power-law
+chain bound met on it — is
 `Examples/AgreementResistance.lean`.
 -/
 
-open MeasureTheory
+open MeasureTheory Finset
 
 namespace PhysicsOfConsciousness.PhysicalUnity
 
@@ -276,6 +286,206 @@ theorem conductance_mul_log_le {K : ι → ι → ℝ} (hK : ∀ i j, 0 ≤ K i 
           (inv_nonneg.mpr hSpos.le)
         rwa [div_le_iff₀ hc, mul_comm] at hS
     _ = c := by field_simp
+
+omit [Fintype ι] in
+/-- The mean of a configuration over a finite set of sites. -/
+noncomputable def mean (S : Finset ι) (u : ι → ℝ) : ℝ := (∑ x ∈ S, u x) / #S
+
+omit [Fintype ι] in
+/-- The difference of two means is the mean of the pairwise differences. -/
+lemma mean_sub_mean {S T : Finset ι} (hS : S.Nonempty) (hT : T.Nonempty) (u : ι → ℝ) :
+    (mean S u - mean T u) * (#S * #T) = ∑ p ∈ S ×ˢ T, (u p.1 - u p.2) := by
+  have hS' : (#S : ℝ) ≠ 0 := by exact_mod_cast hS.card_pos.ne'
+  have hT' : (#T : ℝ) ≠ 0 := by exact_mod_cast hT.card_pos.ne'
+  rw [sum_product, mean, mean]
+  simp only [sum_sub_distrib, sum_const, nsmul_eq_mul, ← mul_sum]
+  field_simp
+
+/-- **One level of an averaging chain.** If the coupling between every site of
+`S` and every site of `T` is at least `κ`, the drop between the means of `S` and
+`T`, weighted by `κ #S #T`, is bounded by the coupling energy between them. -/
+lemma mul_sq_mean_sub_le {K : ι → ι → ℝ} (hK : ∀ i j, 0 ≤ K i j) {S T : Finset ι}
+    (hS : S.Nonempty) (hT : T.Nonempty) {κ : ℝ} (hκ : ∀ x ∈ S, ∀ y ∈ T, κ ≤ K x y)
+    (u : ι → ℝ) : κ * (#S * #T) * (mean S u - mean T u) ^ 2 ≤ 2 * energy K u := by
+  have hn : (0 : ℝ) < #S * #T := by
+    have := hS.card_pos; have := hT.card_pos; positivity
+  have hE : ∑ p ∈ S ×ˢ T, K p.1 p.2 * (u p.1 - u p.2) ^ 2 ≤ 2 * energy K u := by
+    rw [energy, ← mul_assoc]; norm_num
+    exact sum_le_sum_of_subset_of_nonneg (subset_univ _)
+      fun p _ _ => mul_nonneg (hK _ _) (sq_nonneg _)
+  refine le_trans ?_ hE
+  rcases lt_or_ge κ 0 with hκ0 | hκ0
+  · exact (mul_nonpos_of_nonpos_of_nonneg (mul_nonpos_of_nonpos_of_nonneg hκ0.le hn.le)
+      (sq_nonneg _)).trans (sum_nonneg fun p _ => mul_nonneg (hK _ _) (sq_nonneg _))
+  -- Cauchy–Schwarz over the pairs of `S ×ˢ T`.
+  have hcs := sq_sum_le_card_mul_sum_sq (s := S ×ˢ T) (f := fun p => u p.1 - u p.2)
+  rw [← mean_sub_mean hS hT, card_product, Nat.cast_mul, mul_pow] at hcs
+  have hsq : (#S * #T : ℝ) * (mean S u - mean T u) ^ 2 ≤
+      ∑ p ∈ S ×ˢ T, (u p.1 - u p.2) ^ 2 := by
+    have : (#S * #T : ℝ) * ((#S * #T : ℝ) * (mean S u - mean T u) ^ 2) ≤
+        (#S * #T : ℝ) * ∑ p ∈ S ×ˢ T, (u p.1 - u p.2) ^ 2 := by nlinarith
+    exact le_of_mul_le_mul_left this hn
+  calc κ * (#S * #T) * (mean S u - mean T u) ^ 2
+      ≤ κ * ∑ p ∈ S ×ˢ T, (u p.1 - u p.2) ^ 2 := by
+        rw [mul_assoc]; exact mul_le_mul_of_nonneg_left hsq hκ0
+    _ ≤ ∑ p ∈ S ×ˢ T, K p.1 p.2 * (u p.1 - u p.2) ^ 2 := by
+        rw [mul_sum]
+        refine sum_le_sum fun p hp => mul_le_mul_of_nonneg_right ?_ (sq_nonneg _)
+        obtain ⟨hx, hy⟩ := mem_product.mp hp
+        exact hκ _ hx _ hy
+
+/-- **Averaging chains bound the resistance.** Let `S 0 = {a}`, …, `S m = {b}` be
+nonempty sets of sites, with the coupling between consecutive sets `S k` and
+`S (k + 1)` at least `κ k` everywhere, and let `ρ k ≥ 0` satisfy
+`ρ k ² κ k #S k #S (k+1) ≥ 1`. Then `1 ≤ 2 (Σ ρ)² C`: the effective resistance is
+at most `2 (Σ_k ρ k)²`. The phase drop from `a` to `b` telescopes through the means
+of the chain, and each level's drop is bounded by the energy. -/
+theorem one_le_conductance_of_chain [DecidableEq ι] {K : ι → ι → ℝ} (hK : ∀ i j, 0 ≤ K i j)
+    {a b : ι} (hab : a ≠ b) {m : ℕ} {S : ℕ → Finset ι} (hS : ∀ k ≤ m, (S k).Nonempty)
+    (ha : S 0 = {a}) (hb : S m = {b}) {κ ρ : ℕ → ℝ}
+    (hκ : ∀ k < m, ∀ x ∈ S k, ∀ y ∈ S (k + 1), κ k ≤ K x y)
+    (hρ0 : ∀ k < m, 0 ≤ ρ k) (hρ : ∀ k < m, 1 ≤ ρ k ^ 2 * (κ k * (#(S k) * #(S (k + 1))))) :
+    1 ≤ 2 * (∑ k ∈ range m, ρ k) ^ 2 * conductance K a b := by
+  set R := ∑ k ∈ range m, ρ k
+  have hu : ∀ u : ι → ℝ, u a - u b = 1 → 1 ≤ 2 * R ^ 2 * energy K u := by
+    intro u hu
+    set s := √(2 * energy K u)
+    have hs : s ^ 2 = 2 * energy K u := Real.sq_sqrt (by linarith [energy_nonneg hK u])
+    have hs0 : 0 ≤ s := Real.sqrt_nonneg _
+    have hlevel : ∀ k < m, mean (S k) u - mean (S (k + 1)) u ≤ ρ k * s := by
+      intro k hk
+      have h1 := mul_sq_mean_sub_le hK (hS k hk.le) (hS (k + 1) hk) (hκ k hk) u
+      have h2 := hρ k hk
+      set d := mean (S k) u - mean (S (k + 1)) u
+      have hd : d ^ 2 ≤ (ρ k * s) ^ 2 := by
+        have : 0 ≤ κ k * (#(S k) * #(S (k + 1))) := by
+          by_contra h; push Not at h; nlinarith [sq_nonneg (ρ k)]
+        rw [mul_pow, hs]
+        nlinarith [sq_nonneg d, sq_nonneg (ρ k)]
+      exact abs_le_of_sq_le_sq' hd (mul_nonneg (hρ0 k hk) hs0) |>.2
+    have htel : ∑ k ∈ range m, (mean (S k) u - mean (S (k + 1)) u) = 1 := by
+      rw [sum_range_sub' (fun k => mean (S k) u), ha, hb]
+      simpa [mean] using hu
+    have h1 : 1 ≤ R * s := by
+      rw [← htel, sum_mul]
+      exact sum_le_sum fun k hk => hlevel k (mem_range.mp hk)
+    have : 1 ≤ (R * s) ^ 2 := by nlinarith
+    rw [mul_pow, hs] at this
+    linarith
+  obtain ⟨_, ⟨u₀, hu₀, rfl⟩⟩ := nonempty_unitDrop (K := K) hab
+  have hR : 0 < 2 * R ^ 2 := by
+    have := hu u₀ hu₀
+    rcases (show 0 ≤ 2 * R ^ 2 by positivity).lt_or_eq with h | h
+    · exact h
+    · rw [← h] at this; norm_num at this
+  have : (2 * R ^ 2)⁻¹ ≤ conductance K a b := by
+    refine le_csInf (nonempty_unitDrop hab) ?_
+    rintro _ ⟨u, hu', rfl⟩
+    rw [inv_le_iff_one_le_mul₀ hR, mul_comm]
+    exact hu u hu'
+  rwa [inv_le_iff_one_le_mul₀ hR, mul_comm] at this
+
+/-- A chain that widens geometrically from both ends: the weights `q ^ min k (m-1-k)`
+sum to at most `2 / (1 − q)`, whatever the length `m`. -/
+lemma sum_pow_min_le {q : ℝ} (hq0 : 0 ≤ q) (hq : q < 1) (m : ℕ) :
+    ∑ k ∈ range m, q ^ min k (m - 1 - k) ≤ 2 / (1 - q) := by
+  have h1 : ∑ k ∈ range m, q ^ k ≤ 1 / (1 - q) := by
+    have h := geom_sum_Ico_le_of_lt_one (x := q) (m := 0) (n := m) hq0 hq
+    rwa [← range_eq_Ico, pow_zero] at h
+  have h2 : ∑ k ∈ range m, q ^ (m - 1 - k) ≤ 1 / (1 - q) := by
+    rw [sum_range_reflect (fun k => q ^ k) m]; exact h1
+  have h3 : (2 : ℝ) / (1 - q) = 1 / (1 - q) + 1 / (1 - q) := by ring
+  calc ∑ k ∈ range m, q ^ min k (m - 1 - k)
+      ≤ ∑ k ∈ range m, (q ^ k + q ^ (m - 1 - k)) := sum_le_sum fun k _ => by
+        rcases min_choice k (m - 1 - k) with h | h <;> rw [h] <;>
+          linarith [pow_nonneg hq0 k, pow_nonneg hq0 (m - 1 - k)]
+    _ ≤ 2 / (1 - q) := by rw [sum_add_distrib, h3]; linarith
+
+/-- **Geometric chains give distance-independent conductance.** If the chain's
+level weights shrink geometrically away from both ends, `ρ k = A q ^ min k (m-1-k)`
+with `q < 1`, the conductance is at least `(1 − q)² / (8 A²)`, a bound that does
+not depend on the chain's length and so not on the distance between `a` and `b`. -/
+theorem le_conductance_of_geometric [DecidableEq ι] {K : ι → ι → ℝ} (hK : ∀ i j, 0 ≤ K i j)
+    {a b : ι} (hab : a ≠ b) {m : ℕ} {S : ℕ → Finset ι} (hS : ∀ k ≤ m, (S k).Nonempty)
+    (ha : S 0 = {a}) (hb : S m = {b}) {κ : ℕ → ℝ}
+    (hκ : ∀ k < m, ∀ x ∈ S k, ∀ y ∈ S (k + 1), κ k ≤ K x y) {A q : ℝ} (hA : 0 < A)
+    (hq0 : 0 ≤ q) (hq : q < 1)
+    (hρ : ∀ k < m, 1 ≤ (A * q ^ min k (m - 1 - k)) ^ 2 * (κ k * (#(S k) * #(S (k + 1))))) :
+    (1 - q) ^ 2 / (8 * A ^ 2) ≤ conductance K a b := by
+  have h := one_le_conductance_of_chain hK hab hS ha hb hκ (fun k _ => by positivity) hρ
+  set R := ∑ k ∈ range m, A * q ^ min k (m - 1 - k)
+  have h1q : 0 < 1 - q := by linarith
+  have hR : R ≤ 2 * A / (1 - q) := by
+    have := mul_le_mul_of_nonneg_left (sum_pow_min_le hq0 hq m) hA.le
+    rw [mul_sum] at this
+    calc R ≤ A * (2 / (1 - q)) := this
+      _ = 2 * A / (1 - q) := by ring
+  have hR0 : 0 ≤ R := sum_nonneg fun k _ => by positivity
+  have hC := conductance_nonneg hK a b
+  have hR2 : R ^ 2 ≤ (2 * A / (1 - q)) ^ 2 := pow_le_pow_left₀ hR0 hR 2
+  rw [div_le_iff₀ (by positivity)]
+  calc (1 - q) ^ 2 ≤ (1 - q) ^ 2 * (2 * R ^ 2 * conductance K a b) := by
+        nlinarith [sq_nonneg (1 - q)]
+    _ ≤ (1 - q) ^ 2 * (2 * (2 * A / (1 - q)) ^ 2 * conductance K a b) := by gcongr
+    _ = conductance K a b * (8 * A ^ 2) := by field_simp; ring
+
+/-- **A power-law tail with `σ < 2` bounds the resistance at every distance.**
+Let the chain run out from `a` through sets of scale `2 ^ j`, `j = min i (m − i)`,
+and back in to `b`: set `i` holds at least `α 4 ^ j` sites, as a disc of radius
+`2 ^ j` does on a planar sheet, and the coupling between consecutive sets is at
+least `β (2 ^ j) ^ −(2+σ)`, as a kernel `K(r) ≳ r ^ −(2+σ)` gives between sites a
+bounded multiple of `2 ^ j` apart. For `σ < 2` the conductance is at least
+`(1 − q)² α² β / 8` with `q = 2 ^ −(2−σ)/2 < 1`, independent of `m` and so of the
+distance: the level weights fall as `q ^ j`, because the pairs between two sets
+grow as `16 ^ j` and their coupling falls only as `2 ^ −(2+σ) j`. -/
+theorem le_conductance_of_powerLaw [DecidableEq ι] {K : ι → ι → ℝ} (hK : ∀ i j, 0 ≤ K i j)
+    {a b : ι} (hab : a ≠ b) {m : ℕ} {S : ℕ → Finset ι} (hS : ∀ k ≤ m, (S k).Nonempty)
+    (ha : S 0 = {a}) (hb : S m = {b}) {α β σ : ℝ} (hα : 0 < α) (hβ : 0 < β) (hσ : σ < 2)
+    (hcard : ∀ i ≤ m, α * 4 ^ min i (m - i) ≤ #(S i))
+    (hκ : ∀ k < m, ∀ x ∈ S k, ∀ y ∈ S (k + 1),
+      β * ((2 : ℝ) ^ min k (m - 1 - k)) ^ (-(2 + σ)) ≤ K x y) :
+    (1 - (2 : ℝ) ^ (-(2 - σ) / 2)) ^ 2 * (α ^ 2 * β) / 8 ≤ conductance K a b := by
+  set q : ℝ := (2 : ℝ) ^ (-(2 - σ) / 2)
+  have hq0 : 0 ≤ q := by positivity
+  have hq : q < 1 := Real.rpow_lt_one_of_one_lt_of_neg (by norm_num) (by linarith)
+  set A := (α * √β)⁻¹
+  have hA : 0 < A := by positivity
+  have hA2 : A ^ 2 * (α ^ 2 * β) = 1 := by
+    simp only [A, inv_pow, mul_pow, Real.sq_sqrt hβ.le]
+    field_simp
+  have hgeo := le_conductance_of_geometric hK hab hS ha hb hκ hA hq0 hq ?_
+  · have e : α ^ 2 * β = 1 / A ^ 2 := by
+      rw [eq_div_iff (by positivity)]; linarith [hA2]
+    rw [e]; convert hgeo using 1; ring
+  intro k hk
+  set j := min k (m - 1 - k)
+  set r : ℝ := (2 : ℝ) ^ j
+  have hr : 0 < r := by positivity
+  have hqj : q ^ j = r ^ (-(2 - σ) / 2) := by
+    simp only [q, r]
+    rw [← Real.rpow_mul_natCast (by norm_num), ← Real.rpow_natCast_mul (by norm_num), mul_comm]
+  have h4 : (4 : ℝ) ^ j = r ^ (2 : ℝ) := by
+    simp only [r]; rw [Real.rpow_two, ← pow_mul, mul_comm, pow_mul]; norm_num
+  have hcS : α * r ^ (2 : ℝ) ≤ #(S k) := by
+    rw [← h4]
+    exact (mul_le_mul_of_nonneg_left (pow_le_pow_right₀ (by norm_num) (by omega)) hα.le).trans
+      (hcard k hk.le)
+  have hcT : α * r ^ (2 : ℝ) ≤ #(S (k + 1)) := by
+    rw [← h4]
+    exact (mul_le_mul_of_nonneg_left (pow_le_pow_right₀ (by norm_num) (by omega)) hα.le).trans
+      (hcard (k + 1) hk)
+  have hexp : (r ^ (-(2 - σ) / 2)) ^ 2 * r ^ (-(2 + σ)) * (r ^ (2 : ℝ) * r ^ (2 : ℝ)) = 1 := by
+    rw [← Real.rpow_natCast, ← Real.rpow_mul hr.le, ← Real.rpow_add hr, ← Real.rpow_add hr,
+      ← Real.rpow_add hr]
+    norm_num; ring_nf; simp
+  have hr2 : 0 ≤ α * r ^ (2 : ℝ) := by positivity
+  calc (1 : ℝ) = A ^ 2 * (α ^ 2 * β) *
+        ((r ^ (-(2 - σ) / 2)) ^ 2 * r ^ (-(2 + σ)) * (r ^ (2 : ℝ) * r ^ (2 : ℝ))) := by
+        rw [hA2, hexp]; ring
+    _ = (A * q ^ j) ^ 2 * (β * r ^ (-(2 + σ)) * ((α * r ^ (2 : ℝ)) * (α * r ^ (2 : ℝ)))) := by
+        rw [hqj]; ring
+    _ ≤ (A * q ^ j) ^ 2 * (β * r ^ (-(2 + σ)) * (#(S k) * #(S (k + 1)))) := by
+        gcongr
 
 omit [Fintype ι] in
 /-- **Phase agreement becomes content agreement.** Under any distribution of
