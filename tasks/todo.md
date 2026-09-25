@@ -114,8 +114,10 @@ Spatial agreement beyond the worst-case chain:
   (bounded `R_eff`) needs a flow/Thomson construction over a multiscale path
   family; it stays numerical (U3). *Prose 2026-09-25:* §reach states the
   shell bound and the log lower bound; Limitations narrowed to attainment and
-  the σ<2 side. Open: U3's numbers as generated macros; verify Hong et al.
-  2007 before citing.
+  the σ<2 side. U3's numbers in §reach as generated macros
+  (`simulations/unity_macros.py` → `unity/unity_results.tex`, from
+  `summary.json` and `resistance.json`, drift test `test_unity_macros.py`).
+  Open: verify Hong et al. 2007 before citing.
 - [x] **U3 — Numerical check first.** Read discrepancy (phase difference /
   chord) vs distance from the saved sheet summaries if they hold it; else run
   a short-range vs power-law-kernel sheet comparison (separate command, not a
@@ -162,10 +164,11 @@ Spatial agreement beyond the worst-case chain:
   `ZMod m` where the absolute encoder disagrees at every pair of sites and the
   relative one nowhere; a gradient on ℤ with absolute discrepancy `|δ||x−y|`.
   *Prose 2026-09-25:* §reach, last paragraph. Closed.
-- [ ] **U5 — Carry the honest costs.** E78 (one oscillator per content patch)
+- [x] **U5 — Carry the honest costs.** E78 (one oscillator per content patch)
   still applies; the ephaptic amplitude objection remains — a long-range tail
   helps only if its conductance is not negligible against the short-range
   part; harmonic approximation fails above the BKT transition.
+  *Prose 2026-09-25:* all three in Limitations.
 
 The causal lens:
 
@@ -177,6 +180,9 @@ The causal lens:
   overlapping `i ≠ j`. *Physically enforced*: graded dependence plus
   contraction of overlap discrepancy under sub-threshold as well as logical
   perturbations. Full statement of premise P in `tasks/physical_unity.md`.
+  *Prose 2026-09-25:* §enforcement defines closure, margin, graded
+  dependence, contraction and physical enforcement as in
+  `Phase10_PhysicalUnity`. May reopen under U18.
 - [x] **U7 — Target theorem: the margin excludes enforcement.** The first
   formulation ("closure excludes enforcement") is false: a GPU running a
   consensus algorithm or a Kuramoto simulation has a closed logical level
@@ -219,19 +225,28 @@ The causal lens:
   not the synaptic one: re-agreement between distant regions after a
   perturbation faster than axonal conduction plus synaptic delay would
   indicate non-synaptic coupling. Estimate magnitudes; assess measurability.
-- [ ] **U10 — Agreement-as-attractor test on both substrates.** Perturb one
+  *Prose 2026-09-25:* §tests, qualitative. Open: magnitudes (conduction
+  delay vs field update, sourced).
+- [x] **U10 — Agreement-as-attractor test on both substrates.** Perturb one
   region (cortex: stimulation; AI: activation patching of one layer/head/
   position) and measure whether agreement with its overlap partners is
   restored and at what rate. Specify the outcome that would count against the
   thesis on each substrate.
+  *Prose 2026-09-25:* §tests. Cortex: unchanged decoded content in the
+  partner region counts against P. AI: a graded, agreement-directed shift
+  driven by an analog perturbation inside every bit's margin counts against
+  the thesis. Closed.
 
 Pitfalls to address in the text:
 
-- [ ] **U11 — Anti-gerrymandering.** State what passes: analog, in-memory or
+- [x] **U11 — Anti-gerrymandering.** State what passes: analog, in-memory or
   neuromorphic hardware with physical coupling and no barriers. The claim is
   about substrate organisation, not biology.
-- [ ] **U12 — Over-inclusion.** Coupled pendulums satisfy the criterion; it is
+  *Prose 2026-09-25:* §ai (crossbars, oscillator arrays, neuromorphic chips
+  pass or fail by readout; tissue on the same terms). Closed.
+- [x] **U12 — Over-inclusion.** Coupled pendulums satisfy the criterion; it is
   necessary for unity, not sufficient for consciousness.
+  *Prose:* Limitations. Closed.
 - [ ] **U13 — Leakage.** GPUs are not perfectly closed (floating-point
   reduction-order nondeterminism, thermal throttling). Make the criterion
   quantitative: the physical variables must carry content-relevant agreement,
@@ -265,6 +280,9 @@ Human evidence for P:
   whether the excess-agreement statistic follows coupling or information.
   Assess feasibility; if no dissociation is possible in principle, the paper
   says P is a commitment with falsifiable consequences, not a finding.
+  *Prose 2026-09-25:* §tests, the matched-transfer-entropy tACS design with
+  the outcome for each direction. Open: feasibility (can coherence be moved
+  at matched transfer entropy in practice).
 - [ ] **U16 — Split-brain as a possible dissociation.** Behavioural
   disunity after callosotomy is disunity of access; whether the phenomenal
   field divides is contested (Pinto et al. 2017 *Brain*, "divided perception
@@ -278,12 +296,45 @@ Human evidence for P:
   hemispheres at centimetre scale, so this supports graded coupling of any
   kind, not fields. State P accordingly and demote U2 from carrier of unity
   to one route among several.
-- [ ] **U17 — Declare what counts as evidence about phenomenal unity.** If
+- [x] **U17 — Declare what counts as evidence about phenomenal unity.** If
   behavioural disunity can be set aside as mere access, P is shielded from
   every result. Before any test is run, name the observations that bear on
   the phenomenal field (e.g. Pinto-style cross-field responding, reports of a
   unified field) and commit to accepting them against P. The paper's own
   tests measure decoded agreement, which is access-like; say how they relate.
+  *Prose 2026-09-25:* §tests, last paragraph: cross-region integrative
+  responding and reports of one field, declared in advance, accepted against
+  P in both directions. Closed.
+- [ ] **U18 — Categorical content has a margin too.** The margin theorem
+  (U7) applies to any readout locally constant off a threshold, and many
+  human contents are: rivalry (one percept or the other), categorical
+  perception, any argmax-decoded category. Off its boundaries such a `π_j`
+  is locally constant in micro state, so P as stated in U6 can deny unity to
+  humans for the same reason it denies it to GPUs. Spikes are thresholded
+  events as well; the text must say why spike timing and sub-threshold
+  potentials count as graded where clocked bits do not. Candidate
+  resolutions: state P on graded content variables (location, orientation,
+  timing), or on the micro-level dependence upstream of categorisation, with
+  categorical percepts read out of an enforced graded state. Decide before
+  the U paper is posted; may reopen the U6 definitions. This is the first
+  objection a philosopher raises, and it fits in one post.
+
+Relation to the companion (raised 2026-09-25):
+
+- [ ] **U19 — State the E78 → U1 bridge in both papers.** The companion's
+  worst-case bound (coherence → content, `L√(2N(1−r²))`) runs out at
+  millimetres, leaving centimetre-scale agreement to the bridge assumption
+  E78; the U paper's typical-case bound (effective resistance) reaches any
+  distance, but only with a kernel tail slower than `r^−4`. One sentence in
+  each introduction so the pair reads as one program. Companion side goes in
+  its v2 (U20).
+- [ ] **U20 — Companion v2 when the U paper posts.** (a) Cite the U paper.
+  (b) Scope `main.tex` §gpu "These results rank no architecture family, imply
+  no general inferiority of GPU hardware and settle no question of machine
+  experience" explicitly to *this article's* results, so it cannot be quoted
+  against the U premise. (c) Present the extracellular field as one
+  realization of graded coupling (U16), not a competing claim. Rebuild PDFs
+  and the arXiv bundle per AGENTS.md §6–7.
 
 ## H — Gates against hedging
 

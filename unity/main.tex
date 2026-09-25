@@ -70,10 +70,23 @@ measurement cannot be emptied by the choice of cover.
 \section{Physical enforcement versus routed agreement}
 \label{sec:enforcement}
 
-A readout has a noise margin on an operating set when every micro state in that
-set has a neighbourhood on which the readout is constant. Content depends
-gradedly on a region when no neighbourhood of that region's micro state leaves
-the next content unchanged. If the micro dynamics is continuous and carries a
+A system is a micro dynamics $f$ on the joint micro state $x=(x_i)_i$ of its
+regions, read by a content map $\pi$ that assigns a content to each region.
+Its content level is closed when the next content is a function of the current
+one, $\pi\circ f = g\circ\pi$ for some content dynamics $g$. A readout has a
+noise margin on an operating set when every micro state in that set has a
+neighbourhood on which the readout is constant. Content depends gradedly on a
+region when no neighbourhood of that region's micro state leaves the next
+content unchanged, the others held fixed. The overlap discrepancy, a measure of
+disagreement between the contents of overlapping regions, contracts near a
+state when one step of $f$ shrinks it by a factor below one throughout a
+neighbourhood of that state, so that perturbations below every threshold are
+pulled back toward agreement along with the rest. Agreement is physically
+enforced at a state when content depends gradedly on each region there and the
+overlap discrepancy contracts near it; P requires it at the states the system
+occupies while its contents are unified.
+
+If the micro dynamics is continuous and carries a
 state into a margin's operating set, no region's micro state enters the next
 content gradedly (\texttt{not\_physicallyEnforced\_of\_margin}). A thresholded
 continuous quantity has a margin off its threshold, and a finite word of such
@@ -203,6 +216,17 @@ Section~\ref{sec:enforcement} applies to it. Hardware whose contents are graded
 physical quantities coupled without barriers, such as analog, in-memory or
 neuromorphic substrates, can satisfy P.
 
+The criterion concerns how a substrate is organised and says nothing of what it
+is made of. An analog crossbar whose column currents carry content and settle
+through shared conductances depends gradedly on every input voltage, and an
+array of coupled electronic or optical oscillators contracts phase
+disagreement through a physical coupling exactly as a cortical sheet does. A
+neuromorphic chip passes where its contents are read from membrane potentials
+coupled continuously, and fails where they are read from spike counts latched
+at a clock edge. Biological tissue passes or fails on the same terms: a neural
+circuit whose contents were read only from all-or-none events latched far from
+threshold would fall under the margin theorem as any digital circuit does.
+
 Real digital hardware leaks: supply noise, crosstalk and temperature move the
 analog quantities behind every bit. The margin theorem locates where such
 leakage can reach content. If a content read as a word of thresholded
@@ -221,12 +245,62 @@ not how content depends on graded state.
 \section{Tests}
 \label{sec:tests}
 
-In cortex, weak stimulation of one region below the behavioural threshold
-should shift the content decoded in an overlapping region, gradedly and toward
-agreement; an unchanged decoded content in the overlapping region counts
-against P. In an artificial system, activation patching below and above the
-scale at which the logical trajectory changes separates perturbations inside
-the margin from those that cross it.
+\paragraph{Graded cross-region dependence in cortex.} Weak stimulation of one
+region below the behavioural threshold should shift the content decoded in an
+overlapping region, gradedly with stimulation strength and toward agreement
+with the stimulated region. Transcranial alternating current and weak
+intracortical fields supply the perturbation, and the decoded content is read
+from population activity in the overlapping region. An unchanged decoded
+content in the overlapping region, at stimulation strengths that measurably
+move the stimulated one, counts against P, since P then denies unity to the
+system whose unity motivates it.
+
+\paragraph{Agreement as an attractor on both substrates.} Perturb one region
+and measure whether agreement with its overlap partners is restored, and at
+what rate. In cortex the perturbation is stimulation and the measure is the
+disagreement between contents decoded from the perturbed region and its
+partners; P predicts restoration at the relaxation rate of
+Section~\ref{sec:window}, with a restoring pull proportional to the size of the
+perturbation below as well as above any threshold. In an artificial system the
+perturbation is activation patching of one layer, head or position, applied at
+two scales: below the scale at which the logical trajectory changes, and above
+it. A digital system can restore agreement above that scale, by computation;
+below it the margin theorem predicts that nothing moves at all. The outcome
+that counts against the thesis on the artificial side is a graded shift of
+decoded content in one region, toward agreement, driven by an analog
+perturbation of another that stays inside every bit's margin, such as a supply
+or timing perturbation below the error threshold.
+
+\paragraph{The field's causal cone.} A quasi-static extracellular field reaches
+every point of the tissue it spans within one field update, while synaptic
+influence between distant regions arrives only after axonal conduction and
+synaptic transmission. Re-agreement between distant regions after a local
+perturbation, faster than the synaptic route allows, would identify a
+non-synaptic contribution to the coupling and measure the reach of the kernel
+tail of Section~\ref{sec:reach} directly.
+
+\paragraph{Separating coupling from information.} In every manipulation of
+cortex available so far, graded coupling and information flow move together:
+anaesthesia and callosal section remove both. A test that confirms P against
+functionalism must move one with the other held fixed. The candidate design
+applies weak alternating stimulation that shifts the coherence between two
+regions while a measured information-transfer quantity between them, such as
+transfer entropy estimated from their recorded activity, is held matched
+across conditions, and asks whether the agreement between the contents decoded
+from the two regions follows the coupling or the information. Agreement that
+follows coupling at matched information supports P over functionalism;
+agreement that follows information at matched coupling counts against P.
+
+\paragraph{What counts as evidence about the phenomenal field.} Every test
+above measures decoded agreement, which is agreement of the contents available
+to readout. If disunity of readout could always be set aside as disunity of
+access alone, no observation would bear on P. The observations that count as
+evidence about the phenomenal field are therefore fixed in advance: responses
+that integrate stimuli across the regions in question when the task requires
+it, and reports of a single field of experience spanning them. A dissociation
+in which such responses and reports split while graded coupling between the
+regions is intact, or stay integrated after graded coupling between them is
+removed, is accepted as evidence against P.
 
 \section{Limitations}
 \label{sec:limitations}
@@ -243,7 +317,14 @@ than $r^{-4}$ bounds the resistance, are established numerically on finite
 sheets. The unity window's edges are proved for a given contraction factor; the
 identification of that factor with the coupling's spectral gap is linear
 response, and whether the window is nonempty at cortical time scales awaits a
-magnitude estimate. Human data can falsify P
+magnitude estimate. The step from phase agreement to content agreement assumes
+one oscillator population per content patch, which is a modelling choice about
+cortex. A long-range tail improves agreement only in proportion to its
+conductance against the short-range part, and the measured endogenous fields
+of cortex are weak, so the tail's contribution at cortical scale is a
+quantity to be measured. Above the order--disorder crossover of
+Section~\ref{sec:reach} the harmonic identity fails and agreement is lost at
+every distance. Human data can falsify P
 but cannot by themselves confirm it against functionalism, because graded
 coupling and information flow co-vary in every manipulation available so far.
 
