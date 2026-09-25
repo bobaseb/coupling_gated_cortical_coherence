@@ -88,15 +88,15 @@ repos:
         files: ^(supplementary\.tex|.*Chain\.lean)$
         pass_filenames: false
 
-      # The status column and the coverage are different questions, so they are
-      # different gates: check-table reads a cell, this reads the whole map.
-      # A theorem the article argues from and Table S1 omits is a claim with no
-      # recorded scope, and nothing else here looks at both documents at once.
-      - id: check-table-coverage
-        name: every lean name in the article has a table S1 row
-        entry: bash -c 'cd simulations && uv run python check_table_coverage.py'
+      # A reader of the article never opens the Lean code, so identifiers live
+      # in the claim maps (Table S1, the unity paper's appendix) and the main
+      # text states each result in words. Lean edits trigger it because a new
+      # declaration can turn an existing \texttt span into a Lean name.
+      - id: check-lean-names
+        name: the main text of either paper names no lean identifier
+        entry: bash -c 'cd simulations && uv run python check_lean_names.py'
         language: system
-        files: ^(main\.tex|supplementary\.tex|PhysicsOfConsciousness/.*\.lean)$
+        files: ^(main\.tex|unity/main\.tex|PhysicsOfConsciousness/.*\.lean)$
         pass_filenames: false
 
       # Tracked PDFs are deliverables: README.md and index.html link

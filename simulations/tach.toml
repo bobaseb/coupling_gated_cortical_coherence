@@ -237,7 +237,7 @@ layer = "gate"
 depends_on = ["repo_root"]
 
 [[modules]]
-path = "check_table_coverage"
+path = "check_lean_names"
 layer = "gate"
 depends_on = ["check_leaves", "repo_root"]
 

@@ -44,7 +44,7 @@ If Python code is introduced to this repository, the following tooling MUST be c
 `main.tex` and `supplementary.tex` state the theory's current state only. The supplement is part of the publication and this rule covers it identically, as it covers the physical-unity paper `unity/main.tex`.
 
 - **No drafting-history narration.** No "earlier drafts claimed X", no "we had recorded Y; that was a misdiagnosis", no "this is no longer assumed", and **no appendix or supplementary section collecting such material**.
-- **No internal Markdown references.** State methods and results in the publication instead of referring to `.md` or `.markdown` filenames or links, including design notes and generated reports. Lean theorem names and `.lean` source references are allowed, and code availability may link the repository itself. The same `check-prose` gate enforces this rule in every publication file.
+- **No internal Markdown references.** State methods and results in the publication instead of referring to `.md` or `.markdown` filenames or links, including design notes and generated reports. Lean theorem names and `.lean` source references are allowed in the supplement and in appendices, never in an article's main text (§9), and code availability may link the repository itself. The same `check-prose` gate enforces this rule in every publication file.
 - **The test** is not "is this about our past" but: *does this sentence still make sense to a reader who has never seen a previous draft?* A refutation of an axiom shape is a permanent mathematical fact and stays. "Earlier drafts of this work declared five axioms" is autobiography and goes.
 - **Rewrite, do not delete blindly.** Each site becomes a present-tense statement of scope, or is removed once its content is recoverable from one of the destinations below.
 - **Where it goes instead:** `CHANGELOG.md` for what a reader of the repository needs; a Lean docstring where the content is technical; `tasks/todo.md` for the working record, whose superseded ledgers are read out of git history rather than kept in the tree.
@@ -145,36 +145,33 @@ mode with a history in this repository rather than a hypothetical one.
   `Axioms.lean`, a physical postulate that mentions a class field must be a
   field of that class rather than a standalone axiom at all.
 
-## 9. Table S1 Is the Claim Map, So Coverage Is a Gate
+## 9. The Main Text Names No Lean Identifier
 
-Table S1 says of itself that it is the claim-by-claim map: each row names the
-Lean identifier that carries a claim and states that identifier's scope
-limitation. `check_tableS1.py` validates the *status column* against
-`Chain.lean` and measures no coverage, so until `check_table_coverage.py` a
-theorem could be argued from in `main.tex` and appear in no row, with every
-other gate here passing. That is not hypothetical: the winding and amplitude
-results were cited in both publication files and mapped in neither.
+A reader of the article never opens the Lean development. An identifier in a
+sentence is a pointer that reader cannot follow, and a paragraph carrying
+several reads as a code listing. So the main text states each result in words,
+and the map from result to declaration lives where a reader who wants it will
+look: Table S1 in `supplementary.tex` for the companion, and the
+formal-results appendix (`app:formal`) of `unity/main.tex`.
 
-- **The gate:** `simulations/check_table_coverage.py`, wired into
-  `.pre-commit-config.yaml` as `check-table-coverage`. Every `\texttt{}` span in
-  `main.tex` whose final dot-separated segment names a declaration under
-  `PhysicsOfConsciousness/` must appear in the `tab:full` longtable. The Lean
-  sources decide what a declaration is, so module names, `.lean` filenames and
-  directory names are ignored without being enumerated, and a theorem added
-  tomorrow is covered with no edit to the script — the same principle as
-  `check_pdf_freshness.py` deriving its dependency set from the sources.
-- **The rule stops at the article, deliberately.** Requiring a row for every
-  Lean name in *either* file would demand the table absorb the supplement,
-  which names several hundred working lemmas in the course of its proofs. Those
-  are steps, not claims. The article names an identifier only when it rests an
-  argument on it, which is exactly the set a claim map exists to cover.
-- **Coverage runs one way.** A row may carry an identifier the article never
-  spells: a claim can be stated in prose and carried by a theorem the reader
-  meets only in the map. The gate never asks the table to shrink.
-- **There is no allowlist**, for the reason §5 gives. The two ways to satisfy
-  it are to give the identifier a row ending on what it does not reach, in the
-  commit that introduces it, or — if the article does not in fact rest on it —
-  to take the name out of the article and leave it to the supplement.
+- **The gate:** `simulations/check_lean_names.py`, wired into
+  `.pre-commit-config.yaml` as `check-lean-names`. It reads `main.tex` and
+  `unity/main.tex` up to `\appendix` (or `\end{document}`), comments removed,
+  and fails on any `\texttt{}` span whose final dot-separated segment is a
+  declaration under `PhysicsOfConsciousness/`, a module name there, or a
+  `.lean` file, and on any identifier written with escaped underscores
+  (`conductance\_le\_shell`) outside a span whose final segment is declared.
+  The Lean sources decide what a declaration is, so a theorem added tomorrow is
+  caught with no edit to the script — the principle of
+  `check_pdf_freshness.py` deriving its dependency set from the sources. A
+  declaration name used as an ordinary word (`energy`) is prose and passes.
+- **The claim maps carry the identifiers.** A result argued from in the main
+  text gets its row in the same commit: in Table S1, ending on what the
+  identifier does not reach, or in the unity paper's appendix table.
+  `check_tableS1.py` still validates Table S1's status column against
+  `Chain.lean`.
+- **There is no allowlist**, for the reason §5 gives. A sentence that needs an
+  identifier to be understood needs rewriting, not an exemption.
 
 ## 10. Claims First, Limitations in One Place
 

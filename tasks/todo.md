@@ -413,6 +413,22 @@ Relation to the companion (raised 2026-09-25):
   realization of graded coupling (U16), not a competing claim. Rebuild PDFs
   and the arXiv bundle per AGENTS.md §6–7.
 
+Publication machinery (raised 2026-09-25):
+
+- [x] **U21 — No Lean names in either paper's main text.** Author's rule: the
+  reader of the article never opens the Lean code. *Done 2026-09-25:*
+  `simulations/check_lean_names.py` (`check-lean-names`, AGENTS.md §9 rewritten)
+  reads `main.tex` and `unity/main.tex` up to `\appendix`; declarations, module
+  names and `.lean` files in `\texttt`, and escaped-underscore identifiers
+  outside it, fail. `main.tex` already passed; the unity paper's 19 names moved
+  to a new appendix `app:formal` (Table `tab:formal`: result, section,
+  declaration), with one intro sentence pointing at it. `check-table-coverage`
+  retired (it could no longer fail); `check_tableS1.py` stays.
+- [ ] **U22 — arXiv build for the unity paper.** Same guarantees as
+  `prepare_arxiv.sh` (checked edits, compile from the unpacked tarball,
+  `BUILD_MANIFEST` under `check-arxiv-freshness`), NeurIPS preprint style, plus
+  a bioRxiv PDF.
+
 ## H — Gates against hedging
 
 **Intent.** The article's hedging is structural, not lexical. On 2026-09-25

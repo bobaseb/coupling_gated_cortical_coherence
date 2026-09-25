@@ -57,6 +57,9 @@ dynamics and fails P. The paper makes three claims:
 \claim{sec:tests}{P predicts that a sub-threshold perturbation of one cortical region shifts the content decoded in an overlapping region toward agreement, and that no perturbation below a digital system's noise margin shifts any of its contents}
 \end{enumerate}
 
+Every formal result the paper states is machine-checked in Lean~4, and
+Appendix~\ref{app:formal} maps each one to its declaration.
+
 \section{Synchrony is not unity}
 \label{sec:synchrony}
 
@@ -92,10 +95,9 @@ occupies while its contents are unified.
 
 If the micro dynamics is continuous and carries a
 state into a margin's operating set, no region's micro state enters the next
-content gradedly (\texttt{not\_physicallyEnforced\_of\_margin}). A thresholded
+content gradedly. A thresholded
 continuous quantity has a margin off its threshold, and a finite word of such
-readouts has one too, so the conclusion holds for any content read from bits
-(\texttt{not\_physicallyEnforced\_of\_bits}).
+readouts has one too, so the conclusion holds for any content read from bits.
 
 The theorem places the criterion one level below the content dynamics, and the
 placement is forced. Contraction of disagreement at the content level is
@@ -124,11 +126,11 @@ therefore stated on the graded content variables from which categories are
 read, such as a location, an orientation, a time or the relative strength of
 competing percepts, and a category meets P through the variable that carries
 it. A category read from a carrier depends gradedly on a region only where the
-carrier does (\texttt{GradedDependence.of\_comp}). The restatement opens no
+carrier does. The restatement opens no
 route for a digital machine: every variable it computes, whether a number, a
 vector of numbers or a category, is a function of its bit word, and after any
 number of steps that keep its bits off their thresholds such a function depends
-gradedly on no region (\texttt{not\_gradedDependence\_iterate\_of\_bits}).
+gradedly on no region.
 The voltages beneath the bits carry none of the machine's contents, at that step
 or any later one, so they are not a carrier.
 
@@ -153,10 +155,10 @@ the sites into shells around a site $a$, so that the coupling joins only sites
 in the same or adjacent shells. The shells then act as conductors in series,
 and the effective conductance from $a$ to any site beyond shell $n$ is at most
 $\bigl(\sum_{k<n} 1/C_k\bigr)^{-1}$, where $C_k$ is the coupling crossing from
-shell $k$ to shell $k+1$ (\texttt{conductance\_le\_shell}). On a planar sheet
+shell $k$ to shell $k+1$. On a planar sheet
 the perimeter of shell $k$ grows linearly in $k$, so $C_k \le c\,(k+1)$ for a
 constant $c$ set by the kernel's strength and width, and the effective
-resistance is at least $\log(n+1)/c$ (\texttt{conductance\_mul\_log\_le}).
+resistance is at least $\log(n+1)/c$.
 Widening the kernel enlarges its shells and raises $c$, which slows the growth
 and leaves it unbounded. Distance-independent agreement on a sheet therefore
 needs coupling of unbounded range.
@@ -172,9 +174,7 @@ two sites of consecutive discs by at least $\beta\,2^{-(2+\sigma)j}$. The
 number of pairs grows as $16^j$ and their coupling falls as $2^{-(2+\sigma)j}$,
 so the drops shrink geometrically with ratio $q=2^{-(2-\sigma)/2}$, which is
 below one for $\sigma<2$, and the effective conductance is at least
-$(1-q)^2\alpha^2\beta/8$ however far apart $a$ and $b$ lie
-(\texttt{le\_conductance\_of\_powerLaw}, through the chain bound
-\texttt{one\_le\_conductance\_of\_chain}).
+$(1-q)^2\alpha^2\beta/8$ however far apart $a$ and $b$ lie.
 
 Simulated sheets at identical frequencies, of side \uSideSmall{} and
 \uSideLarge{}, with nearest-neighbour, exponential and power-law kernels of
@@ -204,13 +204,13 @@ that separates them needs the kernel's second moment as well as its tail
 exponent.
 
 Three facts hold without the harmonic approximation. Adding coupling never
-raises the effective resistance (\texttt{conductance\_mono}), so a long-range
+raises the effective resistance, so a long-range
 tail added to a short-range kernel can only improve agreement, whatever its
 shape. A direct coupling between two sites caps their resistance at its
-reciprocal, at any distance (\texttt{le\_conductance\_of\_edge}). A Lipschitz
+reciprocal, at any distance. A Lipschitz
 encoder carries phase agreement to content agreement: the mean-square content
 discrepancy is at most the squared Lipschitz constant times the mean-square
-phase difference (\texttt{integral\_dist\_sq\_le}). With the harmonic
+phase difference. With the harmonic
 identity, an encoder of Lipschitz constant $L$ at noise strength $D$ therefore
 has root-mean-square content discrepancy at most $L\sqrt{D\,R_{\mathrm{eff}}}$
 between two sites of effective resistance $R_{\mathrm{eff}}$.
@@ -218,12 +218,11 @@ between two sites of effective resistance $R_{\mathrm{eff}}$.
 Content can agree where phases differ. An encoder that reads the phases of a
 stencil around a site relative to the phase at that site reports the same
 content at every site of a plane wave, whatever its gradient, and at every site
-of a winding on a ring or torus (\texttt{relContent\_eq\_of\_wave}). For a wave
+of a winding on a ring or torus. For a wave
 plus a departure, the content discrepancy between two sites of a Lipschitz
 relative encoder is at most its Lipschitz constant times the departure's
 relative readings at the two sites, with the gradient of the wave and the
-separation of the sites absent from the bound
-(\texttt{dist\_relContent\_le}). Travelling waves and windings, the
+separation of the sites absent from the bound. Travelling waves and windings, the
 configurations that attain the worst case of a hop-by-hop chain bound, thus
 cost a relative encoder nothing; what it pays for is the local roughness of the
 field.
@@ -238,15 +237,12 @@ time scale requires the interval between the two to be nonempty.
 The lower edge is causal. A report at one site that tracks a variable at
 another to within $\varepsilon$, for two values of the variable more than
 $2\varepsilon$ apart, is possible after $T$ rounds of the coupling only if the
-second site lies in the first site's causal past for $T$ rounds
-(\texttt{mem\_ball\_of\_reconstructs}). The upper edge is relaxation. If the
+second site lies in the first site's causal past for $T$ rounds. The upper edge is relaxation. If the
 coupling contracts the overlap discrepancy by a factor $\kappa<1$ at every step
 on a set of states it keeps, a discrepancy starting at most $d_0$ is at most
-$\varepsilon$ from step $\log(d_0/\varepsilon)/\log(1/\kappa)$ on
-(\texttt{disc\_iterate\_le\_of\_log\_le}). The estimate is sharp in form: a
+$\varepsilon$ from step $\log(d_0/\varepsilon)/\log(1/\kappa)$ on. The estimate is sharp in form: a
 discrepancy that shrinks by at most a factor $\rho$ per step is still above
-$\varepsilon$ at every earlier step than $\log(d_0/\varepsilon)/\log(1/\rho)$
-(\texttt{lt\_disc\_iterate\_of\_lt\_log}). The window opens at the later of the
+$\varepsilon$ at every earlier step than $\log(d_0/\varepsilon)/\log(1/\rho)$. The window opens at the later of the
 causal deadline and the relaxation time, and unity at the time scale of a
 content requires it to open before that content changes.
 
@@ -291,20 +287,19 @@ it moves continuously with the sub-threshold input, and postsynaptic potentials
 integrate spike times without sampling them, so spike timing carries graded
 dependence from one region to the next. A clocked latch compares the time of a
 transition with the clock edge, which is a threshold on the transition time, so
-\texttt{hasMargin\_threshold} applies to it with that time as the thresholded
-quantity. The clock is a noise margin in time, and it removes from a digital
+the margin theorem applies to it with that time as the thresholded quantity. The clock is a noise margin in time, and it removes from a digital
 circuit exactly the graded timing that spikes keep.
 
 Real digital hardware leaks: supply noise, crosstalk and temperature move the
 analog quantities behind every bit. The margin theorem locates where such
 leakage can reach content. If a content read as a word of thresholded
 continuous quantities depends gradedly on any region, some bit of the next state
-sits exactly on its threshold (\texttt{exists\_threshold\_of\_gradedDependence}),
+sits exactly on its threshold,
 and correct operation keeps every state off that set. The margin also has a
 width. If every bit of the next state is at least $\delta$ from its threshold,
 each bit is read from an $L_v$-Lipschitz quantity and the micro dynamics is
 $L$-Lipschitz, a change to one region smaller than $\delta/(L L_v)$ changes no
-bit (\texttt{bits\_eq\_of\_lipschitz}). Leakage below that scale carries no
+bit. Leakage below that scale carries no
 content; leakage above it flips a bit, which is a logical error. Digital
 design places ordinary noise well below that scale: a textbook inverter's
 static noise margin is \ueMarginPercent{}\% of its supply voltage, against an
@@ -493,5 +488,51 @@ but cannot by themselves confirm it against functionalism, because graded
 coupling and information flow co-vary in every manipulation available so far.
 
 \input{references}
+
+\appendix
+
+\section{Formal results}
+\label{app:formal}
+
+Each formal result the paper states is a theorem of the Lean~4 development in
+the \href{https://github.com/bobaseb/coupling_gated_cortical_coherence}{project repository},
+in its four \texttt{Phase10} modules. Table~\ref{tab:formal} maps each result to its
+declaration and to the section that argues from it. Every theorem rests only on
+Lean's foundational axioms \texttt{propext}, \texttt{Classical.\allowbreak{}choice} and
+\texttt{Quot.sound}, which the build verifies for every declaration of the
+development. Small concrete models in \texttt{Examples/} meet the hypotheses
+of the bounds and show where they are attained.
+
+\begin{table}[h]
+\centering
+\small
+\caption{The paper's formal results and the Lean declarations that carry them.}
+\label{tab:formal}
+\begin{tabular}{p{0.47\textwidth}cp{0.34\textwidth}}
+\hline
+Result & Section & Declaration \\
+\hline
+A readout with a margin, under continuous micro dynamics, has no graded dependence on any region & \ref{sec:enforcement} & \texttt{not\_\allowbreak{}physicallyEnforced\_\allowbreak{}of\_\allowbreak{}margin} \\
+The same for any content read from a finite word of thresholded continuous quantities & \ref{sec:enforcement} & \texttt{not\_\allowbreak{}physicallyEnforced\_\allowbreak{}of\_\allowbreak{}bits} \\
+A thresholded continuous quantity has a margin off its threshold & \ref{sec:enforcement} & \texttt{hasMargin\_\allowbreak{}threshold} \\
+A category read from a carrier depends gradedly on a region only where the carrier does & \ref{sec:enforcement} & \texttt{GradedDependence.of\_\allowbreak{}comp} \\
+Every function of a bit word, after steps that keep the bits off their thresholds, depends gradedly on no region & \ref{sec:enforcement} & \texttt{not\_\allowbreak{}gradedDependence\_\allowbreak{}iterate\_\allowbreak{}of\_\allowbreak{}bits} \\
+Shells in series bound the effective conductance & \ref{sec:reach} & \texttt{conductance\_\allowbreak{}le\_\allowbreak{}shell} \\
+Crossing coupling at most $c\,(k+1)$ gives resistance at least $\log(n+1)/c$ & \ref{sec:reach} & \texttt{conductance\_\allowbreak{}mul\_\allowbreak{}log\_\allowbreak{}le} \\
+An averaging chain from $a$ to $b$ bounds the resistance by $2(\sum_k \rho_k)^2$ & \ref{sec:reach} & \texttt{one\_\allowbreak{}le\_\allowbreak{}conductance\_\allowbreak{}of\_\allowbreak{}chain} \\
+A tail $K(r)\gtrsim r^{-(2+\sigma)}$ with $\sigma<2$ bounds the conductance below at every distance & \ref{sec:reach} & \texttt{le\_\allowbreak{}conductance\_\allowbreak{}of\_\allowbreak{}powerLaw} \\
+Adding coupling never raises the effective resistance & \ref{sec:reach} & \texttt{conductance\_\allowbreak{}mono} \\
+A direct coupling caps the resistance at its reciprocal & \ref{sec:reach} & \texttt{le\_\allowbreak{}conductance\_\allowbreak{}of\_\allowbreak{}edge} \\
+A Lipschitz encoder carries mean-square phase agreement to content agreement & \ref{sec:reach} & \texttt{integral\_\allowbreak{}dist\_\allowbreak{}sq\_\allowbreak{}le} \\
+A relative encoder reports one content at every site of a wave & \ref{sec:reach} & \texttt{relContent\_\allowbreak{}eq\_\allowbreak{}of\_\allowbreak{}wave} \\
+A relative encoder's discrepancy is bounded by the departure from a wave & \ref{sec:reach} & \texttt{dist\_\allowbreak{}relContent\_\allowbreak{}le} \\
+Tracking a remote variable requires it to lie in the causal past & \ref{sec:window} & \texttt{mem\_\allowbreak{}ball\_\allowbreak{}of\_\allowbreak{}reconstructs} \\
+Contraction by $\kappa$ reaches $\varepsilon$ by step $\log(d_0/\varepsilon)/\log(1/\kappa)$ & \ref{sec:window} & \texttt{disc\_\allowbreak{}iterate\_\allowbreak{}le\_\allowbreak{}of\_\allowbreak{}log\_\allowbreak{}le} \\
+A discrepancy shrinking by at most $\rho$ per step is above $\varepsilon$ before $\log(d_0/\varepsilon)/\log(1/\rho)$ & \ref{sec:window} & \texttt{lt\_\allowbreak{}disc\_\allowbreak{}iterate\_\allowbreak{}of\_\allowbreak{}lt\_\allowbreak{}log} \\
+Graded dependence of a bit word requires some bit exactly on its threshold & \ref{sec:ai} & \texttt{exists\_\allowbreak{}threshold\_\allowbreak{}of\_\allowbreak{}gradedDependence} \\
+A one-region change below $\delta/(L L_v)$ changes no bit & \ref{sec:ai} & \texttt{bits\_\allowbreak{}eq\_\allowbreak{}of\_\allowbreak{}lipschitz} \\
+\hline
+\end{tabular}
+\end{table}
 
 \end{document}
