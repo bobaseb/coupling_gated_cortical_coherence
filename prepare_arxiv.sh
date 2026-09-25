@@ -122,13 +122,15 @@ edit "drop \\linenumbers"            '/^\\linenumbers$/d'
 # "\pdfendlink ended up in different nesting level" -- a fatal signal, not a
 # warning, and one no source file can predict: which citation lands on a break
 # depends on every word before it, and the merged document paginates unlike
-# either half. Boxing each citation group removes the class of failure rather
-# than the instance; \emergencystretch is the last-resort slack that keeps a
-# citation too wide for the space left from overfilling its line instead.
-# Both belong here rather than in main.tex: the standalone article paginates
-# differently and boxing its citations at 12pt overfills a line by 164pt.
-edit "keep citations off page breaks" \
-  's/\\renewcommand{\\cite}\[1\]{\\citep{#1}}/\\renewcommand{\\cite}[1]{\\mbox{\\citep{#1}}}\n\\emergencystretch=6em/'
+# either half. Boxing each citation link removes the class of failure rather
+# than the instance. The box goes around each reference's link, not around the
+# whole group: a boxed group cannot break at its "; " either, and a two-reference
+# group then leaves the line before it stretched to a few words.
+# \emergencystretch is the last-resort slack that keeps a citation too wide for
+# the space left from overfilling its line instead. Both belong here rather
+# than in main.tex: the standalone article paginates differently.
+edit "keep citation links off page breaks" \
+  's/\\renewcommand{\\cite}\[1\]{\\citep{#1}}/\\renewcommand{\\cite}[1]{\\citep{#1}}\n\\makeatletter\n\\AtBeginDocument{\\let\\NATlink@start\\hyper@natlinkstart\\let\\NATlink@end\\hyper@natlinkend\\def\\hyper@natlinkstart#1{\\leavevmode\\hbox\\bgroup\\NATlink@start{#1}}\\def\\hyper@natlinkend{\\NATlink@end\\egroup}}\n\\makeatother\n\\emergencystretch=6em/'
 
 # 4. Merge the supplement in as an appendix. Its preamble is dropped, and so is
 #    its own \input{references}: the merged document has one bibliography.

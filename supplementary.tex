@@ -19,7 +19,11 @@
 % the merged document resolves the same labels natively.
 \usepackage{xr}
 % Both documents print references.tex; import labels without its bibliography.
-\externaldocument[][nocite]{main}
+% The [nocite] argument exists from xr v6.00 (2024-12-22); older xr rejects it
+% and imports labels only.
+\IfPackageAtLeastTF{xr}{2024/12/22}
+  {\externaldocument[][nocite]{main}}
+  {\externaldocument{main}}
 \input{simulations/simulation_results}
 \input{simulations/g_followup_results}
 \input{simulations/fermi_params}
@@ -153,9 +157,6 @@ A uniform density under constant drive $\omega$ attains
 $\sigma_J=\omega^2/D$. The identical-frequency gradient model has positive
 self-consistent stationary order above $K=2D$ with $J=0$ and
 $\sigma_J=0$. Stationary order therefore has no positive current-cost floor.
-Nor does the bound price an externally chosen $\dot K$: in the
-identical-frequency zero-drive model, the uniform density remains an exact
-zero-current solution under any coupling schedule.
 A cortical power claim needs the physical current, reservoir and thermal
 conversion to be identified. This current functional is distinct from the
 substrate squared-drift objective used in the plasticity controls.
@@ -222,12 +223,8 @@ The Lean results \nolinkurl{orderMagnitude_eq_norm_circular},
 \nolinkurl{order_magnitude_speed_bound} establish these steps for the stated
 classical functions. If $r$ and the current cost are smooth on a finite
 interval and $0<r<1$ throughout, the chain rule for $\arcsin r$ and temporal
-Cauchy--Schwarz give
-\[
- \int_0^\tau\sigma_J(t)\,dt\geq
- \frac{[\arcsin r(\tau)-\arcsin r(0)]^2}{D\tau}.
-\]
-This is \nolinkurl{density_order_endpoint_cost_bound}; it does not assert an
+Cauchy--Schwarz give Eq.~\eqref{eq:order-change-cost}, which is
+\nolinkurl{density_order_endpoint_cost_bound}; it does not assert an
 absolutely continuous extension through zero order, construct the evolving
 density, or convert current cost to heat. Strictly positive continuous
 densities have $r<1$, but the theorem keeps that domain explicit.
@@ -577,7 +574,7 @@ L\varepsilon$ (\nolinkurl{feature_dist_le}), which is
 the resolution condition an interpretation at scale $\delta$ must meet; the
 theorem chooses no decoder.
 
-The three-site cortex witnesses both halves
+The three-site witness exhibits both halves
 (\nolinkurl{Examples/Phase5.lean}~\S21). Its three
 two-site patches have multiplicity two, and the family \texttt{apxW} is
 \S17.1's data with one patch reporting $\varepsilon$ more mass everywhere it can
@@ -1059,11 +1056,11 @@ The proof uses $1-e^{-x}\leq x$ and $x/(1+x)\leq1-e^{-x}$ for $x=(K-2D)\tau/2>0$
 
 \subsection{A nonconstant witness and its controls}
 
-On the three-site cortex, the avatar is one site. The encoding reads its mass (\texttt{avatarRead}), and \texttt{avatarReadout} reconstructs a profile by averaging the reading with a baseline. The resulting map is nonconstant, has a unique fixed point, and contracts by one half of the difference visible at the avatar (\nolinkurl{cortexPredict_not_const}, \nolinkurl{cortexPredict_fixed_unique}, \nolinkurl{cortexPredict_dist}). Differences elsewhere are invisible to this map. The whole-field averaging map \texttt{relax} therefore cannot replace it as a witness for a one-site encoding.
+On the three-site witness, the avatar is one site. The encoding reads its mass (\texttt{avatarRead}), and \texttt{avatarReadout} reconstructs a profile by averaging the reading with a baseline. The resulting map is nonconstant, has a unique fixed point, and contracts by one half of the difference visible at the avatar (\nolinkurl{cortexPredict_not_const}, \nolinkurl{cortexPredict_fixed_unique}, \nolinkurl{cortexPredict_dist}). Differences elsewhere are invisible to this map. The whole-field averaging map \texttt{relax} therefore cannot replace it as a witness for a one-site encoding.
 
 The witness takes $K=3$, $D=1$ and $\tau=2\ln2$, so $\Lambda=1/2$ (\texttt{cortexResonanceRate}). These are parameters chosen for the example, not calibrated cortical values. The boundary \texttt{cortexReflexive} performs restriction and satisfies resonance. Its avatar distinguishes the silent field from the baseline, as shown by \nolinkurl{cortexReflexive_restrict_ne}. One avatar per site gives a covering family and reconstruction from the three readings (\nolinkurl{cortex_eq_of_avatar_eq}). The same map at $K=1$ exercises the failure of contraction at the prescribed subcritical factor (\nolinkurl{cortexSubcritical_not_contracting}).
 
-Replacing the encoding by a constant makes the composite constant. It still has a unique fixed point, namely the readout of that constant (\nolinkurl{constResonance_existsUnique_self}). In the cortical control, this fixed point differs from the original baseline (\nolinkurl{cortexBlind_self_ne}), and distinct states have identical blinded readings (\nolinkurl{cortexBlind_not_determined}). A constant encoding fails restriction resonance whenever two states differ on the avatar region (\nolinkurl{constResonance_not_isRestrictionResonance}). The control thus distinguishes fixed-point uniqueness from sensitivity to the encoded state.
+Replacing the encoding by a constant makes the composite constant. It still has a unique fixed point, namely the readout of that constant (\nolinkurl{constResonance_existsUnique_self}). In the blinded control, this fixed point differs from the original baseline (\nolinkurl{cortexBlind_self_ne}), and distinct states have identical blinded readings (\nolinkurl{cortexBlind_not_determined}). A constant encoding fails restriction resonance whenever two states differ on the avatar region (\nolinkurl{constResonance_not_isRestrictionResonance}). The control thus distinguishes fixed-point uniqueness from sensitivity to the encoded state.
 
 The approximate bound is sharp on the same one-site-avatar witness. The silent profile has $d(s,F(s))=1$ and $d(s,s_*)=2$, attaining $\varepsilon/(1-\Lambda)$ at $\varepsilon=1$, $\Lambda=1/2$
 (\nolinkurl{cortexSilent_prediction_residual},
@@ -1102,7 +1099,7 @@ states separated by more than $2\varepsilon$, despite the composite having a
 unique fixed point.
 
 \nolinkurl{Examples/Reconstruction.lean}, \S24, reconstructs the
-cortex's two extreme states within tolerance one using a nonconstant encoder
+three-site witness's two extreme states within tolerance one using a nonconstant encoder
 and a contracting map. Its blinded boundary fails at tolerance $1/2$.
 A separate three-state example rejects a two-code alphabet at that tolerance
 and succeeds with three codes. These are additional operational criteria on
@@ -1116,22 +1113,7 @@ capacity and delivery times need further hardware assumptions.
 
 The results of the article's Section on unconditional limits hold for any candidate, and for a large language model running on graphics processing units four of them are checkable rather than merely stateable. They fix what a claim of unity or self-representation for such a system commits its maker to measuring; none of them excludes a digital realization.
 
-A fixed synthetic task makes the scope visible. Two local views share scene
-and self coordinates; the target is the global state and a self-relative
-coordinate. On the parity-held-out family, a rank-two linear decoder's
-input-weighted predicted training-error floor is \gParityRankTwoFloor{}, and
-its held-out error is \gParityRankTwoHeldout{}. Equal numerical values do
-not make the training-law floor a held-out guarantee. On a separate
-scene-family shift, the fitted full linear decoder has training error
-\gSceneFullTrainError{} and held-out error \gSceneFullHeldoutError{}.
-The task's declared target map reconstructs the noiseless held-out inputs
-with error \gSceneDeclaredMapHeldout{}; the restricted training family leaves
-one direction unidentified. A small causal attention decoder and a coupled
-phase code also lose held-out accuracy on that shift under their stated CPU
-fits; neither is governed by the linear rank floor. The measured codes,
-overlap perturbations, self-state interventions and communication deadlines
-are described in the task sections of this supplement. These task results rank no
-architecture family and supply no hardware-energy or experiential claim.
+A fixed synthetic task, reported with the spectral bound in Section~\ref{sec:supp-spectral}, exercises these obligations on linear, attention and phase-code decoders under declared CPU fits. Its results rank no architecture family and supply no hardware-energy or experiential claim.
 
 \paragraph{Codes, not reports.} Reconstruction across a declared family requires the encoder to distinguish states more than $2\varepsilon$ apart when the target error is $\varepsilon$ (Eq.~\eqref{eq:reconstruction-separation}). Verbal reports alone do not establish that condition. For a proposed self-model, declare the family and fidelity, identify the internal code under intervention, then test whether it separates the family. A token sequence is one possible code; an activation region is another and requires its own measurement.
 
@@ -1172,6 +1154,7 @@ unbounded capacity claim. This framework attributes no computational power
 beyond ordinary finite-precision computation to an analog medium.
 
 \subsection{Spectral error through a linear code space}
+\label{sec:supp-spectral}
 
 Let a finite spatial coupling operator $K$ have orthonormal eigenmodes
 $e_i$ with $|\lambda_1|\geq\cdots\geq|\lambda_N|$. Every linear
