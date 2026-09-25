@@ -57,9 +57,14 @@
       equation and both stability branches)
     `Examples/AgencyFoundations.lean` -- regressions for the agency foundations
     `Examples/PhysicalUnity.lean` §38 (a bit with a margin, and a diffusive pair
-      whose agreement is physically enforced)
+      whose agreement is physically enforced; a bit on its threshold, and a
+      leakage scale that is sharp)
     `Examples/AgreementResistance.lean` §39 (a series row whose resistance bound
-      is attained, and a direct edge that lowers it)
+      is attained, a direct edge that lowers it, and a shell bound attained)
+    `Examples/RelativePhase.lean` §40 (a winding on which the absolute encoder
+      disagrees everywhere and the relative encoder nowhere)
+    `Examples/UnityWindow.lean` §41 (a halving map meeting the relaxation edge
+      exactly)
 
   **Coverage — every class carrying a physical postulate is now inhabited.**
     ✓ `StatisticalMechanics` — a one-bit erasure model with a genuine bath.
@@ -187,3 +192,5 @@ import PhysicsOfConsciousness.Examples.PhaseFeedback
 import PhysicsOfConsciousness.Examples.InputWeightedRank
 import PhysicsOfConsciousness.Examples.PhysicalUnity
 import PhysicsOfConsciousness.Examples.AgreementResistance
+import PhysicsOfConsciousness.Examples.RelativePhase
+import PhysicsOfConsciousness.Examples.UnityWindow

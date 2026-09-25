@@ -103,6 +103,17 @@ Spatial agreement beyond the worst-case chain:
   critical dimension 4 (Hong et al. *PRL* 2007 — verify). Gives the field
   hypothesis a role about kernel *shape*, not strength. Falsifiable: measure
   the effective kernel's tail exponent.
+  *Lean half 2026-09-25* (`Phase10_AgreementResistance`): the short-range side
+  is proved without the harmonic approximation. `conductance_le_shell`
+  (Nash-Williams: shells in series, coupling reaching at most one shell, give
+  conductance ≤ `1/Σ 1/C_k`) and `conductance_mul_log_le` (crossing coupling
+  `C_k ≤ c(k+1)`, the planar perimeter law, gives `R_eff ≥ log(n+1)/c`): on a
+  sheet, bounded-range coupling cannot give distance-independent agreement,
+  and the slope `c` grows with the kernel's width (U3(c)). Witness §39: the
+  shell bound is attained on the series row. Not proved: the σ<2 side
+  (bounded `R_eff`) needs a flow/Thomson construction over a multiscale path
+  family; it stays numerical (U3). Open: prose in `unity/main.tex` §reach;
+  verify Hong et al. 2007 before citing.
 - [x] **U3 — Numerical check first.** Read discrepancy (phase difference /
   chord) vs distance from the saved sheet summaries if they hold it; else run
   a short-range vs power-law-kernel sheet comparison (separate command, not a
@@ -138,6 +149,17 @@ Spatial agreement beyond the worst-case chain:
 - [ ] **U4 — Relative-phase encoders.** Show encoders reading phase relative
   to the local gradient make travelling waves / windings harmless to content
   agreement (the worst case of the linear chain bound).
+  *Lean done 2026-09-25* (`Phase10_RelativePhase`, recorded leaf): sites an
+  additive group, phases an additive group (ℝ or `AddCircle`); `relRead` is
+  the stencil read relative to the site's own phase; `IsWave` a constant plus
+  an additive map (gradients, travelling waves, windings on a torus/ring).
+  `relContent_eq_of_wave`: every relative encoder reports one content at
+  every site of a wave; `dist_relContent_le`: for wave + departure `η`, a
+  Lipschitz relative encoder's discrepancy is ≤ `L(‖relRead η x‖+‖relRead η y‖)`
+  — independent of gradient and separation. Witness §40: a winding on
+  `ZMod m` where the absolute encoder disagrees at every pair of sites and the
+  relative one nowhere; a gradient on ℤ with absolute discrepancy `|δ||x−y|`.
+  Open: prose.
 - [ ] **U5 — Carry the honest costs.** E78 (one oscillator per content patch)
   still applies; the ephaptic amplitude objection remains — a long-range tail
   helps only if its conductance is not negligible against the short-range
@@ -176,6 +198,16 @@ The causal lens:
   quantitative deadline). Upper bound: disagreement decays at the relaxation
   rate (spectral gap / `R_eff`, U1). Unity requires a nonempty window at the
   content's time scale.
+  *Lean done 2026-09-25* (`Phase10_UnityWindow`, recorded leaf; it consumes
+  `Phase6_Locality`, whose leaf exemption is therefore removed):
+  `mem_ball_of_reconstructs` (lower edge, the cone deadline read forward),
+  `disc_iterate_le` / `disc_iterate_le_of_log_le` (upper edge: contraction κ
+  reaches ε by `log(d₀/ε)/log(1/κ)` steps), `le_disc_iterate` /
+  `lt_disc_iterate_of_lt_log` (no earlier than the slowest rate ρ allows).
+  Witness §41: a halving map meets the edge exactly (≤1 at step 3, >1 at 2).
+  Not proved: rate = spectral gap or ∝ 1/`R_eff`; that is linear response and
+  stays in the text. Open: prose, and the magnitude estimate that decides
+  whether the window is nonempty at cortical time scales.
 - [ ] **U9 — Field causal-cone signature.** A quasi-static field's cone is
   not the synaptic one: re-agreement between distant regions after a
   perturbation faster than axonal conduction plus synaptic delay would
@@ -197,6 +229,16 @@ Pitfalls to address in the text:
   reduction-order nondeterminism, thermal throttling). Make the criterion
   quantitative: the physical variables must carry content-relevant agreement,
   not content-uncorrelated noise.
+  *Lean done 2026-09-25* (`Phase10_PhysicalUnity`):
+  `exists_threshold_of_gradedDependence` (graded dependence of a bit word
+  occurs only with some bit exactly on its threshold), `HasMarginRadius` with
+  `content_eq_of_lipschitz` and `bits_eq_of_lipschitz` (under an L-Lipschitz
+  micro dynamics, one-region changes below `δ/(L·Lv)` move no bit — the scale
+  leakage must exceed). Witness §38: graded dependence at the threshold, and
+  the scale is sharp (a change of exactly 1 flips the bit). Reduction-order
+  nondeterminism is a logical-level variation, not graded dependence, and the
+  theorems do not speak to it. Open: prose; estimates of δ, L, Lv for real
+  hardware.
 - [ ] **U14 — Position against related work** (verify each online, AGENTS.md
   §4): Rosas, Mediano, Seth et al. on computational/causal closure ("software
   in the natural world") — closest formal neighbour, and they read closure as

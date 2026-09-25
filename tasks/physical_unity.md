@@ -119,6 +119,18 @@ New targets:
    content; the identity itself and the log growth are numerical (U3).
 7. **Unity window (U8).** Lower edge from result 3, upper edge from the
    relaxation rate of result 6.
+   Proved: `Phase10_UnityWindow` (cone edge read forward; relaxation edge
+   `log(d₀/ε)/log(1/κ)`, sharp by a halving witness).
+8. **Short-range coupling on a sheet (U2, Lean half).** `R_eff ≥ log(n+1)/c`
+   when the coupling crossing shell `k` is at most `c(k+1)`
+   (`conductance_mul_log_le`, via the Nash-Williams bound
+   `conductance_le_shell`).
+9. **Relative-phase encoders (U4).** `Phase10_RelativePhase`: plane waves and
+   windings cost a relative encoder nothing; its discrepancy is set by the
+   departure from a wave, not by the gradient or the separation.
+10. **Leakage scale (U13).** Graded dependence of a bit word needs a bit on
+    its threshold; below `δ/(L·Lv)` one region moves no bit
+    (`bits_eq_of_lipschitz`).
 
 ## Tests
 

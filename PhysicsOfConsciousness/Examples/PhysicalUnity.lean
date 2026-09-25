@@ -15,6 +15,12 @@ import PhysicsOfConsciousness.Phase10_PhysicalUnity
   so agreement between them is physically enforced at every state. The
   definition is therefore not empty, and what excludes the bit is its margin,
   not the definition.
+* **On the threshold.** At `![0, 0]` the bit does depend gradedly on region 0,
+  so `exists_threshold_of_gradedDependence` has instances.
+* **The leakage scale is sharp.** At `![1, 0]`, a unit away from the threshold
+  with unit Lipschitz constants, `bits_eq_of_lipschitz` leaves the bit fixed
+  under every change of region 0 smaller than `1`, and the change of exactly `1`
+  to `![0, 0]` flips it.
 -/
 
 open Filter Topology
@@ -61,5 +67,28 @@ theorem diffuse_physicallyEnforced (x : Pair) :
     PhysicallyEnforced (S := fun _ : Fin 2 => ℝ) diffuse (fun y => y 1) 0
       (fun y => |y 0 - y 1|) x :=
   ⟨diffuse_gradedDependence x, diffuse_contracts x⟩
+
+/-- On its threshold the bit depends gradedly on region 0. -/
+theorem bit_gradedDependence_at_threshold :
+    GradedDependence (S := fun _ : Fin 2 => ℝ) id (fun y (_ : Unit) => bit y) 0 ![0, 0] := by
+  intro h
+  have h' : ∀ᶠ s in 𝓝[>] (0 : ℝ), _ := nhdsWithin_le_nhds h
+  obtain ⟨s, hs, hpos⟩ := (h'.and self_mem_nhdsWithin).exists
+  have := congrFun hs ()
+  simp [bit] at this
+  exact absurd hpos (not_lt.mpr this)
+
+/-- Below the unit margin width the bit does not move. -/
+theorem bit_eq_of_small (s : ℝ) (hs : dist s 1 < 1) :
+    bit (Function.update ![1, 0] 0 s) = bit ![1, 0] := by
+  have h := bits_eq_of_lipschitz (κ := Unit) (S := fun _ : Fin 2 => ℝ) (f := id) (L := 1)
+    LipschitzWith.id (v := fun _ y => y 0) (Lv := 1) (fun _ => LipschitzWith.eval 0)
+    (by norm_num) (fun _ => 0) (δ := 1) (x := ![1, 0]) (fun _ => by simp) 0 s
+    (by simpa using hs)
+  exact congrFun h ()
+
+/-- A change of exactly the margin width flips the bit. -/
+theorem bit_flips_at_width : bit (Function.update ![1, 0] 0 0) ≠ bit ![1, 0] := by
+  simp [bit]
 
 end PhysicsOfConsciousness.PhysicalUnity.Examples

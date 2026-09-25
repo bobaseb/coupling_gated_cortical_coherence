@@ -29,6 +29,14 @@ The results:
   therefore only improve the typical agreement, whatever its shape.
 * **`le_conductance_of_edge`.** A direct coupling caps the resistance:
   `K a b ≤ C`, at any distance between `a` and `b`.
+* **`conductance_le_shell`** (Nash-Williams). Nested shells around `a`, with
+  the coupling reaching at most one shell, act as conductors in series: the
+  conductance is at most `1 / Σ_k 1/C_k`, `C_k` the coupling crossing shell `k`.
+* **`conductance_mul_log_le`.** When the crossing coupling grows at most
+  linearly with the shell index, as it does for bounded-range coupling on a
+  planar sheet, the resistance grows at least like `log n / c`. Short-range
+  coupling therefore cannot give distance-independent agreement on a sheet;
+  how slowly it degrades is set by `c`, which grows with the kernel's width.
 * **`integral_dist_sq_le`.** A Lipschitz encoder transfers phase agreement to
   content agreement in mean square: the mean-square content discrepancy is at
   most `L²` times the mean-square phase difference, under any distribution of
@@ -36,7 +44,8 @@ The results:
   discrepancy is at most `L √(D / C)`.
 
 Non-vacuity — a series pair of couplings with conductance `½`, raised to at least
-`1` by a direct edge — is `Examples/AgreementResistance.lean`.
+`1` by a direct edge, and a shell bound attained on the same row — is
+`Examples/AgreementResistance.lean`.
 -/
 
 open MeasureTheory
@@ -131,6 +140,142 @@ theorem le_conductance_of_edge [DecidableEq ι] {K : ι → ι → ℝ} (hK : �
   rw [hu, hu', hsym b a] at hsum
   unfold energy
   linarith
+
+/-- Whether the ordered pair `p` straddles the boundary between shell `k` and
+shell `k + 1` of the shell index `h`. -/
+def Crosses (h : ι → ℕ) (k : ℕ) (p : ι × ι) : Prop :=
+  (h p.1 = k ∧ h p.2 = k + 1) ∨ (h p.1 = k + 1 ∧ h p.2 = k)
+
+instance (h : ι → ℕ) (k : ℕ) (p : ι × ι) : Decidable (Crosses h k p) := by
+  unfold Crosses; infer_instance
+
+/-- The coupling that crosses from shell `k` to shell `k + 1`. -/
+noncomputable def shellCapacity (K : ι → ι → ℝ) (h : ι → ℕ) (k : ℕ) : ℝ :=
+  (1 / 2) * ∑ p : ι × ι, if Crosses h k p then K p.1 p.2 else 0
+
+/-- The shell test configuration: the weight of the shells from `i`'s own to the
+`n`-th. -/
+noncomputable def shellPotential (h : ι → ℕ) (n : ℕ) (t : ℕ → ℝ) (i : ι) : ℝ :=
+  ∑ k ∈ Finset.Ico (min (h i) n) n, t k
+
+omit [Fintype ι] in
+lemma shellPotential_sub_of_succ (h : ι → ℕ) (n : ℕ) (t : ℕ → ℝ) {i j : ι}
+    (hij : h j = h i + 1) :
+    shellPotential h n t i - shellPotential h n t j = if h i < n then t (h i) else 0 := by
+  unfold shellPotential
+  rw [hij]
+  split_ifs with hn
+  · rw [min_eq_left hn.le, min_eq_left (Nat.succ_le_of_lt hn),
+      Finset.sum_eq_sum_Ico_succ_bot hn]
+    ring
+  · push Not at hn
+    rw [min_eq_right hn, min_eq_right (hn.trans (Nat.le_succ _))]
+    ring
+
+omit [Fintype ι] in
+lemma sq_shellPotential_sub {K : ι → ι → ℝ} {h : ι → ℕ}
+    (hrange : ∀ i j, K i j ≠ 0 → h j ≤ h i + 1 ∧ h i ≤ h j + 1) (n : ℕ) (t : ℕ → ℝ)
+    (p : ι × ι) :
+    K p.1 p.2 * (shellPotential h n t p.1 - shellPotential h n t p.2) ^ 2 =
+      ∑ k ∈ Finset.range n, t k ^ 2 * (if Crosses h k p then K p.1 p.2 else 0) := by
+  obtain ⟨i, j⟩ := p
+  by_cases hK : K i j = 0
+  · simp [hK]
+  obtain ⟨h1, h2⟩ := hrange i j hK
+  rcases (show h i = h j ∨ h j = h i + 1 ∨ h i = h j + 1 by omega) with he | he | he
+  · have hc : ∀ k, ¬ Crosses h k (i, j) := by intro k; simp only [Crosses]; omega
+    simp [shellPotential, he, hc]
+  · have hc : ∀ k, Crosses h k (i, j) ↔ h i = k := by intro k; simp only [Crosses]; omega
+    simp only [shellPotential_sub_of_succ h n t he, hc, mul_ite, mul_zero]
+    rw [Finset.sum_ite_eq]
+    split_ifs with hn hn' hn' <;> simp only [Finset.mem_range] at * <;>
+      first | (exfalso; omega) | ring
+  · have hc : ∀ k, Crosses h k (i, j) ↔ h j = k := by intro k; simp only [Crosses]; omega
+    have hsub := shellPotential_sub_of_succ h n t he
+    have hneg : shellPotential h n t i - shellPotential h n t j =
+        -(shellPotential h n t j - shellPotential h n t i) := by ring
+    simp only [hneg, neg_sq, hsub, hc, mul_ite, mul_zero]
+    rw [Finset.sum_ite_eq]
+    split_ifs with hn hn' hn' <;> simp only [Finset.mem_range] at * <;>
+      first | (exfalso; omega) | ring
+
+/-- **The energy of the shell configuration** is the shell capacities weighted by
+the squared shell steps. -/
+lemma energy_shellPotential {K : ι → ι → ℝ} {h : ι → ℕ}
+    (hrange : ∀ i j, K i j ≠ 0 → h j ≤ h i + 1 ∧ h i ≤ h j + 1) (n : ℕ) (t : ℕ → ℝ) :
+    energy K (shellPotential h n t) = ∑ k ∈ Finset.range n, t k ^ 2 * shellCapacity K h k := by
+  unfold energy shellCapacity
+  simp only [sq_shellPotential_sub hrange n t]
+  rw [Finset.sum_comm, Finset.mul_sum]
+  refine Finset.sum_congr rfl fun k _ => ?_
+  rw [← Finset.mul_sum]; ring
+
+/-- **Shells in series bound the conductance** (Nash-Williams). Let the shell
+index `h` put `a` in shell `0` and `b` at or beyond shell `n`, and let the
+coupling reach at most one shell: `K i j ≠ 0` only between sites whose shells
+differ by at most one. Then the shells act as conductors in series, and the
+effective conductance is at most `1 / Σ_{k<n} 1/C_k`, where `C_k` is the coupling
+crossing from shell `k` to shell `k + 1`. -/
+theorem conductance_le_shell {K : ι → ι → ℝ} (hK : ∀ i j, 0 ≤ K i j) {h : ι → ℕ}
+    (hrange : ∀ i j, K i j ≠ 0 → h j ≤ h i + 1 ∧ h i ≤ h j + 1) {a b : ι} {n : ℕ}
+    (ha : h a = 0) (hb : n ≤ h b) (hn : n ≠ 0)
+    (hC : ∀ k < n, 0 < shellCapacity K h k) :
+    conductance K a b ≤ (∑ k ∈ Finset.range n, (shellCapacity K h k)⁻¹)⁻¹ := by
+  set C := shellCapacity K h
+  set S := ∑ k ∈ Finset.range n, (C k)⁻¹
+  have hS : 0 < S := Finset.sum_pos (fun k hk => inv_pos.mpr (hC k (Finset.mem_range.mp hk)))
+    (Finset.nonempty_range_iff.mpr hn)
+  set t : ℕ → ℝ := fun k => (C k)⁻¹ / S
+  have hdrop : shellPotential h n t a - shellPotential h n t b = 1 := by
+    simp only [shellPotential, ha, hb, min_eq_left, min_eq_right, Nat.zero_le,
+      Finset.Ico_self, Finset.sum_empty, ← Finset.range_eq_Ico, t, ← Finset.sum_div]
+    rw [zero_div, sub_zero]
+    exact div_self hS.ne'
+  have hE : energy K (shellPotential h n t) = S⁻¹ := by
+    rw [energy_shellPotential hrange]
+    have hk : ∀ k ∈ Finset.range n, t k ^ 2 * C k = (C k)⁻¹ / S ^ 2 := by
+      intro k hk
+      have := (hC k (Finset.mem_range.mp hk)).ne'
+      simp only [t]; field_simp
+    rw [Finset.sum_congr rfl hk, ← Finset.sum_div]
+    change S / S ^ 2 = S⁻¹
+    field_simp
+  calc conductance K a b ≤ energy K (shellPotential h n t) :=
+        csInf_le (bddBelow_energy hK _) ⟨_, hdrop, rfl⟩
+    _ = S⁻¹ := hE
+
+/-- **On a plane, short-range coupling gives resistance growing at least like the
+log of the distance.** If the coupling crossing shell `k` grows at most linearly,
+`C_k ≤ c (k + 1)` — as it does for a coupling of bounded range on a planar sheet,
+where shell `k` has perimeter proportional to `k` — then the effective
+resistance to a site beyond shell `n` is at least `log (n + 1) / c`. Agreement
+under noise therefore degrades without bound as the sites separate. -/
+theorem conductance_mul_log_le {K : ι → ι → ℝ} (hK : ∀ i j, 0 ≤ K i j) {h : ι → ℕ}
+    (hrange : ∀ i j, K i j ≠ 0 → h j ≤ h i + 1 ∧ h i ≤ h j + 1) {a b : ι} {n : ℕ}
+    (ha : h a = 0) (hb : n ≤ h b) (hn : n ≠ 0) {c : ℝ}
+    (hC : ∀ k < n, 0 < shellCapacity K h k)
+    (hlin : ∀ k < n, shellCapacity K h k ≤ c * (k + 1)) :
+    conductance K a b * Real.log (n + 1) ≤ c := by
+  have hc : 0 < c := by
+    have := (hC 0 (Nat.pos_of_ne_zero hn)).trans_le (hlin 0 (Nat.pos_of_ne_zero hn))
+    simpa using this
+  set S := ∑ k ∈ Finset.range n, (shellCapacity K h k)⁻¹
+  have hS : Real.log (n + 1) / c ≤ S := by
+    have hH := log_add_one_le_harmonic n
+    push_cast [harmonic] at hH
+    rw [div_le_iff₀ hc, Finset.sum_mul]
+    refine hH.trans (Finset.sum_le_sum fun k hk => ?_)
+    have hk := Finset.mem_range.mp hk
+    rw [inv_mul_eq_div, le_div_iff₀ (hC k hk), ← div_eq_inv_mul, div_le_iff₀ (by positivity)]
+    linarith [hlin k hk]
+  have hlog : 0 ≤ Real.log (n + 1) := Real.log_nonneg (by linarith [(n.cast_nonneg : (0:ℝ) ≤ n)])
+  have hSpos : 0 < S := Finset.sum_pos
+    (fun k hk => inv_pos.mpr (hC k (Finset.mem_range.mp hk))) (Finset.nonempty_range_iff.mpr hn)
+  calc conductance K a b * Real.log (n + 1) ≤ S⁻¹ * (c * S) := by
+        refine mul_le_mul (conductance_le_shell hK hrange ha hb hn hC) ?_ hlog
+          (inv_nonneg.mpr hSpos.le)
+        rwa [div_le_iff₀ hc, mul_comm] at hS
+    _ = c := by field_simp
 
 omit [Fintype ι] in
 /-- **Phase agreement becomes content agreement.** Under any distribution of

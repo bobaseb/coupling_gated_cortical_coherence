@@ -182,17 +182,6 @@ ALLOWED_LEAVES: dict[str, str] = {
         "carry phase — a modelling decision, not a formalization step, and not "
         "one to be taken to close this gate"
     ),
-    "Phase6_Locality.lean": (
-        "deliberate, and terminal by content. The module's results delimit "
-        "another module's theorem: `not_reconstructs_of_outside_past` says "
-        "that `Phase6_Reconstruction`'s bound applies to a site outside the "
-        "causal past of the intervention, so no report read off that site can "
-        "track it, whatever the snapshot gluing elsewhere supplies. A "
-        "delimitation has nothing downstream to feed: its consumers are the "
-        "reader of the theorem it bounds and the witnesses of "
-        "`Examples/Locality.lean`. Routing it into `chain` would add a "
-        "temporal requirement to edges whose hypotheses are snapshots"
-    ),
     "Phase7_FiniteRegion.lean": (
         "deliberate, and terminal by content. The module's results delimit "
         "another module's theorem: `cellKernel_not_sitedOn` says that the "
@@ -223,6 +212,24 @@ ALLOWED_LEAVES: dict[str, str] = {
         "approximation that turns resistance into phase variance, which the "
         "chain does not state. Their consumers are the physical-unity paper "
         "and the witnesses of `Examples/AgreementResistance.lean`"
+    ),
+    "Phase10_RelativePhase.lean": (
+        "deliberate — the relative-phase encoder answers the worst case of the "
+        "chaining bound, a phase gradient or winding, by changing what the "
+        "encoder reads rather than by bounding how far the gradient runs. The "
+        "conditional chain's encoders read absolute phase, so routing "
+        "`relContent_eq_of_wave` into `chain` would change the encoder the "
+        "chain states. Its consumers are the physical-unity paper and the "
+        "witnesses of `Examples/RelativePhase.lean`"
+    ),
+    "Phase10_UnityWindow.lean": (
+        "deliberate — the unity window reads the causal-cone deadline forward "
+        "and adds the relaxation edge for a declared contraction rate. It is a "
+        "timing condition of the physical-unity premise, not a node of the "
+        "substrate-neutral conditional chain, and identifying the rate with a "
+        "spectral gap is made in the paper's text rather than proved. Its "
+        "consumers are the physical-unity paper and the witnesses of "
+        "`Examples/UnityWindow.lean`"
     ),
 }
 

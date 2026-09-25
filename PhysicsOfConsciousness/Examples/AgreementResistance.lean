@@ -12,6 +12,10 @@ import PhysicsOfConsciousness.Phase10_AgreementResistance
 * **A direct edge.** Joining the ends by a unit coupling raises their
   conductance to at least `1` (`le_conductance_of_edge`), strictly above the
   series value, so the improvement that `conductance_mono` permits occurs.
+* **Shells.** Taking each site as its own shell, both crossings carry unit
+  coupling, and `conductance_le_shell` gives `1 / (1 + 1) = ½`: the series
+  value, so the Nash-Williams bound is attained. With `c = 1` the same row
+  meets every hypothesis of `conductance_mul_log_le`.
 -/
 
 namespace PhysicsOfConsciousness.PhysicalUnity.Examples
@@ -51,5 +55,31 @@ theorem series_lt_ring3 : conductance series 0 2 < conductance ring3 0 2 := by
   have h := le_conductance_of_edge ring3_nonneg ring3_symm (a := 0) (b := 2) (by decide)
   have h1 : ring3 0 2 = 1 := rfl
   linarith
+
+/-- Each site of the row is its own shell. -/
+def shell : Fin 3 → ℕ := fun i => i
+
+theorem series_range (i j : Fin 3) (h : series i j ≠ 0) :
+    shell j ≤ shell i + 1 ∧ shell i ≤ shell j + 1 := by
+  fin_cases i <;> fin_cases j <;> simp_all [series, shell]
+
+theorem shellCapacity_series (k : ℕ) (hk : k < 2) : shellCapacity series shell k = 1 := by
+  interval_cases k <;>
+    simp [shellCapacity, Crosses, series, shell, Fintype.sum_prod_type, Fin.sum_univ_three] <;>
+    norm_num
+
+theorem conductance_series_le_shell : conductance series 0 2 ≤ 1 / 2 := by
+  have h := conductance_le_shell series_nonneg series_range (a := 0) (b := 2) (n := 2)
+    rfl le_rfl (by norm_num) (fun k hk => by rw [shellCapacity_series k hk]; norm_num)
+  simp only [Finset.sum_range_succ, Finset.sum_range_zero,
+    shellCapacity_series 0 (by norm_num), shellCapacity_series 1 (by norm_num)] at h
+  norm_num at h ⊢
+  exact h
+
+theorem conductance_series_mul_log_le : conductance series 0 2 * Real.log (2 + 1) ≤ 1 := by
+  have := conductance_mul_log_le series_nonneg series_range (a := 0) (b := 2) (n := 2) (c := 1)
+    rfl le_rfl (by norm_num) (fun k hk => by rw [shellCapacity_series k hk]; norm_num)
+    (fun k hk => by rw [shellCapacity_series k hk]; linarith [(k.cast_nonneg : (0:ℝ) ≤ k)])
+  exact_mod_cast this
 
 end PhysicsOfConsciousness.PhysicalUnity.Examples
