@@ -283,7 +283,7 @@ Finiteness of that integral is not the same as $\sum_i\dot\theta_i^2 \to 0$: an 
 
 Its hypothesis is then checked for the dissipation rate without differentiating it: the velocities are bounded by $\sum_i|\omega_i| + \sum_{ij}|A_{ij}|$, the field is Lipschitz in the configuration, and the configuration is Lipschitz in time because its derivative \emph{is} the bounded field (\nolinkurl{trajectory_dist_le}, by the mean value theorem, with no invariant region needed since the bound holds on the whole state space). The conclusion is \nolinkurl{velocity_sq_tendsto_zero}: along \emph{every} trajectory of a zero-frequency system, $\sum_i\dot\theta_i^2 \to 0$; equivalently each $\dot\theta_i \to 0$ and the vector field along the trajectory tends to $0$ in the state space. The statement applies to arbitrary trajectories under these hypotheses, and \texttt{Examples}~\S15 applies it to the relaxing pair, whose velocity starts at $-1$ and tends to zero.
 
-At zero frequencies, the flow is the negative gradient of its dynamic potential. The identity $\dot V = -\sum_i\dot\theta_i^2$ is formalized by \nolinkurl{dynamic_potential_hasDerivAt}. The minimizers of this potential are characterized by phase-locking. \nolinkurl{lojasiewicz_estimate} adds the missing ingredient: on the region where every pairwise phase difference lies within a quarter turn, $2a^2W \le \left(\sum_{ij}A_{ij}\right)\sum_i\dot\theta_i^2$, where $W$ is the excess of the potential over its minimum and $a > 0$ is a lower bound for the coupling. Its proof uses no spectral gap and no convexity, only two extremal indices: at the site $m$ carrying the largest phase every coupling term has $\theta_j - \theta_m \in [-D,0]$ with $D \le \pi/2$ the spread, so every term is non-positive, and the term from the site carrying the smallest phase is at most $-a\sin D$ (\nolinkurl{velocity_max_le}); against $W \le \tfrac12\left(\sum_{ij}A_{ij}\right)(1-\cos D)$ the estimate follows from $\sin^2 D = (1-\cos D)(1+\cos D)$ and $\cos D \ge 0$, which is the only place the quarter-turn hypothesis is used.
+At zero frequencies, the flow is the negative gradient of its dynamic potential. The identity $\dot V = -\sum_i\dot\theta_i^2$ is formalized by \nolinkurl{dynamic_potential_hasDerivAt}. The minimizers of this potential are characterized by phase-locking. \nolinkurl{lojasiewicz_estimate} adds the missing ingredient: on the region where every pairwise phase difference lies within a quarter turn, $2a^2W \le \left(\sum_{ij}A_{ij}\right)\sum_i\dot\theta_i^2$, where $W$ is the excess of the potential over its minimum and $a > 0$ is a lower bound for the coupling. Its proof uses no spectral gap and no convexity, only two extremal indices: at the site $m$ carrying the largest phase every coupling term has $\theta_j - \theta_m \in [-\Delta,0]$ with $\Delta \le \pi/2$ the spread, so every term is non-positive, and the term from the site carrying the smallest phase is at most $-a\sin \Delta$ (\nolinkurl{velocity_max_le}); against $W \le \tfrac12\left(\sum_{ij}A_{ij}\right)(1-\cos \Delta)$ the estimate follows from $\sin^2 \Delta = (1-\cos \Delta)(1+\cos \Delta)$ and $\cos \Delta \ge 0$, which is the only place the quarter-turn hypothesis is used.
 
 The initial energy bound keeps the trajectory in this region. Because all terms of the excess are non-negative, a single pair satisfies $\tfrac12 a(1-\cos(\theta_j - \theta_i)) \le W$, so an initial excess below $a/2$ --- which \nolinkurl{dynamic_potential_antitone} preserves --- keeps every pairwise cosine strictly positive for all time. A difference escaping $[-\pi/2,\pi/2]$ would have to cross $\pi/2$ in absolute value by the intermediate value theorem, and there the cosine vanishes; so the quarter-turn region is forward invariant (\nolinkurl{spread_le_of_small}). Continuity on the connected half-line thus pins the phase differences to that branch.
 
@@ -331,7 +331,7 @@ Normalize the substrate measure $\mu$ to one. Write $m_i=\int\phi_i\,d\mu$ and d
 \end{equation}
 If this mean coupling is the $K$ of the scalar model, $\kappa U_{\mathrm{inst}}\leq2D$ excludes a coherent stationary branch and any growing Fourier mode about the uniform density. Thus coherence on that branch requires $U_{\mathrm{inst}}>2D/\kappa$. The condition is necessary: energy above it need not produce sufficient coupling because the bound can be loose.
 
-The theorem concerns stored energy in the declared actuator modes. The estimated cortical signalling expenditure and extracellular electrostatic energy in Supplemental Material measure different quantities; neither identifies the occupancies, mode prices or their relation to metabolic supply. Consequently the bound supplies a necessary condition for a declared actuator, but no cortical value of $\kappa$ or demonstration that cortex meets it. Applying the scalar threshold to heterogeneous or signed spatial dynamics also needs a justified reduction.
+The theorem concerns stored energy in the declared actuator modes. The estimated cortical signalling expenditure and extracellular electrostatic energy of Section~\ref{sec:supp-energy-budget} measure different quantities; neither identifies the occupancies, mode prices or their relation to metabolic supply. Consequently the bound supplies a necessary condition for a declared actuator, but no cortical value of $\kappa$ or demonstration that cortex meets it. Applying the scalar threshold to heterogeneous or signed spatial dynamics also needs a justified reduction.
 
 
 \subsection{Microscopic modes and a spatial kernel}
@@ -446,15 +446,16 @@ gate transfers energy with zero path entropy production and does not satisfy
 the proposed transition-log heat identification. The conversion factor is
 declared hardware data, independent of the noise threshold; the mode condition
 checks its admissibility, not when it was chosen. Exceeding $2D/\kappa$ is
-necessary and does not guarantee coherence. E56's identification of the kernel
+necessary and does not guarantee coherence. Table~\ref{tab:edges} lists the connecting hypotheses E12--E89 of the formal composition. E56's identification of the kernel
 with a cortical field remains a physical commitment. In \texttt{Chain.lean},
 \nolinkurl{installedEnergy_required_by_chain}
 derives $U_{\mathrm{inst}}>2D/\kappa$ from E56 and E67 for the arrangement's
 own convergent energy sequence; it supplies neither edge.
 
 \subsubsection*{The bound against a cortical energy budget}
+\label{sec:supp-energy-budget}
 
-The condition $U_{\mathrm{inst}}>2D/\kappa$ concerns energy stored in declared actuator modes. A metabolic budget supplies a different quantity. Take a sphere of one LFP decay length at the density quoted there: $\energyNeurons$ neurons. At $\energyAtpRate$~ATP\,s$^{-1}$ per neuron for a mean action-potential rate of $\energyFiringRate$~Hz in rodent grey matter \cite{attwell2001}, of which synaptic mechanisms take $\energySynapticPercent$\% \cite{harris2012}, and $\energyAtpJoules$~kJ per mole of ATP hydrolysed at cytoplasmic concentrations \cite{nicholls2013}, each neuron draws $\energyNeuronPower$~W and the region's signalling power is $\energyRegionPower$~W, of which $\energySynapticPower$~W is spent at synapses. Over a declared interval of one phase-diffusion time $1/D=\energyResidence$~s at $D=\energyDiffusion$~rad$^2$/s, the metabolic expenditure is $\energyInstalled$~J. Another interval rescales that expenditure by its ratio to this one. For comparison, a stored-field estimate using LFP gradients of 1--5~mV/mm, radii 0.1--0.3~mm and an illustrative low-frequency relative permittivity of $10^5$ gives electrostatic energy $\energyStoredLow$--$\energyStoredHigh$~J (or $\energyStoredThermalLow$--$\energyStoredThermalHigh$~$kT$). Tissue impedance and dielectric measurements motivate these input ranges \cite{barbour2017,logothetis2007,gabriel1996}; the static-capacitor approximation remains a modelling choice.
+The condition $U_{\mathrm{inst}}>2D/\kappa$ concerns energy stored in declared actuator modes. A metabolic budget supplies a different quantity. Take a sphere whose radius is one LFP decay length, $0.2$~mm, containing $\energyNeurons$ neurons. At $\energyAtpRate$~ATP\,s$^{-1}$ per neuron for a mean action-potential rate of $\energyFiringRate$~Hz in rodent grey matter \cite{attwell2001}, of which synaptic mechanisms take $\energySynapticPercent$\% \cite{harris2012}, and $\energyAtpJoules$~kJ per mole of ATP hydrolysed at cytoplasmic concentrations \cite{nicholls2013}, each neuron draws $\energyNeuronPower$~W and the region's signalling power is $\energyRegionPower$~W, of which $\energySynapticPower$~W is spent at synapses. Over a declared interval of one phase-diffusion time $1/D=\energyResidence$~s at $D=\energyDiffusion$~rad$^2$/s, the metabolic expenditure is $\energyInstalled$~J. Another interval rescales that expenditure by its ratio to this one. For comparison, a stored-field estimate using LFP gradients of 1--5~mV/mm, radii 0.1--0.3~mm and an illustrative low-frequency relative permittivity of $10^5$ gives electrostatic energy $\energyStoredLow$--$\energyStoredHigh$~J (or $\energyStoredThermalLow$--$\energyStoredThermalHigh$~$kT$). Tissue impedance and dielectric measurements motivate these input ranges \cite{barbour2017,logothetis2007,gabriel1996}; the static-capacitor approximation remains a modelling choice.
 
 The estimates differ by many orders of magnitude, but neither is a measurement of $U_{\mathrm{inst}}$. Continuous metabolism may replenish an actuator; a relation between its power, storage and coupling must be specified before that claim can be used in the theorem. The small electrostatic estimate alone does not show that the theorem's actuator energy is too small, because its priced modes have not been identified with the static field energy.
 
@@ -1004,7 +1005,7 @@ Local readings can also determine a global state collectively. If a family of re
 
 For $\tau>0$, the assumed factor is
 \[
-q=\exp\!\left(-\frac{K-K_c}{2}\tau\right),\qquad K_c=2D.
+\Lambda=\exp\!\left(-\frac{K-K_c}{2}\tau\right),\qquad K_c=2D.
 \]
 The lemmas \nolinkurl{resonanceRate_lt_one} and \nolinkurl{one_le_resonanceRate} split the parameter plane at the threshold. Above it, a map Lipschitz at this factor has a unique fixed point (\nolinkurl{self_of_supercritical}). The bridge \nolinkurl{self_of_coherent_order_parameter} obtains the required inequality from the existence of a coherent order parameter. At or below threshold, the specified factor fails the strict bound required by \texttt{ContractingWith} (\nolinkurl{not_contractingWith_resonanceRate}); this argument is unavailable there.
 
@@ -1017,7 +1018,7 @@ Banach's theorem establishes uniqueness for the specified map. E89 additionally 
 Let $F(s_*)=s_*$ and $d(s,F(s))\leq\varepsilon$. The triangle inequality and the Lipschitz law give
 \[
 d(s,s_*)\leq d(s,F(s))+d(F(s),F(s_*))
-\leq\varepsilon+q\,d(s,s_*),
+\leq\varepsilon+\Lambda\,d(s,s_*),
 \]
 hence $d(s,s_*)\leq\varepsilon/(1-\Lambda)$. The theorem
 \nolinkurl{ReflexiveBoundary.approximate_self_bound}
@@ -1134,7 +1135,7 @@ architecture family and supply no hardware-energy or experiential claim.
 
 \paragraph{Codes, not reports.} Reconstruction across a declared family requires the encoder to distinguish states more than $2\varepsilon$ apart when the target error is $\varepsilon$ (Eq.~\eqref{eq:reconstruction-separation}). Verbal reports alone do not establish that condition. For a proposed self-model, declare the family and fidelity, identify the internal code under intervention, then test whether it separates the family. A token sequence is one possible code; an activation region is another and requires its own measurement.
 
-\paragraph{The region, not the readout.} If the code is a restriction of the candidate's state to a region, that region must distinguish the relevant family before a readout is chosen. In one forward pass of a decoder-only transformer, the causal mask restricts position $t$ to positions at or before $t$; an intervention outside that causal past cannot be reconstructed from its activation alone. Across passes, prior output adds a separate channel. The bounded-fan-in communication result of Section~\ref{sec:self} of the article applies to a declared physical interconnect and deadline; a full-support attention graph does not satisfy its sparse-neighbourhood premise. The graph bounds and their hardware scope are given with the locality results below.
+\paragraph{The region, not the readout.} If the code is a restriction of the candidate's state to a region, that region must distinguish the relevant family before a readout is chosen. In one forward pass of a decoder-only transformer, the causal mask restricts position $t$ to positions at or before $t$; an intervention outside that causal past cannot be reconstructed from its activation alone. Across passes, prior output adds a separate channel. The bounded-fan-in communication result of Section~\ref{sec:self} of the article applies to a declared physical interconnect and deadline; a full-support attention graph does not satisfy its sparse-neighbourhood premise. The graph bounds and their hardware scope are given with the locality results of Section~\ref{sec:supp-locality}.
 
 \paragraph{Agreement about what.} Unity requires the candidate's local descriptions to agree on independently identified shared quantities (Section~\ref{sec:unity} of the article). Common timing, a shared residual stream and fluent output supply none of that, for the reason the article's Section~\ref{sec:unconditional} gives: coordination bounds content disagreement only through encoders already related on overlaps. Which quantities two parts of a model describe in common is a decoding question, carrying the failure modes of Section~\ref{sec:observations} of the article. The cover is a choice, and choosing it to secure agreement empties the claim.
 
@@ -1461,7 +1462,7 @@ The controls examine finite trajectories, population dependence and signed coupl
 
 \subsection{Finite mean-field trajectory controls}
 
-Two finite-$N$ controls probe this gap without closing it.  First, 500 seeded
+Two finite-$N$ controls probe the gap between the stationary-density results and finite trajectories without closing it.  First, 500 seeded
 replicas of 1,000 identical-frequency oscillators were integrated at fixed
 coupling.  Their steady order was \selectionSubOrder{} below threshold,
 \selectionCriticalOrder{} at threshold and \selectionSuperOrder{} above
@@ -1582,8 +1583,6 @@ line is $1/\sqrt{N}$. The balanced strong-synapse control remains a distinct
 regime and does not satisfy the floor-level baseline gate.}
 \label{fig:frustration-rescue}
 \end{figure}
-
-No clinical mechanism for perceptual anomalies is inferred from the threshold calculation.
 
 \section{Recovery dynamics and mechanism identification}
 \label{sec:supp-recovery}
@@ -1712,7 +1711,7 @@ The concentration--coherence relation tests the stationary-density model. Its fa
 \subsection{What successive stationary phase distributions cannot separate}
 \label{sec:recovery-mechanisms}
 
-The first item of the protocol asks for $K$ and $D$ in the same units because
+The physical controls of the protocol (step~\ref{item:physical-controls}) need $D$ separately from $K$ because
 the stationary density does not carry them separately. In the
 identical-frequency rotating frame that density is von Mises with concentration
 $a=Kr/D$, so a window of equilibrated phases fixes the ratio $K/D$ and nothing
@@ -1754,7 +1753,7 @@ Separating an endogenous coupling from a common drive is not settled by the
 clock either, since in the mean-field description the two impose the same drift
 on each oscillator; that separation needs a measured drive or a controlled
 perturbation. Neither measurement is validated by this pilot, and neither would
-identify the coupling as electromagnetic. The model comparison of item 6 is
+identify the coupling as electromagnetic. The spatial-onset comparison of step~\ref{item:spatial-onset} is
 accordingly a comparison of time courses under a declared observation model,
 and identifies the mechanism behind a recovery only to the extent that the
 observations reach past the stationary density.
@@ -2046,11 +2045,15 @@ A validated observable would make agreement between the chosen local description
 \label{sec:supp-eeg}
 \label{sec:empirical-methods}
 
-This section reports an exploratory check of the parameter-free relation $r = I_1(a)/I_0(a)$ on public propofol-sedation EEG (OpenNeuro ds005620 \cite{bajwa2025}). The saved summary and the generated macros record every numerical result below. This is an estimator exercise, not a test of awakening or of the electromagnetic-field commitment.
+This section reports an exploratory check of the parameter-free relation $r = I_1(a)/I_0(a)$ on public propofol-sedation EEG (OpenNeuro ds005620 v1.0.0 \cite{bajwa2024data,bajwa2025}). The saved summary and the generated macros record every numerical result below. This is an estimator exercise, not a test of awakening or of the electromagnetic-field commitment.
+
+\subsection{Data}
+
+The recordings are OpenNeuro dataset ds005620, version 1.0.0 \cite{bajwa2024data}, collected for a repeated-awakening study of propofol sedation \cite{bajwa2025} under approval of the Regional Committees for Medical Research Ethics South East Norway (REK 2015/1520) and released under a CC0 licence. The dataset contains 21 participants, one of whom its authors mark as excluded. Each recording was made on Brain Products hardware at 5~kHz; in every analysed file the first 62 channels are the same scalp EEG electrodes, followed by two EOG channels and, in six of the eight files, one EMG channel. This exercise uses \eegCrossSubjectCount{} participants (\texttt{1010}, \texttt{1016}, \texttt{1022}, \texttt{1033}, \texttt{1045}, \texttt{1054}, \texttt{1060}, \texttt{1067}), none of them excluded. They form an exploratory convenience subset: no selection rule is claimed for them, and the cross-subject summary below is not an estimate for the dataset as a whole. For each participant the analysed block is the first resting recording under sedation (\texttt{task-sed\_acq-rest\_run-1}); the narrowband analysis uses participant \texttt{1016}'s block of the same kind. No awake recording enters a reported result.
 
 \subsection{Preprocessing}
 
-For each recording block, 20 seconds of data and 3 seconds of padding on each side were downloaded from the public S3 bucket. Each channel was detrended, bandpass filtered with a fourth-order Butterworth filter using second-order sections (\texttt{sosfiltfilt}), and converted to instantaneous phase with the Hilbert transform. The padding is discarded after filtering in every montage. The primary analysis uses 61 adjacent bipolar pairs formed from the 62 scalp EEG channels; EOG and EMG channels are excluded.
+For each recording block, the first 26 seconds were downloaded from the public S3 bucket: 20 seconds of analysed data with 3 seconds of padding on each side. Each channel was detrended, bandpass filtered with a fourth-order Butterworth filter using second-order sections (\texttt{sosfiltfilt}), and converted to instantaneous phase with the Hilbert transform. The padding is discarded after filtering in every montage. The primary analysis uses 61 adjacent bipolar pairs formed from the 62 scalp EEG channels; EOG and EMG channels are excluded.
 
 \subsection{(a, r) estimation}
 
@@ -2110,7 +2113,7 @@ Residuals are evaluated per 100-ms bin and then averaged, rather than computed f
 \item \textbf{Narrowband.} The theta, alpha, beta, gamma and broad-band mean residuals are \eegBandTheta{}, \eegBandAlpha{}, \eegBandBeta{}, \eegBandGamma{} and \eegBandBroad{}, respectively, for sub-1016, sed run-1, bipolar.
 \end{itemize}
 
-Reference choice remains a material analysis decision. The corrected summary fixes the primary montage and padding rule, but does not establish a mechanism for differences between montages.
+Reference choice remains a material analysis decision. The summary fixes the primary montage and padding rule, but does not establish a mechanism for differences between montages.
 
 \subsection{Interpretation}
 
@@ -2225,7 +2228,7 @@ Two things do not come for free and are not claimed. A cosine profile is not a s
 
 The physical identification would be challenged if independently calibrated field-mediated coupling were insufficient for the proposed regime, or if a selective perturbation of that interaction left the proposed neural and behavioural endpoints unchanged. Such a perturbation requires controls for direct effects on transmembrane currents and other coupling pathways; selectivity is not assumed experimentally available. Recovery tests must distinguish the coupling-gated account from other slow mechanisms under the same observation model. Coherence alone is not equated with report or experience, so dissociations must be evaluated against independently specified endpoints and the additional compatibility and reflexivity hypotheses.
 
-These conditions bear on a coupling field and not specifically on an electromagnetic one. Of the six protocol requirements of the main article, the second---the calibrated relation between extracellular geometry and effective coupling---is the only one that discriminates, because it runs through conductivity and volume fraction and is where a field equation enters this work. The first and the third through sixth bear on the field hypothesis at large, and extracellular ion diffusion, gap junctions modelled as a density, astrocytic calcium or a mechanical medium satisfy or fail them identically: each fixes coupling relative to diffusion, the phase measurement, an independent recovery endpoint, a declared onset criterion and a matched model comparison, and none of them mentions a field equation. A null result on the second requirement therefore constrains the electromagnetic identification; a null result on the others constrains the coupling-gated account whatever carries the coupling.
+These conditions bear on a coupling field and not specifically on an electromagnetic one. Of the four protocol steps of the main article (Section~\ref{sec:protocol}), only the spatial-onset comparison of step~\ref{item:spatial-onset} discriminates, because its field score is built from pre-onset extracellular field amplitude and is where a field enters the protocol. The other steps bear on the coupling hypothesis at large, and extracellular ion diffusion, gap junctions modelled as a density, astrocytic calcium or a mechanical medium satisfy or fail them identically: they manipulate the emergence rate, fix an independent behavioural endpoint, and match diffusion and the observation model, and none of them mentions a field. A null result on the spatial-onset comparison therefore constrains the electromagnetic identification; a null result on the others constrains the coupling-gated account whatever carries the coupling.
 
 \section{Coupling support and continuum observables}
 \label{sec:supp-support}
@@ -3254,7 +3257,7 @@ The rule that prevents it is uniform: \emph{a physical postulate that mentions a
 
 Explicit witnesses establish that the class assumptions can be satisfied. The \texttt{Examples} witnesses therefore cover every class that carries a physical postulate: a one-bit erasure system with a genuine bath that discharges \nolinkurl{heat_eq} and reproduces $\Delta Q = k_B T \ln 2$; a perfectly resonant system discharging \nolinkurl{kl_bound}; and a scalar field on a one-point spacetime discharging the action principles. The gluing structures are the most demanding case and are witnessed by a \texttt{ThermodynamicCover} over a three-site substrate carrying the discrete topology and its Borel $\sigma$-algebra, covered by two overlapping open patches whose intersection is a single shared site.
 
-What the witnesses establish is that the classes are inhabitable, so the theorems about them are not vacuous. What they do not establish is that a cortex is such an instance. In the cover above the phase field is already constant --- every patch locked at $\theta = 0$ --- which is precisely what makes the equilibrium obligation dischargeable; getting a physical system into that configuration is the content of the informal dynamical argument.
+What the witnesses establish is that the classes are inhabitable, so the theorems about them are not vacuous. What they do not establish is that a cortex is such an instance. In the cover above the phase field is already constant --- every patch locked at $\theta = 0$ --- which is precisely what makes the equilibrium obligation dischargeable. In the model, \nolinkurl{ThermodynamicCover.ofConvergentTrajectory} reaches that configuration from initial data inside the quarter-turn region; whether a physical system reaches it is not shown here.
 
 \input{references}
 

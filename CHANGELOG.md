@@ -23,6 +23,28 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-25 — EEG data statement and supplement editorial pass
+
+The main text said the exploratory EEG analysis used "resting awake and
+sedation runs 1–2" and that subject selection was described in the supplement.
+Every reported number comes from `task-sed_acq-rest_run-1` alone (the saved
+summary's configuration), no awake block enters a result, and no selection rule
+for the eight participants was ever recorded. Both statements are replaced: the
+supplement gains a Data subsection that calls the eight an exploratory
+convenience subset with no claimed selection rule, and the OpenNeuro dataset
+itself (v1.0.0, DOI verified) is now cited alongside the paper describing it.
+
+The supplement argued from "six protocol requirements", naming the second
+(geometry–coupling calibration) as the only field-specific one. The main-text
+protocol has four steps; the field-specific step is the spatial-onset
+comparison, whose field score uses extracellular amplitude. References are now
+`\ref`s to labelled steps. Smaller fixes: a stale "informal dynamical argument"
+where a convergence theorem exists, `D` reused for a phase spread, `q`/`Λ` in
+one derivation, dangling antecedents, and an orphaned sentence on perceptual
+anomalies.
+
+---
+
 ## 2026-09-25 — The article's scope statements move to one section
 
 `main.tex` now opens with six numbered claims, each pointing at the section
