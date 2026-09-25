@@ -8,6 +8,199 @@ falsifiable, and the cover and the region — closed in full, is
 before it are `dde1a36:tasks/todo.md`. The R research programme (R1–R12) is
 live in `tasks/research_programme.md`.
 
+## U — Physical unity: a human-consciousness requirement current AI lacks
+
+**Intent.** The paper the author wants (2026-09-25). Thesis: unity of
+conscious content requires that agreement between local descriptions be
+*physically enforced* — continuously maintained by a coupling whose transients
+act on the content dynamics — not merely *computed*. Human cortex plausibly
+meets this; current AI hardware (clocked, barrier-synchronized digital
+computation) does not, because its logical level is causally closed and
+screens off the medium that produces agreement. This recovers the first
+draft's claim (`c3def4f:main.tex` abstract: GPUs "disqualified … due to broken
+thermodynamic feedback loops") as a stated premise with consequences, rather
+than an assertion the formalism was asked to derive and could not.
+
+**Constraints.** The exclusion rests on an added premise and must say so.
+The C-block audit ("the net proved advantage of an analog medium is
+approximately zero") and `Phase9_EMIdentification` (E56–E89 is
+substrate-neutral) stand: nothing routed through the existing conditional
+chain can exclude a digital claimant, so the new premise is a separate,
+named necessary condition, not a consequence of E56–E89. Fix the criterion
+*before* checking where GPUs fall, and state what would make a digital system
+pass. The criterion is necessary for unity, not sufficient for consciousness.
+AGENTS.md rules apply (references verified online, generated macros, Table S1,
+tracked PDFs, no changelog prose).
+
+**Success criteria.** A position/theory paper whose premise is stated in its
+first page; two new results (typical-case agreement bound, closure
+incompatibility theorem) proved or numerically established; an interventional
+test that can be run on both a cortex and an AI system and could come out
+against the thesis on either.
+
+- [ ] **U0 — Decide the vehicle.** New paper vs repurposing this manuscript;
+  venue; relation to the NoC submission (N19: submit the trimmed paper as the
+  technical companion, or fold it in). Draft a two-page outline with the
+  definitions and the target theorems before any writing.
+  *Outline drafted 2026-09-25: `tasks/physical_unity.md`.* New manuscript in
+  `unity/` (author confirmed), the current paper frozen (not archived:
+  five gates and the README/index links depend on it) and posted as the
+  companion. Open for the author: directory name, venue, companion's
+  destination.
+
+Spatial agreement beyond the worst-case chain:
+
+- [ ] **U1 — Typical-case agreement bound via effective resistance.** At
+  identical frequencies the model is a gradient system; the stationary
+  density is `∝ exp(Σ K_ij cos(θ_i−θ_j)/D)`. In the harmonic approximation
+  it is Gaussian with precision `Laplacian_K / D`, so
+  `Var(θ_a−θ_b) = D·R_eff(a,b)` with `K_ij` as conductances, and expected
+  content discrepancy `≲ L·√(D·R_eff)`. Replaces hop count (V-block Route B,
+  worst case, attained by a phase gradient) with resistance; distinct from
+  V4 (locked configuration, spectral gap). Decide Lean vs numerical;
+  non-harmonic rigour needs correlation inequalities (Fröhlich–Spencer 1981
+  for low-noise 2D XY — verify).
+- [ ] **U2 — The kernel's tail is what the field buys.** 2D short-range
+  coupling: `R_eff ~ (1/πk) ln d`, agreement degrades logarithmically, reach
+  `~ a·exp(πkε²/(L²D))`; Mermin–Wagner forbids true long-range order.
+  Power-law tail `K(r) ~ r^−(2+σ)`, `σ < 2` (volume-conducted dipole field
+  `~1/r²`): bounded `R_eff`, distance-independent agreement. Frequency
+  heterogeneity sharpens this: with short-range coupling phase sync has lower
+  critical dimension 4 (Hong et al. *PRL* 2007 — verify). Gives the field
+  hypothesis a role about kernel *shape*, not strength. Falsifiable: measure
+  the effective kernel's tail exponent.
+- [ ] **U3 — Numerical check first.** Read discrepancy (phase difference /
+  chord) vs distance from the saved sheet summaries if they hold it; else run
+  a short-range vs power-law-kernel sheet comparison (separate command, not a
+  macro regeneration). Logarithmic vs linear growth decides whether U1–U2 are
+  worth building.
+- [ ] **U4 — Relative-phase encoders.** Show encoders reading phase relative
+  to the local gradient make travelling waves / windings harmless to content
+  agreement (the worst case of the linear chain bound).
+- [ ] **U5 — Carry the honest costs.** E78 (one oscillator per content patch)
+  still applies; the ephaptic amplitude objection remains — a long-range tail
+  helps only if its conductance is not negligible against the short-range
+  part; harmonic approximation fails above the BKT transition.
+
+The causal lens:
+
+- [ ] **U6 — Define physically enforced agreement.** Micro dynamics
+  `x ↦ f(x)`, regions with micro states `x_i`, content coarse-grainings `π_i`.
+  *Closed*: `π∘f = g∘π`. *Margin*: each `π_i` locally constant in micro
+  state. *Graded dependence*: `π_j∘f` not locally constant in `x_i` for
+  overlapping `i ≠ j`. *Physically enforced*: graded dependence plus
+  contraction of overlap discrepancy under sub-threshold as well as logical
+  perturbations. Full statement of premise P in `tasks/physical_unity.md`.
+- [ ] **U7 — Target theorem: the margin excludes enforcement.** The first
+  formulation ("closure excludes enforcement") is false: a GPU running a
+  consensus algorithm or a Kuramoto simulation has a closed logical level
+  whose `g` contracts discrepancy. Revised: if every `π_i` is locally
+  constant, no sub-threshold perturbation of one region changes any content
+  anywhere, so graded dependence and hence P fail. P is thereby an explicit
+  rejection of functionalism about unity (a perfect field simulation fails
+  it); the paper must say so and answer the simulation objection directly.
+  Lean-sized; lands beside `Phase6_Locality`.
+- [ ] **U8 — The unity window.** Lower bound: agreement cannot arrive before
+  the causal cone allows (`not_reconstructs_of_outside_past`, C8
+  quantitative deadline). Upper bound: disagreement decays at the relaxation
+  rate (spectral gap / `R_eff`, U1). Unity requires a nonempty window at the
+  content's time scale.
+- [ ] **U9 — Field causal-cone signature.** A quasi-static field's cone is
+  not the synaptic one: re-agreement between distant regions after a
+  perturbation faster than axonal conduction plus synaptic delay would
+  indicate non-synaptic coupling. Estimate magnitudes; assess measurability.
+- [ ] **U10 — Agreement-as-attractor test on both substrates.** Perturb one
+  region (cortex: stimulation; AI: activation patching of one layer/head/
+  position) and measure whether agreement with its overlap partners is
+  restored and at what rate. Specify the outcome that would count against the
+  thesis on each substrate.
+
+Pitfalls to address in the text:
+
+- [ ] **U11 — Anti-gerrymandering.** State what passes: analog, in-memory or
+  neuromorphic hardware with physical coupling and no barriers. The claim is
+  about substrate organisation, not biology.
+- [ ] **U12 — Over-inclusion.** Coupled pendulums satisfy the criterion; it is
+  necessary for unity, not sufficient for consciousness.
+- [ ] **U13 — Leakage.** GPUs are not perfectly closed (floating-point
+  reduction-order nondeterminism, thermal throttling). Make the criterion
+  quantitative: the physical variables must carry content-relevant agreement,
+  not content-uncorrelated noise.
+- [ ] **U14 — Position against related work** (verify each online, AGENTS.md
+  §4): Rosas, Mediano, Seth et al. on computational/causal closure ("software
+  in the natural world") — closest formal neighbour, and they read closure as
+  the mark of emergent computation, the opposite of U7's reading; Seth's
+  biological-naturalism argument on conscious AI; "mortal computation"
+  (Hinton 2022; Kleiner & Ororbia); IIT's hardware argument; McFadden's CEMI
+  (closest ally); Mermin–Wagner; Fröhlich–Spencer; Hong et al. 2007.
+
+Human evidence for P:
+
+- [ ] **U15 — Dissociate graded coupling from information flow.** Human data
+  can falsify P but not confirm it against functionalism: anaesthesia and
+  split-brain remove graded coupling and information flow together. Design a
+  manipulation that moves one with the other held fixed — candidate: weak
+  tACS shifting inter-regional coherence while a measured information-transfer
+  quantity (e.g. transfer entropy between the regions) stays matched, testing
+  whether the excess-agreement statistic follows coupling or information.
+  Assess feasibility; if no dissociation is possible in principle, the paper
+  says P is a commitment with falsifiable consequences, not a finding.
+- [ ] **U16 — Split-brain against the field version.** Callosotomy divides
+  unity while fields still spread, so the carrier there is axonal/synaptic.
+  State P as graded coupling of any kind, fields as one realization, and
+  demote U2 from carrier of unity to one route among several.
+
+## H — Gates against hedging
+
+**Intent.** The article's hedging is structural, not lexical. On 2026-09-25
+`check_hedging.py` reported 0 flagged hits on `main.tex` and a scope density
+of 3.3 per 1000 words, while the manuscript carries a scope clause in nearly
+every paragraph: "supplies no", "is stipulated", "in a specified model",
+"remains a modelling obligation", "declared", "neither … nor". The existing
+patterns catch reviewer-English softeners ("arguably", "somewhat") that this
+prose never uses. Wording regexes cannot fix that; the gate has to constrain
+*where* disclaimers may appear and require *positive claims* to exist.
+
+**Constraints.** TDD: failing fixture tests first, as for the existing
+`check_*.py` gates. No allowlist (AGENTS.md §5 reasoning). Hard gate on the U
+paper from its first commit; advisory on the current `main.tex` and
+`supplementary.tex`, whose form is frozen. `uv`, `ruff`, strict `mypy`,
+`vulture`, `xenon` < 10 as for every script here. Wire into
+`.pre-commit-config.yaml` and describe in AGENTS.md in the same commit.
+
+**Success criteria.** A draft of the U paper written in the current
+manuscript's register fails the gate; one that states claims first and
+confines limitations to one section passes. The current `main.tex`, run
+advisory, reports its disclaimer count and positions.
+
+- [ ] **H1 — Widen the disclaimer lexicon to this project's dialect.** Add the
+  structural forms: `(supplies|establishes|derives|identifies|constructs|
+  settles|measures|implies) no`, `no (result|theorem|cortical|physical|
+  measured) …`, `is (stipulated|an interpretation|an assumption)`, `remains a
+  (modelling|…) obligation`, `requires (independent|separate|additional|its
+  own)`, `in a (specified|declared) model`, `neither … nor`, `not yet`.
+  Calibrate on `main.tex` and report precision on a hand-labelled sample
+  before trusting the counts.
+- [ ] **H2 — Limitations live in one place (hard, U paper).** Scope
+  disclaimers are allowed freely in the section labelled `sec:limitations`
+  and at most one per section elsewhere. A result that needs a scope clause
+  states it once, in its theorem statement, not again in every paragraph
+  that uses it.
+- [ ] **H3 — Claims first (hard, U paper).** The introduction carries a
+  numbered claim list (a `\claim{}` macro or `enumerate` under a labelled
+  paragraph); each claim is cross-referenced to the section that argues it.
+  The gate fails if the list is missing, empty, or a claim has no
+  cross-reference. The abstract may contain no disclaimer from the H1 lexicon
+  beyond one sentence.
+- [ ] **H4 — Disclaimer-to-claim ratio (advisory, both papers).** Report
+  disclaimers per numbered claim and per section, with the worst sections
+  listed, so drift is visible on every commit even where no hard rule fires.
+- [ ] **H5 — Keep honesty auditable.** A disclaimer removed from the running
+  text must survive in `sec:limitations` or in a theorem's statement; the
+  gate cannot check meaning, so the AGENTS.md entry states the rule and the
+  review checklist asks it. The point is to move qualification, not delete
+  it.
+
 ## N — Neuroscience of Consciousness submission
 
 **Intent.** Prepare a Research Article for *Neuroscience of Consciousness* that
@@ -205,6 +398,94 @@ paper (see the N14 record).
   degenerate witness (constant `F_u` returning a stored `s_u`), which
   reconstructs everything and encodes nothing; the code-separation criterion
   must still bind. Would let §6 restore a minimal self that follows a scene.
+
+### N19–N37 — Second mock *Neuroscience of Consciousness* review (2026-09-25)
+
+A second mock referee report recommended major revision. Its core finding is
+that the article is two papers and only the synchrony-versus-content one is
+for this journal's readers. These items apply to the current manuscript;
+the author has since named the physical-unity paper (U block) as the paper
+they want, so decide first (N19) whether this manuscript is trimmed and
+submitted as the technical companion or folded into U.
+
+Major:
+
+- [ ] **N19 — Split or trim.** Cut the main text to §§2, 4, 6 (compressed),
+  7.1, 7.5, 9; move §3 (threshold, speed limit, installed energy), §7.2–7.4
+  (ramps, winding, plasticity), §8 (extracellular geometry, `K_eff`,
+  awakening protocol) and §5 (digital candidate) to the supplement or a
+  separate paper. Compress §4.2 (√N bound, chaining, E78) to one paragraph
+  stating once that across cortical distances the coherence-to-content link
+  is an assumption. Supersedes the open split decision in the N14 record.
+- [ ] **N20 — Develop the excess-agreement test.** Generative simulation
+  showing the fidelity-matched excess-agreement statistic separates
+  shared-content, shared-upstream-noise and coherence-driven models at
+  realistic trial counts, with a power estimate. Specify the coherence band,
+  the error-stratum matching, and the near-chance problem for unperceived
+  trials (stratification may leave a small, unrepresentative subset). Name a
+  concrete paradigm/dataset (e.g. masked orientation with laminar or ECoG
+  recordings in two orientation-coding regions).
+- [ ] **N21 — Discriminate from global workspace broadcast.** Ignition and
+  broadcast also predict correlated errors on seen trials. State what
+  compatibility predicts that broadcast does not, or narrow the claim to
+  counting against "content tracks coherence". Sharper version: decode the
+  *perceived* value, not the stimulus value, and predict both regions' decodes
+  shift toward the subject's misperception (illusion, after-effect,
+  continuous report).
+- [ ] **N22 — Missing measurement literature** (verify each online, AGENTS.md
+  §4): informational connectivity (Coutanche & Thompson-Schill 2013;
+  Anzellotti & Coutanche 2018 *TICS*); information sharing / wSMI (King et
+  al. 2013 *Curr Biol*); communication subspace (Semedo et al. 2019
+  *Neuron*) where data-driven shared directions are excluded; noise
+  correlations change with attention (Cohen & Maunsell 2009). Add attention
+  as a matched variable or covariate in §9.2.
+- [ ] **N23 — Label the error-covariance step as a bridge assumption.** No
+  result connects exact/ε-compatibility to correlated errors; "two regions
+  describing one content should err together" is an added hypothesis. Name
+  it (a fifth bridge edge or an explicit premise of the test).
+- [ ] **N24 — Say what the sheaf buys over the content cover.** On the
+  decodability cover gluing reduces to merging mutually consistent partial
+  functions. State what the sheaf formulation adds, or develop the
+  probabilistic case (decoded content is a distribution; Abramsky
+  contextuality).
+- [ ] **N25 — Self-reconstruction: develop or demote.** Under E89 the
+  correlate constrains one self-state; `Λ` is stipulated from a linearization
+  about a different state; the Gallagher mapping is structural; the self-model
+  test has the attention/fidelity confounds of N22. Either construct a
+  physical `F_u` with a matched test, or reduce §6/§9.1 to a marked
+  conjecture.
+- [ ] **N26 — Readability.** Put 3–4 positive claims as numbered statements in
+  the Introduction; collect limitations once in the Discussion; drop E-labels
+  and Lean vocabulary from running text (keep Table 1); shrink the notation
+  table with the material N19 removes.
+
+Minor:
+
+- [ ] **N27** — Abstract: the 10-site / 0.312 mm figures depend on the chosen
+  0.1 mm decay length and patch order; mark illustrative or remove.
+- [ ] **N28** — §9.2 rivalry: there is always a percept and "decoding error
+  relative to the stimulus" is undefined for the suppressed eye. Specify the
+  adaptation or keep masking only.
+- [ ] **N29** — §9.2: define error-stratum matching (continuous or binned,
+  number of strata).
+- [ ] **N30** — §4.2 (`main.tex:255`): "informative for at most 10 sites"
+  assumes `L = 1`; state it.
+- [ ] **N31** — §3.2: cite thermodynamic/Wasserstein speed limits (Shiraishi,
+  Funo & Saito 2018 *PRL*; Dechant; Ito — verify). No value of `C` is given,
+  so no floor is computed: say so or cut the ignition/anaesthesia sentence.
+- [ ] **N32** — Replace the 8-subject EEG exercise with the constructed-signal
+  demonstration alone, or explain why empirical data are needed.
+- [ ] **N33** — Move §5 (digital candidate) to the supplement for this
+  article (content migrates to U).
+- [ ] **N34** — Word count: confirm with the editorial office whether the
+  notation table counts (moot after N19).
+- [ ] **N35** — Replace the Methods paragraph (`main.tex` ~l.110) with a short
+  formal Methods section: Lean toolchain, axiom audit, simulation code and
+  seeds.
+- [ ] **N36** — Reference audit of 2025–26 items (e.g. `corberi2026` arXiv ID)
+  given the AI-use statement.
+- [ ] **N37** — Remove the installed-energy box from Fig. 1 with N19; cut
+  Conclusions to about three sentences.
 
 ### 2026-09-24 — N1 fixed-map diameter limit
 
