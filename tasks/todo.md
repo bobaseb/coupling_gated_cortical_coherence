@@ -77,11 +77,38 @@ Spatial agreement beyond the worst-case chain:
   critical dimension 4 (Hong et al. *PRL* 2007 — verify). Gives the field
   hypothesis a role about kernel *shape*, not strength. Falsifiable: measure
   the effective kernel's tail exponent.
-- [ ] **U3 — Numerical check first.** Read discrepancy (phase difference /
+- [x] **U3 — Numerical check first.** Read discrepancy (phase difference /
   chord) vs distance from the saved sheet summaries if they hold it; else run
   a short-range vs power-law-kernel sheet comparison (separate command, not a
   macro regeneration). Logarithmic vs linear growth decides whether U1–U2 are
   worth building.
+  *Done 2026-09-25* (`simulations/unity_agreement.py`, summary in
+  `figures/unity_agreement/`). The saved `spatial_kernel` runs could not
+  answer it (heterogeneous frequencies, one snapshot), so a new
+  identical-frequency sheet: 64² and 128², kernels nearest-neighbour,
+  exponential (decay 2 sites), `r^−3` (σ=1), `r^−5` (σ=3), equal row sum
+  K=4, D ∈ {0.1, 0.4, 1.2}. Verdict:
+  (a) **No linear growth anywhere** at identical frequencies. Short-range
+  discrepancy grows as `ln d`; the linear chain bound's worst case is a
+  phase gradient, not what noise produces. U1 is worth building.
+  (b) **The harmonic formula holds in the ordered phase**: measured /
+  `D·R_eff` is 1.0–1.15 at D=0.1 and 1.1–1.26 at D=0.4 (anharmonic
+  softening, rising with D). At D=1.2 the nearest-neighbour sheet is past
+  its BKT point (≈0.9 at K=4): chord `⟨1−cos⟩` → 1 by 16 sites.
+  (c) **U2 needs restating: width, not only tail.** The log coefficient is
+  `D/(π s)` with stiffness `s = ½ Σ K(r) x²`; the exponential kernel's `s`
+  is 24.9 against 1 for nearest-neighbour, so it grows 25× slower
+  (`R_eff` 0.531 → 0.549 → 0.558 at side 128/512/1024) but still grows. Only
+  the σ<2 tail is bounded (0.580 → 0.577 → 0.577), i.e. has infinite
+  stiffness. At finite cortical extent the practical difference between a
+  wide short-range kernel and a σ<2 tail is one factor of `ln(d/w)`. The
+  same width sets the order–disorder crossover: at D=1.2 exponential and
+  σ=1 both stay ordered (chord ≈ 0.45–0.50, flat), σ=3 nearly disorders
+  (0.92). U2's falsifiable measurement therefore needs the kernel's second
+  moment as well as its tail exponent, and "the tail is what the field
+  buys" holds only asymptotically.
+  Not tested: heterogeneous frequencies (Hong et al. 2007 lower critical
+  dimension claim), which is where linear growth and U4 would come in.
 - [ ] **U4 — Relative-phase encoders.** Show encoders reading phase relative
   to the local gradient make travelling waves / windings harmless to content
   agreement (the worst case of the linear chain bound).

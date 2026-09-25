@@ -273,3 +273,8 @@ depends_on = ["followup_foundations"]
 path = "g24_candidates"
 layer = "analysis"
 depends_on = ["g24_shared_task"]
+
+[[modules]]
+path = "unity_agreement"
+layer = "simulation"
+depends_on = ["spatial_kernel"]

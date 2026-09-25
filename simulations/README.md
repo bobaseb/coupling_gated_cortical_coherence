@@ -103,6 +103,18 @@ Both carry `--smoke` and both retain the case they are required to fail: a
 residual measured against a branch that has quietly stopped updating, and a
 coupling whose mean says there is no order where there is.
 
+## Agreement against distance (physical-unity paper)
+
+| Module | Question | Command |
+| :--- | :--- | :--- |
+| `unity_agreement.py` | At identical frequencies, does phase discrepancy between two sites grow with the logarithm of their distance, and which kernel shapes bound it? | `uv run python unity_agreement.py` |
+
+The harmonic prediction `Var(θ_a − θ_b) = D·R_eff(a, b)` is computed exactly on
+the torus by a Fourier sum, and the simulation measures how far the nonlinear
+sheet follows it. `--replot` redraws from `figures/unity_agreement/summary.json`;
+each record's `harmonic_ratio_max` says whether its unwrapped-variance fit is
+meaningful (it is not once phase slips occur).
+
 ## The wave extension
 
 The article's coherence observable is the global resultant
