@@ -47,6 +47,14 @@ against the thesis on either.
   five gates and the README/index links depend on it) and posted as the
   companion. Open for the author: directory name, venue, companion's
   destination.
+  *Decided 2026-09-25:* the companion goes to arXiv now in its full technical
+  form (not N19-trimmed), under arXiv's default non-exclusive licence, as a
+  priority record; its journal is left open (NoC permits preprints — declare
+  the preprint on submission and add the DOI afterwards; check any other
+  venue's policy before submitting). NoC is the natural venue for the U
+  paper, so sending the companion there too is disfavoured but not excluded.
+  The U thesis is not staked by the companion (§5 covers only part of it):
+  post U as its own preprint once U7 is settled.
 
 Spatial agreement beyond the worst-case chain:
 
@@ -465,6 +473,8 @@ Major:
   separate paper. Compress §4.2 (√N bound, chaining, E78) to one paragraph
   stating once that across cortical distances the coherence-to-content link
   is an assumption. Supersedes the open split decision in the N14 record.
+  *Deferred 2026-09-25 (U0):* the arXiv posting is the untrimmed paper; do
+  this only if a journal version is prepared.
 - [ ] **N20 — Develop the excess-agreement test.** Generative simulation
   showing the fidelity-matched excess-agreement statistic separates
   shared-content, shared-upstream-noise and coherence-driven models at
@@ -487,7 +497,7 @@ Major:
   *Neuron*) where data-driven shared directions are excluded; noise
   correlations change with attention (Cohen & Maunsell 2009). Add attention
   as a matched variable or covariate in §9.2.
-- [ ] **N23 — Label the error-covariance step as a bridge assumption.** No
+- [x] **N23 — Label the error-covariance step as a bridge assumption.** No
   result connects exact/ε-compatibility to correlated errors; "two regions
   describing one content should err together" is an added hypothesis. Name
   it (a fifth bridge edge or an explicit premise of the test).
@@ -509,14 +519,14 @@ Major:
 
 Minor:
 
-- [ ] **N27** — Abstract: the 10-site / 0.312 mm figures depend on the chosen
+- [x] **N27** — Abstract: the 10-site / 0.312 mm figures depend on the chosen
   0.1 mm decay length and patch order; mark illustrative or remove.
 - [ ] **N28** — §9.2 rivalry: there is always a percept and "decoding error
   relative to the stimulus" is undefined for the suppressed eye. Specify the
   adaptation or keep masking only.
 - [ ] **N29** — §9.2: define error-stratum matching (continuous or binned,
   number of strata).
-- [ ] **N30** — §4.2 (`main.tex:255`): "informative for at most 10 sites"
+- [x] **N30** — §4.2 (`main.tex:255`): "informative for at most 10 sites"
   assumes `L = 1`; state it.
 - [ ] **N31** — §3.2: cite thermodynamic/Wasserstein speed limits (Shiraishi,
   Funo & Saito 2018 *PRL*; Dechant; Ito — verify). No value of `C` is given,
@@ -530,10 +540,24 @@ Minor:
 - [ ] **N35** — Replace the Methods paragraph (`main.tex` ~l.110) with a short
   formal Methods section: Lean toolchain, axiom audit, simulation code and
   seeds.
-- [ ] **N36** — Reference audit of 2025–26 items (e.g. `corberi2026` arXiv ID)
+- [x] **N36** — Reference audit of 2025–26 items (e.g. `corberi2026` arXiv ID)
   given the AI-use statement.
 - [ ] **N37** — Remove the installed-energy box from Fig. 1 with N19; cut
   Conclusions to about three sentences.
+
+### 2026-09-25 — Pre-arXiv accuracy pass (N23, N27, N30, N36)
+
+The items that must be right in a permanent posting, ahead of the rest of the
+second review. **N30:** the premise was wrong — the site count compares the
+phase chord `√(2N(1-r²))` with 2 and is independent of `L`, as the supplement
+already said; `main.tex` said the bound itself "is a chord", now "`L` times a
+chord … whatever the value of `L`". **N27:** §4.2 names the sheet, the 0.1 mm
+decay length and patch order the count and reach are read at, and says they
+move with both; the abstract says "one simulated cortical sheet". **N23:** the
+error-covariance link is stated as a premise of the comparison in §9 and in
+Limitations (Formal scope). **N36:** all ten 2025–26 references checked against
+Crossref and the arXiv API: all correct, including `corberi2026`
+(arXiv:2609.04732); `bajwa2025` gained its DOI.
 
 ### 2026-09-24 — N1 fixed-map diameter limit
 
