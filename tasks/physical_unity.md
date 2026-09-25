@@ -134,14 +134,19 @@ New targets:
 - A system P classifies as unified by construction (coupled pendulums, analog
   circuits) — acceptable, since P is necessary, not sufficient; stated, not
   hidden.
-- **Split-brain cuts against the field-specific version.** Callosotomy
-  appears to divide unity while extracellular fields still spread through
-  tissue, so the coupling that carries unity there is axonal/synaptic, not a
-  field. P survives (it asks for graded dependence, and synaptic coupling is
-  graded: postsynaptic potentials, sub-threshold shifts of spike timing), but
-  the kernel-tail route (U2) loses its standing as the carrier of unity. The
-  paper states P as graded coupling of any kind and presents fields as one
-  realization.
+- **Split-brain is two-edged (U16).** Behavioural disunity is disunity of
+  access; whether the phenomenal field divides is contested. If it does not,
+  callosotomy removes the main information route while unity survives on
+  residual graded subcortical coupling — close to the dissociation U15
+  wants, provided unity is preserved out of proportion to the residual
+  information flow. Either way the carrier is not a field (too weak across
+  hemispheres), so P is stated as graded coupling of any kind (synaptic
+  coupling is graded: postsynaptic potentials, sub-threshold spike-timing
+  shifts) and fields are one realization.
+- **Protecting P by the access/phenomenal distinction would make it
+  unfalsifiable (U17).** The observations that count as evidence about the
+  phenomenal field are declared before testing and accepted when they go
+  against P.
 - The margin theorem is too weak to bite on real GPUs because content-relevant
   graded leakage exists (U13) — then the claim narrows to idealised digital
   hardware and says so.

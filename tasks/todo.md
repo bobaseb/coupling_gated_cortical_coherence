@@ -145,10 +145,25 @@ Human evidence for P:
   whether the excess-agreement statistic follows coupling or information.
   Assess feasibility; if no dissociation is possible in principle, the paper
   says P is a commitment with falsifiable consequences, not a finding.
-- [ ] **U16 — Split-brain against the field version.** Callosotomy divides
-  unity while fields still spread, so the carrier there is axonal/synaptic.
-  State P as graded coupling of any kind, fields as one realization, and
-  demote U2 from carrier of unity to one route among several.
+- [ ] **U16 — Split-brain as a possible dissociation.** Behavioural
+  disunity after callosotomy is disunity of access; whether the phenomenal
+  field divides is contested (Pinto et al. 2017 *Brain*, "divided perception
+  but undivided consciousness"; de Haan et al. 2020 *Neuropsychol Rev*;
+  Bayne 2010 switch model — verify all before citing). If phenomenal unity
+  survives removal of the main information route, that approaches the U15
+  dissociation, carried by residual graded subcortical coupling. Two catches:
+  (a) the subcortical routes also carry information, so the argument needs
+  unity preserved out of proportion to residual information flow — a
+  quantitative bandwidth argument; (b) fields are far too weak across
+  hemispheres at centimetre scale, so this supports graded coupling of any
+  kind, not fields. State P accordingly and demote U2 from carrier of unity
+  to one route among several.
+- [ ] **U17 — Declare what counts as evidence about phenomenal unity.** If
+  behavioural disunity can be set aside as mere access, P is shielded from
+  every result. Before any test is run, name the observations that bear on
+  the phenomenal field (e.g. Pinto-style cross-field responding, reports of a
+  unified field) and commit to accepting them against P. The paper's own
+  tests measure decoded agreement, which is access-like; say how they relate.
 
 ## H — Gates against hedging
 
