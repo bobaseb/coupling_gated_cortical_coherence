@@ -646,6 +646,35 @@ the paper reads as an argument or as a stipulation:
   audit clean; eight `tab:formal` rows; §enforcement states the results in
   words.
 
+- [ ] **U34 — Lean: the noise-amplitude reduction for additive unimodal
+  noise.** Raised 2026-09-26 after U33. `gaussian_shift_le` covers only
+  Gaussian noise. For additive noise with a unimodal density `p`,
+  `p(y) − p(y − d)` changes sign once, so the event maximising the response is
+  a half-line and the response is `sup_t F(t) − F(t − d)`, which grows with
+  `d` for any law. Prove the response grows with the change under additive
+  unimodal noise, generalise `gaussLin` to any such noise law, and state the
+  reduction per side: with asymmetric noise a change of `+σ` and one of `−σ`
+  can differ, so the criterion is decided by those two changes. Covers
+  Gaussian, Laplace, logistic, uniform, Cauchy, Student-t; heavy tails need
+  no log-concavity. Hard part: the half-line is optimal over every set, not
+  only measurable ones (outer measure, as in `shiftResponse`).
+  Counterexample to record in the docstring: noise ±1 with probability ½
+  each has response 1 at a shift of 1 and ½ at a shift of 2, so some
+  hypothesis is needed. **Success.** `gaussian_shift_le` is an instance.
+- [ ] **U35 — Lean: the reduction for families with monotone likelihood
+  ratio.** The general form of U34, for state-dependent noise: if the next
+  content's laws form a family with monotone likelihood ratio in a parameter
+  that the region's change moves monotonically, the response grows with the
+  change on each side, and `gradedAboveNoise_iff_of_mono` applies. Covers
+  one-parameter exponential families: Poisson spike counts, binomial release,
+  gamma intervals, whose variance changes with the state. Two further scope
+  items: nonlinear dynamics need the parameter to move monotonically with the
+  change, a hypothesis on the dynamics and not on the noise; vector-valued
+  contents fall outside monotone likelihood ratio, and for a symmetric
+  unimodal law in several dimensions Anderson's theorem gives growth along
+  each ray, so the criterion becomes the smallest response over changes of
+  size σ. Several times the size of the Gaussian proof; do U34 first.
+
 Relation to the companion (raised 2026-09-25):
 
 - [ ] **U19 — State the E78 → U1 bridge in both papers.** The companion's
