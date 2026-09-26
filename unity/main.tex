@@ -478,119 +478,126 @@ graded state.
 \section{Tests}
 \label{sec:tests}
 
-\paragraph{What counts as evidence about the phenomenal field.} Every test
-below measures decoded agreement, which is agreement of the contents available
-to readout. If disunity of readout could always be set aside as disunity of
-access alone, no observation would bear on P. The observations that count as
-evidence about the phenomenal field are therefore fixed in advance: responses
-that integrate stimuli across the regions in question when the task requires
-it, and reports of a single field of experience spanning them. A dissociation
-in which such responses and reports split while graded coupling between the
+\paragraph{What counts as evidence about experience.} Every test below measures
+decoded agreement: agreement of the contents available to readout. If a split in
+readout could always be dismissed as a split in access alone, with experience
+still unified behind it, no observation would bear on P. So the evidence about
+experience itself is fixed in advance. It consists of responses that combine
+stimuli across the regions in question when the task requires it, and reports of
+a single field of experience spanning them. A dissociation counts as evidence
+against P if such responses and reports split while graded coupling between the
 regions is intact, or stay integrated after graded coupling between them is
-removed, is accepted as evidence against P.
+removed.
 
-\paragraph{Separating coupling from information.} This is the test that
-decides between P and functionalism. In every manipulation of cortex available
-so far, graded coupling and information flow move together: anaesthesia and
-callosal section remove both. A test that confirms P against functionalism
-must move one with the other held fixed. Coherence between cortical regions
-arises largely as a consequence of communication between them
-\citep{schneider2021}, and transcranial alternating current applied to two
-regions drives both from a common source: where in-phase stimulation raised
-their synchrony it raised directed information flow with it
-\citep{reinhart2019}. The coupling has to be supplied instead. Two regions
-whose natural connection is interrupted are bridged by stimulating each in
-proportion to the activity recorded at the other, through one of two loops: an
-analog loop, whose output moves with every graded change in its input, or a
-quantized loop, whose output is read from bits and so has a margin. The analog
-loop is analog end to end, an analog filter and amplifier driving the
-stimulator with no digitizing stage, because a loop that digitizes the
-recording before driving the stimulator runs the quantized condition in both
-arms. Noise added to the analog loop matches the transfer entropy it carries,
-estimated from the recorded activity, to the quantized loop's, and stepping the
-quantized loop's resolution checks that its transfer entropy rises with the
-resolution, so that the resolution, and not recording noise, sets the matched
-value. The two loops then carry the same
-information, and only the analog one couples the regions gradedly. Unity,
-measured as in the previous paragraph, that follows the analog loop at matched
-transfer entropy supports P over functionalism, and unity that is the same
-under both loops counts against P. Intracortical stimulation in animals
-supports the design with decoded agreement as the measure; reported unity needs
-a bridged human preparation.
+\paragraph{Separating coupling from information.} This is the test that decides
+between P and functionalism. In every manipulation of cortex available so far,
+graded coupling and information flow move together: anaesthesia and callosal
+section remove both. A test that confirms P over functionalism must change one
+while holding the other fixed. Stimulating the regions from outside does not
+separate them. Coherence between cortical regions arises largely as a
+consequence of communication between them \citep{schneider2021}, and
+transcranial alternating current applied to two regions drives both from a
+common source: where in-phase stimulation raised their synchrony, it raised
+directed information flow with it \citep{reinhart2019}. The coupling has to be
+supplied instead.
 
-\paragraph{Graded cross-region dependence in cortex.} Weak stimulation of one
-region below the behavioural threshold should shift the content decoded in an
-overlapping region, gradedly with stimulation strength and toward agreement
-with the stimulated region. Transcranial alternating current and weak
-intracortical fields supply the perturbation. The decoded content is a graded
-variable, such as a location, an orientation or the strength of evidence for a
-percept, read from the population activity that the overlapping region's
-targets integrate, so that it is a carrier in the sense of
-Section~\ref{sec:cover}; a decoded category is locally constant away from its
-boundaries in any substrate and would stay unchanged whether P holds or not. An
-unchanged decoded content in the overlapping region, at stimulation strengths
-that measurably move the stimulated one, counts against P, since P then denies
-unity to the system whose unity motivates it.
+The setup is a bridge. Two regions whose natural connection is interrupted are
+reconnected by stimulating each in proportion to the activity recorded at the
+other, through one of two loops. The \emph{analog loop}'s output moves with every
+graded change in its input. It is analog end to end, an analog filter and
+amplifier driving the stimulator with no digitizing stage, because a loop that
+digitizes the recording before driving the stimulator would run the quantized
+condition in both arms. The \emph{quantized loop}'s output is read from bits, so
+it has a margin.
 
-\paragraph{Agreement as an attractor.} Perturb one region and measure whether
-agreement with its overlap partners is restored, and at what rate. In cortex
-the perturbation is stimulation and the measure is the disagreement between
-contents decoded from the perturbed region and its partners; P predicts
-restoration at the relaxation rate of Section~\ref{sec:window}, with a
-restoring pull proportional to the size of the perturbation below as well as
-above any threshold. The same protocol run on an artificial system, by
-activation patching of one layer, head or position, has an outcome fixed in
-advance by the margin theorem: a digital system can restore agreement above the
-scale at which its logical trajectory changes, by computation, and below that
-scale nothing moves. Observing this checks that the hardware operates inside
-its margins, and it is the contrast that makes the cortical outcome
-informative: a restoring pull that is graded below every threshold is the
-signature P attributes to enforcement.
+The two loops must carry the same information. Noise added to the analog loop
+matches the transfer entropy it carries, estimated from the recorded activity,
+to the quantized loop's. Stepping the quantized loop's resolution checks that
+its transfer entropy rises with the resolution, so that the resolution, and not
+recording noise, sets the matched value. The two loops then carry the same
+information, and only the analog one couples the regions gradedly.
 
-\paragraph{The field's causal cone.} At the frequencies of neural activity the
-extracellular field is quasi-static \citep{gratiy2017}: it reaches every point
-of the tissue it spans with no propagation delay, while synaptic influence
-between distant regions arrives only after axonal conduction and synaptic
-transmission, no sooner than \ueConeMaxMs{}~ms across the longest
-cortico-cortical fibres. Re-agreement between two regions after a local
-perturbation, faster than the synaptic route allows, would identify a
-non-synaptic contribution to the coupling and measure the reach of the kernel
-tail of Section~\ref{sec:reach} directly.
+The readout is unity, with the evidence fixed at the start of this section. Unity that follows
+the analog loop at matched transfer entropy supports P over functionalism, and
+unity that is the same under both loops counts against P. Intracortical
+stimulation in animals supports the design with decoded agreement as the
+measure; reported unity needs a bridged human preparation.
 
-The strength of the field sets the separation at which the test decides
-anything. Endogenous fields in cortex peak near \ueFieldPeak{}~mV/mm in vivo
+\paragraph{A weak nudge should spread.} Weak stimulation of one region, below the
+level that changes behaviour, should shift the content decoded in an overlapping
+region, in proportion to the stimulation's strength and toward agreement with
+the stimulated region. Transcranial alternating current and weak intracortical
+fields supply the nudge. The decoded content must be a graded variable, such as
+a location, an orientation or the strength of evidence for a percept, read from
+the population activity that the overlapping region's targets integrate, so that
+it is a carrier in the sense of Section~\ref{sec:cover}. A decoded category would
+not do: it is constant away from its boundaries in any substrate, and would stay
+unchanged whether P holds or not. If the decoded content of the overlapping
+region stays unchanged at strengths that measurably move the stimulated one,
+that counts against P, since P then denies unity to the very system whose unity
+motivates it.
+
+\paragraph{Agreement should be restored.} Perturb one region and measure whether
+its agreement with its overlap partners comes back, and how fast. In cortex the
+perturbation is stimulation, and the measure is the disagreement between
+contents decoded from the perturbed region and from its partners. P predicts
+restoration at the relaxation rate of Section~\ref{sec:window}, with a restoring
+pull proportional to the size of the perturbation, below any threshold as well
+as above. The same protocol run on an artificial system, by patching the
+activations of one layer, head or position, has an outcome fixed in advance by
+the margin theorem. A digital system can restore agreement by computation, above
+the scale at which its logical trajectory changes, and below that scale nothing
+moves. Observing this checks that the hardware operates inside its margins. It
+is also the contrast that makes the cortical outcome informative: a restoring
+pull that stays graded below every threshold is the signature P attributes to
+enforcement.
+
+\paragraph{The field's causal cone.} Brain tissue carries an electric field as
+well as synapses. At the frequencies of neural activity that field is
+quasi-static \citep{gratiy2017}: it reaches every point of the tissue it spans
+with no propagation delay. Synaptic influence between distant regions, by
+contrast, arrives only after axonal conduction and synaptic transmission, no
+sooner than \ueConeMaxMs{}~ms across the longest cortico-cortical fibres. If two
+regions re-agree after a local perturbation faster than the synaptic route
+allows, the coupling has a non-synaptic part, and the timing measures the reach
+of the kernel tail of Section~\ref{sec:reach} directly.
+
+The field's strength sets the distance at which this test can decide anything.
+Endogenous fields in cortex peak near \ueFieldPeak{}~mV/mm in vivo
 \citep{frohlich2010}, networks of neurons detect fields from
 \ueFieldDetection{}~mV/mm \citep{francis2003}, and the potential of a local
 cortical source decays as $r^{-2.1}$ across millimetres \citep{rebollo2021}.
-With the peak placed at the nearest distance of that measurement, the field of
-a local source falls to the detection threshold within \ueFieldReachMm{}~mm and
+With the peak placed at the nearest distance of that measurement, the field of a
+local source falls to the detection threshold within \ueFieldReachMm{}~mm, and
 misses it by \ueFieldDeficitOrders{} orders of magnitude at \ueFibreCm{}~cm.
-The field's cone is therefore tested at millimetre separations, where activity
+The field's cone is therefore tested at millimetre distances, where activity
 has been observed to synchronize across a cut through cortex by the field alone
-\citep{rebollo2021}; at centimetre separations P predicts that re-agreement
-arrives through synaptic coupling, which is graded as well. The timing is
-measurable with intracortical recording. The stimulation artefact saturates
-clinical amplifiers during the first milliseconds, masking the earliest
-monosynaptic responses \citep{keller2014}, and early responses at distant
-contacts carry a volume-conducted component that scales with distance as the
-artefact does \citep{prime2020}. Template subtraction of the artefact
-\citep{trebaul2016}, multi-unit activity or current-source density at the
-distant site, which the passive spread of the local field potential does not
-reach \citep{kajikawa2011}, and a deadline set for each subject from the
-tractography length of the connecting fibres \citep{caminiti2013} separate
-active re-agreement from the passive field that carries the stimulus.
+\citep{rebollo2021}. At centimetre distances P predicts that re-agreement
+arrives through synaptic coupling, which is graded as well.
 
-\paragraph{Split brain.} Callosal section removes the main route of both
-information and graded coupling between the hemispheres. Patients respond to
-stimuli in the two visual fields as if perception were divided, yet can report
-the presence of stimuli in either field with either hand, which has been read
-as divided perception with undivided consciousness \citep{pinto2017}; whether
-the phenomenal field divides is contested \citep{dehaan2020}, and a switch
-model, on which consciousness alternates between the hemispheres, is a live
-rival \citep{bayne2010}. The residual subcortical routes are synaptic, so they
-couple gradedly and carry information at once. The case therefore removes
-coupling and information together, which is the confound the bridged
-preparation above is built to break.
+The timing can be measured with intracortical recording, with care. The
+stimulation artefact saturates clinical amplifiers during the first
+milliseconds, masking the earliest monosynaptic responses \citep{keller2014},
+and early responses at distant contacts carry a volume-conducted component that
+scales with distance as the artefact does \citep{prime2020}. Three measures
+separate active re-agreement from the passive field that carries the stimulus:
+template subtraction of the artefact \citep{trebaul2016}; multi-unit activity or
+current-source density at the distant site, which the passive spread of the
+local field potential does not reach \citep{kajikawa2011}; and a deadline set
+for each subject from the tractography length of the connecting fibres
+\citep{caminiti2013}.
+
+\paragraph{Split brain.} Cutting the corpus callosum removes the main route of
+both information and graded coupling between the hemispheres. Patients respond
+to stimuli in the two visual fields as if perception were divided, yet can
+report the presence of stimuli in either field with either hand. This has been
+read as divided perception with undivided consciousness \citep{pinto2017}.
+Whether the field of experience divides is contested \citep{dehaan2020}, and on
+a rival switch model consciousness alternates between the hemispheres
+\citep{bayne2010}. The remaining subcortical routes are synaptic, so they couple
+gradedly and carry information at once. The case therefore removes coupling and
+information together, which is exactly the confound the bridged preparation
+above is built to break.
 
 \section{Related work}
 \label{sec:related}
