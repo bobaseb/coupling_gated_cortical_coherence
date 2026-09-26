@@ -507,6 +507,35 @@ reduction order is a choice among logical trajectories and lies outside both
 theorems: it changes which content is computed, not how content depends on
 graded state.
 
+\paragraph{The margin's width.} If P turned on how wide an engineer happened to
+make a noise margin, that would be a reductio of P: two machines running one
+program would differ in unity by a design parameter. The width is not free in
+that way. By the noisy margin theorem a content's response to a region is at
+most its error rate, so a machine whose contents reached the fluctuation at the
+noise scale would err with probability at least \ueFluctuationTV{} at every
+step. Its bits would fail to hold their values from one step to the next, its
+program's trajectory would stop being reproducible, and whatever agreement
+survived would come from the physics beneath the bits and not from the program.
+The line P draws therefore coincides with the physical line between digital and
+analog operation, and working systems sit far from it on either side: a logic
+node's margin is \ueMarginToNoise{} noise amplitudes wide, while a cortical
+input passes P from \ueEpspPassMv{}~mV against \ueMembraneNoiseMv{}~mV of
+noise.
+
+\paragraph{Attractor basins.} Cortex has margins of its own. An attractor
+network's basin is a dynamical margin: every state in it flows to the same
+attractor, so which attractor the network settles in survives every small
+enough change. This is the categorical content of Section~\ref{sec:enforcement}
+in dynamical form. The basin gives the attractor's label a margin and leaves
+graded the state that carries the label: the position along a continuous
+attractor, such as the bump of activity that encodes a direction, the membrane
+potentials within the basin, and the spike times on the way to the attractor.
+Downstream cells integrate those. The voltage beneath a bit has no such reader,
+since the chip reads it only through the threshold. A cortical circuit whose
+contents were read only as attractor labels, far from the basins' boundaries,
+would fall under the margin theorem as a chip does, and the weak nudge of
+Section~\ref{sec:tests} tests which case cortex is in.
+
 \section{Tests}
 \label{sec:tests}
 
@@ -714,6 +743,10 @@ the classical recurrence criterion, for translation-invariant kernels on the
 lattice; that the growth is logarithmic is established numerically on finite
 sheets. Above the order--disorder crossover of Section~\ref{sec:reach} the
 harmonic identity fails and agreement is lost at every distance.
+
+\item \emph{Attractors.} The answer for attractor networks takes the unified
+contents to be carried by the graded state within a basin. A cortex whose
+unified contents were basin labels alone would fail P.
 
 \item \emph{Which variables are contents.} Which variables a system's own
 dynamics reads, and so which are its contents, is settled system by system from

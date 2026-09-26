@@ -514,7 +514,7 @@ Mock review, graded 6/10 at a consciousness venue and 4–5 at an ML venue
 (raised 2026-09-26). U28 is the most serious objection; U27 decides whether
 the paper reads as an argument or as a stipulation:
 
-- [ ] **U27 — Argue for P, not only from it.** Premise + margin theorem ⇒
+- [x] **U27 — Argue for P, not only from it.** Premise + margin theorem ⇒
   "digital agreement is computed" reads as question-begging: the simulation
   objection is answered by denial, and the springs-versus-ledgers picture and
   the parallel with workspace theory are the only support. Needs a positive
@@ -522,7 +522,14 @@ the paper reads as an argument or as a stipulation:
   content-level agreement, e.g. a case where computed and enforced agreement
   come apart in a way that bears on experience. State P as the premise it is
   (no hedging, per the author); what is missing is the reason to hold it.
-- [ ] **U28 — Show the bridge's two arms fall on opposite sides of P.** The
+  *Done 2026-09-26:* §enforcement "Why unity tracks enforcement": unity
+  settles how many subjects there are; physics counts systems by coupling (a
+  state that does not factor); below its margins a digital state factors into
+  its bits; content-level agreement cannot count systems (same program spread
+  over buildings, stretched to a year, run serially; Block 1978, verified
+  online). P = one subject per unified experience + interaction makes one
+  system. Intro sentence points to it.
+- [x] **U28 — Show the bridge's two arms fall on opposite sides of P.** The
   quantized loop reads a noisy recording: once recording noise exceeds one
   quantizer step, dither makes its output smooth in law, and under P's
   probabilistic reading (§enforcement, TV response against
@@ -532,18 +539,39 @@ the paper reads as an argument or as a stipulation:
   State both conditions (quantizer step ≫ recording noise; analog arm above
   the yardstick after added noise) and check they are compatible at matched
   transfer entropy — ideally a short calculation or simulation. Builds on U26.
-- [ ] **U29 — Say why distance-independent agreement matters for unity.**
+  *Done 2026-09-26:* `unity_estimates.bridge()`. P at a state reduces to the
+  response at the region's own noise σ_A. Analog passes iff loop noise ≤ σ_A;
+  quantized fails beyond σ_A + z*σ_n from an edge (z* = Q⁻¹(θ*) ≈ 0.30).
+  Noise matching (matched noise Δ/√(2πe)) caps the step at 4.1σ_A, so the
+  quantized arm fails at ≤ 52% of states: the objection held. §tests now
+  matches by the analog loop's bandwidth, no noise added; at Δ = 10σ_A,
+  σ_n ≤ σ_A, the quantized arm fails at ≥ 74%. Open: states taken uniform
+  within a step; high-resolution entropy limit; a bandwidth-limited analog
+  arm differs from the quantized one in bandwidth, which functionalism
+  should not care about but a referee may.
+- [x] **U29 — Say why distance-independent agreement matters for unity.**
   §reach assumes identical natural frequencies and the harmonic approximation,
   restates mostly classical results, and never says why P or unity needs
   agreement that holds at every distance. §window's bounds are elementary and
   its cortical estimate rests on an unmeasured relaxation time. Either one
   sentence tying each section to P, or shrink both to their role (cf. U25).
-- [ ] **U30 — Margin width as a reductio; attractor basins as margins.** A
+  *Done 2026-09-26:* one opening sentence each. §reach: a scene joins regions
+  up to 15 cm apart, so P needs enforced agreement at those distances.
+  §window: a contraction finishing after the content changed enforces
+  agreement on a replaced content.
+- [x] **U30 — Margin width as a reductio; attractor basins as margins.** A
   reviewer can turn the "hardware near its thresholds" limitation around: if
   unity depends on how wide an engineer made a noise margin, is that a
   reductio of P? The same question arises inside cortex: an attractor
   network's basin is a dynamical margin. Answer both in §enforcement or
   §ai, with the answer's scope stated once in §limitations.
+  *Done 2026-09-26:* §ai "The margin's width": response ≤ error rate, so
+  passing P at the noise scale forces an error rate ≥ θ* per step. The line
+  coincides with digital/analog operation, and working systems sit far from
+  it (506 noise amplitudes against a cortical input at about one). §ai
+  "Attractor basins": the basin gives the label a margin; the graded state
+  within it (continuous-attractor position, potentials, spike times) is read
+  downstream. Limitations item "Attractors".
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
   Consciousness* or *Phil. Trans. B*. arXiv posting: cs.AI primary (author has
