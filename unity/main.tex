@@ -279,7 +279,10 @@ $2\Phi(1/2)-1=\ueFluctuationTV$: a response above it moves the content by as
 much as the content naturally fluctuates. Graded dependence above the noise
 floor asks the response to reach this fluctuation for every change of the region
 that is larger than its own noise and smaller than the change that crosses one
-of its thresholds. The constants are a Gaussian identity and the system's own
+of its thresholds. When the region moves a Gaussian carrier linearly, a larger
+change moves the content at least as much as a smaller one, so the criterion
+is met exactly when a change of one noise amplitude reaches the fluctuation.
+The constants are a Gaussian identity and the system's own
 scales, and none of them is fitted to either substrate.
 
 The margin theorem has a noisy form. Let each realization of the noise fix an
@@ -908,6 +911,9 @@ Below $r/L$ the response is at most the error rate & \ref{sec:enforcement} & \te
 Graded dependence above the noise floor at every overlap holds exactly when every overlapping pair is one system & \ref{sec:enforcement} & \texttt{enforcedAtNoiseFloor\_\allowbreak{}iff} \\
 Bits with error rate below the fluctuation couple no pair of regions, so each region is a system of its own & \ref{sec:enforcement} & \texttt{sameSystem\_\allowbreak{}iff\_\allowbreak{}eq\_\allowbreak{}of\_\allowbreak{}bits} \\
 The same bits fail graded dependence above the noise floor at any overlap of two regions & \ref{sec:enforcement} & \texttt{not\_\allowbreak{}enforcedAtNoiseFloor\_\allowbreak{}of\_\allowbreak{}bits} \\
+A smaller shift of a Gaussian moves no event more than a larger one & \ref{sec:enforcement} & \texttt{gaussian\_\allowbreak{}shift\_\allowbreak{}le} \\
+Where the response grows with the change, graded dependence above the noise floor is decided by a change of one noise amplitude & \ref{sec:enforcement} & \texttt{gradedAboveNoise\_\allowbreak{}iff\_\allowbreak{}of\_\allowbreak{}mono} \\
+Under linear dynamics with Gaussian noise, the response grows with the change, and graded dependence and coupling are decided at one noise amplitude & \ref{sec:enforcement} & \texttt{gaussLin\_\allowbreak{}coupledAtNoiseFloor\_\allowbreak{}iff} \\
 \hline
 \end{longtable}
 }

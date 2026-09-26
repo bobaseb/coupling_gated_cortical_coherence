@@ -442,6 +442,9 @@ dependence, one pair of overlapping regions at a time.
   `σ` and smaller than `Θ` moves `π` by at least `θ`.
   `GradedAboveNoise.le_response`: the response then reaches `θ` at every scale
   that admits such a change.
+  `gradedAboveNoise_iff_of_mono`: where the response grows with the change, the
+  criterion is decided by one change of the size of the noise; the Gaussian
+  carrier below is such a case.
 * **`CoupledAtNoiseFloor`** and **`SameSystem`.** Two regions are coupled when
   each one's changes above its noise move the other's content by at least `θ`;
   one system is the equivalence closure of coupling.
@@ -502,6 +505,18 @@ theorem GradedAboveNoise.le_response {μ : Measure Ω} {f : Ω → (∀ i, S i) 
     (hΘ : dist s (x i) < Θ) {η : ℝ} (hη : dist s (x i) ≤ η) : θ ≤ response μ f π x i η :=
   (h s hσ hΘ).trans (le_iSup₂_of_le (f := fun s (_ : dist s (x i) ≤ η) =>
     shiftResponse μ f π x i s) s hη le_rfl)
+
+/-- **Where the response grows with the change, P is decided at the noise.** If a
+larger change of region `i` never moves the content less than a smaller one, and
+some change has size exactly the noise `σ`, then graded dependence above the
+noise floor holds exactly when that change moves the content by at least `θ`. -/
+theorem gradedAboveNoise_iff_of_mono {μ : Measure Ω} {f : Ω → (∀ i, S i) → ∀ i, S i}
+    {π : (∀ i, S i) → C} {x : ∀ i, S i} {i : ι} {σ Θ : ℝ} {θ : ENNReal}
+    (hmono : ∀ s t : S i, dist s (x i) ≤ dist t (x i) →
+      shiftResponse μ f π x i s ≤ shiftResponse μ f π x i t)
+    {s₀ : S i} (hs₀ : dist s₀ (x i) = σ) (hσΘ : σ < Θ) :
+    GradedAboveNoise μ f π x i σ Θ θ ↔ θ ≤ shiftResponse μ f π x i s₀ :=
+  ⟨fun h => h s₀ hs₀.ge (hs₀ ▸ hσΘ), fun h s hs _ => h.trans (hmono s₀ s (hs₀ ▸ hs))⟩
 
 /-- **Coupling at the noise floor.** Regions `i` and `j`, with contents `π i` and
 `π j`, noises `σ` and threshold-crossing changes `Θ`, are coupled when every
@@ -603,5 +618,210 @@ theorem not_enforcedAtNoiseFloor_of_bits [Fintype ι] {κ : Type*} {μ : Measure
     (hij : O i j) (hne : i ≠ j) :
     ¬ EnforcedAtNoiseFloor O μ f (fun j y => q j fun k => decide (c k < v k y)) x σ Θ θ :=
   fun h => hne ((sameSystem_iff_eq_of_bits hf hv hLv c q hε hεθ hs).mp (h.sameSystem hO hij))
+
+end PhysicsOfConsciousness.PhysicalUnity
+
+/-! ## The Gaussian carrier
+
+Whether P is decided by the smallest change above the noise depends on how the
+response grows with the change. For a Gaussian carrier it grows monotonically:
+a smaller shift of a Gaussian is a common post-processing of the larger shift
+and of the unshifted law (scale toward the base mean, then add independent
+Gaussian noise that restores the variance), and post-processing moves no event
+by more than the input moved it. So under a linear micro dynamics with
+independent Gaussian noise on every region, graded dependence above the noise
+floor, and with it coupling at the noise floor, is decided by one change of the
+size of the noise.
+
+* **`gaussian_shift_le`.** A shift of a Gaussian by `b` raises no event's
+  probability by more than the largest rise a shift by `a` makes, when
+  `|b| ≤ |a|`.
+* **`gaussLin`** and **`stdNoise`.** The micro dynamics `y ↦ W y + τ ω` with
+  `ω` standard Gaussian on each region; `stdNoise_apply` gives the law of any
+  region's next quantity.
+* **`shiftResponse_gaussLin_mono`.** Under it, the response of region `j`'s
+  next quantity to a change of region `i` grows with the size of the change.
+* **`gaussLin_gradedAboveNoise_iff`** and **`gaussLin_coupledAtNoiseFloor_iff`.**
+  Hence, for noise scales `0 ≤ σ < Θ`, graded dependence above noise holds
+  exactly when the change of size `σ` moves the content by `θ`, and two regions
+  are coupled exactly when each one's change of its own noise size moves the
+  other's content by `θ`.
+-/
+
+namespace PhysicsOfConsciousness.PhysicalUnity
+
+open MeasureTheory ProbabilityTheory NNReal
+
+
+/-- A pointwise excess bound survives averaging over a probability law. -/
+lemma le_add_of_lintegral {Z : Type*} [MeasurableSpace Z] {ρ : Measure Z} [IsProbabilityMeasure ρ]
+    {g g' : Z → ENNReal} {D : ENNReal} (h : ∀ z, g z ≤ g' z + D) :
+    ∫⁻ z, g z ∂ρ ≤ ∫⁻ z, g' z ∂ρ + D := by
+  calc ∫⁻ z, g z ∂ρ ≤ ∫⁻ z, (g' z + D) ∂ρ := lintegral_mono h
+    _ = ∫⁻ z, g' z ∂ρ + D := by rw [lintegral_add_right _ measurable_const]; simp
+
+/-- A convolution of laws on `ℝ` gives a measurable set the `ρ`-average of the
+probabilities `Q` gives its translates. -/
+lemma conv_apply_eq {Q : Measure ℝ} [SFinite Q] {ρ : Measure ℝ} [SFinite ρ] {B : Set ℝ}
+    (hB : MeasurableSet B) : (ρ ∗ Q) B = ∫⁻ z, Q ((fun y => z + y) ⁻¹' B) ∂ρ := by
+  rw [← lintegral_indicator_one hB, Measure.lintegral_conv (measurable_one.indicator hB)]
+  refine lintegral_congr fun z => ?_
+  rw [← lintegral_indicator_one (measurable_const_add z hB)]
+  rfl
+
+/-- **A smaller Gaussian shift moves no event more than a larger one.** Scaling
+by `b / a` about the base mean `c` and adding independent Gaussian noise of
+variance `(1 − (b / a)²) v` carries the law shifted by `a` to the law shifted by
+`b` and fixes the unshifted law, and that post-processing raises no event's
+probability by more than the largest rise the shift by `a` makes. -/
+lemma gaussian_shift_le (v : ℝ≥0) (c a b : ℝ) (hab : |b| ≤ |a|) (A : Set ℝ) :
+    gaussianReal (c + b) v A - gaussianReal c v A ≤
+      ⨆ B : Set ℝ, gaussianReal (c + a) v B - gaussianReal c v B := by
+  set D := ⨆ B : Set ℝ, gaussianReal (c + a) v B - gaussianReal c v B
+  set l := b / a
+  have hla : l * a = b := by
+    rcases eq_or_ne a 0 with rfl | ha
+    · simp at hab; simp [l, hab]
+    · exact div_mul_cancel₀ b ha
+  have hl : l ^ 2 ≤ 1 := by
+    rcases eq_or_ne a 0 with rfl | ha
+    · simp [l]
+    · rw [div_pow, div_le_one (by positivity)]; exact sq_le_sq.mpr hab
+  let k : ℝ := (1 - l) * c
+  let w : ℝ≥0 := ⟨1 - l ^ 2, by linarith⟩
+  let u : ℝ≥0 := ⟨l ^ 2, sq_nonneg _⟩
+  let ρ : Measure ℝ := gaussianReal 0 (w * v)
+  let g : ℝ → ℝ := fun y => l * y + k
+  have hg : Measurable g := by fun_prop
+  have hQ : ∀ m, (gaussianReal m v).map g = gaussianReal (l * m + k) (u * v) := by
+    intro m
+    rw [show g = (· + k) ∘ (l * ·) from rfl, ← Measure.map_map (by fun_prop) (by fun_prop),
+      gaussianReal_map_const_mul, gaussianReal_map_add_const]
+    rfl
+  have hv : w * v + u * v = v := by
+    rw [← add_mul]
+    convert one_mul v
+    apply NNReal.eq
+    change (1 - l ^ 2) + l ^ 2 = (1 : ℝ)
+    ring
+  have hconv : ∀ m, ρ ∗ (gaussianReal m v).map g = gaussianReal (l * m + k) v := by
+    intro m
+    rw [hQ, gaussianReal_conv_gaussianReal, zero_add, hv]
+  have hb : l * (c + a) + k = c + b := by simp only [k]; rw [← hla]; ring
+  have hc : l * c + k = c := by simp only [k]; ring
+  have hB := measurableSet_toMeasurable (gaussianReal c v) A
+  set B := toMeasurable (gaussianReal c v) A
+  have key : gaussianReal (c + b) v B ≤ gaussianReal c v B + D := by
+    rw [← hb, ← hconv, conv_apply_eq hB]
+    conv_rhs => rw [← hc, ← hconv, conv_apply_eq hB]
+    refine le_add_of_lintegral fun z => ?_
+    rw [Measure.map_apply hg (measurable_const_add z hB),
+      Measure.map_apply hg (measurable_const_add z hB)]
+    exact tsub_le_iff_left.mp
+      (le_iSup (fun S : Set ℝ => gaussianReal (c + a) v S - gaussianReal c v S) _)
+  calc gaussianReal (c + b) v A - gaussianReal c v A
+      ≤ gaussianReal (c + b) v B - gaussianReal c v B := by
+        rw [measure_toMeasurable]; gcongr; exact subset_toMeasurable _ _
+    _ ≤ D := tsub_le_iff_left.mpr key
+
+variable {ι : Type*} [Fintype ι] [DecidableEq ι]
+
+/-- Linear micro dynamics with Gaussian noise: region `k` moves to
+`∑ l, W k l * y l + τ ω k`. -/
+noncomputable def gaussLin (W : ι → ι → ℝ) (τ : ℝ≥0) (ω : ι → ℝ) (y : ι → ℝ) : ι → ℝ :=
+  fun k => ∑ l, W k l * y l + τ * ω k
+
+/-- The standard Gaussian noise on every region. -/
+noncomputable abbrev stdNoise (ι : Type*) [Fintype ι] : Measure (ι → ℝ) :=
+  Measure.pi fun _ => gaussianReal 0 1
+
+/-- Region `j`'s noisy quantity `m + τ ω j` has the Gaussian law of mean `m` and
+variance `τ²`, on every set. -/
+lemma stdNoise_apply {τ : ℝ≥0} (hτ : τ ≠ 0) (m : ℝ) (j : ι) (A : Set ℝ) :
+    stdNoise ι {ω | m + τ * ω j ∈ A} = gaussianReal m (τ ^ 2) A := by
+  set E : Set ℝ := {z | m + τ * z ∈ A}
+  have hset : {ω : ι → ℝ | m + τ * ω j ∈ A} =
+      Set.univ.pi (Function.update (fun _ => Set.univ) j E) := by
+    ext ω
+    simp only [Set.mem_ofPred_eq, Set.mem_pi, Set.mem_univ, true_implies]
+    constructor
+    · intro h k
+      rcases eq_or_ne k j with rfl | hk
+      · simpa [E] using h
+      · simp [Function.update_of_ne hk]
+    · intro h; simpa [E] using h j
+  have he : MeasurableEmbedding fun z : ℝ => m + τ * z :=
+    ((Homeomorph.mulLeft₀ (τ : ℝ) (by exact_mod_cast hτ)).trans
+      (Homeomorph.addLeft m)).measurableEmbedding
+  rw [hset, Measure.pi_pi, Finset.prod_eq_single j (fun k _ hk => by
+    simp [Function.update_of_ne hk]) (by simp)]
+  simp only [Function.update_self]
+  change gaussianReal 0 1 ((fun z : ℝ => m + τ * z) ⁻¹' A) = _
+  rw [← he.map_apply]
+  rw [show (fun z : ℝ => m + τ * z) = (m + ·) ∘ ((τ : ℝ) * ·) from rfl,
+    ← Measure.map_map (by fun_prop) (by fun_prop), gaussianReal_map_const_mul,
+    gaussianReal_map_const_add]
+  simp only [mul_zero, zero_add, mul_one]
+  congr 1
+
+/-- Changing one coordinate moves a linear form by its weight times the change. -/
+lemma sum_update_mul (w : ι → ℝ) (x : ι → ℝ) (i : ι) (s : ℝ) :
+    ∑ l, w l * Function.update x i s l = ∑ l, w l * x l + w i * (s - x i) := by
+  have h : ∀ l, Function.update x i s l = x l + (Pi.single i (s - x i) : ι → ℝ) l := by
+    intro l; rcases eq_or_ne l i with rfl | hl
+    · simp
+    · simp [hl]
+  simp_rw [h, mul_add, Finset.sum_add_distrib, Pi.single_apply, mul_ite, mul_zero,
+    Finset.sum_ite_eq', Finset.mem_univ, ite_true]
+
+/-- The response of region `j`'s next quantity to a change of region `i` under the
+linear Gaussian dynamics: the largest rise that shifting a Gaussian of variance
+`τ²` by `W j i (s − x i)` makes in the probability of any event. -/
+lemma shiftResponse_gaussLin (W : ι → ι → ℝ) {τ : ℝ≥0} (hτ : τ ≠ 0) (x : ι → ℝ) (i j : ι)
+    (s : ℝ) :
+    shiftResponse (S := fun _ : ι => ℝ) (stdNoise ι) (gaussLin W τ) (fun y => y j) x i s =
+      ⨆ A : Set ℝ, gaussianReal (∑ l, W j l * x l + W j i * (s - x i)) (τ ^ 2) A -
+        gaussianReal (∑ l, W j l * x l) (τ ^ 2) A := by
+  unfold shiftResponse
+  congr 1; ext A
+  simp only [gaussLin]
+  rw [stdNoise_apply hτ, stdNoise_apply hτ, sum_update_mul]
+
+/-- **Under linear Gaussian dynamics the response grows with the change.** -/
+theorem shiftResponse_gaussLin_mono (W : ι → ι → ℝ) {τ : ℝ≥0} (hτ : τ ≠ 0) (x : ι → ℝ)
+    (i j : ι) {s t : ℝ} (hst : dist s (x i) ≤ dist t (x i)) :
+    shiftResponse (S := fun _ : ι => ℝ) (stdNoise ι) (gaussLin W τ) (fun y => y j) x i s ≤
+      shiftResponse (S := fun _ : ι => ℝ) (stdNoise ι) (gaussLin W τ) (fun y => y j) x i t := by
+  rw [shiftResponse_gaussLin W hτ, shiftResponse_gaussLin W hτ]
+  refine iSup_le fun A => gaussian_shift_le _ _ _ _ ?_ A
+  rw [abs_mul, abs_mul]
+  exact mul_le_mul_of_nonneg_left (by simpa [Real.dist_eq] using hst) (abs_nonneg _)
+
+/-- **Under linear Gaussian dynamics, P is decided at the noise.** For
+`0 ≤ σ < Θ`, every change of region `i` above its noise moves region `j`'s next
+quantity by at least `θ` exactly when the change of size `σ` does. -/
+theorem gaussLin_gradedAboveNoise_iff (W : ι → ι → ℝ) {τ : ℝ≥0} (hτ : τ ≠ 0) (x : ι → ℝ)
+    (i j : ι) {σ Θ : ℝ} (hσ : 0 ≤ σ) (hσΘ : σ < Θ) {θ : ENNReal} :
+    GradedAboveNoise (S := fun _ : ι => ℝ) (stdNoise ι) (gaussLin W τ) (fun y => y j) x i
+        σ Θ θ ↔
+      θ ≤ shiftResponse (S := fun _ : ι => ℝ) (stdNoise ι) (gaussLin W τ) (fun y => y j) x i
+        (x i + σ) :=
+  gradedAboveNoise_iff_of_mono (fun _ _ h => shiftResponse_gaussLin_mono W hτ x i j h)
+    (by simp [abs_of_nonneg hσ]) hσΘ
+
+/-- **Coupling under linear Gaussian dynamics.** Two regions are coupled at the
+noise floor exactly when a change of each by its own noise moves the other's
+next quantity by at least `θ`. -/
+theorem gaussLin_coupledAtNoiseFloor_iff (W : ι → ι → ℝ) {τ : ℝ≥0} (hτ : τ ≠ 0)
+    (x : ι → ℝ) {σ Θ : ι → ℝ} (hσ : ∀ k, 0 ≤ σ k) (hσΘ : ∀ k, σ k < Θ k) {θ : ENNReal}
+    (i j : ι) :
+    CoupledAtNoiseFloor (S := fun _ : ι => ℝ) (stdNoise ι) (gaussLin W τ) (fun j y => y j) x
+        σ Θ θ i j ↔
+      θ ≤ shiftResponse (S := fun _ : ι => ℝ) (stdNoise ι) (gaussLin W τ) (fun y => y j) x i
+          (x i + σ i) ∧
+        θ ≤ shiftResponse (S := fun _ : ι => ℝ) (stdNoise ι) (gaussLin W τ) (fun y => y i) x j
+          (x j + σ j) :=
+  and_congr (gaussLin_gradedAboveNoise_iff W hτ x i j (hσ i) (hσΘ i))
+    (gaussLin_gradedAboveNoise_iff W hτ x j i (hσ j) (hσΘ j))
 
 end PhysicsOfConsciousness.PhysicalUnity

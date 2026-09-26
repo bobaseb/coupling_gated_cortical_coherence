@@ -631,15 +631,20 @@ the paper reads as an argument or as a stipulation:
   it, not as `R(η) ≥ θ` for η ∈ [σ, Θ). The sup form reduces to `R(σ) ≥ θ`
   but also counts changes below σ, so it is weaker than the paragraph;
   `GradedAboveNoise.le_response` gives the per-change form ⇒ sup form. The
-  reduction to the change of size σ that `bridge()` uses needs the per-change
-  response monotone in size (true for a Gaussian shift), which is not proved
-  generally. `CoupledAtNoiseFloor` is mutual; `SameSystem` its equivalence
+  reduction to the change of size σ that `bridge()` uses:
+  `gradedAboveNoise_iff_of_mono` (wherever the response grows with the
+  change), discharged for linear dynamics with independent Gaussian noise
+  (`gaussLin`, `shiftResponse_gaussLin_mono`, `gaussLin_coupledAtNoiseFloor_iff`)
+  through `gaussian_shift_le`: a smaller Gaussian shift is a common
+  post-processing (scale, then add Gaussian noise) of the larger shift and the
+  base law. `CoupledAtNoiseFloor` is mutual; `SameSystem` its equivalence
   closure. (b) `enforcedAtNoiseFloor_iff` for a symmetric overlap relation,
   `EnforcedAtNoiseFloor.sameSystem`. (c) `response_le_of_marginRate`,
   `sameSystem_iff_eq_of_bits` (error rate < θ plus, per region, a change above
   noise inside the margin ⇒ each region its own system),
   `not_enforcedAtNoiseFloor_of_bits`. Witness: `diffuse_sameSystem`. Axiom
-  audit clean; five `tab:formal` rows; §enforcement states both in words.
+  audit clean; eight `tab:formal` rows; §enforcement states the results in
+  words.
 
 Relation to the companion (raised 2026-09-25):
 
