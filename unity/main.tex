@@ -112,6 +112,14 @@ variable. The cover of regions, and the content variable of each, are fixed by
 this causal role and by decodability before agreement is measured, so that the
 measurement cannot be emptied by the choice of cover.
 
+This definition of unity, and the measurement of agreement the tests below use,
+come from the companion paper \citep{bobadillasuarez2026coherence}: there
+compatible local descriptions are proved to determine one global state, phase
+coherence is shown to bound their disagreement only through shared encoders of
+bounded sensitivity, and agreement is measured by decoders fitted independently
+on two regions, in excess of what their separate accuracies imply. P adds a
+condition on how that agreement is produced.
+
 \section{Physical enforcement versus routed agreement}
 \label{sec:enforcement}
 
@@ -334,6 +342,20 @@ held within their noise margins, so the result of
 Section~\ref{sec:enforcement} applies to it. Hardware whose contents are graded
 physical quantities coupled without barriers, such as analog, in-memory or
 neuromorphic substrates, can satisfy P.
+
+The division P draws is between symbolic and physical content, and the
+division between digital and analog hardware is its most common instance. A
+symbol, in the sense the margin theorem makes precise, is a content read through
+a noise margin: a physical state whose identity survives every small enough
+change of the state that carries it, so that two symbols agree only when a rule
+applied at discrete steps makes them agree. A physical content is a graded
+quantity that the system's own dynamics reads, so that its agreement with the
+contents it overlaps is produced by the coupling between them. Symbols are
+physical objects too, and what sets them apart is the margin through which they
+are read. A bit is a symbol, and so is a spike count latched at a clock edge; a
+spike time, a membrane potential and the phase of a coupled oscillator are
+physical contents. P requires physical contents, and a system whose contents are
+all symbols computes its agreement, whatever algorithm it runs.
 
 The criterion concerns how a substrate is organised and says nothing of what it
 is made of. An analog crossbar whose column currents carry content and settle
