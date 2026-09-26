@@ -594,6 +594,35 @@ the paper reads as an argument or as a stipulation:
   in the DOI once posted, preferably before the unity paper's arXiv v1, then
   rerun `unity/prepare_arxiv.sh` and commit with the rebuilt PDF. The DOI
   also unblocks the unity half of U19, which was waiting on an identifier.
+- [ ] **U33 — Lean: "one system at the noise floor" is graded dependence.**
+  Raised 2026-09-26 in the self-review (graded 6.5). The paragraph "Counting
+  systems at the noise floor" in §enforcement argues that the parts are one
+  system when every change of one above its noise moves the other by at least
+  its fluctuation. It then asserts that this is the noise-floor reading of
+  graded dependence. Proving that identification turns the paragraph from an
+  argument into a result, which is what could move the paper from 6.5 to 7.
+  (a) Define in `Phase10_PhysicalUnity` the response `R_i(η)` (sup over
+  changes of region `i` of size ≤ η of the total variation of the next
+  content's law, outer measure as in `HasMarginRate`). Define
+  `GradedAboveNoise i σ Θ θ`: `R_i(η) ≥ θ` for every `η ∈ [σ, Θ)`. Define a
+  pairwise `CoupledAtNoiseFloor i j`, where region `i`'s changes above its
+  noise move region `j`'s content by at least `θ`. Only the upper-bound form
+  (`law_le_of_marginRate`) exists today; the lower-bound criterion that P uses
+  is not yet a declaration.
+  (b) Prove the equivalence: `GradedAboveNoise` at every region, for the
+  content of each region it overlaps, iff every overlapping pair is
+  `CoupledAtNoiseFloor`. Also prove that `R_i` is monotone in `η`, so that the
+  criterion reduces to `R_i(σ) ≥ θ`, which `bridge()` in
+  `unity_estimates.py` already uses.
+  (c) Corollary from `bits_law_le_of_lipschitz`: a bit word whose error rate
+  is below `θ` fails the pairwise criterion for every pair, so it is as many
+  systems as it has bits over its margin. This is the formal form of the
+  margin-width paragraph (U30): passing forces error rate ≥ θ.
+  (d) Axiom audit clean; rows in `tab:formal`; the §enforcement paragraph
+  states the result in words (AGENTS.md §9: no identifiers in the main text).
+  **Success.** The "one system" criterion and P's noise-floor reading are one
+  declaration apart, proved, and the chip's failure is a corollary rather than
+  an assertion.
 
 Relation to the companion (raised 2026-09-25):
 
