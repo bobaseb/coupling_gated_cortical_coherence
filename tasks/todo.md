@@ -675,6 +675,63 @@ the paper reads as an argument or as a stipulation:
   each ray, so the criterion becomes the smallest response over changes of
   size σ. Several times the size of the Gaussian proof; do U34 first.
 
+Review response (raised 2026-09-26, external-style review scored 5/10; plan
+`joyful-painting-snail`):
+
+- [ ] **U36 — One protocol for both substrates, at region scale.** The review's
+  main objection: the chip is evaluated between thresholds, the neuron only
+  while rising through threshold, and one cell to one cell while P is stated
+  region to region. New simulation `simulations/unity_population.py`: noisy
+  asynchronous LIF region A projecting onto region B; states sampled from the
+  stationary run (occupancy weighting); shift A by its own noise amplitude;
+  response = TV between laws of B's filtered population output. Three arms
+  under the identical protocol: asynchronous cortex, spike times latched to a
+  clock (sweep period / jitter), carrier restored to a rail each step (sweep
+  margin / noise up to the logic node's ratio). Macros via `unity_macros.py`,
+  drift test. **Outcome policy:** report whatever comes out; if the cortical
+  arm fails at region scale, stop and return to the author before touching
+  the thesis. **Success.** The separation is a measured curve under one
+  protocol, not two differently placed estimates.
+- [ ] **U37 — Paper: the region result replaces the single-cell headline.**
+  §enforcement "A region in numbers"; §ai "Why spikes are not bits" and "The
+  margin's width" argue from the rail arm; Limitations "The cortical estimate"
+  becomes the simulation's scope; intro claim 1 updated.
+- [ ] **U38 — Clockless logic, and the "as many systems as bits" reductio.**
+  Quasi-delay-insensitive design makes content invariant to transition timing
+  by construction, so timing is a trace (verify citation online). State the
+  many-systems consequence as intended and argue it from how physics
+  individuates subsystems whose interaction stays below their noise.
+- [ ] **U39 — Bridge arms share one filter.** The quantized arm is the analog
+  arm's filter followed by a quantizer; transfer entropy is matched by the
+  analog arm's bandwidth alone. The arms then differ only in the quantizer's
+  nonlinearity; the test decides P against information-flow functionalism,
+  and Limitations names the residual reply.
+- [ ] **U40 — Fold the unity window into §reach.** One paragraph "Agreement in
+  time" in §reach; the cortical worked example to the appendix; `tab:formal`
+  and cross-references retargeted.
+- [ ] **U41 — Abstract and introduction.** Lead with the premise and the
+  region-scale separation, then reach, then refutable predictions; the margin
+  theorem as means, not headline. At most one disclaimer.
+- [ ] **U42 — Computational functionalism, not functionalism.** P is itself a
+  functional criterion fixed at the grain of the physical dynamics, so it
+  rejects computational functionalism and is compatible with fine-grained
+  functionalism. Rename throughout; a Related work paragraph on grain (verify
+  any citation online); Limitations "The premise" states that P does not decide
+  against a functionalism stated at the grain of graded physical state.
+- [ ] **U43 — P is neutral on where unified contents live.** Raised by the
+  author: the paper commits to a distributed, whole-brain view in §reach
+  ("regions a single scene joins lie up to 15 cm apart") and in the window
+  estimate, though P constrains only the regions whose contents are unified.
+  If unity is localized (e.g. a posterior hot zone; verify citation online),
+  P and the margin argument are unchanged, and only the reach the coupling
+  must span shrinks. State the neutrality once after P; phrase §reach's demand
+  as a function of the extent of the unified regions, giving the whole-cortex
+  and a localized extent; parametrize the window/cone estimate in
+  `unity_estimates.py` by that extent (both values as macros); note that a
+  localized extent brings the field's millimetre reach into play.
+  **Success.** No sentence of the paper presupposes that unity is
+  whole-brain.
+
 Relation to the companion (raised 2026-09-25):
 
 - [ ] **U19 — State the E78 → U1 bridge in both papers.** The companion's
