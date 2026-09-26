@@ -226,10 +226,16 @@ question is whether the other parts register it. Two parts are one system when
 every change of one above its noise moves the other by at least the other's own
 fluctuation, and several systems when some such change leaves the other
 unmoved. This is the noise-floor reading of graded dependence given below, and
-both ends of the scale are the parts' own noise, so nobody chooses it to
-separate brains from chips. A chip fails it by design. A bit's margin spans
+the identity is proved: for regions whose contents overlap, each region's
+content depends gradedly above the noise floor on every region it overlaps
+exactly when every overlapping pair is one system in this sense. Both ends of
+the scale are the parts' own noise, so nobody chooses it to separate brains
+from chips. A chip fails it by design. A bit's margin spans
 \ueMarginToNoise{} of its noise amplitudes, and no other bit registers a change
-anywhere in that range except through the error rate. Its wires pass on only
+anywhere in that range except through the error rate. By the noisy margin
+theorem below, once that rate is under the fluctuation and each part has a
+change above its noise inside the margin, every pair of parts fails the
+criterion and each part is a system of its own. Its wires pass on only
 the changes that cross a threshold, which is the rule applied at each clock
 step, so between thresholds, where a working chip spends nearly all of its
 time, it is as many systems as it has bits. The citizens of Block's nation
@@ -897,6 +903,11 @@ Graded dependence of a bit word requires some bit exactly on its threshold & \re
 A one-region change below $\delta/(L L_v)$ changes no bit & \ref{sec:ai} & \texttt{bits\_\allowbreak{}eq\_\allowbreak{}of\_\allowbreak{}lipschitz} \\
 Under noise, a one-region change below $r/L$ moves the probability of every event of the next content by at most the error rate & \ref{sec:enforcement} & \texttt{law\_\allowbreak{}le\_\allowbreak{}of\_\allowbreak{}marginRate} \\
 The same for anything computed from noisy bits, with error rate the probability of landing within $\delta$ of a threshold & \ref{sec:enforcement} & \texttt{bits\_\allowbreak{}law\_\allowbreak{}le\_\allowbreak{}of\_\allowbreak{}lipschitz} \\
+The response of a content to one region grows with the scale & \ref{sec:enforcement} & \texttt{response\_\allowbreak{}mono} \\
+Below $r/L$ the response is at most the error rate & \ref{sec:enforcement} & \texttt{response\_\allowbreak{}le\_\allowbreak{}of\_\allowbreak{}marginRate} \\
+Graded dependence above the noise floor at every overlap holds exactly when every overlapping pair is one system & \ref{sec:enforcement} & \texttt{enforcedAtNoiseFloor\_\allowbreak{}iff} \\
+Bits with error rate below the fluctuation couple no pair of regions, so each region is a system of its own & \ref{sec:enforcement} & \texttt{sameSystem\_\allowbreak{}iff\_\allowbreak{}eq\_\allowbreak{}of\_\allowbreak{}bits} \\
+The same bits fail graded dependence above the noise floor at any overlap of two regions & \ref{sec:enforcement} & \texttt{not\_\allowbreak{}enforcedAtNoiseFloor\_\allowbreak{}of\_\allowbreak{}bits} \\
 \hline
 \end{longtable}
 }

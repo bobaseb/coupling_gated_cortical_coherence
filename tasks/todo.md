@@ -594,7 +594,7 @@ the paper reads as an argument or as a stipulation:
   in the DOI once posted, preferably before the unity paper's arXiv v1, then
   rerun `unity/prepare_arxiv.sh` and commit with the rebuilt PDF. The DOI
   also unblocks the unity half of U19, which was waiting on an identifier.
-- [ ] **U33 — Lean: "one system at the noise floor" is graded dependence.**
+- [x] **U33 — Lean: "one system at the noise floor" is graded dependence.**
   Raised 2026-09-26 in the self-review (graded 6.5). The paragraph "Counting
   systems at the noise floor" in §enforcement argues that the parts are one
   system when every change of one above its noise moves the other by at least
@@ -623,6 +623,23 @@ the paper reads as an argument or as a stipulation:
   **Success.** The "one system" criterion and P's noise-floor reading are one
   declaration apart, proved, and the chip's failure is a corollary rather than
   an assertion.
+  *Done 2026-09-26:* `Phase10_PhysicalUnity` §"Counting systems at the noise
+  floor". `shiftResponse` (one change, sup over events of the rise in outer
+  probability) and `response` (sup over changes of size ≤ η), with
+  `response_mono`. Deviation from (a): `GradedAboveNoise` is stated per change
+  (every change in `[σ, Θ)` moves the content by ≥ θ), as §enforcement words
+  it, not as `R(η) ≥ θ` for η ∈ [σ, Θ). The sup form reduces to `R(σ) ≥ θ`
+  but also counts changes below σ, so it is weaker than the paragraph;
+  `GradedAboveNoise.le_response` gives the per-change form ⇒ sup form. The
+  reduction to the change of size σ that `bridge()` uses needs the per-change
+  response monotone in size (true for a Gaussian shift), which is not proved
+  generally. `CoupledAtNoiseFloor` is mutual; `SameSystem` its equivalence
+  closure. (b) `enforcedAtNoiseFloor_iff` for a symmetric overlap relation,
+  `EnforcedAtNoiseFloor.sameSystem`. (c) `response_le_of_marginRate`,
+  `sameSystem_iff_eq_of_bits` (error rate < θ plus, per region, a change above
+  noise inside the margin ⇒ each region its own system),
+  `not_enforcedAtNoiseFloor_of_bits`. Witness: `diffuse_sameSystem`. Axiom
+  audit clean; five `tab:formal` rows; §enforcement states both in words.
 
 Relation to the companion (raised 2026-09-25):
 

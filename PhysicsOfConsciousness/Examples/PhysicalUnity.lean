@@ -31,6 +31,10 @@ import PhysicsOfConsciousness.Phase10_PhysicalUnity
   the error set is `{true}`, and changing region 0 to `3/2`, half the margin
   width away, raises the probability that the bit reads `true` by exactly
   `μ {true}`, so `bits_law_le_of_lipschitz` cannot be sharpened.
+* **One system at the noise floor.** Without noise, a change of either region
+  of the diffusive pair moves both next quantities, so every change at a
+  positive scale has response `1`, and the pair is one system in the sense of
+  `SameSystem` for every noise scale and every yardstick up to `1`.
 -/
 
 open Filter Topology
@@ -92,6 +96,34 @@ theorem category_of_enforced_carrier :
   exact not_gradedDependence_iterate_of_bits (κ := Unit) hd
     (fun _ => continuous_apply (1 : Fin 2)) (fun _ => 0) (fun w => w ()) (x := ![0, 1]) 1
     (fun _ => by norm_num [diffuse]) 0
+
+/-- Under `diffuse`, changing either region moves either region's next quantity:
+a change of region `i` by `s − x i` moves region `j` by `3/4` or `1/4` of it. -/
+theorem diffuse_update_ne (x : Pair) (i j : Fin 2) {s : ℝ} (hs : s ≠ x i) :
+    diffuse (Function.update x i s) j ≠ diffuse x j := by
+  fin_cases i <;> fin_cases j <;> simp [diffuse, Function.update] at hs ⊢ <;> intro h <;>
+    exact hs (by linarith)
+
+open MeasureTheory in
+/-- **The diffusive pair is one system at the noise floor.** Without noise, every
+change of either region at any positive scale moves the other's quantity with
+certainty, so the response is `1`, the pair is coupled for every noise `σ > 0`
+and yardstick `θ ≤ 1`, and its two regions are one system. -/
+theorem diffuse_sameSystem (x : Pair) {σ Θ : Fin 2 → ℝ} (hσ : ∀ i, 0 < σ i) :
+    SameSystem (S := fun _ : Fin 2 => ℝ) (Measure.dirac ()) (fun _ : Unit => diffuse)
+      (fun j y => y j) x σ Θ 1 0 1 := by
+  have hg : ∀ i j, GradedAboveNoise (S := fun _ : Fin 2 => ℝ) (Measure.dirac ())
+      (fun _ : Unit => diffuse) (fun y => y j) x i (σ i) (Θ i) 1 := by
+    intro i j s hs _
+    have hne : s ≠ x i := fun h => by
+      have := (hσ i).trans_le hs; simp [h] at this
+    refine le_iSup_of_le {diffuse (Function.update x i s) j} ?_
+    have h1 : {ω : Unit | diffuse (Function.update x i s) j ∈
+        ({diffuse (Function.update x i s) j} : Set ℝ)} = Set.univ := by ext; simp
+    have h0 : {ω : Unit | diffuse x j ∈ ({diffuse (Function.update x i s) j} : Set ℝ)} = ∅ := by
+      ext; simpa using (diffuse_update_ne x i j hne).symm
+    rw [h1, h0]; simp
+  exact .rel _ _ ⟨hg 0 1, hg 1 0⟩
 
 /-- On its threshold the bit depends gradedly on region 0. -/
 theorem bit_gradedDependence_at_threshold :

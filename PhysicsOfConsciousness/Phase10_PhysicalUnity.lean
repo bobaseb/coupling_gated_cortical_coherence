@@ -423,3 +423,185 @@ theorem bits_law_le_of_lipschitz {κ : Type*} {μ : Measure Ω}
   simpa [not_le] using hω
 
 end PhysicsOfConsciousness.PhysicalUnity
+
+/-! ## Counting systems at the noise floor
+
+Physics counts parts as one system when their states interact, and at the noise
+floor the scale of that interaction is set by the parts themselves: a change of
+a region smaller than its own noise `σ i` is erased by the region's own
+fluctuations, and a change it does hold moves another region's content only if
+it moves the content's law by at least the fluctuation yardstick `θ`. This
+section states that criterion and proves it is the noise-floor reading of graded
+dependence, one pair of overlapping regions at a time.
+
+* **`shiftResponse`** and **`response`.** The response of a content to one
+  change of region `i`, the largest rise it makes in the probability of an event
+  of next contents, and its supremum over changes of size at most `η`.
+  `response_mono`: the response grows with the scale.
+* **`GradedAboveNoise μ f π x i σ Θ θ`.** Every change of region `i` larger than
+  `σ` and smaller than `Θ` moves `π` by at least `θ`.
+  `GradedAboveNoise.le_response`: the response then reaches `θ` at every scale
+  that admits such a change.
+* **`CoupledAtNoiseFloor`** and **`SameSystem`.** Two regions are coupled when
+  each one's changes above its noise move the other's content by at least `θ`;
+  one system is the equivalence closure of coupling.
+* **`enforcedAtNoiseFloor_iff`.** For a symmetric overlap relation, P's
+  noise-floor reading — graded dependence above noise of each region's content
+  on every region it overlaps — holds exactly when every overlapping pair is
+  coupled; so overlapping regions whose agreement P admits are one system
+  (`EnforcedAtNoiseFloor.sameSystem`).
+* **`shiftResponse_le_of_marginRate`**, **`response_le_of_marginRate`** and
+  **`sameSystem_iff_eq_of_bits`.** Under the noisy margin, the response below the
+  margin's width is at most the error rate. A machine whose contents are read
+  from bits with error rate below `θ`, and whose regions admit a change above
+  their noise within the margin, couples no pair, so each region is a system of
+  its own; P then fails at any overlap of two distinct regions
+  (`not_enforcedAtNoiseFloor_of_bits`).
+-/
+
+namespace PhysicsOfConsciousness.PhysicalUnity
+
+open MeasureTheory
+
+variable {ι : Type*} [DecidableEq ι] {S : ι → Type*}
+  [∀ i, PseudoMetricSpace (S i)] {C : Type*} {Ω : Type*} [MeasurableSpace Ω]
+
+/-- The response of the content `π` to replacing region `i`'s micro state by `s`:
+the largest rise, over events of next contents, in their probability. Probability
+is outer measure, as in `HasMarginRate`. Under a probability law, for a next
+content that is measurable in the noise and takes countably many values, it is
+the total-variation distance between the two laws of the next content. -/
+noncomputable def shiftResponse (μ : Measure Ω) (f : Ω → (∀ i, S i) → ∀ i, S i)
+    (π : (∀ i, S i) → C) (x : ∀ i, S i) (i : ι) (s : S i) : ENNReal :=
+  ⨆ A : Set C, μ {ω | π (f ω (Function.update x i s)) ∈ A} - μ {ω | π (f ω x) ∈ A}
+
+/-- The response of `π` to region `i` at scale `η`: the largest response to a
+change of region `i` of size at most `η`. -/
+noncomputable def response (μ : Measure Ω) (f : Ω → (∀ i, S i) → ∀ i, S i)
+    (π : (∀ i, S i) → C) (x : ∀ i, S i) (i : ι) (η : ℝ) : ENNReal :=
+  ⨆ (s : S i) (_ : dist s (x i) ≤ η), shiftResponse μ f π x i s
+
+/-- The response grows with the scale. -/
+theorem response_mono (μ : Measure Ω) (f : Ω → (∀ i, S i) → ∀ i, S i)
+    (π : (∀ i, S i) → C) (x : ∀ i, S i) (i : ι) : Monotone (response μ f π x i) :=
+  fun _ _ h => iSup₂_mono' fun s hs => ⟨s, hs.trans h, le_rfl⟩
+
+/-- **Graded dependence above the noise floor.** Every change of region `i` larger
+than its noise `σ` and smaller than `Θ`, the change that crosses a threshold,
+moves the content `π` by at least the fluctuation yardstick `θ`. -/
+def GradedAboveNoise (μ : Measure Ω) (f : Ω → (∀ i, S i) → ∀ i, S i)
+    (π : (∀ i, S i) → C) (x : ∀ i, S i) (i : ι) (σ Θ : ℝ) (θ : ENNReal) : Prop :=
+  ∀ s : S i, σ ≤ dist s (x i) → dist s (x i) < Θ → θ ≤ shiftResponse μ f π x i s
+
+/-- Graded dependence above noise makes the response reach `θ` at every scale
+reached by a change above noise and below `Θ`, and so, by `response_mono`, at
+every larger scale. -/
+theorem GradedAboveNoise.le_response {μ : Measure Ω} {f : Ω → (∀ i, S i) → ∀ i, S i}
+    {π : (∀ i, S i) → C} {x : ∀ i, S i} {i : ι} {σ Θ : ℝ} {θ : ENNReal}
+    (h : GradedAboveNoise μ f π x i σ Θ θ) {s : S i} (hσ : σ ≤ dist s (x i))
+    (hΘ : dist s (x i) < Θ) {η : ℝ} (hη : dist s (x i) ≤ η) : θ ≤ response μ f π x i η :=
+  (h s hσ hΘ).trans (le_iSup₂_of_le (f := fun s (_ : dist s (x i) ≤ η) =>
+    shiftResponse μ f π x i s) s hη le_rfl)
+
+/-- **Coupling at the noise floor.** Regions `i` and `j`, with contents `π i` and
+`π j`, noises `σ` and threshold-crossing changes `Θ`, are coupled when every
+change of either one above its noise moves the other's content by at least `θ`. -/
+def CoupledAtNoiseFloor (μ : Measure Ω) (f : Ω → (∀ i, S i) → ∀ i, S i)
+    (π : ι → (∀ i, S i) → C) (x : ∀ i, S i) (σ Θ : ι → ℝ) (θ : ENNReal) (i j : ι) : Prop :=
+  GradedAboveNoise μ f (π j) x i (σ i) (Θ i) θ ∧ GradedAboveNoise μ f (π i) x j (σ j) (Θ j) θ
+
+/-- Regions are one system when a chain of couplings at the noise floor joins them. -/
+def SameSystem (μ : Measure Ω) (f : Ω → (∀ i, S i) → ∀ i, S i) (π : ι → (∀ i, S i) → C)
+    (x : ∀ i, S i) (σ Θ : ι → ℝ) (θ : ENNReal) : ι → ι → Prop :=
+  Relation.EqvGen (CoupledAtNoiseFloor μ f π x σ Θ θ)
+
+/-- **P at the noise floor.** For every pair `O i j` of overlapping regions, the
+content of `j` depends gradedly above noise on region `i`. -/
+def EnforcedAtNoiseFloor (O : ι → ι → Prop) (μ : Measure Ω)
+    (f : Ω → (∀ i, S i) → ∀ i, S i) (π : ι → (∀ i, S i) → C) (x : ∀ i, S i)
+    (σ Θ : ι → ℝ) (θ : ENNReal) : Prop :=
+  ∀ i j, O i j → GradedAboveNoise μ f (π j) x i (σ i) (Θ i) θ
+
+/-- **P's noise-floor reading is the one-system criterion.** For a symmetric
+overlap relation, graded dependence above noise of each region's content on
+every region it overlaps holds exactly when every overlapping pair is coupled
+at the noise floor. -/
+theorem enforcedAtNoiseFloor_iff {O : ι → ι → Prop} (hO : ∀ i j, O i j → O j i) {μ : Measure Ω}
+    {f : Ω → (∀ i, S i) → ∀ i, S i} {π : ι → (∀ i, S i) → C} {x : ∀ i, S i}
+    {σ Θ : ι → ℝ} {θ : ENNReal} :
+    EnforcedAtNoiseFloor O μ f π x σ Θ θ ↔
+      ∀ i j, O i j → CoupledAtNoiseFloor μ f π x σ Θ θ i j :=
+  ⟨fun h i j hij => ⟨h i j hij, h j i (hO i j hij)⟩, fun h i j hij => (h i j hij).1⟩
+
+/-- Regions whose overlap P admits at the noise floor are one system. -/
+theorem EnforcedAtNoiseFloor.sameSystem {O : ι → ι → Prop} (hO : ∀ i j, O i j → O j i)
+    {μ : Measure Ω} {f : Ω → (∀ i, S i) → ∀ i, S i} {π : ι → (∀ i, S i) → C}
+    {x : ∀ i, S i} {σ Θ : ι → ℝ} {θ : ENNReal} (h : EnforcedAtNoiseFloor O μ f π x σ Θ θ)
+    {i j : ι} (hij : O i j) : SameSystem μ f π x σ Θ θ i j :=
+  .rel _ _ ((enforcedAtNoiseFloor_iff hO).mp h i j hij)
+
+/-- With no coupled pair, each region is a system of its own. -/
+theorem sameSystem_iff_eq_of_forall_not_coupled {μ : Measure Ω}
+    {f : Ω → (∀ i, S i) → ∀ i, S i} {π : ι → (∀ i, S i) → C} {x : ∀ i, S i}
+    {σ Θ : ι → ℝ} {θ : ENNReal} (h : ∀ i j, ¬ CoupledAtNoiseFloor μ f π x σ Θ θ i j)
+    {i j : ι} : SameSystem μ f π x σ Θ θ i j ↔ i = j := by
+  refine ⟨fun hs => ?_, fun hij => hij ▸ .refl _⟩
+  induction hs with
+  | rel a b hab => exact absurd hab (h a b)
+  | refl => rfl
+  | symm _ _ _ ih => exact ih.symm
+  | trans _ _ _ _ _ ih₁ ih₂ => exact ih₁.trans ih₂
+
+/-- **Below the margin's width the response is at most the error rate.** -/
+theorem shiftResponse_le_of_marginRate [Fintype ι] {μ : Measure Ω} {f : Ω → (∀ i, S i) → ∀ i, S i}
+    {L : NNReal} (hf : ∀ ω, LipschitzWith L (f ω)) {π : (∀ i, S i) → C} {r : ℝ}
+    {ε : ENNReal} {x : ∀ i, S i} (hπ : HasMarginRate μ (fun ω => f ω x) π r ε) (i : ι)
+    (s : S i) (hs : L * dist s (x i) < r) : shiftResponse μ f π x i s ≤ ε :=
+  iSup_le fun A => tsub_le_iff_left.mpr (law_le_of_marginRate hf hπ i s hs A).1
+
+/-- The response at any scale `η` with `L η < r` is at most the error rate. -/
+theorem response_le_of_marginRate [Fintype ι] {μ : Measure Ω} {f : Ω → (∀ i, S i) → ∀ i, S i}
+    {L : NNReal} (hf : ∀ ω, LipschitzWith L (f ω)) {π : (∀ i, S i) → C} {r : ℝ}
+    {ε : ENNReal} {x : ∀ i, S i} (hπ : HasMarginRate μ (fun ω => f ω x) π r ε) (i : ι)
+    {η : ℝ} (hη : L * η < r) : response μ f π x i η ≤ ε :=
+  iSup₂_le fun s hs => shiftResponse_le_of_marginRate hf hπ i s
+    ((mul_le_mul_of_nonneg_left hs L.coe_nonneg).trans_lt hη)
+
+/-- **A bit word is as many systems as it has regions.** Let every region's
+content be a function `q j` of one word of bits, bit `k` the `Lv`-Lipschitz micro
+quantity `v k` against the threshold `c k`, and let the error rate `ε`, the
+probability that some bit of the noisy successor lands within `δ` of its
+threshold, be below the yardstick `θ`. If every region admits a change above its
+noise and below its threshold-crossing change that stays within the margin's
+width `δ / (L Lv)`, then no two regions are coupled at the noise floor, and
+regions are one system only with themselves. -/
+theorem sameSystem_iff_eq_of_bits [Fintype ι] {κ : Type*} {μ : Measure Ω}
+    {f : Ω → (∀ i, S i) → ∀ i, S i} {L : NNReal} (hf : ∀ ω, LipschitzWith L (f ω))
+    {v : κ → (∀ i, S i) → ℝ} {Lv : NNReal} (hv : ∀ k, LipschitzWith Lv (v k))
+    (hLv : 0 < (Lv : ℝ)) (c : κ → ℝ) (q : ι → (κ → Bool) → C) {δ : ℝ}
+    {x : ∀ i, S i} {ε θ : ENNReal} (hε : μ {ω | ∃ k, |v k (f ω x) - c k| < δ} ≤ ε)
+    (hεθ : ε < θ) {σ Θ : ι → ℝ}
+    (hs : ∀ i, ∃ s : S i, σ i ≤ dist s (x i) ∧ dist s (x i) < Θ i ∧
+      L * dist s (x i) < δ / Lv) {i j : ι} :
+    SameSystem μ f (fun j y => q j fun k => decide (c k < v k y)) x σ Θ θ i j ↔ i = j := by
+  refine sameSystem_iff_eq_of_forall_not_coupled fun i j hij => ?_
+  obtain ⟨s, hσ, hΘ, hr⟩ := hs i
+  refine (hεθ.trans_le (hij.1 s hσ hΘ)).not_ge (iSup_le fun A => tsub_le_iff_left.mpr ?_)
+  exact (bits_law_le_of_lipschitz hf hv hLv c (q j) hε i s hr A).1
+
+/-- **A bit word fails P at any overlap of two regions.** Under the hypotheses of
+`sameSystem_iff_eq_of_bits`, P at the noise floor fails for every symmetric
+overlap relation that joins two distinct regions. -/
+theorem not_enforcedAtNoiseFloor_of_bits [Fintype ι] {κ : Type*} {μ : Measure Ω}
+    {f : Ω → (∀ i, S i) → ∀ i, S i} {L : NNReal} (hf : ∀ ω, LipschitzWith L (f ω))
+    {v : κ → (∀ i, S i) → ℝ} {Lv : NNReal} (hv : ∀ k, LipschitzWith Lv (v k))
+    (hLv : 0 < (Lv : ℝ)) (c : κ → ℝ) (q : ι → (κ → Bool) → C) {δ : ℝ}
+    {x : ∀ i, S i} {ε θ : ENNReal} (hε : μ {ω | ∃ k, |v k (f ω x) - c k| < δ} ≤ ε)
+    (hεθ : ε < θ) {σ Θ : ι → ℝ}
+    (hs : ∀ i, ∃ s : S i, σ i ≤ dist s (x i) ∧ dist s (x i) < Θ i ∧
+      L * dist s (x i) < δ / Lv) {O : ι → ι → Prop} (hO : ∀ i j, O i j → O j i) {i j : ι}
+    (hij : O i j) (hne : i ≠ j) :
+    ¬ EnforcedAtNoiseFloor O μ f (fun j y => q j fun k => decide (c k < v k y)) x σ Θ θ :=
+  fun h => hne ((sameSystem_iff_eq_of_bits hf hv hLv c q hε hεθ hs).mp (h.sameSystem hO hij))
+
+end PhysicsOfConsciousness.PhysicalUnity
