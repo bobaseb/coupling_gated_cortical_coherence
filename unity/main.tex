@@ -273,68 +273,89 @@ the cell.
 \section{How far a physical coupling enforces agreement}
 \label{sec:reach}
 
-At identical natural frequencies a noisy coupled sheet is a gradient system. In
-the harmonic approximation the variance of the phase difference between two
-sites is the noise strength times their effective resistance, with the coupling
-constants as conductances. Under short-range coupling that resistance grows as
-the logarithm of distance, with a coefficient inversely proportional to the
-kernel's second moment; a kernel tail slower than $r^{-4}$ bounds it. The
-logarithm is the Gaussian form of the absence of true long-range order in two
-dimensions under short-range coupling \citep{mermin1966}, and the
-plane-rotator sheet has a Kosterlitz--Thouless transition \citep{frohlich1981},
-the order--disorder crossover that the simulations of
-Appendix~\ref{app:reach} locate. Heterogeneous natural frequencies make short-range
-coupling weaker still: phases then desynchronize in every dimension up to four
-\citep{hong2005}.
+The intuition is simple. If each patch of cortex is tied only to its near
+neighbours, agreement has to pass from hand to hand, and a little of it leaks
+away at every hand, so distant patches drift apart. If there are enough direct
+ties across long distances, agreement can hold everywhere. This section makes
+that precise for a noisy sheet of coupled oscillators, and finds where the line
+between the two falls.
 
-The logarithmic growth is a lower bound for every kernel of bounded range, so
-distance-independent agreement on a sheet needs coupling of unbounded range,
-and a tail slower than $r^{-4}$ supplies it: such a tail bounds the resistance
-at every distance. Appendix~\ref{app:reach} gives both arguments.
+\paragraph{An electrical picture.} Picture the sheet as an electrical network:
+each coupling between two sites is a wire, with a conductance equal to the
+coupling's strength. The \emph{effective resistance} between two sites is the
+resistance a meter would read between them. When the oscillators share one
+natural frequency, the noisy sheet is a gradient system, and in the harmonic
+approximation the variance of the phase difference between two sites is the
+noise strength times their effective resistance. Disagreement is therefore
+resistance: sites that are well connected, directly or through many parallel
+paths, agree.
 
-Both edges agree with classical potential theory. For a kernel on the lattice that is
-invariant under translation, the effective resistance from a site to infinity is
-infinite exactly when the random walk that jumps with probabilities
-proportional to the kernel is recurrent \citep{doyle1984}. Shorting every site
-outside a disc around $a$ can only lower the resistance from $a$ to a site $b$
-beyond it, so under recurrence that resistance grows without bound as $b$
-recedes. A symmetric kernel of finite second moment, which includes every tail
-steeper than $r^{-4}$, gives a recurrent walk in two dimensions
-\citep{chung1951}, and the bound above is the matching transience of a tail
-slower than $r^{-4}$. The same threshold holds beyond the harmonic
-approximation: the plane rotator in two dimensions with coupling decaying as
-$r^{-\alpha}$, $2<\alpha<4$, has true long-range order at low noise
-\citep{kunz1976}, which short-range coupling forbids.
+\paragraph{Short-range and long-range coupling.} How the coupling strength falls
+off with distance is called its \emph{kernel}. Under short-range coupling the
+resistance grows as the logarithm of distance, with a coefficient inversely
+proportional to the kernel's second moment, a measure of its width. This
+logarithm is the Gaussian form of a classical fact: short-range coupling cannot
+give true long-range order in two dimensions \citep{mermin1966}. The
+plane-rotator sheet also has a Kosterlitz--Thouless transition
+\citep{frohlich1981}, an order--disorder crossover that the simulations of
+Appendix~\ref{app:reach} locate. When natural frequencies differ from site to
+site, short-range coupling fares worse still: phases then desynchronize in every
+dimension up to four \citep{hong2005}.
 
-Simulated sheets follow the harmonic identity in the ordered phase, and the
-kernel's width sets the order--disorder crossover as well as the rate of decay
-(Appendix~\ref{app:reach}). Over a finite cortical extent a wide short-range
-kernel and a slow tail therefore differ by a slowly growing logarithm, and the
-measurement that separates them needs the kernel's second moment as well as
-its tail exponent.
+The logarithmic growth is a lower bound for every kernel of bounded range. So
+agreement that does not fade with distance needs coupling of unbounded range,
+and a kernel whose tail falls off more slowly than $r^{-4}$ supplies it: such a
+tail bounds the resistance at every distance. Appendix~\ref{app:reach} gives
+both arguments.
 
-Three facts hold without the harmonic approximation. Adding coupling never
-raises the effective resistance, so a long-range
-tail added to a short-range kernel can only improve agreement, whatever its
-shape. A direct coupling between two sites caps their resistance at its
-reciprocal, at any distance. A Lipschitz
-encoder carries phase agreement to content agreement: the mean-square content
-discrepancy is at most the squared Lipschitz constant times the mean-square
-phase difference. With the harmonic
-identity, an encoder of Lipschitz constant $L$ at noise strength $D$ therefore
-has root-mean-square content discrepancy at most $L\sqrt{D\,R_{\mathrm{eff}}}$
-between two sites of effective resistance $R_{\mathrm{eff}}$.
+\paragraph{Agreement with classical theory.} Both results match classical
+potential theory. Imagine a random walker on the lattice that jumps between
+sites with probabilities proportional to the kernel, which is the same at every
+site. The resistance from a site to infinity is infinite exactly when that
+walker is sure to return to its start, that is, when the walk is recurrent
+\citep{doyle1984}. Shorting every site outside a disc around $a$ can only lower
+the resistance from $a$ to a site $b$ beyond the disc, so under recurrence that
+resistance grows without bound as $b$ recedes. A symmetric kernel of finite
+second moment, which includes every tail steeper than $r^{-4}$, gives a
+recurrent walk in two dimensions \citep{chung1951}. The bound above is the
+matching statement for tails slower than $r^{-4}$, whose walks escape. The same
+threshold holds beyond the harmonic approximation: the plane rotator in two
+dimensions with coupling falling as $r^{-\alpha}$, $2<\alpha<4$, has true
+long-range order at low noise \citep{kunz1976}, which short-range coupling
+forbids.
 
-Content can agree where phases differ. An encoder that reads the phases of a
-stencil around a site relative to the phase at that site reports the same
-content at every site of a plane wave, whatever its gradient, and at every site
-of a winding on a ring or torus. For a wave
-plus a departure, the content discrepancy between two sites of a Lipschitz
+\paragraph{What a finite cortex can tell apart.} Simulated sheets follow the
+harmonic identity in the ordered phase, and the kernel's width sets both the
+order--disorder crossover and the rate at which agreement fades
+(Appendix~\ref{app:reach}). Across a cortex of finite size, a wide short-range
+kernel and a slowly falling tail therefore differ only by a slowly growing
+logarithm. Telling them apart takes a measurement of the kernel's second moment
+as well as of its tail exponent.
+
+\paragraph{Three facts that need no approximation.} First, adding coupling never
+raises the effective resistance, so a long-range tail added to a short-range
+kernel can only improve agreement, whatever its shape. Second, a direct coupling
+between two sites caps their resistance at its reciprocal, at any distance.
+Third, a Lipschitz encoder, one whose output changes by at most a fixed multiple
+$L$ of any change in its input, carries phase agreement over to content
+agreement: the mean-square content discrepancy is at most $L^2$ times the
+mean-square phase difference. Combined with the harmonic identity, an encoder of
+Lipschitz constant $L$ at noise strength $D$ has root-mean-square content
+discrepancy at most $L\sqrt{D\,R_{\mathrm{eff}}}$ between two sites of effective
+resistance $R_{\mathrm{eff}}$.
+
+\paragraph{Content can agree where phases differ.} Picture a travelling wave
+sweeping across the sheet. Every site has a different phase, yet every site
+sees the same local pattern: the same wave passing at the same speed. An encoder
+that reads the phases of a small neighbourhood relative to the phase at its
+centre reports the same content at every site of such a plane wave, whatever its
+gradient, and at every site of a winding on a ring or torus. For a wave plus a
+departure from it, the content discrepancy between two sites of a Lipschitz
 relative encoder is at most its Lipschitz constant times the departure's
-relative readings at the two sites, with the gradient of the wave and the
-separation of the sites absent from the bound. Travelling waves and windings, the
-configurations that attain the worst case of a hop-by-hop chain bound, thus
-cost a relative encoder nothing; what it pays for is the local roughness of the
+relative readings at the two sites. The gradient of the wave and the
+distance between the sites are absent from it. Travelling waves and windings,
+the configurations that attain the worst case of a hop-by-hop chain bound, cost
+a relative encoder nothing. What it pays for is the local roughness of the
 field.
 
 \section{The unity window}
