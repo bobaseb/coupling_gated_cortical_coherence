@@ -101,35 +101,41 @@ Appendix~\ref{app:formal} maps each one to its declaration.
 \section{Unity as agreement over a cover of contents}
 \label{sec:cover}
 
+Think of an atlas. Each page maps one patch of ground, neighbouring pages
+overlap, and where they overlap they show the same roads. Pages that agree on
+every overlap fit together into one map of the whole territory. We treat the
+brain's regions the same way: each describes part of a shared situation, and
+unity is the property that these local descriptions agree wherever they
+overlap. When they do, they determine a single global state.
+
 Synchrony is not unity. Two regions can oscillate in phase while one encodes a
 stimulus at one location and the other at another, so equal phases coexist
-with incompatible local descriptions. Conversely, local descriptions that agree
-wherever they overlap determine a unique global state, as a set of charts that
-agree on their overlaps determines one map. Unity is therefore a property of
-what overlapping regions describe, and synchrony is at most a route to it.
+with incompatible descriptions. Unity is a property of what overlapping regions
+describe, and synchrony is at most a route to it.
 
-A region's content is a variable of its micro state that the system's own
-dynamics reads: the next state of the regions it drives depends on it through
-that variable, and the variable determines the quantity the region represents,
-such as a location or an orientation. Decodability by an outside observer is
-not enough. The supply current of a digital circuit carries enough of its
-logical state that a secret key can be recovered from it \citep{kocher1999},
-yet no gate of the circuit reads the current, so it is a trace of the content
-and not a carrier of it. In cortex the membrane potential and the timing of
-spikes are carriers, because postsynaptic integration reads them.
+A region's \emph{content} is a variable that the system itself reads, not merely
+one an outside observer can decode. Two conditions define it: the regions this
+region drives respond to it, and it determines the quantity the region
+represents, such as a location or an orientation. A variable that meets both is
+a \emph{carrier} of content. A variable that only an observer can decode is a
+trace. The supply current of a digital circuit carries enough of its logical
+state that a secret key can be recovered from it \citep{kocher1999}, yet no gate
+of the circuit reads the current, so the current is a trace. In cortex the
+membrane potential and the timing of spikes are carriers, because the
+postsynaptic cells integrate them.
 
 Agreement is measured between regions whose contents represent a shared
-variable. The cover of regions, and the content variable of each, are fixed by
-this causal role and by decodability before agreement is measured, so that the
-measurement cannot be emptied by the choice of cover.
+variable. The regions, and the content variable of each, are fixed by this
+causal role and by decodability before agreement is measured, so that nobody can
+make the measurement trivial by choosing the regions after the fact.
 
 This definition of unity, and the measurement of agreement the tests below use,
-come from the companion paper \citep{bobadillasuarez2026coherence}: there
-compatible local descriptions are proved to determine one global state, phase
-coherence is shown to bound their disagreement only through shared encoders of
-bounded sensitivity, and agreement is measured by decoders fitted independently
-on two regions, in excess of what their separate accuracies imply. P adds a
-condition on how that agreement is produced.
+come from a companion paper \citep{bobadillasuarez2026coherence}. It proves that
+compatible local descriptions determine one global state, shows that phase
+coherence limits their disagreement only through shared encoders of bounded
+sensitivity, and measures agreement with decoders fitted independently on two
+regions, counting only the agreement in excess of what their separate
+accuracies imply. P adds a condition on how that agreement is produced.
 
 \section{Physical enforcement versus routed agreement}
 \label{sec:enforcement}
