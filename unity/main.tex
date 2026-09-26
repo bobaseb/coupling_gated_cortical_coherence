@@ -402,69 +402,78 @@ the coupling settles.
 \section{Current artificial systems}
 \label{sec:ai}
 
-A transformer running on clocked digital hardware reads every content from bits
-held within their noise margins, so the result of
-Section~\ref{sec:enforcement} applies to it. Hardware whose contents are graded
-physical quantities coupled without barriers, such as analog, in-memory or
-neuromorphic substrates, can satisfy P.
+A clocked digital chip is an assortment of separate records. Each bit is held
+in place by its own noise margin, and below that margin it varies independently
+of every other bit and of the voltages beneath it. The records agree only when
+the program, applied at each clock step, makes them agree. A transformer running
+on such hardware reads every content from bits held within their margins, so the
+result of Section~\ref{sec:enforcement} applies to it: its agreement is
+computed, whatever it computes. Hardware whose contents are graded physical
+quantities coupled without barriers, such as analog, in-memory or neuromorphic
+substrates, can satisfy P.
 
-The division P draws is between symbolic and physical content, and the
-division between digital and analog hardware is its most common instance. A
-symbol, in the sense the margin theorem makes precise, is a content read through
-a noise margin: a physical state whose identity survives every small enough
-change of the state that carries it, so that two symbols agree only when a rule
-applied at discrete steps makes them agree. A physical content is a graded
-quantity that the system's own dynamics reads, so that its agreement with the
-contents it overlaps is produced by the coupling between them. Symbols are
-physical objects too, and what sets them apart is the margin through which they
-are read. A bit is a symbol, and so is a spike count latched at a clock edge; a
-spike time, a membrane potential and the phase of a coupled oscillator are
-physical contents. P requires physical contents, and a system whose contents are
-all symbols computes its agreement, whatever algorithm it runs.
+\paragraph{Symbols and physical contents.} The line P draws is between symbolic
+and physical content, and the line between digital and analog hardware is its
+most common instance. A \emph{symbol}, in the sense the margin theorem makes
+precise, is a content read through a noise margin: a physical state whose
+identity survives every small enough change of the state that carries it. Two
+symbols therefore agree only when a rule applied at discrete steps makes them
+agree. A \emph{physical content} is a graded quantity that the system's own
+dynamics reads, so its agreement with the contents it overlaps is produced by
+the coupling between them. Symbols are physical objects too; what sets them
+apart is the margin through which they are read. A bit is a symbol, and so is a
+spike count latched at a clock edge. A spike time, a membrane potential and the
+phase of a coupled oscillator are physical contents. P requires physical
+contents, and a system whose contents are all symbols computes its agreement,
+whatever algorithm it runs.
 
-The criterion concerns how a substrate is organised and says nothing of what it
-is made of. An analog crossbar whose column currents carry content and settle
-through shared conductances depends gradedly on every input voltage, and an
-array of coupled electronic or optical oscillators contracts phase
-disagreement through a physical coupling exactly as a cortical sheet does. A
-neuromorphic chip passes where its contents are read from membrane potentials
-coupled continuously, and fails where they are read from spike counts latched
-at a clock edge. Biological tissue passes or fails on the same terms: a neural
-circuit whose contents were read only from all-or-none events latched far from
-threshold would fall under the margin theorem as any digital circuit does.
+\paragraph{Organisation, not material.} The criterion concerns how a substrate is
+organised and says nothing of what it is made of. An analog crossbar whose
+column currents carry content and settle through shared conductances depends
+gradedly on every input voltage. An array of coupled electronic or optical
+oscillators shrinks phase disagreement through a physical coupling exactly as a
+cortical sheet does. A neuromorphic chip passes where its contents are read from
+membrane potentials coupled continuously, and fails where they are read from
+spike counts latched at a clock edge. Biological tissue passes or fails on the
+same terms: a neural circuit whose contents were read only from all-or-none
+events latched far from threshold would fall under the margin theorem as any
+digital circuit does.
 
-Spikes are thresholded events, and what makes them graded carriers is their
-timing. The time at which a membrane potential rising through threshold crosses
-it moves continuously with the sub-threshold input, and postsynaptic potentials
-integrate spike times without sampling them, so spike timing carries graded
-dependence from one region to the next. A clocked latch compares the time of a
-transition with the clock edge, which is a threshold on the transition time, so
-the margin theorem applies to it with that time as the thresholded quantity. The clock is a noise margin in time, and it removes from a digital
-circuit exactly the graded timing that spikes keep.
+\paragraph{Why spikes are not bits.} Spikes are all-or-none events, and what
+makes them graded carriers is their timing. When a membrane potential rises
+through threshold, the moment it crosses moves continuously with any small
+input, and the receiving cells integrate spike times as they arrive rather than
+sampling them. Spike timing therefore carries graded dependence from one region
+to the next. A clocked latch does the opposite. It compares the time of a
+transition with the clock edge, which puts a threshold on the transition time,
+so the margin theorem applies with that time as the thresholded quantity. The
+clock is a noise margin in time, and it removes from a digital circuit exactly
+the graded timing that spikes keep.
 
-Real digital hardware leaks: supply noise, crosstalk and temperature move the
-analog quantities behind every bit. The margin theorem locates where such
-leakage can reach content. If a content read as a word of thresholded
-continuous quantities depends gradedly on any region, some bit of the next state
-sits exactly on its threshold,
-and correct operation keeps every state off that set. Digital logic is
-contractive at the micro level too: the gain of each gate pulls a perturbed
-voltage back toward its rail. That contraction restores each bit toward its own
-logical value, pulls no region toward agreement with another, and is what holds
-the bits inside their margins. The margin also has a
-width. If every bit of the next state is at least $\delta$ from its threshold,
-each bit is read from an $L_v$-Lipschitz quantity and the micro dynamics is
-$L$-Lipschitz, a change to one region smaller than $\delta/(L L_v)$ changes no
-bit. Leakage below that scale reaches content only through the error rate
-(Section~\ref{sec:enforcement}); leakage above it flips a bit, which is a
-logical error. Digital
-design places ordinary noise well below that scale: a textbook inverter's
-static noise margin is \ueMarginPercent{}\% of its supply voltage, against an
-expected supply variation of \ueSupplyPercent{}\% \citep{rabaey2003}, so the
-expected variation is \ueNoiseToMargin{} of the margin. The
-nondeterminism of floating-point reduction order is a choice among logical
-trajectories and is outside both theorems: it varies which content is computed,
-not how content depends on graded state.
+\paragraph{Leakage.} Real digital hardware leaks: supply noise, crosstalk and
+temperature move the analog quantities behind every bit. The margin theorem says
+where such leakage can reach content. If a content read as a word of
+thresholded continuous quantities depends gradedly on any region, some bit of
+the next state sits exactly on its threshold, and correct operation keeps every
+state off that set. Digital logic does pull perturbations back, but each gate
+does so alone: its gain pulls a disturbed voltage back toward its own rail. That
+restores each bit toward its own logical value, pulls no region toward agreement
+with another, and is what keeps the bits inside their margins. The chip's
+records stay separate even in the one place where its physics contracts.
+
+The margin also has a width. If every bit of the next state is at least
+$\delta$ from its threshold, each bit is read from an $L_v$-Lipschitz quantity
+and the micro dynamics is $L$-Lipschitz, then a change to one region smaller
+than $\delta/(L L_v)$ changes no bit. Leakage below that scale reaches content
+only through the error rate (Section~\ref{sec:enforcement}), and leakage above
+it flips a bit, which is a logical error. Digital design keeps ordinary noise
+well below that scale: a textbook inverter's static noise margin is
+\ueMarginPercent{}\% of its supply voltage, against an expected supply
+variation of \ueSupplyPercent{}\% \citep{rabaey2003}, so the expected variation
+is \ueNoiseToMargin{} of the margin. The nondeterminism of floating-point
+reduction order is a choice among logical trajectories and lies outside both
+theorems: it changes which content is computed, not how content depends on
+graded state.
 
 \section{Tests}
 \label{sec:tests}
