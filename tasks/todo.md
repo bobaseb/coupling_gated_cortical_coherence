@@ -510,6 +510,55 @@ Human evidence for P:
   stimulator, no digitizing stage; stepping the quantized loop's resolution
   checks that its transfer entropy rises with it.
 
+Mock review, graded 6/10 at a consciousness venue and 4–5 at an ML venue
+(raised 2026-09-26). U28 is the most serious objection; U27 decides whether
+the paper reads as an argument or as a stipulation:
+
+- [ ] **U27 — Argue for P, not only from it.** Premise + margin theorem ⇒
+  "digital agreement is computed" reads as question-begging: the simulation
+  objection is answered by denial, and the springs-versus-ledgers picture and
+  the parallel with workspace theory are the only support. Needs a positive
+  case that unity tracks graded sub-margin dependence rather than
+  content-level agreement, e.g. a case where computed and enforced agreement
+  come apart in a way that bears on experience. State P as the premise it is
+  (no hedging, per the author); what is missing is the reason to hold it.
+- [ ] **U28 — Show the bridge's two arms fall on opposite sides of P.** The
+  quantized loop reads a noisy recording: once recording noise exceeds one
+  quantizer step, dither makes its output smooth in law, and under P's
+  probabilistic reading (§enforcement, TV response against
+  `\ueFluctuationTV`) that arm passes graded dependence. Conversely, noise
+  added to the analog loop to match a coarse quantizer's transfer entropy may
+  push its response below the fluctuation yardstick, so that arm fails.
+  State both conditions (quantizer step ≫ recording noise; analog arm above
+  the yardstick after added noise) and check they are compatible at matched
+  transfer entropy — ideally a short calculation or simulation. Builds on U26.
+- [ ] **U29 — Say why distance-independent agreement matters for unity.**
+  §reach assumes identical natural frequencies and the harmonic approximation,
+  restates mostly classical results, and never says why P or unity needs
+  agreement that holds at every distance. §window's bounds are elementary and
+  its cortical estimate rests on an unmeasured relaxation time. Either one
+  sentence tying each section to P, or shrink both to their role (cf. U25).
+- [ ] **U30 — Margin width as a reductio; attractor basins as margins.** A
+  reviewer can turn the "hardware near its thresholds" limitation around: if
+  unity depends on how wide an engineer made a noise margin, is that a
+  reductio of P? The same question arises inside cortex: an attractor
+  network's basin is a dynamical margin. Answer both in §enforcement or
+  §ai, with the answer's scope stated once in §limitations.
+- [ ] **U31 — Venue.** No new data and a self-described short theorem put an
+  ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
+  Consciousness* or *Phil. Trans. B*. arXiv posting: cs.AI primary (author has
+  endorsers there), q-bio.NC and optionally cs.ET cross-listed; abstract now
+  leads with the theorem and bound (`e6e2886`) so the CS position-paper rule
+  is less likely to apply. Arxiv abstract box: write `r^-4` plainly. Comments
+  field: pages, theorem with proof, analytic bounds, simulations, formal
+  appendix.
+- [ ] **U32 — Cite the companion's PsyArXiv DOI.** The companion was
+  submitted to PsyArXiv (awaiting moderation as of 2026-09-26);
+  `unity/references.tex` cites it as "Manuscript" with the GitHub link. Swap
+  in the DOI once posted, preferably before the unity paper's arXiv v1, then
+  rerun `unity/prepare_arxiv.sh` and commit with the rebuilt PDF. The DOI
+  also unblocks the unity half of U19, which was waiting on an identifier.
+
 Relation to the companion (raised 2026-09-25):
 
 - [ ] **U19 — State the E78 → U1 bridge in both papers.** The companion's
