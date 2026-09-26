@@ -54,40 +54,48 @@ experimentally, and we state the outcomes in cortex that would refute it.
 \section{Introduction}
 \label{sec:intro}
 
+A conscious scene is experienced as one scene. Many parts of the brain
+contribute to it, each describing part of the same situation, and their
+descriptions agree. This paper asks what kind of agreement that has to be.
+
+Many parts can agree in two ways. In the first, the parts are tied together
+physically, like weights joined by springs. Each part's state is a graded
+physical quantity that pulls on its neighbours continuously, so no part can
+move, by however little, without pulling its neighbours after it. The parts are
+then coordinates of a single physical state, and they cannot vary independently
+at any scale. We call this agreement \emph{physically enforced}. In the second,
+each part keeps its own record, like separate ledgers kept consistent by a
+clerk. A rule compares the records at discrete steps and corrects them where
+they differ. Each record is held in place by a margin, and below that margin the
+records vary independently of each other and of everything beneath them. We call
+this agreement \emph{computed}. The first is one system in the sense physics
+uses, a single state space with coupled coordinates. The second is many systems
+kept consistent by a protocol. A clocked digital chip is of the second kind: its
+bits are separate records, and whatever agreement its program produces is
+computed. Our premise is that the unity of an experience is oneness of the first
+kind.
+
 \paragraph{Premise P (physical unity).} A system's contents are unified only if
 each region's contents are read from graded content variables that depend
 continuously on the graded physical state of the regions it overlaps, through a
 coupling that contracts their disagreement.
 
-P is a necessary condition for unity. It rejects functionalism about unity: a
-perfect simulation of a coupled field reproduces the field's content-level
-dynamics and fails P. Physical systems are noisy, so P is read on the
-probability laws of contents: graded dependence counts above the noise floor,
-where every sub-threshold change of a region larger than its own noise moves
-the next content by at least as much as the content fluctuates.
-
-The reason to ask for enforcement is the difference between one state and many
-states brought into agreement. Where a coupling enforces agreement, the contents
-of overlapping regions are read from graded quantities that pull on each other
-continuously, so no region's content can move, by however little, without the
-dynamics pulling its neighbours' contents after it. The regions are then
-coordinates of a single physical state that cannot vary independently at any
-scale. Where agreement is computed, each region's content is a separate record,
-matched to the others by a rule applied at discrete steps; below the margin
-that holds each record, the records vary independently of each other and of
-everything beneath them. The first is one system in the sense physics uses, a
-single state space with coupled coordinates. The second is many systems kept
-consistent by a protocol. P is the claim that the unity of an experience is
-oneness of the first kind.
+P is a necessary condition for unity. It rejects functionalism about unity, the
+view that only the computation matters: a perfect simulation of a coupled field
+reproduces the field's content-level dynamics and still fails P, because its
+agreement is computed. Physical systems are noisy, so P is read on the
+probability laws of contents. Graded dependence then counts above the noise
+floor: every sub-threshold change of a region larger than the region's own noise
+must move the next content by at least as much as the content fluctuates.
 
 The paper makes three claims:
 \begin{enumerate}
-\claim{sec:enforcement}{A content readout with a noise margin, under continuous micro dynamics, depends on the graded state of no region, so content read from bits is not physically enforced whatever algorithm the bits run; under noise the response of such a content to any region is bounded by its error rate, orders of magnitude below its fluctuation, while a cortical spike time passes the same criterion}
-\claim{sec:reach}{On a noisy coupled sheet, the width of the coupling kernel sets how fast agreement decays with distance: a kernel tail slower than $r^{-4}$ makes agreement independent of distance, and a kernel of finite second moment lets it decay without bound as distance grows}
-\claim{sec:tests}{P predicts that a sub-threshold perturbation of one cortical region shifts the graded content decoded in an overlapping region toward agreement, and that unity between two regions bridged at matched information flow follows the bridge that couples them gradedly}
+\claim{sec:enforcement}{Content read through a noise margin, under continuous physical dynamics, depends on the graded state of no region, so content read from bits is not physically enforced, whatever algorithm the bits run. Under noise such a content responds to a region only through its error rate, orders of magnitude below its fluctuation, while a cortical spike time passes the same test}
+\claim{sec:reach}{On a noisy coupled sheet, the reach of the coupling sets how fast agreement fades with distance: coupling that falls off more slowly than $r^{-4}$ keeps agreement at every distance, and coupling of finite second moment lets it fade without limit}
+\claim{sec:tests}{P makes testable predictions for cortex: a weak, sub-threshold perturbation of one region shifts the graded content decoded in an overlapping region toward agreement, and when two regions are bridged at matched information flow, unity follows the bridge that couples them gradedly}
 \end{enumerate}
 
-Every formal result the paper states is machine-checked in Lean~4, and
+Every formal result in the paper is machine-checked in Lean~4, and
 Appendix~\ref{app:formal} maps each one to its declaration.
 
 \section{Unity as agreement over a cover of contents}
