@@ -140,114 +140,134 @@ accuracies imply. P adds a condition on how that agreement is produced.
 \section{Physical enforcement versus routed agreement}
 \label{sec:enforcement}
 
-A system is a micro dynamics $f$ on the joint micro state $x=(x_i)_i$ of its
-regions, read by a content map $\pi$ that assigns a content to each region.
-Its content level is closed when the next content is a function of the current
-one, $\pi\circ f = g\circ\pi$ for some content dynamics $g$. A readout has a
-noise margin on an operating set when every micro state in that set has a
-neighbourhood on which the readout is constant. Content depends gradedly on a
-region when no neighbourhood of that region's micro state leaves the next
-content unchanged, the others held fixed. The overlap discrepancy, a measure of
-disagreement between the contents of overlapping regions, contracts near a
-state when one step of $f$ shrinks it by a factor below one throughout a
-neighbourhood of that state, so that perturbations below every threshold are
-pulled back toward agreement along with the rest. Agreement is physically
-enforced at a state when content depends gradedly on each region there and the
-overlap discrepancy contracts near it; P requires it at the states the system
-occupies while its contents are unified.
+The argument needs five definitions. Each is stated in words first.
 
-If the micro dynamics is continuous and carries a
-state into a margin's operating set, no region's micro state enters the next
-content gradedly. A thresholded
-continuous quantity has a margin off its threshold, and a finite word of such
-readouts has one too, so the conclusion holds for any content read from bits.
-The proof is short: continuity carries a small enough neighbourhood of each
-region's micro state into the neighbourhood on which the readout is constant.
-The definitions carry the weight of the result, and the rest of this section
-argues that they sit at the right level.
+A system has a physical state, its \emph{micro state} $x=(x_i)_i$, made up of
+the states $x_i$ of its regions. One step of its physics carries $x$ to $f(x)$.
+A \emph{content map} $\pi$ reads each region's content off the micro state. The
+content level is \emph{closed} when the next content can be computed from the
+current content alone, without looking at the micro state:
+$\pi\circ f = g\circ\pi$ for some content dynamics $g$. A digital computer is
+built so that its logical level is closed in this sense.
 
-The theorem places the criterion one level below the content dynamics, and the
-placement is forced. Contraction of disagreement at the content level is
-computable: a digital system running a consensus algorithm, or integrating a
-coupled field, has a content map whose successor contracts the disagreement
-between overlapping regions exactly as the field does. A criterion stated on
-the content dynamics would classify that system with the field. P is stated on
-the dependence of content on graded micro state, and there the two differ: the
-field's content moves with every graded change in the regions it overlaps,
-while the simulation's content is read from bits held inside their margins and
-moves with none of them.
+A readout has a \emph{noise margin} on a set of states when every state in the
+set can be nudged a little without changing what is read, that is, when each
+has a neighbourhood on which the readout is constant. A bit is the standard
+example: any voltage well above the threshold reads as 1.
+
+Content \emph{depends gradedly} on a region when every change to that region,
+however small, can move the next content. Formally, no neighbourhood of the
+region's micro state leaves the next content unchanged while the other regions
+are held fixed.
+
+The \emph{overlap discrepancy} measures how much the contents of overlapping
+regions disagree. It \emph{contracts} near a state when one step of $f$ shrinks
+it by a factor below one throughout a neighbourhood of that state. Asking for a
+whole neighbourhood matters: perturbations too small to cross any threshold are
+then pulled back toward agreement along with larger ones.
+
+Agreement is \emph{physically enforced} at a state when content depends
+gradedly on each region there and the overlap discrepancy contracts near it.
+P requires this at the states the system occupies while its contents are
+unified.
+
+\paragraph{The margin theorem.} In words: if content is read through a margin,
+small enough physical changes never reach it. Precisely, if the micro dynamics
+is continuous and carries a state into a margin's operating set, the next
+content depends gradedly on no region's micro state. The proof is short:
+continuity carries a small enough neighbourhood of each region's micro state
+into the neighbourhood on which the readout is constant. A thresholded
+continuous quantity has a margin away from its threshold, and so does a finite
+word of such readouts, so the theorem covers any content read from bits. The
+definitions carry the weight of the result, and the rest of this section argues
+that they sit at the right level.
+
+\paragraph{Why the criterion sits below the content level.} At the content
+level a computer can imitate a coupled field exactly. A digital system running
+a consensus algorithm, or integrating the equations of a coupled field, has a
+content map whose next step shrinks the disagreement between overlapping
+regions just as the field does. A criterion stated on the content dynamics
+would put that system in the same class as the field. P is stated instead on
+how content depends on graded physical state, and there the two differ. The
+field's content moves with every graded change in the regions it overlaps. The
+simulation's content is read from bits held inside their margins, and moves
+with none of them.
 
 This is the simulation objection, and P answers it by denial. A perfect
 simulation of a coupled cortical field reproduces the field's content-level
-trajectory and is not unified in the sense P requires, because the agreement
-in it is computed from contents rather than enforced by the graded state that
-carries them. That is the commitment P makes about unity, stated on the same
-footing as a workspace theory's identification of consciousness with broadcast:
-a premise whose consequences can be tested, which Section~\ref{sec:tests} does.
+trajectory and is still not unified in the sense P requires, because its
+agreement is computed from contents rather than enforced by the graded state
+that carries them. That is the commitment P makes about unity. It stands on the
+same footing as a workspace theory's identification of consciousness with
+broadcast: a premise whose consequences can be tested, which
+Section~\ref{sec:tests} does.
 
-Categorical contents have margins in every substrate. The dominant percept in
-binocular rivalry, a perceived category, or any class selected by an argmax is
-constant on each side of its boundary, so away from the boundary the margin
-theorem denies it graded dependence in cortex exactly as in silicon. P is
-therefore stated on the graded content variables from which categories are
-read, such as a location, an orientation, a time or the relative strength of
-competing percepts, and a category meets P through the variable that carries
-it. A category read from a carrier depends gradedly on a region only where the
-carrier does. The restatement opens no
-route for a digital machine: every variable it computes, whether a number, a
-vector of numbers or a category, is a function of its bit word, and after any
-number of steps that keep its bits off their thresholds such a function depends
-gradedly on no region.
-The voltages beneath the bits are not a carrier in the sense of
-Section~\ref{sec:cover}: an observer may decode the machine's contents from
-them, but the machine reads them only through the bits, at that step and at
-every later one.
+\paragraph{Categories.} Categorical contents have margins in every substrate,
+brains included. The dominant percept in binocular rivalry, a perceived
+category, or any class picked as the largest of several values stays the same
+on each side of its boundary. Away from the boundary, the margin theorem
+therefore denies it graded dependence in cortex exactly as in silicon. So P is
+stated on the graded variables from which categories are read, such as a
+location, an orientation, a time or the relative strength of competing
+percepts. A category meets P through the variable that carries it, and depends
+gradedly on a region only where that variable does. This opens no route for a
+digital machine. Every variable it computes, whether a number, a vector of
+numbers or a category, is a function of its bits, and after any number of steps
+that keep its bits away from their thresholds such a function depends gradedly
+on no region. The voltages beneath the bits are not carriers in the sense of
+Section~\ref{sec:cover}. An observer may decode the machine's contents from
+them, but the machine itself reads them only through the bits, at that step and
+at every later one.
 
-Physical micro dynamics is noisy, and noise changes the form of the question.
-A gate's flip probability is a smooth function of its input voltage that is
-nowhere zero, so the probability law of a digital machine's next content does
-depend on every region. Read on exact contents, the margin theorem would then
-single out a property lying below the noise floor of both substrates. P is
-therefore stated on laws. The response of a content to a region at scale
-$\eta$ is the largest change that moving the region by at most $\eta$ makes to
-the probability of any event of the next content, which is a total-variation
-distance. The fluctuation is the response that a shift of one standard
-deviation produces in a Gaussian carrier, $2\Phi(1/2)-1=\ueFluctuationTV$, so
-a response above it moves the content by as much as the content fluctuates.
-Graded dependence above the noise floor asks the response to reach the
-fluctuation for every change of the region larger than its own noise
-amplitude and smaller than the change that crosses one of its thresholds. The
-constants of this criterion are a Gaussian identity and the system's own
+\paragraph{Noise.} Real physics is noisy, and noise changes the question. A
+gate's chance of flipping is a smooth function of its input voltage and is never
+exactly zero, so the \emph{probability} of a digital machine's next content
+depends, however slightly, on every region. Read on exact contents, the margin
+theorem would then pick out a difference lying below the noise floor of both
+substrates. P is therefore read on probabilities. The \emph{response} of a
+content to a region at scale $\eta$ is the largest change that moving the region
+by at most $\eta$ makes to the probability of any outcome of the next content, a
+total-variation distance. As the yardstick for a large response we take the one
+that a shift of one standard deviation produces in a Gaussian carrier,
+$2\Phi(1/2)-1=\ueFluctuationTV$: a response above it moves the content by as
+much as the content naturally fluctuates. Graded dependence above the noise
+floor asks the response to reach this fluctuation for every change of the region
+that is larger than its own noise and smaller than the change that crosses one
+of its thresholds. The constants are a Gaussian identity and the system's own
 scales, and none of them is fitted to either substrate.
 
 The margin theorem has a noisy form. Let each realization of the noise fix an
-$L$-Lipschitz step of the micro dynamics, and let the content be constant
-within radius $r$ of the noisy successor outside a set of realizations of
-probability at most $\varepsilon$. A change of one region smaller than $r/L$
-then moves the probability of every event of the next content by at most
-$\varepsilon$. For anything computed from bits, $\varepsilon$ is the
-probability that some bit of the noisy successor lands within $\delta$ of its
-threshold, and the bound is attained. On a logic node of \ueNodeCapFf{}~fF at
+$L$-Lipschitz step of the micro dynamics, one that stretches no distance by
+more than a factor $L$. Let the content be constant within radius $r$ of the
+noisy successor, except on a set of realizations of probability at most
+$\varepsilon$. Then a change of one region smaller than $r/L$ moves the
+probability of every outcome of the next content by at most $\varepsilon$. For
+anything computed from bits, $\varepsilon$ is the probability that some bit of
+the noisy successor lands within $\delta$ of its threshold, and the bound is
+attained.
+
+\paragraph{A logic gate in numbers.} On a logic node of \ueNodeCapFf{}~fF at
 room temperature the thermal noise is \ueThermalNoiseMv{}~mV
-\citep{johnson1928,nyquist1928}, the textbook inverter's margin is
-\ueMarginToNoise{} times that, and after a change of one noise amplitude the
+\citep{johnson1928,nyquist1928}, and the textbook inverter's margin is
+\ueMarginToNoise{} times that. After a change of one noise amplitude, the
 probability of a flip, which bounds the response, is below
 $10^{-\ueErrorOrders}$ \citep{kish2002}. The response reaches the fluctuation
 only within \ueGradedWindowPercent\% of the margin's width from the threshold,
-where the bit is switching.
+where the bit is in the middle of switching.
 
-A spike time passes the same criterion. A sub-threshold input $\Delta V$
-arriving while the membrane potential rises through threshold at rate $\dot V$
-moves the spike by $\Delta V/\dot V$, and voltage noise $\sigma_V$ jitters it by
-$\sigma_V/\dot V$, so the shift exceeds the jitter exactly when $\Delta V$
-exceeds $\sigma_V$, whatever the slope; spike generation adds little noise of
-its own \citep{mainen1995}. A unitary excitatory potential between cortical
-pyramidal cells averages \ueEpspMv{}~mV, with a coefficient of variation of
-\ueEpspCv{} \citep{markram1997}, and the membrane noise near threshold is
-\ueMembraneNoiseMv{}~mV \citep{jacobson2005}. Counting the input's own
-variability as noise, one such input shifts the spike by
-\ueCorticalShiftToJitter{} times its jitter, a response of \ueCorticalTV{}, and
-every input larger than \ueEpspPassMv{}~mV passes, up to the input that fires
+\paragraph{A neuron in numbers.} A spike time passes the same test. Suppose an
+input $\Delta V$, too small to fire the cell on its own, arrives while the
+membrane potential is rising through threshold at rate $\dot V$. It moves the
+spike by $\Delta V/\dot V$. Voltage noise $\sigma_V$ jitters the spike by
+$\sigma_V/\dot V$. The shift therefore exceeds the jitter exactly when
+$\Delta V$ exceeds $\sigma_V$, whatever the slope, and spike generation adds
+little noise of its own \citep{mainen1995}. A unitary excitatory potential
+between cortical pyramidal cells averages \ueEpspMv{}~mV, with a coefficient of
+variation of \ueEpspCv{} \citep{markram1997}, and the membrane noise near
+threshold is \ueMembraneNoiseMv{}~mV \citep{jacobson2005}. Counting the input's
+own variability as noise, one such input shifts the spike by
+\ueCorticalShiftToJitter{} times its jitter, a response of \ueCorticalTV{}.
+Every input larger than \ueEpspPassMv{}~mV passes, up to the input that fires
 the cell.
 
 \section{How far a physical coupling enforces agreement}
