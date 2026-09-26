@@ -529,6 +529,14 @@ the paper reads as an argument or as a stipulation:
   over buildings, stretched to a year, run serially; Block 1978, verified
   online). P = one subject per unified experience + interaction makes one
   system. Intro sentence points to it.
+  *Follow-up 2026-09-26 (self-review, graded 6):* "one system" without a scale
+  makes a chip one system (wires, supply, crosstalk). New paragraph "Counting
+  systems at the noise floor": parts are one system when every change of one
+  above its noise moves the other by at least its fluctuation. A chip fails
+  across its 506-amplitude margin, and cortex passes at one synaptic input.
+  §reach: classical anchoring (walker, shorting, KT, heterogeneous
+  frequencies) moved to `app:reach`, and the main text keeps a one-paragraph
+  summary.
 - [x] **U28 — Show the bridge's two arms fall on opposite sides of P.** The
   quantized loop reads a noisy recording: once recording noise exceeds one
   quantizer step, dither makes its output smooth in law, and under P's

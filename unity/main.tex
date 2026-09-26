@@ -315,13 +315,12 @@ the cell.
 
 P asks the coupling to contract disagreement between every pair of regions
 whose contents are unified, and the regions a single scene joins lie up to
-\ueFibreCm{}~cm apart. P can hold for a whole scene only if the coupling
-enforces agreement at those distances, and this section finds which couplings
-do. The intuition is simple. If each patch of cortex is tied only to its near
+\ueFibreCm{}~cm apart, so P can hold for a whole scene only if the coupling
+enforces agreement at those distances. The intuition is simple. If each patch of cortex is tied only to its near
 neighbours, agreement has to pass from hand to hand, and a little of it leaks
 away at every hand, so distant patches drift apart. If there are enough direct
 ties across long distances, agreement can hold everywhere. This section makes
-that precise for a noisy sheet of coupled oscillators, and finds where the line
+that precise for a noisy sheet of coupled oscillators and finds where the line
 between the two falls.
 
 \paragraph{An electrical picture.} Picture the sheet as an electrical network:
@@ -337,36 +336,17 @@ paths, agree.
 \paragraph{Short-range and long-range coupling.} How the coupling strength falls
 off with distance is called its \emph{kernel}. Under short-range coupling the
 resistance grows as the logarithm of distance, with a coefficient inversely
-proportional to the kernel's second moment, a measure of its width. This
-logarithm is the Gaussian form of a classical fact: short-range coupling cannot
-give true long-range order in two dimensions \citep{mermin1966}. The
-plane-rotator sheet also has a Kosterlitz--Thouless transition
-\citep{frohlich1981}, an order--disorder crossover that the simulations of
-Appendix~\ref{app:reach} locate. When natural frequencies differ from site to
-site, short-range coupling fares worse still: phases then desynchronize in every
-dimension up to four \citep{hong2005}.
-
-The logarithmic growth is a lower bound for every kernel of bounded range. So
-agreement that does not fade with distance needs coupling of unbounded range,
-and a kernel whose tail falls off more slowly than $r^{-4}$ supplies it: such a
-tail bounds the resistance at every distance. Appendix~\ref{app:reach} gives
-both arguments.
-
-\paragraph{Agreement with classical theory.} Both results match classical
-potential theory. Imagine a random walker on the lattice that jumps between
-sites with probabilities proportional to the kernel, which is the same at every
-site. The resistance from a site to infinity is infinite exactly when that
-walker is sure to return to its start, that is, when the walk is recurrent
-\citep{doyle1984}. Shorting every site outside a disc around $a$ can only lower
-the resistance from $a$ to a site $b$ beyond the disc, so under recurrence that
-resistance grows without bound as $b$ recedes. A symmetric kernel of finite
-second moment, which includes every tail steeper than $r^{-4}$, gives a
-recurrent walk in two dimensions \citep{chung1951}. The bound above is the
-matching statement for tails slower than $r^{-4}$, whose walks escape. The same
-threshold holds beyond the harmonic approximation: the plane rotator in two
-dimensions with coupling falling as $r^{-\alpha}$, $2<\alpha<4$, has true
-long-range order at low noise \citep{kunz1976}, which short-range coupling
-forbids.
+proportional to the kernel's second moment, a measure of its width. The
+logarithmic growth is a lower bound for every kernel of bounded range, so
+agreement that does not fade with distance needs coupling of unbounded range. A
+kernel whose tail falls off more slowly than $r^{-4}$ supplies it: such a tail
+bounds the resistance at every distance. Both results match classical theory.
+The logarithm is the Gaussian form of the fact that short-range coupling cannot
+give true long-range order in two dimensions \citep{mermin1966}. The threshold
+$r^{-4}$ is where a random walk with the kernel's jumps passes from returning to
+its start to escaping \citep{chung1951,doyle1984}, and where the plane rotator
+gains true long-range order at low noise \citep{kunz1976}.
+Appendix~\ref{app:reach} gives the arguments and the classical correspondence.
 
 \paragraph{What a finite cortex can tell apart.} Simulated sheets follow the
 harmonic identity in the ordered phase, and the kernel's width sets both the
@@ -828,6 +808,25 @@ number of pairs grows as $16^j$ and their coupling falls as $2^{-(2+\sigma)j}$,
 so the drops shrink geometrically with ratio $q=2^{-(2-\sigma)/2}$, which is
 below one for $\sigma<2$, and the effective conductance is at least
 $(1-q)^2\alpha^2\beta/8$ however far apart $a$ and $b$ lie.
+
+Both results match classical potential theory. Imagine a random walker on the
+lattice that jumps between sites with probabilities proportional to the kernel,
+which is the same at every site. The resistance from a site to infinity is
+infinite exactly when that walker is sure to return to its start, that is, when
+the walk is recurrent \citep{doyle1984}. Shorting every site outside a disc
+around $a$ can only lower the resistance from $a$ to a site $b$ beyond the disc,
+so under recurrence that resistance grows without bound as $b$ recedes. A
+symmetric kernel of finite second moment, which includes every tail steeper
+than $r^{-4}$, gives a recurrent walk in two dimensions \citep{chung1951}. The
+bound above is the matching statement for tails slower than $r^{-4}$, whose
+walks escape. The same threshold holds beyond the harmonic approximation: the
+plane rotator in two dimensions with coupling falling as $r^{-\alpha}$,
+$2<\alpha<4$, has true long-range order at low noise \citep{kunz1976}, which
+short-range coupling forbids. The plane-rotator sheet also has a
+Kosterlitz--Thouless transition \citep{frohlich1981}, an order--disorder
+crossover that the simulations below locate. When natural frequencies differ
+from site to site, short-range coupling fares worse still: phases then
+desynchronize in every dimension up to four \citep{hong2005}.
 
 Simulated sheets at identical frequencies, of side \uSideSmall{} and
 \uSideLarge{}, with nearest-neighbour, exponential and power-law kernels of
