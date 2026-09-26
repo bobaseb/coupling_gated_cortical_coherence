@@ -299,3 +299,127 @@ theorem bits_eq_of_lipschitz {κ : Type*} {f : (∀ i, S i) → ∀ i, S i} {L :
   exact content_eq_of_lipschitz hf hπ hx i s hs
 
 end PhysicsOfConsciousness.PhysicalUnity
+
+/-! ## The margin under noise
+
+A physical gate is noisy. Thermal fluctuation makes its flip probability a
+smooth, nowhere-zero function of its input, so the *law* of a digital machine's
+next content does depend on every region's micro state, however weakly. The
+results below bound that dependence by the machine's error rate.
+
+Micro noise enters as a random map: a noise realisation `ω`, drawn from `μ`,
+fixes the step `f ω`. Every Markov kernel on a standard Borel space has such a
+representation, additive noise being the familiar case, and an `n`-step
+trajectory of `L`-Lipschitz random maps is again a random map, with constant
+`L ^ n`. Probabilities are taken of arbitrary sets, as outer measure, so no
+measurability of the readout is assumed.
+
+* **`HasMarginRate μ F π r ε`.** Outside a set of noise realisations of
+  probability at most `ε`, the readout is constant on the ball of radius `r`
+  about the noisy state `F ω`. With `μ` a point mass and `ε = 0` this is
+  `HasMarginRadius` at one state.
+* **`content_ne_le_of_marginRate`.** Under `L`-Lipschitz random steps, a change
+  to one region smaller than `r / L` changes the next content with probability
+  at most `ε`, both states driven by the same noise.
+* **`law_le_of_marginRate`.** Hence the probability of every event of contents
+  moves by at most `ε`: the total-variation response of the next content to the
+  change is bounded by the error rate.
+* **`bits_law_le_of_lipschitz`.** For any variable computed from a bit word,
+  `ε` is the probability that some bit of the successor lands within `δ` of its
+  threshold, and the scale is `δ / (L Lv)`.
+
+The bound is attained: `Examples/PhysicalUnity.lean` exhibits a noisy bit whose
+response to a sub-margin change equals its error rate exactly. -/
+
+namespace PhysicsOfConsciousness.PhysicalUnity
+
+open MeasureTheory
+
+variable {ι : Type*} [Fintype ι] [DecidableEq ι] {S : ι → Type*}
+  [∀ i, PseudoMetricSpace (S i)] {C : Type*} {Ω : Type*} [MeasurableSpace Ω]
+
+/-- A readout has a margin of radius `r` with error rate `ε` along the noisy state
+`F`: outside a set of noise of probability at most `ε`, it is constant on the
+ball of radius `r` about `F ω`. -/
+def HasMarginRate {X : Type*} [PseudoMetricSpace X] (μ : Measure Ω) (F : Ω → X)
+    (π : X → C) (r : ℝ) (ε : ENNReal) : Prop :=
+  μ {ω | ∃ y, dist y (F ω) < r ∧ π y ≠ π (F ω)} ≤ ε
+
+/-- A margin of radius `r` on `M` is a margin with error rate the probability of
+leaving `M`. -/
+theorem HasMarginRadius.hasMarginRate {X : Type*} [PseudoMetricSpace X] {π : X → C}
+    {M : Set X} {r : ℝ} (h : HasMarginRadius π M r) (μ : Measure Ω) (F : Ω → X) :
+    HasMarginRate μ F π r (μ {ω | F ω ∉ M}) :=
+  measure_mono fun _ hω => by
+    obtain ⟨y, hy, hne⟩ := hω
+    exact fun hM => hne (h _ hM y hy)
+
+/-- **Below the margin's width, one region changes the content only on the error
+set.** Driven by the same noise, a state and its copy with region `i` changed by
+less than `r / L` read the same next content outside a set of probability at
+most `ε`. -/
+theorem content_ne_le_of_marginRate {μ : Measure Ω} {f : Ω → (∀ i, S i) → ∀ i, S i}
+    {L : NNReal} (hf : ∀ ω, LipschitzWith L (f ω)) {π : (∀ i, S i) → C} {r : ℝ}
+    {ε : ENNReal} {x : ∀ i, S i} (hπ : HasMarginRate μ (fun ω => f ω x) π r ε) (i : ι)
+    (s : S i) (hs : L * dist s (x i) < r) :
+    μ {ω | π (f ω (Function.update x i s)) ≠ π (f ω x)} ≤ ε :=
+  (measure_mono fun ω (hω : π (f ω (Function.update x i s)) ≠ π (f ω x)) =>
+    show ∃ y, dist y (f ω x) < r ∧ π y ≠ π (f ω x) from ⟨_, ((hf ω).dist_le_mul _ _).trans_lt
+      ((mul_le_mul_of_nonneg_left (dist_update_le x i s) L.coe_nonneg).trans_lt hs), hω⟩).trans hπ
+
+/-- **The response of a noisy content is bounded by its error rate.** Under
+`L`-Lipschitz random steps and a margin of radius `r` with error rate `ε`, a
+change to region `i` smaller than `r / L` moves the probability of every event
+of next contents by at most `ε`, in either direction. -/
+theorem law_le_of_marginRate {μ : Measure Ω} {f : Ω → (∀ i, S i) → ∀ i, S i}
+    {L : NNReal} (hf : ∀ ω, LipschitzWith L (f ω)) {π : (∀ i, S i) → C} {r : ℝ}
+    {ε : ENNReal} {x : ∀ i, S i} (hπ : HasMarginRate μ (fun ω => f ω x) π r ε) (i : ι)
+    (s : S i) (hs : L * dist s (x i) < r) (A : Set C) :
+    μ {ω | π (f ω (Function.update x i s)) ∈ A} ≤ μ {ω | π (f ω x) ∈ A} + ε ∧
+      μ {ω | π (f ω x) ∈ A} ≤ μ {ω | π (f ω (Function.update x i s)) ∈ A} + ε := by
+  have hne := content_ne_le_of_marginRate hf hπ i s hs
+  constructor
+  · calc μ {ω | π (f ω (Function.update x i s)) ∈ A}
+        ≤ μ ({ω | π (f ω x) ∈ A} ∪ {ω | π (f ω (Function.update x i s)) ≠ π (f ω x)}) :=
+          measure_mono fun ω hω => by
+            by_cases h : π (f ω (Function.update x i s)) = π (f ω x)
+            · exact Or.inl (show π (f ω x) ∈ A from h ▸ hω)
+            · exact Or.inr h
+      _ ≤ _ := (measure_union_le _ _).trans (by gcongr)
+  · calc μ {ω | π (f ω x) ∈ A}
+        ≤ μ ({ω | π (f ω (Function.update x i s)) ∈ A} ∪
+            {ω | π (f ω (Function.update x i s)) ≠ π (f ω x)}) :=
+          measure_mono fun ω hω => by
+            by_cases h : π (f ω (Function.update x i s)) = π (f ω x)
+            · exact Or.inl (show π (f ω (Function.update x i s)) ∈ A from h ▸ hω)
+            · exact Or.inr h
+      _ ≤ _ := (measure_union_le _ _).trans (by gcongr)
+
+/-- **The response of anything computed from noisy bits.** Let bit `k` be the
+`Lv`-Lipschitz micro quantity `v k` against the threshold `c k`, let `q` be any
+function of the bit word, and let `ε` bound the probability that some bit of the
+noisy successor lands within `δ` of its threshold. Under `L`-Lipschitz random
+steps, a change to one region smaller than `δ / (L Lv)` moves the probability of
+every event of `q` by at most `ε`. -/
+theorem bits_law_le_of_lipschitz {κ : Type*} {μ : Measure Ω}
+    {f : Ω → (∀ i, S i) → ∀ i, S i} {L : NNReal} (hf : ∀ ω, LipschitzWith L (f ω))
+    {v : κ → (∀ i, S i) → ℝ} {Lv : NNReal} (hv : ∀ k, LipschitzWith Lv (v k))
+    (hLv : 0 < (Lv : ℝ)) (c : κ → ℝ) {D : Type*} (q : (κ → Bool) → D) {δ : ℝ}
+    {x : ∀ i, S i} {ε : ENNReal} (hε : μ {ω | ∃ k, |v k (f ω x) - c k| < δ} ≤ ε)
+    (i : ι) (s : S i) (hs : L * dist s (x i) < δ / Lv) (A : Set D) :
+    μ {ω | q (fun k => decide (c k < v k (f ω (Function.update x i s)))) ∈ A} ≤
+        μ {ω | q (fun k => decide (c k < v k (f ω x))) ∈ A} + ε ∧
+      μ {ω | q (fun k => decide (c k < v k (f ω x))) ∈ A} ≤
+        μ {ω | q (fun k => decide (c k < v k (f ω (Function.update x i s)))) ∈ A} + ε := by
+  have hπ : HasMarginRadius (fun y k => decide (c k < v k y))
+      {y | ∀ k, δ ≤ |v k y - c k|} (δ / Lv) :=
+    HasMarginRadius.pi fun k y hy z hz =>
+      hasMarginRadius_threshold (hv k) hLv (c k) δ y (show δ ≤ |v k y - c k| from hy k) z hz
+  have hq : HasMarginRadius (fun y => q fun k => decide (c k < v k y))
+      {y | ∀ k, δ ≤ |v k y - c k|} (δ / Lv) :=
+    fun y hy z hz => congrArg q (hπ y hy z hz)
+  refine law_le_of_marginRate hf (((hq.hasMarginRate μ _)).trans
+    ((measure_mono fun ω hω => ?_).trans hε)) i s hs A
+  simpa [not_le] using hω
+
+end PhysicsOfConsciousness.PhysicalUnity

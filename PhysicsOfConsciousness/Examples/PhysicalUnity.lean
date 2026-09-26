@@ -26,6 +26,11 @@ import PhysicsOfConsciousness.Phase10_PhysicalUnity
   with unit Lipschitz constants, `bits_eq_of_lipschitz` leaves the bit fixed
   under every change of region 0 smaller than `1`, and the change of exactly `1`
   to `![0, 0]` flips it.
+* **The noisy response bound is attained.** Noise `ω : Bool` pulls region 0
+  down by one on `true`, under any noise law `μ`. At `![1, 0]` with `δ = 1`
+  the error set is `{true}`, and changing region 0 to `3/2`, half the margin
+  width away, raises the probability that the bit reads `true` by exactly
+  `μ {true}`, so `bits_law_le_of_lipschitz` cannot be sharpened.
 -/
 
 open Filter Topology
@@ -110,5 +115,43 @@ theorem bit_eq_of_small (s : ℝ) (hs : dist s 1 < 1) :
 /-- A change of exactly the margin width flips the bit. -/
 theorem bit_flips_at_width : bit (Function.update ![1, 0] 0 0) ≠ bit ![1, 0] := by
   simp [bit]
+
+/-- Noise that pulls region 0 down by one on `true`. -/
+noncomputable def kick (ω : Bool) (y : Pair) : Pair := y - if ω then ![1, 0] else 0
+
+theorem kick_lipschitz (ω : Bool) : LipschitzWith 1 (kick ω) := by
+  refine LipschitzWith.of_dist_le_mul fun y z => ?_
+  simp [kick]
+
+open MeasureTheory in
+/-- At `![1, 0]` the error set for `δ = 1` is `{true}`. -/
+theorem kick_error_set :
+    {ω | ∃ _ : Unit, |kick ω ![1, 0] 0 - 0| < 1} = {true} := by
+  ext ω; cases ω <;> simp [kick]
+
+open MeasureTheory in
+/-- The hypotheses of `bits_law_le_of_lipschitz` hold with error rate `μ {true}`. -/
+theorem kick_bound (μ : Measure Bool) :
+    μ {ω | bit (kick ω (Function.update ![1, 0] 0 (3 / 2))) = true} ≤
+      μ {ω | bit (kick ω ![1, 0]) = true} + μ {true} :=
+  (bits_law_le_of_lipschitz (κ := Unit) (S := fun _ : Fin 2 => ℝ) (f := kick) (L := 1)
+    kick_lipschitz (v := fun _ y => y 0) (Lv := 1) (fun _ => LipschitzWith.eval 0)
+    (by norm_num) (fun _ => 0) (fun w => w ()) (δ := 1) (x := ![1, 0])
+    (by rw [kick_error_set]) 0 (3 / 2)
+    (by norm_num [Real.dist_eq, abs_of_pos]) {true}).1
+
+open MeasureTheory in
+/-- **The error rate is attained.** Changing region 0 from `1` to `3/2`, within
+the margin width `1`, raises the probability that the bit reads `true` by
+exactly the error rate `μ {true}`, under every noise law. -/
+theorem kick_attains (μ : Measure Bool) :
+    μ {ω | bit (kick ω (Function.update ![1, 0] 0 (3 / 2))) = true} =
+      μ {ω | bit (kick ω ![1, 0]) = true} + μ {true} := by
+  have h1 : {ω | bit (kick ω (Function.update ![1, 0] 0 (3 / 2))) = true} = Set.univ := by
+    ext ω; cases ω <;> norm_num [bit, kick]
+  have h2 : {ω | bit (kick ω ![1, 0]) = true} = {false} := by
+    ext ω; cases ω <;> simp [bit, kick]
+  rw [h1, h2, ← measure_union (by simp) (measurableSet_singleton _)]
+  congr 1; ext ω; cases ω <;> simp
 
 end PhysicsOfConsciousness.PhysicalUnity.Examples

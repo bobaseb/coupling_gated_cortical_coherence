@@ -46,6 +46,49 @@ class HardwareTest(unittest.TestCase):
         self.assertLess(ue.estimates()["noiseToMargin"], 1.0)
 
 
+class NoiseFloorTest(unittest.TestCase):
+    def test_the_fluctuation_is_the_gaussian_one_sigma_shift(self) -> None:
+        self.assertEqual(ue.tv_of_shift(0.0), 0.0)
+        self.assertAlmostEqual(ue.FLUCTUATION_TV, 2 * ue.normal_cdf(0.5) - 1)
+        self.assertAlmostEqual(ue.FLUCTUATION_TV, 0.3829, places=4)
+        self.assertLess(ue.tv_of_shift(0.5), ue.tv_of_shift(1.0))
+
+    def test_the_tail_is_continuous_across_its_asymptotic_switch(self) -> None:
+        for x in (1.0, 5.0, 20.0):
+            exact = math.log10(0.5 * math.erfc(x / math.sqrt(2)))
+            self.assertAlmostEqual(ue.log10_gaussian_tail(x), exact, places=6)
+        below = ue.log10_gaussian_tail(ue.TAIL_SWITCH - 1e-9)
+        above = ue.log10_gaussian_tail(ue.TAIL_SWITCH + 1e-9)
+        self.assertAlmostEqual(below, above, places=3)
+
+    def test_the_inverse_tail_returns_the_argument(self) -> None:
+        z = ue.inverse_gaussian_tail(ue.FLUCTUATION_TV)
+        self.assertAlmostEqual(0.5 * math.erfc(z / math.sqrt(2)), ue.FLUCTUATION_TV)
+
+    def test_the_digital_response_at_the_noise_scale_is_far_below_the_fluctuation(self) -> None:
+        estimates = ue.estimates()
+        self.assertGreater(estimates["marginToNoise"], 10.0)
+        self.assertGreater(estimates["errorOrders"], 10.0)
+        self.assertLess(estimates["gradedWindowPercent"], 1.0)
+
+    def test_the_cortical_carrier_passes_at_a_unitary_epsp(self) -> None:
+        estimates = ue.estimates()
+        self.assertGreater(estimates["corticalShiftToJitter"], 1.0)
+        self.assertGreater(estimates["corticalTV"], ue.FLUCTUATION_TV)
+
+    def test_every_input_above_the_smallest_passing_one_passes(self) -> None:
+        least = ue.smallest_passing_input(cv=0.52, noise=0.54)
+        self.assertAlmostEqual(ue.shift_to_jitter(least, 0.52, 0.54), 1.0)
+        for scale in (1.01, 2.0, 10.0):
+            self.assertGreater(ue.shift_to_jitter(scale * least, 0.52, 0.54), 1.0)
+        with self.assertRaises(ValueError):
+            ue.smallest_passing_input(cv=1.0, noise=0.54)
+
+    def test_the_slope_cancels_from_shift_over_jitter(self) -> None:
+        self.assertAlmostEqual(ue.shift_to_jitter(epsp=1.0, cv=0.0, noise=0.5), 2.0)
+        self.assertAlmostEqual(ue.shift_to_jitter(epsp=1.0, cv=0.3, noise=0.4), 2.0)
+
+
 class GeneratedFileTest(unittest.TestCase):
     def test_the_committed_file_matches_the_script(self) -> None:
         self.assertEqual(ue.OUTPUT.read_text(encoding="utf-8"), ue.render())

@@ -3,6 +3,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{array}
+\usepackage{longtable}
 \usepackage[round]{natbib}
 \usepackage{hyperref}
 \usepackage{setspace}
@@ -30,15 +31,21 @@ shared situation agree. We argue that unity requires this agreement to be
 physically enforced, produced and maintained by a coupling through which the
 graded physical state of each region continuously pulls the regions it overlaps
 toward agreement. Clocked digital hardware computes agreement instead. Its
-noise margins make every content readout locally constant in micro state, and
-we prove that a readout with a margin, under continuous micro dynamics, depends
-on no region's graded state; content read from bits is therefore never
-physically enforced, whatever algorithm the bits run. For a coupled sheet of
-oscillators we show that the width of the coupling kernel sets how fast
-agreement decays with distance, and that only a kernel tail slower than
-$r^{-4}$ makes it independent of distance. The premise yields interventional
-tests on cortex and on artificial systems, and we state the outcomes that would
-refute it on each.
+noise margins make every content readout locally constant in micro state. Once
+the criterion is placed at the level of micro states, excluding such hardware is
+a short theorem: a readout with a margin, under continuous micro dynamics,
+depends on no region's graded state, so content read from bits is never
+physically enforced, whatever algorithm the bits run. Under thermal noise the
+same readout responds to a region only through its error rate, far below the
+fluctuation of its content, while a cortical spike time moves by more than its
+jitter under one sub-threshold synaptic input. The weight lies in the
+definitions, and we argue for where they place the criterion. For a coupled
+sheet of oscillators we show that the width of the coupling kernel sets how fast
+agreement decays with distance: a kernel tail slower than $r^{-4}$ makes
+agreement independent of distance, and a kernel of finite second moment lets it
+decay without bound as distance grows. The premise predicts that unity follows graded
+coupling when coupling and information flow are separated, and we state the
+outcomes in cortex that would refute it.
 \end{abstract}
 
 \section{Introduction}
@@ -51,28 +58,58 @@ coupling that contracts their disagreement.
 
 P is a necessary condition for unity. It rejects functionalism about unity: a
 perfect simulation of a coupled field reproduces the field's content-level
-dynamics and fails P. The paper makes three claims:
+dynamics and fails P. Physical systems are noisy, so P is read on the
+probability laws of contents: graded dependence counts above the noise floor,
+where every sub-threshold change of a region larger than its own noise moves
+the next content by at least as much as the content fluctuates.
+
+The reason to ask for enforcement is the difference between one state and many
+states brought into agreement. Where a coupling enforces agreement, the contents
+of overlapping regions are read from graded quantities that pull on each other
+continuously, so no region's content can move, by however little, without the
+dynamics pulling its neighbours' contents after it. The regions are then
+coordinates of a single physical state that cannot vary independently at any
+scale. Where agreement is computed, each region's content is a separate record,
+matched to the others by a rule applied at discrete steps; below the margin
+that holds each record, the records vary independently of each other and of
+everything beneath them. The first is one system in the sense physics uses, a
+single state space with coupled coordinates. The second is many systems kept
+consistent by a protocol. P is the claim that the unity of an experience is
+oneness of the first kind.
+
+The paper makes three claims:
 \begin{enumerate}
-\claim{sec:enforcement}{A content readout with a noise margin, under continuous micro dynamics, depends on the graded state of no region, so content read from bits is not physically enforced whatever algorithm the bits run}
-\claim{sec:reach}{On a noisy coupled sheet, the width of the coupling kernel sets how fast agreement decays with distance, and only a kernel tail slower than $r^{-4}$ makes agreement independent of distance}
-\claim{sec:tests}{P predicts that a sub-threshold perturbation of one cortical region shifts the content decoded in an overlapping region toward agreement, and that no perturbation below a digital system's noise margin shifts any of its contents}
+\claim{sec:enforcement}{A content readout with a noise margin, under continuous micro dynamics, depends on the graded state of no region, so content read from bits is not physically enforced whatever algorithm the bits run; under noise the response of such a content to any region is bounded by its error rate, orders of magnitude below its fluctuation, while a cortical spike time passes the same criterion}
+\claim{sec:reach}{On a noisy coupled sheet, the width of the coupling kernel sets how fast agreement decays with distance: a kernel tail slower than $r^{-4}$ makes agreement independent of distance, and a kernel of finite second moment lets it decay without bound as distance grows}
+\claim{sec:tests}{P predicts that a sub-threshold perturbation of one cortical region shifts the graded content decoded in an overlapping region toward agreement, and that unity between two regions bridged at matched information flow follows the bridge that couples them gradedly}
 \end{enumerate}
 
 Every formal result the paper states is machine-checked in Lean~4, and
 Appendix~\ref{app:formal} maps each one to its declaration.
 
-\section{Synchrony is not unity}
-\label{sec:synchrony}
-
-Equal phases coexist with incompatible local descriptions, and compatible local
-descriptions determine a unique global state. Unity is therefore a property of
-what overlapping regions describe, and synchrony is at most a route to it.
-
-\section{Unity as agreement over a declared cover}
+\section{Unity as agreement over a cover of contents}
 \label{sec:cover}
 
-Agreement is measured between regions that decode a shared variable. The cover
-of regions is fixed by decodability before agreement is measured, so that the
+Synchrony is not unity. Two regions can oscillate in phase while one encodes a
+stimulus at one location and the other at another, so equal phases coexist
+with incompatible local descriptions. Conversely, local descriptions that agree
+wherever they overlap determine a unique global state, as a set of charts that
+agree on their overlaps determines one map. Unity is therefore a property of
+what overlapping regions describe, and synchrony is at most a route to it.
+
+A region's content is a variable of its micro state that the system's own
+dynamics reads: the next state of the regions it drives depends on it through
+that variable, and the variable determines the quantity the region represents,
+such as a location or an orientation. Decodability by an outside observer is
+not enough. The supply current of a digital circuit carries enough of its
+logical state that a secret key can be recovered from it \citep{kocher1999},
+yet no gate of the circuit reads the current, so it is a trace of the content
+and not a carrier of it. In cortex the membrane potential and the timing of
+spikes are carriers, because postsynaptic integration reads them.
+
+Agreement is measured between regions whose contents represent a shared
+variable. The cover of regions, and the content variable of each, are fixed by
+this causal role and by decodability before agreement is measured, so that the
 measurement cannot be emptied by the choice of cover.
 
 \section{Physical enforcement versus routed agreement}
@@ -99,6 +136,10 @@ state into a margin's operating set, no region's micro state enters the next
 content gradedly. A thresholded
 continuous quantity has a margin off its threshold, and a finite word of such
 readouts has one too, so the conclusion holds for any content read from bits.
+The proof is short: continuity carries a small enough neighbourhood of each
+region's micro state into the neighbourhood on which the readout is constant.
+The definitions carry the weight of the result, and the rest of this section
+argues that they sit at the right level.
 
 The theorem places the criterion one level below the content dynamics, and the
 placement is forced. Contraction of disagreement at the content level is
@@ -132,8 +173,57 @@ route for a digital machine: every variable it computes, whether a number, a
 vector of numbers or a category, is a function of its bit word, and after any
 number of steps that keep its bits off their thresholds such a function depends
 gradedly on no region.
-The voltages beneath the bits carry none of the machine's contents, at that step
-or any later one, so they are not a carrier.
+The voltages beneath the bits are not a carrier in the sense of
+Section~\ref{sec:cover}: an observer may decode the machine's contents from
+them, but the machine reads them only through the bits, at that step and at
+every later one.
+
+Physical micro dynamics is noisy, and noise changes the form of the question.
+A gate's flip probability is a smooth function of its input voltage that is
+nowhere zero, so the probability law of a digital machine's next content does
+depend on every region. Read on exact contents, the margin theorem would then
+single out a property lying below the noise floor of both substrates. P is
+therefore stated on laws. The response of a content to a region at scale
+$\eta$ is the largest change that moving the region by at most $\eta$ makes to
+the probability of any event of the next content, which is a total-variation
+distance. The fluctuation is the response that a shift of one standard
+deviation produces in a Gaussian carrier, $2\Phi(1/2)-1=\ueFluctuationTV$, so
+a response above it moves the content by as much as the content fluctuates.
+Graded dependence above the noise floor asks the response to reach the
+fluctuation for every change of the region larger than its own noise
+amplitude and smaller than the change that crosses one of its thresholds. The
+constants of this criterion are a Gaussian identity and the system's own
+scales, and none of them is fitted to either substrate.
+
+The margin theorem has a noisy form. Let each realization of the noise fix an
+$L$-Lipschitz step of the micro dynamics, and let the content be constant
+within radius $r$ of the noisy successor outside a set of realizations of
+probability at most $\varepsilon$. A change of one region smaller than $r/L$
+then moves the probability of every event of the next content by at most
+$\varepsilon$. For anything computed from bits, $\varepsilon$ is the
+probability that some bit of the noisy successor lands within $\delta$ of its
+threshold, and the bound is attained. On a logic node of \ueNodeCapFf{}~fF at
+room temperature the thermal noise is \ueThermalNoiseMv{}~mV
+\citep{johnson1928,nyquist1928}, the textbook inverter's margin is
+\ueMarginToNoise{} times that, and after a change of one noise amplitude the
+probability of a flip, which bounds the response, is below
+$10^{-\ueErrorOrders}$ \citep{kish2002}. The response reaches the fluctuation
+only within \ueGradedWindowPercent\% of the margin's width from the threshold,
+where the bit is switching.
+
+A spike time passes the same criterion. A sub-threshold input $\Delta V$
+arriving while the membrane potential rises through threshold at rate $\dot V$
+moves the spike by $\Delta V/\dot V$, and voltage noise $\sigma_V$ jitters it by
+$\sigma_V/\dot V$, so the shift exceeds the jitter exactly when $\Delta V$
+exceeds $\sigma_V$, whatever the slope; spike generation adds little noise of
+its own \citep{mainen1995}. A unitary excitatory potential between cortical
+pyramidal cells averages \ueEpspMv{}~mV, with a coefficient of variation of
+\ueEpspCv{} \citep{markram1997}, and the membrane noise near threshold is
+\ueMembraneNoiseMv{}~mV \citep{jacobson2005}. Counting the input's own
+variability as noise, one such input shifts the spike by
+\ueCorticalShiftToJitter{} times its jitter, a response of \ueCorticalTV{}, and
+every input larger than \ueEpspPassMv{}~mV passes, up to the input that fires
+the cell.
 
 \section{How far a physical coupling enforces agreement}
 \label{sec:reach}
@@ -147,62 +237,36 @@ kernel's second moment; a kernel tail slower than $r^{-4}$ bounds it. The
 logarithm is the Gaussian form of the absence of true long-range order in two
 dimensions under short-range coupling \citep{mermin1966}, and the
 plane-rotator sheet has a Kosterlitz--Thouless transition \citep{frohlich1981},
-the order--disorder crossover that the simulations below locate. Heterogeneous natural frequencies make short-range
+the order--disorder crossover that the simulations of
+Appendix~\ref{app:reach} locate. Heterogeneous natural frequencies make short-range
 coupling weaker still: phases then desynchronize in every dimension up to four
 \citep{hong2005}.
 
-The logarithmic growth is a lower bound for every kernel of bounded range. Group
-the sites into shells around a site $a$, so that the coupling joins only sites
-in the same or adjacent shells. The shells then act as conductors in series,
-and the effective conductance from $a$ to any site beyond shell $n$ is at most
-$\bigl(\sum_{k<n} 1/C_k\bigr)^{-1}$, where $C_k$ is the coupling crossing from
-shell $k$ to shell $k+1$. On a planar sheet
-the perimeter of shell $k$ grows linearly in $k$, so $C_k \le c\,(k+1)$ for a
-constant $c$ set by the kernel's strength and width, and the effective
-resistance is at least $\log(n+1)/c$.
-Widening the kernel enlarges its shells and raises $c$, which slows the growth
-and leaves it unbounded. Distance-independent agreement on a sheet therefore
-needs coupling of unbounded range.
+The logarithmic growth is a lower bound for every kernel of bounded range, so
+distance-independent agreement on a sheet needs coupling of unbounded range,
+and a tail slower than $r^{-4}$ supplies it: such a tail bounds the resistance
+at every distance. Appendix~\ref{app:reach} gives both arguments.
 
-A tail slower than $r^{-4}$ bounds the resistance at every distance. Run a chain
-of site sets out from $a$ through discs of radius $2^j$ and back in to $b$, the
-two widest discs spanning the separation. The phase difference across $a$ and
-$b$ telescopes through the discs' mean phases, and the drop between the means of
-two consecutive discs is bounded by the coupling energy between them, shared
-among the pairs of their sites. A disc of radius $2^j$ on a planar sheet holds at
-least $\alpha\,4^j$ sites, and a kernel $K(r)\gtrsim r^{-(2+\sigma)}$ couples
-two sites of consecutive discs by at least $\beta\,2^{-(2+\sigma)j}$. The
-number of pairs grows as $16^j$ and their coupling falls as $2^{-(2+\sigma)j}$,
-so the drops shrink geometrically with ratio $q=2^{-(2-\sigma)/2}$, which is
-below one for $\sigma<2$, and the effective conductance is at least
-$(1-q)^2\alpha^2\beta/8$ however far apart $a$ and $b$ lie.
+Both edges agree with classical potential theory. For a kernel on the lattice that is
+invariant under translation, the effective resistance from a site to infinity is
+infinite exactly when the random walk that jumps with probabilities
+proportional to the kernel is recurrent \citep{doyle1984}. Shorting every site
+outside a disc around $a$ can only lower the resistance from $a$ to a site $b$
+beyond it, so under recurrence that resistance grows without bound as $b$
+recedes. A symmetric kernel of finite second moment, which includes every tail
+steeper than $r^{-4}$, gives a recurrent walk in two dimensions
+\citep{chung1951}, and the bound above is the matching transience of a tail
+slower than $r^{-4}$. The same threshold holds beyond the harmonic
+approximation: the plane rotator in two dimensions with coupling decaying as
+$r^{-\alpha}$, $2<\alpha<4$, has true long-range order at low noise
+\citep{kunz1976}, which short-range coupling forbids.
 
-Simulated sheets at identical frequencies, of side \uSideSmall{} and
-\uSideLarge{}, with nearest-neighbour, exponential and power-law kernels of
-tail exponent $\sigma=1$ and $\sigma=3$ at a common row sum, follow the harmonic
-identity in the ordered phase. The measured phase variance is at most
-\uHarmonicRatioLow{} times $D\,R_{\mathrm{eff}}$ at $D=\uNoiseLow$ and at most
-\uHarmonicRatioMid{} times at $D=\uNoiseMid$, the excess rising with noise as
-the cosine coupling softens, and a logarithm fits its growth with distance
-better than a line in \uLogarithmicRuns{} of the \uOrderedRuns{} runs at those
-noise levels. At $D=\uNoiseHigh$ the nearest-neighbour sheet disorders: the
-mean chord discrepancy $\langle 1-\cos(\theta_a-\theta_b)\rangle$ at the
-largest separation is \uChordNearestHigh{}. The exponential and $\sigma=1$
-sheets stay ordered at that noise (\uChordExponentialHigh{} and
-\uChordSigmaOneHigh{}), and the $\sigma=3$ sheet nearly disorders
-(\uChordSigmaThreeHigh{}), so the kernel's width sets the order--disorder
-crossover as well as the rate of decay. Exact resistance sums at sheet sides
-\uScalingSideA{}, \uScalingSideB{} and \uScalingSideC{} separate width from
-tail. The exponential kernel, with \uStiffnessRatio{} times the
-nearest-neighbour stiffness, gives resistance at half the side of
-\uFarExponentialA{}, \uFarExponentialB{} and \uFarExponentialC{}, still
-growing; the $\sigma=1$ tail gives \uFarSigmaOneA{}, \uFarSigmaOneB{} and
-\uFarSigmaOneC{}, and the $\sigma=3$ tail, steeper than $r^{-4}$, gives
-\uFarSigmaThreeA{}, \uFarSigmaThreeB{} and \uFarSigmaThreeC{}, growing as a
-short-range kernel does. Over a finite cortical extent a wide short-range kernel and a
-slow tail therefore differ by a slowly growing logarithm, and the measurement
-that separates them needs the kernel's second moment as well as its tail
-exponent.
+Simulated sheets follow the harmonic identity in the ordered phase, and the
+kernel's width sets the order--disorder crossover as well as the rate of decay
+(Appendix~\ref{app:reach}). Over a finite cortical extent a wide short-range
+kernel and a slow tail therefore differ by a slowly growing logarithm, and the
+measurement that separates them needs the kernel's second moment as well as
+its tail exponent.
 
 Three facts hold without the harmonic approximation. Adding coupling never
 raises the effective resistance, so a long-range
@@ -296,12 +360,17 @@ analog quantities behind every bit. The margin theorem locates where such
 leakage can reach content. If a content read as a word of thresholded
 continuous quantities depends gradedly on any region, some bit of the next state
 sits exactly on its threshold,
-and correct operation keeps every state off that set. The margin also has a
+and correct operation keeps every state off that set. Digital logic is
+contractive at the micro level too: the gain of each gate pulls a perturbed
+voltage back toward its rail. That contraction restores each bit toward its own
+logical value, pulls no region toward agreement with another, and is what holds
+the bits inside their margins. The margin also has a
 width. If every bit of the next state is at least $\delta$ from its threshold,
 each bit is read from an $L_v$-Lipschitz quantity and the micro dynamics is
 $L$-Lipschitz, a change to one region smaller than $\delta/(L L_v)$ changes no
-bit. Leakage below that scale carries no
-content; leakage above it flips a bit, which is a logical error. Digital
+bit. Leakage below that scale reaches content only through the error rate
+(Section~\ref{sec:enforcement}); leakage above it flips a bit, which is a
+logical error. Digital
 design places ordinary noise well below that scale: a textbook inverter's
 static noise margin is \ueMarginPercent{}\% of its supply voltage, against an
 expected supply variation of \ueSupplyPercent{}\% \citep{rabaey2003}, so the
@@ -313,34 +382,74 @@ not how content depends on graded state.
 \section{Tests}
 \label{sec:tests}
 
+\paragraph{What counts as evidence about the phenomenal field.} Every test
+below measures decoded agreement, which is agreement of the contents available
+to readout. If disunity of readout could always be set aside as disunity of
+access alone, no observation would bear on P. The observations that count as
+evidence about the phenomenal field are therefore fixed in advance: responses
+that integrate stimuli across the regions in question when the task requires
+it, and reports of a single field of experience spanning them. A dissociation
+in which such responses and reports split while graded coupling between the
+regions is intact, or stay integrated after graded coupling between them is
+removed, is accepted as evidence against P.
+
+\paragraph{Separating coupling from information.} This is the test that
+decides between P and functionalism. In every manipulation of cortex available
+so far, graded coupling and information flow move together: anaesthesia and
+callosal section remove both. A test that confirms P against functionalism
+must move one with the other held fixed. Coherence between cortical regions
+arises largely as a consequence of communication between them
+\citep{schneider2021}, and transcranial alternating current applied to two
+regions drives both from a common source: where in-phase stimulation raised
+their synchrony it raised directed information flow with it
+\citep{reinhart2019}. The coupling has to be supplied instead. Two regions
+whose natural connection is interrupted are bridged by stimulating each in
+proportion to the activity recorded at the other, through one of two loops: an
+analog loop, whose output moves with every graded change in its input, or a
+quantized loop, whose output is read from bits and so has a margin. The analog
+loop is analog end to end, an analog filter and amplifier driving the
+stimulator with no digitizing stage, because a loop that digitizes the
+recording before driving the stimulator runs the quantized condition in both
+arms. Noise added to the analog loop matches the transfer entropy it carries,
+estimated from the recorded activity, to the quantized loop's, and stepping the
+quantized loop's resolution checks that its transfer entropy rises with the
+resolution, so that the resolution, and not recording noise, sets the matched
+value. The two loops then carry the same
+information, and only the analog one couples the regions gradedly. Unity,
+measured as in the previous paragraph, that follows the analog loop at matched
+transfer entropy supports P over functionalism, and unity that is the same
+under both loops counts against P. Intracortical stimulation in animals
+supports the design with decoded agreement as the measure; reported unity needs
+a bridged human preparation.
+
 \paragraph{Graded cross-region dependence in cortex.} Weak stimulation of one
 region below the behavioural threshold should shift the content decoded in an
 overlapping region, gradedly with stimulation strength and toward agreement
 with the stimulated region. Transcranial alternating current and weak
-intracortical fields supply the perturbation, and the decoded content is a
-graded variable, such as a location, an orientation or the strength of evidence
-for a percept, read from population activity in the overlapping region; a
-decoded category is locally constant away from its boundaries in any substrate
-and would stay unchanged whether P holds or not. An unchanged decoded
-content in the overlapping region, at stimulation strengths that measurably
-move the stimulated one, counts against P, since P then denies unity to the
-system whose unity motivates it.
+intracortical fields supply the perturbation. The decoded content is a graded
+variable, such as a location, an orientation or the strength of evidence for a
+percept, read from the population activity that the overlapping region's
+targets integrate, so that it is a carrier in the sense of
+Section~\ref{sec:cover}; a decoded category is locally constant away from its
+boundaries in any substrate and would stay unchanged whether P holds or not. An
+unchanged decoded content in the overlapping region, at stimulation strengths
+that measurably move the stimulated one, counts against P, since P then denies
+unity to the system whose unity motivates it.
 
-\paragraph{Agreement as an attractor on both substrates.} Perturb one region
-and measure whether agreement with its overlap partners is restored, and at
-what rate. In cortex the perturbation is stimulation and the measure is the
-disagreement between contents decoded from the perturbed region and its
-partners; P predicts restoration at the relaxation rate of
-Section~\ref{sec:window}, with a restoring pull proportional to the size of the
-perturbation below as well as above any threshold. In an artificial system the
-perturbation is activation patching of one layer, head or position, applied at
-two scales: below the scale at which the logical trajectory changes, and above
-it. A digital system can restore agreement above that scale, by computation;
-below it the margin theorem predicts that nothing moves at all. The outcome
-that counts against the thesis on the artificial side is a graded shift of
-decoded content in one region, toward agreement, driven by an analog
-perturbation of another that stays inside every bit's margin, such as a supply
-or timing perturbation below the error threshold.
+\paragraph{Agreement as an attractor.} Perturb one region and measure whether
+agreement with its overlap partners is restored, and at what rate. In cortex
+the perturbation is stimulation and the measure is the disagreement between
+contents decoded from the perturbed region and its partners; P predicts
+restoration at the relaxation rate of Section~\ref{sec:window}, with a
+restoring pull proportional to the size of the perturbation below as well as
+above any threshold. The same protocol run on an artificial system, by
+activation patching of one layer, head or position, has an outcome fixed in
+advance by the margin theorem: a digital system can restore agreement above the
+scale at which its logical trajectory changes, by computation, and below that
+scale nothing moves. Observing this checks that the hardware operates inside
+its margins, and it is the contrast that makes the cortical outcome
+informative: a restoring pull that is graded below every threshold is the
+signature P attributes to enforcement.
 
 \paragraph{The field's causal cone.} At the frequencies of neural activity the
 extracellular field is quasi-static \citep{gratiy2017}: it reaches every point
@@ -375,53 +484,17 @@ reach \citep{kajikawa2011}, and a deadline set for each subject from the
 tractography length of the connecting fibres \citep{caminiti2013} separate
 active re-agreement from the passive field that carries the stimulus.
 
-\paragraph{Separating coupling from information.} In every manipulation of
-cortex available so far, graded coupling and information flow move together:
-anaesthesia and callosal section remove both. A test that confirms P against
-functionalism must move one with the other held fixed. Coherence between
-cortical regions arises largely as a consequence of communication between them
-\citep{schneider2021}, and transcranial alternating current applied to two
-regions drives both from a common source: where in-phase stimulation raised
-their synchrony it raised directed information flow with it
-\citep{reinhart2019}. The coupling has to be supplied instead. Two regions
-whose natural connection is interrupted are bridged by stimulating each in
-proportion to the activity recorded at the other, through one of two loops: an
-analog loop, whose output moves with every graded change in its input, or a
-quantized loop, whose output is read from bits and so has a margin. Noise added
-to the analog loop matches the transfer entropy it carries, estimated from the
-recorded activity, to the quantized loop's. The two loops then carry the same
-information, and only the analog one couples the regions gradedly. Unity
-measured as in the next paragraph that follows the analog loop at matched
-transfer entropy supports P over functionalism, and unity that is the same
-under both loops counts against P. Intracortical stimulation in animals
-supports the design with decoded agreement as the measure; reported unity needs
-a bridged human preparation.
-
-\paragraph{What counts as evidence about the phenomenal field.} Every test
-above measures decoded agreement, which is agreement of the contents available
-to readout. If disunity of readout could always be set aside as disunity of
-access alone, no observation would bear on P. The observations that count as
-evidence about the phenomenal field are therefore fixed in advance: responses
-that integrate stimuli across the regions in question when the task requires
-it, and reports of a single field of experience spanning them. A dissociation
-in which such responses and reports split while graded coupling between the
-regions is intact, or stay integrated after graded coupling between them is
-removed, is accepted as evidence against P.
-
 \paragraph{Split brain.} Callosal section removes the main route of both
 information and graded coupling between the hemispheres. Patients respond to
 stimuli in the two visual fields as if perception were divided, yet can report
 the presence of stimuli in either field with either hand, which has been read
 as divided perception with undivided consciousness \citep{pinto2017}; whether
-the phenomenal field divides remains contested \citep{dehaan2020}, and a
-switch model, on which consciousness alternates between the hemispheres, is a
-live rival \citep{bayne2010}. If the field stays undivided, unity survives on
-the residual subcortical routes. Those routes are synaptic and carry
-information too, so the case bears on P only if unity is preserved out of
-proportion to the information they carry, and it bears on graded coupling of
-any kind: synaptic coupling is graded through postsynaptic potentials and
-sub-threshold shifts in spike timing, and the extracellular field is one
-realization of it among several.
+the phenomenal field divides is contested \citep{dehaan2020}, and a switch
+model, on which consciousness alternates between the hemispheres, is a live
+rival \citep{bayne2010}. The residual subcortical routes are synaptic, so they
+couple gradedly and carry information at once. The case therefore removes
+coupling and information together, which is the confound the bridged
+preparation above is built to break.
 
 \section{Related work}
 \label{sec:related}
@@ -459,16 +532,26 @@ graded coupling among several.
 
 P is a premise and is not derived from the dynamics; the formal results show
 what follows from it and not that it holds. It is necessary for unity and not
-sufficient for consciousness: coupled pendulums satisfy it. The margin theorem
-concerns idealised digital readouts, and graded leakage in real hardware that
-carries content-relevant agreement would narrow its reach. The identification of
+sufficient for consciousness: coupled pendulums satisfy it. Under noise the
+margin theorem bounds a digital content's response by its error rate, so
+hardware run so close to its thresholds that a change of one noise amplitude
+moves its contents by a fluctuation would escape the bound; the thermal
+estimate declares the node capacitance. The cortical estimate combines in
+vitro measurements of one connection type and one noise recording, and reads
+the spike-time shift through a linear threshold crossing. The identification of
 phase variance with effective resistance rests on the harmonic approximation at
 identical natural frequencies. The logarithmic lower bound on resistance is
 proved for kernels of bounded range, and the bound at every distance under a tail
 slower than $r^{-4}$ is proved for a sheet that supplies the site counts and
-couplings of a dyadic chain of discs; that the logarithm is attained, and that a
-tail steeper than $r^{-4}$ leaves the resistance growing, are established
-numerically on finite sheets. The unity window's edges are proved for a given contraction factor; the
+couplings of a dyadic chain of discs. That a kernel of finite second moment
+leaves the resistance unbounded is the classical recurrence criterion, for
+translation-invariant kernels on the lattice; that the growth is logarithmic is
+established numerically on finite sheets. Which variables a system's own
+dynamics reads, and so which are its contents, is settled system by system from
+its circuitry, and the margin theorem takes that identification as given. The
+predictions for artificial systems are consequences of the margin theorem, and
+their confirmation checks that hardware runs inside its margins, leaving P
+untested; the tests of P are the cortical ones. The unity window's edges are proved for a given contraction factor; the
 identification of that factor with the coupling's spectral gap is linear
 response. The relaxation time of cortical coupling is unmeasured, so the window
 estimate states the condition for the window to open at cortical time scales
@@ -492,6 +575,59 @@ coupling and information flow co-vary in every manipulation available so far.
 
 \appendix
 
+\section{Resistance bounds and simulations}
+\label{app:reach}
+
+The logarithmic growth is a lower bound for every kernel of bounded range. Group
+the sites into shells around a site $a$, so that the coupling joins only sites
+in the same or adjacent shells. The shells then act as conductors in series,
+and the effective conductance from $a$ to any site beyond shell $n$ is at most
+$\bigl(\sum_{k<n} 1/C_k\bigr)^{-1}$, where $C_k$ is the coupling crossing from
+shell $k$ to shell $k+1$. On a planar sheet
+the perimeter of shell $k$ grows linearly in $k$, so $C_k \le c\,(k+1)$ for a
+constant $c$ set by the kernel's strength and width, and the effective
+resistance is at least $\log(n+1)/c$.
+Widening the kernel enlarges its shells and raises $c$, which slows the growth
+and leaves it unbounded. Distance-independent agreement on a sheet therefore
+needs coupling of unbounded range.
+
+A tail slower than $r^{-4}$ bounds the resistance at every distance. Run a chain
+of site sets out from $a$ through discs of radius $2^j$ and back in to $b$, the
+two widest discs spanning the separation. The phase difference across $a$ and
+$b$ telescopes through the discs' mean phases, and the drop between the means of
+two consecutive discs is bounded by the coupling energy between them, shared
+among the pairs of their sites. A disc of radius $2^j$ on a planar sheet holds at
+least $\alpha\,4^j$ sites, and a kernel $K(r)\gtrsim r^{-(2+\sigma)}$ couples
+two sites of consecutive discs by at least $\beta\,2^{-(2+\sigma)j}$. The
+number of pairs grows as $16^j$ and their coupling falls as $2^{-(2+\sigma)j}$,
+so the drops shrink geometrically with ratio $q=2^{-(2-\sigma)/2}$, which is
+below one for $\sigma<2$, and the effective conductance is at least
+$(1-q)^2\alpha^2\beta/8$ however far apart $a$ and $b$ lie.
+
+Simulated sheets at identical frequencies, of side \uSideSmall{} and
+\uSideLarge{}, with nearest-neighbour, exponential and power-law kernels of
+tail exponent $\sigma=1$ and $\sigma=3$ at a common row sum, follow the harmonic
+identity in the ordered phase. The measured phase variance is at most
+\uHarmonicRatioLow{} times $D\,R_{\mathrm{eff}}$ at $D=\uNoiseLow$ and at most
+\uHarmonicRatioMid{} times at $D=\uNoiseMid$, the excess rising with noise as
+the cosine coupling softens, and a logarithm fits its growth with distance
+better than a line in \uLogarithmicRuns{} of the \uOrderedRuns{} runs at those
+noise levels. At $D=\uNoiseHigh$ the nearest-neighbour sheet disorders: the
+mean chord discrepancy $\langle 1-\cos(\theta_a-\theta_b)\rangle$ at the
+largest separation is \uChordNearestHigh{}. The exponential and $\sigma=1$
+sheets stay ordered at that noise (\uChordExponentialHigh{} and
+\uChordSigmaOneHigh{}), and the $\sigma=3$ sheet nearly disorders
+(\uChordSigmaThreeHigh{}), so the kernel's width sets the order--disorder
+crossover as well as the rate of decay. Exact resistance sums at sheet sides
+\uScalingSideA{}, \uScalingSideB{} and \uScalingSideC{} separate width from
+tail. The exponential kernel, with \uStiffnessRatio{} times the
+nearest-neighbour stiffness, gives resistance at half the side of
+\uFarExponentialA{}, \uFarExponentialB{} and \uFarExponentialC{}, still
+growing; the $\sigma=1$ tail gives \uFarSigmaOneA{}, \uFarSigmaOneB{} and
+\uFarSigmaOneC{}, and the $\sigma=3$ tail, steeper than $r^{-4}$, gives
+\uFarSigmaThreeA{}, \uFarSigmaThreeB{} and \uFarSigmaThreeC{}, growing as a
+short-range kernel does.
+
 \section{Formal results}
 \label{app:formal}
 
@@ -504,24 +640,27 @@ Lean's foundational axioms \texttt{propext}, \texttt{Classical.\allowbreak{}choi
 development. Small concrete models in \texttt{Examples/} meet the hypotheses
 of the bounds and show where they are attained.
 
-\begin{table}[h]
-\centering
-\small
+{\small
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.47\textwidth}c>{\raggedright\arraybackslash}p{0.34\textwidth}}
 \caption{The paper's formal results and the Lean declarations that carry them.}
-\label{tab:formal}
-\begin{tabular}{>{\raggedright\arraybackslash}p{0.47\textwidth}c>{\raggedright\arraybackslash}p{0.34\textwidth}}
+\label{tab:formal} \\
 \hline
 Result & Section & Declaration \\
 \hline
+\endfirsthead
+\hline
+Result & Section & Declaration \\
+\hline
+\endhead
 A readout with a margin, under continuous micro dynamics, has no graded dependence on any region & \ref{sec:enforcement} & \texttt{not\_\allowbreak{}physicallyEnforced\_\allowbreak{}of\_\allowbreak{}margin} \\
 The same for any content read from a finite word of thresholded continuous quantities & \ref{sec:enforcement} & \texttt{not\_\allowbreak{}physicallyEnforced\_\allowbreak{}of\_\allowbreak{}bits} \\
 A thresholded continuous quantity has a margin off its threshold & \ref{sec:enforcement} & \texttt{hasMargin\_\allowbreak{}threshold} \\
 A category read from a carrier depends gradedly on a region only where the carrier does & \ref{sec:enforcement} & \texttt{GradedDependence.of\_\allowbreak{}comp} \\
 Every function of a bit word, after steps that keep the bits off their thresholds, depends gradedly on no region & \ref{sec:enforcement} & \texttt{not\_\allowbreak{}gradedDependence\_\allowbreak{}iterate\_\allowbreak{}of\_\allowbreak{}bits} \\
-Shells in series bound the effective conductance & \ref{sec:reach} & \texttt{conductance\_\allowbreak{}le\_\allowbreak{}shell} \\
-Crossing coupling at most $c\,(k+1)$ gives resistance at least $\log(n+1)/c$ & \ref{sec:reach} & \texttt{conductance\_\allowbreak{}mul\_\allowbreak{}log\_\allowbreak{}le} \\
-An averaging chain from $a$ to $b$ bounds the resistance by $2(\sum_k \rho_k)^2$ & \ref{sec:reach} & \texttt{one\_\allowbreak{}le\_\allowbreak{}conductance\_\allowbreak{}of\_\allowbreak{}chain} \\
-A tail $K(r)\gtrsim r^{-(2+\sigma)}$ with $\sigma<2$ bounds the conductance below at every distance & \ref{sec:reach} & \texttt{le\_\allowbreak{}conductance\_\allowbreak{}of\_\allowbreak{}powerLaw} \\
+Shells in series bound the effective conductance & \ref{app:reach} & \texttt{conductance\_\allowbreak{}le\_\allowbreak{}shell} \\
+Crossing coupling at most $c\,(k+1)$ gives resistance at least $\log(n+1)/c$ & \ref{app:reach} & \texttt{conductance\_\allowbreak{}mul\_\allowbreak{}log\_\allowbreak{}le} \\
+An averaging chain from $a$ to $b$ bounds the resistance by $2(\sum_k \rho_k)^2$ & \ref{app:reach} & \texttt{one\_\allowbreak{}le\_\allowbreak{}conductance\_\allowbreak{}of\_\allowbreak{}chain} \\
+A tail $K(r)\gtrsim r^{-(2+\sigma)}$ with $\sigma<2$ bounds the conductance below at every distance & \ref{app:reach} & \texttt{le\_\allowbreak{}conductance\_\allowbreak{}of\_\allowbreak{}powerLaw} \\
 Adding coupling never raises the effective resistance & \ref{sec:reach} & \texttt{conductance\_\allowbreak{}mono} \\
 A direct coupling caps the resistance at its reciprocal & \ref{sec:reach} & \texttt{le\_\allowbreak{}conductance\_\allowbreak{}of\_\allowbreak{}edge} \\
 A Lipschitz encoder carries mean-square phase agreement to content agreement & \ref{sec:reach} & \texttt{integral\_\allowbreak{}dist\_\allowbreak{}sq\_\allowbreak{}le} \\
@@ -532,8 +671,10 @@ Contraction by $\kappa$ reaches $\varepsilon$ by step $\log(d_0/\varepsilon)/\lo
 A discrepancy shrinking by at most $\rho$ per step is above $\varepsilon$ before $\log(d_0/\varepsilon)/\log(1/\rho)$ & \ref{sec:window} & \texttt{lt\_\allowbreak{}disc\_\allowbreak{}iterate\_\allowbreak{}of\_\allowbreak{}lt\_\allowbreak{}log} \\
 Graded dependence of a bit word requires some bit exactly on its threshold & \ref{sec:ai} & \texttt{exists\_\allowbreak{}threshold\_\allowbreak{}of\_\allowbreak{}gradedDependence} \\
 A one-region change below $\delta/(L L_v)$ changes no bit & \ref{sec:ai} & \texttt{bits\_\allowbreak{}eq\_\allowbreak{}of\_\allowbreak{}lipschitz} \\
+Under noise, a one-region change below $r/L$ moves the probability of every event of the next content by at most the error rate & \ref{sec:enforcement} & \texttt{law\_\allowbreak{}le\_\allowbreak{}of\_\allowbreak{}marginRate} \\
+The same for anything computed from noisy bits, with error rate the probability of landing within $\delta$ of a threshold & \ref{sec:enforcement} & \texttt{bits\_\allowbreak{}law\_\allowbreak{}le\_\allowbreak{}of\_\allowbreak{}lipschitz} \\
 \hline
-\end{tabular}
-\end{table}
+\end{longtable}
+}
 
 \end{document}

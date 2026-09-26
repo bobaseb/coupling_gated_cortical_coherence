@@ -23,6 +23,44 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-26 — Unity paper: P above the noise floor (U24–U26)
+
+The physical-unity draft stated the digital exclusion for a deterministic micro
+dynamics and conceded, in Limitations, that "graded leakage in real hardware"
+would narrow its reach. Read on probability laws, as thermal noise forces,
+that concession was the whole objection: every gate's flip probability depends
+smoothly on its input, so the exclusion was an identity about a property below
+the noise floor of both substrates. P is now stated on laws, with a criterion
+fixed before either substrate was evaluated (`tasks/todo.md` U24): every
+sub-threshold change larger than the region's noise must move the next content
+by at least one fluctuation, `2Φ(1/2) − 1` in total variation. The exclusion is
+now a bound (`law_le_of_marginRate`, `bits_law_le_of_lipschitz`): response ≤
+error rate, below `10^-55400` for a declared 1 fF node. The cortical side passes
+on a cited estimate (a unitary EPSP shifts spike time by 1.5 jitters).
+The shell and dyadic-chain arguments and the simulation numbers moved from
+§reach to an appendix (U25), and the analog bridge is specified analog end to
+end (U26).
+
+---
+
+## 2026-09-25 — Unity paper: content by causal role, falsifiers on cortex (U23)
+
+The physical-unity draft said "we prove" the digital exclusion as though the
+theorem carried it; the proof is two lines of continuity, and the paper now
+says so and argues for the definitions instead. It said *only* a kernel tail
+slower than `r^−4` gives distance-independent agreement, with the converse
+numerical; it now states the converse for kernels of finite second moment,
+from the classical recurrence criterion (Chung–Fuchs, Doyle–Snell), and cites
+Kunz–Pfister for the same threshold beyond the harmonic approximation. It
+listed a graded shift below a digital system's noise margin as an outcome that
+would count against P; the margin theorem makes that outcome impossible on
+hardware operating inside its margins, so the artificial-side predictions are
+now called consequences of the theorem and the tests of P are the cortical
+ones, led by the matched-transfer-entropy bridge. Content was fixed by
+decodability alone, which side-channel decoding of digital voltages would have
+satisfied; it is now fixed by causal role (a variable the system's own dynamics
+reads) together with decodability. Record: `tasks/todo.md` U23.
+
 ## 2026-09-25 — The synaptic deadline uses the fastest axons (U9, U15)
 
 The physical-unity draft gave the synaptic causal deadline across the cortex as

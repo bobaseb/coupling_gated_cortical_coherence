@@ -394,6 +394,122 @@ Human evidence for P:
   decodability cover decides, as for any content); a carrier could otherwise
   be gerrymandered as the raw micro state.
 
+- [x] **U23 — Review pass on the unity paper (2026-09-25).** Seven points
+  from a read-through, all prose, no Lean change (`GradedDependence` and
+  `HasMargin` already take any readout). (1) The margin theorem is said to be
+  short; the definitions carry the weight. (2) Content fixed by causal role
+  plus decodability; side-channel decoding (Kocher et al. 1999) is the
+  counterexample to decodability alone; §synchrony folded into §cover.
+  (3) Artificial-side predictions are consequences of the margin theorem, not
+  tests of P; claim 3 now names the cortical prediction and the bridge, which
+  leads §tests. (4) §reach anchored in recurrence/resistance (Doyle–Snell
+  1984, Chung–Fuchs 1951) and long-range order for 2<α<4 (Kunz–Pfister 1976),
+  all verified online; the finite-second-moment converse is now cited rather
+  than numerical. (5) Motivating paragraph for P in §intro (one state vs many
+  records kept consistent by a protocol). Smaller: gate gain contracts to
+  the rails, not toward agreement (§ai); split brain shortened to the
+  confound it shares with every current manipulation. §window left in place
+  (10 pages). Open: whether the causal-role definition of content needs a
+  Lean predicate (it is prose only; the theorem takes π as given).
+
+- [x] **U24 — The noise objection: P above the noise floor.** Raised
+  2026-09-25, and the gate on posting the U paper. The margin theorem is
+  stated for a deterministic `f`. With thermal noise, a gate's flip
+  probability is a smooth, nowhere-zero function of its input voltage, so the
+  *distribution* of a digital machine's next content depends gradedly
+  (exponentially weakly) on every region. Cortex's graded dependence at small
+  scales is likewise buried in its own noise. Read stochastically, P stops
+  excluding digital hardware and the difference becomes one of degree. Read
+  deterministically, P singles out a property below the noise floor of both
+  systems, which invites the charge that it is epiphenomenal.
+  **Intent.** Make P quantitative. Graded dependence counts only above the
+  noise floor: the next content's response to a perturbation of one region
+  grows with the perturbation's size and exceeds the system's own
+  fluctuation in that content, from some scale down to the noise scale.
+  **Constraints.** Fix the criterion before checking where GPUs fall
+  (anti-gerrymandering, U11). State it on distributions of content, not on
+  a deterministic `f`. Cortex must be able to pass it on some physiological
+  estimate; if it cannot, report that rather than tuning the threshold.
+  **Targets.**
+  (a) Lean: a stochastic micro dynamics (Markov kernel), a *margin with
+  error rate* (content constant outside a set of probability ≤ ε on a radius
+  `r` ball), and a theorem bounding the total-variation response of the
+  next content to a one-region change below `δ/(L·L_v)` by the error rate.
+  This generalises `bits_eq_of_lipschitz` and `HasMarginRadius`
+  (`Phase10_PhysicalUnity.lean`) and adds no axioms (§8).
+  (b) State P as: response ≥ fluctuation over a range of perturbation
+  scales reaching down to the noise scale. Show that a digital system's
+  response is ≤ its error rate over that range, and that the error rate sits
+  orders of magnitude below its fluctuation (generated macros from a cited
+  bit-error-rate figure, AGENTS.md §3).
+  (c) Cortex: an estimate that sub-threshold input shifts spike timing by
+  more than its jitter at the scale P needs (cite the spike-time reliability
+  literature, verify online), as a generated macro.
+  (d) Prose: restate P in §intro, rework §enforcement and §ai leakage, and
+  replace the Limitations "graded leakage" sentence with the quantitative
+  scope. Table `tab:formal` gets the new rows.
+  **Success.** A referee who reads P stochastically still gets the digital
+  exclusion, now as a bound (response ≤ error rate ≪ fluctuation) rather
+  than an identity. The cortical side passes on a cited estimate, or the
+  paper says it does not.
+  **Criterion, fixed 2026-09-25 before any hardware or cortical number was
+  computed.** *Response* `R_i(η)`: the largest change that moving region `i`
+  by at most `η` makes to the probability of any event of the next content
+  (total variation). *Fluctuation*: `θ* = 2Φ(1/2) − 1 ≈ 0.38`, the total
+  variation a one-standard-deviation shift produces in a Gaussian carrier,
+  so `R ≥ θ*` reads "the change moves the content by as much as the content
+  fluctuates" and is distribution-free. *Noise amplitude* `σ_i`: the
+  standard deviation of the fluctuation of region `i`'s micro quantity that
+  feeds the carrier, in the units of the perturbation. *Threshold scale*
+  `Θ_i`: the smallest change of region `i` that crosses one of its
+  thresholds (a bit's margin; a neuron's firing threshold). **P above the
+  noise floor:** `R_i(η) ≥ θ*` for every `η` in `[σ_i, Θ_i)`: every
+  sub-threshold change larger than the noise moves the content by at least
+  one fluctuation. No constant in it was chosen after looking at either
+  substrate: `θ*` is the Gaussian identity and the range's ends are the
+  system's own scales.
+  *Done 2026-09-25:* (a) Lean, `Phase10_PhysicalUnity` "The margin under
+  noise": `HasMarginRate`, `HasMarginRadius.hasMarginRate`,
+  `content_ne_le_of_marginRate`, `law_le_of_marginRate`,
+  `bits_law_le_of_lipschitz` (any `q` of the bit word). Random-map form of
+  the noise; probabilities of arbitrary sets (outer measure), so no
+  measurability assumed. Witness §38 `kick_bound`/`kick_attains`: a noisy bit
+  whose response to a half-margin change equals its error rate, under every
+  noise law. Axiom audit clean. (b, c) `unity_estimates.noise_floor()`:
+  digital, kT/C on a declared 1 fF node (Johnson 1928, Nyquist 1928) against
+  Rabaey's 1.03 V margin: margin/noise 506, response at one noise amplitude
+  below 10^-55400 (Kish 2002 tail), reaching θ* only within 0.059% of the
+  margin width of the threshold. Cortex: shift/jitter = ΔV/σ_V at a linear
+  crossing (slope cancels); unitary EPSP 1.3 mV, c.v. 0.52 (Markram 1997),
+  membrane noise 0.54 mV at −55 mV (Jacobson 2005), spike generation quiet
+  (Mainen–Sejnowski 1995): d′ 1.5, TV 0.55; every input above 0.63 mV passes.
+  All six references verified online (Crossref/Europe PMC). (d) Abstract,
+  §intro P and claim 1, two §enforcement paragraphs, §ai leakage sentence,
+  Limitations scope, two `tab:formal` rows (table now a `longtable`).
+  Open: the node capacitance is declared, not cited; the cortical numbers are
+  in vitro, one connection type.
+- [x] **U25 — Rebalance for a consciousness venue.** §reach is heavy
+  statistical physics and the philosophical core is about two pages. Move the
+  shell and dyadic-chain arguments and the numerical detail to an appendix,
+  leaving the statements, the classical anchoring and the kernel-width
+  conclusion in the main text. Decide at the same time whether §window stays
+  in the main text (it is the section most loosely tied to the thesis). Do
+  this after U24, which grows §enforcement.
+  *Done 2026-09-26:* new appendix `app:reach` holds the shell argument, the
+  dyadic chain and the simulation paragraph; §reach keeps the statements, the
+  classical anchoring, the kernel-width conclusion and the encoder results.
+  §window stays: the attractor test takes its relaxation rate and the
+  field-cone test its causal deadline from it.
+- [x] **U26 — The analog bridge must be analog end to end.** Most
+  closed-loop stimulation rigs digitize the recording before driving the
+  stimulator, which would run the quantized condition in both arms. §tests
+  needs one sentence specifying an analog signal path (analog filter and
+  gain driving the stimulator) with no digital stage, plus a check that the
+  quantized loop's resolution is what sets its matched transfer entropy.
+  *Done 2026-09-26:* §tests: analog filter and amplifier driving the
+  stimulator, no digitizing stage; stepping the quantized loop's resolution
+  checks that its transfer entropy rises with it.
+
 Relation to the companion (raised 2026-09-25):
 
 - [ ] **U19 — State the E78 → U1 bridge in both papers.** The companion's
