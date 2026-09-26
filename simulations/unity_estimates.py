@@ -30,6 +30,20 @@ time's shift under a sub-threshold input ``ΔV`` is ``ΔV / V̇`` and its jitter
 slope; ``σ_V`` combines the membrane noise with the input's own release
 variability.
 
+The bridge (U28) applies the same criterion to the two loops of the bridged
+preparation. Since the response is a supremum over changes of at most ``η``,
+the criterion at a state reduces to the response at the region's own noise
+``σ_A``. The analog loop, Gaussian noise ``σ`` in the region's units, passes
+exactly when ``σ ≤ σ_A``. The quantized loop, step ``Δ`` far above the
+recording noise ``σ_n``, responds only by carrying mass across an edge, and
+fails at every state farther than ``σ_A + z* σ_n`` from one, where
+``Q(z*) = θ*``; states are taken uniform within a step. Matching the loops'
+information by adding noise to the analog one sets ``σ = Δ / sqrt(2πe)`` in
+the high-resolution limit, so a passing analog arm caps the step at
+``sqrt(2πe) σ_A`` and the quantized arm fails at no more than
+``1 − 2 / sqrt(2πe)`` of its states. Matching by the analog loop's bandwidth
+adds no noise and leaves the step free.
+
 References:
   Nunez & Srinivasan 2014, Brain Res 1542:138-166 (fibres up to 15-20 cm)
   Caminiti et al. 2009, PNAS 106:19551-19556 (median velocities 4.9-8.8 m/s,
@@ -82,6 +96,8 @@ BOLTZMANN_J_K = 1.380649e-23
 TEMPERATURE_K = 300.0
 # Declared, not measured: a logic node of one femtofarad.
 NODE_CAPACITANCE_F = 1e-15
+# Declared, not measured: the bridge's quantizer step, in region noise amplitudes.
+BRIDGE_STEP_TO_NOISE = 10.0
 EPSP_MV = 1.3
 EPSP_CV = 0.52
 MEMBRANE_NOISE_MV = 0.54
@@ -189,6 +205,48 @@ def noise_floor() -> dict[str, float]:
     }
 
 
+def analog_passes(region_noise: float, loop_noise: float) -> bool:
+    """Whether a Gaussian loop's response to a change of ``region_noise`` reaches θ*."""
+    return tv_of_shift(region_noise / loop_noise) >= FLUCTUATION_TV
+
+
+def edge_response(distance: float, change: float, recording_noise: float) -> float:
+    """Total variation a ``change`` toward an edge ``distance`` away carries across it."""
+    return normal_cdf((change - distance) / recording_noise) - normal_cdf(
+        -distance / recording_noise
+    )
+
+
+def fail_distance(region_noise: float, recording_noise: float) -> float:
+    """Beyond this distance from an edge the quantized loop's response stays below θ*."""
+    return region_noise + inverse_gaussian_tail(FLUCTUATION_TV) * recording_noise
+
+
+def matched_noise(step: float) -> float:
+    """Analog noise carrying a fine quantizer's information about a broad signal."""
+    return step / math.sqrt(2 * math.pi * math.e)
+
+
+def quantized_fail_fraction(step: float, region_noise: float, recording_noise: float) -> float:
+    """Fraction of states, uniform within a step, at which the quantized loop fails."""
+    return max(0.0, 1 - 2 * fail_distance(region_noise, recording_noise) / step)
+
+
+def bridge() -> dict[str, float]:
+    """The U28 check: where the bridge's two loops fall on opposite sides of P."""
+    # A passing analog arm matched by noise has matched_noise(step) ≤ σ_A.
+    widest = matched_noise(1.0) ** -1
+    return {
+        "edgeQuantile": inverse_gaussian_tail(FLUCTUATION_TV),
+        "matchedNoiseToStep": matched_noise(1.0),
+        "noiseMatchMaxStep": widest,
+        "noiseMatchFailPercent": 100 * quantized_fail_fraction(widest, 1.0, 0.0),
+        "bridgeStepToNoise": BRIDGE_STEP_TO_NOISE,
+        # Recording noise at its largest passing value, the region's own.
+        "bandMatchFailPercent": 100 * quantized_fail_fraction(BRIDGE_STEP_TO_NOISE, 1.0, 1.0),
+    }
+
+
 def estimates() -> dict[str, float]:
     """Every published quantity, in the units the paper states it."""
     cone_slow = cone_delay(FIBRE_LENGTH_M, VELOCITY_SLOW_M_S, SYNAPTIC_DELAY_S)
@@ -216,6 +274,7 @@ def estimates() -> dict[str, float]:
         "supplyPercent": 100 * SUPPLY_VARIATION,
         "noiseToMargin": SUPPLY_VARIATION * SUPPLY_V / NOISE_MARGIN_V,
         **noise_floor(),
+        **bridge(),
     }
 
 

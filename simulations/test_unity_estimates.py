@@ -89,6 +89,38 @@ class NoiseFloorTest(unittest.TestCase):
         self.assertAlmostEqual(ue.shift_to_jitter(epsp=1.0, cv=0.3, noise=0.4), 2.0)
 
 
+class BridgeTest(unittest.TestCase):
+    def test_the_analog_arm_passes_exactly_when_its_noise_is_at_most_the_regions(self) -> None:
+        self.assertTrue(ue.analog_passes(region_noise=1.0, loop_noise=1.0))
+        self.assertTrue(ue.analog_passes(region_noise=1.0, loop_noise=0.5))
+        self.assertFalse(ue.analog_passes(region_noise=1.0, loop_noise=1.01))
+
+    def test_the_quantized_arm_fails_beyond_its_fail_distance(self) -> None:
+        for recording in (0.01, 0.3, 1.0):
+            far = ue.fail_distance(region_noise=1.0, recording_noise=recording)
+            for distance in (far, 1.5 * far, 5 * far):
+                response = ue.edge_response(distance, 1.0, recording)
+                self.assertLess(response, ue.FLUCTUATION_TV)
+
+    def test_the_quantized_arm_passes_close_to_an_edge(self) -> None:
+        self.assertGreater(ue.edge_response(0.5, 1.0, 0.1), ue.FLUCTUATION_TV)
+
+    def test_the_noise_matched_analog_loop_has_the_entropy_matched_noise(self) -> None:
+        self.assertAlmostEqual(ue.matched_noise(1.0), 1 / math.sqrt(2 * math.pi * math.e))
+
+    def test_noise_matching_separates_the_arms_at_about_half_the_states(self) -> None:
+        ceiling = ue.bridge()["noiseMatchFailPercent"]
+        self.assertAlmostEqual(ceiling, 100 * (1 - 2 / math.sqrt(2 * math.pi * math.e)))
+        self.assertLess(ceiling, 55.0)
+
+    def test_bandwidth_matching_separates_them_at_most_states(self) -> None:
+        self.assertGreater(ue.bridge()["bandMatchFailPercent"], 70.0)
+        coarse = ue.quantized_fail_fraction(step=20.0, region_noise=1.0, recording_noise=1.0)
+        fine = ue.quantized_fail_fraction(step=10.0, region_noise=1.0, recording_noise=1.0)
+        self.assertGreater(coarse, fine)
+        self.assertEqual(ue.quantized_fail_fraction(1.0, 1.0, 1.0), 0.0)
+
+
 class GeneratedFileTest(unittest.TestCase):
     def test_the_committed_file_matches_the_script(self) -> None:
         self.assertEqual(ue.OUTPUT.read_text(encoding="utf-8"), ue.render())

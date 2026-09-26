@@ -510,10 +510,26 @@ digitizes the recording before driving the stimulator would run the quantized
 condition in both arms. The \emph{quantized loop}'s output is read from bits, so
 it has a margin.
 
-The two loops must carry the same information. Noise added to the analog loop
-matches the transfer entropy it carries, estimated from the recorded activity,
-to the quantized loop's. Stepping the quantized loop's resolution checks that
-its transfer entropy rises with the resolution, so that the resolution, and not
+The two loops must carry the same information and fall on opposite sides of P.
+Section~\ref{sec:enforcement} fixes what the second condition means: a change
+of the recorded region by its own noise amplitude must move the analog loop's
+output by at least the fluctuation, and the quantized loop's output by less.
+The analog loop passes exactly when its noise, in the region's units, is at
+most the region's own. The quantized loop fails at every state farther from a
+quantization edge than the region's noise plus \ueEdgeQuantile{} times the
+recording noise, so its step must be many times both. Matching information by
+adding noise to the analog loop defeats this. At matched information the added
+noise is \ueMatchedNoiseToStep{} of the quantizer's step, so an analog loop
+that still passes caps the step at \ueNoiseMatchMaxStep{} noise amplitudes of
+the region, and the quantized loop then fails at no more than
+\ueNoiseMatchFailPercent\% of its states, taking states as uniform within a
+step. The analog loop's bandwidth is lowered instead, with no noise added,
+until the transfer entropy it carries, estimated from the recorded activity,
+matches the quantized loop's. The step is then free: at a step of
+\ueBridgeStepToNoise{} noise amplitudes, with recording noise no larger than
+the region's own, the quantized loop fails at \ueBandMatchFailPercent\% of its
+states or more. Stepping the quantized loop's resolution checks that its
+transfer entropy rises with the resolution, so that the resolution, and not
 recording noise, sets the matched value. The two loops then carry the same
 information, and only the analog one couples the regions gradedly.
 
