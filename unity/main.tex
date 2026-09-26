@@ -298,7 +298,11 @@ the cell.
 \section{How far a physical coupling enforces agreement}
 \label{sec:reach}
 
-The intuition is simple. If each patch of cortex is tied only to its near
+P asks the coupling to contract disagreement between every pair of regions
+whose contents are unified, and the regions a single scene joins lie up to
+\ueFibreCm{}~cm apart. P can hold for a whole scene only if the coupling
+enforces agreement at those distances, and this section finds which couplings
+do. The intuition is simple. If each patch of cortex is tied only to its near
 neighbours, agreement has to pass from hand to hand, and a little of it leaks
 away at every hand, so distant patches drift apart. If there are enough direct
 ties across long distances, agreement can hold everywhere. This section makes
@@ -386,7 +390,10 @@ field.
 \section{The unity window}
 \label{sec:window}
 
-Agreement between two regions has a timing problem at both ends. Too early, and
+P asks the coupling to contract disagreement, and a contraction that finishes
+after the content has changed enforces agreement only on a content that has
+already been replaced. This section states when the contraction finishes in
+time. Agreement between two regions has a timing problem at both ends. Too early, and
 the influence of one region has not yet reached the other. Too late, and the
 content has already changed. Between the two lies a window, and unity at a given
 time scale requires that window to be open.
