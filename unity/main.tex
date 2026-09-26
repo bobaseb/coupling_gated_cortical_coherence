@@ -361,36 +361,43 @@ field.
 \section{The unity window}
 \label{sec:window}
 
-Agreement cannot arrive before the causal cone of the coupling allows, and
-disagreement decays at the relaxation rate of the coupling. Unity at a given
-time scale requires the interval between the two to be nonempty.
+Agreement between two regions has a timing problem at both ends. Too early, and
+the influence of one region has not yet reached the other. Too late, and the
+content has already changed. Between the two lies a window, and unity at a given
+time scale requires that window to be open.
 
-The lower edge is causal. A report at one site that tracks a variable at
-another to within $\varepsilon$, for two values of the variable more than
-$2\varepsilon$ apart, is possible after $T$ rounds of the coupling only if the
-second site lies in the first site's causal past for $T$ rounds. The upper edge is relaxation. If the
-coupling contracts the overlap discrepancy by a factor $\kappa<1$ at every step
-on a set of states it keeps, a discrepancy starting at most $d_0$ is at most
-$\varepsilon$ from step $\log(d_0/\varepsilon)/\log(1/\kappa)$ on. The estimate is sharp in form: a
+\paragraph{The early edge: signals must arrive.} Agreement cannot arrive before
+the coupling's causal cone allows. Precisely, a report at one site that tracks a
+variable at another to within $\varepsilon$, for two values of the variable more
+than $2\varepsilon$ apart, is possible after $T$ rounds of the coupling only if
+the second site lies in the first site's causal past for $T$ rounds.
+
+\paragraph{The late edge: disagreement must settle.} Disagreement decays at the
+relaxation rate of the coupling. If the coupling shrinks the overlap discrepancy
+by a factor $\kappa<1$ at every step, on a set of states it keeps, a discrepancy
+that starts at most $d_0$ is at most $\varepsilon$ from step
+$\log(d_0/\varepsilon)/\log(1/\kappa)$ on. The estimate is sharp in form: a
 discrepancy that shrinks by at most a factor $\rho$ per step is still above
-$\varepsilon$ at every earlier step than $\log(d_0/\varepsilon)/\log(1/\rho)$. The window opens at the later of the
-causal deadline and the relaxation time, and unity at the time scale of a
-content requires it to open before that content changes.
+$\varepsilon$ at every step before $\log(d_0/\varepsilon)/\log(1/\rho)$. The
+window opens at the later of the causal deadline and the relaxation time, and
+unity at the time scale of a content requires it to open before that content
+changes.
 
-In cortex the longest cortico-cortical fibres run about \ueFibreCm{}~cm
-\citep{nunez2014}, callosal axons conduct at median velocities of
-\ueVelocitySlow{} to \ueVelocityFast{}~m/s and the fastest of them at up to
-\ueVelocityMax{}~m/s \citep{caminiti2009}, and a chemical synapse adds about
-\ueSynapseMs{}~ms \citep{katz1965,sabatini1996}. The synaptic causal deadline
-across the cortex is therefore \ueConeMaxMs{}~ms along the fastest axons, and
-typical synaptic arrival takes \ueConeFastMs{} to \ueConeSlowMs{}~ms. The unconscious integration
-that precedes a conscious percept lasts up to \ueContentMs{}~ms
-\citep{herzog2016}. Reading agreement as a \ueReduction{}-fold reduction of
-disagreement, decaying exponentially, the window at that time scale is
-nonempty when the coupling's relaxation time is at most \ueTauSlowMs{}~ms with
-typical arrival along the slower fibres and \ueTauFastMs{}~ms along the faster. The causal deadline
-thus takes a small part of the content's time scale, and whether the window
-opens turns on the relaxation time.
+\paragraph{A worked example for cortex.} The longest cortico-cortical fibres run
+about \ueFibreCm{}~cm \citep{nunez2014}. Callosal axons conduct at median
+velocities of \ueVelocitySlow{} to \ueVelocityFast{}~m/s, and the fastest of
+them at up to \ueVelocityMax{}~m/s \citep{caminiti2009}. A chemical synapse
+adds about \ueSynapseMs{}~ms \citep{katz1965,sabatini1996}. The earliest a
+synaptic signal can cross the cortex is therefore \ueConeMaxMs{}~ms, along the
+fastest axons, and typical arrival takes \ueConeFastMs{} to \ueConeSlowMs{}~ms.
+For the time scale of a content, take the unconscious integration that precedes
+a conscious percept, which lasts up to \ueContentMs{}~ms \citep{herzog2016}.
+Count agreement as reached when disagreement has fallen \ueReduction{}-fold,
+decaying exponentially. The window is then open when the coupling's relaxation
+time is at most \ueTauSlowMs{}~ms with typical arrival along the slower fibres,
+and \ueTauFastMs{}~ms along the faster. Signal travel thus uses only a small
+part of the time available, and whether the window opens depends on how fast
+the coupling settles.
 
 \section{Current artificial systems}
 \label{sec:ai}
