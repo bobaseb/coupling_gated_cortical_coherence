@@ -372,11 +372,15 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   verify authors, titles, years and venues online per AGENTS.md §4 before
   citing). One or two sentences each in §related: where P's margin
   definition agrees or differs.
-- [ ] **U64 — Split "Counting systems at the noise floor".** About 50 lines
+- [x] **U64 — Split "Counting systems at the noise floor".** About 50 lines
   in one paragraph (§enforcement); the lines after "The count looks strange"
   read as patched in. Three paragraphs: the scale the parts supply; the chip
   under the noisy margin theorem; the dialectic. Do after U65/U59/U60, which
   may rewrite it.
+  *Done 2026-09-27:* split into 'Counting systems at the noise floor' (the
+  scale the parts supply), 'The chip, counted' (the chip under the noisy
+  margin theorem) and 'What the premise rests on' (the two claims that fix the
+  grain). Text otherwise unchanged.
 
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
