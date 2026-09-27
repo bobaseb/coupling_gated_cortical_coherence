@@ -93,10 +93,19 @@ algorithm's grain, and it fails P, because its agreement is computed. At P's
 grain cortex and mainstream digital chips come apart; at the algorithm's they
 do not. The bridge of Section~\ref{sec:tests} holds fixed the information two
 regions exchange and varies the grain of their coupling, so it asks whether
-unity tracks P's grain or the information exchanged. The reason to hold P is that unified contents are parts of
-one total state, a rule that computes their agreement only adds another record,
-and parts form one state when they interact at every scale between their own
-noise and their own thresholds (Section~\ref{sec:enforcement}). Physical systems are noisy, so P is read on the
+unity tracks P's grain or the information exchanged.
+
+P rests on two premises, argued in Section~\ref{sec:enforcement}. The first is
+an account of unity: unified contents are parts of one total experience, so
+they need one physical system to carry them. The second is how physics counts
+systems: parts are one system when they interact at every scale between their
+own noise and their own thresholds. Everything else in the argument is a
+theorem. Content read through a margin responds to a region by at most its
+error rate, a rule that computes agreement among such records only adds another
+record and joins none of them into one system, and a graded reader joins the
+regions it reads.
+
+Physical systems are noisy, so P is read on the
 probability laws of contents. Graded dependence then counts above the noise
 floor: every sub-threshold change larger than the noise of what a carrier depends
 on must move the carrier's next content by at least as much as that content
@@ -123,7 +132,9 @@ The paper makes three claims:
 \end{enumerate}
 
 Every formal result in the paper is machine-checked in Lean~4, and
-Appendix~\ref{app:formal} maps each one to its declaration.
+Appendix~\ref{app:formal} maps each one to its declaration. The two premises
+are the steps that are argued rather than proved, and the bridge tests them
+together.
 
 \section{Unity as agreement over a cover of contents}
 \label{sec:cover}
@@ -176,6 +187,25 @@ readout, so the second stage does not wait on the first.
 
 \section{Physical enforcement versus routed agreement}
 \label{sec:enforcement}
+
+\paragraph{The argument in outline.} This section argues for P from two
+premises and proves the rest. The first, \emph{wholeness}, is an account of
+unity: unified contents are parts of one total experience, and being a part of
+a whole is not a further part of it \citep{bayne2010}. The second,
+\emph{counting}, is how physics counts systems once the parts fix the scale:
+two carriers are one system when every change of one between its own noise and
+its nearest threshold moves the other by at least the other's own fluctuation.
+Three results are then proved from the definitions below. The margin lemma and
+its noisy form bound the response of content read from bits by its error rate.
+Counted by the second premise, a region held by a margin is one system only
+with itself and drops out of every chain of couplings, corrections written back
+through it included, while a graded reader joins the regions it reads. And
+graded dependence above the noise floor at every overlap holds exactly when
+every overlapping pair is one system. Wholeness says that a unified experience
+needs one physical system to carry it, counting says what one system is, and the
+theorems say that records never make one while graded coupling does. Where
+cortex and a chip hold their carriers is measured, by the occupancy computation
+at the end of the section.
 
 The argument needs five definitions. Each is stated in words first.
 
@@ -250,8 +280,8 @@ radio for an hour \citep{block1978}, is the same program spread over a country.
 A criterion stated on content-level agreement gives all of these the same
 number of subjects, without any physical fact to consult in doing so.
 
-\paragraph{Unity is not one more content.} Experiences are unified when they are
-parts of a single total experience, the subject's experience at that time
+\paragraph{Unity is not one more content.} Wholeness takes experiences to be
+unified when they are parts of a single total experience, the subject's experience at that time
 \citep{bayne2010}. Being a part of a whole is not a further part of it, so the
 unity of two contents is not a third content alongside them. That fixes what can
 realise it. A \emph{record} here is a content held by a margin: its identity
@@ -288,34 +318,43 @@ where that state sits and is written nowhere. P asks for exactly this, which is
 why it is stated on how carriers depend on one another and not on what any rule
 computes about them.
 
-\paragraph{Counting systems at the noise floor.} Physics counts systems by
-interaction: parts form one system when their state does not factor into
-independent coordinates. Stated that crudely, the criterion makes every chip one
-system, since wires, a shared supply and crosstalk couple all of its voltages,
-and it makes Block's nation one system through its radios. Of the voltages this
-is correct. Unity, though, is a property of contents, and a chip reads its
-contents from its voltages through margins, so the question is whether the
-carriers factor, and at what scale. The parts supply the scale. A difference
-smaller than a part's own noise is erased by the part's own fluctuations, so the
-part does not hold it as a state. A difference larger than that noise is one the
-part holds, and the question is whether the other parts register it. A
-difference that crosses a threshold is a change of symbol, and another part
-registers it as a message: the exchange of records whose agreement, by the
-argument above, is one more record. What remains is the range between a part's
-noise and its nearest threshold. Two carriers are one system when every change
-of one in that range moves the other by at least the other's own fluctuation,
-and two systems when some such change leaves the other unmoved. This is the
-noise-floor reading of graded dependence given below, and the identity is
-proved: for carriers whose contents overlap, each depends gradedly above the
+\paragraph{Counting systems at the noise floor.} The second premise is
+argued in three steps from the criterion physics already uses. Physics counts
+systems by interaction: parts form one system when their joint state does not
+factor into independent coordinates. Applied at no particular scale, the
+criterion makes every chip one system, since wires, a shared supply and
+crosstalk couple all of its voltages, and it makes Block's nation one system
+through its radios. Of the voltages this is correct. Unity, though, is a
+property of contents, a chip reads its contents from its voltages through
+margins, and whether two coordinates factor depends on the resolution at which
+they are taken. The first step fixes the lower end of that resolution. A
+difference smaller than a part's own noise is not a state the part holds: its
+own fluctuations move its next state by more than the difference does, so the
+difference does not survive the part's next step as a distinguishable state,
+and a coordinate the part does not hold is not one along which it can be
+independent of anything. The second step fixes the upper end. A change that
+crosses one of a part's thresholds changes its symbol, and what another part
+registers of the crossing is the symbol, the same whatever graded state
+produced it. That registration is a message, the exchange of records whose
+agreement, by the previous paragraph, is one more record, so crossings join
+nothing that records do not. The third step applies the criterion in the range
+that remains. Two carriers are one system when every change of one between its
+noise and its nearest threshold moves the other by at least the other's own
+fluctuation. They are two systems when some such change leaves the other
+unmoved, since that change is a coordinate one of them holds and the other does
+not register, and their joint state factors along it. Both ends of the range
+are properties of each part, the size of its noise and the position of its
+thresholds, so nobody chooses the scale to separate brains from chips.
+
+This is the noise-floor reading of graded dependence given below, and the
+identity is proved: for carriers whose contents overlap, each depends gradedly above the
 noise floor on every carrier it overlaps exactly when every overlapping pair is
 one system in this sense. A region holds many carriers, and a noisy carrier
 registers another only while it sits near its own threshold, as measured below.
 Two regions are therefore one system when some carrier of each registers some
 carrier of the other, and P asks this within every window of the contents' time
 scale. Asking it of some carriers is strictly weaker than asking it of all: a
-state exists at which the first holds and the second fails. The scale runs from
-a part's own noise to its own threshold, so nobody chooses it to separate
-brains from chips.
+state exists at which the first holds and the second fails.
 
 \paragraph{The chip, counted.} A chip fails the count by design. A bit's margin
 spans \ueMarginToNoise{} of its noise amplitudes, and no other bit registers a
@@ -351,14 +390,10 @@ about the system that the criterion reads and does not set.
 
 \paragraph{What the premise rests on.} Cortex passes the count within every
 window, as shown below, and P asks exactly this of the regions whose contents
-are unified. The premise thus rests on two claims: a unified experience is one
-total state, so it needs one physical state to carry it and not a set of
-records, and carriers are one state when they interact at every scale between
-their own noise and their own thresholds. The first is an account of unity, and
-the second is how physics counts systems once the parts fix the scale. Together
-they fix the grain at which unity is stated: the first asks for one physical
-state, and the second says at which scale physics counts one. The bridge of
-Section~\ref{sec:tests} tests them together.
+are unified. P thus rests on wholeness and counting, and every step between
+them is proved: wholeness asks for one physical state, and counting says at
+which scale physics counts one. The bridge of Section~\ref{sec:tests} tests
+them together.
 
 \paragraph{Gradual replacement.} The standard objection to a substrate
 condition replaces a brain's neurons one at a time by digital units that compute

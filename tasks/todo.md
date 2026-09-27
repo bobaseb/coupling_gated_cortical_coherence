@@ -577,7 +577,7 @@ it to about 7.*
   Claim 1, §tests opening, related work (Butlin, Kleiner) and 'Human evidence'
   now say the bridge separates the graded grain from the information
   exchanged, not from the algorithmic grain.
-- [ ] **U77 — The weight rests on prose, not on the theorems.** The margin
+- [x] **U77 — The weight rests on prose, not on the theorems.** The margin
   lemma is "elementary by design", so the Lean results verify what follows
   from the definitions. The contested steps are argued in prose: unity is
   not one more content (Bayne, cited), records cannot compose a whole, and
@@ -588,6 +588,16 @@ it to about 7.*
   them), give the noise-to-threshold scale its own argument rather than a
   paragraph of stipulation, and say plainly in the intro which steps are
   theorems and which are premises.
+  *Done 2026-09-27:* §enforcement opens with 'The argument in outline': two
+  named premises, wholeness (Bayne's mereological account) and counting (one
+  system = every change between noise and threshold registers), then the three
+  proved results, then what is measured. 'Counting systems at the noise floor'
+  is now a three-step argument from the physics criterion of non-factoring:
+  below noise a difference is not a held state, a threshold crossing is a
+  message (so a record, by the previous paragraph), and in the remaining range
+  an unregistered change is a coordinate along which the joint state factors.
+  The intro names the two premises as the argued steps and the rest as
+  theorems; 'What the premise rests on' shrinks to the conclusion.
 - [ ] **U78 — No figures.** Add at least (a) a bridge schematic: two regions,
   interrupted connection, analog vs quantized loop sharing filter, output
   stage and artefact subtraction; (b) one occupancy/yardstick plot: passing
