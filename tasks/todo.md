@@ -604,7 +604,7 @@ it to about 7.*
   fraction and per-window link probability for the membrane vs the bit
   (with U75(a)'s transients) across yardsticks. Figures come from saved
   summaries (AGENTS §3); check `check-figures` and `check-pdf-freshness`.
-- [ ] **U79 — §reach is loosely tied to P and mostly classical.** Its results
+- [x] **U79 — §reach is loosely tied to P and mostly classical.** Its results
   restate Mermin–Wagner, Chung–Fuchs recurrence and Kunz–Pfister ordering
   through effective resistance, and Claim 3 reads as carried over from the
   companion. U71 added the tie to P's two demands, and it is still a long
@@ -612,6 +612,15 @@ it to about 7.*
   Either shrink it to a page with the rest in app:reach, or make the link to
   the bridge/restoration tests carry the section. Decide whether Claim 3
   stays a numbered claim.
+  *Done 2026-09-27:* shrunk. §reach ('When and how far a coupling enforces
+  agreement') opens with P's two demands, then 'Agreement in time' (the
+  relaxation-time prediction the restoration test checks), then one 'Reach'
+  paragraph: resistance identity, the two classical bounds, the Lipschitz
+  encoder, and that centimetre restoration measures synaptic coupling. About a
+  page. Monotonicity, the direct-edge cap, the second-moment point, the
+  relative encoder and the companion's bridge assumption moved to app:reach
+  (retitled; four tab:formal rows now point there). Claim 3 stays numbered,
+  led by the relaxation-time prediction; the abstract says the same.
 - [ ] **U80 — Presentation.** (a) Paragraphs are long and abstract, and terms
   defined in words (carrier, record, reader, content, trace) pile up: add one
   running example carried through §cover–§ai. (b) "$10^{-53878}$"

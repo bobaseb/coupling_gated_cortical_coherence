@@ -42,8 +42,10 @@ that is attained, so a digital machine, clocked or clockless, fails the premise
 whatever algorithm it runs. Measured by
 one protocol over the states each occupies, a noisy cortical membrane passes
 near its threshold and reaches such a state within a percept's time scale,
-while a logic node passes at none of its states. On a noisy sheet of coupled
-oscillators, the coupling's reach decides how far phase agreement holds. We
+while a logic node passes at none of its states. Enforced agreement must arrive
+before the content changes, which bounds how slowly cortical coupling may relax,
+and on a noisy sheet of coupled oscillators the coupling's reach decides how far
+phase agreement holds. We
 state the preparation that runs the bridge and the
 cortical outcomes that would refute the premise.
 \end{abstract}
@@ -128,7 +130,7 @@ The paper makes three claims:
 \begin{enumerate}
 \claim{sec:tests}{When two cortical regions are bridged by an analog and by a quantized loop that carry the same information, in total and about the task, P predicts that unity follows the loop that couples them gradedly, which tests whether unity tracks the graded grain or the information the regions exchange; a weak, sub-threshold perturbation of one region should also shift the graded content decoded in an overlapping region toward agreement}
 \claim{sec:enforcement}{Under noise, content read from bits responds to a change of any region below its margin by at most its error rate, a bound that is attained, so content read from bits is not physically enforced, whatever algorithm the bits run. A region held by a margin drops out of every chain of couplings, corrections it writes back included, while a graded reader joins the regions it reads. Measured by one protocol over the states each occupies, a cortical membrane passes the noise-floor test near its threshold and visits such states within every window of a percept's time scale, while a logic node passes at none of its states}
-\claim{sec:reach}{On a noisy coupled sheet, disagreement in phase is effective resistance, so the coupling's reach decides how far phase agreement holds, and an encoder that reads phases relative to its neighbourhood turns it into content agreement that pays only for the field's local roughness}
+\claim{sec:reach}{Enforced agreement must arrive before the content changes, so P predicts that cortical coupling relaxes within \ueTauFastMs{}~ms across the cortex; on a noisy coupled sheet, disagreement in phase is effective resistance, so the coupling's reach decides how far phase agreement holds}
 \end{enumerate}
 
 Every formal result in the paper is machine-checked in Lean~4, and
@@ -558,49 +560,14 @@ the value that makes \emph{large} mean what it means for the carrier itself: a
 change that moves the content by as much as the content moves of its own
 accord.
 
-\section{How far a physical coupling enforces agreement}
+\section{When and how far a coupling enforces agreement}
 \label{sec:reach}
 
-P asks two things of the coupling: that it reach every pair of regions whose
-contents are unified, and that it pull their disagreement back before the
-content changes. This section states what a physical coupling needs for each,
-and the restoration test of Section~\ref{sec:tests} measures whether cortex
-has it. The pairs lie up to \ueFibreCm{}~cm apart if a scene's contents
-span the cortex, and about \ueLocalCm{}~cm if they are confined to a posterior
-zone. On a noisy sheet of coupled oscillators sharing one natural frequency, in
-the harmonic approximation, the variance of the phase difference between two
-sites is the noise strength times their \emph{effective resistance}: the
-resistance a meter would read between them if each coupling were a wire whose
-conductance is the coupling's strength. Disagreement in phase is therefore
-resistance, and classical results on resistance decide how far phase agreement
-reaches (Appendix~\ref{app:reach}, where simulated sheets follow the identity in
-the ordered phase). Under coupling of bounded range the resistance grows at
-least logarithmically with distance, the Gaussian form of the absence of true
-long-range order in two dimensions \citep{mermin1966}. A kernel whose tail
-falls off more slowly than $r^{-4}$ bounds it at every distance, the threshold
-at which a random walk with the kernel's jumps escapes
-\citep{chung1951,doyle1984} and the plane rotator orders at low noise
-\citep{kunz1976}. Adding coupling never raises the resistance, and a direct
-coupling caps it at its reciprocal. Across a finite cortex a wide short-range
-kernel and a slow tail differ by a slowly growing logarithm, so telling them
-apart takes a measurement of the kernel's second moment as well as of its tail.
-In cortex the long-range part is synaptic, since the field of a local source
-falls below detection within millimetres (Section~\ref{sec:tests}).
-
-\paragraph{From phases to contents.} A Lipschitz encoder, whose output changes
-by at most $L$ times any change in its input, carries phase agreement to content
-agreement: at noise strength $D$ the root-mean-square content discrepancy
-between two sites is at most $L\sqrt{D\,R_{\mathrm{eff}}}$. An encoder that reads
-the phases of a small neighbourhood relative to the phase at its centre does
-better. It reports one content at every site of a travelling plane wave or a
-winding, whatever the gradient, and for a wave plus a departure from it its
-discrepancy between two sites is at most its Lipschitz constant times the
-departure's relative readings there, so it pays for the local roughness of the
-field and for nothing else. Both bounds read one oscillator population per
-content patch. Across centimetres, where two territories describing one
-quantity need not be neighbours on the sheet, that reading is the companion's
-bridge assumption, and the coupling's reach bounds phase disagreement there
-directly and content disagreement through it.
+P asks two things of the coupling: that it pull the disagreement of unified
+contents back before the content changes, and that it reach every pair of
+regions whose contents are unified. The first gives the prediction that the
+restoration test of Section~\ref{sec:tests} checks, and the second says over
+what distances that test should find restoration.
 
 \paragraph{Agreement in time.} A contraction that finishes after the content has
 changed enforces agreement on a content already replaced, so enforced agreement
@@ -621,6 +588,26 @@ the coupling's relaxation time (Appendix~\ref{app:window}). P therefore
 predicts a cortical relaxation time of at most \ueTauFastMs{}~ms across the
 cortex and \ueTauLocalMs{}~ms within a posterior zone, and a slower restoration
 counts against it.
+
+\paragraph{Reach.} The pairs lie up to \ueFibreCm{}~cm apart if a scene's
+contents span the cortex, and about \ueLocalCm{}~cm if they are confined to a
+posterior zone. On a noisy sheet of coupled oscillators sharing one natural
+frequency, in the harmonic approximation, the variance of the phase difference
+between two sites is the noise strength times their \emph{effective
+resistance}: the resistance a meter would read between them if each coupling
+were a wire whose conductance is the coupling's strength. Classical results on
+resistance then decide how far phase agreement reaches
+(Appendix~\ref{app:reach}). Under coupling of bounded range the resistance
+grows at least logarithmically with distance, the Gaussian form of the absence
+of true long-range order in two dimensions \citep{mermin1966}, and a kernel
+whose tail falls off more slowly than $r^{-4}$ bounds it at every distance
+\citep{chung1951,kunz1976}. A Lipschitz encoder, whose output changes by at
+most $L$ times any change in its input, carries phase agreement to content
+agreement: at noise strength $D$ the root-mean-square content discrepancy
+between two sites is at most $L\sqrt{D\,R_{\mathrm{eff}}}$. In cortex the
+long-range part of the coupling is synaptic, since the field of a local source
+falls below detection within millimetres (Section~\ref{sec:tests}), so at
+centimetre distances the restoration test measures synaptic coupling.
 
 \section{Current artificial systems}
 \label{sec:ai}
@@ -1154,7 +1141,7 @@ flow co-vary in every manipulation available so far.
 
 \appendix
 
-\section{Resistance bounds and simulations}
+\section{Reach: resistance, encoders and simulations}
 \label{app:reach}
 
 The logarithmic growth is a lower bound for every kernel of bounded range. Group
@@ -1201,6 +1188,24 @@ Kosterlitz--Thouless transition \citep{frohlich1981}, an order--disorder
 crossover that the simulations below locate. When natural frequencies differ
 from site to site, short-range coupling fares worse still: phases then
 desynchronize in every dimension up to four \citep{hong2005}.
+
+Two further properties bound the resistance from above. Adding coupling never
+raises it, and a direct coupling caps it at its reciprocal. Across a finite
+cortex a wide short-range kernel and a slow tail differ by a slowly growing
+logarithm, so telling them apart takes a measurement of the kernel's second
+moment as well as of its tail.
+
+An encoder that reads the phases of a small neighbourhood relative to the phase
+at its centre does better than the Lipschitz bound of Section~\ref{sec:reach}.
+It reports one content at every site of a travelling plane wave or a winding,
+whatever the gradient, and for a wave plus a departure from it its discrepancy
+between two sites is at most its Lipschitz constant times the departure's
+relative readings there, so it pays for the local roughness of the field and
+for nothing else. Both bounds read one oscillator population per content patch.
+Across centimetres, where two territories describing one quantity need not be
+neighbours on the sheet, that reading is the companion's bridge assumption, and
+the coupling's reach bounds phase disagreement there directly and content
+disagreement through it.
 
 Simulated sheets at identical frequencies, of side \uSideSmall{} and
 \uSideLarge{}, with nearest-neighbour, exponential and power-law kernels of
@@ -1319,11 +1324,11 @@ Shells in series bound the effective conductance & \ref{app:reach} & \texttt{con
 Crossing coupling at most $c\,(k+1)$ gives resistance at least $\log(n+1)/c$ & \ref{app:reach} & \texttt{conductance\_\allowbreak{}mul\_\allowbreak{}log\_\allowbreak{}le} \\
 An averaging chain from $a$ to $b$ bounds the resistance by $2(\sum_k \rho_k)^2$ & \ref{app:reach} & \texttt{one\_\allowbreak{}le\_\allowbreak{}conductance\_\allowbreak{}of\_\allowbreak{}chain} \\
 A tail $K(r)\gtrsim r^{-(2+\sigma)}$ with $\sigma<2$ bounds the conductance below at every distance & \ref{app:reach} & \texttt{le\_\allowbreak{}conductance\_\allowbreak{}of\_\allowbreak{}powerLaw} \\
-Adding coupling never raises the effective resistance & \ref{sec:reach} & \texttt{conductance\_\allowbreak{}mono} \\
-A direct coupling caps the resistance at its reciprocal & \ref{sec:reach} & \texttt{le\_\allowbreak{}conductance\_\allowbreak{}of\_\allowbreak{}edge} \\
+Adding coupling never raises the effective resistance & \ref{app:reach} & \texttt{conductance\_\allowbreak{}mono} \\
+A direct coupling caps the resistance at its reciprocal & \ref{app:reach} & \texttt{le\_\allowbreak{}conductance\_\allowbreak{}of\_\allowbreak{}edge} \\
 A Lipschitz encoder carries mean-square phase agreement to content agreement & \ref{sec:reach} & \texttt{integral\_\allowbreak{}dist\_\allowbreak{}sq\_\allowbreak{}le} \\
-A relative encoder reports one content at every site of a wave & \ref{sec:reach} & \texttt{relContent\_\allowbreak{}eq\_\allowbreak{}of\_\allowbreak{}wave} \\
-A relative encoder's discrepancy is bounded by the departure from a wave & \ref{sec:reach} & \texttt{dist\_\allowbreak{}relContent\_\allowbreak{}le} \\
+A relative encoder reports one content at every site of a wave & \ref{app:reach} & \texttt{relContent\_\allowbreak{}eq\_\allowbreak{}of\_\allowbreak{}wave} \\
+A relative encoder's discrepancy is bounded by the departure from a wave & \ref{app:reach} & \texttt{dist\_\allowbreak{}relContent\_\allowbreak{}le} \\
 Tracking a remote variable requires it to lie in the causal past & \ref{sec:reach} & \texttt{mem\_\allowbreak{}ball\_\allowbreak{}of\_\allowbreak{}reconstructs} \\
 Contraction by $\kappa$ reaches $\varepsilon$ by step $\log(d_0/\varepsilon)/\log(1/\kappa)$ & \ref{sec:reach} & \texttt{disc\_\allowbreak{}iterate\_\allowbreak{}le\_\allowbreak{}of\_\allowbreak{}log\_\allowbreak{}le} \\
 A discrepancy shrinking by at most $\rho$ per step is above $\varepsilon$ before $\log(d_0/\varepsilon)/\log(1/\rho)$ & \ref{sec:reach} & \texttt{lt\_\allowbreak{}disc\_\allowbreak{}iterate\_\allowbreak{}of\_\allowbreak{}lt\_\allowbreak{}log} \\
