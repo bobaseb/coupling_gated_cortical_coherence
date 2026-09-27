@@ -102,7 +102,7 @@ comes back badly; above 6 needs data (a bridge pilot).
   Noted, not a defect: `GradedAboveNoise` is vacuous when Θ ≤ σ (a carrier
   within its noise of threshold); the bit theorems assume a change above the
   noise within the margin, so they are unaffected.
-- [ ] **U50 — Argue "one subject ⇒ one system at the noise floor", or reframe
+- [x] **U50 — Argue "one subject ⇒ one system at the noise floor", or reframe
   the abstract.** The step from "unity counts subjects" to "systems are
   counted by graded dependence above the noise floor" is asserted, and
   Block's nation and the scattered records are intuition pumps. A
@@ -111,16 +111,29 @@ comes back badly; above 6 needs data (a bridge pilot).
   "we argue that unity requires" to "we propose P and derive its
   consequences". Keep P stated plainly (memory: the author wants the premise
   stated, not hedged); this is about what the paper claims to have *shown*.
+  *Done 2026-09-27 with U52:* argued, abstract unchanged. New §enforcement
+  paragraph "Unity is not one more content": on Bayne's mereological account
+  (verified online) unity is parthood in one total experience, parthood is
+  not a further part, and computed agreement only writes another record
+  (a regress; a workspace's common reader included). The threshold-crossing
+  scale is excluded because it is that record exchange. The closing states
+  the dialectic: a functionalist rejecting P must reject one of two claims.
+  The intro's reason and Limitations "The premise" follow (an access account
+  of unity rejects the first step).
 - [ ] **U51 — Present the margin theorem as a lemma.** It is one step
   (continuous map into a locally constant readout). Put the contribution's
   weight on what is not trivial: the noise-floor criterion, the noisy margin
   bound and its attainment, and the occupancy measurement. Lean-checking a
   one-step lemma draws attention to how little is checked.
-- [ ] **U52 — "Each bit is a separate system" needs more than one paragraph.**
+- [x] **U52 — "Each bit is a separate system" needs more than one paragraph.**
   Physicists will read it as a redefinition, since crosstalk and a shared
   supply are real interactions. The whole paper rests on this move: expand
   the argument that the noise-floor scale belongs to the parts, and why
   sub-margin crosstalk does not count.
+  *Done 2026-09-27:* conceded, not denied: crosstalk and a shared supply make
+  the voltages one system; unity is of contents, read through margins, which
+  factor to within the error rate. "Its contents are as many systems as it has
+  bits, carried on voltages that form one."
 - [ ] **U53 — Demote or compress §reach.** The r^−4 threshold is classical
   (Chung–Fuchs, Kunz–Pfister), and the field estimate shows the
   non-synaptic tail dies within millimetres, so at centimetre scale the
