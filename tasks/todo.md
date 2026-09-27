@@ -163,7 +163,7 @@ comes back badly; above 6 needs data (a bridge pilot).
   (noise-scaled system count, contraction, the bridge) and says P's verdict is
   read from one measurement on both substrates, where IIT's is read from
   causal structure.
-- [ ] **U56 — Condition P on the companion's correlate; present a two-stage
+- [x] **U56 — Condition P on the companion's correlate; present a two-stage
   program.** The companion calls the glued state a *proposed correlate* and
   says "nothing here establishes a consciousness criterion", while the unity
   paper takes it as the definition of unity and states a necessary condition
@@ -173,6 +173,9 @@ comes back badly; above 6 needs data (a bridge pilot).
   fails, P has nothing to constrain; if it passes, the bridge asks whether the
   agreement must be enforced. Alternatively commit to the identification in
   companion v2 (U20).
+  *Done 2026-09-27 (unity side):* §cover states P is conditional on the
+  companion's proposed correlate and lays out the two stages. U20(d) remains
+  the companion-side decision.
 - [x] **U57 — Answer gradual replacement (fading and dancing qualia).** Chalmers'
   argument (neurons replaced one at a time by functionally identical digital
   units; verify online: Chalmers 1995 in Metzinger (ed.) *Conscious
