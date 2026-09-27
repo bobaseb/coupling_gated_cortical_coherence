@@ -881,11 +881,22 @@ to about 7.*
   at ±a/2 attain it. Such a stage is a graded reader, counted as an analog one.
   `unity_switching.py` adds `NOISE_LAWS`, `bit_ceiling`, `word_response`, and
   `switching.json` records both. The limitation is now 'The hardware counts'.
-- [ ] **U90 — Length.** 59 pages; the argument's structure is hard to see on a
+- [x] **U90 — Length.** 59 pages; the argument's structure is hard to see on a
   first read even after U84. Target a main text that a reviewer can read in one
   sitting: candidates are §tests' preparation detail, §ai paragraphs that
   restate the margin lemma (Leakage, the margin's width), and §related. Move,
   don't delete (AGENTS §10 for any disclaimer that moves).
+  *Done 2026-09-27:* moved, nothing deleted, into four new appendices:
+  app:digital (Leakage, the margin's width), app:bridge (the loops' matching
+  arithmetic, stimulation artefact), app:field (the field's strength and the
+  timing measures), app:related (biology, analog/digital, field theories); the
+  synchronizer's numbers and the multi-bit argument joined app:occupancy. Each
+  main-text site keeps a short statement of the result and a pointer.
+  Limitations now starts on p. 35 (37 before U86–U89, 39 before this move);
+  the whole PDF is 64 pages because U86–U89 added content. No disclaimer
+  moved (check-claims counts unchanged). Also repaired: U89's insertion had
+  split app:occupancy's synchronizer paragraph, leaving its MTBF sentence after
+  the multi-bit paragraph.
 
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of

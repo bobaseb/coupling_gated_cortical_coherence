@@ -609,31 +609,15 @@ switched within a cycle would take a quantity fixed by the node's logical
 inputs, which are restored bits, and moved by its noise only through the error
 rate, whereas the same reader of a membrane passes, as shown above. The one
 place a working chip latches a transition is a synchronizer between clock
-domains. With a \uSwAperturePs{}~ps aperture and data changing at
-\uSwDataMHz{}~MHz \citep{ginosar2011}, its first stage samples inside the aperture at most
-\uSwSyncPassPercent\% of the time, $\uSwSyncEventsLong$ times in a window of
-\uOccContentLongMs{}~ms, and which way it resolves moves with the timing of the
-transition; a second stage given one cycle to settle leaves it unresolved once
-in more than $10^{\uSwMtbfOrders}$ years. What that second stage takes is the
-bit the first resolves to, and one bit under thermal noise, which is Gaussian,
-does not reach the fluctuation: at the centre of the aperture, where its
-two-sided response is largest, a change of one noise amplitude in the transition's
-timing moves the probability of either resolution by at most
-$\Phi(1)-1/2=\uYardBinaryCeiling$, and the stage's own noise only lowers that.
-The synchronizer therefore fails graded dependence at every sample, those inside
-its aperture included, whichever protocol carries the data across the boundary,
-and so does a random source that reads its bits from how a metastable stage
-resolves. At the fluctuation, the value a chip reads from one bit passes
-nowhere, within a clock domain or across its boundaries. Several bits held near their thresholds
-together, reading one graded quantity as the stages of a time-to-digital
-converter read one transition time, do no better than the quantity they read.
-Whatever noise each stage adds, the word is a function of that quantity and of
-noise independent of it, so by the data-processing inequality its response to a
-change is at most the quantity's own. A word whose thresholds straddle the
-quantity within its noise attains that response, so it passes exactly where the
-quantity passes, and P then counts the stage as it counts an analog one: as a
-graded reader of that quantity, with a verdict that turns on what the quantity
-is coupled to.
+domains. What its reader takes is the bit its first stage resolves to, and one
+bit under thermal noise, which is Gaussian, does not reach the fluctuation, so
+the synchronizer fails graded dependence at every sample, whichever protocol
+carries the data across the boundary (Appendix~\ref{app:occupancy}). At the
+fluctuation, the value a chip reads from one bit passes nowhere. Several bits
+held near their thresholds together, reading one graded quantity, do no better
+than the quantity they read, by the data-processing inequality, so P counts
+such a stage as it counts an analog one: as a graded reader of that quantity,
+with a verdict that turns on what the quantity is coupled to.
 
 \paragraph{The yardstick.} The separation of the membrane from the value a latch
 reads holds at every yardstick from \uYardLow{} to \uYardHigh{}
@@ -764,7 +748,7 @@ most $L$ times any change in its input, carries phase agreement to content
 agreement: at noise strength $D$ the root-mean-square content discrepancy
 between two sites is at most $L\sqrt{D\,R_{\mathrm{eff}}}$. In cortex the
 long-range part of the coupling is synaptic, since the field of a local source
-falls below detection within millimetres (Section~\ref{sec:tests}), so at
+falls below detection within millimetres (Appendix~\ref{app:field}), so at
 centimetre distances the restoration test measures synaptic coupling.
 
 \section{Current artificial systems}
@@ -852,46 +836,13 @@ moves with the physics, and the circuit's own contents are read from completed
 codes, each held at a rail by restoring gates, so they meet the margin lemma
 as a clocked circuit's contents do.
 
-\paragraph{Leakage.} Real digital hardware leaks: supply noise, crosstalk and
-temperature move the analog quantities behind every bit. The margin lemma says
-where such leakage can reach content. If a content read as a word of
-thresholded continuous quantities depends gradedly on any region, some bit of
-the next state sits exactly on its threshold, and correct operation keeps every
-state off that set. Digital logic does pull perturbations back, but each gate
-does so alone: its gain pulls a disturbed voltage back toward its own rail. That
-restores each bit toward its own logical value, pulls no region toward agreement
-with another, and is what keeps the bits inside their margins. The chip's
-records stay separate even in the one place where its physics contracts.
-
-The margin also has a width. If every bit of the next state is at least
-$\delta$ from its threshold, each bit is read from an $L_v$-Lipschitz quantity
-and the micro dynamics is $L$-Lipschitz, then a change to one region smaller
-than $\delta/(L L_v)$ changes no bit. Leakage below that scale reaches content
-only through the error rate (Section~\ref{sec:enforcement}), and leakage above
-it flips a bit, which is a logical error. Digital design keeps ordinary noise
-well below that scale: a textbook inverter's static noise margin is
-\ueMarginPercent{}\% of its supply voltage, against an expected supply
-variation of \ueSupplyPercent{}\% \citep{rabaey2003}, so the expected variation
-is \ueNoiseToMargin{} of the margin. The nondeterminism of floating-point
-reduction order is a choice among logical trajectories and lies outside both
-results: it changes which content is computed, not how content depends on
-graded state.
-
-\paragraph{The margin's width.} If P turned on how wide an engineer happened to
-make a noise margin, that would be a reductio of P: two machines running one
-program would differ in unity by a design parameter. The width is not free in
-that way. By the noisy margin theorem a content's response to a region is at
-most its error rate, so a machine whose contents reached the fluctuation at the
-noise scale would err with probability at least \ueFluctuationTV{} at every
-step. Its bits would fail to hold their values from one step to the next, its
-program's trajectory would stop being reproducible, and whatever agreement
-survived would come from the physics beneath the bits and not from the program.
-The line P draws therefore coincides with the physical line between digital and
-analog operation, and working systems sit far from it on either side: a logic
-node's margin is \ueMarginToNoise{} noise amplitudes wide, while a cortical
-membrane sits on average \uOccDistanceMin{} to \uOccDistanceMax{} noise
-amplitudes below its threshold, and some membrane of a region reaches a passing
-state within a window of a percept's time scale with high probability.
+\paragraph{Leakage and the margin's width.} Leakage below a bit's margin, from
+supply noise, crosstalk or temperature, reaches content only through the error
+rate, and a gate's restoring gain pulls each bit toward its own rail and no two
+bits toward agreement. The width of the margin is not a free design parameter:
+a machine whose contents reached the fluctuation at the noise scale would err
+at every step, so the line P draws coincides with the line between digital and
+analog operation (Appendix~\ref{app:digital}).
 
 \paragraph{Attractor basins.} Cortex has margins of its own. An attractor
 network's basin is a dynamical margin: every state in it flows to the same
@@ -956,36 +907,14 @@ a margin. The two loops share one filter shape, and they differ in the
 quantizer and in one cutoff frequency, set below.
 
 The two loops must carry the same information and fall on opposite sides of P.
-Section~\ref{sec:enforcement} fixes what the second condition means: a change
-of the recorded region by its own noise amplitude must move the analog loop's
-output by at least the fluctuation, and the quantized loop's output by less.
-The analog loop passes exactly when its noise, in the region's units, is at
-most the region's own. The quantized loop fails at every state farther from a
-quantization edge than the region's noise plus \ueEdgeQuantile{} times the
-recording noise, so its step must be many times both. Matching information by
-adding noise to the analog loop defeats this. At matched information the added
-noise is \ueMatchedNoiseToStep{} of the quantizer's step, so an analog loop
-that still passes caps the step at \ueNoiseMatchMaxStep{} noise amplitudes of
-the region, and the quantized loop then fails at no more than
-\ueNoiseMatchFailPercent\% of its states, taking states as uniform within a
-step. The analog loop's bandwidth is lowered instead, with no noise added,
-until the transfer entropy it carries, estimated from the recorded activity,
-matches the quantized loop's. Lowering the bandwidth slows the loop, and a loop
-that settles after the content has changed fails P's timing condition
-(Section~\ref{sec:reach}) however gradedly it couples. A first-order filter
-with cutoff $f_c$ settles with time constant $1/(2\pi f_c)$, and the bridged
-coupling relaxes no faster than its loop, so the analog loop's cutoff is kept
-at or above \ueBridgeMinCutoffHz{}~Hz, whose time constant is at most the shortest
-relaxation time that brings agreement in time in Appendix~\ref{app:window}. If
-matching would take the cutoff lower, the quantizer's step is coarsened
-instead, which lowers the quantized loop's transfer entropy and raises the
-share of its states that fail. A null result then cannot come from an analog
-loop too slow for the content's window. Above that floor the step is free: at a step of
-\ueBridgeStepToNoise{} noise amplitudes, with recording noise no larger than
-the region's own, the quantized loop fails at \ueBandMatchFailPercent\% of its
-states or more. Stepping the quantized loop's resolution checks that its
-transfer entropy rises with the resolution, so that the resolution, and not
-recording noise, sets the matched value.
+Matching information by adding noise to the analog loop would leave the
+quantized loop failing at no more than \ueNoiseMatchFailPercent\% of its
+states, so the analog loop's bandwidth is lowered instead, with no noise added,
+until the transfer entropy it carries matches the quantized loop's. Its cutoff
+is kept at or above \ueBridgeMinCutoffHz{}~Hz, so that it settles within the
+time agreement allows, and at a quantizer step of \ueBridgeStepToNoise{} noise
+amplitudes the quantized loop then fails at \ueBandMatchFailPercent\% of its
+states or more (Appendix~\ref{app:bridge}).
 
 Transfer entropy counts everything one region's activity tells about the
 other's, and the loops can match it while differing in how much of the task
@@ -1031,23 +960,10 @@ behavioural: a task that requires the animal to combine the values the two
 areas represent, such as judging whether stimuli in their two fields match,
 whose accuracy is compared between the loops. The companion's excess decoded
 agreement between the two areas is the neural readout, and the number of trials
-follows from the power of the weaker of the two comparisons.
-
-\paragraph{Stimulation artefact.} Event-triggered loops blank the recording
-around each pulse, and a continuous drive leaves no interval to blank. The loops
-therefore record and stimulate in separate frequency bands. Each loop reads
-multi-unit activity, above a few hundred hertz, takes its envelope, and drives
-the other region with a current that follows the envelope and so lies in the
-band below it. Rectifying and smoothing are analog operations, so the analog
-loop stays analog end to end. What leaks across the bands is removed by
-subtracting the loop's own output, which the loop knows exactly, passed through
-the transfer from stimulator to recording contact measured on open-loop
-calibration blocks. Both loops end in the same output stage, which smooths the
-quantizer's steps into the stimulation band, and share the stimulator, the
-bands and the subtraction, so a residual artefact reaches both arms by one
-path. Open-loop blocks in which each stimulator follows activity recorded in
-another block measure that residual in each arm, and the comparison of the
-loops is made after it is removed.
+follows from the power of the weaker of the two comparisons. The loops record
+and stimulate in separate frequency bands, so that a continuous drive leaves
+the recordings readable, and a residual artefact reaches both arms by one path
+and is measured on open-loop blocks (Appendix~\ref{app:bridge}).
 
 \begin{figure}[t]
 \centering
@@ -1138,31 +1054,12 @@ regions re-agree after a local perturbation faster than the synaptic route
 allows, the coupling has a non-synaptic part, and the timing measures the reach
 of the kernel tail of Section~\ref{sec:reach} directly.
 
-The field's strength sets the distance at which this test can decide anything.
-Endogenous fields in cortex peak near \ueFieldPeak{}~mV/mm in vivo
-\citep{frohlich2010}, networks of neurons detect fields from
-\ueFieldDetection{}~mV/mm \citep{francis2003}, and the potential of a local
-cortical source decays as $r^{-2.1}$ across millimetres \citep{rebollo2021}.
-With the peak placed at the nearest distance of that measurement, the field of a
-local source falls to the detection threshold within \ueFieldReachMm{}~mm, and
-misses it by \ueFieldDeficitOrders{} orders of magnitude at \ueFibreCm{}~cm and
-by \ueFieldDeficitLocalOrders{} at \ueLocalCm{}~cm.
-The field's cone is therefore tested at millimetre distances, where activity
-has been observed to synchronize across a cut through cortex by the field alone
-\citep{rebollo2021}. At centimetre distances P predicts that re-agreement
-arrives through synaptic coupling, which is graded as well.
-
-The timing can be measured with intracortical recording, with care. The
-stimulation artefact saturates clinical amplifiers during the first
-milliseconds, masking the earliest monosynaptic responses \citep{keller2014},
-and early responses at distant contacts carry a volume-conducted component that
-scales with distance as the artefact does \citep{prime2020}. Three measures
-separate active re-agreement from the passive field that carries the stimulus:
-template subtraction of the artefact \citep{trebaul2016}; multi-unit activity or
-current-source density at the distant site, which the passive spread of the
-local field potential does not reach \citep{kajikawa2011}; and a deadline set
-for each subject from the tractography length of the connecting fibres
-\citep{caminiti2013}.
+The field of a local source falls below the detection threshold of networks of
+neurons within millimetres, so the field's cone is tested at millimetre
+distances, and at centimetre distances P predicts that re-agreement arrives
+through synaptic coupling, which is graded as well. Appendix~\ref{app:field}
+gives the estimate and the measures that separate active re-agreement from the
+stimulus's own spread.
 
 \paragraph{Split brain.} Cutting the corpus callosum removes the main route of
 both information and graded coupling between the hemispheres. Patients respond
@@ -1178,6 +1075,10 @@ above is built to break.
 
 \section{Related work}
 \label{sec:related}
+
+The closest accounts are compared below. Appendix~\ref{app:related} relates P
+to accounts that tie consciousness to biology, to the analog--digital
+distinction and to field theories.
 
 \paragraph{Indicator properties.} \citet{butlin2023} assess current AI systems
 against indicator properties of consciousness drawn from scientific theories and
@@ -1209,31 +1110,6 @@ contract disagreement, which a substrate meets or fails separately from how it
 suppresses noise. And the bridge of Section~\ref{sec:tests} asks in cortex
 whether unity tracks the physical dynamics or the information they carry.
 
-\paragraph{Biology and the medium.} \citet{seth2026} argues that consciousness
-may depend on biological properties that computation does not capture. P
-locates the relevant property in how the substrate is organised, and admits
-non-biological hardware that has it (Section~\ref{sec:ai}). Mortal computation,
-whose parameters are useful only on the hardware instance that learned them
-\citep{hinton2022,ororbia2023}, shares P's refusal to separate the computation
-from the medium.
-
-\paragraph{Analog and digital.} On the mechanistic account of
-\citet{piccinini2008}, a digital computer manipulates strings of digits, states
-its components distinguish reliably, and which class a system belongs to is
-fixed by its mechanism. P's symbol, a content read through a noise margin, is
-that reliability stated as a property of the readout, with the margin measured
-in the parts' own noise; P then asks what the reliability costs, namely graded
-dependence below the margin. \citet{maley2011} separates analog from continuous
-and digital from discrete representation, and P's line follows the second
-pair, not the first: a spike time is a physical content whether or not it
-represents by analogy, and a continuous quantity latched through a margin is a
-symbol. \citet{maudlin1989} argues that a computation's counterfactual
-structure can be carried by machinery that is idle on the actual run, which
-sits badly with consciousness supervening on present physical activity. P
-states its counterfactual condition on present activity: graded dependence
-asks how the actual carriers respond to changes of the actual state, above
-their noise, and idle machinery responds to none.
-
 \paragraph{Integrated information.} Integrated information theory also denies
 experience to digital computers running faithful simulations of a brain
 \citep{tononi2015,findlay2024}. It does so through the causal structure of the
@@ -1242,17 +1118,6 @@ on graded physical state, and on whether disagreement is pulled back. Its
 verdict on a machine is read from a measurement that runs on both substrates:
 the noise-floor test of Section~\ref{sec:enforcement}, applied to a cortical
 membrane and to a logic node by one protocol.
-
-\paragraph{Field theories.} The electromagnetic field theory of
-\citet{mcfadden2020} identifies consciousness with the brain's field, supported
-by evidence that endogenous fields entrain cortical activity
-\citep{frohlich2010}. \citet{miller2026} place cognition and consciousness in
-travelling waves that synaptic and ephaptic coupling sustain together, and take
-consciousness to arise when those waves bring cortex into a globally integrated
-state. Their analog computation is set apart from digital computation by
-running in parallel. P treats the field, and the waves it carries, as ways
-among several to realize graded coupling, and draws the line between analog
-and digital at the noise margin, which a parallel digital machine keeps.
 
 \section{Limitations}
 \label{sec:limitations}
@@ -1571,9 +1436,29 @@ synchronizer with aperture $T_W$, clock $f_C$ and data changing at rate $f_D$
 samples inside its aperture at the rate $T_W f_C f_D$, so at most a share $T_W
 f_D$ of its samples do. Each sample is read as one bit, so it passes at no
 yardstick above $\Phi(1)-1/2$, and at lower yardsticks that share bounds its
-passing fraction. The noise in what the first stage samples includes the
-transition's own jitter, one amplitude of the change, and it is thermal, so
-Gaussian.
+passing fraction. A second stage allowed a time $S$ to resolve fails
+once in $e^{S/\tau}/(T_W f_C f_D)$ on average, with $\tau$ the stage's
+resolution time constant \citep{ginosar2011}; the declared values are that
+tutorial's 28~nm example, $\tau=\uSwTauPs$~ps and $f_D=\uSwDataMHz$~MHz, with
+$S$ one cycle.
+
+The one place a working chip latches a transition is a synchronizer between
+clock domains. With a \uSwAperturePs{}~ps aperture and data changing at
+\uSwDataMHz{}~MHz \citep{ginosar2011}, its first stage samples inside the
+aperture at most \uSwSyncPassPercent\% of the time, $\uSwSyncEventsLong$ times
+in a window of \uOccContentLongMs{}~ms, and which way it resolves moves with the
+timing of the transition; a second stage given one cycle to settle leaves it
+unresolved once in more than $10^{\uSwMtbfOrders}$ years. What that second
+stage takes is the bit the first resolves to. The noise in what the first stage
+samples includes the transition's own jitter, one amplitude of the change, and
+it is thermal, so Gaussian, and one bit under Gaussian noise does not reach the
+fluctuation: at the centre of the aperture, where its two-sided response is
+largest, a change of one noise amplitude in the transition's timing moves the
+probability of either resolution by at most $\Phi(1)-1/2=\uYardBinaryCeiling$,
+and the stage's own noise only lowers that. The synchronizer therefore fails
+graded dependence at every sample, those inside its aperture included,
+whichever protocol carries the data across the boundary, and so does a random
+source that reads its bits from how a metastable stage resolves.
 
 The ceiling depends on the noise law only through its mass near the centre.
 A bit read as 1 when a quantity plus noise exceeds a threshold responds to a
@@ -1587,18 +1472,182 @@ fluctuation of its mass within one amplitude of its centre. Scaled to unit
 standard deviation, Gaussian, logistic and Laplace noise meet this, and a
 Student law with three degrees of freedom does not.
 
-A word of stages reading one graded quantity $q$ is a function of $q$ plus the
-quantity's own noise and the stages' noise, and the stages' noise is
-independent of $q$. The response of the word to a change of $q$ is therefore at
-most the response of $q$ itself, $2\Phi(a/2\sigma)-1$ under Gaussian noise of
-amplitude $\sigma$, by the data-processing inequality for total variation. With
-two thresholds half an amplitude on either side of the state and no stage noise,
-the word's three outcomes split the line where the two laws cross, and a change
-of one amplitude in either direction moves it by exactly the fluctuation. A second stage allowed a time $S$ to resolve fails
-once in $e^{S/\tau}/(T_W f_C f_D)$ on average, with $\tau$ the stage's
-resolution time constant \citep{ginosar2011}; the declared values are that
-tutorial's 28~nm example, $\tau=\uSwTauPs$~ps and $f_D=\uSwDataMHz$~MHz, with
-$S$ one cycle.
+Several bits held near their thresholds together can read one graded quantity
+$q$, as the stages of a time-to-digital converter read one transition time.
+The word is a function of $q$ plus the quantity's own noise and the stages'
+noise, and the stages' noise is independent of $q$. The response of the word
+to a change of $q$ is therefore at most the response of $q$ itself,
+$2\Phi(a/2\sigma)-1$ under Gaussian noise of amplitude $\sigma$, by the
+data-processing inequality for total variation. With two thresholds half an
+amplitude on either side of the state and no stage noise, the word's three
+outcomes split the line where the two laws cross, and a change of one amplitude
+in either direction moves it by exactly the fluctuation. A word whose
+thresholds straddle the quantity within its noise thus passes exactly where the
+quantity passes.
+
+\section{Digital hardware in detail}
+\label{app:digital}
+
+\paragraph{Leakage.} Real digital hardware leaks: supply noise, crosstalk and
+temperature move the analog quantities behind every bit. The margin lemma says
+where such leakage can reach content. If a content read as a word of
+thresholded continuous quantities depends gradedly on any region, some bit of
+the next state sits exactly on its threshold, and correct operation keeps every
+state off that set. Digital logic does pull perturbations back, but each gate
+does so alone: its gain pulls a disturbed voltage back toward its own rail. That
+restores each bit toward its own logical value, pulls no region toward agreement
+with another, and is what keeps the bits inside their margins. The chip's
+records stay separate even in the one place where its physics contracts.
+
+The margin also has a width. If every bit of the next state is at least
+$\delta$ from its threshold, each bit is read from an $L_v$-Lipschitz quantity
+and the micro dynamics is $L$-Lipschitz, then a change to one region smaller
+than $\delta/(L L_v)$ changes no bit. Leakage below that scale reaches content
+only through the error rate (Section~\ref{sec:enforcement}), and leakage above
+it flips a bit, which is a logical error. Digital design keeps ordinary noise
+well below that scale: a textbook inverter's static noise margin is
+\ueMarginPercent{}\% of its supply voltage, against an expected supply
+variation of \ueSupplyPercent{}\% \citep{rabaey2003}, so the expected variation
+is \ueNoiseToMargin{} of the margin. The nondeterminism of floating-point
+reduction order is a choice among logical trajectories and lies outside both
+results: it changes which content is computed, not how content depends on
+graded state.
+
+\paragraph{The margin's width.} If P turned on how wide an engineer happened to
+make a noise margin, that would be a reductio of P: two machines running one
+program would differ in unity by a design parameter. The width is not free in
+that way. By the noisy margin theorem a content's response to a region is at
+most its error rate, so a machine whose contents reached the fluctuation at the
+noise scale would err with probability at least \ueFluctuationTV{} at every
+step. Its bits would fail to hold their values from one step to the next, its
+program's trajectory would stop being reproducible, and whatever agreement
+survived would come from the physics beneath the bits and not from the program.
+The line P draws therefore coincides with the physical line between digital and
+analog operation, and working systems sit far from it on either side: a logic
+node's margin is \ueMarginToNoise{} noise amplitudes wide, while a cortical
+membrane sits on average \uOccDistanceMin{} to \uOccDistanceMax{} noise
+amplitudes below its threshold, and some membrane of a region reaches a passing
+state within a window of a percept's time scale with high probability.
+
+\section{The bridge in detail}
+\label{app:bridge}
+
+The two loops must carry the same information and fall on opposite sides of P.
+Section~\ref{sec:enforcement} fixes what the second condition means: a change
+of the recorded region by its own noise amplitude must move the analog loop's
+output by at least the fluctuation, and the quantized loop's output by less.
+The analog loop passes exactly when its noise, in the region's units, is at
+most the region's own. The quantized loop fails at every state farther from a
+quantization edge than the region's noise plus \ueEdgeQuantile{} times the
+recording noise, so its step must be many times both. Matching information by
+adding noise to the analog loop defeats this. At matched information the added
+noise is \ueMatchedNoiseToStep{} of the quantizer's step, so an analog loop
+that still passes caps the step at \ueNoiseMatchMaxStep{} noise amplitudes of
+the region, and the quantized loop then fails at no more than
+\ueNoiseMatchFailPercent\% of its states, taking states as uniform within a
+step. The analog loop's bandwidth is lowered instead, with no noise added,
+until the transfer entropy it carries, estimated from the recorded activity,
+matches the quantized loop's. Lowering the bandwidth slows the loop, and a loop
+that settles after the content has changed fails P's timing condition
+(Section~\ref{sec:reach}) however gradedly it couples. A first-order filter
+with cutoff $f_c$ settles with time constant $1/(2\pi f_c)$, and the bridged
+coupling relaxes no faster than its loop, so the analog loop's cutoff is kept
+at or above \ueBridgeMinCutoffHz{}~Hz, whose time constant is at most the shortest
+relaxation time that brings agreement in time in Appendix~\ref{app:window}. If
+matching would take the cutoff lower, the quantizer's step is coarsened
+instead, which lowers the quantized loop's transfer entropy and raises the
+share of its states that fail. A null result then cannot come from an analog
+loop too slow for the content's window. Above that floor the step is free: at a step of
+\ueBridgeStepToNoise{} noise amplitudes, with recording noise no larger than
+the region's own, the quantized loop fails at \ueBandMatchFailPercent\% of its
+states or more. Stepping the quantized loop's resolution checks that its
+transfer entropy rises with the resolution, so that the resolution, and not
+recording noise, sets the matched value.
+
+\paragraph{Stimulation artefact.} Event-triggered loops blank the recording
+around each pulse, and a continuous drive leaves no interval to blank. The loops
+therefore record and stimulate in separate frequency bands. Each loop reads
+multi-unit activity, above a few hundred hertz, takes its envelope, and drives
+the other region with a current that follows the envelope and so lies in the
+band below it. Rectifying and smoothing are analog operations, so the analog
+loop stays analog end to end. What leaks across the bands is removed by
+subtracting the loop's own output, which the loop knows exactly, passed through
+the transfer from stimulator to recording contact measured on open-loop
+calibration blocks. Both loops end in the same output stage, which smooths the
+quantizer's steps into the stimulation band, and share the stimulator, the
+bands and the subtraction, so a residual artefact reaches both arms by one
+path. Open-loop blocks in which each stimulator follows activity recorded in
+another block measure that residual in each arm, and the comparison of the
+loops is made after it is removed.
+
+\section{Timing the field's cone}
+\label{app:field}
+
+The field's strength sets the distance at which the test of the field's causal
+cone in Section~\ref{sec:tests} can decide anything.
+Endogenous fields in cortex peak near \ueFieldPeak{}~mV/mm in vivo
+\citep{frohlich2010}, networks of neurons detect fields from
+\ueFieldDetection{}~mV/mm \citep{francis2003}, and the potential of a local
+cortical source decays as $r^{-2.1}$ across millimetres \citep{rebollo2021}.
+With the peak placed at the nearest distance of that measurement, the field of a
+local source falls to the detection threshold within \ueFieldReachMm{}~mm, and
+misses it by \ueFieldDeficitOrders{} orders of magnitude at \ueFibreCm{}~cm and
+by \ueFieldDeficitLocalOrders{} at \ueLocalCm{}~cm.
+The field's cone is therefore tested at millimetre distances, where activity
+has been observed to synchronize across a cut through cortex by the field alone
+\citep{rebollo2021}. At centimetre distances P predicts that re-agreement
+arrives through synaptic coupling, which is graded as well.
+
+The timing can be measured with intracortical recording, with care. The
+stimulation artefact saturates clinical amplifiers during the first
+milliseconds, masking the earliest monosynaptic responses \citep{keller2014},
+and early responses at distant contacts carry a volume-conducted component that
+scales with distance as the artefact does \citep{prime2020}. Three measures
+separate active re-agreement from the passive field that carries the stimulus:
+template subtraction of the artefact \citep{trebaul2016}; multi-unit activity or
+current-source density at the distant site, which the passive spread of the
+local field potential does not reach \citep{kajikawa2011}; and a deadline set
+for each subject from the tractography length of the connecting fibres
+\citep{caminiti2013}.
+
+\section{Further related work}
+\label{app:related}
+
+\paragraph{Biology and the medium.} \citet{seth2026} argues that consciousness
+may depend on biological properties that computation does not capture. P
+locates the relevant property in how the substrate is organised, and admits
+non-biological hardware that has it (Section~\ref{sec:ai}). Mortal computation,
+whose parameters are useful only on the hardware instance that learned them
+\citep{hinton2022,ororbia2023}, shares P's refusal to separate the computation
+from the medium.
+
+\paragraph{Analog and digital.} On the mechanistic account of
+\citet{piccinini2008}, a digital computer manipulates strings of digits, states
+its components distinguish reliably, and which class a system belongs to is
+fixed by its mechanism. P's symbol, a content read through a noise margin, is
+that reliability stated as a property of the readout, with the margin measured
+in the parts' own noise; P then asks what the reliability costs, namely graded
+dependence below the margin. \citet{maley2011} separates analog from continuous
+and digital from discrete representation, and P's line follows the second
+pair, not the first: a spike time is a physical content whether or not it
+represents by analogy, and a continuous quantity latched through a margin is a
+symbol. \citet{maudlin1989} argues that a computation's counterfactual
+structure can be carried by machinery that is idle on the actual run, which
+sits badly with consciousness supervening on present physical activity. P
+states its counterfactual condition on present activity: graded dependence
+asks how the actual carriers respond to changes of the actual state, above
+their noise, and idle machinery responds to none.
+
+\paragraph{Field theories.} The electromagnetic field theory of
+\citet{mcfadden2020} identifies consciousness with the brain's field, supported
+by evidence that endogenous fields entrain cortical activity
+\citep{frohlich2010}. \citet{miller2026} place cognition and consciousness in
+travelling waves that synaptic and ephaptic coupling sustain together, and take
+consciousness to arise when those waves bring cortex into a globally integrated
+state. Their analog computation is set apart from digital computation by
+running in parallel. P treats the field, and the waves it carries, as ways
+among several to realize graded coupling, and draws the line between analog
+and digital at the noise margin, which a parallel digital machine keeps.
 
 \section{Formal results}
 \label{app:formal}
