@@ -408,6 +408,15 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   scale the parts supply), 'The chip, counted' (the chip under the noisy
   margin theorem) and 'What the premise rests on' (the two claims that fix the
   grain). Text otherwise unchanged.
+- [x] **U66 — Cite Miller, Brincat & Roy on analog wave dynamics.**
+  *Done 2026-09-27:* Miller et al. 2026 (J Neurosci 46(33):e0711262026,
+  doi:10.1523/JNEUROSCI.0711-26.2026, PMID 42618509), verified online and read
+  from the PsyArXiv preprint z48x7 v3. Two sentences in §related 'Field
+  theories': their waves, sustained by synaptic and ephaptic coupling, are one
+  realiser of graded coupling; their analog/digital line is parallelism, P's is
+  the noise margin, which a parallel digital machine keeps. Their ephaptic
+  effects are local and waves travel at synaptic speed, which agrees with the
+  field-cone estimate.
 
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
