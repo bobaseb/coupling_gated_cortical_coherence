@@ -467,7 +467,7 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   'Reach', 'Attractors' into 'Which variables are contents'. 'The premise'
   names the cortical tests as what bears on P; 'The bridge's reach' notes an
   account that sees the quantizer already sits at P's grain.
-- [ ] **U73 — Lean: the record regress as a theorem.** §enforcement 'Unity
+- [x] **U73 — Lean: the record regress as a theorem.** §enforcement 'Unity
   is not one more content' argues in prose that a rule reading and writing
   records only adds a record, and that the margin stops the regress. The
   mereological step (unity is not a further content, Bayne 2010) stays a
@@ -492,7 +492,23 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   scope item for the write-back case unless U74 lands.
   **Success.** The regress claim has table rows; the only prose-only step
   left in the paragraph is the cited mereological premise.
-- [ ] **U74 — Lean (stretch): write-back through a record adds no link.**
+  *Done 2026-09-27:* new section 'Records and readers' in
+  `Phase10_PhysicalUnity`. (a) `not_coupledAtNoiseFloor_of_record` and
+  `sameSystem_iff_eq_of_record`; nothing is assumed of the other regions'
+  contents. (b) `sameSystem_iff_of_records` holds for an arbitrary set of
+  records, so no induction on finite sets was needed; it rests on
+  `eqvGen_of_isolated` / `eqvGen_iff_of_isolated` (points related to nothing
+  but themselves drop out of every `EqvGen` chain, and the restricted closure
+  is reflexive, so the iff needs no hypothesis on the endpoints). (c)
+  `Examples/PhysicalUnity.lean`: `reader_sameSystem` under `noisyLin` with
+  uniform noise on [0, 1] (response 1/2 at a change of 1/2, via `unif_rise`),
+  beside `tally_sameSystem_iff`, a record whose carrier reads two graded
+  regions and joins neither. `tab:formal` has four new rows; the paragraph
+  argues from them and the §enforcement intro claim states the result.
+  Not established: the reader witness is linear with one noise law; which
+  cortical elements are readers rests on the noise-floor measurements of
+  §enforcement, not on these theorems.
+- [x] **U74 — Lean (stretch): write-back through a record adds no link.**
   U73 shows the record itself joins nothing, but a rule that writes
   corrections back could in principle couple `i` to `j` directly. Hypothesis
   needed: `j`'s next content depends on region `i` only through the record's
@@ -502,6 +518,16 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   the factoring hypothesis must be stated on the noisy dynamics, and the
   bound composed through two noisy steps. If it lands, drop the Limitations
   item U73 adds; if not, the item stays.
+  *Done 2026-09-27:* `shiftResponse_le_of_factors` and
+  `not_coupledAtNoiseFloor_of_factors`. The factoring hypothesis is stated
+  per noise realisation: a change of `i` moves `j`'s content only when it
+  moves the record's symbol read after the random step `g ω`; one noise `ω`
+  drives both steps, so the write-back may carry noise of its own. The bound
+  is the record's error rate (via the new `shiftResponse_le_of_ne_le`).
+  Witness `writeBack_not_coupled`, with `writeBack_moves_at_crossing` showing
+  the route carries threshold crossings. No Limitations item was added. Not
+  established: a leak around the record is a separate path, bounded only
+  when it too runs through a margin (Lean doc-string scope).
 
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of

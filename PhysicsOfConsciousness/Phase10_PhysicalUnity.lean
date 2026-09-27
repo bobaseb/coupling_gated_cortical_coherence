@@ -621,6 +621,195 @@ theorem not_enforcedAtNoiseFloor_of_bits [Fintype ι] {κ : Type*} {μ : Measure
 
 end PhysicsOfConsciousness.PhysicalUnity
 
+/-! ## Records and readers
+
+A rule that compares records and corrects them produces one more record, and the
+question is whether that record can join the regions it reads into one system.
+A *record* here is a region whose content has a noisy margin: under the random
+steps its content is constant on a ball of radius `ρ` about the noisy successor,
+outside an error set of probability `ε`. Coupling at the noise floor asks each
+region to move the other's content by the yardstick `θ`, so a record whose error
+rate is below `θ` answers no change inside its margin, whatever the regions
+around it carry.
+
+* **`not_coupledAtNoiseFloor_of_record`.** A record with error rate below `θ` is
+  coupled to no region that admits a change above its noise inside the margin's
+  width. The other regions may be graded; nothing is assumed of their contents.
+* **`eqvGen_of_isolated`** and **`eqvGen_iff_of_isolated`.** For any relation
+  and any set of points related to nothing but themselves, a chain between two
+  points either is trivial or runs entirely outside the set, and the closure is
+  the closure of the relation restricted to the complement.
+* **`sameSystem_iff_eq_of_record`** and **`sameSystem_iff_of_records`.** A record
+  is one system only with itself, and for any set of records, rules on rules
+  included, two regions are one system exactly when a chain of couplings that
+  avoids every record joins them. Records drop out of every chain.
+* **`shiftResponse_le_of_factors`** and **`not_coupledAtNoiseFloor_of_factors`.**
+  Write-back. If region `j`'s next content depends on a change of region `i`
+  only through a record's symbol, read from the carrier `g ω` the noise carries
+  the state to, the response of `j` to that change is at most the record's error
+  rate, so a rule that writes corrections back through the record couples `i`
+  to `j` at no noise floor above that rate.
+
+A graded reader, by contrast, is a region whose content does move with each of
+two regions above their noise; it is coupled to both and joins them
+(`Examples/PhysicalUnity.lean`, under linear dynamics with uniform noise), so the
+regress stops at a reader on the chain and not at a record beside it.
+
+Scope. The factoring hypothesis of write-back is the physics of the rule: it
+says the record is the only route from `i` to `j`, and a leak around the record
+(crosstalk, a shared supply) is a separate path that this section does not
+bound; `law_le_of_marginRate` bounds it when it too runs through a margin.
+Which regions are records is the modeller's choice of margins, as elsewhere in
+this module. -/
+
+namespace PhysicsOfConsciousness.PhysicalUnity
+
+open MeasureTheory
+
+variable {ι : Type*} [DecidableEq ι] {S : ι → Type*}
+  [∀ i, PseudoMetricSpace (S i)] {C : Type*} {Ω : Type*} [MeasurableSpace Ω]
+
+/-- **Isolated points drop out of every chain.** If every point of `D` is related to
+nothing but itself, in either direction, then two points joined by a chain of `r`
+are equal or lie outside `D` and are joined by a chain of `r` that never enters
+`D`. -/
+theorem eqvGen_of_isolated {α : Type*} {r : α → α → Prop} {D : Set α}
+    (hD : ∀ d ∈ D, ∀ a, a ≠ d → ¬ r a d ∧ ¬ r d a) {a b : α} (h : Relation.EqvGen r a b) :
+    a = b ∨ a ∉ D ∧ b ∉ D ∧ Relation.EqvGen (fun a b => a ∉ D ∧ b ∉ D ∧ r a b) a b := by
+  induction h with
+  | rel a b hab =>
+    by_cases he : a = b
+    · exact Or.inl he
+    have ha : a ∉ D := fun hd => (hD a hd b (Ne.symm he)).2 hab
+    have hb : b ∉ D := fun hd => (hD b hd a he).1 hab
+    exact Or.inr ⟨ha, hb, .rel _ _ ⟨ha, hb, hab⟩⟩
+  | refl => exact Or.inl rfl
+  | symm _ _ _ ih =>
+    rcases ih with h | ⟨ha, hb, h⟩
+    · exact Or.inl h.symm
+    · exact Or.inr ⟨hb, ha, h.symm⟩
+  | trans _ _ _ _ _ ih₁ ih₂ =>
+    rcases ih₁ with rfl | ⟨ha, hb, h₁⟩
+    · exact ih₂
+    rcases ih₂ with rfl | ⟨_, hc, h₂⟩
+    · exact Or.inr ⟨ha, hb, h₁⟩
+    · exact Or.inr ⟨ha, hc, h₁.trans _ _ _ h₂⟩
+
+/-- The closure of a relation whose points in `D` are isolated is the closure of its
+restriction to the complement of `D`. -/
+theorem eqvGen_iff_of_isolated {α : Type*} {r : α → α → Prop} {D : Set α}
+    (hD : ∀ d ∈ D, ∀ a, a ≠ d → ¬ r a d ∧ ¬ r d a) {a b : α} :
+    Relation.EqvGen r a b ↔ Relation.EqvGen (fun a b => a ∉ D ∧ b ∉ D ∧ r a b) a b := by
+  refine ⟨fun h => ?_, fun h => Relation.EqvGen.mono (fun _ _ h => h.2.2) _ _ h⟩
+  rcases eqvGen_of_isolated hD h with rfl | ⟨_, _, h⟩
+  · exact .refl _
+  · exact h
+
+omit [∀ i, PseudoMetricSpace (S i)] in
+/-- The response to a change is at most the probability that the change moves the
+content at all, both states driven by the same noise. -/
+theorem shiftResponse_le_of_ne_le {μ : Measure Ω} {f : Ω → (∀ i, S i) → ∀ i, S i}
+    {π : (∀ i, S i) → C} {x : ∀ i, S i} {i : ι} {s : S i} {ε : ENNReal}
+    (h : μ {ω | π (f ω (Function.update x i s)) ≠ π (f ω x)} ≤ ε) :
+    shiftResponse μ f π x i s ≤ ε := by
+  refine iSup_le fun A => tsub_le_iff_left.mpr ((measure_mono fun ω hω => ?_).trans
+    ((measure_union_le _ _).trans (add_le_add le_rfl h)))
+  by_cases he : π (f ω (Function.update x i s)) = π (f ω x)
+  · exact Or.inl (show π (f ω x) ∈ A from he ▸ hω)
+  · exact Or.inr he
+
+/-- **A record joins nothing.** Let region `r`'s content have a margin of radius `ρ`
+with error rate `ε` below the yardstick `θ`, under `L`-Lipschitz random steps. If
+region `j` admits a change above its noise and below its threshold-crossing change
+that stays within the margin's width `ρ / L`, then `r` and `j` are not coupled at the
+noise floor. Nothing is assumed of `j`'s content, which may be graded. -/
+theorem not_coupledAtNoiseFloor_of_record [Fintype ι] {μ : Measure Ω}
+    {f : Ω → (∀ i, S i) → ∀ i, S i} {L : NNReal} (hf : ∀ ω, LipschitzWith L (f ω))
+    {π : ι → (∀ i, S i) → C} {x : ∀ i, S i} {r : ι} {ρ : ℝ} {ε θ : ENNReal}
+    (hπ : HasMarginRate μ (fun ω => f ω x) (π r) ρ ε) (hεθ : ε < θ) {σ Θ : ι → ℝ} {j : ι}
+    (hs : ∃ s : S j, σ j ≤ dist s (x j) ∧ dist s (x j) < Θ j ∧ L * dist s (x j) < ρ) :
+    ¬ CoupledAtNoiseFloor μ f π x σ Θ θ r j := by
+  obtain ⟨s, hσ, hΘ, hr⟩ := hs
+  exact fun h => (hεθ.trans_le (h.2 s hσ hΘ)).not_ge
+    (shiftResponse_le_of_marginRate hf hπ j s hr)
+
+/-- **A record is one system only with itself.** Under the hypotheses of
+`not_coupledAtNoiseFloor_of_record`, for every other region, the record and a region
+are one system exactly when they are the same region. -/
+theorem sameSystem_iff_eq_of_record [Fintype ι] {μ : Measure Ω}
+    {f : Ω → (∀ i, S i) → ∀ i, S i} {L : NNReal} (hf : ∀ ω, LipschitzWith L (f ω))
+    {π : ι → (∀ i, S i) → C} {x : ∀ i, S i} {r : ι} {ρ : ℝ} {ε θ : ENNReal}
+    (hπ : HasMarginRate μ (fun ω => f ω x) (π r) ρ ε) (hεθ : ε < θ) {σ Θ : ι → ℝ}
+    (hs : ∀ j, j ≠ r → ∃ s : S j, σ j ≤ dist s (x j) ∧ dist s (x j) < Θ j ∧ L * dist s (x j) < ρ)
+    {j : ι} : SameSystem μ f π x σ Θ θ r j ↔ r = j := by
+  refine ⟨fun h => ?_, fun h => h ▸ .refl _⟩
+  refine (eqvGen_of_isolated (D := {r}) (fun d hd a had => ?_) h).resolve_right
+    fun h' => h'.1 rfl
+  rw [Set.mem_singleton_iff] at hd
+  subst hd
+  have h := not_coupledAtNoiseFloor_of_record hf hπ hεθ (θ := θ) (hs a had)
+  exact ⟨fun h' => h ⟨h'.2, h'.1⟩, h⟩
+
+/-- **No chain passes through a record.** Let every region of the set `D` be a
+record, with a margin of radius `ρ d` and error rate `ε d` below `θ`, and let every
+other region admit a change above its noise within each record's margin width. Then
+two regions are one system exactly when a chain of couplings that never enters `D`
+joins them. The set is arbitrary, so records that read records, and rules on rules,
+drop out together. -/
+theorem sameSystem_iff_of_records [Fintype ι] {μ : Measure Ω}
+    {f : Ω → (∀ i, S i) → ∀ i, S i} {L : NNReal} (hf : ∀ ω, LipschitzWith L (f ω))
+    {π : ι → (∀ i, S i) → C} {x : ∀ i, S i} {D : Set ι} {ρ : ι → ℝ} {ε : ι → ENNReal}
+    {θ : ENNReal} (hπ : ∀ d ∈ D, HasMarginRate μ (fun ω => f ω x) (π d) (ρ d) (ε d))
+    (hεθ : ∀ d ∈ D, ε d < θ) {σ Θ : ι → ℝ}
+    (hs : ∀ d ∈ D, ∀ j, j ≠ d →
+      ∃ s : S j, σ j ≤ dist s (x j) ∧ dist s (x j) < Θ j ∧ L * dist s (x j) < ρ d)
+    {i j : ι} :
+    SameSystem μ f π x σ Θ θ i j ↔
+      Relation.EqvGen (fun a b => a ∉ D ∧ b ∉ D ∧ CoupledAtNoiseFloor μ f π x σ Θ θ a b) i j := by
+  refine eqvGen_iff_of_isolated (fun d hd a had => ?_)
+  have h := not_coupledAtNoiseFloor_of_record hf (hπ d hd) (hεθ d hd) (θ := θ) (hs d hd a had)
+  exact ⟨fun h' => h ⟨h'.2, h'.1⟩, h⟩
+
+/-- **Write-back through a record moves nothing past its error rate.** Let `g ω` be
+the random step that carries the state to the record's carrier, `L`-Lipschitz, and
+`ψ` the record's readout, with a margin of radius `ρ` and error rate `ε` along
+`g · x`. If, for every noise realisation, the change of region `i` to `s` moves the
+content `π` read after `f ω` only when it moves the record's symbol, then its
+response to that change is at most `ε`. The noise `ω` drives both steps, so `f ω`
+may be the rule's write-back composed after `g ω`, each with noise of its own.
+
+The factoring hypothesis carries the physics: it says the record is the only route
+from `i` to the content. -/
+theorem shiftResponse_le_of_factors [Fintype ι] {μ : Measure Ω}
+    {f g : Ω → (∀ i, S i) → ∀ i, S i} {L : NNReal} (hg : ∀ ω, LipschitzWith L (g ω))
+    {π : (∀ i, S i) → C} {D : Type*} {ψ : (∀ i, S i) → D} {x : ∀ i, S i} {ρ : ℝ}
+    {ε : ENNReal} (hψ : HasMarginRate μ (fun ω => g ω x) ψ ρ ε) {i : ι} {s : S i}
+    (hfac : ∀ ω, ψ (g ω (Function.update x i s)) = ψ (g ω x) →
+      π (f ω (Function.update x i s)) = π (f ω x))
+    (hs : L * dist s (x i) < ρ) : shiftResponse μ f π x i s ≤ ε := by
+  refine shiftResponse_le_of_ne_le ((measure_mono fun ω hω => ?_).trans
+    (content_ne_le_of_marginRate hg hψ i s hs))
+  exact fun he => hω (hfac ω he)
+
+/-- **Write-back through a record adds no link.** Under the hypotheses of
+`shiftResponse_le_of_factors`, with error rate below `θ` and the change of region
+`i` above its noise and below its threshold-crossing change, region `j`'s content
+does not depend on `i` above the noise floor, so the two are not coupled. A rule
+that reads `i` into a record and writes corrections from the record into `j` joins
+them no more than the record itself does. -/
+theorem not_coupledAtNoiseFloor_of_factors [Fintype ι] {μ : Measure Ω}
+    {f g : Ω → (∀ i, S i) → ∀ i, S i} {L : NNReal} (hg : ∀ ω, LipschitzWith L (g ω))
+    {π : ι → (∀ i, S i) → C} {D : Type*} {ψ : (∀ i, S i) → D} {x : ∀ i, S i} {ρ : ℝ}
+    {ε θ : ENNReal} (hψ : HasMarginRate μ (fun ω => g ω x) ψ ρ ε) (hεθ : ε < θ)
+    {σ Θ : ι → ℝ} {i j : ι} {s : S i} (hσ : σ i ≤ dist s (x i)) (hΘ : dist s (x i) < Θ i)
+    (hs : L * dist s (x i) < ρ)
+    (hfac : ∀ ω, ψ (g ω (Function.update x i s)) = ψ (g ω x) →
+      π j (f ω (Function.update x i s)) = π j (f ω x)) :
+    ¬ CoupledAtNoiseFloor μ f π x σ Θ θ i j :=
+  fun h => (hεθ.trans_le (h.1 s hσ hΘ)).not_ge (shiftResponse_le_of_factors hg hψ hfac hs)
+
+end PhysicsOfConsciousness.PhysicalUnity
+
 /-! ## P over carriers, per content window
 
 The criterion above is universal: every change of a region above its noise must

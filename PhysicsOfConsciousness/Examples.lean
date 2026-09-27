@@ -58,7 +58,8 @@
     `Examples/AgencyFoundations.lean` -- regressions for the agency foundations
     `Examples/PhysicalUnity.lean` §38 (a bit with a margin, and a diffusive pair
       whose agreement is physically enforced; a bit on its threshold, and a
-      leakage scale that is sharp)
+      leakage scale that is sharp; a record that joins nothing, a write-back that
+      adds no link, and a graded reader that joins two regions)
     `Examples/AgreementResistance.lean` §39 (a series row whose resistance bound
       is attained, a direct edge that lowers it, a shell bound attained, and a
       power-law chain bound met)

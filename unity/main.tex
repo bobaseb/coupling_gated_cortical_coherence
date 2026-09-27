@@ -116,7 +116,7 @@ zone of it \citep{koch2016}.
 The paper makes three claims:
 \begin{enumerate}
 \claim{sec:tests}{When two cortical regions are bridged by an analog and by a quantized loop that carry the same information, P predicts that unity follows the loop that couples them gradedly, which tests whether unity tracks the graded grain or the algorithmic one; a weak, sub-threshold perturbation of one region should also shift the graded content decoded in an overlapping region toward agreement}
-\claim{sec:enforcement}{Under noise, content read from bits responds to a change of any region below its margin by at most its error rate, a bound that is attained, so content read from bits is not physically enforced, whatever algorithm the bits run. Measured by one protocol over the states each occupies, a cortical membrane passes the noise-floor test near its threshold and visits such states within every window of a percept's time scale, while a logic node passes at none of its states}
+\claim{sec:enforcement}{Under noise, content read from bits responds to a change of any region below its margin by at most its error rate, a bound that is attained, so content read from bits is not physically enforced, whatever algorithm the bits run. A region held by a margin drops out of every chain of couplings, corrections it writes back included, while a graded reader joins the regions it reads. Measured by one protocol over the states each occupies, a cortical membrane passes the noise-floor test near its threshold and visits such states within every window of a percept's time scale, while a logic node passes at none of its states}
 \claim{sec:reach}{On a noisy coupled sheet, disagreement in phase is effective resistance, so the coupling's reach decides how far phase agreement holds, and an encoder that reads phases relative to its neighbourhood turns it into content agreement that pays only for the field's local roughness}
 \end{enumerate}
 
@@ -256,25 +256,34 @@ realise it. A \emph{record} here is a content held by a margin: its identity
 survives every change of its carrier below the margin, so it is sealed off from
 the graded state of everything else. A rule that compares records and corrects
 them reads records and writes records, and whatever it produces, a flag, a
-merged value or a corrected copy, is one more record, sealed off in the same
-way. The new record stands to the others exactly as they stood to each other,
-and its unity with them has to be produced again, by the same kind of rule, with
-the same result. A synapse also combines the states it receives, and a
-downstream membrane integrating spike times also holds a content, so the
-regress needs a stopping point, and the margin supplies it. Near its threshold,
-which a cortical membrane visits within every window as measured below, the
-membrane's content moves with every change of its inputs above their noise, so
-it is not sealed off from them: it is a further coordinate of the state it reads,
-not a record beside it. What separates the rule from the synapse is whether its
-output is held by a margin, and the next paragraph fixes the scale at which
-that is measured. A workspace that makes every record
-available to a common reader is the same case: what the reader receives is again
-a set of records, each held by its own margin. Computation therefore adds
-contents and never produces the whole they are parts of. What can make contents parts of one
-whole without adding a content is the physical state that carries them: carriers
-that are coordinates of a single state, whose agreement is a fact about where
-that state sits and is written nowhere. P asks for exactly this, which is why it
-is stated on how carriers depend on one another and not on what any rule
+merged value or a corrected copy, is one more record. Whether records can join
+anything is a theorem once systems are counted as the next paragraph counts
+them, by chains of couplings at the noise floor. A region whose content is
+held by a margin, with an error rate below the fluctuation yardstick, is coupled
+to no region that admits a change above its noise inside the margin, whatever
+the regions it reads carry, so it is one system only with itself. For any set of
+records, records that read records included, two regions are one system exactly
+when a chain of couplings that avoids every record joins them: records drop out
+of every chain, and the regress of rules on rules adds nothing at any depth.
+Writing corrections back changes nothing: when one region's next content
+depends on another only through a record's symbol, a change of the other inside
+the margin moves it by at most the record's error rate, so the rule couples the
+two no more than the record does. A graded reader stays in the chain. A region
+whose content moves with two regions above their noise, and moves them in turn,
+is coupled to both and joins them into one system when they share no coupling
+of their own; under linear dynamics with uniform noise such a reader joins two
+regions that a record reading the same two leaves apart
+(Appendix~\ref{app:formal}). The regress stops at a reader on the chain, not at
+a record beside it. A synapse, and a membrane integrating spike times near its
+threshold, which a cortical membrane visits within every window as measured
+below, are readers in this sense. A workspace that makes every record available
+to a common reader is the case of the rule again: what the reader receives is a
+set of records, each held by its own margin. Computation therefore adds contents
+and never produces the whole they are parts of. What can make contents parts of
+one whole without adding a content is the physical state that carries them:
+carriers that are coordinates of a single state, whose agreement is a fact about
+where that state sits and is written nowhere. P asks for exactly this, which is
+why it is stated on how carriers depend on one another and not on what any rule
 computes about them.
 
 \paragraph{Counting systems at the noise floor.} Physics counts systems by
@@ -1270,6 +1279,10 @@ The same for anything computed from noisy bits, with error rate the probability 
 The response of a content to one region grows with the scale & \ref{sec:enforcement} & \texttt{response\_\allowbreak{}mono} \\
 Below $r/L$ the response is at most the error rate & \ref{sec:enforcement} & \texttt{response\_\allowbreak{}le\_\allowbreak{}of\_\allowbreak{}marginRate} \\
 Graded dependence above the noise floor at every overlap holds exactly when every overlapping pair is one system & \ref{sec:enforcement} & \texttt{enforcedAtNoiseFloor\_\allowbreak{}iff} \\
+A region whose content has a margin with error rate below the fluctuation is coupled to no region, and is one system only with itself & \ref{sec:enforcement} & \texttt{not\_\allowbreak{}coupledAtNoiseFloor\_\allowbreak{}of\_\allowbreak{}record}, \texttt{sameSystem\_\allowbreak{}iff\_\allowbreak{}eq\_\allowbreak{}of\_\allowbreak{}record} \\
+For any set of such records, two regions are one system exactly when a chain of couplings avoiding every record joins them & \ref{sec:enforcement} & \texttt{sameSystem\_\allowbreak{}iff\_\allowbreak{}of\_\allowbreak{}records} \\
+A content that depends on a region only through a record's symbol responds to it by at most the record's error rate, so write-back through a record couples nothing & \ref{sec:enforcement} & \texttt{shiftResponse\_\allowbreak{}le\_\allowbreak{}of\_\allowbreak{}factors}, \texttt{not\_\allowbreak{}coupledAtNoiseFloor\_\allowbreak{}of\_\allowbreak{}factors} \\
+A record that reads two graded regions joins neither, a write-back through it links neither, and a graded reader under linear dynamics with uniform noise joins two uncoupled regions & \ref{sec:enforcement} & \texttt{tally\_\allowbreak{}sameSystem\_\allowbreak{}iff}, \texttt{writeBack\_\allowbreak{}not\_\allowbreak{}coupled}, \texttt{reader\_\allowbreak{}sameSystem} \\
 Asking graded dependence above the noise floor of every carrier implies asking it of some carriers of each region & \ref{sec:enforcement} & \texttt{EnforcedAtNoiseFloor.\allowbreak{}enforcedByCarriers} \\
 A state at which some carriers of each region pass and not every carrier does & \ref{sec:enforcement} & \texttt{spare\_\allowbreak{}enforcedByCarriers}, \texttt{spare\_\allowbreak{}not\_\allowbreak{}enforcedAtNoiseFloor} \\
 Regions joined by carriers at every overlap are one system & \ref{sec:enforcement} & \texttt{EnforcedByCarriers.\allowbreak{}regionSameSystem} \\
