@@ -52,13 +52,13 @@
         </div>
         <p>A clocked digital chip is of the second kind: its bits are separate records, and whatever agreement its program produces is computed. The paper's premise is that the unity of an experience is oneness of the first kind.</p>
         <div class="example">
-            <strong>Premise P (physical unity).</strong> A system's contents are unified only if each region's contents are read from graded content variables that depend continuously on the graded physical state of the regions it overlaps, through a coupling that contracts their disagreement.
+            <strong>Premise P (physical unity).</strong> A system's contents are unified only if each region's contents are read from graded carriers and, within every window of the contents' own time scale, some carrier of each region depends on the graded physical state of every region it overlaps, above the noise floor and through a coupling that contracts their disagreement.
         </div>
         <p>P is a necessary condition for unity, and it rejects functionalism about unity, the view that only the computation matters. A perfect simulation of a coupled cortical field reproduces the field's behaviour and still fails P, because its agreement is computed rather than enforced.</p>
 
-        <h2>The margin theorem</h2>
+        <h2>The margin lemma and its noisy form</h2>
         <p>A bit is read through a <em>noise margin</em>: any voltage well above the threshold reads as 1, so small wobbles change nothing. That margin is what makes digital hardware reliable, and it is also what separates it from a coupled field. If content is read through a margin, small enough physical changes never reach it. The proof is short: continuity carries a small enough neighbourhood of each region's physical state into the neighbourhood on which the readout is constant. The result covers any content read from bits, whatever algorithm the bits run.</p>
-        <p>Real hardware is noisy, so the paper states the criterion on probabilities. A small change to one region then reaches a digital content only through the chance of a bit error, which for an ordinary logic node lies many orders of magnitude below the content's natural fluctuation. A cortical spike time passes the same test: one typical weak synaptic input shifts it by more than its jitter.</p>
+        <p>Real hardware is noisy, so the paper states the criterion on probabilities, and the noisy form of the lemma carries the argument: under noise, a change to one region below the margin moves anything computed from bits by at most the error rate, and the bound is attained. A small change to one region therefore reaches a digital content only through the chance of a bit error, which for an ordinary logic node lies many orders of magnitude below the content's natural fluctuation. A cortical spike time passes the same test: one typical weak synaptic input shifts it by more than its jitter.</p>
         <p>Each gate does pull a disturbed voltage back toward its rail, but only toward its <em>own</em> logical value. That restoring pull keeps each bit inside its margin and pulls no region toward agreement with another, so the chip's records stay separate even where its physics settles.</p>
 
         <h2>What P admits and what it excludes</h2>
@@ -78,7 +78,7 @@
         <p class="caption-note">The clock is a noise margin in time: it removes from a digital circuit exactly the graded timing that spikes keep.</p>
 
         <h2>How far a coupling reaches</h2>
-        <p>If each patch of cortex is tied only to its near neighbours, agreement passes from hand to hand and leaks away with distance. Picture the sheet as an electrical network in which each coupling is a wire: the disagreement between two sites is proportional to the resistance between them. Under short-range coupling that resistance grows with the logarithm of distance, so agreement fades without limit. A coupling whose strength falls off more slowly than <em>r</em><sup>&minus;4</sup> keeps the resistance bounded, and agreement holds at every distance. Both edges match classical results on random walks and on long-range order in two dimensions.</p>
+        <p>If each patch of cortex is tied only to its near neighbours, agreement passes from hand to hand and leaks away with distance. Picture the sheet as an electrical network in which each coupling is a wire: the disagreement between two sites is proportional to the resistance between them. Classical results on resistance then decide how far phase agreement reaches: under short-range coupling it fades with the logarithm of distance, and a coupling whose strength falls off more slowly than <em>r</em><sup>&minus;4</sup> keeps it at every distance. An encoder that reads phases relative to its neighbourhood turns phase agreement into agreement in content, paying only for the field's local roughness; across centimetres that step rests on the companion paper's bridge assumption. In cortex the long-range coupling is synaptic.</p>
 
         <h2 id="tests">What would refute it</h2>
         <ol class="fixed-points">
