@@ -797,7 +797,7 @@ Review response (raised 2026-09-26, external-style review scored 5/10; plan
   grain of a function" (Block 1978; Godfrey-Smith 2016, J Phil
   113(10):481–506, verified via Crossref); Limitations "The premise" states
   that a physically grained functionalism agrees with P on every test.
-- [ ] **U43 — P is neutral on where unified contents live.** Raised by the
+- [x] **U43 — P is neutral on where unified contents live.** Raised by the
   author: the paper commits to a distributed, whole-brain view in §reach
   ("regions a single scene joins lie up to 15 cm apart") and in the window
   estimate, though P constrains only the regions whose contents are unified.
@@ -810,6 +810,13 @@ Review response (raised 2026-09-26, external-style review scored 5/10; plan
   localized extent brings the field's millimetre reach into play.
   **Success.** No sentence of the paper presupposes that unity is
   whole-brain.
+  *Done 2026-09-27:* one sentence after P (Koch et al. 2016, verified via
+  Crossref and Europe PMC); §reach states the distance as the extent of the
+  unified regions (15 cm whole-cortex, a declared 5 cm posterior zone);
+  `unity_estimates.py` gives the deadline, settling time and field shortfall
+  at the localized extent (`LOCAL_EXTENT_M`, tests first). The field still
+  falls short at 5 cm (3.5 orders), so the plan's "brings the field into
+  play" was wrong and is not claimed; the field matters only at millimetres.
 
 Relation to the companion (raised 2026-09-25):
 

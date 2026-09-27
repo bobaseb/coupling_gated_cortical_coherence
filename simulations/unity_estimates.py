@@ -15,6 +15,8 @@ median arrival is not a causal bound. The field's reach is where an endogenous
 peak field, decaying as the gradient of an ``r^-2.1`` potential, falls to the
 network detection threshold; placing the peak at the nearest distance at which
 the decay was measured is a declared choice, like ``REDUCTION``.
+P is neutral on where unified contents live (U43), so the deadline and the
+field's shortfall are also given at a declared localized extent.
 The hardware ratio (U13) compares the supply variation a designer expects
 with a textbook inverter's static noise margin.
 
@@ -54,6 +56,8 @@ References:
   Rebollo et al. 2021, Sci Adv 7:eabc7772 (potential ~ r^-2.1, from 1.5 mm)
   Sabatini & Regehr 1996, Nature 384:170-172; Katz & Miledi 1965,
     Proc R Soc B 161:483-495 (synaptic delay 0.15-0.75 ms)
+  Koch, Massimini, Boly & Tononi 2016, Nat Rev Neurosci 17:307-321 (a
+    posterior cortical hot zone)
   Herzog, Kammer & Scharnowski 2016, PLoS Biol 14:e1002433 (integration
     up to 400 ms)
   Rabaey, Chandrakasan & Nikolic 2003, Digital Integrated Circuits, 2nd ed.
@@ -76,6 +80,10 @@ from pathlib import Path
 OUTPUT = Path(__file__).resolve().parent.parent / "unity" / "unity_estimates.tex"
 
 FIBRE_LENGTH_M = 0.15
+# Declared: a localized extent for unified contents, a posterior zone a few
+# centimetres across (Koch et al. 2016). P fixes no extent; the estimates are
+# given at both.
+LOCAL_EXTENT_M = 0.05
 VELOCITY_SLOW_M_S = 4.9
 VELOCITY_FAST_M_S = 8.8
 VELOCITY_MAX_M_S = 20.0
@@ -247,6 +255,18 @@ def bridge() -> dict[str, float]:
     }
 
 
+def _local() -> dict[str, float]:
+    """The deadline, the settling time and the field's shortfall at the localized extent."""
+    cone_fast = cone_delay(LOCAL_EXTENT_M, VELOCITY_FAST_M_S, SYNAPTIC_DELAY_S)
+    return {
+        "localCm": 100 * LOCAL_EXTENT_M,
+        "coneLocalMaxMs": 1000 * cone_delay(LOCAL_EXTENT_M, VELOCITY_MAX_M_S, SYNAPTIC_DELAY_S),
+        "coneLocalFastMs": 1000 * cone_fast,
+        "tauLocalMs": 1000 / required_rate(REDUCTION, CONTENT_TIME_S, cone_fast),
+        "fieldDeficitLocalOrders": field_deficit_orders(1000 * LOCAL_EXTENT_M),
+    }
+
+
 def estimates() -> dict[str, float]:
     """Every published quantity, in the units the paper states it."""
     cone_slow = cone_delay(FIBRE_LENGTH_M, VELOCITY_SLOW_M_S, SYNAPTIC_DELAY_S)
@@ -269,6 +289,7 @@ def estimates() -> dict[str, float]:
         ),
         "fieldDeficitOrders": field_deficit_orders(1000 * FIBRE_LENGTH_M),
         "tauSlowMs": 1000 / required_rate(REDUCTION, CONTENT_TIME_S, cone_slow),
+        **_local(),
         "tauFastMs": 1000 / required_rate(REDUCTION, CONTENT_TIME_S, cone_fast),
         "marginPercent": 100 * NOISE_MARGIN_V / SUPPLY_V,
         "supplyPercent": 100 * SUPPLY_VARIATION,

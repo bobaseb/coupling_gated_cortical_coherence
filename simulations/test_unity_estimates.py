@@ -29,6 +29,23 @@ class WindowTest(unittest.TestCase):
         self.assertLess(estimates["coneMaxMs"], estimates["coneFastMs"])
 
 
+class ExtentTest(unittest.TestCase):
+    def test_a_localized_extent_shortens_the_deadline(self) -> None:
+        estimates = ue.estimates()
+        self.assertLess(estimates["localCm"], estimates["fibreCm"])
+        self.assertLess(estimates["coneLocalMaxMs"], estimates["coneMaxMs"])
+        self.assertLess(estimates["coneLocalFastMs"], estimates["coneFastMs"])
+
+    def test_a_localized_extent_leaves_more_time_to_settle(self) -> None:
+        estimates = ue.estimates()
+        self.assertGreater(estimates["tauLocalMs"], estimates["tauFastMs"])
+
+    def test_the_field_falls_short_of_a_localized_extent_by_less(self) -> None:
+        estimates = ue.estimates()
+        self.assertLess(estimates["fieldDeficitLocalOrders"], estimates["fieldDeficitOrders"])
+        self.assertGreater(estimates["fieldDeficitLocalOrders"], 0.0)
+
+
 class FieldTest(unittest.TestCase):
     def test_the_field_reaches_detection_at_its_reach(self) -> None:
         reach = ue.field_reach(peak=2.0, detection=0.25, near=1.0, exponent=3.0)

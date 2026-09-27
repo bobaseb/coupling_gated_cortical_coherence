@@ -95,7 +95,9 @@ floor: every sub-threshold change larger than the noise of what a carrier depend
 on must move the carrier's next content by at least as much as that content
 fluctuates. A noisy carrier meets this near its threshold, so P asks it of some
 carriers within each window rather than of every carrier at every
-instant.
+instant. P is neutral on where unified contents live: it constrains whichever
+regions carry them, whether they span the cortex or are confined to a posterior
+zone of it \citep{koch2016}.
 
 The paper makes three claims:
 \begin{enumerate}
@@ -379,9 +381,10 @@ from threshold at which each carrier is held, a few noise amplitudes against
 \label{sec:reach}
 
 P asks the coupling to contract disagreement between every pair of regions
-whose contents are unified, and the regions a single scene joins lie up to
-\ueFibreCm{}~cm apart, so P can hold for a whole scene only if the coupling
-enforces agreement at those distances. The intuition is simple. If each patch of cortex is tied only to its near
+whose contents are unified, so the distance it must span is the extent of those
+regions: up to \ueFibreCm{}~cm if a scene's contents span the cortex, and about
+\ueLocalCm{}~cm if they are confined to a posterior zone. P can hold for a scene
+only if the coupling enforces agreement across that extent. The intuition is simple. If each patch of cortex is tied only to its near
 neighbours, agreement has to pass from hand to hand, and a little of it leaks
 away at every hand, so distant patches drift apart. If there are enough direct
 ties across long distances, agreement can hold everywhere. This section makes
@@ -487,7 +490,10 @@ a conscious percept, which lasts up to \ueContentMs{}~ms \citep{herzog2016}.
 Count agreement as reached when disagreement has fallen \ueReduction{}-fold,
 decaying exponentially. The window is then open when the coupling's relaxation
 time is at most \ueTauSlowMs{}~ms with typical arrival along the slower fibres,
-and \ueTauFastMs{}~ms along the faster. Signal travel thus uses only a small
+and \ueTauFastMs{}~ms along the faster. Over a localized extent of
+\ueLocalCm{}~cm the earliest arrival is \ueConeLocalMaxMs{}~ms, typical arrival
+along the faster fibres is \ueConeLocalFastMs{}~ms, and the relaxation time may
+reach \ueTauLocalMs{}~ms. Signal travel thus uses only a small
 part of the time available, and whether the window opens depends on how fast
 the coupling settles.
 
@@ -724,7 +730,8 @@ Endogenous fields in cortex peak near \ueFieldPeak{}~mV/mm in vivo
 cortical source decays as $r^{-2.1}$ across millimetres \citep{rebollo2021}.
 With the peak placed at the nearest distance of that measurement, the field of a
 local source falls to the detection threshold within \ueFieldReachMm{}~mm, and
-misses it by \ueFieldDeficitOrders{} orders of magnitude at \ueFibreCm{}~cm.
+misses it by \ueFieldDeficitOrders{} orders of magnitude at \ueFibreCm{}~cm and
+by \ueFieldDeficitLocalOrders{} at \ueLocalCm{}~cm.
 The field's cone is therefore tested at millimetre distances, where activity
 has been observed to synchronize across a cut through cortex by the field alone
 \citep{rebollo2021}. At centimetre distances P predicts that re-agreement
