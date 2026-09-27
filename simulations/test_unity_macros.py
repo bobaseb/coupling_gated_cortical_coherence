@@ -17,6 +17,7 @@ class UnityMacroTests(unittest.TestCase):
         self.assertIn("\\uHarmonicRatioLow", text)
         self.assertIn("\\uOccPassMaxPercent", text)
         self.assertIn("\\uYardBestMin", text)
+        self.assertIn("\\uCorShareTol", text)
         self.assertIn("figures/unity_occupancy/", text)
 
     def test_every_macro_the_paper_uses_is_generated(self) -> None:
@@ -43,6 +44,13 @@ class UnityMacroTests(unittest.TestCase):
         (root / "unity_occupancy").mkdir()
         (root / "unity_occupancy" / "summary.json").write_text(json.dumps(occupancy))
         (root / "unity_occupancy" / "yardstick.json").write_text(json.dumps(yardstick))
+        correlated = json.loads((FIGURES / "unity_occupancy" / "correlated.json").read_text())
+        if change == "nonfinite_correlated":
+            first = correlated["neurons"][0]["by_scale"]["1"]["0.5"]["400"]
+            first["no_link"]["100"]["probability"] = float("nan")
+        if change == "no_correlated":
+            correlated["neurons"] = []
+        (root / "unity_occupancy" / "correlated.json").write_text(json.dumps(correlated))
         summary = json.loads((FIGURES / "unity_agreement" / "summary.json").read_text())
         scaling = json.loads((FIGURES / "unity_agreement" / "resistance.json").read_text())
         if change == "no_runs":
@@ -72,6 +80,31 @@ class UnityMacroTests(unittest.TestCase):
     def test_a_missing_yardstick_sweep_is_rejected(self) -> None:
         with self.assertRaises(ValueError):
             render(self._mutated("no_yardsticks"))
+
+    def test_a_nonfinite_correlated_link_is_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            render(self._mutated("nonfinite_correlated"))
+
+    def test_a_missing_correlated_sweep_is_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            render(self._mutated("no_correlated"))
+
+    def test_printed_bounds_never_overstate_the_sweep(self) -> None:
+        values = dict(
+            entry.split("}{", 1)
+            for entry in render(FIGURES).replace("\\newcommand{\\", "\n").splitlines()
+            if "}{" in entry
+        )
+        swept = json.loads((FIGURES / "unity_occupancy" / "correlated.json").read_text())
+        share = values["uCorShareTol"].rstrip("}")
+        links = [
+            1.0 - per[share]["400"]["no_link"]["100"]["probability"]
+            for n in swept["neurons"]
+            for per in n["by_scale"].values()
+        ]
+        self.assertLessEqual(float(values["uCorLinkMidTol"].rstrip("}")), min(links))
+        misses = [1.0 - v for v in links]
+        self.assertGreaterEqual(float(values["uCorMissC"].rstrip("}")), max(misses))
 
     def test_the_occupancy_ranges_are_ordered(self) -> None:
         values = dict(

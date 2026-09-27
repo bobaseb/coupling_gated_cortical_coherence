@@ -18,7 +18,7 @@ noise floor on every region it overlaps, through a contracting coupling. The
 margin theorem excludes content read from bits. Constraints and history:
 `c3cf854:tasks/todo.md` §U and `CHANGELOG.md`.
 
-- [ ] **U47 — Correlated carriers: replace the declared independence.** The
+- [x] **U47 — Correlated carriers: replace the declared independence.** The
   window bound (1 − p)^K (`measure_not_reachesWithin_le`) assumes the carriers
   joining two regions fail independently, and the carrier counts 10/100/1000
   are declared. Nearby membranes share input, and a passing state is a
@@ -88,6 +88,24 @@ margin theorem excludes content read from bits. Constraints and history:
   large, brief and specific excitatory input that was not present in the
   V(m) of neighbouring cells", i.e. the near-threshold drive is private,
   which the one-component model does not capture. (b) Lean not started.
+  *(d) done 2026-09-27 at the author's request (option 1):* §enforcement keeps
+  the independent-carrier numbers as baseline and states the correlated
+  result (`\uCor…` macros, floored lower bounds and ceiled upper bounds, with
+  drift and mutation tests); Poulet & Petersen cited for the qualitative
+  statement only; Limitations and `app:occupancy` updated; CHANGELOG entry.
+  (b) moved to U47b below.
+- [ ] **U47b — Lean: the window bound without independence.** As (b) above:
+  `measure_not_reachesWithin_le_variance`, P(no reach) ≤ Var N / E[N]², then a
+  `tab:formal` row and the proof-companion chain. The paper currently says
+  the formal per-window bound is the independent one (Limitations).
+- [ ] **U47c — Read Poulet & Petersen 2008 in full.** Confirm the Vm
+  correlations (search summary: 0.72 ± 0.11 quiet, 0.33 ± 0.17 whisking;
+  not read in the paper) and the distance between recorded cells. If
+  confirmed, cite measured values against the swept shares in §enforcement
+  (e.g. the link at c ≈ 0.33 and 0.72) instead of a qualitative statement,
+  and consider sweeping c = 0.33 and 0.72 exactly. Also consider a second,
+  private near-threshold drive (their spikes are driven by input absent from
+  neighbours' Vm), which would make the one-component model pessimistic.
 
 *Review pass 2026-09-27 (score 4/10 standalone, ~4.5 read with the
 companion; 5 = reject).* Verdict: well written, honest about its limits,
@@ -243,6 +261,101 @@ comes back badly; above 6 needs data (a bridge pilot).
   *Done 2026-09-27:* verified on arXiv (19 authors, 2308.08708; adopts
   "computational functionalism … as a working hypothesis"); new §related
   paragraph "Indicator properties".
+
+*Review pass 2026-09-27, second read (score ~4.5/10 after U49, U50, U52;
+5 = reject).* Items the first pass did not raise, plus the author's
+reframing (U65). Work order: U65 first (it sets the frame the others are
+written in), then U61, U59, U60, U62, U63, U64 last.
+
+- [ ] **U65 — Reframe: a finer grain, not a refutation of functionalism.**
+  Author's direction, 2026-09-27: a metaphysical position is not refuted by
+  experiment, and the paper does not try to. P is itself a functional
+  condition stated at the grain of graded physical dynamics (the intro
+  already says so); the contribution is that at this grain cortex and
+  mainstream digital chips come apart, while at the grain of an algorithm
+  they do not. The bridge asks which grain unity tracks. This does not hedge
+  P: the premise stays as stated; only its opponent changes. Sites, all in
+  `unity/main.tex`:
+  (a) Abstract "rejects computational functionalism" → P fixes the
+      functional role at the grain of graded dynamics, where cortex and
+      digital chips differ.
+  (b) Intro, paragraph after Premise P, "therefore rejects computational
+      functionalism about unity" → P and algorithm-grain functionalism are
+      two grains of one kind of claim; say which cases they classify
+      differently (the simulation).
+  (c) The bridge claim "which separates P from computational
+      functionalism" → "which tests whether unity tracks the graded grain
+      or the algorithmic one".
+  (d) End of "Counting systems at the noise floor", "A computational
+      functionalist who rejects P must reject one of the two" → state the
+      two claims as what fixes the grain; keep the dialectic, drop the
+      adversary.
+  (e) §tests "Separating coupling from information" and the bridge readout
+      ("decides between P and computational functionalism", "supports P
+      over the information-flow form") → the bridge holds information flow
+      fixed and varies the grain of coupling; unity following the analog
+      loop is evidence that unity tracks the finer grain. Check U48's new
+      text and U57's "Gradual replacement" for the same framing.
+  (f) Limitations "The premise", "The bridge's reach", "Human evidence":
+      a fine-grained functionalism agreeing with P is the intended reading,
+      not a leftover. Rewrite as scope, not retreat.
+  (g) §related "The grain of a function" becomes the frame, not one entry:
+      move its point (Block's coarse grain, Godfrey-Smith) into the
+      introduction.
+  Mind check-claims (§10): the rewritten sentences must not add disclaimers
+  outside `sec:limitations`. Interacts with U55 and the U58 paragraph
+  (positioning against Kleiner, IIT and Butlin et al. becomes "which grain",
+  not "who is right") and eases U59/U60, which no longer carry a refutation.
+  PDF and arXiv rebuilds per §6/§7.
+- [ ] **U59 — The regress argument proves too much.** "Unity is not one more
+  content" (§enforcement) says a rule that compares and corrects records only
+  writes another record. A gate is physical coupling, and a synapse also
+  compares and corrects; a downstream membrane integrating spike times is
+  arguably one more record too. What separates chip from cortex is the
+  margin/noise-floor argument of the next paragraph, not the regress. Either
+  state what makes a margin-held record different from a graded carrier
+  *inside* the regress argument, or demote the paragraph to motivation for
+  "Counting systems at the noise floor" so it carries no independent weight.
+  U57's "Gradual replacement" leans on "unity is not a content", so check it
+  too. Keep P stated plainly.
+- [ ] **U60 — The criterion reads as weakened until cortex passes.** Every
+  carrier → some carrier, every instant → within a window: each weakening sits
+  exactly where cortex would fail. Say in the introduction what the weak form
+  amounts to (two regions are one system iff some margin-free path links a
+  carrier of each within the window) and why that, and not the strong form,
+  is the right reading of one total state. A reader who works this out alone
+  reads it as gerrymandering. Move qualification, never delete it (§10).
+  U47(a)'s correlated-carrier result bears on the window form: settle U47(d)
+  first or together.
+- [ ] **U61 — Bridge timing confound.** Matching transfer entropy by lowering
+  the analog loop's bandwidth slows its relaxation, and §reach's "agreement
+  in time" condition then fails P for a graded but too-slow loop. A null
+  result would be ambiguous between "unity does not follow graded coupling"
+  and "the analog loop was too slow". Show that the matched cutoff keeps the
+  loop's relaxation time within the content window (`app:window`'s τ bound),
+  or state it as a design constraint on the cutoff with its bound computed
+  from the macros. Reopens U48: the centerpiece must not carry this hole.
+- [ ] **U62 — Analog in-memory accelerators.** §ai says analog, in-memory
+  and neuromorphic substrates "can satisfy P", so the same transformer on a
+  crossbar and on a GPU would differ in unity: the reductio "The margin's
+  width" tries to defuse. Say which way P decides current analog in-memory
+  hardware. Typical designs digitise column currents through ADCs between
+  layers, which would put them under the margin theorem; if so, say so, and
+  what a passing design would need (no restoring stage between coupled
+  graded contents). Verify the ADC claim against a source before stating it.
+- [ ] **U63 — Literature on analog versus digital representation.** The
+  definition of a symbol as "a content read through a noise margin"
+  (§ai, "Symbols and physical contents") sits next to Piccinini's account of
+  digital computation, Maley's analyses of analog representation, and
+  Maudlin's Olympia argument on counterfactual sensitivity (candidates only;
+  verify authors, titles, years and venues online per AGENTS.md §4 before
+  citing). One or two sentences each in §related: where P's margin
+  definition agrees or differs.
+- [ ] **U64 — Split "Counting systems at the noise floor".** About 50 lines
+  in one paragraph (§enforcement); the lines after "The count looks strange"
+  read as patched in. Three paragraphs: the scale the parts supply; the chip
+  under the noisy margin theorem; the dialectic. Do after U65/U59/U60, which
+  may rewrite it.
 
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of

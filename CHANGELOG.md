@@ -23,6 +23,30 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-27 — Unity paper: review response (U47–U58)
+
+Three claims are no longer made.
+
+- That with 100 carriers joining two regions "a window without one occurs less
+  than once in 10^3", and that within 40 ms the link has probability at least
+  0.59. Both assumed the carriers pass independently. With a shared input of
+  variance share c (`simulations/unity_correlated.py`), the 400 ms miss
+  probability is 0.0015 at c = 0.25, 0.012 at 0.5 and 0.093 at 0.75, and the
+  40 ms link falls to 0.22 at c = 0.75. The 400 ms link stays at 0.90 or above
+  up to c = 0.75 in every regime, which is what the paper now states; the
+  independent-carrier numbers remain as the baseline.
+- That a coupling tail slower than r^-4 "keeps agreement at every distance",
+  as a headline. It bounds *phase* disagreement at every distance; turning that
+  into content agreement across centimetres is the companion's bridge
+  assumption, now named in §reach and Limitations. r^-4 left the abstract.
+- That a clocked chip "is as many systems as it has bits". Its voltages are one
+  system, since crosstalk and a shared supply are real interactions; its
+  contents, read through margins, are as many systems as it has bits.
+
+The margin result is called a lemma, and the noisy bound, which is attained,
+carries the argument. The step from unity to counting systems at the noise
+floor is argued (unity as parthood, Bayne 2010) instead of asserted.
+
 ## 2026-09-27 — Unity paper: P over carriers, per content window (U36–U46)
 
 The draft claimed that "a cortical spike time passes the same test" as the

@@ -420,15 +420,29 @@ integration time that precedes a conscious percept, with probability
 it depends on supplies only \uOccShareMin{} of its membrane's noise variance. If
 two regions are joined by \uOccCarriersFew{} carriers that pass independently,
 some carrier passes in such a window with probability at least
-\uOccLinkFewLong{}; with \uOccCarriersMid{}, a window without one occurs less
-than once in $10^{\uOccMissOrdersMidLong}$, and within \uOccContentShortMs{}~ms
-the probability is at least \uOccLinkMidShort{}. At a single instant, even
-\uOccCarriersMany{} such carriers link two regions with probability as low as
-\uOccInstantLinkMin{}, which is why P is stated per window. The window bound is
-proved for independent carriers, and the probability that no carrier links two
-regions falls geometrically with their number. Reading the spike time through a
-clock of \uOccLatchShortMs{} or \uOccLatchLongMs{}~ms leaves the passing
-fraction unchanged. What separates the membrane from the bit is the distance
+\uOccLinkFewLong{}, and with \uOccCarriersMid{} within \uOccContentShortMs{}~ms
+with probability at least \uOccLinkMidShort{}; for independent carriers the
+probability that none passes falls geometrically with their number. At a single
+instant, even \uOccCarriersMany{} such carriers link two regions with
+probability as low as \uOccInstantLinkMin{}, which is why P is stated per
+window. Reading the spike time through a clock of \uOccLatchShortMs{} or
+\uOccLatchLongMs{}~ms leaves the passing fraction unchanged.
+
+Neighbouring membranes share input, and in awake cortex their potentials are
+highly correlated during quiet wakefulness and less so during active behaviour
+\citep{poulet2008}. We model this as a shared component carrying a fraction $c$
+of every membrane's noise variance, so that two membranes correlate by $c$ and
+each keeps its own law (Appendix~\ref{app:occupancy}). At least one of
+\uOccCarriersMid{} such carriers enters a passing state within
+\uOccContentLongMs{}~ms with probability at least \uCorLinkMidTol{} for every
+share up to $c=\uCorShareTol$, in every regime, and
+at least one of \uOccCarriersMany{} with probability at least \uCorLinkManyTol{}. The chance
+that \uOccCarriersMid{} carriers leave the window without a link is at most
+\uCorMissA{} at $c=\uCorShareA$, \uCorMissB{} at $c=\uCorShareB$ and
+\uCorMissC{} at $c=\uCorShareTol$. The shorter window is more sensitive to
+correlation: within \uOccContentShortMs{}~ms the link falls to
+\uCorLinkShortTol{} at $c=\uCorShareTol$, so P's per-window condition is met at
+the time scale of a percept rather than of its fastest components. What separates the membrane from the bit is the distance
 from threshold at which each carrier is held, a few noise amplitudes against
 \ueMarginToNoise{}.
 
@@ -875,10 +889,13 @@ measurements of one connection type and one noise recording, and reads the
 spike-time shift through a linear threshold crossing. The occupancy result models
 one membrane as a leaky integrate-and-fire cell under white noise, with a
 threshold that has no dynamics of its own. Its time constants, rates, windows,
-noise shares and carrier counts are declared ranges, not fits. The window bound
-treats carriers as independent, and the membranes of nearby cells are
-correlated, which is why the carrier counts it uses stay far below the
-anatomical ones.
+noise shares and carrier counts are declared ranges, not fits. Correlation
+between carriers is modelled as one shared component with the membrane's own
+time constant, at declared shares; the measured correlations it is compared with
+are those of neighbouring cells, and the single spikes of awake cortex are
+driven by input that neighbouring cells do not share \citep{poulet2008}, which
+that model omits. The carrier counts stay far below the anatomical ones, and the
+per-window bound proved formally is the one for independent carriers.
 
 \item \emph{Reach.} The identification of phase variance with effective
 resistance rests on the harmonic approximation at identical natural frequencies.
@@ -1056,9 +1073,19 @@ in the membrane's units, and its changes are scaled accordingly. The bit is a
 carrier restored each step to a rail at a declared margin, read after one step of
 unit Gaussian noise, with occupancy given by that noise around the rail. The
 same computation is repeated at yardsticks from \uYardLow{} to \uYardHigh{} in
-place of the fluctuation, at every regime and noise share. Halving
+place of the fluctuation, at every regime and noise share. For correlated
+carriers, each membrane is the sum of a shared Ornstein--Uhlenbeck component of
+variance $c$ and a private one of variance $1-c$, both with the membrane's time
+constant. Given the shared path the carriers are independent, so the
+probability that none of $K$ passes within a window is the average of
+$(1-h)^K$ over shared paths, where $h$ is one carrier's chance of passing given
+the path. For each of \uCorPaths{} shared paths from a fixed seed, the
+membrane's probability is propagated through the exact step with the private
+noise, its centre moved by the shared path's increment, after a burn-in of five
+time constants. Halving
 both the grid spacing and the time step changes the passing fraction by
-\uOccResolutionPercent\%.
+\uOccResolutionPercent\%, and the correlation of two carriers' passing by at
+most \uCorResolutionRho{}.
 
 \section{Formal results}
 \label{app:formal}

@@ -1,12 +1,13 @@
 """Generate the physical-unity paper's numerals from saved summaries only.
 
 Reads ``figures/unity_agreement/summary.json`` (the sheet simulations),
-``resistance.json`` (the exact resistance scaling) and
-``figures/unity_occupancy/summary.json`` (the occupancy-weighted carrier test)
-and ``figures/unity_occupancy/yardstick.json`` (the same test at other yardsticks)
-and writes ``unity/unity_results.tex``. Nothing here integrates a sheet, sums a
-Fourier series or propagates a membrane: ``unity_agreement.py`` and
-``unity_occupancy.py`` produce the summaries as separate commands.
+``resistance.json`` (the exact resistance scaling), and in
+``figures/unity_occupancy/`` ``summary.json`` (the occupancy-weighted carrier
+test), ``yardstick.json`` (the same test at other yardsticks) and
+``correlated.json`` (carriers sharing input), and writes
+``unity/unity_results.tex``. Nothing here integrates a sheet, sums a Fourier
+series or propagates a membrane: ``unity_agreement.py``, ``unity_occupancy.py``
+and ``unity_correlated.py`` produce the summaries as separate commands.
 """
 
 import json
@@ -116,7 +117,6 @@ def _window_values(neurons: list[dict[str, Any]]) -> list[tuple[str, str]]:
     carriers = sorted(int(k) for k in neurons[0]["link_probability"]["1"])
     few, mid, many = carriers
     instant = min(_finite(v[str(many)]) for n in neurons for v in n["link_probability"].values())
-    miss = (1.0 - min(hits[long])) ** mid
     return [
         ("uOccContentShortMs", f"{float(short):g}"),
         ("uOccContentLongMs", f"{float(long):g}"),
@@ -127,7 +127,6 @@ def _window_values(neurons: list[dict[str, Any]]) -> list[tuple[str, str]]:
         ("uOccHitMinLong", f"{min(hits[long]):.2g}"),
         ("uOccHitMaxLong", f"{max(hits[long]):.3g}"),
         ("uOccLinkFewLong", f"{1.0 - (1.0 - min(hits[long])) ** few:.2g}"),
-        ("uOccMissOrdersMidLong", f"{math.floor(-math.log10(miss))}"),
         ("uOccLinkMidShort", f"{1.0 - (1.0 - min(hits[short])) ** mid:.2g}"),
     ]
 
@@ -202,6 +201,59 @@ def _yardstick_values(swept: dict[str, Any]) -> list[tuple[str, str]]:
     ]
 
 
+# Shares at which the miss probability is printed, besides the tolerated one.
+MISS_SHARES = ("0.25", "0.5")
+
+
+def _floor(value: float, digits: int) -> str:
+    """A lower bound printed without rounding up."""
+    return f"{math.floor(value * 10**digits) / 10**digits:.{digits}f}"
+
+
+def _ceil_sig(value: float) -> str:
+    """An upper bound to two significant figures, never rounded down."""
+    scale = 10 ** (math.floor(math.log10(value)) - 1)
+    return f"{math.ceil(value / scale) * scale:.2g}"
+
+
+def _links(neurons: list[dict[str, Any]], share: str, window: str, carriers: int) -> list[float]:
+    """The link probability in every regime and noise share, at one share of input."""
+    return [
+        1.0 - _finite(per[share][window]["no_link"][str(carriers)]["probability"])
+        for n in neurons
+        for per in n["by_scale"].values()
+    ]
+
+
+def _correlated_values(swept: dict[str, Any]) -> list[tuple[str, str]]:
+    """The largest share every regime tolerates, and the links and misses around it."""
+    neurons = cast(list[dict[str, Any]], swept["neurons"])
+    if not neurons:
+        raise ValueError("The saved correlated sweep has no regimes")
+    tolerated = min(_finite(t) for n in neurons for t in n["largest_share"].values())
+    tol = f"{tolerated:g}"
+    mid, many = str(swept["link_carriers"]), str(max(swept["carriers"]))
+    values = [
+        ("uCorShareTol", tol),
+        ("uCorPaths", str(swept["paths"])),
+        ("uCorLinkMidTol", _floor(min(_links(neurons, tol, "400", int(mid))), 2)),
+        ("uCorLinkManyTol", _floor(min(_links(neurons, tol, "400", int(many))), 2)),
+        ("uCorLinkShortTol", _floor(min(_links(neurons, tol, "40", int(mid))), 2)),
+    ]
+    for label, share in zip("AB", MISS_SHARES, strict=True):
+        miss = 1.0 - min(_links(neurons, share, "400", int(mid)))
+        values += [(f"uCorShare{label}", share), (f"uCorMiss{label}", _ceil_sig(miss))]
+    values.append(("uCorMissC", _ceil_sig(1.0 - min(_links(neurons, tol, "400", int(mid))))))
+    check = swept["resolution_check"]
+    rho = [
+        [_finite(row["400"]["pair_correlation"]) for row in check[k]["by_scale"]["1"].values()]
+        for k in ("coarse", "fine")
+    ]
+    shift = max(abs(a - b) for a, b in zip(*rho, strict=True))
+    values.append(("uCorResolutionRho", _ceil_sig(shift)))
+    return values
+
+
 def render(figures: Path) -> str:
     """Read saved summaries; never integrate a sheet or recompute a resistance."""
     directory = figures / "unity_agreement"
@@ -209,6 +261,7 @@ def render(figures: Path) -> str:
     values += _scaling_values(_read(directory / "resistance.json"))
     values += _occupancy_values(_read(figures / "unity_occupancy" / "summary.json"))
     values += _yardstick_values(_read(figures / "unity_occupancy" / "yardstick.json"))
+    values += _correlated_values(_read(figures / "unity_occupancy" / "correlated.json"))
     lines = [
         "% Generated by simulations/unity_macros.py from saved JSON summaries in",
         "% simulations/figures/unity_agreement/ and simulations/figures/unity_occupancy/.",
