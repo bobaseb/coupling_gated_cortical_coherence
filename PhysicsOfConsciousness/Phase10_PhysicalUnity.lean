@@ -621,6 +621,193 @@ theorem not_enforcedAtNoiseFloor_of_bits [Fintype ι] {κ : Type*} {μ : Measure
 
 end PhysicsOfConsciousness.PhysicalUnity
 
+/-! ## P over carriers, per content window
+
+The criterion above is universal: every change of a region above its noise must
+move the other region's content by `θ`. Read at the grain of single carriers — a
+membrane, a spike time — a noisy carrier meets it only near its threshold, so a
+region made of many carriers meets the universal form almost nowhere. What
+unites two regions is that *some* of the carriers joining them pass, and that
+some pass within every window of the content's time scale.
+
+* **`ReachesAtNoiseFloor region … a b`.** Carriers `ι` belong to regions `R`
+  through `region`. Region `a` reaches region `b` at a micro state when some
+  carrier of `b` depends gradedly above noise on some carrier of `a`.
+* **`EnforcedByCarriers O …`.** Every pair of regions that `O` says overlap is
+  joined in this way; for a symmetric `O`, in both directions. Such regions are
+  one system (`EnforcedByCarriers.regionSameSystem`).
+* **`EnforcedAtNoiseFloor.enforcedByCarriers`.** The universal criterion, read
+  over carriers, implies this one wherever every region has a carrier, so the
+  carrier form is the weaker premise; `Examples/PhysicalUnity.lean` exhibits a
+  state where it holds and the universal form fails.
+* **`not_reachesAtNoiseFloor_of_bits`.** A machine whose contents are read from
+  bits with error rate below `θ`, each carrier admitting a change above its
+  noise inside the margin, has no carrier of any region reaching any other, so
+  it fails the carrier form at any overlap (`not_enforcedByCarriers_of_bits`)
+  and each region is a system of its own (`regionSameSystem_iff_eq_of_bits`).
+  Weakening the premise from every carrier to some carrier costs the digital
+  exclusion nothing.
+* **`measure_not_reachesWithin_le`.** Along trajectories `X ω` of the micro
+  state, if `K` events each guarantee that `a` reaches `b` somewhere in the
+  window `T`, and the events that they fail are independent with probability at
+  most `1 − p` each, then `a` fails to reach `b` in the window with probability
+  at most `(1 − p)^K`.
+
+Scope. Which variables are carriers, and which carriers belong to which region,
+is the modeller's choice; the theorems hold for any choice. Independence is a
+hypothesis of the window bound, not a result, and correlated carriers weaken
+it. Nothing here computes `p`: that is a property of the carrier's dynamics.
+-/
+
+namespace PhysicsOfConsciousness.PhysicalUnity
+
+open MeasureTheory
+
+variable {ι : Type*} [DecidableEq ι] {S : ι → Type*}
+  [∀ i, PseudoMetricSpace (S i)] {C : Type*} {Ω : Type*} [MeasurableSpace Ω] {R : Type*}
+
+/-- **Reach at the noise floor.** Region `a` reaches region `b` at `x` when some
+carrier `j` of `b` has content depending gradedly above noise on some carrier `i`
+of `a`. -/
+def ReachesAtNoiseFloor (region : ι → R) (μ : Measure Ω) (f : Ω → (∀ i, S i) → ∀ i, S i)
+    (π : ι → (∀ i, S i) → C) (x : ∀ i, S i) (σ Θ : ι → ℝ) (θ : ENNReal) (a b : R) : Prop :=
+  ∃ i j, region i = a ∧ region j = b ∧ GradedAboveNoise μ f (π j) x i (σ i) (Θ i) θ
+
+/-- **P over carriers.** Every pair of regions that `O` says overlap is joined by
+reach at the noise floor. -/
+def EnforcedByCarriers (region : ι → R) (O : R → R → Prop) (μ : Measure Ω)
+    (f : Ω → (∀ i, S i) → ∀ i, S i) (π : ι → (∀ i, S i) → C) (x : ∀ i, S i)
+    (σ Θ : ι → ℝ) (θ : ENNReal) : Prop :=
+  ∀ a b, O a b → ReachesAtNoiseFloor region μ f π x σ Θ θ a b
+
+/-- Regions are one system when a chain of mutual reaches joins them. -/
+def RegionSameSystem (region : ι → R) (μ : Measure Ω) (f : Ω → (∀ i, S i) → ∀ i, S i)
+    (π : ι → (∀ i, S i) → C) (x : ∀ i, S i) (σ Θ : ι → ℝ) (θ : ENNReal) : R → R → Prop :=
+  Relation.EqvGen fun a b =>
+    ReachesAtNoiseFloor region μ f π x σ Θ θ a b ∧ ReachesAtNoiseFloor region μ f π x σ Θ θ b a
+
+/-- Regions whose overlap P over carriers admits, for a symmetric overlap relation,
+are one system. -/
+theorem EnforcedByCarriers.regionSameSystem {region : ι → R} {O : R → R → Prop}
+    (hO : ∀ a b, O a b → O b a) {μ : Measure Ω} {f : Ω → (∀ i, S i) → ∀ i, S i}
+    {π : ι → (∀ i, S i) → C} {x : ∀ i, S i} {σ Θ : ι → ℝ} {θ : ENNReal}
+    (h : EnforcedByCarriers region O μ f π x σ Θ θ) {a b : R} (hab : O a b) :
+    RegionSameSystem region μ f π x σ Θ θ a b :=
+  .rel _ _ ⟨h a b hab, h b a (hO a b hab)⟩
+
+/-- **The universal form implies the carrier form.** If every carrier's content
+depends gradedly above noise on every carrier of every region its own region
+overlaps, and every region has a carrier, then P over carriers holds. The
+converse fails (`Examples/PhysicalUnity.lean`), so the carrier form is strictly
+weaker. -/
+theorem EnforcedAtNoiseFloor.enforcedByCarriers {region : ι → R} {O : R → R → Prop}
+    {μ : Measure Ω} {f : Ω → (∀ i, S i) → ∀ i, S i} {π : ι → (∀ i, S i) → C}
+    {x : ∀ i, S i} {σ Θ : ι → ℝ} {θ : ENNReal}
+    (h : EnforcedAtNoiseFloor (fun i j => O (region i) (region j)) μ f π x σ Θ θ)
+    (hne : ∀ a, ∃ i, region i = a) : EnforcedByCarriers region O μ f π x σ Θ θ := by
+  intro a b hab
+  obtain ⟨i, rfl⟩ := hne a
+  obtain ⟨j, rfl⟩ := hne b
+  exact ⟨i, j, rfl, rfl, h i j hab⟩
+
+/-- **A bit-read content depends on no carrier above its noise.** Under the
+hypotheses of `sameSystem_iff_eq_of_bits`, for carrier `i` alone: if `i` admits a
+change above its noise and below its threshold-crossing change that stays within
+the margin's width, no content read from the bits depends gradedly above noise on
+`i`. -/
+theorem not_gradedAboveNoise_of_bits [Fintype ι] {κ : Type*} {μ : Measure Ω}
+    {f : Ω → (∀ i, S i) → ∀ i, S i} {L : NNReal} (hf : ∀ ω, LipschitzWith L (f ω))
+    {v : κ → (∀ i, S i) → ℝ} {Lv : NNReal} (hv : ∀ k, LipschitzWith Lv (v k))
+    (hLv : 0 < (Lv : ℝ)) (c : κ → ℝ) (q : (κ → Bool) → C) {δ : ℝ}
+    {x : ∀ i, S i} {ε θ : ENNReal} (hε : μ {ω | ∃ k, |v k (f ω x) - c k| < δ} ≤ ε)
+    (hεθ : ε < θ) {i : ι} {σ Θ : ℝ}
+    (hs : ∃ s : S i, σ ≤ dist s (x i) ∧ dist s (x i) < Θ ∧ L * dist s (x i) < δ / Lv) :
+    ¬ GradedAboveNoise μ f (fun y => q fun k => decide (c k < v k y)) x i σ Θ θ := by
+  intro hg
+  obtain ⟨s, hσ, hΘ, hr⟩ := hs
+  refine (hεθ.trans_le (hg s hσ hΘ)).not_ge (iSup_le fun A => tsub_le_iff_left.mpr ?_)
+  exact (bits_law_le_of_lipschitz hf hv hLv c q hε i s hr A).1
+
+/-- **Bits reach nowhere.** Under the hypotheses of `sameSystem_iff_eq_of_bits`,
+with every carrier admitting a change above its noise inside the margin, no region
+reaches any region, itself included. -/
+theorem not_reachesAtNoiseFloor_of_bits [Fintype ι] {κ : Type*} {region : ι → R}
+    {μ : Measure Ω} {f : Ω → (∀ i, S i) → ∀ i, S i} {L : NNReal} (hf : ∀ ω, LipschitzWith L (f ω))
+    {v : κ → (∀ i, S i) → ℝ} {Lv : NNReal} (hv : ∀ k, LipschitzWith Lv (v k))
+    (hLv : 0 < (Lv : ℝ)) (c : κ → ℝ) (q : ι → (κ → Bool) → C) {δ : ℝ}
+    {x : ∀ i, S i} {ε θ : ENNReal} (hε : μ {ω | ∃ k, |v k (f ω x) - c k| < δ} ≤ ε)
+    (hεθ : ε < θ) {σ Θ : ι → ℝ}
+    (hs : ∀ i, ∃ s : S i, σ i ≤ dist s (x i) ∧ dist s (x i) < Θ i ∧
+      L * dist s (x i) < δ / Lv) (a b : R) :
+    ¬ ReachesAtNoiseFloor region μ f (fun j y => q j fun k => decide (c k < v k y)) x σ Θ θ a b :=
+  fun ⟨i, j, _, _, hg⟩ => not_gradedAboveNoise_of_bits hf hv hLv c (q j) hε hεθ (hs i) hg
+
+/-- **Bits fail P over carriers** at any overlap relation that relates two regions. -/
+theorem not_enforcedByCarriers_of_bits [Fintype ι] {κ : Type*} {region : ι → R}
+    {μ : Measure Ω} {f : Ω → (∀ i, S i) → ∀ i, S i} {L : NNReal} (hf : ∀ ω, LipschitzWith L (f ω))
+    {v : κ → (∀ i, S i) → ℝ} {Lv : NNReal} (hv : ∀ k, LipschitzWith Lv (v k))
+    (hLv : 0 < (Lv : ℝ)) (c : κ → ℝ) (q : ι → (κ → Bool) → C) {δ : ℝ}
+    {x : ∀ i, S i} {ε θ : ENNReal} (hε : μ {ω | ∃ k, |v k (f ω x) - c k| < δ} ≤ ε)
+    (hεθ : ε < θ) {σ Θ : ι → ℝ}
+    (hs : ∀ i, ∃ s : S i, σ i ≤ dist s (x i) ∧ dist s (x i) < Θ i ∧
+      L * dist s (x i) < δ / Lv) {O : R → R → Prop} {a b : R} (hab : O a b) :
+    ¬ EnforcedByCarriers region O μ f (fun j y => q j fun k => decide (c k < v k y)) x σ Θ θ :=
+  fun h => not_reachesAtNoiseFloor_of_bits hf hv hLv c q hε hεθ hs a b (h a b hab)
+
+/-- **A bit word's regions are as many systems as there are regions.** -/
+theorem regionSameSystem_iff_eq_of_bits [Fintype ι] {κ : Type*} {region : ι → R}
+    {μ : Measure Ω} {f : Ω → (∀ i, S i) → ∀ i, S i} {L : NNReal} (hf : ∀ ω, LipschitzWith L (f ω))
+    {v : κ → (∀ i, S i) → ℝ} {Lv : NNReal} (hv : ∀ k, LipschitzWith Lv (v k))
+    (hLv : 0 < (Lv : ℝ)) (c : κ → ℝ) (q : ι → (κ → Bool) → C) {δ : ℝ}
+    {x : ∀ i, S i} {ε θ : ENNReal} (hε : μ {ω | ∃ k, |v k (f ω x) - c k| < δ} ≤ ε)
+    (hεθ : ε < θ) {σ Θ : ι → ℝ}
+    (hs : ∀ i, ∃ s : S i, σ i ≤ dist s (x i) ∧ dist s (x i) < Θ i ∧
+      L * dist s (x i) < δ / Lv) {a b : R} :
+    RegionSameSystem region μ f (fun j y => q j fun k => decide (c k < v k y)) x σ Θ θ a b ↔
+      a = b := by
+  refine ⟨fun hs' => ?_, fun hab => hab ▸ .refl _⟩
+  induction hs' with
+  | rel a b hab => exact absurd hab.1 (not_reachesAtNoiseFloor_of_bits hf hv hLv c q hε hεθ hs a b)
+  | refl => rfl
+  | symm _ _ _ ih => exact ih.symm
+  | trans _ _ _ _ _ ih₁ ih₂ => exact ih₁.trans ih₂
+
+/-- Region `a` reaches region `b` at some time of the window `T` along the
+trajectory `X ω` of micro states. -/
+def ReachesWithin {Ω' τ : Type*} (region : ι → R) (μ : Measure Ω)
+    (f : Ω → (∀ i, S i) → ∀ i, S i) (π : ι → (∀ i, S i) → C) (X : Ω' → τ → ∀ i, S i)
+    (T : Set τ) (σ Θ : ι → ℝ) (θ : ENNReal) (a b : R) (ω : Ω') : Prop :=
+  ∃ t ∈ T, ReachesAtNoiseFloor region μ f π (X ω t) σ Θ θ a b
+
+/-- **Some carrier within every window.** Let each of `K` events `E k` of
+trajectories guarantee that `a` reaches `b` within the window `T` — carrier pair
+`k` visits a state from which it passes — and let the events that they fail be
+independent, each of probability at most `1 − p`. Then `a` fails to reach `b`
+within the window with probability at most `(1 − p)^K`.
+
+The physical content is in the hypotheses: that the carriers' failures are
+independent, which correlated membranes weaken, and the per-carrier probability
+`p`, which the carrier's dynamics sets and this theorem does not compute. -/
+theorem measure_not_reachesWithin_le {Ω' τ : Type*} [MeasurableSpace Ω'] {P : Measure Ω'}
+    {region : ι → R} {μ : Measure Ω} {f : Ω → (∀ i, S i) → ∀ i, S i}
+    {π : ι → (∀ i, S i) → C} {X : Ω' → τ → ∀ i, S i} {T : Set τ} {σ Θ : ι → ℝ}
+    {θ : ENNReal} {a b : R} {κ : Type*} [Fintype κ] {E : κ → Set Ω'}
+    (hE : ∀ k, E k ⊆ {ω | ReachesWithin region μ f π X T σ Θ θ a b ω})
+    (hind : ProbabilityTheory.iIndepSet (fun k => (E k)ᶜ) P) {p : ENNReal}
+    (hp : ∀ k, P (E k)ᶜ ≤ 1 - p) :
+    P {ω | ¬ ReachesWithin region μ f π X T σ Θ θ a b ω} ≤ (1 - p) ^ Fintype.card κ := by
+  calc P {ω | ¬ ReachesWithin region μ f π X T σ Θ θ a b ω}
+      ≤ P (⋂ k ∈ (Finset.univ : Finset κ), (E k)ᶜ) :=
+        measure_mono fun ω hω => by
+          simp only [Finset.mem_univ, Set.iInter_true, Set.mem_iInter, Set.mem_compl_iff]
+          exact fun k hk => hω (hE k hk)
+    _ = ∏ k ∈ (Finset.univ : Finset κ), P (E k)ᶜ := hind.meas_biInter _
+    _ ≤ (1 - p) ^ (Finset.univ : Finset κ).card :=
+        Finset.prod_le_pow_card _ _ _ fun k _ => hp k
+    _ = (1 - p) ^ Fintype.card κ := by rw [Finset.card_univ]
+
+end PhysicsOfConsciousness.PhysicalUnity
+
 /-! ## The Gaussian carrier
 
 Whether P is decided by the smallest change above the noise depends on how the

@@ -709,7 +709,7 @@ Review response (raised 2026-09-26, external-style review scored 5/10; plan
   nothing measurable. The resolution check (half step, half dt) moves the
   pass fraction by ~10%. Author's decision: restate P existentially over
   carriers ("some carriers, always"), see U44.
-- [ ] **U44 — Lean: P over carriers, per content window.** Regions `R`,
+- [x] **U44 — Lean: P over carriers, per content window.** Regions `R`,
   carriers `ι`, `region : ι → R`. `ReachesAtNoiseFloor` (some carrier of `b`
   depends gradedly above noise on some carrier of `a`); `EnforcedByCarriers`
   (every overlapping pair reaches); `RegionSameSystem`; the universal P
@@ -720,6 +720,19 @@ Review response (raised 2026-09-26, external-style review scored 5/10; plan
   links `a` to `b` in a window is ≤ (1 − p)^K. Two witnesses: reach from the
   `gaussLin` witness, and one region whose second carrier fails, so the
   existential P holds where the universal one does not.
+  *Done 2026-09-27:* `Phase10_PhysicalUnity` §"P over carriers, per content
+  window": `ReachesAtNoiseFloor`, `EnforcedByCarriers`, `RegionSameSystem`,
+  `EnforcedByCarriers.regionSameSystem`, `EnforcedAtNoiseFloor.enforcedByCarriers`,
+  `not_gradedAboveNoise_of_bits` (the per-carrier core of
+  `sameSystem_iff_eq_of_bits`), `not_reachesAtNoiseFloor_of_bits`,
+  `not_enforcedByCarriers_of_bits`, `regionSameSystem_iff_eq_of_bits`,
+  `ReachesWithin`, `measure_not_reachesWithin_le` (independence stated on
+  the failure events; `iIndepSet.meas_biInter` + `Finset.prod_le_pow_card`).
+  Witnesses in `Examples/PhysicalUnity.lean`: `gradedAboveNoise_dirac`
+  (factored out of `diffuse_sameSystem`), `diffuse_enforcedByCarriers`, and
+  the three-carrier `spare` triple with `spare_enforcedByCarriers` /
+  `spare_not_enforcedAtNoiseFloor`. The witnesses are noise-free (Dirac law),
+  as the U33 ones were. Axiom audit clean, no warnings, companion rebuilt.
 - [x] **U45 — Simulation: from one carrier to a link between regions.**
   *Built 2026-09-27.* `unity_occupancy.py` now sweeps the carrier's share φ
   of the receiving cell's noise (change scales √φ = 0.25, 0.5, 1). For each
@@ -735,10 +748,19 @@ Review response (raised 2026-09-26, external-style review scored 5/10; plan
   40 ms window it is ≥ 0.59 at K = 100. Scope: independence across
   carriers is declared, not measured; the membranes of nearby cells are
   correlated, which is why K is kept far below anatomical counts.
-- [ ] **U46 — Paper: P over carriers, per content window.** Restate P,
+- [x] **U46 — Paper: P over carriers, per content window.** Restate P,
   §enforcement, §ai and Limitations from U44/U45; `\uOcc…` macros through
   `unity_macros.py` with a drift test; `tab:formal` rows. Absorbs U37.
-- [ ] **U37 — Paper: the region result replaces the single-cell headline.**
+  *Done 2026-09-27:* P restated per window over carriers; the noise-floor
+  paragraph after P; intro claim 1; §enforcement "Counting systems" counts
+  regions via carriers; new paragraphs "A membrane over the states it
+  occupies" (all `\uOcc` macros); §ai "Why spikes are not bits" (the clock
+  alone does not separate; restoration to a rail does) and "The margin's
+  width"; Limitations "The cortical estimates"; new appendix
+  `app:occupancy`; six `tab:formal` rows. References added and verified
+  (Europe PMC / publisher pages): Destexhe & Paré 1999, Destexhe, Rudolph &
+  Paré 2003, Hromádka, DeWeese & Zador 2008.
+- [x] **U37 — Paper: the region result replaces the single-cell headline.** *Absorbed into U46.*
   §enforcement "A region in numbers"; §ai "Why spikes are not bits" and "The
   margin's width" argue from the rail arm; Limitations "The cortical estimate"
   becomes the simulation's scope; intro claim 1 updated.

@@ -35,6 +35,11 @@ import PhysicsOfConsciousness.Phase10_PhysicalUnity
   of the diffusive pair moves both next quantities, so every change at a
   positive scale has response `1`, and the pair is one system in the sense of
   `SameSystem` for every noise scale and every yardstick up to `1`.
+* **P over carriers is inhabited and strictly weaker.** The diffusive pair, one
+  carrier per region, satisfies `EnforcedByCarriers`. A third carrier that
+  keeps its own quantity joins region 1: the carrier form still holds, since
+  carriers 0 and 1 reach each other, while the universal form fails, since the
+  spare carrier's content ignores carrier 0 at every scale.
 -/
 
 open Filter Topology
@@ -105,25 +110,91 @@ theorem diffuse_update_ne (x : Pair) (i j : Fin 2) {s : ℝ} (hs : s ≠ x i) :
     exact hs (by linarith)
 
 open MeasureTheory in
+/-- Without noise, a dynamics under which every change of carrier `i` moves carrier
+`j`'s next quantity makes `j` depend gradedly above noise on `i`, with response
+`1`, for every positive noise. -/
+theorem gradedAboveNoise_dirac {ι : Type*} [DecidableEq ι] {g : (ι → ℝ) → ι → ℝ}
+    {x : ι → ℝ} {i j : ι} {σ Θ : ℝ} (hσ : 0 < σ)
+    (hg : ∀ s, s ≠ x i → g (Function.update x i s) j ≠ g x j) :
+    GradedAboveNoise (S := fun _ : ι => ℝ) (Measure.dirac ()) (fun _ : Unit => g)
+      (fun y => y j) x i σ Θ 1 := by
+  intro s hs _
+  have hne : s ≠ x i := fun h => by
+    have := hσ.trans_le hs; simp [h] at this
+  refine le_iSup_of_le {g (Function.update x i s) j} ?_
+  have h1 : {ω : Unit | g (Function.update x i s) j ∈
+      ({g (Function.update x i s) j} : Set ℝ)} = Set.univ := by ext; simp
+  have h0 : {ω : Unit | g x j ∈ ({g (Function.update x i s) j} : Set ℝ)} = ∅ := by
+    ext; simpa using (hg s hne).symm
+  rw [h1, h0]; simp
+
+open MeasureTheory in
 /-- **The diffusive pair is one system at the noise floor.** Without noise, every
 change of either region at any positive scale moves the other's quantity with
 certainty, so the response is `1`, the pair is coupled for every noise `σ > 0`
 and yardstick `θ ≤ 1`, and its two regions are one system. -/
 theorem diffuse_sameSystem (x : Pair) {σ Θ : Fin 2 → ℝ} (hσ : ∀ i, 0 < σ i) :
     SameSystem (S := fun _ : Fin 2 => ℝ) (Measure.dirac ()) (fun _ : Unit => diffuse)
-      (fun j y => y j) x σ Θ 1 0 1 := by
-  have hg : ∀ i j, GradedAboveNoise (S := fun _ : Fin 2 => ℝ) (Measure.dirac ())
-      (fun _ : Unit => diffuse) (fun y => y j) x i (σ i) (Θ i) 1 := by
-    intro i j s hs _
-    have hne : s ≠ x i := fun h => by
-      have := (hσ i).trans_le hs; simp [h] at this
-    refine le_iSup_of_le {diffuse (Function.update x i s) j} ?_
-    have h1 : {ω : Unit | diffuse (Function.update x i s) j ∈
-        ({diffuse (Function.update x i s) j} : Set ℝ)} = Set.univ := by ext; simp
-    have h0 : {ω : Unit | diffuse x j ∈ ({diffuse (Function.update x i s) j} : Set ℝ)} = ∅ := by
-      ext; simpa using (diffuse_update_ne x i j hne).symm
-    rw [h1, h0]; simp
-  exact .rel _ _ ⟨hg 0 1, hg 1 0⟩
+      (fun j y => y j) x σ Θ 1 0 1 :=
+  .rel _ _ ⟨gradedAboveNoise_dirac (hσ 0) fun _ hs => diffuse_update_ne x 0 1 hs,
+    gradedAboveNoise_dirac (hσ 1) fun _ hs => diffuse_update_ne x 1 0 hs⟩
+
+open MeasureTheory in
+/-- **P over carriers is inhabited.** With one carrier per region, the diffusive
+pair satisfies it for every positive noise. -/
+theorem diffuse_enforcedByCarriers (x : Pair) {σ Θ : Fin 2 → ℝ} (hσ : ∀ i, 0 < σ i) :
+    EnforcedByCarriers (S := fun _ : Fin 2 => ℝ) id (· ≠ ·) (Measure.dirac ())
+      (fun _ : Unit => diffuse) (fun j y => y j) x σ Θ 1 :=
+  fun a b _ => ⟨a, b, rfl, rfl, gradedAboveNoise_dirac (hσ a) fun _ hs => diffuse_update_ne x a b hs⟩
+
+/-- Three carriers: the diffusive pair, and a spare carrier that keeps its value. -/
+abbrev Triple := Fin 3 → ℝ
+
+/-- Carriers 0 and 1 diffuse toward each other; carrier 2 is left alone. -/
+noncomputable def spare (y : Triple) : Triple :=
+  ![y 0 + (y 1 - y 0) / 4, y 1 + (y 0 - y 1) / 4, y 2]
+
+/-- Carrier 0 is region 0; carriers 1 and 2 are region 1. -/
+def spareRegion : Fin 3 → Fin 2 := ![0, 1, 1]
+
+theorem spare_update_ne (x : Triple) {i j : Fin 3} (hi : i ≠ 2) (hj : j ≠ 2) {s : ℝ}
+    (hs : s ≠ x i) : spare (Function.update x i s) j ≠ spare x j := by
+  fin_cases i <;> fin_cases j <;> simp [spare, Function.update] at hi hj hs ⊢ <;> intro h <;>
+    exact hs (by linarith)
+
+open MeasureTheory in
+/-- The spare carrier's content does not depend above noise on carrier 0: a unit
+change of carrier 0 leaves it exactly where it was. -/
+theorem spare_not_gradedAboveNoise (x : Triple) :
+    ¬ GradedAboveNoise (S := fun _ : Fin 3 => ℝ) (Measure.dirac ()) (fun _ : Unit => spare)
+      (fun y => y 2) x 0 1 2 1 := by
+  intro h
+  have hr := h (x 0 + 1) (by simp) (by norm_num [Real.dist_eq])
+  have hfix : spare (Function.update x 0 (x 0 + 1)) 2 = spare x 2 := by simp [spare]
+  simp [shiftResponse, hfix] at hr
+
+open MeasureTheory in
+/-- **P over carriers holds** for the spare triple: carriers 0 and 1 join the two
+regions in both directions. -/
+theorem spare_enforcedByCarriers (x : Triple) :
+    EnforcedByCarriers (S := fun _ : Fin 3 => ℝ) spareRegion (· ≠ ·) (Measure.dirac ())
+      (fun _ : Unit => spare) (fun j y => y j) x (fun _ => 1) (fun _ => 2) 1 := by
+  intro a b hab
+  fin_cases a <;> fin_cases b <;> simp at hab
+  · exact ⟨0, 1, rfl, rfl, gradedAboveNoise_dirac one_pos fun _ hs =>
+      spare_update_ne x (by decide) (by decide) hs⟩
+  · exact ⟨1, 0, rfl, rfl, gradedAboveNoise_dirac one_pos fun _ hs =>
+      spare_update_ne x (by decide) (by decide) hs⟩
+
+open MeasureTheory in
+/-- **The universal form fails** for the same triple: the spare carrier belongs to a
+region that overlaps carrier 0's, and ignores carrier 0. So P over carriers is
+strictly weaker than P over every carrier. -/
+theorem spare_not_enforcedAtNoiseFloor (x : Triple) :
+    ¬ EnforcedAtNoiseFloor (S := fun _ : Fin 3 => ℝ)
+      (fun i j => spareRegion i ≠ spareRegion j) (Measure.dirac ()) (fun _ : Unit => spare)
+      (fun j y => y j) x (fun _ => 1) (fun _ => 2) 1 :=
+  fun h => spare_not_gradedAboveNoise x (h 0 2 (by simp [spareRegion]))
 
 /-- On its threshold the bit depends gradedly on region 0. -/
 theorem bit_gradedDependence_at_threshold :
