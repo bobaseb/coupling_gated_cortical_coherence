@@ -806,6 +806,22 @@ quantized loop's, above the floor that keeps it in time. The readout is the comp
 between the two areas, and the number of trials follows from that statistic's
 power, which the companion's test fixes.
 
+\paragraph{Stimulation artefact.} Event-triggered loops blank the recording
+around each pulse, and a continuous drive leaves no interval to blank. The loops
+therefore record and stimulate in separate frequency bands. Each loop reads
+multi-unit activity, above a few hundred hertz, takes its envelope, and drives
+the other region with a current that follows the envelope and so lies in the
+band below it. Rectifying and smoothing are analog operations, so the analog
+loop stays analog end to end. What leaks across the bands is removed by
+subtracting the loop's own output, which the loop knows exactly, passed through
+the transfer from stimulator to recording contact measured on open-loop
+calibration blocks. Both loops end in the same output stage, which smooths the
+quantizer's steps into the stimulation band, and share the stimulator, the
+bands and the subtraction, so a residual artefact reaches both arms by one
+path. Open-loop blocks in which each stimulator follows activity recorded in
+another block measure that residual in each arm, and the comparison of the
+loops is made after it is removed.
+
 \paragraph{A weak nudge should spread.} Weak stimulation of one region, below the
 level that changes behaviour, should shift the content decoded in an overlapping
 region, in proportion to the stimulation's strength and toward agreement with

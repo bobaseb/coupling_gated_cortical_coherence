@@ -437,6 +437,14 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   spikes as messages exactly as it discards bit flips, cortex passes only on
   the sub-threshold range near threshold, and the verdict reverses within
   each substrate (a switching bit passes, latched neural counts fail).
+- [x] **U69 — Stimulation artefact in the continuous loop.** Event-triggered
+  loops (Jackson 2006) blank around pulses; the analog loop drives
+  continuously and the paper discussed artefact only for the field cone.
+  *Done 2026-09-27:* §tests paragraph 'Stimulation artefact': record
+  multi-unit activity, drive with a current following its envelope in the
+  band below; subtract the loop's own output through a calibrated transfer;
+  one output stage smooths the quantizer's steps so the residual reaches both
+  arms by one path; open-loop blocks measure it per arm.
 
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
