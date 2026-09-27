@@ -53,7 +53,7 @@ import numpy as np
 from numpy.typing import NDArray
 from scipy.special import ndtr
 
-from unity_estimates import FLUCTUATION_TV, log10_gaussian_tail, noise_floor
+from unity_estimates import CONTENT_TIME_S, FLUCTUATION_TV, log10_gaussian_tail, noise_floor
 
 FloatArray = NDArray[np.float64]
 
@@ -61,7 +61,17 @@ FloatArray = NDArray[np.float64]
 OUTPUT = Path(__file__).resolve().parent / "figures" / "unity_occupancy"
 
 # Changes, in noise amplitudes, at which "every change above the noise" is checked.
-SHIFTS = (1.0, 1.5, 2.0, 3.0)
+SHIFTS = (1.0, 2.0, 3.0)
+# A region's afferent drive onto a cell supplies a fraction φ of the cell's
+# membrane variance, so one noise amplitude of that carrier is √φ in the cell's
+# units: φ = 1/16, 1/4, 1.
+CHANGE_SCALES = (0.25, 0.5, 1.0)
+# Effectively independent carriers joining two regions, declared: membrane
+# potentials of nearby cells are correlated, so fewer than the anatomical count.
+INDEPENDENT_CARRIERS = (10, 100, 1000)
+# P asks for a passing carrier within each content window: a tenth of the
+# integration time that precedes a conscious percept, and all of it.
+CONTENT_WINDOWS_MS = (100.0 * CONTENT_TIME_S, 1000.0 * CONTENT_TIME_S)
 REFRACTORY_MS = 2.0
 TAUS_MS = (5.0, 20.0)
 RATES_HZ = (0.5, 2.0, 8.0)
@@ -185,8 +195,8 @@ def _reset_mass(grid: Grid, voltage: float) -> FloatArray:
     return mass
 
 
-def stationary(grid: Grid, membrane: Membrane, dt_ms: float) -> tuple[FloatArray, float, float]:
-    """Stationary mass on the nodes, the refractory mass, and the rate in Hz."""
+def _chain(grid: Grid, membrane: Membrane, dt_ms: float) -> tuple[FloatArray, FloatArray]:
+    """One time step over the nodes then the refractory stages, and each node's spike mass."""
     surviving, spiking = _step(grid, membrane, dt_ms)
     n, stages = grid.nodes.size, max(1, round(membrane.refractory_ms / dt_ms))
     chain = np.zeros((n + stages, n + stages))
@@ -195,13 +205,41 @@ def stationary(grid: Grid, membrane: Membrane, dt_ms: float) -> tuple[FloatArray
     for k in range(stages - 1):
         chain[n + k + 1, n + k] = 1.0
     chain[:n, n + stages - 1] = _reset_mass(grid, membrane.reset)
-    system = chain - np.eye(n + stages)
+    return chain, spiking
+
+
+def _stationary_mass(chain: FloatArray) -> FloatArray:
+    system = chain - np.eye(chain.shape[0])
     system[-1, :] = 1.0
-    target = np.zeros(n + stages)
+    target = np.zeros(chain.shape[0])
     target[-1] = 1.0
-    mass = np.linalg.solve(system, target)
-    density = np.clip(mass[:n], 0.0, None)
+    return np.clip(np.linalg.solve(system, target), 0.0, None)
+
+
+def stationary(grid: Grid, membrane: Membrane, dt_ms: float) -> tuple[FloatArray, float, float]:
+    """Stationary mass on the nodes, the refractory mass, and the rate in Hz."""
+    chain, spiking = _chain(grid, membrane, dt_ms)
+    mass = _stationary_mass(chain)
+    n = grid.nodes.size
+    density = mass[:n]
     return density, float(mass[n:].sum()), float(spiking @ density) * 1000.0 / dt_ms
+
+
+def hit_probability(
+    grid: Grid, membrane: Membrane, passing: NDArray[np.bool_], window_ms: float, dt_ms: float
+) -> float:
+    """Chance that a stationary carrier occupies a passing state at some step of the window."""
+    chain, _ = _chain(grid, membrane, dt_ms)
+    target = np.zeros(chain.shape[0], dtype=bool)
+    target[: grid.nodes.size] = passing
+    mass = _stationary_mass(chain)
+    hit = float(mass[target].sum())
+    mass[target] = 0.0
+    for _ in range(round(window_ms / dt_ms)):
+        mass = chain @ mass
+        hit += float(mass[target].sum())
+        mass[target] = 0.0
+    return min(hit, 1.0)
 
 
 def calibrate(
@@ -219,9 +257,9 @@ def calibrate(
     return Membrane(tau_ms, mean, mean, refractory_ms)
 
 
-def _least_response(table: FloatArray, grid: Grid, node: int) -> float | None:
+def _least_response(table: FloatArray, grid: Grid, node: int, scale: float) -> float | None:
     """The smallest response over every admissible change of the state at ``node``."""
-    offsets = [round(s / grid.step) for s in SHIFTS]
+    offsets = [round(scale * s / grid.step) for s in SHIFTS]
     targets = [node + k for k in offsets] + [node - k for k in offsets]
     admissible = [t for t in targets if 0 <= t < grid.nodes.size]
     if not admissible:
@@ -229,11 +267,19 @@ def _least_response(table: FloatArray, grid: Grid, node: int) -> float | None:
     return min(_tv(table[:, node], table[:, t]) for t in admissible)
 
 
-def _occupancy_pass(table: FloatArray, grid: Grid, density: FloatArray) -> tuple[float, float]:
+def passing_states(table: FloatArray, grid: Grid, scale: float) -> NDArray[np.bool_]:
+    """The nodes at which every admissible change moves the next content by ``θ*``."""
+    least = [_least_response(table, grid, node, scale) for node in range(grid.nodes.size)]
+    return np.array([r is not None and r >= FLUCTUATION_TV for r in least])
+
+
+def _occupancy_pass(
+    table: FloatArray, grid: Grid, density: FloatArray, scale: float = 1.0
+) -> tuple[float, float]:
     """Mass of occupied states passing the criterion, and the mean least response."""
     passing = mean = 0.0
     for node, weight in enumerate(density):
-        least = _least_response(table, grid, node)
+        least = _least_response(table, grid, node, scale)
         if least is not None:
             passing += weight * (least >= FLUCTUATION_TV)
             mean += weight * least
@@ -256,6 +302,14 @@ def neuron_summary(
         f"{period:g}": _occupancy_pass(_latched_table(table, dt_ms, period), grid, density)[0]
         for period in periods_ms
     }
+    by_scale = {f"{c:g}": _occupancy_pass(table, grid, density, c)[0] for c in CHANGE_SCALES}
+    hits = {
+        f"{c:g}": {
+            f"{w:g}": hit_probability(grid, membrane, passing_states(table, grid, c), w, dt_ms)
+            for w in CONTENT_WINDOWS_MS
+        }
+        for c in CHANGE_SCALES
+    }
     return {
         "config": asdict(config),
         "mean": membrane.mean,
@@ -265,7 +319,25 @@ def neuron_summary(
         "pass_fraction": passing,
         "mean_response": mean_response,
         "latched_pass_fraction": latched,
+        "pass_fraction_by_scale": by_scale,
+        "link_probability": {
+            scale: {f"{k}": link_probability(p, k) for k in INDEPENDENT_CARRIERS}
+            for scale, p in by_scale.items()
+        },
+        "window_hit_probability": hits,
+        "window_link_probability": {
+            scale: {
+                w: {f"{k}": link_probability(h, k) for k in INDEPENDENT_CARRIERS}
+                for w, h in per_window.items()
+            }
+            for scale, per_window in hits.items()
+        },
     }
+
+
+def link_probability(pass_fraction: float, carriers: int) -> float:
+    """Chance that some of ``carriers`` independent carriers passes at an occupied state."""
+    return 1.0 - (1.0 - pass_fraction) ** carriers
 
 
 def bit_response(distance: float, shift: float) -> float:

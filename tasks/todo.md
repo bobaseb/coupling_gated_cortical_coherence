@@ -709,6 +709,35 @@ Review response (raised 2026-09-26, external-style review scored 5/10; plan
   nothing measurable. The resolution check (half step, half dt) moves the
   pass fraction by ~10%. Author's decision: restate P existentially over
   carriers ("some carriers, always"), see U44.
+- [ ] **U44 — Lean: P over carriers, per content window.** Regions `R`,
+  carriers `ι`, `region : ι → R`. `ReachesAtNoiseFloor` (some carrier of `b`
+  depends gradedly above noise on some carrier of `a`); `EnforcedByCarriers`
+  (every overlapping pair reaches); `RegionSameSystem`; the universal P
+  implies the existential one; bits reach nowhere (reusing the
+  `sameSystem_iff_eq_of_bits` argument). Per-window form (author's decision
+  2026-09-27, after U45): the probability that no carrier among `K`
+  independent ones, each passing within the window with probability ≥ p,
+  links `a` to `b` in a window is ≤ (1 − p)^K. Two witnesses: reach from the
+  `gaussLin` witness, and one region whose second carrier fails, so the
+  existential P holds where the universal one does not.
+- [x] **U45 — Simulation: from one carrier to a link between regions.**
+  *Built 2026-09-27.* `unity_occupancy.py` now sweeps the carrier's share φ
+  of the receiving cell's noise (change scales √φ = 0.25, 0.5, 1). For each
+  φ it gives the per-state pass fraction and the probability that a stationary
+  carrier visits a passing state within a content window. It uses the exact
+  chain with passing states absorbing, for windows of 40 ms and 400 ms
+  (tenth / all of the 400 ms integration time). It also gives the link
+  probability 1 − (1 − h)^K for declared effectively independent K = 10,
+  100, 1000.
+  Per moment, the link probability at K = 1000 stays at 0.03–0.3 in sparse
+  regimes (0.5–2 Hz, τ 5 ms), so "at every instant" fails. Per 400 ms
+  window it is ≥ 0.59 at K = 10 and ≈ 1.0 at K = 100 in every regime; per
+  40 ms window it is ≥ 0.59 at K = 100. Scope: independence across
+  carriers is declared, not measured; the membranes of nearby cells are
+  correlated, which is why K is kept far below anatomical counts.
+- [ ] **U46 — Paper: P over carriers, per content window.** Restate P,
+  §enforcement, §ai and Limitations from U44/U45; `\uOcc…` macros through
+  `unity_macros.py` with a drift test; `tab:formal` rows. Absorbs U37.
 - [ ] **U37 — Paper: the region result replaces the single-cell headline.**
   §enforcement "A region in numbers"; §ai "Why spikes are not bits" and "The
   margin's width" argue from the rail arm; Limitations "The cortical estimate"
