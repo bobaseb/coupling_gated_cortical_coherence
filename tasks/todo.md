@@ -333,7 +333,7 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   further coordinate of the state, not a record. The margin separates rule
   from synapse, and the next paragraph fixes its scale. Gradual replacement
   still reads correctly on this definition.
-- [ ] **U60 — The criterion reads as weakened until cortex passes.** Every
+- [x] **U60 — The criterion reads as weakened until cortex passes.** Every
   carrier → some carrier, every instant → within a window: each weakening sits
   exactly where cortex would fail. Say in the introduction what the weak form
   amounts to (two regions are one system iff some margin-free path links a
@@ -342,6 +342,12 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   reads it as gerrymandering. Move qualification, never delete it (§10).
   U47(a)'s correlated-carrier result bears on the window form: settle U47(d)
   first or together.
+  *Done 2026-09-27:* the introduction now says what the window form amounts to
+  (two regions are one system when some carrier of each registers the other
+  above its noise within the window, so no change above noise is sealed off)
+  and why: a region is many carriers, a content is held over its time scale,
+  and the strong form would split a single noisy neuron from its own inputs
+  between spikes. U47(d) had already settled the correlated-carrier numbers.
 - [ ] **U61 — Bridge timing confound.** Matching transfer entropy by lowering
   the analog loop's bandwidth slows its relaxation, and §reach's "agreement
   in time" condition then fails P for a graded but too-slow loop. A null
