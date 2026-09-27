@@ -68,6 +68,72 @@ margin theorem excludes content read from bits. Constraints and history:
   abstract and claim 1 only if the result changes them; PDF, arXiv build,
   CHANGELOG if a claim is withdrawn.
 
+*Review pass 2026-09-27 (score 4/10 standalone, ~4.5 read with the
+companion; 5 = reject).* Verdict: well written, honest about its limits,
+cheap theorems and an expensive premise, and reviewers will score the
+premise. U48–U56 are ordered by leverage.
+
+- [ ] **U48 — Make the bridge the centerpiece.** The analog versus quantized
+  bridge at matched transfer entropy is the only test that separates P from
+  computational functionalism, and the paper's most original content. Make it
+  claim 1, expand §tests' treatment, and add a feasibility sketch in rodent or
+  NHP with decoded agreement as the readout: closed-loop hardware, recording
+  and stimulation sites, the transfer-entropy estimator and trial counts.
+- [ ] **U49 — The fluctuation yardstick looks rigged.** 2Φ(½) − 1 ≈ 0.38 is
+  also the largest response a Gaussian-noise threshold gives to a shift of one
+  noise amplitude, so binary readouts fail by the choice of constant and at
+  best tie it. (a) Justify the constant independently of that coincidence, or
+  show the chip/membrane separation is robust across a range of yardsticks:
+  the margin of 506 noise amplitudes suggests it is, so report the passing
+  fractions as a function of the yardstick. (b) Settle ≥ versus > in "reach"
+  in text and Lean; at ≥ a bit sitting exactly on its threshold passes.
+- [ ] **U50 — Argue "one subject ⇒ one system at the noise floor", or reframe
+  the abstract.** The step from "unity counts subjects" to "systems are
+  counted by graded dependence above the noise floor" is asserted, and
+  Block's nation and the scattered records are intuition pumps. A
+  functionalist rejects exactly this step. Either give it an argument (why
+  this grain and not causal integration at another), or change the abstract's
+  "we argue that unity requires" to "we propose P and derive its
+  consequences". Keep P stated plainly (memory: the author wants the premise
+  stated, not hedged); this is about what the paper claims to have *shown*.
+- [ ] **U51 — Present the margin theorem as a lemma.** It is one step
+  (continuous map into a locally constant readout). Put the contribution's
+  weight on what is not trivial: the noise-floor criterion, the noisy margin
+  bound and its attainment, and the occupancy measurement. Lean-checking a
+  one-step lemma draws attention to how little is checked.
+- [ ] **U52 — "Each bit is a separate system" needs more than one paragraph.**
+  Physicists will read it as a redefinition, since crosstalk and a shared
+  supply are real interactions. The whole paper rests on this move: expand
+  the argument that the noise-floor scale belongs to the parts, and why
+  sub-margin crosstalk does not count.
+- [ ] **U53 — Demote or compress §reach.** The r^−4 threshold is classical
+  (Chung–Fuchs, Kunz–Pfister), and the field estimate shows the
+  non-synaptic tail dies within millimetres, so at centimetre scale the
+  section says only that synapses are graded. Candidate: drop r^−4 from the
+  abstract and claim 2, compress the section, keep the proofs in the
+  appendix. Must be consistent with U19's restatement.
+- [ ] **U54 — The weak-nudge prediction is low-risk.** Weak fields shifting
+  graded decoded content in connected areas is expected under almost any
+  theory, so the test can refute P but barely confirms it. Say so in §tests,
+  or sharpen it: what does P predict that generic modulation does not (for
+  example, proportionality below threshold and direction toward agreement,
+  not merely a change)?
+- [ ] **U55 — Sharpen the delta against Kleiner 2024 and IIT/Findlay 2024.**
+  "Digital hardware suppresses its physics" is already published (Kleiner),
+  and IIT already denies simulations experience. State the novel part in
+  §related: the contraction condition, the noise-floor criterion and the
+  bridge test.
+- [ ] **U56 — Condition P on the companion's correlate; present a two-stage
+  program.** The companion calls the glued state a *proposed correlate* and
+  says "nothing here establishes a consciousness criterion", while the unity
+  paper takes it as the definition of unity and states a necessary condition
+  on it: a firm premise on a hedged proposal. In `unity/main.tex`, state that
+  P is conditional on that identification, and present the companion's
+  excess-agreement test (perceived versus unperceived) as stage one: if it
+  fails, P has nothing to constrain; if it passes, the bridge asks whether the
+  agreement must be enforced. Alternatively commit to the identification in
+  companion v2 (U20).
+
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
   Consciousness* or *Phil. Trans. B*. arXiv posting: cs.AI primary (author has
@@ -119,12 +185,25 @@ margin theorem excludes content read from bits. Constraints and history:
   its v2 (U20).
   *Blocked 2026-09-25:* the unity side needs a citation of the companion,
   which has no arXiv identifier yet; write both halves once it is posted.
+  *Review 2026-09-27:* read together, the two papers make this gap more
+  visible, not less. The unity reach section turns phase agreement into
+  content agreement through the same kind of Lipschitz encoder, so across
+  centimetres both papers rest on E78. Restate the unity claim as: coupling
+  bounds *phase* disagreement at every distance, and turning that into
+  agreement in *content* across centimetres is E78, named as such. See U53.
 - [ ] **U20 — Companion v2 when the U paper posts.** (a) Cite the U paper.
   (b) Scope `main.tex` §gpu "These results rank no architecture family, imply
   no general inferiority of GPU hardware and settle no question of machine
   experience" explicitly to *this article's* results, so it cannot be quoted
   against the U premise. (c) Present the extracellular field as one
-  realization of graded coupling (U16), not a competing claim. Rebuild PDFs
+  realization of graded coupling (U16), not a competing claim. The awakening
+  hypothesis puts fields into effective coupling while the unity paper
+  shows a local source's field misses detection by orders of magnitude at
+  centimetre scale; say explicitly that the field story is local and
+  centimetre-scale coupling is synaptic, so the program speaks with one
+  voice. (d) Decide the tone mismatch with U56: either commit to the glued
+  state as the correlate of unity, or keep it hedged and let the unity paper
+  condition P on it. Rebuild PDFs
   and the arXiv bundle per AGENTS.md §6–7.
 
 ## N — Neuroscience of Consciousness submission
