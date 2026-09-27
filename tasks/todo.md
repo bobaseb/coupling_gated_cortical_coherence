@@ -445,6 +445,14 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   band below; subtract the loop's own output through a calibrated transfer;
   one output stage smooths the quantizer's steps so the residual reaches both
   arms by one path; open-loop blocks measure it per arm.
+- [x] **U70 — The bridge's readout without the companion.** The bridge read
+  unity only as the companion's excess decoded agreement, a correlate still
+  to be tested, so the empirical payoff sat two conditionals away. *Done
+  2026-09-27:* the first preparation's primary readout is behavioural (a task
+  combining the two areas' values, e.g. matching across their fields), with
+  decoded agreement as the neural readout; §cover says a negative companion
+  result removes the neural measure and leaves the behavioural one. The
+  "conditional on that identification" scope sentence stays.
 
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
