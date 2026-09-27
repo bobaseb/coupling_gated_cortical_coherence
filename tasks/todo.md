@@ -71,7 +71,11 @@ margin theorem excludes content read from bits. Constraints and history:
 *Review pass 2026-09-27 (score 4/10 standalone, ~4.5 read with the
 companion; 5 = reject).* Verdict: well written, honest about its limits,
 cheap theorems and an expensive premise, and reviewers will score the
-premise. U48–U56 are ordered by leverage.
+premise. U48–U56 are ordered by leverage; U57–U58 are the gaps a second read
+found. Work order: U49 (cheap, removes an easy objection), then U50/U52
+(decide the paper); U47's simulation can run alongside. Estimated ceiling with
+everything done: 5.5–6 at *Neuroscience of Consciousness*; about 5 if U47
+comes back badly; above 6 needs data (a bridge pilot).
 
 - [ ] **U48 — Make the bridge the centerpiece.** The analog versus quantized
   bridge at matched transfer entropy is the only test that separates P from
@@ -133,6 +137,27 @@ premise. U48–U56 are ordered by leverage.
   fails, P has nothing to constrain; if it passes, the bridge asks whether the
   agreement must be enforced. Alternatively commit to the identification in
   companion v2 (U20).
+- [ ] **U57 — Answer gradual replacement (fading and dancing qualia).** Chalmers'
+  argument (neurons replaced one at a time by functionally identical digital
+  units; verify online: Chalmers 1995 in Metzinger (ed.) *Conscious
+  Experience*, and *The Conscious Mind* 1996, ch. 7) is the standard objection
+  to any substrate-dependent view, and the paper does not mention it. A
+  philosophy referee will raise it. P's answer is specific: the replaced units
+  read their inputs through margins, so each replacement removes graded
+  dependence across its links, and unity fails at the boundary of the replaced
+  region while reports, computed from contents, stay unchanged. Say what P
+  predicts along the sequence and why the reports do not track it (the
+  simulation objection of §enforcement, applied part by part). The bridge is a
+  local, testable instance of partial replacement: say so in §tests, which
+  also serves U48.
+- [ ] **U58 — Cite and position against Butlin et al. 2023.** "Consciousness in
+  Artificial Intelligence: Insights from the Science of Consciousness"
+  (arXiv:2308.08708; verify authors, year and venue online) is the default
+  reference point for any claim that current AI lacks a property of
+  consciousness, and it assumes computational functionalism as a working
+  hypothesis. One paragraph in §related: P is the premise that report sets
+  aside, stated so that it can be tested (the bridge), and it adds a
+  substrate condition to an indicator list rather than a new indicator.
 
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
