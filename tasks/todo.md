@@ -453,6 +453,13 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   decoded agreement as the neural readout; §cover says a negative companion
   result removes the neural measure and leaves the behavioural one. The
   "conditional on that identification" scope sentence stays.
+- [x] **U71 — §reach tied to P, the timing condition made a prediction.**
+  §reach read as a separate paper and left open whether cortex relaxes in
+  time. *Done 2026-09-27:* §reach opens with the two things P asks of the
+  coupling (reach, timing) and points to the restoration test; 'Agreement in
+  time' ends with the prediction (relaxation at most \ueTauFastMs ms across
+  cortex, \ueTauLocalMs ms within a posterior zone; slower counts against P);
+  the restoration test and the Limitations bullet point at it.
 
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of

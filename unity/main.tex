@@ -515,8 +515,11 @@ accord.
 \section{How far a physical coupling enforces agreement}
 \label{sec:reach}
 
-P asks the coupling to contract disagreement between every pair of regions
-whose contents are unified: up to \ueFibreCm{}~cm apart if a scene's contents
+P asks two things of the coupling: that it reach every pair of regions whose
+contents are unified, and that it pull their disagreement back before the
+content changes. This section states what a physical coupling needs for each,
+and the restoration test of Section~\ref{sec:tests} measures whether cortex
+has it. The pairs lie up to \ueFibreCm{}~cm apart if a scene's contents
 span the cortex, and about \ueLocalCm{}~cm if they are confined to a posterior
 zone. On a noisy sheet of coupled oscillators sharing one natural frequency, in
 the harmonic approximation, the variance of the phase difference between two
@@ -568,7 +571,10 @@ every step before $\log(d_0/\varepsilon)/\log(1/\rho)$. Unity at the time scale
 of a content requires the later of the two edges to fall before the content
 changes. In cortex, signal travel uses at most \ueConeSlowMs{}~ms of the
 \ueContentMs{}~ms that precede a conscious percept, so the condition falls on
-the coupling's relaxation time (Appendix~\ref{app:window}).
+the coupling's relaxation time (Appendix~\ref{app:window}). P therefore
+predicts a cortical relaxation time of at most \ueTauFastMs{}~ms across the
+cortex and \ueTauLocalMs{}~ms within a posterior zone, and a slower restoration
+counts against it.
 
 \section{Current artificial systems}
 \label{sec:ai}
@@ -852,7 +858,7 @@ strength, counts against P.
 its agreement with its overlap partners comes back, and how fast. In cortex the
 perturbation is stimulation, and the measure is the disagreement between
 contents decoded from the perturbed region and from its partners. P predicts
-restoration at the relaxation rate of Section~\ref{sec:reach}, with a restoring
+restoration within the relaxation time of Section~\ref{sec:reach}, with a restoring
 pull proportional to the size of the perturbation, below any threshold as well
 as above. The same protocol run on an artificial system, by patching the
 activations of one layer, head or position, has an outcome fixed in advance by
@@ -1050,8 +1056,8 @@ inside its margins and leaves P untested; the tests of P are the cortical ones.
 \item \emph{Agreement in time.} Its edges are proved for a given contraction
 factor; identifying that factor with the coupling's spectral gap is linear
 response. The relaxation time of cortical coupling is unmeasured, so the cortical
-estimate states the condition for agreement to arrive in time and
-leaves open whether cortex meets it. It also reads agreement as a declared
+estimate states the condition for agreement to arrive in time, and whether cortex
+meets it is the prediction the restoration test checks. It also reads agreement as a declared
 reduction factor of disagreement.
 
 \item \emph{From phases to contents.} The step from phase agreement to content
