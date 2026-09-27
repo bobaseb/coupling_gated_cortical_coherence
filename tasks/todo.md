@@ -418,6 +418,18 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   effects are local and waves travel at synaptic speed, which agrees with the
   field-cone estimate.
 
+*Review pass 2026-09-27, third read (score ~6/10 after U34, U35, U61–U66;
+5 = reject).*
+
+- [x] **U67 — Reports at the bridge.** The gradual-replacement answer lets
+  reports stay while unity changes, and §tests reads unity from reports: a
+  null bridge result could be excused (the U57 open tension). *Done
+  2026-09-27:* §tests states that the standard binds P. The replacement answer
+  covers systems built to reproduce reports by computation; a bridged cortex
+  reads each region from its own coupled carriers and the quantized loop
+  matches information, not behaviour, so behaviour is evidence there. One
+  sentence in §enforcement points to it.
+
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
   Consciousness* or *Phil. Trans. B*. arXiv posting: cs.AI primary (author has
