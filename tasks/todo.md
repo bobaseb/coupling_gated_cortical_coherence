@@ -747,7 +747,7 @@ hostile reviewer would open with.*
   by both readings, and they are the cases the argument turns on. 'The premise'
   limitation says where the readings part: a carrier registering some changes
   in the range and not others.
-- [ ] **U84 — Length and density of §enforcement.** After U75–U80 the section
+- [x] **U84 — Length and density of §enforcement.** After U75–U80 the section
   carries six definitions, an outline, and about twenty paragraphs. Candidates
   to move to an appendix: the noise paragraph's MLR detail, 'A neuron in
   numbers' (its content is in the occupancy result), the correlated-carrier
@@ -755,6 +755,17 @@ hostile reviewer would open with.*
   with the argument's spine (outline → definitions → margin lemma → wholeness
   → counting → the chip, counted → the membrane and the switching chip,
   counted) visible from the paragraph titles.
+  *Done 2026-09-27:* titles now run outline → Definitions → margin lemma →
+  Noise → noisy margin theorem → why below the content level → why unity
+  tracks enforcement → Wholeness → Counting → the chip, counted → where the
+  line falls → the membrane, counted → the switching chip, counted → the
+  yardstick, with Categories, Gradual replacement and 'What the premise rests
+  on' after the figure. Noise now precedes counting, so the fluctuation is
+  defined before it is used. Moved out: 'A neuron in numbers' and the
+  monotone-likelihood detail to a new app:noise (two tab:formal rows repointed),
+  the correlated-carrier miss probabilities and short-window result to
+  app:occupancy; 'A logic gate in numbers' folded into 'The chip, counted'.
+  Page count unchanged (59); every macro still cited.
 - [ ] **U85 — No data, so choose the venue for a design paper.** The central
   test is proposed, not run, and the empirical parts are models with declared
   parameters. That caps the grade near 6 at venues that expect results. Fold

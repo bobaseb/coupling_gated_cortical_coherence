@@ -247,10 +247,11 @@ graded dependence above the noise floor at every overlap holds exactly when
 every overlapping pair is one system. Wholeness says that a unified experience
 needs one physical system to carry it, counting says what one system is, and the
 theorems say that records never make one while graded coupling does. Where
-cortex and a chip hold their carriers is measured, by the occupancy computation
-at the end of the section.
+cortex and a chip hold their carriers is measured, by one protocol at the end of
+the section.
 
-The argument needs five definitions. Each is stated in words first.
+\paragraph{Definitions.} The argument needs five definitions. Each is stated in
+words first.
 
 A system has a physical state, its \emph{micro state} $x=(x_i)_i$, made up of
 the states $x_i$ of its regions. One step of its physics carries $x$ to $f(x)$.
@@ -295,6 +296,39 @@ lemma is elementary by design: once the definitions are fixed the separation
 follows in a line, so a reader who disputes it disputes a definition, and the
 rest of this section argues for each.
 
+\paragraph{Noise.} Real physics is noisy, and noise changes the question. A
+gate's chance of flipping is a smooth function of its input voltage and is never
+exactly zero, so the \emph{probability} of a digital machine's next content
+depends, however slightly, on every region. Read on exact contents, the margin
+lemma would then pick out a difference lying below the noise floor of both
+substrates. P is therefore read on probabilities. The \emph{response} of a
+content to a region at scale $\eta$ is the largest change that moving the region
+by at most $\eta$ makes to the probability of any outcome of the next content, a
+total-variation distance. As the yardstick for a large response we take the one
+that a shift of one standard deviation produces in a Gaussian carrier,
+$2\Phi(1/2)-1=\ueFluctuationTV$: a response of at least this size moves the
+content by as much as the content naturally fluctuates. Graded dependence above
+the noise floor asks the response to reach this fluctuation for every change of
+the region that is larger than its own noise and smaller than the change that
+crosses one of its thresholds. When the region moves a carrier linearly under
+additive noise whose density has a single peak, Gaussian or heavy-tailed, a
+larger change moves the content at least as much as a smaller one, so the
+criterion is met exactly when a change of one noise amplitude reaches the
+fluctuation; noise whose law changes with the state is treated in
+Appendix~\ref{app:noise}. The constants are a Gaussian identity and the system's
+own scales, and none of them is fitted to either substrate.
+
+\paragraph{The noisy margin theorem.} The margin lemma has a noisy form, and it
+is this form that carries the argument. Let each realization of the noise fix an
+$L$-Lipschitz step of the micro dynamics, one that stretches no distance by
+more than a factor $L$. Let the content be constant within radius $r$ of the
+noisy successor, except on a set of realizations of probability at most
+$\varepsilon$. Then a change of one region smaller than $r/L$ moves the
+probability of every outcome of the next content by at most $\varepsilon$. For
+anything computed from bits, $\varepsilon$ is the probability that some bit of
+the noisy successor lands within $\delta$ of its threshold, and the bound is
+attained.
+
 \paragraph{Why the criterion sits below the content level.} At the content
 level a computer can imitate a coupled field exactly. A digital system running
 a consensus algorithm, or integrating the equations of a coupled field, has a
@@ -325,48 +359,48 @@ radio for an hour \citep{block1978}, is the same program spread over a country.
 A criterion stated on content-level agreement gives all of these the same
 number of subjects, without any physical fact to consult in doing so.
 
-\paragraph{Unity is not one more content.} Wholeness takes experiences to be
-unified when they are parts of a single total experience, the subject's experience at that time
-\citep{bayne2010}. Being a part of a whole is not a further part of it, so the
-unity of two contents is not a third content alongside them. That fixes what can
-realise it. A \emph{record} here is a content held by a margin: its identity
-survives every change of its carrier below the margin, so it is sealed off from
-the graded state of everything else. A rule that compares records and corrects
-them reads records and writes records, and whatever it produces, a flag, a
-merged value or a corrected copy, is one more record. Whether records can join
-anything is a theorem once systems are counted as the next paragraph counts
-them, by chains of couplings at the noise floor. A region whose content is
-held by a margin, with an error rate below the fluctuation yardstick, is coupled
-to no region that admits a change above its noise inside the margin, whatever
-the regions it reads carry, so it is one system only with itself. For any set of
-records, records that read records included, two regions are one system exactly
-when a chain of couplings that avoids every record joins them: records drop out
-of every chain, and the regress of rules on rules adds nothing at any depth.
-Writing corrections back changes nothing: when one region's next content
-depends on another only through a record's symbol, a change of the other inside
-the margin moves it by at most the record's error rate, so the rule couples the
-two no more than the record does. A graded reader stays in the chain. A region
-whose content moves with two regions above their noise, and moves them in turn,
-is coupled to both and joins them into one system when they share no coupling
-of their own; under linear dynamics with uniform noise such a reader joins two
-regions that a record reading the same two leaves apart
-(Appendix~\ref{app:formal}). The regress stops at a reader on the chain, not at
-a record beside it. In the running example, a register holding the bird's
-location as a number is a record, and a cell in a third area that integrates
-spike times from the visual and the parietal area, and projects back to both,
-is a reader. A synapse, and a membrane integrating spike times near its
-threshold, which a cortical membrane visits within every window as measured
-below, are readers in this sense. A workspace that makes every record available
-to a common reader is the case of the rule again: what the reader receives is a
-set of records, each held by its own margin. Computation therefore adds contents
-and never produces the whole they are parts of. What can make contents parts of
-one whole without adding a content is the physical state that carries them:
-carriers that are coordinates of a single state, whose agreement is a fact about
-where that state sits and is written nowhere. P asks for exactly this, which is
-why it is stated on how carriers depend on one another and not on what any rule
-computes about them.
+\paragraph{Wholeness: unity is not one more content.} Wholeness takes
+experiences to be unified when they are parts of a single total experience, the
+subject's experience at that time \citep{bayne2010}. Being a part of a whole is
+not a further part of it, so the unity of two contents is not a third content
+alongside them. That fixes what can realise it. A \emph{record} here is a
+content held by a margin: its identity survives every change of its carrier
+below the margin, so it is sealed off from the graded state of everything else.
+A rule that compares records and corrects them reads records and writes records,
+and whatever it produces, a flag, a merged value or a corrected copy, is one
+more record. Whether records can join anything is a theorem once systems are
+counted as the next paragraph counts them, by chains of couplings at the noise
+floor. A region whose content is held by a margin, with an error rate below the
+fluctuation yardstick, is coupled to no region that admits a change above its
+noise inside the margin, whatever the regions it reads carry, so it is one
+system only with itself. For any set of records, records that read records
+included, two regions are one system exactly when a chain of couplings that
+avoids every record joins them: records drop out of every chain, and the regress
+of rules on rules adds nothing at any depth. Writing corrections back changes
+nothing: when one region's next content depends on another only through a
+record's symbol, a change of the other inside the margin moves it by at most the
+record's error rate, so the rule couples the two no more than the record does. A
+graded reader stays in the chain. A region whose content moves with two regions
+above their noise, and moves them in turn, is coupled to both and joins them
+into one system when they share no coupling of their own; under linear dynamics
+with uniform noise such a reader joins two regions that a record reading the
+same two leaves apart (Appendix~\ref{app:formal}). The regress stops at a reader
+on the chain, not at a record beside it. In the running example, a register
+holding the bird's location as a number is a record, and a cell in a third area
+that integrates spike times from the visual and the parietal area, and projects
+back to both, is a reader. A synapse, and a membrane integrating spike times
+near its threshold, which a cortical membrane visits within every window as
+measured below, are readers in this sense. A workspace that makes every record
+available to a common reader is the case of the rule again: what the reader
+receives is a set of records, each held by its own margin. Computation therefore
+adds contents and never produces the whole they are parts of. What can make
+contents parts of one whole without adding a content is the physical state that
+carries them: carriers that are coordinates of a single state, whose agreement
+is a fact about where that state sits and is written nowhere. P asks for exactly
+this, which is why it is stated on how carriers depend on one another and not on
+what any rule computes about them.
 
-\paragraph{Counting systems at the noise floor.} The second premise is
+\paragraph{Counting: systems at the noise floor.} The second premise is
 argued in three steps from the criterion physics already uses. Physics counts
 systems by interaction: parts form one system when their joint state does not
 factor into independent coordinates. Applied at no particular scale, the
@@ -405,20 +439,26 @@ the argument turns on. Both ends of the range
 are properties of each part, the size of its noise and the position of its
 thresholds, so nobody chooses the scale to separate brains from chips.
 
-This is the noise-floor reading of graded dependence given below, and the
-identity is proved: for carriers whose contents overlap, each depends gradedly above the
-noise floor on every carrier it overlaps exactly when every overlapping pair is
-one system in this sense. A region holds many carriers, and a noisy carrier
-registers another only while it sits near its own threshold, as measured below.
-Two regions are therefore one system when some carrier of each registers some
-carrier of the other, and P asks this within every window of the contents' time
-scale. Asking it of some carriers is strictly weaker than asking it of all: a
-state exists at which the first holds and the second fails.
+This is the noise-floor reading of graded dependence given above, and the
+identity is proved: for carriers whose contents overlap, each depends gradedly
+above the noise floor on every carrier it overlaps exactly when every
+overlapping pair is one system in this sense. A region holds many carriers, and
+a noisy carrier registers another only while it sits near its own threshold, as
+measured below. Two regions are therefore one system when some carrier of each
+registers some carrier of the other, and P asks this within every window of the
+contents' time scale. Asking it of some carriers is strictly weaker than asking
+it of all: a state exists at which the first holds and the second fails.
 
-\paragraph{The chip, counted.} A chip fails the count by design. A bit's margin
-spans \ueMarginToNoise{} of its noise amplitudes, and no other bit registers a
-change anywhere in that range except through the error rate. By the noisy
-margin theorem below, once that rate is under the fluctuation and each carrier
+\paragraph{The chip, counted.} A chip fails the count by design. On a logic node
+of \ueNodeCapFf{}~fF at room temperature the thermal noise is
+\ueThermalNoiseMv{}~mV \citep{johnson1928,nyquist1928}, and the textbook
+inverter's margin is \ueMarginToNoise{} times that. After a change of one noise
+amplitude, the probability of a flip, which bounds the response, is below
+$10^{-\ueErrorOrders}$ \citep{kish2002}, and the response reaches the
+fluctuation only within \ueGradedWindowPercent\% of the margin's width from the
+threshold, where the bit is in the middle of switching. No other bit registers a
+change anywhere in the margin except through that error rate. By the noisy
+margin theorem, once that rate is under the fluctuation and each carrier
 has a change above its noise inside the margin, no carrier of any region
 registers any other, so the weaker form fails exactly as the stronger one does,
 and each part is a system of its own. Its wires pass on only the changes that
@@ -448,12 +488,132 @@ directly passes, and a neural circuit read only from latched counts fails
 separates a working chip from cortex is where each holds its carriers, a fact
 about the system that the criterion reads and does not set.
 
-\paragraph{What the premise rests on.} Cortex passes the count within every
-window, as shown below, and P asks exactly this of the regions whose contents
-are unified. P thus rests on wholeness and counting, and every step between
-them is proved: wholeness asks for one physical state, and counting says at
-which scale physics counts one. The bridge of Section~\ref{sec:tests} tests
-them together.
+\paragraph{The membrane, counted.} A spike time passes the test at the moment
+the membrane rises through threshold, where one unitary cortical input shifts
+the spike by \ueCorticalShiftToJitter{} times its jitter
+(Appendix~\ref{app:noise}). Measured over every state a membrane occupies, by
+the protocol applied to the logic node, it passes near threshold and nowhere
+else. We model the membrane as a leaky integrate-and-fire cell driven by white
+noise, with time constants of \uOccTauFast{} to \uOccTauSlow{}~ms, spanning the
+in vivo high-conductance state \citep{destexhe1999,destexhe2003}, and stationary
+rates of \uOccRateLow{} to \uOccRateHigh{}~Hz, spanning the sparse rates of
+awake cortex \citep{hromadka2008}. Its next content is the time of its first
+spike within \uOccNextShort{} or \uOccNextLong{}~ms, and every change of one to
+\uOccShiftMax{} noise amplitudes, in either direction, must move that content by
+the fluctuation. Propagating the membrane's probability exactly on a voltage
+grid (Appendix~\ref{app:occupancy}), it sits on average \uOccDistanceMin{} to
+\uOccDistanceMax{} noise amplitudes below threshold and passes at
+\uOccPassMinPercent{} to \uOccPassMaxPercent\% of the states it occupies. A bit
+restored to a rail at the logic node's margin passes at none of its states, and
+its largest response over them is below $10^{-\uOccBitOrders}$. No binary
+readout passes at any margin: under Gaussian noise, its response to a change of
+one noise amplitude, asked in both directions as the criterion asks, is at most
+$\Phi(1)-1/2=\uYardBinaryCeiling$. A graded content exceeds the fluctuation by a
+wide margin: at its best state the membrane responds by at least \uYardBestMin{}
+in every regime and at every noise share.
+
+A membrane passes at a given instant rarely and within a window often. A
+stationary membrane enters a passing state within \uOccContentLongMs{}~ms, the
+integration time that precedes a conscious percept, with probability
+\uOccHitMinLong{} to \uOccHitMaxLong{}, including the case in which the region
+it depends on supplies only \uOccShareMin{} of its membrane's noise variance. If
+two regions are joined by \uOccCarriersFew{} carriers that pass independently,
+some carrier passes in such a window with probability at least
+\uOccLinkFewLong{}, and with \uOccCarriersMid{} within \uOccContentShortMs{}~ms
+with probability at least \uOccLinkMidShort{}; for independent carriers the
+probability that none passes falls geometrically with their number. At a single
+instant, even \uOccCarriersMany{} such carriers link two regions with
+probability as low as \uOccInstantLinkMin{}, which is why P is stated per
+window. Reading the spike time through a clock of \uOccLatchShortMs{} or
+\uOccLatchLongMs{}~ms leaves the passing fraction unchanged.
+
+Neighbouring membranes share input, and in awake cortex their potentials are
+highly correlated during quiet wakefulness and less so during active behaviour
+\citep{poulet2008}. We model this as a shared component carrying a fraction $c$
+of every membrane's noise variance, so that two membranes correlate by $c$ and
+each keeps its own law. At least one of \uOccCarriersMid{} such carriers enters
+a passing state within \uOccContentLongMs{}~ms with probability at least
+\uCorLinkMidTol{} for every share up to $c=\uCorShareTol$, in every regime, and
+at least one of \uOccCarriersMany{} with probability at least \uCorLinkManyTol{}
+(Appendix~\ref{app:occupancy}). What separates the membrane from the restored
+bit is the distance from threshold at which each carrier is held when it is
+read, a few noise amplitudes against \ueMarginToNoise{}.
+
+\paragraph{The switching chip, counted.} A chip's nodes also pass through their
+thresholds, many times in every window, and the protocol counts them too
+(Appendix~\ref{app:occupancy}). Take a \uSwClockGHz{}~GHz clock and nodes that
+switch in \uSwActivityLow{} to \uSwActivityHigh{} of its cycles, each transition
+lasting \uSwTransitionPs{}~ps. On the rising half of a transition a change of
+one noise amplitude moves the time of the crossing by one jitter, as it moves a
+spike time. If a node's next content were that time, the node would pass there,
+at \uSwNodePassMinPercent{} to \uSwNodePassMaxPercent\% of its states, within
+the membrane's range, and within every window of \uOccContentShortMs{}~ms except
+with probability below $10^{-\uSwNoTransitionOrders}$. Counted at the voltage, a
+chip passes per window as a membrane does. By the carrier condition of
+Section~\ref{sec:cover}, its next content is what its latch reads at the clock
+edge, and timing closure keeps every transition on a clocked path outside the
+latch's setup-and-hold window \citep{ginosar2011}, so the latch reads the node
+at its rail: the restored bit above, which passes at none of its states and in
+no window. The crossing a latch discards is the content a membrane delivers,
+because a membrane's readers integrate its spike times as they arrive. The one
+place a working chip latches a transition is a synchronizer between clock
+domains. With a \uSwAperturePs{}~ps aperture and data changing every tenth cycle
+\citep{ginosar2011}, its first stage samples inside the aperture at most
+\uSwSyncPassPercent\% of the time, $\uSwSyncEventsLong$ times in a window of
+\uOccContentLongMs{}~ms, and which way it resolves moves with the timing of the
+transition; a second stage given one cycle to settle leaves it unresolved once
+in more than $10^{\uSwMtbfOrders}$ years. What that second stage takes is the
+bit the first resolves to, and no binary readout reaches the fluctuation: at the
+centre of the aperture a change of one noise amplitude in the transition's
+timing moves the probability of either resolution by at most
+$\Phi(1)-1/2=\uYardBinaryCeiling$, and the stage's own noise only lowers that.
+The synchronizer therefore fails graded dependence at every sample, those inside
+its aperture included, whichever protocol carries the data across the boundary,
+and so does a random source that reads its bits from how a metastable stage
+resolves. The value a chip reads from one bit passes nowhere, within a clock
+domain or across its boundaries.
+
+\paragraph{The yardstick.} The separation holds at every yardstick from
+\uYardLow{} to \uYardHigh{} (Figure~\ref{fig:yardstick}). Across that range the
+logic node passes at none of its states, and the membrane enters a passing state
+within \uOccContentLongMs{}~ms with probability at least \uYardHitMinHigh{} at
+the highest yardstick, rising as the yardstick is lowered. The formal results
+take the yardstick as a parameter and hold at every value of it. The fluctuation
+is the value that makes \emph{large} mean what it means for the carrier itself:
+a change that moves the content by as much as the content moves of its own
+accord.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{unity_yardstick.png}
+\caption{One protocol at every yardstick. Left: the share of occupied states at
+which every admissible change moves the next content by at least the yardstick.
+Right: the chance of entering such a state within \uOccContentLongMs{}~ms. The
+membrane is a band over every declared regime and, on the right, every noise
+share. A switching node's crossing time is a band over the declared activity
+factors; it passes exactly at the fluctuation (dotted) and at no higher
+yardstick. The synchronizer's share is the upper bound $T_W f_D$, at the
+yardsticks one bit can reach, up to $\Phi(1)-1/2$. The value a clocked latch
+reads passes at no state and in no window.}
+\label{fig:yardstick}
+\end{figure}
+
+\paragraph{Categories.} Categorical contents have margins in every substrate,
+brains included. The dominant percept in binocular rivalry, a perceived
+category, or any class picked as the largest of several values stays the same
+on each side of its boundary. Away from the boundary, the margin lemma
+therefore denies it graded dependence in cortex exactly as in silicon. So P is
+stated on the graded variables from which categories are read, such as a
+location, an orientation, a time or the relative strength of competing
+percepts. A category meets P through the variable that carries it, and depends
+gradedly on a region only where that variable does. This opens no route for a
+digital machine. Every variable it computes, whether a number, a vector of
+numbers or a category, is a function of its bits, and after any number of steps
+that keep its bits away from their thresholds such a function depends gradedly
+on no region. The voltages beneath the bits are not carriers in the sense of
+Section~\ref{sec:cover}. An observer may decode the machine's contents from
+them, but the machine itself reads them only through the bits, at that step and
+at every later one.
 
 \paragraph{Gradual replacement.} The standard objection to a substrate
 condition replaces a brain's neurons one at a time by digital units that compute
@@ -475,198 +635,12 @@ to reproduce that evidence by computation is the simulation objection again. A
 bridged cortex is of the first kind, so at the bridge P stakes itself on
 behaviour (Section~\ref{sec:tests}).
 
-\paragraph{Categories.} Categorical contents have margins in every substrate,
-brains included. The dominant percept in binocular rivalry, a perceived
-category, or any class picked as the largest of several values stays the same
-on each side of its boundary. Away from the boundary, the margin lemma
-therefore denies it graded dependence in cortex exactly as in silicon. So P is
-stated on the graded variables from which categories are read, such as a
-location, an orientation, a time or the relative strength of competing
-percepts. A category meets P through the variable that carries it, and depends
-gradedly on a region only where that variable does. This opens no route for a
-digital machine. Every variable it computes, whether a number, a vector of
-numbers or a category, is a function of its bits, and after any number of steps
-that keep its bits away from their thresholds such a function depends gradedly
-on no region. The voltages beneath the bits are not carriers in the sense of
-Section~\ref{sec:cover}. An observer may decode the machine's contents from
-them, but the machine itself reads them only through the bits, at that step and
-at every later one.
-
-\paragraph{Noise.} Real physics is noisy, and noise changes the question. A
-gate's chance of flipping is a smooth function of its input voltage and is never
-exactly zero, so the \emph{probability} of a digital machine's next content
-depends, however slightly, on every region. Read on exact contents, the margin
-lemma would then pick out a difference lying below the noise floor of both
-substrates. P is therefore read on probabilities. The \emph{response} of a
-content to a region at scale $\eta$ is the largest change that moving the region
-by at most $\eta$ makes to the probability of any outcome of the next content, a
-total-variation distance. As the yardstick for a large response we take the one
-that a shift of one standard deviation produces in a Gaussian carrier,
-$2\Phi(1/2)-1=\ueFluctuationTV$: a response of at least this size moves the
-content by as much as the content naturally fluctuates. Graded dependence above the noise
-floor asks the response to reach this fluctuation for every change of the region
-that is larger than its own noise and smaller than the change that crosses one
-of its thresholds. When the region moves a carrier linearly under additive noise
-whose density has a single peak, Gaussian or heavy-tailed, a larger change moves
-the content at least as much as a smaller one, so the criterion is met exactly
-when a change of one noise amplitude reaches the fluctuation. When the law of the
-noise changes with the state, as the variance of a spike count does, the same
-holds on each side of the state for laws with a monotone likelihood ratio, and
-the criterion is met exactly when a change of one noise amplitude up and one down
-both reach the fluctuation.
-The constants are a Gaussian identity and the system's own
-scales, and none of them is fitted to either substrate.
-
-The margin lemma has a noisy form, the noisy margin theorem, and it is this
-form that carries the argument, since real physics is noisy. Let each realization of the noise fix an
-$L$-Lipschitz step of the micro dynamics, one that stretches no distance by
-more than a factor $L$. Let the content be constant within radius $r$ of the
-noisy successor, except on a set of realizations of probability at most
-$\varepsilon$. Then a change of one region smaller than $r/L$ moves the
-probability of every outcome of the next content by at most $\varepsilon$. For
-anything computed from bits, $\varepsilon$ is the probability that some bit of
-the noisy successor lands within $\delta$ of its threshold, and the bound is
-attained.
-
-\paragraph{A logic gate in numbers.} On a logic node of \ueNodeCapFf{}~fF at
-room temperature the thermal noise is \ueThermalNoiseMv{}~mV
-\citep{johnson1928,nyquist1928}, and the textbook inverter's margin is
-\ueMarginToNoise{} times that. After a change of one noise amplitude, the
-probability of a flip, which bounds the response, is below
-$10^{-\ueErrorOrders}$ \citep{kish2002}. The response reaches the fluctuation
-only within \ueGradedWindowPercent\% of the margin's width from the threshold,
-where the bit is in the middle of switching.
-
-\paragraph{A neuron in numbers.} A spike time passes the same test. Suppose an
-input $\Delta V$, too small to fire the cell on its own, arrives while the
-membrane potential is rising through threshold at rate $\dot V$. It moves the
-spike by $\Delta V/\dot V$. Voltage noise $\sigma_V$ jitters the spike by
-$\sigma_V/\dot V$. The shift therefore exceeds the jitter exactly when
-$\Delta V$ exceeds $\sigma_V$, whatever the slope, and spike generation adds
-little noise of its own \citep{mainen1995}. A unitary excitatory potential
-between cortical pyramidal cells averages \ueEpspMv{}~mV, with a coefficient of
-variation of \ueEpspCv{} \citep{markram1997}, and the membrane noise near
-threshold is \ueMembraneNoiseMv{}~mV \citep{jacobson2005}. Counting the input's
-own variability as noise, one such input shifts the spike by
-\ueCorticalShiftToJitter{} times its jitter, a response of \ueCorticalTV{}.
-Every input larger than \ueEpspPassMv{}~mV passes, up to the input that fires
-the cell.
-
-\paragraph{A membrane over the states it occupies.} That estimate holds at the
-moment the membrane rises through threshold. Measured over every state a
-membrane occupies, by the protocol applied to the logic node, it holds near
-threshold and nowhere else. We model the membrane as a leaky integrate-and-fire
-cell driven by white noise, with time constants of \uOccTauFast{} to
-\uOccTauSlow{}~ms, spanning the in vivo high-conductance state
-\citep{destexhe1999,destexhe2003}, and stationary rates of \uOccRateLow{} to
-\uOccRateHigh{}~Hz, spanning the sparse rates of awake cortex
-\citep{hromadka2008}. Its next content is the time of its first spike within
-\uOccNextShort{} or \uOccNextLong{}~ms, and every change of one to
-\uOccShiftMax{} noise amplitudes, in either direction, must move that content by
-the fluctuation. Propagating the membrane's probability exactly on a voltage
-grid (Appendix~\ref{app:occupancy}), it sits on average \uOccDistanceMin{} to
-\uOccDistanceMax{} noise amplitudes below threshold and passes at
-\uOccPassMinPercent{} to \uOccPassMaxPercent\% of the states it occupies. A bit
-restored to a rail at the logic node's margin passes at none of its states, and
-its largest response over them is below $10^{-\uOccBitOrders}$. No binary readout
-passes at any margin: under Gaussian noise, its response to a change of one
-noise amplitude, asked in both directions as the criterion asks, is at most
-$\Phi(1)-1/2=\uYardBinaryCeiling$. A graded content exceeds the fluctuation
-by a wide margin: at its best state the membrane responds by at least
-\uYardBestMin{} in every regime and at every noise share.
-
-A membrane passes at a given instant rarely and within a window often. A
-stationary membrane enters a passing state within \uOccContentLongMs{}~ms, the
-integration time that precedes a conscious percept, with probability
-\uOccHitMinLong{} to \uOccHitMaxLong{}, including the case in which the region
-it depends on supplies only \uOccShareMin{} of its membrane's noise variance. If
-two regions are joined by \uOccCarriersFew{} carriers that pass independently,
-some carrier passes in such a window with probability at least
-\uOccLinkFewLong{}, and with \uOccCarriersMid{} within \uOccContentShortMs{}~ms
-with probability at least \uOccLinkMidShort{}; for independent carriers the
-probability that none passes falls geometrically with their number. At a single
-instant, even \uOccCarriersMany{} such carriers link two regions with
-probability as low as \uOccInstantLinkMin{}, which is why P is stated per
-window. Reading the spike time through a clock of \uOccLatchShortMs{} or
-\uOccLatchLongMs{}~ms leaves the passing fraction unchanged.
-
-Neighbouring membranes share input, and in awake cortex their potentials are
-highly correlated during quiet wakefulness and less so during active behaviour
-\citep{poulet2008}. We model this as a shared component carrying a fraction $c$
-of every membrane's noise variance, so that two membranes correlate by $c$ and
-each keeps its own law (Appendix~\ref{app:occupancy}). At least one of
-\uOccCarriersMid{} such carriers enters a passing state within
-\uOccContentLongMs{}~ms with probability at least \uCorLinkMidTol{} for every
-share up to $c=\uCorShareTol$, in every regime, and
-at least one of \uOccCarriersMany{} with probability at least \uCorLinkManyTol{}. The chance
-that \uOccCarriersMid{} carriers leave the window without a link is at most
-\uCorMissA{} at $c=\uCorShareA$, \uCorMissB{} at $c=\uCorShareB$ and
-\uCorMissC{} at $c=\uCorShareTol$. The shorter window is more sensitive to
-correlation: within \uOccContentShortMs{}~ms the link falls to
-\uCorLinkShortTol{} at $c=\uCorShareTol$, so P's per-window condition is met at
-the time scale of a percept rather than of its fastest components. What
-separates the membrane from the restored bit is the distance from threshold at
-which each carrier is held when it is read, a few noise amplitudes against
-\ueMarginToNoise{}.
-
-\paragraph{A switching chip, counted the same way.} A chip's nodes also pass
-through their thresholds, many times in every window, and the protocol counts
-them too (Appendix~\ref{app:occupancy}). Take a \uSwClockGHz{}~GHz clock and
-nodes that switch in \uSwActivityLow{} to \uSwActivityHigh{} of its cycles, each
-transition lasting \uSwTransitionPs{}~ps. On the rising half of a transition a
-change of one noise amplitude moves the time of the crossing by one jitter, as
-it moves a spike time. If a node's next content were that time, the node would
-pass there, at \uSwNodePassMinPercent{} to \uSwNodePassMaxPercent\% of its
-states, within the membrane's range, and within every window of
-\uOccContentShortMs{}~ms except with probability below
-$10^{-\uSwNoTransitionOrders}$. Counted at the voltage, a chip passes per window
-as a membrane does. By the carrier condition of Section~\ref{sec:cover}, its
-next content is what its latch reads at the clock edge, and timing closure keeps every transition on a clocked path outside the latch's
-setup-and-hold window \citep{ginosar2011}, so the latch reads the node at its
-rail: the restored bit above, which passes at none of its states and in no
-window. The crossing a latch discards is the content a membrane delivers,
-because a membrane's readers integrate its spike times as they arrive. The one
-place a working chip latches a transition is a synchronizer between clock
-domains. With a \uSwAperturePs{}~ps aperture and data changing every tenth
-cycle \citep{ginosar2011}, its first stage samples inside the aperture at most
-\uSwSyncPassPercent\% of the time, $\uSwSyncEventsLong$ times in a window of
-\uOccContentLongMs{}~ms, and which way it resolves moves with the timing of the
-transition; a second stage given one cycle to settle leaves it unresolved once
-in more than $10^{\uSwMtbfOrders}$ years. What that second stage takes is the bit
-the first resolves to, and no binary readout reaches the fluctuation: at the
-centre of the aperture a change of one noise amplitude in the transition's
-timing moves the probability of either resolution by at most
-$\Phi(1)-1/2=\uYardBinaryCeiling$, and the stage's own noise only lowers that.
-The synchronizer therefore fails graded dependence at every sample, those inside
-its aperture included, whichever protocol carries the data across the boundary,
-and so does a random source that reads its bits from how a metastable stage
-resolves. The value a chip reads from one bit passes nowhere, within a clock
-domain or across its boundaries.
-
-\paragraph{The yardstick.} The separation holds at every yardstick from
-\uYardLow{} to \uYardHigh{} (Figure~\ref{fig:yardstick}). Across that range the logic node passes at none of
-its states, and the membrane enters a passing state within
-\uOccContentLongMs{}~ms with probability at least \uYardHitMinHigh{} at the
-highest yardstick, rising as the yardstick is lowered. The formal results take
-the yardstick as a parameter and hold at every value of it. The fluctuation is
-the value that makes \emph{large} mean what it means for the carrier itself: a
-change that moves the content by as much as the content moves of its own
-accord.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{unity_yardstick.png}
-\caption{One protocol at every yardstick. Left: the share of
-occupied states at which every admissible change moves the next content by at
-least the yardstick. Right: the chance of entering such a state within
-\uOccContentLongMs{}~ms. The membrane is a band over every declared regime and,
-on the right, every noise share. A switching node's crossing time is a band over
-the declared activity factors; it passes exactly at the fluctuation (dotted)
-and at no higher yardstick. The synchronizer's share is the upper bound
-$T_W f_D$, at the yardsticks one bit can reach, up to $\Phi(1)-1/2$. The value a clocked latch reads passes at no state and in no
-window.}
-\label{fig:yardstick}
-\end{figure}
+\paragraph{What the premise rests on.} Cortex passes the count within every
+window, as shown above, and P asks exactly this of the regions whose contents
+are unified. P thus rests on wholeness and counting, and every step between
+them is proved: wholeness asks for one physical state, and counting says at
+which scale physics counts one. The bridge of Section~\ref{sec:tests} tests
+them together.
 
 \section{When and how far a coupling enforces agreement}
 \label{sec:reach}
@@ -1234,10 +1208,10 @@ design the switching count does not cover. The thermal estimate declares the nod
 it uses, and the switching count declares its clock, activity factors,
 transition time and synchronizer.
 
-\item \emph{The cortical estimates.} The single-input estimate combines in vitro
-measurements of one connection type and one noise recording, and reads the
-spike-time shift through a linear threshold crossing. The occupancy result models
-one membrane as a leaky integrate-and-fire cell under white noise, with a
+\item \emph{The cortical estimates.} The single-input estimate of
+Appendix~\ref{app:noise} combines in vitro measurements of one connection type
+and one noise recording, and reads the spike-time shift through a linear
+threshold crossing. The occupancy computation models one membrane as a leaky integrate-and-fire cell under white noise, with a
 threshold that has no dynamics of its own. Its time constants, rates, windows,
 noise shares and carrier counts are declared ranges, not fits. Correlation
 between carriers is modelled as one shared component with the membrane's own
@@ -1427,6 +1401,32 @@ reach \ueTauLocalMs{}~ms. Signal travel thus uses only a small
 part of the time available, and whether agreement arrives in time depends on how fast
 the coupling settles.
 
+\section{A single input and noise that changes with the state}
+\label{app:noise}
+
+\paragraph{A neuron in numbers.} Suppose an
+input $\Delta V$, too small to fire the cell on its own, arrives while the
+membrane potential is rising through threshold at rate $\dot V$. It moves the
+spike by $\Delta V/\dot V$. Voltage noise $\sigma_V$ jitters the spike by
+$\sigma_V/\dot V$. The shift therefore exceeds the jitter exactly when
+$\Delta V$ exceeds $\sigma_V$, whatever the slope, and spike generation adds
+little noise of its own \citep{mainen1995}. A unitary excitatory potential
+between cortical pyramidal cells averages \ueEpspMv{}~mV, with a coefficient of
+variation of \ueEpspCv{} \citep{markram1997}, and the membrane noise near
+threshold is \ueMembraneNoiseMv{}~mV \citep{jacobson2005}. Counting the input's
+own variability as noise, one such input shifts the spike by
+\ueCorticalShiftToJitter{} times its jitter, a response of \ueCorticalTV{}.
+Every input larger than \ueEpspPassMv{}~mV passes, up to the input that fires
+the cell.
+
+\paragraph{Noise whose law changes with the state.} When the law of the noise
+changes with the state, as the variance of a spike count does, a larger change
+still moves the content at least as much as a smaller one on each side of the
+state, provided the laws have a monotone likelihood ratio, as exponential
+families do: such laws cross once along the parameter the region moves. The
+criterion of Section~\ref{sec:enforcement} is then met exactly when a change of
+one noise amplitude up and one down both reach the fluctuation.
+
 \section{The occupancy computation}
 \label{app:occupancy}
 
@@ -1464,6 +1464,14 @@ time constants. Halving
 both the grid spacing and the time step changes the passing fraction by
 \uOccResolutionPercent\%, and the correlation of two carriers' passing by at
 most \uCorResolutionRho{}.
+
+Correlation lowers the per-window link. The chance that \uOccCarriersMid{}
+carriers leave a window of \uOccContentLongMs{}~ms without a link is at most
+\uCorMissA{} at $c=\uCorShareA$, \uCorMissB{} at $c=\uCorShareB$ and
+\uCorMissC{} at $c=\uCorShareTol$. The shorter window is more sensitive: within
+\uOccContentShortMs{}~ms the link falls to \uCorLinkShortTol{} at
+$c=\uCorShareTol$, so P's per-window condition is met at the time scale of a
+percept rather than of its fastest components.
 
 The switching chip is counted in closed form. On the rising half of a
 transition the node's voltage crosses its threshold at a slew $\dot V$, a change
@@ -1550,8 +1558,8 @@ Where the response grows with the change, graded dependence above the noise floo
 Under linear dynamics with Gaussian noise, the response grows with the change, and graded dependence and coupling are decided at one noise amplitude & \ref{sec:enforcement} & \texttt{gaussLin\_\allowbreak{}coupledAtNoiseFloor\_\allowbreak{}iff} \\
 A shift of a density with a single peak moves no event more than a larger shift, in either direction & \ref{sec:enforcement} & \texttt{lawRise\_\allowbreak{}map\_\allowbreak{}add\_\allowbreak{}mono\_\allowbreak{}of\_\allowbreak{}unimodal} \\
 Under linear dynamics with additive noise whose density has a single peak, graded dependence and coupling are decided at one noise amplitude & \ref{sec:enforcement} & \texttt{noisyLin\_\allowbreak{}coupledAtNoiseFloor\_\allowbreak{}iff} \\
-Laws with a monotone likelihood ratio, exponential families among them, cross once & \ref{sec:enforcement} & \texttt{singleCrossing\_\allowbreak{}of\_\allowbreak{}mlr}, \texttt{singleCrossing\_\allowbreak{}expFamily} \\
-Where the next content's laws cross once along a parameter the region moves monotonically, graded dependence above the noise floor is decided by a change of one noise amplitude up and one down & \ref{sec:enforcement} & \texttt{gradedAboveNoise\_\allowbreak{}iff\_\allowbreak{}of\_\allowbreak{}crossing} \\
+Laws with a monotone likelihood ratio, exponential families among them, cross once & \ref{app:noise} & \texttt{singleCrossing\_\allowbreak{}of\_\allowbreak{}mlr}, \texttt{singleCrossing\_\allowbreak{}expFamily} \\
+Where the next content's laws cross once along a parameter the region moves monotonically, graded dependence above the noise floor is decided by a change of one noise amplitude up and one down & \ref{app:noise} & \texttt{gradedAboveNoise\_\allowbreak{}iff\_\allowbreak{}of\_\allowbreak{}crossing} \\
 \hline
 \end{longtable}
 }
