@@ -383,9 +383,14 @@ $2\Phi(1/2)-1=\ueFluctuationTV$: a response of at least this size moves the
 content by as much as the content naturally fluctuates. Graded dependence above the noise
 floor asks the response to reach this fluctuation for every change of the region
 that is larger than its own noise and smaller than the change that crosses one
-of its thresholds. When the region moves a Gaussian carrier linearly, a larger
-change moves the content at least as much as a smaller one, so the criterion
-is met exactly when a change of one noise amplitude reaches the fluctuation.
+of its thresholds. When the region moves a carrier linearly under additive noise
+whose density has a single peak, Gaussian or heavy-tailed, a larger change moves
+the content at least as much as a smaller one, so the criterion is met exactly
+when a change of one noise amplitude reaches the fluctuation. When the law of the
+noise changes with the state, as the variance of a spike count does, the same
+holds on each side of the state for laws with a monotone likelihood ratio, and
+the criterion is met exactly when a change of one noise amplitude up and one down
+both reach the fluctuation.
 The constants are a Gaussian identity and the system's own
 scales, and none of them is fitted to either substrate.
 
@@ -1221,6 +1226,10 @@ The same bits fail graded dependence above the noise floor at any overlap of two
 A smaller shift of a Gaussian moves no event more than a larger one & \ref{sec:enforcement} & \texttt{gaussian\_\allowbreak{}shift\_\allowbreak{}le} \\
 Where the response grows with the change, graded dependence above the noise floor is decided by a change of one noise amplitude & \ref{sec:enforcement} & \texttt{gradedAboveNoise\_\allowbreak{}iff\_\allowbreak{}of\_\allowbreak{}mono} \\
 Under linear dynamics with Gaussian noise, the response grows with the change, and graded dependence and coupling are decided at one noise amplitude & \ref{sec:enforcement} & \texttt{gaussLin\_\allowbreak{}coupledAtNoiseFloor\_\allowbreak{}iff} \\
+A shift of a density with a single peak moves no event more than a larger shift, in either direction & \ref{sec:enforcement} & \texttt{lawRise\_\allowbreak{}map\_\allowbreak{}add\_\allowbreak{}mono\_\allowbreak{}of\_\allowbreak{}unimodal} \\
+Under linear dynamics with additive noise whose density has a single peak, graded dependence and coupling are decided at one noise amplitude & \ref{sec:enforcement} & \texttt{noisyLin\_\allowbreak{}coupledAtNoiseFloor\_\allowbreak{}iff} \\
+Laws with a monotone likelihood ratio, exponential families among them, cross once & \ref{sec:enforcement} & \texttt{singleCrossing\_\allowbreak{}of\_\allowbreak{}mlr}, \texttt{singleCrossing\_\allowbreak{}expFamily} \\
+Where the next content's laws cross once along a parameter the region moves monotonically, graded dependence above the noise floor is decided by a change of one noise amplitude up and one down & \ref{sec:enforcement} & \texttt{gradedAboveNoise\_\allowbreak{}iff\_\allowbreak{}of\_\allowbreak{}crossing} \\
 \hline
 \end{longtable}
 }

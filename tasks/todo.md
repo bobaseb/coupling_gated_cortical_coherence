@@ -432,7 +432,7 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   in the DOI once posted, preferably before the unity paper's arXiv v1, then
   rerun `unity/prepare_arxiv.sh` and commit with the rebuilt PDF. The DOI
   also unblocks the unity half of U19, which was waiting on an identifier.
-- [ ] **U34 — Lean: the noise-amplitude reduction for additive unimodal
+- [x] **U34 — Lean: the noise-amplitude reduction for additive unimodal
   noise.** Raised 2026-09-26 after U33. `gaussian_shift_le` covers only
   Gaussian noise. For additive noise with a unimodal density `p`,
   `p(y) − p(y − d)` changes sign once, so the event maximising the response is
@@ -447,7 +447,21 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   Counterexample to record in the docstring: noise ±1 with probability ½
   each has response 1 at a shift of 1 and ½ at a shift of 2, so some
   hypothesis is needed. **Success.** `gaussian_shift_le` is an instance.
-- [ ] **U35 — Lean: the reduction for families with monotone likelihood
+  *Done 2026-09-27:* one argument serves U34 and U35. `SingleCrossing P Q`
+  (an upper set carries the whole excess of `Q`) gives, by Scheffé's bound
+  over every set (`rise_le_of_restrict`, outer measure via `toMeasurable`),
+  stochastic dominance and `lawRise_le_of_crossing`: in a family whose laws
+  cross once in order, the rise grows away from `θ₀` on each side. A shifted
+  unimodal density crosses once (`singleCrossing_shift_of_unimodal`), and for
+  additive noise the rise is even in the shift (`lawRise_map_add_le_neg`), so
+  the per-side statement was not needed here: `lawRise_map_add_mono_of_unimodal`
+  holds for `|b| ≤ |a|` whatever the signs. `noisyLin` generalizes `gaussLin`
+  (per-region noise laws), with `noisyLin_coupledAtNoiseFloor_iff`.
+  `gaussian_shift_le` is now an instance (via `gaussianPDF_unimodal`; gains
+  `v ≠ 0`); the convolution proof and its two helpers are gone. The ±1
+  counterexample is in the section docstring. §enforcement states the
+  generalization; tab:formal gains rows.
+- [x] **U35 — Lean: the reduction for families with monotone likelihood
   ratio.** The general form of U34, for state-dependent noise: if the next
   content's laws form a family with monotone likelihood ratio in a parameter
   that the region's change moves monotonically, the response grows with the
@@ -460,6 +474,14 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   unimodal law in several dimensions Anderson's theorem gives growth along
   each ray, so the criterion becomes the smallest response over changes of
   size σ. Several times the size of the Gaussian proof; do U34 first.
+  *Done 2026-09-27:* `singleCrossing_of_mlr` and `singleCrossing_expFamily`
+  (densities `h y exp(θy − A θ)` against any reference law, so counting
+  measure covers Poisson and binomial). `gradedAboveNoise_iff_of_sides`: with
+  a real micro state and the response growing on each side, the criterion is
+  decided by `+σ` and `−σ`; `gradedAboveNoise_iff_of_crossing` supplies this
+  when the next content's law is `P (φ s)` with `φ` monotone or antitone (the
+  dynamics hypothesis). Vector contents and Anderson's theorem are recorded
+  as scope in the section docstring, not proved.
 - [ ] **U19 — State the E78 → U1 bridge in both papers.** The companion's
   worst-case bound (coherence → content, `L√(2N(1−r²))`) runs out at
   millimetres, leaving centimetre-scale agreement to the bridge assumption

@@ -849,21 +849,364 @@ theorem measure_not_reachesWithin_le_variance {Ω' τ : Type*} [MeasurableSpace 
 
 end PhysicsOfConsciousness.PhysicalUnity
 
-/-! ## The Gaussian carrier
+/-! ## Laws that cross once
 
 Whether P is decided by the smallest change above the noise depends on how the
-response grows with the change. For a Gaussian carrier it grows monotonically:
-a smaller shift of a Gaussian is a common post-processing of the larger shift
-and of the unshifted law (scale toward the base mean, then add independent
-Gaussian noise that restores the variance), and post-processing moves no event
-by more than the input moved it. So under a linear micro dynamics with
-independent Gaussian noise on every region, graded dependence above the noise
-floor, and with it coupling at the noise floor, is decided by one change of the
-size of the noise.
+response grows with the change. The response to a change is the largest rise, over
+events, from the law of the next content to its law after the change. When the two
+laws cross once, the second falling short of the first below some point and
+exceeding it above, the rise is largest on an upper half-line, and a law moved
+further along its family gives every upper half-line at least as much probability.
+So the response grows with the change on each side of the current state, and the
+criterion is decided by one change of the size of the noise in each direction.
 
-* **`gaussian_shift_le`.** A shift of a Gaussian by `b` raises no event's
-  probability by more than the largest rise a shift by `a` makes, when
-  `|b| ≤ |a|`.
+* **`lawRise`** and **`rise_le_of_restrict`.** The largest rise from `P` to `Q`,
+  over every set as in `shiftResponse`, is at most the rise on any measurable set
+  that carries the whole excess of `Q` (Scheffé's argument).
+* **`SingleCrossing P Q`.** An upper set carries the whole excess of `Q` over `P`.
+  `SingleCrossing.le_of_isUpperSet` and `.le_of_isLowerSet`: between probability
+  laws, `Q` then dominates `P` stochastically.
+* **`lawRise_le_of_crossing`.** In a family of probability laws on `ℝ` any two of
+  which cross once in the order of the parameter, the rise from `θ₀` grows as the
+  parameter moves away from `θ₀` on either side.
+* **`singleCrossing_withDensity`**, **`singleCrossing_of_mlr`** and
+  **`singleCrossing_expFamily`.** Densities against any reference law cross once
+  when, once the second exceeds the first, it never falls below it; monotone
+  likelihood ratio implies this, and so do the densities `h y exp (θ y − A θ)` of a
+  one-parameter exponential family in its natural parameter. Poisson spike counts,
+  binomial release and gamma intervals of fixed shape are of this form, against
+  counting measure or Lebesgue measure, and their variance changes with the state.
+* **`singleCrossing_shift_of_unimodal`** and
+  **`lawRise_map_add_mono_of_unimodal`.** Additive noise with a density that rises
+  to one peak and falls after it: a shift of the density crosses the unshifted one
+  once, and the rise grows with the size of the shift in either direction, because
+  under additive noise the rise is the same for a shift and its negative
+  (`lawRise_map_add_le_neg`). Log-concavity is not needed: Gaussian, Laplace,
+  logistic, uniform, Cauchy and Student-t noise all qualify. Some hypothesis is:
+  under noise `±1` with probability `1/2` each, a shift by `1` has rise `1` and a
+  shift by `2` has rise `1/2`.
+* **`gradedAboveNoise_iff_of_sides`** and **`gradedAboveNoise_iff_of_crossing`.**
+  Where the response grows on each side of a real micro state, graded dependence
+  above the noise floor holds exactly when the changes `+σ` and `−σ` move the
+  content by `θ`; this is the case when the next content's law runs along a family
+  whose laws cross once, through a parameter that the region's state moves
+  monotonically. Nonlinear dynamics enter only through that parameter, a
+  hypothesis on the dynamics and not on the noise.
+
+Vector-valued contents fall outside this section: an upper set of the plane is not
+a half-line, and a single crossing does not order the rises. For a symmetric
+unimodal law in several dimensions Anderson's theorem gives growth along each ray,
+and the criterion becomes the smallest response over changes of size `σ`.
+-/
+
+namespace PhysicsOfConsciousness.PhysicalUnity
+
+open MeasureTheory
+
+/-- The largest rise, over events, in probability from the law `P` to the law `Q`.
+Probability is outer measure, as in `shiftResponse`. -/
+noncomputable def lawRise {α : Type*} [MeasurableSpace α] (P Q : Measure α) : ENNReal :=
+  ⨆ A : Set α, Q A - P A
+
+/-- **Scheffé's bound.** If `Q` exceeds `P` on every part of the measurable set `G`
+and falls short of it on every part of its complement, no set, measurable or not,
+gains more probability from `P` to `Q` than `G` does. -/
+lemma rise_le_of_restrict {α : Type*} [MeasurableSpace α] {P Q : Measure α}
+    [IsFiniteMeasure P] {G : Set α} (hG : MeasurableSet G) (hPG : P.restrict G ≤ Q.restrict G)
+    (hQG : Q.restrict Gᶜ ≤ P.restrict Gᶜ) (A : Set α) : Q A - P A ≤ Q G - P G := by
+  have hB := measurableSet_toMeasurable P A
+  set B := toMeasurable P A
+  have h1 : Q (B \ G) ≤ P (B \ G) := by
+    have := Measure.le_iff'.mp hQG (B \ G)
+    rwa [Measure.restrict_eq_self _ (fun y hy => hy.2),
+      Measure.restrict_eq_self _ (fun y hy => hy.2)] at this
+  have h2 : P (G \ B) ≤ Q (G \ B) := by
+    have := Measure.le_iff'.mp hPG (G \ B)
+    rwa [Measure.restrict_eq_self _ Set.sdiff_subset,
+      Measure.restrict_eq_self _ Set.sdiff_subset] at this
+  have hGle : P G ≤ Q G := by
+    have := Measure.le_iff'.mp hPG G
+    rwa [Measure.restrict_eq_self _ subset_rfl, Measure.restrict_eq_self _ subset_rfl] at this
+  have key : Q B + P G ≤ P B + Q G := by
+    rw [← measure_inter_add_sdiff (μ := Q) B hG, ← measure_inter_add_sdiff (μ := P) G hB,
+      ← measure_inter_add_sdiff (μ := P) B hG, ← measure_inter_add_sdiff (μ := Q) G hB,
+      Set.inter_comm G B]
+    calc Q (B ∩ G) + Q (B \ G) + (P (B ∩ G) + P (G \ B))
+        ≤ Q (B ∩ G) + P (B \ G) + (P (B ∩ G) + Q (G \ B)) := by gcongr
+      _ = P (B ∩ G) + P (B \ G) + (Q (B ∩ G) + Q (G \ B)) := by ring
+  calc Q A - P A ≤ Q B - P B := by
+        rw [measure_toMeasurable]; gcongr; exact subset_toMeasurable _ _
+    _ ≤ Q G - P G := by
+        rw [tsub_le_iff_left]
+        refine (ENNReal.add_le_add_iff_right (measure_ne_top P G)).mp ?_
+        rw [add_assoc, tsub_add_cancel_of_le hGle]
+        exact key
+
+/-- Two laws on `ℝ` **cross once** when an upper set carries the whole excess of
+`Q` over `P`: `Q` exceeds `P` on every part of it and falls short of `P` on every
+part of its complement. -/
+def SingleCrossing (P Q : Measure ℝ) : Prop :=
+  ∃ G : Set ℝ, IsUpperSet G ∧ P.restrict G ≤ Q.restrict G ∧ Q.restrict Gᶜ ≤ P.restrict Gᶜ
+
+/-- Between probability laws that cross once, the second gives every upper set at
+least the probability the first gives it. -/
+lemma SingleCrossing.le_of_isUpperSet {P Q : Measure ℝ} [IsProbabilityMeasure P]
+    [IsProbabilityMeasure Q] (h : SingleCrossing P Q) {U : Set ℝ} (hU : IsUpperSet U) :
+    P U ≤ Q U := by
+  obtain ⟨G, hG, hPG, hQG⟩ := h
+  have hUm : MeasurableSet U := hU.ordConnected.measurableSet
+  rcases hU.total hG with hUG | hGU
+  · have := Measure.le_iff'.mp hPG U
+    rwa [Measure.restrict_eq_self _ hUG, Measure.restrict_eq_self _ hUG] at this
+  · have := Measure.le_iff'.mp hQG Uᶜ
+    rw [Measure.restrict_eq_self _ (Set.compl_subset_compl.mpr hGU),
+      Measure.restrict_eq_self _ (Set.compl_subset_compl.mpr hGU),
+      prob_compl_eq_one_sub hUm, prob_compl_eq_one_sub hUm] at this
+    exact (ENNReal.sub_le_sub_iff_left prob_le_one ENNReal.one_ne_top).mp this
+
+/-- Between probability laws that cross once, the first gives every lower set at
+least the probability the second gives it. -/
+lemma SingleCrossing.le_of_isLowerSet {P Q : Measure ℝ} [IsProbabilityMeasure P]
+    [IsProbabilityMeasure Q] (h : SingleCrossing P Q) {L : Set ℝ} (hL : IsLowerSet L) :
+    Q L ≤ P L := by
+  have hLm : MeasurableSet L := hL.ordConnected.measurableSet
+  have := h.le_of_isUpperSet hL.compl
+  rw [prob_compl_eq_one_sub hLm, prob_compl_eq_one_sub hLm] at this
+  exact (ENNReal.sub_le_sub_iff_left prob_le_one ENNReal.one_ne_top).mp this
+
+/-- **In a family of laws that cross once, the rise grows along the parameter.**
+If any two laws of the family cross once in the order of their parameters, the
+rise from the law at `θ₀` to the law at `θ₁` is at most the rise to the law at any
+`θ₂` beyond `θ₁` on the same side of `θ₀`. -/
+theorem lawRise_le_of_crossing {P : ℝ → Measure ℝ} [∀ θ, IsProbabilityMeasure (P θ)]
+    (hP : ∀ θ θ', θ ≤ θ' → SingleCrossing (P θ) (P θ')) {θ₀ θ₁ θ₂ : ℝ}
+    (h : θ₀ ≤ θ₁ ∧ θ₁ ≤ θ₂ ∨ θ₂ ≤ θ₁ ∧ θ₁ ≤ θ₀) :
+    lawRise (P θ₀) (P θ₁) ≤ lawRise (P θ₀) (P θ₂) := by
+  rcases h with ⟨h01, h12⟩ | ⟨h21, h10⟩
+  · obtain ⟨G, hG, hPG, hQG⟩ := hP θ₀ θ₁ h01
+    refine iSup_le fun A => (rise_le_of_restrict hG.ordConnected.measurableSet hPG hQG A).trans ?_
+    exact (tsub_le_tsub_right ((hP θ₁ θ₂ h12).le_of_isUpperSet hG) _).trans
+      (le_iSup (fun A => P θ₂ A - P θ₀ A) G)
+  · obtain ⟨G, hG, hPG, hQG⟩ := hP θ₁ θ₀ h10
+    have hGc : MeasurableSet Gᶜ := hG.compl.ordConnected.measurableSet
+    refine iSup_le fun A => (rise_le_of_restrict hGc hQG (by rwa [compl_compl]) A).trans ?_
+    exact (tsub_le_tsub_right ((hP θ₂ θ₁ h21).le_of_isLowerSet hG.compl) _).trans
+      (le_iSup (fun A => P θ₂ A - P θ₀ A) Gᶜ)
+
+/-- **Densities that cross once.** Against any reference law `ρ`, densities `f`
+and `g` cross once when, once `g` has exceeded `f` at some point, it falls below
+`f` at no point above it. -/
+theorem singleCrossing_withDensity (ρ : Measure ℝ) {f g : ℝ → ENNReal}
+    (h : ∀ z y, z ≤ y → f z < g z → f y ≤ g y) :
+    SingleCrossing (ρ.withDensity f) (ρ.withDensity g) := by
+  set G : Set ℝ := {y | ∃ z, z ≤ y ∧ f z < g z}
+  have hG : IsUpperSet G := fun a b hab ⟨z, hz, hfz⟩ => ⟨z, hz.trans hab, hfz⟩
+  have hGm : MeasurableSet G := hG.ordConnected.measurableSet
+  refine ⟨G, hG, ?_, ?_⟩
+  · rw [restrict_withDensity hGm, restrict_withDensity hGm]
+    refine withDensity_mono ((ae_restrict_iff' hGm).mpr (.of_forall ?_))
+    rintro y ⟨z, hzy, hz⟩
+    exact h z y hzy hz
+  · rw [restrict_withDensity hGm.compl, restrict_withDensity hGm.compl]
+    refine withDensity_mono ((ae_restrict_iff' hGm.compl).mpr (.of_forall fun y hy => ?_))
+    exact not_lt.mp fun hlt => hy ⟨y, le_rfl, hlt⟩
+
+/-- **Monotone likelihood ratio crosses once.** If `g / f` never falls, stated
+without division as `g y f y' ≤ g y' f y` for `y ≤ y'`, the laws cross once. -/
+theorem singleCrossing_of_mlr (ρ : Measure ℝ) {f g : ℝ → ENNReal}
+    (h : ∀ y y', y ≤ y' → g y * f y' ≤ g y' * f y) :
+    SingleCrossing (ρ.withDensity f) (ρ.withDensity g) := by
+  refine singleCrossing_withDensity ρ fun z y hzy hz => not_lt.mp fun hy => ?_
+  have := ENNReal.mul_lt_mul hy hz
+  exact (h z y hzy).not_gt (by rwa [mul_comm (g z)])
+
+/-- **Exponential families cross once.** Laws with densities
+`h y exp (θ y − A θ)` against any reference law `ρ` have monotone likelihood ratio
+in the natural parameter `θ`, so a law of the family crosses once every law of it
+with a larger parameter. -/
+theorem singleCrossing_expFamily (ρ : Measure ℝ) {h : ℝ → ℝ} (hh : ∀ y, 0 ≤ h y)
+    (A : ℝ → ℝ) {θ θ' : ℝ} (hθ : θ ≤ θ') :
+    SingleCrossing (ρ.withDensity fun y => ENNReal.ofReal (h y * Real.exp (θ * y - A θ)))
+      (ρ.withDensity fun y => ENNReal.ofReal (h y * Real.exp (θ' * y - A θ'))) := by
+  refine singleCrossing_of_mlr ρ fun y y' hy => ?_
+  rw [← ENNReal.ofReal_mul (mul_nonneg (hh _) (Real.exp_pos _).le),
+    ← ENNReal.ofReal_mul (mul_nonneg (hh _) (Real.exp_pos _).le)]
+  refine ENNReal.ofReal_le_ofReal ?_
+  have key : Real.exp (θ' * y - A θ') * Real.exp (θ * y' - A θ) ≤
+      Real.exp (θ' * y' - A θ') * Real.exp (θ * y - A θ) := by
+    rw [← Real.exp_add, ← Real.exp_add]
+    exact Real.exp_le_exp.mpr (by nlinarith)
+  calc h y * Real.exp (θ' * y - A θ') * (h y' * Real.exp (θ * y' - A θ))
+      = h y * h y' * (Real.exp (θ' * y - A θ') * Real.exp (θ * y' - A θ)) := by ring
+    _ ≤ h y * h y' * (Real.exp (θ' * y' - A θ') * Real.exp (θ * y - A θ)) :=
+        mul_le_mul_of_nonneg_left key (mul_nonneg (hh y) (hh y'))
+    _ = _ := by ring
+
+/-- **A shift of a unimodal density crosses once.** If `p` rises up to `M` and
+falls after it, the density moved by `θ'` crosses the one moved by `θ ≤ θ'` once. -/
+theorem singleCrossing_shift_of_unimodal (ρ : Measure ℝ) {p : ℝ → ENNReal} {M : ℝ}
+    (hup : MonotoneOn p (Set.Iic M)) (hdown : AntitoneOn p (Set.Ici M)) {θ θ' : ℝ}
+    (hθ : θ ≤ θ') :
+    SingleCrossing (ρ.withDensity fun y => p (y - θ)) (ρ.withDensity fun y => p (y - θ')) := by
+  refine singleCrossing_withDensity ρ fun z y hzy hz => ?_
+  have hd : y - θ' ≤ y - θ := by linarith
+  have hz' : M < z - θ := by
+    by_contra hle
+    push Not at hle
+    exact hz.not_ge (hup (show z - θ' ∈ Set.Iic M by simp; linarith) (by simpa using hle)
+      (by linarith))
+  rcases le_or_gt M (y - θ') with hM | hM
+  · exact hdown (show M ≤ y - θ' from hM) (show M ≤ y - θ by linarith) hd
+  · calc p (y - θ) ≤ p (z - θ) := hdown (le_of_lt hz') (by simp; linarith) (by linarith)
+      _ ≤ p (z - θ') := hz.le
+      _ ≤ p (y - θ') := hup (by simp; linarith) (by simp; linarith) (by linarith)
+
+/-- A law moved by `θ` gives every set the probability the law gives its translate. -/
+lemma map_add_apply (ν : Measure ℝ) (θ : ℝ) (A : Set ℝ) :
+    ν.map (θ + ·) A = ν ((θ + ·) ⁻¹' A) :=
+  (MeasurableEquiv.addLeft θ).map_apply A
+
+/-- A law with density `p` against Lebesgue measure, moved by `θ`, has density
+`p (· − θ)`. -/
+lemma map_add_withDensity (p : ℝ → ENNReal) (θ : ℝ) :
+    (volume.withDensity p).map (θ + ·) = volume.withDensity fun y => p (y - θ) := by
+  ext s hs
+  rw [map_add_apply, withDensity_apply _ (measurable_const_add θ hs), withDensity_apply _ hs,
+    ← (measurePreserving_add_left volume θ).setLIntegral_comp_preimage_emb
+      (MeasurableEquiv.addLeft θ).measurableEmbedding (fun y => p (y - θ))]
+  simp
+
+/-- **Under additive noise a shift and its negative rise as far.** The event that
+gains most from the shift by `b` is carried, by complement and translation, to one
+that gains as much from the shift by `−b`. -/
+lemma lawRise_map_add_le_neg (ν : Measure ℝ) [IsProbabilityMeasure ν] (c b : ℝ) :
+    lawRise (ν.map (c + ·)) (ν.map ((c + b) + ·)) ≤
+      lawRise (ν.map (c + ·)) (ν.map ((c - b) + ·)) := by
+  refine iSup_le fun A => ?_
+  have hB := measurableSet_toMeasurable (ν.map (c + ·)) A
+  set B := toMeasurable (ν.map (c + ·)) A
+  set B' : Set ℝ := (· + b) ⁻¹' Bᶜ
+  have e1 : ν.map ((c - b) + ·) B' = 1 - ν.map (c + ·) B := by
+    rw [map_add_apply, map_add_apply, ← prob_compl_eq_one_sub (measurable_const_add c hB)]
+    congr 1; ext z; simp [B', sub_add_cancel, add_right_comm]
+  have e2 : ν.map (c + ·) B' = 1 - ν.map ((c + b) + ·) B := by
+    rw [map_add_apply, map_add_apply, ← prob_compl_eq_one_sub (measurable_const_add _ hB)]
+    congr 1; ext z; simp [B', add_right_comm]
+  calc ν.map ((c + b) + ·) A - ν.map (c + ·) A
+      ≤ ν.map ((c + b) + ·) B - ν.map (c + ·) B := by
+        rw [measure_toMeasurable]; gcongr; exact subset_toMeasurable _ _
+    _ = ν.map ((c - b) + ·) B' - ν.map (c + ·) B' := by
+        rw [e1, e2, ENNReal.sub_sub_sub_cancel_left ENNReal.one_ne_top prob_le_one]
+    _ ≤ _ := le_iSup (fun A => ν.map ((c - b) + ·) A - ν.map (c + ·) A) B'
+
+/-- **Under additive unimodal noise the rise grows with the shift.** For noise with
+a density that rises to one peak and falls after it, shifting the noise's law by `b`
+raises no event's probability more than the largest rise a shift by `a` makes, when
+`|b| ≤ |a|`, whatever the signs of `a` and `b`. -/
+theorem lawRise_map_add_mono_of_unimodal {p : ℝ → ENNReal}
+    [IsProbabilityMeasure (volume.withDensity p)] {M : ℝ}
+    (hup : MonotoneOn p (Set.Iic M)) (hdown : AntitoneOn p (Set.Ici M)) (c : ℝ) {a b : ℝ}
+    (hab : |b| ≤ |a|) :
+    lawRise ((volume.withDensity p).map (c + ·)) ((volume.withDensity p).map ((c + b) + ·)) ≤
+      lawRise ((volume.withDensity p).map (c + ·)) ((volume.withDensity p).map ((c + a) + ·)) := by
+  set ν := volume.withDensity p
+  have : ∀ θ, IsProbabilityMeasure (ν.map (θ + ·)) := fun θ =>
+    (Measure.isProbabilityMeasure_map_iff (measurable_const_add θ).aemeasurable).mpr inferInstance
+  have hP : ∀ θ θ', θ ≤ θ' → SingleCrossing (ν.map (θ + ·)) (ν.map (θ' + ·)) :=
+    fun θ θ' h => by
+      simp only [ν, map_add_withDensity]; exact singleCrossing_shift_of_unimodal _ hup hdown h
+  have mono : ∀ {θ₁ θ₂ : ℝ}, c ≤ θ₁ ∧ θ₁ ≤ θ₂ ∨ θ₂ ≤ θ₁ ∧ θ₁ ≤ c →
+      lawRise (ν.map (c + ·)) (ν.map (θ₁ + ·)) ≤ lawRise (ν.map (c + ·)) (ν.map (θ₂ + ·)) :=
+    fun h => lawRise_le_of_crossing (P := fun θ => ν.map (θ + ·)) hP h
+  have neg : ∀ d, lawRise (ν.map (c + ·)) (ν.map ((c + d) + ·)) ≤
+      lawRise (ν.map (c + ·)) (ν.map ((c - d) + ·)) := lawRise_map_add_le_neg ν c
+  rcases le_total 0 b with hb | hb <;> rcases le_total 0 a with ha | ha
+  · exact mono (.inl ⟨by linarith, by rw [abs_of_nonneg hb, abs_of_nonneg ha] at hab; linarith⟩)
+  · rw [abs_of_nonneg hb, abs_of_nonpos ha] at hab
+    refine (mono (θ₂ := c - a) (.inl ⟨by linarith, by linarith⟩)).trans ?_
+    simpa [sub_eq_add_neg] using neg (-a)
+  · rw [abs_of_nonpos hb, abs_of_nonneg ha] at hab
+    exact (neg b).trans (mono (θ₂ := c + a) (.inl ⟨by linarith, by linarith⟩))
+  · rw [abs_of_nonpos hb, abs_of_nonpos ha] at hab
+    exact mono (.inr ⟨by linarith, by linarith⟩)
+
+section sides
+
+variable {ι : Type*} [DecidableEq ι] {C : Type*} {Ω : Type*} [MeasurableSpace Ω]
+
+/-- **Where the response grows on each side, P is decided by two changes.** For a
+region with a real micro state, if the response grows with the change above the
+current state and with the change below it, then for `0 ≤ σ < Θ` graded dependence
+above the noise floor holds exactly when the changes `+σ` and `−σ` both move the
+content by at least `θ`. -/
+theorem gradedAboveNoise_iff_of_sides {μ : Measure Ω} {f : Ω → (ι → ℝ) → ι → ℝ}
+    {π : (ι → ℝ) → C} {x : ι → ℝ} {i : ι} {σ Θ : ℝ} {θ : ENNReal}
+    (hup : ∀ s t, x i ≤ s → s ≤ t →
+      shiftResponse (S := fun _ : ι => ℝ) μ f π x i s ≤
+        shiftResponse (S := fun _ : ι => ℝ) μ f π x i t)
+    (hdown : ∀ s t, t ≤ s → s ≤ x i →
+      shiftResponse (S := fun _ : ι => ℝ) μ f π x i s ≤
+        shiftResponse (S := fun _ : ι => ℝ) μ f π x i t)
+    (hσ : 0 ≤ σ) (hσΘ : σ < Θ) :
+    GradedAboveNoise (S := fun _ : ι => ℝ) μ f π x i σ Θ θ ↔
+      θ ≤ shiftResponse (S := fun _ : ι => ℝ) μ f π x i (x i + σ) ∧
+        θ ≤ shiftResponse (S := fun _ : ι => ℝ) μ f π x i (x i - σ) := by
+  refine ⟨fun h => ⟨h _ (by simp [abs_of_nonneg hσ]) (by simp [abs_of_nonneg hσ, hσΘ]),
+    h _ (by simp [abs_of_nonneg hσ]) (by simp [abs_of_nonneg hσ, hσΘ])⟩,
+    fun ⟨hp, hm⟩ s hs _ => ?_⟩
+  rw [Real.dist_eq] at hs
+  rcases le_total (x i) s with hxs | hsx
+  · rw [abs_of_nonneg (by linarith)] at hs
+    exact hp.trans (hup _ _ (by linarith) (by linarith))
+  · rw [abs_of_nonpos (by linarith)] at hs
+    exact hm.trans (hdown _ _ (by linarith) (by linarith))
+
+/-- **Laws that cross once decide P by two changes.** Let the next content be real,
+with law `P (φ s)` when region `i` is set to `s`, for a family `P` any two of whose
+laws cross once in the order of the parameter, and a parameter `φ` that the
+region's state moves monotonically, up or down. Then graded dependence above the
+noise floor holds exactly when the changes `+σ` and `−σ` both move the content by
+at least `θ`. -/
+theorem gradedAboveNoise_iff_of_crossing {μ : Measure Ω} {f : Ω → (ι → ℝ) → ι → ℝ}
+    {π : (ι → ℝ) → ℝ} {x : ι → ℝ} {i : ι} {P : ℝ → Measure ℝ}
+    [∀ θ, IsProbabilityMeasure (P θ)] (hP : ∀ θ θ', θ ≤ θ' → SingleCrossing (P θ) (P θ'))
+    {φ : ℝ → ℝ} (hφ : Monotone φ ∨ Antitone φ)
+    (hlaw : ∀ s A, μ {ω | π (f ω (Function.update x i s)) ∈ A} = P (φ s) A)
+    {σ Θ : ℝ} (hσ : 0 ≤ σ) (hσΘ : σ < Θ) {θ : ENNReal} :
+    GradedAboveNoise (S := fun _ : ι => ℝ) μ f π x i σ Θ θ ↔
+      θ ≤ lawRise (P (φ (x i))) (P (φ (x i + σ))) ∧
+        θ ≤ lawRise (P (φ (x i))) (P (φ (x i - σ))) := by
+  have hR : ∀ s, shiftResponse (S := fun _ : ι => ℝ) μ f π x i s =
+      lawRise (P (φ (x i))) (P (φ s)) := by
+    intro s
+    unfold shiftResponse lawRise
+    congr 1; ext A
+    have hx := hlaw (x i) A
+    rw [Function.update_eq_self] at hx
+    rw [hlaw, hx]
+  have between : ∀ s t, (x i ≤ s ∧ s ≤ t ∨ t ≤ s ∧ s ≤ x i) →
+      φ (x i) ≤ φ s ∧ φ s ≤ φ t ∨ φ t ≤ φ s ∧ φ s ≤ φ (x i) := by
+    rintro s t (⟨h1, h2⟩ | ⟨h1, h2⟩) <;> rcases hφ with hφ | hφ
+    exacts [.inl ⟨hφ h1, hφ h2⟩, .inr ⟨hφ h2, hφ h1⟩, .inr ⟨hφ h1, hφ h2⟩, .inl ⟨hφ h2, hφ h1⟩]
+  simp only [← hR]
+  refine gradedAboveNoise_iff_of_sides (fun s t h1 h2 => ?_) (fun s t h1 h2 => ?_) hσ hσΘ
+  · rw [hR, hR]; exact lawRise_le_of_crossing hP (between s t (.inl ⟨h1, h2⟩))
+  · rw [hR, hR]; exact lawRise_le_of_crossing hP (between s t (.inr ⟨h1, h2⟩))
+
+end sides
+
+end PhysicsOfConsciousness.PhysicalUnity
+
+/-! ## The Gaussian carrier
+
+A Gaussian density rises to its mean and falls after it, so the previous section
+applies: under a linear micro dynamics with independent Gaussian noise on every
+region, graded dependence above the noise floor, and with it coupling at the noise
+floor, is decided by one change of the size of the noise.
+
+* **`gaussianPDF_unimodal`** and **`gaussian_shift_le`.** The Gaussian density is
+  unimodal, so a shift of a Gaussian by `b` raises no event's probability by more
+  than the largest rise a shift by `a` makes, when `|b| ≤ |a|`.
 * **`gaussLin`** and **`stdNoise`.** The micro dynamics `y ↦ W y + τ ω` with
   `ω` standard Gaussian on each region; `stdNoise_apply` gives the law of any
   region's next quantity.
@@ -881,76 +1224,32 @@ namespace PhysicsOfConsciousness.PhysicalUnity
 open MeasureTheory ProbabilityTheory NNReal
 
 
-/-- A pointwise excess bound survives averaging over a probability law. -/
-lemma le_add_of_lintegral {Z : Type*} [MeasurableSpace Z] {ρ : Measure Z} [IsProbabilityMeasure ρ]
-    {g g' : Z → ENNReal} {D : ENNReal} (h : ∀ z, g z ≤ g' z + D) :
-    ∫⁻ z, g z ∂ρ ≤ ∫⁻ z, g' z ∂ρ + D := by
-  calc ∫⁻ z, g z ∂ρ ≤ ∫⁻ z, (g' z + D) ∂ρ := lintegral_mono h
-    _ = ∫⁻ z, g' z ∂ρ + D := by rw [lintegral_add_right _ measurable_const]; simp
+/-- The Gaussian density rises to its mean and falls after it. -/
+lemma gaussianPDF_unimodal (v : ℝ≥0) :
+    MonotoneOn (gaussianPDF 0 v) (Set.Iic 0) ∧ AntitoneOn (gaussianPDF 0 v) (Set.Ici 0) := by
+  have key : ∀ x y : ℝ, x ^ 2 ≤ y ^ 2 → gaussianPDF 0 v y ≤ gaussianPDF 0 v x := by
+    intro x y h
+    simp only [gaussianPDF, gaussianPDFReal_def, sub_zero]
+    gcongr ENNReal.ofReal (_ * Real.exp ?_)
+    exact div_le_div_of_nonneg_right (by linarith) (by positivity)
+  refine ⟨fun x hx y hy hxy => key _ _ ?_, fun x hx y hy hxy => key _ _ ?_⟩
+  · simp only [Set.mem_Iic] at hx hy; nlinarith
+  · simp only [Set.mem_Ici] at hx hy; nlinarith
 
-/-- A convolution of laws on `ℝ` gives a measurable set the `ρ`-average of the
-probabilities `Q` gives its translates. -/
-lemma conv_apply_eq {Q : Measure ℝ} [SFinite Q] {ρ : Measure ℝ} [SFinite ρ] {B : Set ℝ}
-    (hB : MeasurableSet B) : (ρ ∗ Q) B = ∫⁻ z, Q ((fun y => z + y) ⁻¹' B) ∂ρ := by
-  rw [← lintegral_indicator_one hB, Measure.lintegral_conv (measurable_one.indicator hB)]
-  refine lintegral_congr fun z => ?_
-  rw [← lintegral_indicator_one (measurable_const_add z hB)]
-  rfl
-
-/-- **A smaller Gaussian shift moves no event more than a larger one.** Scaling
-by `b / a` about the base mean `c` and adding independent Gaussian noise of
-variance `(1 − (b / a)²) v` carries the law shifted by `a` to the law shifted by
-`b` and fixes the unshifted law, and that post-processing raises no event's
-probability by more than the largest rise the shift by `a` makes. -/
-lemma gaussian_shift_le (v : ℝ≥0) (c a b : ℝ) (hab : |b| ≤ |a|) (A : Set ℝ) :
+/-- **A smaller Gaussian shift moves no event more than a larger one.** The
+Gaussian of variance `v ≠ 0` is its centred law moved to its mean, and that law
+has a unimodal density, so `lawRise_map_add_mono_of_unimodal` applies. -/
+lemma gaussian_shift_le (v : ℝ≥0) (hv : v ≠ 0) (c a b : ℝ) (hab : |b| ≤ |a|) (A : Set ℝ) :
     gaussianReal (c + b) v A - gaussianReal c v A ≤
       ⨆ B : Set ℝ, gaussianReal (c + a) v B - gaussianReal c v B := by
-  set D := ⨆ B : Set ℝ, gaussianReal (c + a) v B - gaussianReal c v B
-  set l := b / a
-  have hla : l * a = b := by
-    rcases eq_or_ne a 0 with rfl | ha
-    · simp at hab; simp [l, hab]
-    · exact div_mul_cancel₀ b ha
-  have hl : l ^ 2 ≤ 1 := by
-    rcases eq_or_ne a 0 with rfl | ha
-    · simp [l]
-    · rw [div_pow, div_le_one (by positivity)]; exact sq_le_sq.mpr hab
-  let k : ℝ := (1 - l) * c
-  let w : ℝ≥0 := ⟨1 - l ^ 2, by linarith⟩
-  let u : ℝ≥0 := ⟨l ^ 2, sq_nonneg _⟩
-  let ρ : Measure ℝ := gaussianReal 0 (w * v)
-  let g : ℝ → ℝ := fun y => l * y + k
-  have hg : Measurable g := by fun_prop
-  have hQ : ∀ m, (gaussianReal m v).map g = gaussianReal (l * m + k) (u * v) := by
-    intro m
-    rw [show g = (· + k) ∘ (l * ·) from rfl, ← Measure.map_map (by fun_prop) (by fun_prop),
-      gaussianReal_map_const_mul, gaussianReal_map_add_const]
-    rfl
-  have hv : w * v + u * v = v := by
-    rw [← add_mul]
-    convert one_mul v
-    apply NNReal.eq
-    change (1 - l ^ 2) + l ^ 2 = (1 : ℝ)
-    ring
-  have hconv : ∀ m, ρ ∗ (gaussianReal m v).map g = gaussianReal (l * m + k) v := by
-    intro m
-    rw [hQ, gaussianReal_conv_gaussianReal, zero_add, hv]
-  have hb : l * (c + a) + k = c + b := by simp only [k]; rw [← hla]; ring
-  have hc : l * c + k = c := by simp only [k]; ring
-  have hB := measurableSet_toMeasurable (gaussianReal c v) A
-  set B := toMeasurable (gaussianReal c v) A
-  have key : gaussianReal (c + b) v B ≤ gaussianReal c v B + D := by
-    rw [← hb, ← hconv, conv_apply_eq hB]
-    conv_rhs => rw [← hc, ← hconv, conv_apply_eq hB]
-    refine le_add_of_lintegral fun z => ?_
-    rw [Measure.map_apply hg (measurable_const_add z hB),
-      Measure.map_apply hg (measurable_const_add z hB)]
-    exact tsub_le_iff_left.mp
-      (le_iSup (fun S : Set ℝ => gaussianReal (c + a) v S - gaussianReal c v S) _)
-  calc gaussianReal (c + b) v A - gaussianReal c v A
-      ≤ gaussianReal (c + b) v B - gaussianReal c v B := by
-        rw [measure_toMeasurable]; gcongr; exact subset_toMeasurable _ _
-    _ ≤ D := tsub_le_iff_left.mpr key
+  have hG : ∀ m, gaussianReal m v = (volume.withDensity (gaussianPDF 0 v)).map (m + ·) := by
+    intro m; rw [← gaussianReal_of_var_ne_zero 0 hv, gaussianReal_map_const_add, zero_add]
+  have : IsProbabilityMeasure (volume.withDensity (gaussianPDF 0 v)) := by
+    rw [← gaussianReal_of_var_ne_zero 0 hv]; infer_instance
+  have h := lawRise_map_add_mono_of_unimodal (gaussianPDF_unimodal v).1
+    (gaussianPDF_unimodal v).2 c hab
+  simp only [lawRise, ← hG] at h
+  exact (le_iSup (fun B => gaussianReal (c + b) v B - gaussianReal c v B) A).trans h
 
 variable {ι : Type*} [Fintype ι] [DecidableEq ι]
 
@@ -1021,7 +1320,7 @@ theorem shiftResponse_gaussLin_mono (W : ι → ι → ℝ) {τ : ℝ≥0} (hτ 
     shiftResponse (S := fun _ : ι => ℝ) (stdNoise ι) (gaussLin W τ) (fun y => y j) x i s ≤
       shiftResponse (S := fun _ : ι => ℝ) (stdNoise ι) (gaussLin W τ) (fun y => y j) x i t := by
   rw [shiftResponse_gaussLin W hτ, shiftResponse_gaussLin W hτ]
-  refine iSup_le fun A => gaussian_shift_le _ _ _ _ ?_ A
+  refine iSup_le fun A => gaussian_shift_le _ (pow_ne_zero 2 hτ) _ _ _ ?_ A
   rw [abs_mul, abs_mul]
   exact mul_le_mul_of_nonneg_left (by simpa [Real.dist_eq] using hst) (abs_nonneg _)
 
@@ -1051,5 +1350,111 @@ theorem gaussLin_coupledAtNoiseFloor_iff (W : ι → ι → ℝ) {τ : ℝ≥0} 
           (x j + σ j) :=
   and_congr (gaussLin_gradedAboveNoise_iff W hτ x i j (hσ i) (hσΘ i))
     (gaussLin_gradedAboveNoise_iff W hτ x j i (hσ j) (hσΘ j))
+
+end PhysicsOfConsciousness.PhysicalUnity
+
+/-! ## Additive unimodal noise
+
+The Gaussian carrier's reduction holds for any additive noise whose density rises
+to one peak and falls after it, heavy-tailed noise included, and each region may
+carry its own noise law.
+
+* **`noisyLin`**, **`pi_add_apply`** and **`shiftResponse_noisyLin`.** The micro
+  dynamics `y ↦ W y + ω` with independent noise `ω k` of law `ν k` on each region;
+  the response of region `j`'s next quantity to a change of region `i` is the rise
+  from region `j`'s noise law moved to its mean to the same law moved further by
+  `W j i (s − x i)`.
+* **`shiftResponse_noisyLin_mono`**, **`noisyLin_gradedAboveNoise_iff`** and
+  **`noisyLin_coupledAtNoiseFloor_iff`.** With unimodal noise densities the
+  response grows with the size of the change, so graded dependence above noise and
+  coupling at the noise floor are decided by one change of the size of the noise.
+-/
+
+namespace PhysicsOfConsciousness.PhysicalUnity
+
+open MeasureTheory
+
+variable {ι : Type*} [Fintype ι] [DecidableEq ι]
+
+/-- Linear micro dynamics with additive noise: region `k` moves to
+`∑ l, W k l * y l + ω k`. -/
+def noisyLin (W : ι → ι → ℝ) (ω : ι → ℝ) (y : ι → ℝ) : ι → ℝ :=
+  fun k => ∑ l, W k l * y l + ω k
+
+/-- Region `j`'s noisy quantity `m + ω j` has region `j`'s noise law moved to `m`,
+on every set. -/
+lemma pi_add_apply (ν : ι → Measure ℝ) [∀ k, IsProbabilityMeasure (ν k)] (m : ℝ) (j : ι)
+    (A : Set ℝ) : Measure.pi ν {ω | m + ω j ∈ A} = (ν j).map (m + ·) A := by
+  have hset : {ω : ι → ℝ | m + ω j ∈ A} =
+      Set.univ.pi (Function.update (fun _ => Set.univ) j ((m + ·) ⁻¹' A)) := by
+    ext ω
+    simp only [Set.mem_ofPred_eq, Set.mem_pi, Set.mem_univ, true_implies]
+    constructor
+    · intro h k
+      rcases eq_or_ne k j with rfl | hk
+      · simpa using h
+      · simp [Function.update_of_ne hk]
+    · intro h; simpa using h j
+  rw [hset, Measure.pi_pi, Finset.prod_eq_single j (fun k _ hk => by
+    simp [Function.update_of_ne hk]) (by simp), Function.update_self, map_add_apply]
+
+/-- The response of region `j`'s next quantity to a change of region `i` under
+linear dynamics with additive noise: the rise from region `j`'s noise law moved to
+its mean to the same law moved further by `W j i (s − x i)`. -/
+lemma shiftResponse_noisyLin (W : ι → ι → ℝ) (ν : ι → Measure ℝ)
+    [∀ k, IsProbabilityMeasure (ν k)] (x : ι → ℝ) (i j : ι) (s : ℝ) :
+    shiftResponse (S := fun _ : ι => ℝ) (Measure.pi ν) (noisyLin W) (fun y => y j) x i s =
+      lawRise ((ν j).map ((∑ l, W j l * x l) + ·))
+        ((ν j).map ((∑ l, W j l * x l + W j i * (s - x i)) + ·)) := by
+  unfold shiftResponse lawRise
+  congr 1; ext A
+  simp only [noisyLin, sum_update_mul]
+  rw [← pi_add_apply, ← pi_add_apply]
+
+/-- **Under linear dynamics with additive unimodal noise the response grows with
+the change.** -/
+theorem shiftResponse_noisyLin_mono (W : ι → ι → ℝ) {p : ι → ℝ → ENNReal}
+    [∀ k, IsProbabilityMeasure (volume.withDensity (p k))] {M : ι → ℝ}
+    (hup : ∀ k, MonotoneOn (p k) (Set.Iic (M k))) (hdown : ∀ k, AntitoneOn (p k) (Set.Ici (M k)))
+    (x : ι → ℝ) (i j : ι) {s t : ℝ} (hst : dist s (x i) ≤ dist t (x i)) :
+    shiftResponse (S := fun _ : ι => ℝ) (Measure.pi fun k => volume.withDensity (p k))
+        (noisyLin W) (fun y => y j) x i s ≤
+      shiftResponse (S := fun _ : ι => ℝ) (Measure.pi fun k => volume.withDensity (p k))
+        (noisyLin W) (fun y => y j) x i t := by
+  rw [shiftResponse_noisyLin, shiftResponse_noisyLin]
+  refine lawRise_map_add_mono_of_unimodal (hup j) (hdown j) _ ?_
+  rw [abs_mul, abs_mul]
+  exact mul_le_mul_of_nonneg_left (by simpa [Real.dist_eq] using hst) (abs_nonneg _)
+
+/-- **Under linear dynamics with additive unimodal noise, P is decided at the
+noise.** For `0 ≤ σ < Θ`, every change of region `i` above its noise moves region
+`j`'s next quantity by at least `θ` exactly when the change of size `σ` does. -/
+theorem noisyLin_gradedAboveNoise_iff (W : ι → ι → ℝ) {p : ι → ℝ → ENNReal}
+    [∀ k, IsProbabilityMeasure (volume.withDensity (p k))] {M : ι → ℝ}
+    (hup : ∀ k, MonotoneOn (p k) (Set.Iic (M k))) (hdown : ∀ k, AntitoneOn (p k) (Set.Ici (M k)))
+    (x : ι → ℝ) (i j : ι) {σ Θ : ℝ} (hσ : 0 ≤ σ) (hσΘ : σ < Θ) {θ : ENNReal} :
+    GradedAboveNoise (S := fun _ : ι => ℝ) (Measure.pi fun k => volume.withDensity (p k))
+        (noisyLin W) (fun y => y j) x i σ Θ θ ↔
+      θ ≤ shiftResponse (S := fun _ : ι => ℝ) (Measure.pi fun k => volume.withDensity (p k))
+        (noisyLin W) (fun y => y j) x i (x i + σ) :=
+  gradedAboveNoise_iff_of_mono (fun _ _ h => shiftResponse_noisyLin_mono W hup hdown x i j h)
+    (by simp [abs_of_nonneg hσ]) hσΘ
+
+/-- **Coupling under additive unimodal noise.** Two regions are coupled at the
+noise floor exactly when a change of each by its own noise moves the other's next
+quantity by at least `θ`. -/
+theorem noisyLin_coupledAtNoiseFloor_iff (W : ι → ι → ℝ) {p : ι → ℝ → ENNReal}
+    [∀ k, IsProbabilityMeasure (volume.withDensity (p k))] {M : ι → ℝ}
+    (hup : ∀ k, MonotoneOn (p k) (Set.Iic (M k))) (hdown : ∀ k, AntitoneOn (p k) (Set.Ici (M k)))
+    (x : ι → ℝ) {σ Θ : ι → ℝ} (hσ : ∀ k, 0 ≤ σ k) (hσΘ : ∀ k, σ k < Θ k) {θ : ENNReal}
+    (i j : ι) :
+    CoupledAtNoiseFloor (S := fun _ : ι => ℝ) (Measure.pi fun k => volume.withDensity (p k))
+        (noisyLin W) (fun j y => y j) x σ Θ θ i j ↔
+      θ ≤ shiftResponse (S := fun _ : ι => ℝ) (Measure.pi fun k => volume.withDensity (p k))
+          (noisyLin W) (fun y => y j) x i (x i + σ i) ∧
+        θ ≤ shiftResponse (S := fun _ : ι => ℝ) (Measure.pi fun k => volume.withDensity (p k))
+          (noisyLin W) (fun y => y i) x j (x j + σ j) :=
+  and_congr (noisyLin_gradedAboveNoise_iff W hup hdown x i j (hσ i) (hσΘ i))
+    (noisyLin_gradedAboveNoise_iff W hup hdown x j i (hσ j) (hσΘ j))
 
 end PhysicsOfConsciousness.PhysicalUnity
