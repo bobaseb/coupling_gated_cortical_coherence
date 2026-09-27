@@ -172,13 +172,40 @@ variable. The regions, and the content variable of each, are fixed by this
 causal role and by decodability before agreement is measured, so that nobody can
 make the measurement trivial by choosing the regions after the fact.
 
-This definition of unity, and the measurement of agreement the tests below use,
-come from a companion paper \citep{bobadillasuarez2026coherence}. It proves that
-compatible local descriptions determine one global state, shows that phase
-coherence limits their disagreement only through shared encoders of bounded
-sensitivity, and measures agreement with decoders fitted independently on two
-regions, counting only the agreement in excess of what their separate
-accuracies imply. P adds a condition on how that agreement is produced.
+\paragraph{A running example.} A bird flies across the visual field. A visual
+area represents its location on a retinotopic map, and a parietal area
+represents the same location while planning a reach toward it. The two areas
+overlap in one variable, the bird's location. Each area's content is its
+estimate of that location, and its carriers are the membrane potentials and
+spike times of the cells that encode it, which the cells each area drives
+integrate. An estimate an experimenter decodes from the area's summed activity,
+and that no cell reads, is a trace. Unity, here, is the two estimates agreeing.
+The sections below return to the bird: Section~\ref{sec:enforcement} asks how
+that agreement is produced, and Section~\ref{sec:ai} asks it of a chip that
+tracks the same bird.
+
+\paragraph{The definition, stated precisely.} Region $i$ carries a content
+$s_i$, a description of the variables it represents, and regions $i$ and $j$
+overlap in the variables both represent. Restricting a content to an overlap
+keeps only the shared variables. The contents are \emph{compatible} when every
+two agree on their overlap, $s_i|_{i\cap j}=s_j|_{i\cap j}$, and compatible
+contents extend to exactly one global description whose restriction to each
+region is that region's content. Unity is compatibility, and its degree is the
+\emph{overlap discrepancy}, the largest distance between two contents restricted
+to a common overlap. Approximate agreement still fixes one description to
+within its tolerance: for real-valued contents in the uniform distance, if every
+overlap discrepancy is at most $\varepsilon$,
+averaging the contents that cover each variable, with weights that sum to one,
+gives a global description within $\varepsilon$ of every region's content, and
+any two such descriptions lie within $\varepsilon$ of each other. Agreement is
+measured by decoding. Decoders $d_A$ and $d_B$ fitted independently on two
+regions estimate a shared variable $x$ with errors $e_A$ and $e_B$, and
+$|d_A-d_B|\le|e_A|+|e_B|$, so two accurate decoders agree whatever produced
+their agreement. The measure is therefore the agreement in excess of what the
+two errors imply, against a null that pairs decodes across trials with the same
+stimulus and the same errors. These results are proved in a companion paper
+\citep{bobadillasuarez2026coherence}, and P adds a condition on how that
+agreement is produced.
 
 The companion proposes agreement on overlaps as a correlate of unity, to be
 tested, and P is conditional on that identification. The two papers therefore
@@ -318,7 +345,10 @@ is coupled to both and joins them into one system when they share no coupling
 of their own; under linear dynamics with uniform noise such a reader joins two
 regions that a record reading the same two leaves apart
 (Appendix~\ref{app:formal}). The regress stops at a reader on the chain, not at
-a record beside it. A synapse, and a membrane integrating spike times near its
+a record beside it. In the running example, a register holding the bird's
+location as a number is a record, and a cell in a third area that integrates
+spike times from the visual and the parietal area, and projects back to both,
+is a reader. A synapse, and a membrane integrating spike times near its
 threshold, which a cortical membrane visits within every window as measured
 below, are readers in this sense. A workspace that makes every record available
 to a common reader is the case of the rule again: what the reader receives is a
@@ -679,6 +709,12 @@ computed, whatever it computes. Hardware whose contents are graded physical
 quantities coupled without barriers, such as analog, in-memory or neuromorphic
 substrates, can satisfy P.
 
+A chip tracking the bird of Section~\ref{sec:cover} holds each area's estimate
+as a word of bits. The two words agree when a step of the program copies or
+averages one into the other, and between steps neither moves with the voltages
+beneath the other, however close the bird comes to a boundary between two of
+its values.
+
 \paragraph{Symbols and physical contents.} The line P draws is between symbolic
 and physical content, and the line between digital and analog hardware is its
 most common instance. A \emph{symbol}, in the sense the margin lemma makes
@@ -912,7 +948,8 @@ triggered stimulation at another in freely moving monkeys \citep{jackson2006}
 and in rats after cortical injury \citep{guggenmos2013}. Those loops are
 triggered by events, which is the quantized condition; the analog arm replaces
 the trigger with a continuous drive. A first preparation places chronic arrays in
-two areas that represent a shared variable, interrupts the natural connection
+two areas that represent a shared variable, such as the visual and parietal
+areas that both represent the bird's location in the running example, interrupts the natural connection
 between them, and alternates the two loops across blocks in the same animal.
 Transfer entropy \citep{schreiber2000} is estimated from each block's
 recordings, and the analog loop's cutoff and the quantizer's step are set on
@@ -1199,8 +1236,8 @@ lattice; that the growth is logarithmic is established numerically on finite
 sheets. Above the order--disorder crossover of Appendix~\ref{app:reach} the
 harmonic identity fails and agreement is lost at every distance. The step from
 phase agreement to content agreement assumes one oscillator population per
-content patch, which is a modelling choice about cortex and, across centimetres,
-the companion's bridge assumption.
+content patch, which is a modelling choice about cortex, and across centimetres
+it is the phase-to-content assumption of Appendix~\ref{app:reach}.
 
 \item \emph{Which variables are contents.} Which variables a system's own
 dynamics reads, and so which are its contents, is settled system by system from
@@ -1309,9 +1346,15 @@ between two sites is at most its Lipschitz constant times the departure's
 relative readings there, so it pays for the local roughness of the field and
 for nothing else. Both bounds read one oscillator population per content patch.
 Across centimetres, where two territories describing one quantity need not be
-neighbours on the sheet, that reading is the companion's bridge assumption, and
-the coupling's reach bounds phase disagreement there directly and content
-disagreement through it.
+neighbours on the sheet, that reading is an assumption, the
+\emph{phase-to-content assumption}: each territory's content is read, by
+encoders of Lipschitz constant $L$ that are equal where territories overlap,
+from the phase of one oscillator population assigned to it, so that the phase
+agreement of the two populations bounds the agreement of the two contents. It
+is a modelling choice about cortex, since the coupling of a field is spatial
+while two territories describing one quantity need not be neighbours. Under it
+the coupling's reach bounds phase disagreement between distant territories
+directly and content disagreement through it.
 
 Simulated sheets at identical frequencies, of side \uSideSmall{} and
 \uSideLarge{}, with nearest-neighbour, exponential and power-law kernels of

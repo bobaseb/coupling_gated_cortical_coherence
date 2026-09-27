@@ -647,7 +647,7 @@ it to about 7.*
   relative encoder and the companion's bridge assumption moved to app:reach
   (retitled; four tab:formal rows now point there). Claim 3 stays numbered,
   led by the relaxation-time prediction; the abstract says the same.
-- [ ] **U80 — Presentation.** (a) Paragraphs are long and abstract, and terms
+- [x] **U80 — Presentation.** (a) Paragraphs are long and abstract, and terms
   defined in words (carrier, record, reader, content, trace) pile up: add one
   running example carried through §cover–§ai. (b) "$10^{-53878}$"
   (l.~474) invites ridicule; report a bound such as $<10^{-100}$ (change
@@ -656,7 +656,18 @@ it to about 7.*
   both in-paper that the argument stands without it.
   *(b) done 2026-09-27:* `unity_estimates.REPORTED_ORDERS = 100` and
   `reported_orders`; `\ueErrorOrders` and `\uOccBitOrders` now print 100 and
-  the prose says "below $10^{-100}$". (a), (c) open.
+  the prose says "below $10^{-100}$".
+  *(a), (c) done 2026-09-27:* (a) §cover 'A running example': a bird's
+  location represented by a visual and a parietal area defines content,
+  carrier, trace and unity; callbacks in §enforcement (a register holding the
+  location is a record, a third-area cell integrating both and projecting back
+  is a reader), §ai (the chip holds each estimate as a word, agreement by a
+  program step) and §tests 'A first preparation'. (c) §cover 'The definition,
+  stated precisely': compatibility on overlaps, unique gluing, the
+  ε-approximate selection, and the decoded-agreement measure with
+  $|d_A-d_B|\le|e_A|+|e_B|$ and its null. The bridge assumption is stated in
+  app:reach and renamed the *phase-to-content assumption*, so that "bridge"
+  names only the experiment.
 
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
