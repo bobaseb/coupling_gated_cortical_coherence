@@ -267,7 +267,7 @@ comes back badly; above 6 needs data (a bridge pilot).
 reframing (U65). Work order: U65 first (it sets the frame the others are
 written in), then U61, U59, U60, U62, U63, U64 last.
 
-- [ ] **U65 — Reframe: a finer grain, not a refutation of functionalism.**
+- [x] **U65 — Reframe: a finer grain, not a refutation of functionalism.**
   Author's direction, 2026-09-27: a metaphysical position is not refuted by
   experiment, and the paper does not try to. P is itself a functional
   condition stated at the grain of graded physical dynamics (the intro
@@ -307,6 +307,14 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   (positioning against Kleiner, IIT and Butlin et al. becomes "which grain",
   not "who is right") and eases U59/U60, which no longer carry a refutation.
   PDF and arXiv rebuilds per §6/§7.
+  *Done 2026-09-27:* all seven sites rewritten to the grain framing. Abstract
+  and introduction state P as a functional condition at the grain of graded
+  dynamics, with the Block and Godfrey-Smith point moved into the introduction
+  and the §related entry removed; claim 1, §tests and the bridge readout ask
+  which grain unity tracks; the dialectic closing 'Counting systems' drops the
+  adversary; Butlin and Kleiner paragraphs and Limitations (premise, bridge's
+  reach, human evidence) rewritten as scope. CHANGELOG records the withdrawn
+  'rejects computational functionalism'.
 - [ ] **U59 — The regress argument proves too much.** "Unity is not one more
   content" (§enforcement) says a rule that compares and corrects records only
   writes another record. A gate is physical coupling, and a synapse also

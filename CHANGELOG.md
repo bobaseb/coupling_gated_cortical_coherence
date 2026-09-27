@@ -23,6 +23,17 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-27 — Unity paper: second review response (U59–U65)
+
+One claim is no longer made.
+
+- That Premise P "rejects computational functionalism" and that the bridge
+  "decides between P and computational functionalism". A metaphysical position
+  is not refuted by an experiment, and the paper does not try to: P is itself a
+  functional condition, stated at the grain of graded physical dynamics, and
+  the bridge asks which grain unity tracks. At that grain cortex and digital
+  chips come apart; at an algorithm's they do not. P itself is unchanged.
+
 ## 2026-09-27 — Unity paper: review response (U47–U58)
 
 Three claims are no longer made.
