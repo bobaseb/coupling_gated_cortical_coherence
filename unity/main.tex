@@ -450,52 +450,22 @@ the configurations that attain the worst case of a hop-by-hop chain bound, cost
 a relative encoder nothing. What it pays for is the local roughness of the
 field.
 
-\section{The unity window}
-\label{sec:window}
-
-P asks the coupling to contract disagreement, and a contraction that finishes
-after the content has changed enforces agreement only on a content that has
-already been replaced. This section states when the contraction finishes in
-time. Agreement between two regions has a timing problem at both ends. Too early, and
-the influence of one region has not yet reached the other. Too late, and the
-content has already changed. Between the two lies a window, and unity at a given
-time scale requires that window to be open.
-
-\paragraph{The early edge: signals must arrive.} Agreement cannot arrive before
-the coupling's causal cone allows. Precisely, a report at one site that tracks a
-variable at another to within $\varepsilon$, for two values of the variable more
-than $2\varepsilon$ apart, is possible after $T$ rounds of the coupling only if
-the second site lies in the first site's causal past for $T$ rounds.
-
-\paragraph{The late edge: disagreement must settle.} Disagreement decays at the
-relaxation rate of the coupling. If the coupling shrinks the overlap discrepancy
-by a factor $\kappa<1$ at every step, on a set of states it keeps, a discrepancy
-that starts at most $d_0$ is at most $\varepsilon$ from step
-$\log(d_0/\varepsilon)/\log(1/\kappa)$ on. The estimate is sharp in form: a
-discrepancy that shrinks by at most a factor $\rho$ per step is still above
-$\varepsilon$ at every step before $\log(d_0/\varepsilon)/\log(1/\rho)$. The
-window opens at the later of the causal deadline and the relaxation time, and
-unity at the time scale of a content requires it to open before that content
-changes.
-
-\paragraph{A worked example for cortex.} The longest cortico-cortical fibres run
-about \ueFibreCm{}~cm \citep{nunez2014}. Callosal axons conduct at median
-velocities of \ueVelocitySlow{} to \ueVelocityFast{}~m/s, and the fastest of
-them at up to \ueVelocityMax{}~m/s \citep{caminiti2009}. A chemical synapse
-adds about \ueSynapseMs{}~ms \citep{katz1965,sabatini1996}. The earliest a
-synaptic signal can cross the cortex is therefore \ueConeMaxMs{}~ms, along the
-fastest axons, and typical arrival takes \ueConeFastMs{} to \ueConeSlowMs{}~ms.
-For the time scale of a content, take the unconscious integration that precedes
-a conscious percept, which lasts up to \ueContentMs{}~ms \citep{herzog2016}.
-Count agreement as reached when disagreement has fallen \ueReduction{}-fold,
-decaying exponentially. The window is then open when the coupling's relaxation
-time is at most \ueTauSlowMs{}~ms with typical arrival along the slower fibres,
-and \ueTauFastMs{}~ms along the faster. Over a localized extent of
-\ueLocalCm{}~cm the earliest arrival is \ueConeLocalMaxMs{}~ms, typical arrival
-along the faster fibres is \ueConeLocalFastMs{}~ms, and the relaxation time may
-reach \ueTauLocalMs{}~ms. Signal travel thus uses only a small
-part of the time available, and whether the window opens depends on how fast
-the coupling settles.
+\paragraph{Agreement in time.} A contraction that finishes after the content has
+changed enforces agreement on a content already replaced, so enforced agreement
+has a timing condition at both ends. It arrives no sooner than the coupling's
+causal cone allows: a report at one site that tracks a variable at another to
+within $\varepsilon$, for two values more than $2\varepsilon$ apart, is possible
+after $T$ rounds of the coupling only if the second site lies in the first
+site's causal past for $T$ rounds. It arrives at the coupling's relaxation rate:
+if the coupling shrinks the overlap discrepancy by a factor $\kappa<1$ at every
+step, on a set of states it keeps, a discrepancy that starts at most $d_0$ is at
+most $\varepsilon$ from step $\log(d_0/\varepsilon)/\log(1/\kappa)$ on, and one
+that shrinks by at most a factor $\rho$ per step is still above $\varepsilon$ at
+every step before $\log(d_0/\varepsilon)/\log(1/\rho)$. Unity at the time scale
+of a content requires the later of the two edges to fall before the content
+changes. In cortex, signal travel uses at most \ueConeSlowMs{}~ms of the
+\ueContentMs{}~ms that precede a conscious percept, so the condition falls on
+the coupling's relaxation time (Appendix~\ref{app:window}).
 
 \section{Current artificial systems}
 \label{sec:ai}
@@ -706,7 +676,7 @@ motivates it.
 its agreement with its overlap partners comes back, and how fast. In cortex the
 perturbation is stimulation, and the measure is the disagreement between
 contents decoded from the perturbed region and from its partners. P predicts
-restoration at the relaxation rate of Section~\ref{sec:window}, with a restoring
+restoration at the relaxation rate of Section~\ref{sec:reach}, with a restoring
 pull proportional to the size of the perturbation, below any threshold as well
 as above. The same protocol run on an artificial system, by patching the
 activations of one layer, head or position, has an outcome fixed in advance by
@@ -862,10 +832,10 @@ its circuitry. The margin theorem takes that identification as given.
 consequences of the margin theorem. Confirming them checks that hardware runs
 inside its margins and leaves P untested; the tests of P are the cortical ones.
 
-\item \emph{The unity window.} Its edges are proved for a given contraction
+\item \emph{Agreement in time.} Its edges are proved for a given contraction
 factor; identifying that factor with the coupling's spectral gap is linear
-response. The relaxation time of cortical coupling is unmeasured, so the window
-estimate states the condition for the window to open at cortical time scales and
+response. The relaxation time of cortical coupling is unmeasured, so the cortical
+estimate states the condition for agreement to arrive in time and
 leaves open whether cortex meets it. It also reads agreement as a declared
 reduction factor of disagreement.
 
@@ -968,6 +938,28 @@ growing; the $\sigma=1$ tail gives \uFarSigmaOneA{}, \uFarSigmaOneB{} and
 \uFarSigmaThreeA{}, \uFarSigmaThreeB{} and \uFarSigmaThreeC{}, growing as a
 short-range kernel does.
 
+\section{Agreement in time for cortex}
+\label{app:window}
+
+The longest cortico-cortical fibres run
+about \ueFibreCm{}~cm \citep{nunez2014}. Callosal axons conduct at median
+velocities of \ueVelocitySlow{} to \ueVelocityFast{}~m/s, and the fastest of
+them at up to \ueVelocityMax{}~m/s \citep{caminiti2009}. A chemical synapse
+adds about \ueSynapseMs{}~ms \citep{katz1965,sabatini1996}. The earliest a
+synaptic signal can cross the cortex is therefore \ueConeMaxMs{}~ms, along the
+fastest axons, and typical arrival takes \ueConeFastMs{} to \ueConeSlowMs{}~ms.
+For the time scale of a content, take the unconscious integration that precedes
+a conscious percept, which lasts up to \ueContentMs{}~ms \citep{herzog2016}.
+Count agreement as reached when disagreement has fallen \ueReduction{}-fold,
+decaying exponentially. Agreement then arrives in time when the coupling's relaxation
+time is at most \ueTauSlowMs{}~ms with typical arrival along the slower fibres,
+and \ueTauFastMs{}~ms along the faster. Over a localized extent of
+\ueLocalCm{}~cm the earliest arrival is \ueConeLocalMaxMs{}~ms, typical arrival
+along the faster fibres is \ueConeLocalFastMs{}~ms, and the relaxation time may
+reach \ueTauLocalMs{}~ms. Signal travel thus uses only a small
+part of the time available, and whether agreement arrives in time depends on how fast
+the coupling settles.
+
 \section{The occupancy computation}
 \label{app:occupancy}
 
@@ -1032,9 +1024,9 @@ A direct coupling caps the resistance at its reciprocal & \ref{sec:reach} & \tex
 A Lipschitz encoder carries mean-square phase agreement to content agreement & \ref{sec:reach} & \texttt{integral\_\allowbreak{}dist\_\allowbreak{}sq\_\allowbreak{}le} \\
 A relative encoder reports one content at every site of a wave & \ref{sec:reach} & \texttt{relContent\_\allowbreak{}eq\_\allowbreak{}of\_\allowbreak{}wave} \\
 A relative encoder's discrepancy is bounded by the departure from a wave & \ref{sec:reach} & \texttt{dist\_\allowbreak{}relContent\_\allowbreak{}le} \\
-Tracking a remote variable requires it to lie in the causal past & \ref{sec:window} & \texttt{mem\_\allowbreak{}ball\_\allowbreak{}of\_\allowbreak{}reconstructs} \\
-Contraction by $\kappa$ reaches $\varepsilon$ by step $\log(d_0/\varepsilon)/\log(1/\kappa)$ & \ref{sec:window} & \texttt{disc\_\allowbreak{}iterate\_\allowbreak{}le\_\allowbreak{}of\_\allowbreak{}log\_\allowbreak{}le} \\
-A discrepancy shrinking by at most $\rho$ per step is above $\varepsilon$ before $\log(d_0/\varepsilon)/\log(1/\rho)$ & \ref{sec:window} & \texttt{lt\_\allowbreak{}disc\_\allowbreak{}iterate\_\allowbreak{}of\_\allowbreak{}lt\_\allowbreak{}log} \\
+Tracking a remote variable requires it to lie in the causal past & \ref{sec:reach} & \texttt{mem\_\allowbreak{}ball\_\allowbreak{}of\_\allowbreak{}reconstructs} \\
+Contraction by $\kappa$ reaches $\varepsilon$ by step $\log(d_0/\varepsilon)/\log(1/\kappa)$ & \ref{sec:reach} & \texttt{disc\_\allowbreak{}iterate\_\allowbreak{}le\_\allowbreak{}of\_\allowbreak{}log\_\allowbreak{}le} \\
+A discrepancy shrinking by at most $\rho$ per step is above $\varepsilon$ before $\log(d_0/\varepsilon)/\log(1/\rho)$ & \ref{sec:reach} & \texttt{lt\_\allowbreak{}disc\_\allowbreak{}iterate\_\allowbreak{}of\_\allowbreak{}lt\_\allowbreak{}log} \\
 Graded dependence of a bit word requires some bit exactly on its threshold & \ref{sec:ai} & \texttt{exists\_\allowbreak{}threshold\_\allowbreak{}of\_\allowbreak{}gradedDependence} \\
 A one-region change below $\delta/(L L_v)$ changes no bit & \ref{sec:ai} & \texttt{bits\_\allowbreak{}eq\_\allowbreak{}of\_\allowbreak{}lipschitz} \\
 Under noise, a one-region change below $r/L$ moves the probability of every event of the next content by at most the error rate & \ref{sec:enforcement} & \texttt{law\_\allowbreak{}le\_\allowbreak{}of\_\allowbreak{}marginRate} \\

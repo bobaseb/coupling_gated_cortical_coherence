@@ -785,9 +785,14 @@ Review response (raised 2026-09-26, external-style review scored 5/10; plan
   was already independent of the filter, so no code or numbers changed. The
   readout sentence names the information-flow form of computational
   functionalism; new Limitations item "The bridge's reach".
-- [ ] **U40 — Fold the unity window into §reach.** One paragraph "Agreement in
+- [x] **U40 — Fold the unity window into §reach.** One paragraph "Agreement in
   time" in §reach; the cortical worked example to the appendix; `tab:formal`
   and cross-references retargeted.
+  *Done 2026-09-27:* §reach "Agreement in time" states both edges in one
+  paragraph; the cortical example is Appendix `app:window` ("Agreement in
+  time for cortex"); `tab:formal` rows and the §tests reference point to
+  `sec:reach`. "Window" in the old sense is renamed "agreement in time" so
+  that it does not collide with P's content window.
 - [ ] **U41 — Abstract and introduction.** Lead with the premise and the
   region-scale separation, then reach, then refutable predictions; the margin
   theorem as means, not headline. At most one disclaimer.
