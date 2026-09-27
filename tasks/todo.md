@@ -429,6 +429,14 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   reads each region from its own coupled carriers and the quantized loop
   matches information, not behaviour, so behaviour is evidence there. One
   sentence in §enforcement points to it.
+- [x] **U68 — The line is drawn inside each substrate.** The margin lemma is
+  near trivial and threshold crossings are excluded as messages; a referee
+  reads "digital defined out, then formalised". *Done 2026-09-27:* the lemma
+  is called elementary by design (disputing it means disputing a definition),
+  and a new §enforcement paragraph 'Where the line falls': the count discards
+  spikes as messages exactly as it discards bit flips, cortex passes only on
+  the sub-threshold range near threshold, and the verdict reverses within
+  each substrate (a switching bit passes, latched neural counts fail).
 
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
