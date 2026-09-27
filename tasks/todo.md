@@ -144,12 +144,16 @@ comes back badly; above 6 needs data (a bridge pilot).
   section says only that synapses are graded. Candidate: drop r^−4 from the
   abstract and claim 2, compress the section, keep the proofs in the
   appendix. Must be consistent with U19's restatement.
-- [ ] **U54 — The weak-nudge prediction is low-risk.** Weak fields shifting
+- [x] **U54 — The weak-nudge prediction is low-risk.** Weak fields shifting
   graded decoded content in connected areas is expected under almost any
   theory, so the test can refute P but barely confirms it. Say so in §tests,
   or sharpen it: what does P predict that generic modulation does not (for
   example, proportionality below threshold and direction toward agreement,
   not merely a change)?
+  *Done 2026-09-27:* §tests says a change alone confirms little and states
+  the form P predicts: sign toward agreement, proportional down to the
+  weakest strength that moves the stimulated region, no threshold; wrong sign
+  or a threshold counts against P.
 - [x] **U55 — Sharpen the delta against Kleiner 2024 and IIT/Findlay 2024.**
   "Digital hardware suppresses its physics" is already published (Kleiner),
   and IIT already denies simulations experience. State the novel part in
@@ -169,7 +173,7 @@ comes back badly; above 6 needs data (a bridge pilot).
   fails, P has nothing to constrain; if it passes, the bridge asks whether the
   agreement must be enforced. Alternatively commit to the identification in
   companion v2 (U20).
-- [ ] **U57 — Answer gradual replacement (fading and dancing qualia).** Chalmers'
+- [x] **U57 — Answer gradual replacement (fading and dancing qualia).** Chalmers'
   argument (neurons replaced one at a time by functionally identical digital
   units; verify online: Chalmers 1995 in Metzinger (ed.) *Conscious
   Experience*, and *The Conscious Mind* 1996, ch. 7) is the standard objection
@@ -182,6 +186,15 @@ comes back badly; above 6 needs data (a bridge pilot).
   simulation objection of §enforcement, applied part by part). The bridge is a
   local, testable instance of partial replacement: say so in §tests, which
   also serves U48.
+  *Done 2026-09-27:* §enforcement "Gradual replacement", citing Chalmers
+  1995 (verified: Metzinger (ed.), *Conscious Experience*, Imprint Academic,
+  pp. 309–328). Two parts: exact replacement is unavailable (margin lemma),
+  so behaviour is an empirical question the bridge asks for one connection;
+  where replacement is exact, P accepts that reports stay while unity
+  changes, because unity is not a content. *Open tension for U48:* the
+  evidence standard of §tests counts behaviour as evidence about unity, so
+  the paragraph restricts it to systems whose contents ride their own
+  coupling; a referee may call that ad hoc.
 - [x] **U58 — Cite and position against Butlin et al. 2023.** "Consciousness in
   Artificial Intelligence: Insights from the Science of Consciousness"
   (arXiv:2308.08708; verify authors, year and venue online) is the default
