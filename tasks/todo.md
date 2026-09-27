@@ -315,7 +315,7 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   adversary; Butlin and Kleiner paragraphs and Limitations (premise, bridge's
   reach, human evidence) rewritten as scope. CHANGELOG records the withdrawn
   'rejects computational functionalism'.
-- [ ] **U59 — The regress argument proves too much.** "Unity is not one more
+- [x] **U59 — The regress argument proves too much.** "Unity is not one more
   content" (§enforcement) says a rule that compares and corrects records only
   writes another record. A gate is physical coupling, and a synapse also
   compares and corrects; a downstream membrane integrating spike times is
@@ -326,6 +326,13 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   "Counting systems at the noise floor" so it carries no independent weight.
   U57's "Gradual replacement" leans on "unity is not a content", so check it
   too. Keep P stated plainly.
+  *Done 2026-09-27:* kept the paragraph and gave the regress its stopping
+  point inside it: a record is defined as a content held by a margin, so a
+  rule's output is sealed off from graded state; a synapse or a membrane near
+  threshold moves with every change of its inputs above their noise and is a
+  further coordinate of the state, not a record. The margin separates rule
+  from synapse, and the next paragraph fixes its scale. Gradual replacement
+  still reads correctly on this definition.
 - [ ] **U60 — The criterion reads as weakened until cortex passes.** Every
   carrier → some carrier, every instant → within a window: each weakening sits
   exactly where cortex would fail. Say in the introduction what the weak form
