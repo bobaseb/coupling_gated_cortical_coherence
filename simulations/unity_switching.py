@@ -24,8 +24,13 @@ node's margin.
 
 The synchronizer. A flip-flop sampling data from another clock domain catches a
 transition inside its aperture ``T_W`` at the rate ``T_W f_C f_D`` (Ginosar
-2011). Counting every such sample as passing bounds its passing fraction by
-``T_W f_D``. A second stage allowed one cycle ``S`` to resolve fails with mean
+2011), and what its reader takes is the bit it resolves to. Under Gaussian
+noise a single bit's response to a change of one noise amplitude, asked in both
+directions as the criterion asks, is at most ``Φ(1) − 1/2``, below the
+fluctuation, and the stage's own noise only lowers it. So the synchronizer
+passes at no yardstick above that ceiling, and below it counting every sample
+in the aperture as passing bounds its passing fraction by ``T_W f_D``. A second
+stage allowed one cycle ``S`` to resolve fails with mean
 time ``e^{S/τ} / (T_W f_C f_D)``.
 
 Declared parameters, not measured ones: a 1 GHz clock; activity factors from a
@@ -48,7 +53,7 @@ import math
 from pathlib import Path
 from typing import Any
 
-from unity_estimates import FLUCTUATION_TV, noise_floor, tv_of_shift
+from unity_estimates import FLUCTUATION_TV, noise_floor, normal_cdf, tv_of_shift
 from unity_occupancy import CONTENT_WINDOWS_MS, SHIFTS, YARDSTICKS, bit_summary
 
 OUTPUT = Path(__file__).resolve().parent / "figures" / "unity_occupancy"
@@ -60,6 +65,8 @@ APERTURE_S = 20e-12
 RESOLUTION_TAU_S = 10e-12
 DATA_HZ = CLOCK_HZ / 10
 SECONDS_PER_YEAR = 365.25 * 24 * 3600
+# The largest two-sided response of one bit to a change of one noise amplitude.
+BINARY_CEILING = normal_cdf(1.0) - 0.5
 
 
 def crossing_response(change: float, slew: float) -> float:
@@ -91,6 +98,11 @@ def metastable_rate(aperture_s: float, clock_hz: float, data_hz: float) -> float
 def synchronizer_pass_bound(aperture_s: float, data_hz: float) -> float:
     """At most this share of a synchronizer's samples falls inside its aperture."""
     return aperture_s * data_hz
+
+
+def synchronizer_passes(yardstick: float) -> bool:
+    """Whether the bit a synchronizer resolves to can move by ``yardstick``."""
+    return yardstick <= BINARY_CEILING
 
 
 def mtbf_years(
@@ -127,8 +139,13 @@ def latched_summary() -> dict[str, Any]:
 
 def _synchronizer() -> dict[str, Any]:
     rate = metastable_rate(APERTURE_S, CLOCK_HZ, DATA_HZ)
+    bound = synchronizer_pass_bound(APERTURE_S, DATA_HZ)
     return {
-        "pass_fraction_bound": synchronizer_pass_bound(APERTURE_S, DATA_HZ),
+        "pass_fraction_bound": bound,
+        "binary_ceiling": BINARY_CEILING,
+        "pass_fraction_by_yardstick": [
+            bound if synchronizer_passes(y) else 0.0 for y in YARDSTICKS
+        ],
         "events_per_window": {f"{w:g}": rate * w / 1000 for w in CONTENT_WINDOWS_MS},
         "mtbf_years": mtbf_years(1 / CLOCK_HZ, RESOLUTION_TAU_S, APERTURE_S, CLOCK_HZ, DATA_HZ),
     }

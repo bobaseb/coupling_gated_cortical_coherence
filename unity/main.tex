@@ -431,9 +431,9 @@ occurrence of a spike is a message, and a spike count latched at a clock edge is
 a record. Cortex passes on what the count leaves it, the range below threshold in
 which a membrane's content moves with each input above its noise, and, as
 measured below, it passes there only near threshold. The verdict reverses within
-each substrate: a synchronizer that latches a node in the middle of switching
-passes, and a neural
-circuit read only from latched counts fails (Section~\ref{sec:ai}). What
+each substrate: an analog crossbar whose column currents drive the next array
+directly passes, and a neural circuit read only from latched counts fails
+(Section~\ref{sec:ai}). What
 separates a working chip from cortex is where each holds its carriers, a fact
 about the system that the criterion reads and does not set.
 
@@ -621,12 +621,16 @@ cycle \citep{ginosar2011}, its first stage samples inside the aperture at most
 \uSwSyncPassPercent\% of the time, $\uSwSyncEventsLong$ times in a window of
 \uOccContentLongMs{}~ms, and which way it resolves moves with the timing of the
 transition; a second stage given one cycle to settle leaves it unresolved once
-in more than $10^{\uSwMtbfOrders}$ years. What the synchronizer decides is the
-cycle at which a new value is taken. The protocols that carry data across the
-boundary hold the value until it has been taken, as a clockless circuit accepts
-a value once its code is complete (Section~\ref{sec:ai}), so the value is the
-same whichever way it resolves. Within a clock domain no content passes, and the
-regions that carry a program's contents lie there.
+in more than $10^{\uSwMtbfOrders}$ years. What that second stage takes is the bit
+the first resolves to, and no binary readout reaches the fluctuation: at the
+centre of the aperture a change of one noise amplitude in the transition's
+timing moves the probability of either resolution by at most
+$\Phi(1)-1/2=\uYardBinaryCeiling$, and the stage's own noise only lowers that.
+The synchronizer therefore fails graded dependence at every sample, those inside
+its aperture included, whichever protocol carries the data across the boundary,
+and so does a random source that reads its bits from how a metastable stage
+resolves. The value a chip reads from one bit passes nowhere, within a clock
+domain or across its boundaries.
 
 \paragraph{The yardstick.} The separation holds at every yardstick from
 \uYardLow{} to \uYardHigh{} (Figure~\ref{fig:yardstick}). Across that range the logic node passes at none of
@@ -648,7 +652,7 @@ least the yardstick. Right: the chance of entering such a state within
 on the right, every noise share. A switching node's crossing time is a band over
 the declared activity factors; it passes exactly at the fluctuation (dotted)
 and at no higher yardstick. The synchronizer's share is the upper bound
-$T_W f_D$. The value a clocked latch reads passes at no state and in no
+$T_W f_D$, at the yardsticks one bit can reach, up to $\Phi(1)-1/2$. The value a clocked latch reads passes at no state and in no
 window.}
 \label{fig:yardstick}
 \end{figure}
@@ -1207,11 +1211,10 @@ is correct.
 \item \emph{Hardware near its thresholds.} The noisy margin theorem bounds a
 digital content's response by its error rate. Hardware run so close to its
 thresholds that a change of one noise amplitude moves its contents by a
-fluctuation would escape the bound. A synchronizer's first stage is such
-hardware by design. The count takes what it decides to be the cycle at which a
-value is taken, which holds for protocols that hold the value across the
-boundary; a machine whose contents were read from how its synchronizers resolve
-would pass where they do. The thermal estimate declares the node capacitance
+fluctuation would escape the bound. One bit cannot, under Gaussian noise, since
+no binary readout reaches the fluctuation, so such hardware would read one
+graded quantity through several bits held near their thresholds together, a
+design the switching count does not cover. The thermal estimate declares the node capacitance
 it uses, and the switching count declares its clock, activity factors,
 transition time and synchronizer.
 
@@ -1458,7 +1461,9 @@ duration $t$, spends $\alpha f t/2$ of its time on the rising half of one, and a
 window of $N$ cycles holds no transition with probability $(1-\alpha)^N$. A
 synchronizer with aperture $T_W$, clock $f_C$ and data changing at rate $f_D$
 samples inside its aperture at the rate $T_W f_C f_D$, so at most a share $T_W
-f_D$ of its samples do, and a second stage allowed a time $S$ to resolve fails
+f_D$ of its samples do. Each sample is read as one bit, so it passes at no
+yardstick above $\Phi(1)-1/2$, and at lower yardsticks that share bounds its
+passing fraction. A second stage allowed a time $S$ to resolve fails
 once in $e^{S/\tau}/(T_W f_C f_D)$ on average, with $\tau$ the stage's
 resolution time constant \citep{ginosar2011}; the declared values are that
 tutorial's 28~nm example, $\tau=\uSwTauPs$~ps and $f_D=\uSwDataMHz$~MHz, with

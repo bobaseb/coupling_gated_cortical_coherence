@@ -94,6 +94,17 @@
   },
   "synchronizer": {
     "pass_fraction_bound": 0.002,
+    "binary_ceiling": 0.3413447460685429,
+    "pass_fraction_by_yardstick": [
+      0.002,
+      0.002,
+      0.002,
+      0.002,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
     "events_per_window": {
       "40": 80000.0,
       "400": 800000.0

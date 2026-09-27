@@ -20,6 +20,12 @@ class YardstickFigureTest(unittest.TestCase):
         for y, hit in zip(series.yardsticks, series.node_hit, strict=True):
             self.assertEqual(hit, 1.0 if y <= series.fluctuation else 0.0)
 
+    def test_the_synchronizer_passes_no_yardstick_from_the_fluctuation_up(self) -> None:
+        series = uf.series(uf.FIGURES)
+        for y, share, hit in zip(series.yardsticks, series.sync_pass, series.sync_hit, strict=True):
+            if y >= series.fluctuation:
+                self.assertEqual((share, hit), (0.0, 0.0))
+
     def test_the_figure_is_drawn_without_running_a_simulation(self) -> None:
         with tempfile.TemporaryDirectory() as root:
             path = Path(root) / "figure.png"

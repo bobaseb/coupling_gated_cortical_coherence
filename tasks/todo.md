@@ -698,7 +698,7 @@ hostile reviewer would open with.*
   pointing to §cover for π(f(x)); the switching-chip paragraph cites the carrier
   condition. The membrane's next content (first spike in the window) and the
   latch's (value at the edge) are unchanged, so both results follow as before.
-- [ ] **U82 — The synchronizer by principle, not by protocol.** A
+- [x] **U82 — The synchronizer by principle, not by protocol.** A
   synchronizer's first stage latches transitions by design, 8×10^5 times per
   400 ms, and its resolution passes. The paper answers that it decides the
   cycle, not the value, which holds only for transfer protocols that hold the
@@ -713,6 +713,20 @@ hostile reviewer would open with.*
   it is.
   **Success.** The synchronizer paragraph gives a reason from P's own two
   demands, and the limitation shrinks or goes.
+  *Done 2026-09-27:* neither (a) nor (b): the graded-dependence half already
+  decides it. By U81 the synchronizer's next content is what its second stage
+  takes, one bit, and the paper's binary ceiling (no single binary readout's
+  two-sided response to one noise amplitude exceeds Φ(1)−1/2 ≈ 0.34 < 0.383)
+  holds at the aperture's centre too; the stage's own noise only lowers it. So
+  it fails at every sample, whatever the transfer protocol, and so does a
+  metastability random source. U75's "its resolution does pass" was wrong by
+  the paper's own ceiling. `unity_switching.py` adds `BINARY_CEILING`,
+  `synchronizer_passes` and a per-yardstick share (the bound only up to the
+  ceiling); the figure drops the synchronizer there. 'Where the line falls' now
+  reverses the verdict with a crossbar driving the next array directly. The
+  limitation shrinks to hardware reading one graded quantity through several
+  bits held near threshold together (not covered). No Lean row: the ceiling is
+  a Gaussian computation (`test_unity_occupancy`), not a Lean theorem.
 - [ ] **U83 — The third step of the counting argument.** 'Counting systems at
   the noise floor' concludes that one unregistered change in the
   noise-to-threshold range makes two systems, "since their joint state

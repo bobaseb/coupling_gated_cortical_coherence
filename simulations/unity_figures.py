@@ -11,7 +11,8 @@ Left: the share of occupied states that pass, per yardstick. Right: the chance
 of entering a passing state within the longest content window. The membrane is
 a band over every declared regime (and, on the right, every noise share); the
 switching node is a band over the declared activity factors; the latch passes
-nowhere; the synchronizer's share is the upper bound ``T_W f_D``.
+nowhere; the synchronizer's share is the upper bound ``T_W f_D`` at the
+yardsticks one bit can reach, up to ``Φ(1) − 1/2``, and zero above them.
 """
 
 from __future__ import annotations
@@ -45,8 +46,9 @@ class Series:
     membrane_hit: tuple[list[float], list[float]]
     node_pass: tuple[list[float], list[float]]
     node_hit: list[float]
-    sync_pass: float
-    sync_hit: float
+    sync_pass: list[float]
+    sync_hit: list[float]
+    binary_ceiling: float
     latched_pass: list[float]
 
 
@@ -58,6 +60,13 @@ def _band(rows: list[list[float]]) -> tuple[list[float], list[float]]:
     return [min(col) for col in zip(*rows, strict=True)], [
         max(col) for col in zip(*rows, strict=True)
     ]
+
+
+def _synchronizer(sync: dict[str, Any], window: str) -> tuple[list[float], list[float]]:
+    """Its passing share per yardstick, and the chance of a passing sample per window."""
+    shares = list(sync["pass_fraction_by_yardstick"])
+    hit = -math.expm1(-sync["events_per_window"][window])
+    return shares, [hit if share > 0 else 0.0 for share in shares]
 
 
 def series(figures: Path) -> Series:
@@ -73,7 +82,8 @@ def series(figures: Path) -> Series:
         for share in n["by_yardstick"][0]["window_hit_probability"]
     ]
     nodes = [n["pass_fraction_by_yardstick"] for n in chip["nodes"]]
-    events = chip["synchronizer"]["events_per_window"][window]
+    sync = chip["synchronizer"]
+    sync_pass, sync_hit = _synchronizer(sync, window)
     return Series(
         yardsticks=list(swept["yardsticks"]),
         fluctuation=chip["fluctuation_tv"],
@@ -81,8 +91,9 @@ def series(figures: Path) -> Series:
         membrane_hit=_band(hits),
         node_pass=_band(nodes),
         node_hit=[1.0 if min(col) > 0 else 0.0 for col in zip(*nodes, strict=True)],
-        sync_pass=chip["synchronizer"]["pass_fraction_bound"],
-        sync_hit=-math.expm1(-events),
+        sync_pass=sync_pass,
+        sync_hit=sync_hit,
+        binary_ceiling=sync["binary_ceiling"],
         latched_pass=list(chip["latched"]["pass_fraction_by_yardstick"]),
     )
 
@@ -112,25 +123,44 @@ def _left(axis: Any, s: Series) -> None:
     xs, lows, highs = (list(col) for col in zip(*nodes, strict=True))
     axis.fill_between(xs, lows, highs, color=NODE, alpha=0.25, linewidth=0)
     axis.plot(xs, highs, color=NODE, linewidth=2, marker="s", label="node's crossing time")
-    axis.axhline(s.sync_pass, color=SYNC, linewidth=2, linestyle="--", label="synchronizer bound")
+    reached = [(x, share) for x, share in zip(y, s.sync_pass, strict=True) if share > 0]
+    xs, shares = (list(col) for col in zip(*reached, strict=True))
+    axis.plot(
+        [*xs, s.binary_ceiling],
+        [*shares, shares[-1]],
+        color=SYNC,
+        linewidth=2,
+        linestyle="--",
+        marker="^",
+        markevery=list(range(len(xs))),
+        label="synchronizer",
+    )
     axis.set_yscale("log")
     axis.set_ylim(1e-5, 1.5)
     axis.text(y[0], 2e-5, "latched value: none", color=INK, fontsize=8)
     _style(axis, s, "share of states that pass")
 
 
+def _drop_at(
+    axis: Any, y: list[float], values: list[float], edge: float, style: tuple[str, str, str]
+) -> None:
+    """A step that falls to zero at ``edge``, with the computed yardsticks marked."""
+    below = [(x, v) for x, v in zip(y, values, strict=True) if x <= edge]
+    above = [(x, v) for x, v in zip(y, values, strict=True) if x > edge]
+    steps = [*below, (edge, 0.0), *above]
+    color, marker, line = style
+    axis.plot(
+        *zip(*steps, strict=True), color=color, linewidth=2, linestyle=line, drawstyle="steps-post"
+    )
+    axis.plot(y, values, color=color, linestyle="none", marker=marker)
+
+
 def _right(axis: Any, s: Series) -> None:
     y = s.yardsticks
     _membrane(axis, y, s.membrane_hit, None)
-    # The node passes up to the fluctuation and at no higher yardstick.
-    xs = [x for x in y if x <= s.fluctuation] + [s.fluctuation]
-    xs += [x for x in y if x > s.fluctuation]
-    hit = [1.0] * sum(x <= s.fluctuation for x in y) + [0.0] * (
-        len(xs) - sum(x <= s.fluctuation for x in y)
-    )
-    axis.plot(xs, hit, color=NODE, linewidth=2, drawstyle="steps-post")
-    axis.plot(y, s.node_hit, color=NODE, linestyle="none", marker="s")
-    axis.axhline(s.sync_hit, color=SYNC, linewidth=2, linestyle="--")
+    # The node passes up to the fluctuation, one bit up to the binary ceiling.
+    _drop_at(axis, y, s.node_hit, s.fluctuation, (NODE, "s", "-"))
+    _drop_at(axis, y, s.sync_hit, s.binary_ceiling, (SYNC, "^", "--"))
     axis.plot(y, s.latched_pass, color=INK, linewidth=2, linestyle="-.", label="latched value")
     axis.set_ylim(-0.03, 1.05)
     _style(axis, s, "passing state within 400 ms")

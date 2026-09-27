@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 
 import unity_switching as us
-from unity_estimates import FLUCTUATION_TV, tv_of_shift
+from unity_estimates import FLUCTUATION_TV, normal_cdf, tv_of_shift
 
 
 class NodeTimingTest(unittest.TestCase):
@@ -56,6 +56,22 @@ class SynchronizerTest(unittest.TestCase):
 
     def test_a_sample_falls_in_the_aperture_at_most_at_the_data_rate_times_its_width(self) -> None:
         self.assertAlmostEqual(us.synchronizer_pass_bound(20e-12, 1e8), 2e-3)
+
+    def test_its_bit_reaches_at_most_the_binary_ceiling_below_the_fluctuation(self) -> None:
+        self.assertAlmostEqual(us.BINARY_CEILING, normal_cdf(1.0) - 0.5)
+        self.assertLess(us.BINARY_CEILING, FLUCTUATION_TV)
+
+    def test_the_synchronizer_passes_no_yardstick_above_the_binary_ceiling(self) -> None:
+        self.assertTrue(us.synchronizer_passes(0.3))
+        self.assertFalse(us.synchronizer_passes(FLUCTUATION_TV))
+
+    def test_the_summary_counts_the_synchronizer_only_up_to_the_ceiling(self) -> None:
+        sync = us.run()["synchronizer"]
+        bound = sync["pass_fraction_bound"]
+        for y, share in zip(
+            us.run()["yardsticks"], sync["pass_fraction_by_yardstick"], strict=True
+        ):
+            self.assertEqual(share, bound if y <= us.BINARY_CEILING else 0.0)
 
 
 class SummaryTest(unittest.TestCase):
