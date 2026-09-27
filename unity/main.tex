@@ -33,9 +33,10 @@ region it overlaps, above its own noise, through a coupling that pulls their
 contents together. The premise is a functional condition stated at the grain of
 graded physical dynamics, finer than the grain of an algorithm: at that grain
 cortex and digital chips come apart, while at the grain of an algorithm they do
-not. It makes a prediction that the algorithmic grain does not: when two
-cortical regions are bridged by an analog and by a quantized loop carrying the
-same information, unity follows the analog loop. We prove that under noise, content read
+not. It makes a prediction that an account stated on the information regions
+exchange does not: when two cortical regions are bridged by an analog and by a
+quantized loop that carry the same information, in total and about the task,
+unity follows the analog loop. We prove that under noise, content read
 from bits responds to a change of any region by at most its error rate, a bound
 that is attained, so a digital machine, clocked or clockless, fails the premise
 whatever algorithm it runs. Measured by
@@ -90,8 +91,9 @@ part where an algorithm is carried by separate records: a perfect simulation of 
 field reproduces the field's content-level dynamics and is unified at the
 algorithm's grain, and it fails P, because its agreement is computed. At P's
 grain cortex and mainstream digital chips come apart; at the algorithm's they
-do not, and the bridge of Section~\ref{sec:tests} asks which grain unity
-tracks. The reason to hold P is that unified contents are parts of
+do not. The bridge of Section~\ref{sec:tests} holds fixed the information two
+regions exchange and varies the grain of their coupling, so it asks whether
+unity tracks P's grain or the information exchanged. The reason to hold P is that unified contents are parts of
 one total state, a rule that computes their agreement only adds another record,
 and parts form one state when they interact at every scale between their own
 noise and their own thresholds (Section~\ref{sec:enforcement}). Physical systems are noisy, so P is read on the
@@ -115,7 +117,7 @@ zone of it \citep{koch2016}.
 
 The paper makes three claims:
 \begin{enumerate}
-\claim{sec:tests}{When two cortical regions are bridged by an analog and by a quantized loop that carry the same information, P predicts that unity follows the loop that couples them gradedly, which tests whether unity tracks the graded grain or the algorithmic one; a weak, sub-threshold perturbation of one region should also shift the graded content decoded in an overlapping region toward agreement}
+\claim{sec:tests}{When two cortical regions are bridged by an analog and by a quantized loop that carry the same information, in total and about the task, P predicts that unity follows the loop that couples them gradedly, which tests whether unity tracks the graded grain or the information the regions exchange; a weak, sub-threshold perturbation of one region should also shift the graded content decoded in an overlapping region toward agreement}
 \claim{sec:enforcement}{Under noise, content read from bits responds to a change of any region below its margin by at most its error rate, a bound that is attained, so content read from bits is not physically enforced, whatever algorithm the bits run. A region held by a margin drops out of every chain of couplings, corrections it writes back included, while a graded reader joins the regions it reads. Measured by one protocol over the states each occupies, a cortical membrane passes the noise-floor test near its threshold and visits such states within every window of a percept's time scale, while a logic node passes at none of its states}
 \claim{sec:reach}{On a noisy coupled sheet, disagreement in phase is effective resistance, so the coupling's reach decides how far phase agreement holds, and an encoder that reads phases relative to its neighbourhood turns it into content agreement that pays only for the field's local roughness}
 \end{enumerate}
@@ -744,8 +746,8 @@ removing graded coupling between two regions shows in the responses and
 reports fixed above, and a split of unity behind unchanged reports is no
 answer P can give to a null result.
 
-\paragraph{Separating coupling from information.} This test asks which grain
-unity tracks. In every manipulation of cortex available so far, graded coupling
+\paragraph{Separating coupling from information.} This test asks whether unity
+tracks the graded grain or the information the regions exchange. In every manipulation of cortex available so far, graded coupling
 and information flow move together: anaesthesia and callosal section remove
 both. A test of the grain must change one while holding the other fixed. Stimulating the regions from outside does not
 separate them. Coherence between cortical regions arises largely as a
@@ -796,13 +798,28 @@ loop too slow for the content's window. Above that floor the step is free: at a 
 the region's own, the quantized loop fails at \ueBandMatchFailPercent\% of its
 states or more. Stepping the quantized loop's resolution checks that its
 transfer entropy rises with the resolution, so that the resolution, and not
-recording noise, sets the matched value. The two loops then carry the same
-information through the same filter shape, and only the analog one couples the
-regions gradedly.
+recording noise, sets the matched value.
+
+Transfer entropy counts everything one region's activity tells about the
+other's, and the loops can match it while differing in how much of the task
+variable gets through, since the quantizer and the lower cutoff distort the
+waveform differently. A behavioural difference between the loops would then
+have an explanation at the level of information. So the task variable is also
+decoded from the current each loop delivers, by a decoder fitted on other
+blocks of the same loop, and the loops count as matched only when its
+decodability, as well as the transfer entropy, agrees between them within the
+confidence interval of the difference. The step and the cutoff are two free
+settings for these two conditions: a step coarse enough to fail P, and a cutoff
+above the floor, are chosen together on pilot blocks, and the check is repeated
+on the blocks that are compared. The two loops then carry the same information,
+in total and about the task, through the same filter shape, and only the analog
+one couples the regions gradedly. An account on which unity follows the
+information regions exchange predicts no difference between them.
 
 The readout is unity, with the evidence fixed at the start of this section. The
 bridge holds information flow fixed and varies the grain of the coupling. Unity
-that follows the analog loop at matched transfer entropy is evidence that unity
+that follows the analog loop at matched transfer entropy and task
+decodability is evidence that unity
 tracks the finer grain, and not only the information the regions exchange;
 unity that is the same under both loops counts against P. In animals the
 design measures unity by integration across the bridged connection in behaviour
@@ -818,8 +835,10 @@ the trigger with a continuous drive. A first preparation places chronic arrays i
 two areas that represent a shared variable, interrupts the natural connection
 between them, and alternates the two loops across blocks in the same animal.
 Transfer entropy \citep{schreiber2000} is estimated from each block's
-recordings, and the analog loop's cutoff is set on pilot blocks to match the
-quantized loop's, above the floor that keeps it in time. The primary readout is
+recordings, and the analog loop's cutoff and the quantizer's step are set on
+pilot blocks so that the loops match in transfer entropy and in the
+decodability of the task variable from their delivered currents, with the
+cutoff above the floor that keeps the analog loop in time. The primary readout is
 behavioural: a task that requires the animal to combine the values the two
 areas represent, such as judging whether stimuli in their two fields match,
 whose accuracy is compared between the loops. The companion's excess decoded
@@ -936,8 +955,9 @@ hypothesis, which states every indicator at the grain of an algorithm. P adds to
 any list of indicators one stated at the grain of graded dynamics, a condition
 on how the substrate realises them, so a system can have every computational
 indicator and fail P, as a faithful simulation of cortex does
-(Section~\ref{sec:enforcement}). The bridge of Section~\ref{sec:tests} asks
-which of the two grains unity tracks.
+(Section~\ref{sec:enforcement}). The bridge of Section~\ref{sec:tests} holds
+the information two regions exchange fixed and asks whether unity tracks the
+graded grain.
 
 \paragraph{Computational closure.} The closest formal neighbour is the account of
 \citet{rosas2024}. On it, a macroscopic level that is informationally, causally
@@ -956,7 +976,7 @@ here. The criterion's scale is fixed by the parts' own noise, so it counts
 systems instead of asking whether physics is relevant at all. The coupling must
 contract disagreement, which a substrate meets or fails separately from how it
 suppresses noise. And the bridge of Section~\ref{sec:tests} asks in cortex
-whether unity tracks the physical dynamics or the computation they carry.
+whether unity tracks the physical dynamics or the information they carry.
 
 \paragraph{Biology and the medium.} \citet{seth2026} argues that consciousness
 may depend on biological properties that computation does not capture. P
@@ -1091,7 +1111,7 @@ account on P's side of the line.
 \item \emph{Human evidence.} The dissociation of coupling from information has,
 so far, no human preparation in which reported unity can be measured across a
 bridged connection. Human data can falsify P but cannot by themselves tell the
-graded grain from the algorithmic one, because graded coupling and information
+graded grain from the grain of information exchanged, because graded coupling and information
 flow co-vary in every manipulation available so far.
 \end{itemize}
 

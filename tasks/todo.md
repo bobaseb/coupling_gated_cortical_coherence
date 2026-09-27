@@ -529,6 +529,87 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   established: a leak around the record is a separate path, bounded only
   when it too runs through a margin (Lean doc-string scope).
 
+*Review 2026-09-27 (grade 5/10, borderline reject; major revision). U75–U80
+are its points, most severe first. U75–U77 plus two figures (U78) would move
+it to about 7.*
+
+- [ ] **U75 — The per-window rescue may rescue chips too.** Cortex passes at
+  only 0.014–2.3% of occupied states, so P is
+  stated per window: some carrier passes within the content's time scale.
+  But §enforcement 'Where the line falls' concedes that "a bit caught in the
+  middle of switching passes", and a node toggling at GHz rates spends a
+  comparable small fraction of its time in transition, entered many times per
+  400 ms window. The bit occupancy model (app:occupancy) restores the bit to
+  its rail every step and so never samples a transition. The implicit reply,
+  that a chip's content is read at the latch and transients are traces
+  (§ai 'Clockless logic', 'Why spikes are not bits'), is not made where it
+  is needed. As written, a reader can say the criterion was relaxed until
+  cortex passed, and chips were measured at a different point.
+  (a) Run the chip through the same per-window protocol, transients
+  included: switching activity factor, transition time, and the latch's
+  setup/hold window (metastability included).
+  (b) State in the window paragraph what content each substrate reads, and
+  why a transient passing at the voltage level is not a passing *carrier*:
+  the latch samples outside the transition, while downstream membranes
+  integrate spike times as they arrive. If the asymmetry needs a definition,
+  it belongs in §enforcement's definitions, not in §ai.
+  **Success.** The window paragraph says why a switching bit does not satisfy
+  the per-window condition, with a number from (a).
+- [x] **U76 — Matched transfer entropy does not match task information.** The
+  loops can match total transfer entropy on multi-unit envelopes and still
+  differ in how much of the *task variable* gets through, or in waveform
+  distortion from the quantizer and the different cutoff. A behavioural gap
+  would then have a mundane, information-level explanation. Add either (a) a
+  control matching decodability of the task variable across the bridge (and
+  checking it is matched) alongside transfer entropy, or (b) an argument for
+  why transfer entropy is the right invariant for the grain question. Related:
+  'The bridge's reach' limitation already concedes that a fine-grained
+  functionalist absorbs either outcome, which narrows the test to "graded vs
+  information-level" rather than "graded vs algorithmic". Make the abstract
+  and Claim 1 say exactly the narrower thing, or strengthen the design until
+  the wider claim holds.
+  *Done 2026-09-27:* both. (a) §tests 'Separating coupling from
+  information' adds a task-decodability check: the task variable is decoded
+  from each loop's delivered current, and the loops count as matched only when
+  decodability and transfer entropy both agree; the step and the cutoff are the
+  two settings for the two conditions, chosen on pilot blocks and rechecked on
+  compared blocks. 'A first preparation' sets both. (b) Abstract, intro,
+  Claim 1, §tests opening, related work (Butlin, Kleiner) and 'Human evidence'
+  now say the bridge separates the graded grain from the information
+  exchanged, not from the algorithmic grain.
+- [ ] **U77 — The weight rests on prose, not on the theorems.** The margin
+  lemma is "elementary by design", so the Lean results verify what follows
+  from the definitions. The contested steps are argued in prose: unity is
+  not one more content (Bayne, cited), records cannot compose a whole, and
+  the relevant scale runs from a part's noise to its threshold, with
+  threshold crossings counted as messages. Reviewers will say the
+  formalization is rigorous about the easy part. Remedy: open §enforcement
+  with the argument's structure (two premises, then what is proved from
+  them), give the noise-to-threshold scale its own argument rather than a
+  paragraph of stipulation, and say plainly in the intro which steps are
+  theorems and which are premises.
+- [ ] **U78 — No figures.** Add at least (a) a bridge schematic: two regions,
+  interrupted connection, analog vs quantized loop sharing filter, output
+  stage and artefact subtraction; (b) one occupancy/yardstick plot: passing
+  fraction and per-window link probability for the membrane vs the bit
+  (with U75(a)'s transients) across yardsticks. Figures come from saved
+  summaries (AGENTS §3); check `check-figures` and `check-pdf-freshness`.
+- [ ] **U79 — §reach is loosely tied to P and mostly classical.** Its results
+  restate Mermin–Wagner, Chung–Fuchs recurrence and Kunz–Pfister ordering
+  through effective resistance, and Claim 3 reads as carried over from the
+  companion. U71 added the tie to P's two demands, and it is still a long
+  section for the one prediction it feeds (the relaxation-time bound).
+  Either shrink it to a page with the rest in app:reach, or make the link to
+  the bridge/restoration tests carry the section. Decide whether Claim 3
+  stays a numbered claim.
+- [ ] **U80 — Presentation.** (a) Paragraphs are long and abstract, and terms
+  defined in words (carrier, record, reader, content, trace) pile up: add one
+  running example carried through §cover–§ai. (b) "$10^{-53878}$"
+  (l.~474) invites ridicule; report a bound such as $<10^{-100}$ (change
+  the macro's generator, not the prose). (c) The definition of unity and the
+  bridge assumption lean on a self-citation (the companion); state enough of
+  both in-paper that the argument stands without it.
+
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
   Consciousness* or *Phil. Trans. B*. arXiv posting: cs.AI primary (author has
