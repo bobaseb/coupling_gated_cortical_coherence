@@ -1,13 +1,16 @@
-"""Generate the physical-unity paper's numerals from the saved U3 summaries only.
+"""Generate the physical-unity paper's numerals from saved summaries only.
 
-Reads ``figures/unity_agreement/summary.json`` (the sheet simulations) and
-``resistance.json`` (the exact resistance scaling) and writes
-``unity/unity_results.tex``. Nothing here integrates a sheet or sums a Fourier
-series: ``unity_agreement.py`` produces both summaries as a separate command.
+Reads ``figures/unity_agreement/summary.json`` (the sheet simulations),
+``resistance.json`` (the exact resistance scaling) and
+``figures/unity_occupancy/summary.json`` (the occupancy-weighted carrier test)
+and writes ``unity/unity_results.tex``. Nothing here integrates a sheet, sums a
+Fourier series or propagates a membrane: ``unity_agreement.py`` and
+``unity_occupancy.py`` produce the summaries as separate commands.
 """
 
 import json
 import math
+from fractions import Fraction
 from pathlib import Path
 from typing import Any, cast
 
@@ -96,14 +99,94 @@ def _scaling_values(scaling: dict[str, Any]) -> list[tuple[str, str]]:
     return values
 
 
+def _config_range(neurons: list[dict[str, Any]], key: str) -> tuple[str, str]:
+    values = sorted({_finite(n["config"][key]) for n in neurons})
+    return f"{values[0]:g}", f"{values[-1]:g}"
+
+
+def _window_values(neurons: list[dict[str, Any]]) -> list[tuple[str, str]]:
+    """Per content window: the least visit probability, and the links it gives."""
+    windows = sorted(neurons[0]["window_hit_probability"]["1"], key=float)
+    short, long = windows[0], windows[-1]
+    hits = {
+        w: [_finite(h[w]) for n in neurons for h in n["window_hit_probability"].values()]
+        for w in (short, long)
+    }
+    carriers = sorted(int(k) for k in neurons[0]["link_probability"]["1"])
+    few, mid, many = carriers
+    instant = min(_finite(v[str(many)]) for n in neurons for v in n["link_probability"].values())
+    miss = (1.0 - min(hits[long])) ** mid
+    return [
+        ("uOccContentShortMs", f"{float(short):g}"),
+        ("uOccContentLongMs", f"{float(long):g}"),
+        ("uOccCarriersFew", str(few)),
+        ("uOccCarriersMid", str(mid)),
+        ("uOccCarriersMany", str(many)),
+        ("uOccInstantLinkMin", f"{instant:.2g}"),
+        ("uOccHitMinLong", f"{min(hits[long]):.2g}"),
+        ("uOccHitMaxLong", f"{max(hits[long]):.3g}"),
+        ("uOccLinkFewLong", f"{1.0 - (1.0 - min(hits[long])) ** few:.2g}"),
+        ("uOccMissOrdersMidLong", f"{math.floor(-math.log10(miss))}"),
+        ("uOccLinkMidShort", f"{1.0 - (1.0 - min(hits[short])) ** mid:.2g}"),
+    ]
+
+
+def _regime_values(neurons: list[dict[str, Any]]) -> list[tuple[str, str]]:
+    """The declared ranges, and where the membrane sits and passes across them."""
+    passing = [100 * _finite(n["pass_fraction"]) for n in neurons]
+    distance = [_finite(n["mean_distance"]) for n in neurons]
+    tau, rate, window = (_config_range(neurons, k) for k in ("tau_ms", "rate_hz", "window_ms"))
+    return [
+        ("uOccTauFast", tau[0]),
+        ("uOccTauSlow", tau[1]),
+        ("uOccRateLow", rate[0]),
+        ("uOccRateHigh", rate[1]),
+        ("uOccNextShort", window[0]),
+        ("uOccNextLong", window[1]),
+        ("uOccDistanceMin", f"{min(distance):.1f}"),
+        ("uOccDistanceMax", f"{max(distance):.1f}"),
+        ("uOccPassMinPercent", f"{min(passing):.2g}"),
+        ("uOccPassMaxPercent", f"{max(passing):.2g}"),
+    ]
+
+
+def _control_values(summary: dict[str, Any]) -> list[tuple[str, str]]:
+    """The noise share, the clock, the resolution check and the restored bit."""
+    neurons = cast(list[dict[str, Any]], summary["neurons"])
+    scales = sorted(float(s) for s in neurons[0]["pass_fraction_by_scale"])
+    share = Fraction(scales[0] ** 2).limit_denominator(100)
+    windows = {_finite(n["config"]["window_ms"]) for n in neurons}
+    periods = sorted({float(p) for n in neurons for p in n["latched_pass_fraction"]} - windows)
+    check = summary["resolution_check"]
+    coarse, fine = (_finite(check[k]["pass_fraction"]) for k in ("coarse", "fine"))
+    (bit,) = [b for b in summary["bits"] if _finite(b["margin"]) > 100]
+    return [
+        ("uOccShiftMax", f"{max(summary['shifts']):g}"),
+        ("uOccShareMin", f"{share.numerator}/{share.denominator}"),
+        ("uOccLatchShortMs", f"{periods[0]:g}"),
+        ("uOccLatchLongMs", f"{periods[-1]:g}"),
+        ("uOccResolutionPercent", f"{100 * abs(fine - coarse) / coarse:.0f}"),
+        ("uOccBitOrders", f"{-_finite(bit['log10_max_response']):.0f}"),
+    ]
+
+
+def _occupancy_values(summary: dict[str, Any]) -> list[tuple[str, str]]:
+    neurons = cast(list[dict[str, Any]], summary["neurons"])
+    if not neurons:
+        raise ValueError("The saved occupancy summary has no regimes")
+    return [*_regime_values(neurons), *_control_values(summary), *_window_values(neurons)]
+
+
 def render(figures: Path) -> str:
     """Read saved summaries; never integrate a sheet or recompute a resistance."""
     directory = figures / "unity_agreement"
     values = _simulation_values(_read(directory / "summary.json"))
     values += _scaling_values(_read(directory / "resistance.json"))
+    values += _occupancy_values(_read(figures / "unity_occupancy" / "summary.json"))
     lines = [
         "% Generated by simulations/unity_macros.py from saved JSON summaries in",
-        "% simulations/figures/unity_agreement/. Do not edit manually.",
+        "% simulations/figures/unity_agreement/ and simulations/figures/unity_occupancy/.",
+        "% Do not edit manually.",
         "% Regeneration does not run a simulation.",
         *(f"\\newcommand{{\\{name}}}{{{value}}}" for name, value in values),
     ]
