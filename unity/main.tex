@@ -961,7 +961,10 @@ time constant, at declared shares; the measured correlations it is compared with
 are those of neighbouring cells, and the single spikes of awake cortex are
 driven by input that neighbouring cells do not share \citep{poulet2008}, which
 that model omits. The carrier counts stay far below the anatomical ones, and the
-per-window bound proved formally is the one for independent carriers.
+per-window bound is proved formally in two forms: for independent carriers,
+and without independence, where the chance that no carrier passes is at most
+the variance of the number that pass over the square of its mean, which
+correlation between carriers keeps above a floor however many there are.
 
 \item \emph{Reach.} The identification of phase variance with effective
 resistance rests on the harmonic approximation at identical natural frequencies.
@@ -1207,6 +1210,7 @@ A state at which some carriers of each region pass and not every carrier does & 
 Regions joined by carriers at every overlap are one system & \ref{sec:enforcement} & \texttt{EnforcedByCarriers.\allowbreak{}regionSameSystem} \\
 Bits with error rate below the fluctuation: no carrier of any region reaches any other, and each region is a system of its own & \ref{sec:enforcement} & \texttt{not\_\allowbreak{}reachesAtNoiseFloor\_\allowbreak{}of\_\allowbreak{}bits}, \texttt{regionSameSystem\_\allowbreak{}iff\_\allowbreak{}eq\_\allowbreak{}of\_\allowbreak{}bits} \\
 With $K$ independent carriers each passing within a window with probability at least $p$, two regions go unlinked in the window with probability at most $(1-p)^K$ & \ref{sec:enforcement} & \texttt{measure\_\allowbreak{}not\_\allowbreak{}reachesWithin\_\allowbreak{}le} \\
+Without independence, two regions go unlinked in the window with probability at most the variance of the number of passing carriers over the square of its mean & \ref{sec:enforcement} & \texttt{measure\_\allowbreak{}not\_\allowbreak{}reachesWithin\_\allowbreak{}le\_\allowbreak{}variance} \\
 Bits with error rate below the fluctuation couple no pair of regions, so each region is a system of its own & \ref{sec:enforcement} & \texttt{sameSystem\_\allowbreak{}iff\_\allowbreak{}eq\_\allowbreak{}of\_\allowbreak{}bits} \\
 The same bits fail graded dependence above the noise floor at any overlap of two regions & \ref{sec:enforcement} & \texttt{not\_\allowbreak{}enforcedAtNoiseFloor\_\allowbreak{}of\_\allowbreak{}bits} \\
 A smaller shift of a Gaussian moves no event more than a larger one & \ref{sec:enforcement} & \texttt{gaussian\_\allowbreak{}shift\_\allowbreak{}le} \\

@@ -652,11 +652,18 @@ some pass within every window of the content's time scale.
   window `T`, and the events that they fail are independent with probability at
   most `1 − p` each, then `a` fails to reach `b` in the window with probability
   at most `(1 − p)^K`.
+* **`measure_not_reachesWithin_le_variance`.** Without independence: if `N`
+  counts the events that occur and has positive mean, `a` fails to reach `b` in
+  the window with probability at most the variance of `N` over its squared mean.
+  For `K` exchangeable carriers passing with probability `h` and pairwise
+  correlation `ρ`, this tends to `ρ(1 − h)/h` as `K` grows, a floor set by the
+  correlation.
 
 Scope. Which variables are carriers, and which carriers belong to which region,
 is the modeller's choice; the theorems hold for any choice. Independence is a
-hypothesis of the window bound, not a result, and correlated carriers weaken
-it. Nothing here computes `p`: that is a property of the carrier's dynamics.
+hypothesis of the geometric window bound, not a result; the variance bound
+drops it, and correlated carriers then set its floor. Nothing here computes `p`,
+`h` or `ρ`: those are properties of the carriers' dynamics.
 -/
 
 namespace PhysicsOfConsciousness.PhysicalUnity
@@ -805,6 +812,40 @@ theorem measure_not_reachesWithin_le {Ω' τ : Type*} [MeasurableSpace Ω'] {P :
     _ ≤ (1 - p) ^ (Finset.univ : Finset κ).card :=
         Finset.prod_le_pow_card _ _ _ fun k _ => hp k
     _ = (1 - p) ^ Fintype.card κ := by rw [Finset.card_univ]
+
+/-- **Some carrier within every window, without independence.** Let each of the
+measurable events `E k` of trajectories guarantee that `a` reaches `b` within the
+window `T`, and let `N ω` count the events that occur. If `N` has positive mean,
+then `a` fails to reach `b` within the window with probability at most the
+variance of `N` over its squared mean. The events may be correlated in any way.
+
+The bound holds because failing to reach forces `N = 0`, which lies a full mean
+away from the mean. For `K` exchangeable carriers, each passing with probability
+`h` and with pairwise correlation `ρ` of passing, the bound is
+`(1 − h)(1 + (K − 1)ρ)/(K h)`, which tends to `ρ(1 − h)/h` as `K` grows: a floor
+set by the correlation, not by the number of carriers. For independent carriers
+it is `(1 − h)/(K h)`, weaker than the `(1 − h)^K` of
+`measure_not_reachesWithin_le`, which pays for its rate with its independence
+hypothesis. The mean and variance of `N` are properties of the carriers'
+dynamics, which this theorem does not compute. -/
+theorem measure_not_reachesWithin_le_variance {Ω' τ : Type*} [MeasurableSpace Ω']
+    {P : Measure Ω'} [IsFiniteMeasure P] {region : ι → R} {μ : Measure Ω}
+    {f : Ω → (∀ i, S i) → ∀ i, S i} {π : ι → (∀ i, S i) → C} {X : Ω' → τ → ∀ i, S i}
+    {T : Set τ} {σ Θ : ι → ℝ} {θ : ENNReal} {a b : R} {κ : Type*} [Fintype κ]
+    {E : κ → Set Ω'} (hEm : ∀ k, MeasurableSet (E k))
+    (hE : ∀ k, E k ⊆ {ω | ReachesWithin region μ f π X T σ Θ θ a b ω})
+    (hpos : 0 < ∫ ω, ∑ k, (E k).indicator (1 : Ω' → ℝ) ω ∂P) :
+    P {ω | ¬ ReachesWithin region μ f π X T σ Θ θ a b ω} ≤
+      ENNReal.ofReal (ProbabilityTheory.variance
+        (fun ω => ∑ k, (E k).indicator (1 : Ω' → ℝ) ω) P /
+          (∫ ω, ∑ k, (E k).indicator (1 : Ω' → ℝ) ω ∂P) ^ 2) := by
+  refine (measure_mono fun ω hω => ?_).trans (ProbabilityTheory.meas_ge_le_variance_div_sq
+    (memLp_finsetSum _ fun k _ =>
+      ((memLp_const 1).indicator (hEm k) : MemLp ((E k).indicator (1 : Ω' → ℝ)) 2 P)) hpos)
+  have h0 : ∑ k, (E k).indicator (1 : Ω' → ℝ) ω = 0 :=
+    Finset.sum_eq_zero fun k _ => Set.indicator_of_notMem (fun h => hω (hE k h)) _
+  change _ ≤ |∑ k, (E k).indicator (1 : Ω' → ℝ) ω - _|
+  rw [h0, zero_sub, abs_neg, abs_of_pos hpos]
 
 end PhysicsOfConsciousness.PhysicalUnity
 

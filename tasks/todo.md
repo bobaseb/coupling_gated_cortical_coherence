@@ -94,10 +94,17 @@ margin theorem excludes content read from bits. Constraints and history:
   drift and mutation tests); Poulet & Petersen cited for the qualitative
   statement only; Limitations and `app:occupancy` updated; CHANGELOG entry.
   (b) moved to U47b below.
-- [ ] **U47b — Lean: the window bound without independence.** As (b) above:
+- [x] **U47b — Lean: the window bound without independence.** As (b) above:
   `measure_not_reachesWithin_le_variance`, P(no reach) ≤ Var N / E[N]², then a
   `tab:formal` row and the proof-companion chain. The paper currently says
   the formal per-window bound is the independent one (Limitations).
+  *Done 2026-09-27:* measure_not_reachesWithin_le_variance in
+  Phase10_PhysicalUnity.lean: for measurable events E k each implying
+  ReachesWithin and N their count with positive mean, P(no reach) ≤ Var N /
+  E[N]^2, under IsFiniteMeasure and with no independence; Chebyshev on N = 0.
+  Docstring gives the exchangeable floor ρ(1 − h)/h. lake build and the axiom
+  audit pass; proof companion rebuilt. tab:formal row added and Limitations
+  now states both forms.
 - [ ] **U47c — Read Poulet & Petersen 2008 in full.** Confirm the Vm
   correlations (search summary: 0.72 ± 0.11 quiet, 0.33 ± 0.17 whisking;
   not read in the paper) and the distance between recorded cells. If
