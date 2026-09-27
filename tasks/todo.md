@@ -460,6 +460,13 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   time' ends with the prediction (relaxation at most \ueTauFastMs ms across
   cortex, \ueTauLocalMs ms within a posterior zone; slower counts against P);
   the restoration test and the Limitations bullet point at it.
+- [x] **U72 — Limitations read as a list of concessions.** Twelve bullets;
+  'The premise' and 'The bridge's reach' conceded that P is assumed and that
+  a functionalist absorbs either outcome. *Done 2026-09-27:* ten bullets, no
+  scope statement removed (AGENTS §10): 'From phases to contents' folded into
+  'Reach', 'Attractors' into 'Which variables are contents'. 'The premise'
+  names the cortical tests as what bears on P; 'The bridge's reach' notes an
+  account that sees the quantizer already sits at P's grain.
 
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
