@@ -613,12 +613,23 @@ it to about 7.*
   an unregistered change is a coordinate along which the joint state factors.
   The intro names the two premises as the argued steps and the rest as
   theorems; 'What the premise rests on' shrinks to the conclusion.
-- [ ] **U78 — No figures.** Add at least (a) a bridge schematic: two regions,
+- [x] **U78 — No figures.** Add at least (a) a bridge schematic: two regions,
   interrupted connection, analog vs quantized loop sharing filter, output
   stage and artefact subtraction; (b) one occupancy/yardstick plot: passing
   fraction and per-window link probability for the membrane vs the bit
   (with U75(a)'s transients) across yardsticks. Figures come from saved
   summaries (AGENTS §3); check `check-figures` and `check-pdf-freshness`.
+  *Done 2026-09-27:* (a) `fig:bridge`, TikZ in `unity/main.tex`: two regions,
+  the interrupted connection, one direction of the loop (multi-unit record,
+  rectify/smooth, shared filter, analog cutoff vs quantizer step, shared output
+  stage, stimulator) and the artefact subtraction; placed in §tests and cited
+  from 'The setup is a bridge'. (b) `fig:yardstick`, `unity_yardstick.png`
+  beside the paper (unity/prepare_arxiv.sh rejects subdirectories), drawn by
+  `simulations/unity_figures.py` from `yardstick.json` and `switching.json`:
+  passing share and 400 ms visit probability per yardstick for the membrane
+  band, the switching node's crossing time, the synchronizer bound and the
+  latched value. check-figures reads only the companion; check-pdf-freshness
+  and prepare_arxiv.sh pass.
 - [x] **U79 — §reach is loosely tied to P and mostly classical.** Its results
   restate Mermin–Wagner, Chung–Fuchs recurrence and Kunz–Pfister ordering
   through effective resistance, and Claim 3 reads as carried over from the

@@ -49,6 +49,10 @@ layer = "publication"
 
 # -- report -----------------------------------------------------------------
 [[modules]]
+path = "unity_figures"
+layer = "report"
+
+[[modules]]
 path = "dynamic_ramp_report"
 layer = "report"
 

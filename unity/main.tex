@@ -5,6 +5,9 @@
 \usepackage{array}
 \usepackage{longtable}
 \usepackage[round]{natbib}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta}
 \usepackage{hyperref}
 \usepackage{setspace}
 \onehalfspacing
@@ -590,7 +593,7 @@ same whichever way it resolves. Within a clock domain no content passes, and the
 regions that carry a program's contents lie there.
 
 \paragraph{The yardstick.} The separation holds at every yardstick from
-\uYardLow{} to \uYardHigh{}. Across that range the logic node passes at none of
+\uYardLow{} to \uYardHigh{} (Figure~\ref{fig:yardstick}). Across that range the logic node passes at none of
 its states, and the membrane enters a passing state within
 \uOccContentLongMs{}~ms with probability at least \uYardHitMinHigh{} at the
 highest yardstick, rising as the yardstick is lowered. The formal results take
@@ -598,6 +601,21 @@ the yardstick as a parameter and hold at every value of it. The fluctuation is
 the value that makes \emph{large} mean what it means for the carrier itself: a
 change that moves the content by as much as the content moves of its own
 accord.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{unity_yardstick.png}
+\caption{One protocol at every yardstick. Left: the share of
+occupied states at which every admissible change moves the next content by at
+least the yardstick. Right: the chance of entering such a state within
+\uOccContentLongMs{}~ms. The membrane is a band over every declared regime and,
+on the right, every noise share. A switching node's crossing time is a band over
+the declared activity factors; it passes exactly at the fluctuation (dotted)
+and at no higher yardstick. The synchronizer's share is the upper bound
+$T_W f_D$. The value a clocked latch reads passes at no state and in no
+window.}
+\label{fig:yardstick}
+\end{figure}
 
 \section{When and how far a coupling enforces agreement}
 \label{sec:reach}
@@ -818,7 +836,8 @@ common source: where in-phase stimulation raised their synchrony, it raised
 directed information flow with it \citep{reinhart2019}. The coupling has to be
 supplied instead.
 
-The setup is a bridge. Two regions whose natural connection is interrupted are
+The setup is a bridge (Figure~\ref{fig:bridge}). Two regions whose natural
+connection is interrupted are
 reconnected by stimulating each in proportion to the activity recorded at the
 other, through one of two loops. The \emph{analog loop}'s output moves with every
 graded change in its input. It is analog end to end, an analog filter and
@@ -921,6 +940,49 @@ bands and the subtraction, so a residual artefact reaches both arms by one
 path. Open-loop blocks in which each stimulator follows activity recorded in
 another block measure that residual in each arm, and the comparison of the
 loops is made after it is removed.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[x=1mm, y=1mm, font=\footnotesize,
+  box/.style={draw, rounded corners=2pt, align=center, minimum height=8mm,
+    minimum width=17mm, inner sep=2pt},
+  region/.style={draw, thick, circle, minimum size=12mm, align=center},
+  arr/.style={-{Stealth[length=1.8mm]}}]
+\node[region] (A) at (8,0) {Region\\A};
+\node[region] (B) at (127,0) {Region\\B};
+\draw[dashed, thick] (A) -- node[fill=white, inner sep=1pt] {\large$\times$}
+  node[above=1.5mm] {natural connection interrupted} (B);
+\node[box] (rec) at (8,-22) {record\\multi-unit};
+\node[box] (env) at (30,-22) {rectify,\\smooth};
+\node[box] (filt) at (52,-22) {shared\\filter};
+\node[box] (ana) at (77,-15) {analog,\\cutoff $f_c$};
+\node[box] (quant) at (77,-29) {quantizer,\\step $\Delta$};
+\node[box] (out) at (102,-22) {shared\\output stage};
+\node[box] (stim) at (127,-22) {stimulator};
+\draw[arr] (A) -- (rec);
+\draw[arr] (rec) -- (env);
+\draw[arr] (env) -- (filt);
+\draw[arr] (filt.east) -- ++(3,0) |- (ana.west);
+\draw[arr] (filt.east) -- ++(3,0) |- (quant.west);
+\draw[arr] (ana.east) -- ++(3,0) |- (out.west);
+\draw[arr] (quant.east) -- ++(3,0) |- (out.west);
+\draw[arr] (out) -- (stim);
+\draw[arr] (stim) -- (B);
+\node[box, text width=62mm] (sub) at (104,-45) {artefact subtraction on B's recording:
+  loop output through the stimulator-to-contact transfer measured on
+  open-loop blocks};
+\draw[arr, dotted] (out.south) -- (out.south |- sub.north);
+\end{tikzpicture}
+\caption{The bridge, one direction of two. Multi-unit activity recorded in
+region A is rectified and smoothed, passed through a filter both loops share,
+and then either kept analog or quantized, before an output stage both loops
+share drives the stimulator in region B. The quantizer's step and the analog
+loop's cutoff are the two settings that match the loops in transfer entropy and
+in task decodability. What leaks from the stimulator into a recording contact
+is removed by subtracting the loop's own output, passed through the measured
+transfer. The loop from B to A is the same.}
+\label{fig:bridge}
+\end{figure}
 
 \paragraph{A weak nudge should spread.} Weak stimulation of one region, below the
 level that changes behaviour, should shift the content decoded in an overlapping
