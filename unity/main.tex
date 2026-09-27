@@ -41,8 +41,8 @@ whatever algorithm it runs. Measured by
 one protocol over the states each occupies, a noisy cortical membrane passes
 near its threshold and reaches such a state within a percept's time scale,
 while a logic node passes at none of its states. On a noisy sheet of coupled
-oscillators, coupling that falls off more slowly than $r^{-4}$ keeps agreement
-at every distance. We state the preparation that runs the bridge and the
+oscillators, the coupling's reach decides how far phase agreement holds. We
+state the preparation that runs the bridge and the
 cortical outcomes that would refute the premise.
 \end{abstract}
 
@@ -99,7 +99,7 @@ The paper makes three claims:
 \begin{enumerate}
 \claim{sec:tests}{When two cortical regions are bridged by an analog and by a quantized loop that carry the same information, P predicts that unity follows the loop that couples them gradedly, which separates P from computational functionalism; a weak, sub-threshold perturbation of one region should also shift the graded content decoded in an overlapping region toward agreement}
 \claim{sec:enforcement}{Under noise, content read from bits responds to a change of any region below its margin by at most its error rate, a bound that is attained, so content read from bits is not physically enforced, whatever algorithm the bits run. Measured by one protocol over the states each occupies, a cortical membrane passes the noise-floor test near its threshold and visits such states within every window of a percept's time scale, while a logic node passes at none of its states}
-\claim{sec:reach}{On a noisy coupled sheet, the reach of the coupling sets how fast agreement fades with distance: coupling that falls off more slowly than $r^{-4}$ keeps agreement at every distance, and coupling of finite second moment lets it fade without limit}
+\claim{sec:reach}{On a noisy coupled sheet, disagreement in phase is effective resistance, so the coupling's reach decides how far phase agreement holds, and an encoder that reads phases relative to its neighbourhood turns it into content agreement that pays only for the field's local roughness}
 \end{enumerate}
 
 Every formal result in the paper is machine-checked in Lean~4, and
@@ -446,74 +446,42 @@ accord.
 \label{sec:reach}
 
 P asks the coupling to contract disagreement between every pair of regions
-whose contents are unified, so the distance it must span is the extent of those
-regions: up to \ueFibreCm{}~cm if a scene's contents span the cortex, and about
-\ueLocalCm{}~cm if they are confined to a posterior zone. P can hold for a scene
-only if the coupling enforces agreement across that extent. The intuition is simple. If each patch of cortex is tied only to its near
-neighbours, agreement has to pass from hand to hand, and a little of it leaks
-away at every hand, so distant patches drift apart. If there are enough direct
-ties across long distances, agreement can hold everywhere. This section makes
-that precise for a noisy sheet of coupled oscillators and finds where the line
-between the two falls.
+whose contents are unified: up to \ueFibreCm{}~cm apart if a scene's contents
+span the cortex, and about \ueLocalCm{}~cm if they are confined to a posterior
+zone. On a noisy sheet of coupled oscillators sharing one natural frequency, in
+the harmonic approximation, the variance of the phase difference between two
+sites is the noise strength times their \emph{effective resistance}: the
+resistance a meter would read between them if each coupling were a wire whose
+conductance is the coupling's strength. Disagreement in phase is therefore
+resistance, and classical results on resistance decide how far phase agreement
+reaches (Appendix~\ref{app:reach}, where simulated sheets follow the identity in
+the ordered phase). Under coupling of bounded range the resistance grows at
+least logarithmically with distance, the Gaussian form of the absence of true
+long-range order in two dimensions \citep{mermin1966}. A kernel whose tail
+falls off more slowly than $r^{-4}$ bounds it at every distance, the threshold
+at which a random walk with the kernel's jumps escapes
+\citep{chung1951,doyle1984} and the plane rotator orders at low noise
+\citep{kunz1976}. Adding coupling never raises the resistance, and a direct
+coupling caps it at its reciprocal. Across a finite cortex a wide short-range
+kernel and a slow tail differ by a slowly growing logarithm, so telling them
+apart takes a measurement of the kernel's second moment as well as of its tail.
+In cortex the long-range part is synaptic, since the field of a local source
+falls below detection within millimetres (Section~\ref{sec:tests}).
 
-\paragraph{An electrical picture.} Picture the sheet as an electrical network:
-each coupling between two sites is a wire, with a conductance equal to the
-coupling's strength. The \emph{effective resistance} between two sites is the
-resistance a meter would read between them. When the oscillators share one
-natural frequency, the noisy sheet is a gradient system, and in the harmonic
-approximation the variance of the phase difference between two sites is the
-noise strength times their effective resistance. Disagreement is therefore
-resistance: sites that are well connected, directly or through many parallel
-paths, agree.
-
-\paragraph{Short-range and long-range coupling.} How the coupling strength falls
-off with distance is called its \emph{kernel}. Under short-range coupling the
-resistance grows as the logarithm of distance, with a coefficient inversely
-proportional to the kernel's second moment, a measure of its width. The
-logarithmic growth is a lower bound for every kernel of bounded range, so
-agreement that does not fade with distance needs coupling of unbounded range. A
-kernel whose tail falls off more slowly than $r^{-4}$ supplies it: such a tail
-bounds the resistance at every distance. Both results match classical theory.
-The logarithm is the Gaussian form of the fact that short-range coupling cannot
-give true long-range order in two dimensions \citep{mermin1966}. The threshold
-$r^{-4}$ is where a random walk with the kernel's jumps passes from returning to
-its start to escaping \citep{chung1951,doyle1984}, and where the plane rotator
-gains true long-range order at low noise \citep{kunz1976}.
-Appendix~\ref{app:reach} gives the arguments and the classical correspondence.
-
-\paragraph{What a finite cortex can tell apart.} Simulated sheets follow the
-harmonic identity in the ordered phase, and the kernel's width sets both the
-order--disorder crossover and the rate at which agreement fades
-(Appendix~\ref{app:reach}). Across a cortex of finite size, a wide short-range
-kernel and a slowly falling tail therefore differ only by a slowly growing
-logarithm. Telling them apart takes a measurement of the kernel's second moment
-as well as of its tail exponent.
-
-\paragraph{Three facts that need no approximation.} First, adding coupling never
-raises the effective resistance, so a long-range tail added to a short-range
-kernel can only improve agreement, whatever its shape. Second, a direct coupling
-between two sites caps their resistance at its reciprocal, at any distance.
-Third, a Lipschitz encoder, one whose output changes by at most a fixed multiple
-$L$ of any change in its input, carries phase agreement over to content
-agreement: the mean-square content discrepancy is at most $L^2$ times the
-mean-square phase difference. Combined with the harmonic identity, an encoder of
-Lipschitz constant $L$ at noise strength $D$ has root-mean-square content
-discrepancy at most $L\sqrt{D\,R_{\mathrm{eff}}}$ between two sites of effective
-resistance $R_{\mathrm{eff}}$.
-
-\paragraph{Content can agree where phases differ.} Picture a travelling wave
-sweeping across the sheet. Every site has a different phase, yet every site
-sees the same local pattern: the same wave passing at the same speed. An encoder
-that reads the phases of a small neighbourhood relative to the phase at its
-centre reports the same content at every site of such a plane wave, whatever its
-gradient, and at every site of a winding on a ring or torus. For a wave plus a
-departure from it, the content discrepancy between two sites of a Lipschitz
-relative encoder is at most its Lipschitz constant times the departure's
-relative readings at the two sites. The gradient of the wave and the
-distance between the sites are absent from it. Travelling waves and windings,
-the configurations that attain the worst case of a hop-by-hop chain bound, cost
-a relative encoder nothing. What it pays for is the local roughness of the
-field.
+\paragraph{From phases to contents.} A Lipschitz encoder, whose output changes
+by at most $L$ times any change in its input, carries phase agreement to content
+agreement: at noise strength $D$ the root-mean-square content discrepancy
+between two sites is at most $L\sqrt{D\,R_{\mathrm{eff}}}$. An encoder that reads
+the phases of a small neighbourhood relative to the phase at its centre does
+better. It reports one content at every site of a travelling plane wave or a
+winding, whatever the gradient, and for a wave plus a departure from it its
+discrepancy between two sites is at most its Lipschitz constant times the
+departure's relative readings there, so it pays for the local roughness of the
+field and for nothing else. Both bounds read one oscillator population per
+content patch. Across centimetres, where two territories describing one
+quantity need not be neighbours on the sheet, that reading is the companion's
+bridge assumption, and the coupling's reach bounds phase disagreement there
+directly and content disagreement through it.
 
 \paragraph{Agreement in time.} A contraction that finishes after the content has
 changed enforces agreement on a content already replaced, so enforced agreement
@@ -920,7 +888,7 @@ for a sheet that supplies the site counts and couplings of a dyadic chain of
 discs. That a kernel of finite second moment leaves the resistance unbounded is
 the classical recurrence criterion, for translation-invariant kernels on the
 lattice; that the growth is logarithmic is established numerically on finite
-sheets. Above the order--disorder crossover of Section~\ref{sec:reach} the
+sheets. Above the order--disorder crossover of Appendix~\ref{app:reach} the
 harmonic identity fails and agreement is lost at every distance.
 
 \item \emph{Attractors.} The answer for attractor networks takes the unified
@@ -944,7 +912,8 @@ reduction factor of disagreement.
 
 \item \emph{From phases to contents.} The step from phase agreement to content
 agreement assumes one oscillator population per content patch, which is a
-modelling choice about cortex.
+modelling choice about cortex and, across centimetres, the companion's bridge
+assumption.
 
 \item \emph{The field.} A long-range tail improves agreement only in proportion
 to its conductance against the short-range part. The field of a local cortical

@@ -145,12 +145,18 @@ comes back badly; above 6 needs data (a bridge pilot).
   the voltages one system; unity is of contents, read through margins, which
   factor to within the error rate. "Its contents are as many systems as it has
   bits, carried on voltages that form one."
-- [ ] **U53 — Demote or compress §reach.** The r^−4 threshold is classical
+- [x] **U53 — Demote or compress §reach.** The r^−4 threshold is classical
   (Chung–Fuchs, Kunz–Pfister), and the field estimate shows the
   non-synaptic tail dies within millimetres, so at centimetre scale the
   section says only that synapses are graded. Candidate: drop r^−4 from the
   abstract and claim 2, compress the section, keep the proofs in the
   appendix. Must be consistent with U19's restatement.
+  *Done 2026-09-27 with U19's unity half:* r^−4 out of the abstract and
+  claim 2; §reach is two paragraphs plus "Agreement in time" (proofs and
+  simulations in `app:reach`). Claim 2 is at the phase level; "From phases
+  to contents" names the companion's bridge assumption across centimetres,
+  and Limitations says the same. The field sentence says the long-range part
+  is synaptic.
 - [x] **U54 — The weak-nudge prediction is low-risk.** Weak fields shifting
   graded decoded content in connected areas is expected under almost any
   theory, so the test can refute P but barely confirms it. Say so in §tests,
@@ -266,6 +272,8 @@ comes back badly; above 6 needs data (a bridge pilot).
   distance, but only with a kernel tail slower than `r^−4`. One sentence in
   each introduction so the pair reads as one program. Companion side goes in
   its v2 (U20).
+  *Unity half done 2026-09-27 (U53):* the companion was already cited as a
+  manuscript, which sufficed; only the companion half (v2, U20) remains.
   *Blocked 2026-09-25:* the unity side needs a citation of the companion,
   which has no arXiv identifier yet; write both halves once it is posted.
   *Review 2026-09-27:* read together, the two papers make this gap more
