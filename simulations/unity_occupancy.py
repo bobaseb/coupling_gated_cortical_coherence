@@ -125,14 +125,24 @@ class NeuronConfig:
     window_ms: float
 
 
-def _step(grid: Grid, membrane: Membrane, dt_ms: float) -> tuple[FloatArray, FloatArray]:
-    """Surviving transition ``T[j, i]`` from node ``i`` to ``j``, and each node's spike mass."""
+def _step(
+    grid: Grid, membrane: Membrane, dt_ms: float, share: float = 0.0, offset: float = 0.0
+) -> tuple[FloatArray, FloatArray]:
+    """Surviving transition ``T[j, i]`` from node ``i`` to ``j``, and each node's spike mass.
+
+    With ``share > 0`` the step carries only the private part of the noise, a
+    fraction ``1 − share`` of its variance, and the shared part's increment
+    moves every centre by ``offset`` (``unity_correlated``). A crossing between
+    samples is still counted with the whole spread, since neither part is
+    observed between them.
+    """
     v = grid.nodes
     decay = math.exp(-dt_ms / membrane.tau_ms)
     spread = math.sqrt(1.0 - decay**2)
-    centre = membrane.mean + (v - membrane.mean) * decay
+    centre = membrane.mean + (v - membrane.mean) * decay + offset
     upper = np.append(v[:-1] + grid.step / 2, 0.0)
-    cumulative = ndtr((upper[:, None] - centre[None, :]) / spread)
+    private = spread * math.sqrt(1.0 - share)
+    cumulative = ndtr((upper[:, None] - centre[None, :]) / private)
     cell = np.diff(np.vstack([np.zeros_like(centre), cumulative]), axis=0)
     # A path between two sub-threshold samples may still have crossed.
     bridge = np.exp(-2.0 * np.outer(v, v) / spread**2)
@@ -200,9 +210,11 @@ def _reset_mass(grid: Grid, voltage: float) -> FloatArray:
     return mass
 
 
-def _chain(grid: Grid, membrane: Membrane, dt_ms: float) -> tuple[FloatArray, FloatArray]:
+def _chain(
+    grid: Grid, membrane: Membrane, dt_ms: float, share: float = 0.0, offset: float = 0.0
+) -> tuple[FloatArray, FloatArray]:
     """One time step over the nodes then the refractory stages, and each node's spike mass."""
-    surviving, spiking = _step(grid, membrane, dt_ms)
+    surviving, spiking = _step(grid, membrane, dt_ms, share, offset)
     n, stages = grid.nodes.size, max(1, round(membrane.refractory_ms / dt_ms))
     chain = np.zeros((n + stages, n + stages))
     chain[:n, :n] = surviving

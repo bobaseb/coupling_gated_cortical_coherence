@@ -290,3 +290,8 @@ depends_on = ["spatial_kernel"]
 [[modules]]
 path = "unity_occupancy"
 layer = "simulation"
+
+[[modules]]
+path = "unity_correlated"
+layer = "simulation"
+depends_on = ["unity_occupancy"]

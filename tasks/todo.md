@@ -67,6 +67,27 @@ margin theorem excludes content read from bits. Constraints and history:
   `\uCor…` macros through `unity_macros.py` with drift and mutation tests;
   abstract and claim 1 only if the result changes them; PDF, arXiv build,
   CHANGELOG if a claim is withdrawn.
+  *(a) done 2026-09-27; stopped before (d) under the outcome policy.*
+  `unity_correlated.py` → `correlated.json` (256 shared paths, seed
+  20260927, ~55 min on the Pi); the shared increment is applied inside the
+  exact step (a linear split added spurious variance, ~10 % bias in h). The
+  marginal is unchanged (h̄ within MC error); resolution check: ρ 0.365 →
+  0.367, links agree to 1e-3. Worst regime, smallest noise share (1/16):
+  400 ms link with K = 100 is 0.9999 / 0.9986 / 0.988 / 0.907 / 0.72 at
+  c = 0 / 0.25 / 0.5 / 0.75 / 0.9 (K = 1000: 0.99 at c = 0.75); c* ≥ 0.75 in
+  every regime and scale, ≥ 0.9 in 8 of 12. ρ up to 0.29 at c = 0.75.
+  **Two printed statements fail at realistic c:** "a window without one
+  [K = 100] occurs less than once in 10^3" (miss 0.0014 at c = 0.25, 0.012
+  at 0.5, 0.093 at 0.75) and "within 40 ms the probability is at least 0.59"
+  (0.51 / 0.38 / 0.23). The headline (a passing carrier within 400 ms with
+  high probability) survives to c ≈ 0.75 at K = 100. (c) anchor verified
+  qualitatively: Poulet & Petersen 2008, *Nature* 454:881–885, "highly
+  correlated during quiet wakefulness", reduced during whisking; the
+  numbers 0.72 ± 0.11 / 0.33 ± 0.17 are from a search summary, **not yet
+  read in the paper**. The same abstract: single spikes are driven by "a
+  large, brief and specific excitatory input that was not present in the
+  V(m) of neighbouring cells", i.e. the near-threshold drive is private,
+  which the one-component model does not capture. (b) Lean not started.
 
 *Review pass 2026-09-27 (score 4/10 standalone, ~4.5 read with the
 companion; 5 = reject).* Verdict: well written, honest about its limits,
