@@ -673,7 +673,7 @@ it to about 7.*
 are what keeps it below 7, most severe first. U81 and U82 are the ones a
 hostile reviewer would open with.*
 
-- [ ] **U81 — "Next content" must predate the chip case.** U75 confirmed the
+- [x] **U81 — "Next content" must predate the chip case.** U75 confirmed the
   review's worry at the voltage level: a switching node's crossing time passes
   at 0.02–0.5% of its states, inside the membrane's 0.014–2.3%, in every
   window. The separation now rests on the sixth definition (a carrier's next
@@ -688,6 +688,16 @@ hostile reviewer would open with.*
   **Success.** §enforcement has five definitions again, or the sixth is stated
   as a lemma of §cover's; no sentence introduces the reader-relative reading
   only where the chip needs it.
+  *Done 2026-09-27:* §cover's carrier paragraph now says the first condition
+  (the driven regions respond to it) fixes *when* a variable is a carrier: a
+  reader responds at the times it takes the variable, so a cell's spike time is
+  taken on arrival and a latch's input only inside its aperture at the edge,
+  the voltage between edges being a trace like the supply current. Next content
+  = what the readers take next, stated there as a consequence, before any chip
+  is counted. §enforcement is back to five definitions, the closed-content one
+  pointing to §cover for π(f(x)); the switching-chip paragraph cites the carrier
+  condition. The membrane's next content (first spike in the window) and the
+  latch's (value at the edge) are unchanged, so both results follow as before.
 - [ ] **U82 — The synchronizer by principle, not by protocol.** A
   synchronizer's first stage latches transitions by design, 8×10^5 times per
   400 ms, and its resolution passes. The paper answers that it decides the

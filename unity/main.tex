@@ -167,6 +167,17 @@ of the circuit reads the current, so the current is a trace. In cortex the
 membrane potential and the timing of spikes are carriers, because the
 postsynaptic cells integrate them.
 
+The first condition fixes when a variable is a carrier as well as which one. A
+reader responds to a variable at the times it takes it, so the variable carries
+content at those times and is a trace between them. A cortical cell integrates
+a presynaptic spike as it arrives, so the time of each spike is taken when it
+happens. A clocked latch responds to its input only inside a short aperture at
+the clock edge, so the input's value there is a carrier, and the course of the
+voltage between edges, which no reader takes, is a trace, as the supply current
+is. A carrier's \emph{next content} is therefore what its readers take from it
+next, at the time they take it: for a membrane the time of its next spike, and
+for a node that feeds a latch its value at the next clock edge.
+
 Agreement is measured between regions whose contents represent a shared
 variable. The regions, and the content variable of each, are fixed by this
 causal role and by decodability before agreement is measured, so that nobody can
@@ -239,7 +250,7 @@ theorems say that records never make one while graded coupling does. Where
 cortex and a chip hold their carriers is measured, by the occupancy computation
 at the end of the section.
 
-The argument needs six definitions. Each is stated in words first.
+The argument needs five definitions. Each is stated in words first.
 
 A system has a physical state, its \emph{micro state} $x=(x_i)_i$, made up of
 the states $x_i$ of its regions. One step of its physics carries $x$ to $f(x)$.
@@ -247,14 +258,9 @@ A \emph{content map} $\pi$ reads each region's content off the micro state. The
 content level is \emph{closed} when the next content can be computed from the
 current content alone, without looking at the micro state:
 $\pi\circ f = g\circ\pi$ for some content dynamics $g$. A digital computer is
-built so that its logical level is closed in this sense.
-
-A carrier's \emph{next content} is what its readers take from it, at the times
-they take it. Cortical cells integrate a presynaptic spike as it arrives, so a
-membrane's next content is the time of its next spike. A latch reads its input
-at a clock edge, so the next content of a node that feeds a latch is its value
-at the edge, and what the node does between edges is a trace in the sense of
-Section~\ref{sec:cover}.
+built so that its logical level is closed in this sense. The next content
+$\pi(f(x))$ of a carrier is what its readers take from it next, as the carrier
+condition of Section~\ref{sec:cover} fixes.
 
 A readout has a \emph{noise margin} on a set of states when every state in the
 set can be nudged a little without changing what is read, that is, when each
@@ -603,8 +609,8 @@ pass there, at \uSwNodePassMinPercent{} to \uSwNodePassMaxPercent\% of its
 states, within the membrane's range, and within every window of
 \uOccContentShortMs{}~ms except with probability below
 $10^{-\uSwNoTransitionOrders}$. Counted at the voltage, a chip passes per window
-as a membrane does. Its next content is what its latch reads at the clock edge,
-and timing closure keeps every transition on a clocked path outside the latch's
+as a membrane does. By the carrier condition of Section~\ref{sec:cover}, its
+next content is what its latch reads at the clock edge, and timing closure keeps every transition on a clocked path outside the latch's
 setup-and-hold window \citep{ginosar2011}, so the latch reads the node at its
 rail: the restored bit above, which passes at none of its states and in no
 window. The crossing a latch discards is the content a membrane delivers,
