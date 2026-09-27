@@ -467,6 +467,41 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   'Reach', 'Attractors' into 'Which variables are contents'. 'The premise'
   names the cortical tests as what bears on P; 'The bridge's reach' notes an
   account that sees the quantizer already sits at P's grain.
+- [ ] **U73 — Lean: the record regress as a theorem.** §enforcement 'Unity
+  is not one more content' argues in prose that a rule reading and writing
+  records only adds a record, and that the margin stops the regress. The
+  mereological step (unity is not a further content, Bayne 2010) stays a
+  cited premise; the regress step is formalizable in `Phase10_PhysicalUnity`
+  with `CoupledAtNoiseFloor`, `SameSystem`, `response_le_of_marginRate`.
+  (a) *A record joins nothing:* a region whose content has a margin rate
+      `ε < θ`, with every region admitting a change above its noise within
+      the margin's width, is coupled to no region; `SameSystem r j ↔ r = j`.
+      Must hold when the other regions are graded (not only bits).
+  (b) *No chain passes through a record:* for `i j ≠ r`, `SameSystem i j`
+      in the extended system iff an `EqvGen` chain of couplings avoiding `r`
+      joins them; by induction, for any finite set of records (rules on
+      rules). The fiddly part is the `EqvGen` restriction.
+  (c) *A graded reader joins:* three regions under `noisyLin` (U34), `i` and
+      `j` uncoupled, each coupled to a graded reader `g`; then
+      `SameSystem i j`. The stopping point: a reader on the chain, not a
+      record beside it.
+  Order: failing statements first, then proofs; then `tab:formal` rows and
+  the paragraph rewritten to argue from them (claims: records drop out of
+  every chain, graded readers stay in), with rebuilt PDF; then the proof
+  companion rebuild (see the lean-change rebuild chain). Add a Limitations
+  scope item for the write-back case unless U74 lands.
+  **Success.** The regress claim has table rows; the only prose-only step
+  left in the paragraph is the cited mereological premise.
+- [ ] **U74 — Lean (stretch): write-back through a record adds no link.**
+  U73 shows the record itself joins nothing, but a rule that writes
+  corrections back could in principle couple `i` to `j` directly. Hypothesis
+  needed: `j`'s next content depends on region `i` only through the record's
+  symbol (the dynamics factors through it). Then a change of `i` within the
+  margin's width moves `j`'s content by at most the record's error rate, so
+  the rule creates no coupling `i`–`j` at the noise floor. Harder than U73:
+  the factoring hypothesis must be stated on the noisy dynamics, and the
+  bound composed through two noisy steps. If it lands, drop the Limitations
+  item U73 adds; if not, the item stays.
 
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
