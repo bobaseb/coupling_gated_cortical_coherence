@@ -363,7 +363,7 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   shortest relaxation time of app:window (160 ms); if matching would take it
   lower, the quantizer's step is coarsened instead. unity_estimates.py
   generates the macro, with a test.
-- [ ] **U62 — Analog in-memory accelerators.** §ai says analog, in-memory
+- [x] **U62 — Analog in-memory accelerators.** §ai says analog, in-memory
   and neuromorphic substrates "can satisfy P", so the same transformer on a
   crossbar and on a GPU would differ in unity: the reductio "The margin's
   width" tries to defuse. Say which way P decides current analog in-memory
@@ -371,6 +371,13 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   layers, which would put them under the margin theorem; if so, say so, and
   what a passing design would need (no restoring stage between coupled
   graded contents). Verify the ADC claim against a source before stating it.
+  *Done 2026-09-27:* new §ai paragraph 'Analog in-memory accelerators': in a
+  64-core phase-change chip each row's current is digitized by its own ADC
+  into integers, and activations and inter-core traffic run on them (Le Gallo
+  et al. 2023, Nature Electronics 6:680-693, verified online and in the arXiv
+  full text), so contents crossing a converter fall under the margin lemma and
+  such a chip fails P between layers; a passing design needs coupled graded
+  contents with no restoring stage between them.
 - [ ] **U63 — Literature on analog versus digital representation.** The
   definition of a symbol as "a content read through a noise margin"
   (§ai, "Symbols and physical contents") sits next to Piccinini's account of

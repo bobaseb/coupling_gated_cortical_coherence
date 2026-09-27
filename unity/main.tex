@@ -588,6 +588,19 @@ same terms: a neural circuit whose contents were read only from all-or-none
 events latched far from threshold would fall under the margin lemma as any
 digital circuit does.
 
+\paragraph{Analog in-memory accelerators.} In analog in-memory hardware a
+layer's products are currents summed on the lines of a memory array, which is
+graded, and are then digitized. In a 64-core phase-change chip each row's
+current is converted by its own analog-to-digital converter into integers, and
+activation functions and the traffic between cores run on those integers
+\citep{legallo2023}. The next layer's content is then read from bits, so the
+margin lemma applies to every content that crosses a converter, and such a chip
+fails P between layers as a digital chip does; its graded stage lies inside
+each product and couples no two contents. A design passes only where coupled
+graded contents meet with no restoring stage between them: column currents
+driving the next array directly, or oscillators and membranes coupled through
+shared conductances, as above.
+
 \paragraph{Why spikes are not bits.} Spikes are all-or-none events, and what
 makes them graded carriers is their timing. When a membrane potential rises
 through threshold, the moment it crosses moves continuously with any small
