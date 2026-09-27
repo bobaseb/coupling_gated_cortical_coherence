@@ -138,6 +138,11 @@ def _window_values(neurons: list[dict[str, Any]]) -> list[tuple[str, str]]:
 def _regime_values(neurons: list[dict[str, Any]]) -> list[tuple[str, str]]:
     """The declared ranges, and where the membrane sits and passes across them."""
     passing = [100 * _finite(n["pass_fraction"]) for n in neurons]
+    # A reader that registers only whether the membrane fired within the window.
+    counted = [
+        100 * _finite(n["latched_pass_fraction"][f"{_finite(n['config']['window_ms']):g}"])
+        for n in neurons
+    ]
     distance = [_finite(n["mean_distance"]) for n in neurons]
     tau, rate, window = (_config_range(neurons, k) for k in ("tau_ms", "rate_hz", "window_ms"))
     return [
@@ -151,6 +156,8 @@ def _regime_values(neurons: list[dict[str, Any]]) -> list[tuple[str, str]]:
         ("uOccDistanceMax", f"{max(distance):.1f}"),
         ("uOccPassMinPercent", f"{min(passing):.2g}"),
         ("uOccPassMaxPercent", f"{max(passing):.2g}"),
+        ("uOccCountPassMinPercent", f"{min(counted):.2g}"),
+        ("uOccCountPassMaxPercent", f"{max(counted):.2g}"),
     ]
 
 

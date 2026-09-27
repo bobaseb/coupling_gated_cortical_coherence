@@ -136,6 +136,23 @@ class UnityMacroTests(unittest.TestCase):
         high = float(values["uOccPassMaxPercent"].rstrip("}"))
         self.assertLess(low, high)
 
+    def test_a_reader_that_discards_every_spike_time_still_finds_passing_states(self) -> None:
+        values = dict(
+            entry.split("}{", 1)
+            for entry in render(FIGURES).replace("\\newcommand{\\", "\n").splitlines()
+            if "}{" in entry
+        )
+        low = float(values["uOccCountPassMinPercent"].rstrip("}"))
+        high = float(values["uOccCountPassMaxPercent"].rstrip("}"))
+        self.assertGreater(low, 0.0)
+        self.assertLessEqual(high, float(values["uOccPassMaxPercent"].rstrip("}")))
+        summary = json.loads((FIGURES / "unity_occupancy" / "summary.json").read_text())
+        shortest = min(n["config"]["window_ms"] for n in summary["neurons"])
+        for n in summary["neurons"]:
+            if n["config"]["window_ms"] == shortest:
+                counted = n["latched_pass_fraction"][f"{shortest:g}"]
+                self.assertAlmostEqual(counted, n["pass_fraction"], places=12)
+
     def test_a_nonfinite_value_is_rejected(self) -> None:
         with self.assertRaises(ValueError):
             render(self._mutated("nonfinite"))

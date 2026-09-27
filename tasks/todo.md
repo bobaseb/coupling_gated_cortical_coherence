@@ -797,7 +797,7 @@ to about 7.*
   other. Consider a test that pins the claim each macro supports (e.g. the
   synchronizer's share is zero above `BINARY_CEILING`). **Success.** A
   checklist with every macro ticked, and fixes committed.
-- [ ] **U88 — The per-window rescue is still the soft spot.** The membrane
+- [x] **U88 — The per-window rescue is still the soft spot.** The membrane
   passes at only 0.014–2.3% of its states. The switching node's crossing time
   passes at a similar rate and is rejected only because no reader takes it, so
   the separation rests entirely on the carrier condition (U81). Hostile
@@ -805,6 +805,18 @@ to about 7.*
   cells read spike times as they arrive (evidence for spike-timing-dependent
   integration, not just rate readout) and state what P predicts if cortical
   readers turned out to integrate over windows that discard sub-jitter timing.
+  *Done 2026-09-27:* the saved occupancy summary already held the case: spike
+  times binned to the whole next-content window, i.e. a reader that registers
+  only whether the membrane fired. It passes at 0.014–2.3% of states (new
+  `uOccCountPassMin/MaxPercent`), and at exactly the timing reader's share in
+  every 10 ms regime (pinned in `test_unity_macros`). So the membrane's verdict
+  no longer rests on readers taking spike times; a count reader responds at
+  least as much (data processing). The same reader of a chip node takes a
+  quantity fixed by restored logical inputs. §cover's carrier paragraph now
+  cites the millisecond integration windows (Pouille & Scanziani 2001, Gabernet
+  et al. 2005, König et al. 1996, Panzeri et al. 2001; verified on Crossref and
+  PubMed). P's refutation condition is stated: readers that pool only over
+  windows longer than a content's time scale would make P deny cortex unity.
 - [x] **U89 — Cases the analysis leaves open.** (a) The binary ceiling
   Φ(1)−1/2 assumes Gaussian noise; a sharply peaked unimodal law can put more
   mass within one amplitude. State the class of noise laws for which one bit

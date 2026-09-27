@@ -171,7 +171,11 @@ The first condition fixes when a variable is a carrier as well as which one. A
 reader responds to a variable at the times it takes it, so the variable carries
 content at those times and is a trace between them. A cortical cell integrates
 a presynaptic spike as it arrives, so the time of each spike is taken when it
-happens. A clocked latch responds to its input only inside a short aperture at
+happens: feed-forward inhibition confines a pyramidal cell's integration of its
+inputs to a window of a few milliseconds \citep{pouille2001,gabernet2005},
+short against the interval between the spikes it receives \citep{konig1996},
+and the timing of first spikes in somatosensory cortex carries information about
+a stimulus that the spike count does not \citep{panzeri2001}. A clocked latch responds to its input only inside a short aperture at
 the clock edge, so the input's value there is a carrier, and the course of the
 voltage between edges, which no reader takes, is a trace, as the supply current
 is. A carrier's \emph{next content} is therefore what its readers take from it
@@ -531,6 +535,24 @@ probability as low as \uOccInstantLinkMin{}, which is why P is stated per
 window. Reading the spike time through a clock of \uOccLatchShortMs{} or
 \uOccLatchLongMs{}~ms leaves the passing fraction unchanged.
 
+The membrane's result does not rest on its readers taking spike times. A reader
+that registers only whether the membrane fired within the window, discarding
+every spike time, finds it passing at \uOccCountPassMinPercent{} to
+\uOccCountPassMaxPercent\% of its states, and with a next content of
+\uOccNextShort{}~ms at the same share of states in every regime as a reader of
+spike times. What a change of one noise amplitude moves, at a membrane a few
+amplitudes below threshold, is the chance that it fires within the window, and
+a spike count registers that; a count responds at least as much as this reader,
+since whether the membrane fired is a function of the count. So P classes a
+cortical membrane as a graded carrier whether its readers integrate spike times
+at the grain of milliseconds, as the evidence cited in
+Section~\ref{sec:cover} indicates, or pool spikes over the content's window.
+What P needs of cortical readers is that they take the membrane within the
+window: if every reader pooled spikes only over windows longer than a content's
+time scale, no reader would register the regions a content overlaps within its
+window, P would deny unity to the cortex whose unity motivates it, and that
+would count against P.
+
 Neighbouring membranes share input, and in awake cortex their potentials are
 highly correlated during quiet wakefulness and less so during active behaviour
 \citep{poulet2008}. We model this as a shared component carrying a fraction $c$
@@ -558,8 +580,12 @@ Section~\ref{sec:cover}, its next content is what its latch reads at the clock
 edge, and timing closure keeps every transition on a clocked path outside the
 latch's setup-and-hold window \citep{ginosar2011}, so the latch reads the node
 at its rail: the restored bit above, which passes at none of its states and in
-no window. The crossing a latch discards is the content a membrane delivers,
-because a membrane's readers integrate its spike times as they arrive. The one
+no window. The crossing a latch discards is the content a membrane delivers
+when its readers integrate spike times as they arrive, and the separation does
+not depend on that reading. A reader that registered only whether a node
+switched within a cycle would take a quantity fixed by the node's logical
+inputs, which are restored bits, and moved by its noise only through the error
+rate, whereas the same reader of a membrane passes, as shown above. The one
 place a working chip latches a transition is a synchronizer between clock
 domains. With a \uSwAperturePs{}~ps aperture and data changing every tenth cycle
 \citep{ginosar2011}, its first stage samples inside the aperture at most
