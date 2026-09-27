@@ -720,7 +720,17 @@ the region, and the quantized loop then fails at no more than
 \ueNoiseMatchFailPercent\% of its states, taking states as uniform within a
 step. The analog loop's bandwidth is lowered instead, with no noise added,
 until the transfer entropy it carries, estimated from the recorded activity,
-matches the quantized loop's. The step is then free: at a step of
+matches the quantized loop's. Lowering the bandwidth slows the loop, and a loop
+that settles after the content has changed fails P's timing condition
+(Section~\ref{sec:reach}) however gradedly it couples. A first-order filter
+with cutoff $f_c$ settles with time constant $1/(2\pi f_c)$, and the bridged
+coupling relaxes no faster than its loop, so the analog loop's cutoff is kept
+at or above \ueBridgeMinCutoffHz{}~Hz, whose time constant equals the shortest
+relaxation time that brings agreement in time in Appendix~\ref{app:window}. If
+matching would take the cutoff lower, the quantizer's step is coarsened
+instead, which lowers the quantized loop's transfer entropy and raises the
+share of its states that fail. A null result then cannot come from an analog
+loop too slow for the content's window. Above that floor the step is free: at a step of
 \ueBridgeStepToNoise{} noise amplitudes, with recording noise no larger than
 the region's own, the quantized loop fails at \ueBandMatchFailPercent\% of its
 states or more. Stepping the quantized loop's resolution checks that its
@@ -747,7 +757,7 @@ two areas that represent a shared variable, interrupts the natural connection
 between them, and alternates the two loops across blocks in the same animal.
 Transfer entropy \citep{schreiber2000} is estimated from each block's
 recordings, and the analog loop's cutoff is set on pilot blocks to match the
-quantized loop's. The readout is the companion's excess decoded agreement
+quantized loop's, above the floor that keeps it in time. The readout is the companion's excess decoded agreement
 between the two areas, and the number of trials follows from that statistic's
 power, which the companion's test fixes.
 

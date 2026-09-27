@@ -240,6 +240,11 @@ def quantized_fail_fraction(step: float, region_noise: float, recording_noise: f
     return max(0.0, 1 - 2 * fail_distance(region_noise, recording_noise) / step)
 
 
+def loop_min_cutoff_hz(tau: float) -> float:
+    """The lowest first-order cutoff whose time constant is at most ``tau`` seconds."""
+    return 1 / (2 * math.pi * tau)
+
+
 def bridge() -> dict[str, float]:
     """The U28 check: where the bridge's two loops fall on opposite sides of P."""
     # A passing analog arm matched by noise has matched_noise(step) ≤ σ_A.
@@ -271,7 +276,7 @@ def estimates() -> dict[str, float]:
     """Every published quantity, in the units the paper states it."""
     cone_slow = cone_delay(FIBRE_LENGTH_M, VELOCITY_SLOW_M_S, SYNAPTIC_DELAY_S)
     cone_fast = cone_delay(FIBRE_LENGTH_M, VELOCITY_FAST_M_S, SYNAPTIC_DELAY_S)
-    return {
+    values = {
         "fibreCm": 100 * FIBRE_LENGTH_M,
         "velocitySlow": VELOCITY_SLOW_M_S,
         "velocityFast": VELOCITY_FAST_M_S,
@@ -297,6 +302,9 @@ def estimates() -> dict[str, float]:
         **noise_floor(),
         **bridge(),
     }
+    # The bridged coupling relaxes no faster than its loop's filter.
+    tightest = min(values["tauSlowMs"], values["tauFastMs"], values["tauLocalMs"])
+    return {**values, "bridgeMinCutoffHz": loop_min_cutoff_hz(tightest / 1000)}
 
 
 def _format(value: float) -> str:

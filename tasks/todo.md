@@ -348,7 +348,7 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   and why: a region is many carriers, a content is held over its time scale,
   and the strong form would split a single noisy neuron from its own inputs
   between spikes. U47(d) had already settled the correlated-carrier numbers.
-- [ ] **U61 — Bridge timing confound.** Matching transfer entropy by lowering
+- [x] **U61 — Bridge timing confound.** Matching transfer entropy by lowering
   the analog loop's bandwidth slows its relaxation, and §reach's "agreement
   in time" condition then fails P for a graded but too-slow loop. A null
   result would be ambiguous between "unity does not follow graded coupling"
@@ -356,6 +356,13 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   loop's relaxation time within the content window (`app:window`'s τ bound),
   or state it as a design constraint on the cutoff with its bound computed
   from the macros. Reopens U48: the centerpiece must not carry this hole.
+  *Done 2026-09-27:* stated as a design constraint with its bound from the
+  macros. A first-order loop settles with time constant 1/(2π f_c) and the
+  bridged coupling relaxes no faster than its loop, so the analog cutoff stays
+  at or above \ueBridgeMinCutoffHz (0.99 Hz), whose time constant is the
+  shortest relaxation time of app:window (160 ms); if matching would take it
+  lower, the quantizer's step is coarsened instead. unity_estimates.py
+  generates the macro, with a test.
 - [ ] **U62 — Analog in-memory accelerators.** §ai says analog, in-memory
   and neuromorphic substrates "can satisfy P", so the same transformer on a
   crossbar and on a GPU would differ in unity: the reductio "The margin's

@@ -137,6 +137,13 @@ class BridgeTest(unittest.TestCase):
         self.assertGreater(coarse, fine)
         self.assertEqual(ue.quantized_fail_fraction(1.0, 1.0, 1.0), 0.0)
 
+    def test_the_slowest_admissible_loop_settles_within_the_tightest_deadline(self) -> None:
+        self.assertAlmostEqual(ue.loop_min_cutoff_hz(1 / (2 * math.pi)), 1.0)
+        est = ue.estimates()
+        tightest = min(est["tauSlowMs"], est["tauFastMs"], est["tauLocalMs"])
+        cutoff = est["bridgeMinCutoffHz"]
+        self.assertAlmostEqual(1000 / (2 * math.pi * cutoff), tightest)
+
 
 class GeneratedFileTest(unittest.TestCase):
     def test_the_committed_file_matches_the_script(self) -> None:
