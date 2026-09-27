@@ -378,7 +378,7 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   full text), so contents crossing a converter fall under the margin lemma and
   such a chip fails P between layers; a passing design needs coupled graded
   contents with no restoring stage between them.
-- [ ] **U63 — Literature on analog versus digital representation.** The
+- [x] **U63 — Literature on analog versus digital representation.** The
   definition of a symbol as "a content read through a noise margin"
   (§ai, "Symbols and physical contents") sits next to Piccinini's account of
   digital computation, Maley's analyses of analog representation, and
@@ -386,6 +386,12 @@ written in), then U61, U59, U60, U62, U63, U64 last.
   verify authors, titles, years and venues online per AGENTS.md §4 before
   citing). One or two sentences each in §related: where P's margin
   definition agrees or differs.
+  *Done 2026-09-27:* new §related paragraph 'Analog and digital': Piccinini
+  2008 (Pacific Phil. Q. 89:32-73), Maley 2011 (Phil. Studies 155:117-131) and
+  Maudlin 1989 (J. Phil. 86:407-432), each verified online. P's symbol is
+  Piccinini's reliable digit stated in the parts' noise; P's line follows
+  Maley's discrete/continuous pair, not analog/digital; P's counterfactual
+  condition is on present activity, which Maudlin's idle machinery fails.
 - [x] **U64 — Split "Counting systems at the noise floor".** About 50 lines
   in one paragraph (§enforcement); the lines after "The count looks strange"
   read as patched in. Three paragraphs: the scale the parts supply; the chip
