@@ -16,6 +16,7 @@ class UnityMacroTests(unittest.TestCase):
         self.assertIn("simulations/unity_macros.py", text)
         self.assertIn("\\uHarmonicRatioLow", text)
         self.assertIn("\\uOccPassMaxPercent", text)
+        self.assertIn("\\uYardBestMin", text)
         self.assertIn("figures/unity_occupancy/", text)
 
     def test_every_macro_the_paper_uses_is_generated(self) -> None:
@@ -34,8 +35,14 @@ class UnityMacroTests(unittest.TestCase):
             occupancy["neurons"] = []
         if change == "nonfinite_link":
             occupancy["neurons"][0]["window_hit_probability"]["1"]["400"] = float("nan")
+        yardstick = json.loads((FIGURES / "unity_occupancy" / "yardstick.json").read_text())
+        if change == "nonfinite_best":
+            yardstick["neurons"][0]["best_response"]["1"] = float("nan")
+        if change == "no_yardsticks":
+            yardstick["yardsticks"] = []
         (root / "unity_occupancy").mkdir()
         (root / "unity_occupancy" / "summary.json").write_text(json.dumps(occupancy))
+        (root / "unity_occupancy" / "yardstick.json").write_text(json.dumps(yardstick))
         summary = json.loads((FIGURES / "unity_agreement" / "summary.json").read_text())
         scaling = json.loads((FIGURES / "unity_agreement" / "resistance.json").read_text())
         if change == "no_runs":
@@ -57,6 +64,14 @@ class UnityMacroTests(unittest.TestCase):
     def test_a_nonfinite_window_probability_is_rejected(self) -> None:
         with self.assertRaises(ValueError):
             render(self._mutated("nonfinite_link"))
+
+    def test_a_nonfinite_best_response_is_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            render(self._mutated("nonfinite_best"))
+
+    def test_a_missing_yardstick_sweep_is_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            render(self._mutated("no_yardsticks"))
 
     def test_the_occupancy_ranges_are_ordered(self) -> None:
         values = dict(

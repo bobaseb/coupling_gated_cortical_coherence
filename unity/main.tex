@@ -285,8 +285,8 @@ content to a region at scale $\eta$ is the largest change that moving the region
 by at most $\eta$ makes to the probability of any outcome of the next content, a
 total-variation distance. As the yardstick for a large response we take the one
 that a shift of one standard deviation produces in a Gaussian carrier,
-$2\Phi(1/2)-1=\ueFluctuationTV$: a response above it moves the content by as
-much as the content naturally fluctuates. Graded dependence above the noise
+$2\Phi(1/2)-1=\ueFluctuationTV$: a response of at least this size moves the
+content by as much as the content naturally fluctuates. Graded dependence above the noise
 floor asks the response to reach this fluctuation for every change of the region
 that is larger than its own noise and smaller than the change that crosses one
 of its thresholds. When the region moves a Gaussian carrier linearly, a larger
@@ -346,9 +346,11 @@ grid (Appendix~\ref{app:occupancy}), it sits on average \uOccDistanceMin{} to
 \uOccPassMinPercent{} to \uOccPassMaxPercent\% of the states it occupies. A bit
 restored to a rail at the logic node's margin passes at none of its states, and
 its largest response over them is $10^{-\uOccBitOrders}$. No binary readout
-passes at any margin, because the fluctuation is the largest response a
-threshold under Gaussian noise can give to a change of one noise amplitude; only
-a graded content, such as a spike time, can exceed it.
+passes at any margin: under Gaussian noise, its response to a change of one
+noise amplitude, asked in both directions as the criterion asks, is at most
+$\Phi(1)-1/2=\uYardBinaryCeiling$. A graded content exceeds the fluctuation
+by a wide margin: at its best state the membrane responds by at least
+\uYardBestMin{} in every regime and at every noise share.
 
 A membrane passes at a given instant rarely and within a window often. A
 stationary membrane enters a passing state within \uOccContentLongMs{}~ms, the
@@ -368,6 +370,16 @@ clock of \uOccLatchShortMs{} or \uOccLatchLongMs{}~ms leaves the passing
 fraction unchanged. What separates the membrane from the bit is the distance
 from threshold at which each carrier is held, a few noise amplitudes against
 \ueMarginToNoise{}.
+
+\paragraph{The yardstick.} The separation holds at every yardstick from
+\uYardLow{} to \uYardHigh{}. Across that range the logic node passes at none of
+its states, and the membrane enters a passing state within
+\uOccContentLongMs{}~ms with probability at least \uYardHitMinHigh{} at the
+highest yardstick, rising as the yardstick is lowered. The formal results take
+the yardstick as a parameter and hold at every value of it. The fluctuation is
+the value that makes \emph{large} mean what it means for the carrier itself: a
+change that moves the content by as much as the content moves of its own
+accord.
 
 \section{How far a physical coupling enforces agreement}
 \label{sec:reach}
@@ -974,7 +986,9 @@ chain with the passing states made absorbing. A carrier that supplies a share
 $\varphi$ of the membrane's noise variance has noise amplitude $\sqrt{\varphi}$
 in the membrane's units, and its changes are scaled accordingly. The bit is a
 carrier restored each step to a rail at a declared margin, read after one step of
-unit Gaussian noise, with occupancy given by that noise around the rail. Halving
+unit Gaussian noise, with occupancy given by that noise around the rail. The
+same computation is repeated at yardsticks from \uYardLow{} to \uYardHigh{} in
+place of the fluctuation, at every regime and noise share. Halving
 both the grid spacing and the time step changes the passing fraction by
 \uOccResolutionPercent\%.
 

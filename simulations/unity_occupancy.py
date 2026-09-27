@@ -27,7 +27,9 @@ sampled times is counted with the Brownian-bridge probability
 ``exp(−2 x y / s²)``. Nothing is sampled, so there is no seed. Voltages below
 the grid's floor are lumped into its lowest node; the floor sits far below the
 occupied range. A run at half the grid step and half the time step is saved
-beside the result, as its resolution check.
+beside the result, as its resolution check. ``--yardstick`` repeats the test at
+other yardsticks in place of ``θ*`` and writes ``yardstick.json`` beside it
+(U49), leaving the main summary untouched.
 
 Declared parameters, not measured ones: the time constant spans the in vivo
 high-conductance value, about fivefold below the quiescent one (Destexhe & Paré
@@ -80,6 +82,9 @@ LATCH_PERIODS_MS = (1.0, 5.0)
 BIT_MARGINS = (0.5, 1.0, 2.0, 4.0)
 # Occupied states of a bit: its rail plus this many noise amplitudes either side.
 BIT_SPAN = 8.0
+# Yardsticks at which the separation is rechecked (U49), from a hundredth of a
+# probability to above the fluctuation.
+YARDSTICKS = (0.01, 0.1, 0.2, 0.3, FLUCTUATION_TV, 0.45, 0.5, 0.6)
 
 
 @dataclass(frozen=True)
@@ -267,10 +272,12 @@ def _least_response(table: FloatArray, grid: Grid, node: int, scale: float) -> f
     return min(_tv(table[:, node], table[:, t]) for t in admissible)
 
 
-def passing_states(table: FloatArray, grid: Grid, scale: float) -> NDArray[np.bool_]:
-    """The nodes at which every admissible change moves the next content by ``θ*``."""
+def passing_states(
+    table: FloatArray, grid: Grid, scale: float, yardstick: float = FLUCTUATION_TV
+) -> NDArray[np.bool_]:
+    """The nodes at which every admissible change moves the next content by ``yardstick``."""
     least = [_least_response(table, grid, node, scale) for node in range(grid.nodes.size)]
-    return np.array([r is not None and r >= FLUCTUATION_TV for r in least])
+    return np.array([r is not None and r >= yardstick for r in least])
 
 
 def _occupancy_pass(
@@ -355,7 +362,7 @@ def _log10_bit_response(distance: float, shift: float) -> float:
     return log10_gaussian_tail(low) + math.log10(1.0 - ratio)
 
 
-def bit_summary(margin: float) -> dict[str, float]:
+def bit_summary(margin: float, yardstick: float = FLUCTUATION_TV) -> dict[str, float]:
     """Fraction of a restored bit's occupied states that pass, and its largest response."""
     states = np.linspace(margin - BIT_SPAN, margin + BIT_SPAN, 1601)
     weights = np.exp(-0.5 * (states - margin) ** 2)
@@ -364,9 +371,75 @@ def bit_summary(margin: float) -> dict[str, float]:
     for x, weight in zip(np.abs(states), weights, strict=True):
         changes = [s for s in SHIFTS if s < x] + [-s for s in SHIFTS]
         least = min(_log10_bit_response(float(x), s) for s in changes)
-        passing += weight * (least >= math.log10(FLUCTUATION_TV))
+        passing += weight * (least >= math.log10(yardstick))
         best = max(best, least)
     return {"margin": margin, "pass_fraction": float(passing), "log10_max_response": best}
+
+
+def _yardstick_row(
+    grid: Grid,
+    membrane: Membrane,
+    table: FloatArray,
+    density: FloatArray,
+    yardstick: float,
+    windows_ms: tuple[float, ...],
+    dt_ms: float,
+) -> dict[str, Any]:
+    """Pass fraction at full scale, and window visit probability at every noise share."""
+    hits = {}
+    for c in CHANGE_SCALES:
+        passing = passing_states(table, grid, c, yardstick)
+        hits[f"{c:g}"] = {
+            f"{w:g}": hit_probability(grid, membrane, passing, w, dt_ms) for w in windows_ms
+        }
+    full = passing_states(table, grid, 1.0, yardstick)
+    return {
+        "yardstick": yardstick,
+        "pass_fraction": float(density @ full),
+        "window_hit_probability": hits,
+    }
+
+
+def yardstick_summary(
+    grid: Grid,
+    config: NeuronConfig,
+    dt_ms: float,
+    yardsticks: tuple[float, ...],
+    windows_ms: tuple[float, ...],
+) -> dict[str, Any]:
+    """One regime at each yardstick, and its best response at each noise share."""
+    membrane = calibrate(grid, config.tau_ms, REFRACTORY_MS, config.rate_hz, dt_ms)
+    density = stationary(grid, membrane, dt_ms)[0]
+    table = laws(grid, membrane, config.window_ms, dt_ms)
+    best = {}
+    for c in CHANGE_SCALES:
+        least = [_least_response(table, grid, node, c) for node in range(grid.nodes.size)]
+        best[f"{c:g}"] = max(r for r in least if r is not None)
+    rows = [
+        _yardstick_row(grid, membrane, table, density, y, windows_ms, dt_ms) for y in yardsticks
+    ]
+    return {"config": asdict(config), "best_response": best, "by_yardstick": rows}
+
+
+def yardstick_run(grid: Grid, dt_ms: float) -> dict[str, Any]:
+    """Every declared regime and bit margin, rechecked at each swept yardstick."""
+    margins = (*BIT_MARGINS, noise_floor()["marginToNoise"])
+    return {
+        "yardsticks": list(YARDSTICKS),
+        "binary_ceiling": float(ndtr(1.0)) - 0.5,
+        "neurons": [
+            yardstick_summary(
+                grid, NeuronConfig(tau, rate, window), dt_ms, YARDSTICKS, CONTENT_WINDOWS_MS
+            )
+            for tau in TAUS_MS
+            for rate in RATES_HZ
+            for window in WINDOWS_MS
+        ],
+        "bits": [
+            {"margin": m, "pass_fraction": [bit_summary(m, y)["pass_fraction"] for y in YARDSTICKS]}
+            for m in margins
+        ],
+    }
 
 
 def run(grid: Grid, dt_ms: float) -> dict[str, Any]:
@@ -400,9 +473,15 @@ def main() -> None:
     parser.add_argument("--step", type=float, default=0.05)
     parser.add_argument("--low", type=float, default=-8.0)
     parser.add_argument("--dt-ms", type=float, default=0.1)
+    parser.add_argument("--yardstick", action="store_true", help="the U49 sweep only")
     args = parser.parse_args()
     OUTPUT.mkdir(parents=True, exist_ok=True)
-    summary = run(Grid(args.low, args.step), args.dt_ms)
+    grid = Grid(args.low, args.step)
+    if args.yardstick:
+        swept = yardstick_run(grid, args.dt_ms)
+        (OUTPUT / "yardstick.json").write_text(json.dumps(swept, indent=2) + "\n")
+        return
+    summary = run(grid, args.dt_ms)
     (OUTPUT / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
 
 

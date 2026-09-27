@@ -120,5 +120,44 @@ class SummaryTest(unittest.TestCase):
         self.assertTrue(math.isfinite(first["mean_distance"]))
 
 
+class YardstickTest(unittest.TestCase):
+    """U49: the separation does not hang on the choice of the fluctuation yardstick."""
+
+    def test_the_default_yardstick_reproduces_the_summary(self) -> None:
+        config = uo.NeuronConfig(10.0, 3.0, 10.0)
+        row = uo.neuron_summary(GRID, config, DT_MS, ())
+        windows = uo.CONTENT_WINDOWS_MS
+        swept = uo.yardstick_summary(GRID, config, DT_MS, (FLUCTUATION_TV,), windows)
+        at = swept["by_yardstick"][0]
+        self.assertEqual(at["yardstick"], FLUCTUATION_TV)
+        self.assertAlmostEqual(at["pass_fraction"], row["pass_fraction"], places=12)
+        self.assertEqual(at["window_hit_probability"], row["window_hit_probability"])
+
+    def test_a_lower_yardstick_passes_more_states(self) -> None:
+        config = uo.NeuronConfig(10.0, 3.0, 10.0)
+        swept = uo.yardstick_summary(GRID, config, DT_MS, (0.1, 0.2, FLUCTUATION_TV), (20.0,))
+        fractions = [r["pass_fraction"] for r in swept["by_yardstick"]]
+        hits = [r["window_hit_probability"]["0.25"]["20"] for r in swept["by_yardstick"]]
+        self.assertEqual(fractions, sorted(fractions, reverse=True))
+        self.assertEqual(hits, sorted(hits, reverse=True))
+
+    def test_no_state_passes_above_the_best_response(self) -> None:
+        config = uo.NeuronConfig(10.0, 3.0, 10.0)
+        best = uo.yardstick_summary(GRID, config, DT_MS, (), ())["best_response"]["1"]
+        above = uo.yardstick_summary(GRID, config, DT_MS, (best + 1e-9,), ())
+        self.assertGreater(best, FLUCTUATION_TV)
+        self.assertEqual(above["by_yardstick"][0]["pass_fraction"], 0.0)
+
+    def test_no_binary_readout_passes_above_its_two_sided_ceiling(self) -> None:
+        ceiling = normal_cdf(1.0) - 0.5
+        self.assertLess(ceiling, FLUCTUATION_TV)
+        for margin in (0.0, 0.5, 1.0, 2.0):
+            self.assertEqual(uo.bit_summary(margin, yardstick=ceiling + 1e-9)["pass_fraction"], 0.0)
+
+    def test_a_restored_bit_fails_at_every_swept_yardstick(self) -> None:
+        for yardstick in (1e-6, 0.01, FLUCTUATION_TV):
+            self.assertEqual(uo.bit_summary(506.0, yardstick=yardstick)["pass_fraction"], 0.0)
+
+
 if __name__ == "__main__":
     unittest.main()

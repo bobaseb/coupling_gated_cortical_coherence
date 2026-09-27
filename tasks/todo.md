@@ -83,7 +83,7 @@ comes back badly; above 6 needs data (a bridge pilot).
   claim 1, expand §tests' treatment, and add a feasibility sketch in rodent or
   NHP with decoded agreement as the readout: closed-loop hardware, recording
   and stimulation sites, the transfer-entropy estimator and trial counts.
-- [ ] **U49 — The fluctuation yardstick looks rigged.** 2Φ(½) − 1 ≈ 0.38 is
+- [x] **U49 — The fluctuation yardstick looks rigged.** 2Φ(½) − 1 ≈ 0.38 is
   also the largest response a Gaussian-noise threshold gives to a shift of one
   noise amplitude, so binary readouts fail by the choice of constant and at
   best tie it. (a) Justify the constant independently of that coincidence, or
@@ -91,6 +91,17 @@ comes back badly; above 6 needs data (a bridge pilot).
   the margin of 506 noise amplitudes suggests it is, so report the passing
   fractions as a function of the yardstick. (b) Settle ≥ versus > in "reach"
   in text and Lean; at ≥ a bit sitting exactly on its threshold passes.
+  *Done 2026-09-27.* (a) `unity_occupancy.py --yardstick` →
+  `yardstick.json`, `\uYard…` macros; §enforcement "The yardstick" and
+  `app:occupancy`. Membrane best response ≥ 0.64 in every regime and noise
+  share; at yardsticks 0.01–0.6 the logic node passes nowhere and the 400 ms
+  visit probability is ≥ 0.037 at 0.6 (0.085 at θ*). (b) The review's premise
+  was wrong: asked in both directions, a binary readout's response is at most
+  Φ(1) − ½ ≈ 0.34 < θ*, so no tie arises and ≥ stays, in text and Lean
+  (`θ ≤ shiftResponse`). Lean untouched: every theorem takes θ as a parameter.
+  Noted, not a defect: `GradedAboveNoise` is vacuous when Θ ≤ σ (a carrier
+  within its noise of threshold); the bit theorems assume a change above the
+  noise within the margin, so they are unaffected.
 - [ ] **U50 — Argue "one subject ⇒ one system at the noise floor", or reframe
   the abstract.** The step from "unity counts subjects" to "systems are
   counted by graded dependence above the noise floor" is asserted, and
