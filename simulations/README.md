@@ -124,6 +124,10 @@ paper's closed-form magnitudes (causal deadline across cortex, the relaxation
 time the unity window needs, a noise-to-margin ratio for digital logic) from
 declared, cited parameters; `test_unity_estimates.py` gates drift and unused
 macros.
+`unity_switching.py` writes `figures/unity_occupancy/switching.json`: a clocked
+chip counted by the occupancy protocol in closed form, at its nodes' threshold
+crossings, at its latch and at a synchronizer. It is cheap, so
+`test_unity_switching.py` reruns it and fails when the saved summary drifts.
 
 ## The wave extension
 

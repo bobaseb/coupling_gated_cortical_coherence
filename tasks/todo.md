@@ -533,7 +533,7 @@ written in), then U61, U59, U60, U62, U63, U64 last.
 are its points, most severe first. U75–U77 plus two figures (U78) would move
 it to about 7.*
 
-- [ ] **U75 — The per-window rescue may rescue chips too.** Cortex passes at
+- [x] **U75 — The per-window rescue may rescue chips too.** Cortex passes at
   only 0.014–2.3% of occupied states, so P is
   stated per window: some carrier passes within the content's time scale.
   But §enforcement 'Where the line falls' concedes that "a bit caught in the
@@ -555,6 +555,21 @@ it to about 7.*
   it belongs in §enforcement's definitions, not in §ai.
   **Success.** The window paragraph says why a switching bit does not satisfy
   the per-window condition, with a number from (a).
+  *Done 2026-09-27:* (a) `unity_switching.py` → `switching.json`, closed
+  form, rerun by its test. At 1 GHz, activity 0.02–0.5, 20 ps transitions, a
+  node's crossing time passes (exactly at the fluctuation, by the spike-time
+  identity) at 0.02–0.5% of states, inside the membrane's 0.014–2.3%, and
+  every 40 ms window holds a transition except with prob < 10^-100: the
+  reviewer is right at the voltage level. The latch reads the rail (timing
+  closure), so passes nowhere. A synchronizer (Ginosar 2011, 28 nm example:
+  T_W 20 ps, τ 10 ps, f_D 100 MHz) samples inside its aperture ≤ 0.2% of the
+  time, 8×10^5 times per 400 ms, and its resolution does pass. (b) New sixth
+  definition, *next content* = what the carrier's readers take, when they take
+  it, in §enforcement; new paragraph 'A switching chip, counted the same way'
+  after the window paragraphs; 'Where the line falls' names the synchronizer;
+  abstract and Claim 2 say "the value a clocked latch reads". The synchronizer
+  is answered by protocol (it decides the cycle, not the value) and scoped in
+  the 'Hardware near its thresholds' limitation.
 - [x] **U76 — Matched transfer entropy does not match task information.** The
   loops can match total transfer entropy on multi-unit envelopes and still
   differ in how much of the *task variable* gets through, or in waveform

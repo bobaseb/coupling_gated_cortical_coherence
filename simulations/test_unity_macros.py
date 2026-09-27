@@ -20,6 +20,15 @@ class UnityMacroTests(unittest.TestCase):
         self.assertIn("\\uCorShareTol", text)
         self.assertIn("figures/unity_occupancy/", text)
 
+    def test_the_switching_chip_is_generated_from_its_summary(self) -> None:
+        text = render(FIGURES)
+        self.assertIn("\\newcommand{\\uSwNodePassMinPercent}{0.02}", text)
+        self.assertIn("\\newcommand{\\uSwNodePassMaxPercent}{0.5}", text)
+        self.assertIn("\\newcommand{\\uSwNoTransitionOrders}{100}", text)
+        self.assertIn("\\newcommand{\\uSwSyncPassPercent}{0.2}", text)
+        self.assertIn("\\newcommand{\\uSwSyncEventsLong}{8\\times10^{5}}", text)
+        self.assertIn("\\newcommand{\\uSwMtbfOrders}{29}", text)
+
     def test_the_restored_bit_is_reported_as_a_round_bound(self) -> None:
         self.assertIn("\\newcommand{\\uOccBitOrders}{100}", render(FIGURES))
 
@@ -54,6 +63,10 @@ class UnityMacroTests(unittest.TestCase):
         if change == "no_correlated":
             correlated["neurons"] = []
         (root / "unity_occupancy" / "correlated.json").write_text(json.dumps(correlated))
+        switching = json.loads((FIGURES / "unity_occupancy" / "switching.json").read_text())
+        if change == "no_nodes":
+            switching["nodes"] = []
+        (root / "unity_occupancy" / "switching.json").write_text(json.dumps(switching))
         summary = json.loads((FIGURES / "unity_agreement" / "summary.json").read_text())
         scaling = json.loads((FIGURES / "unity_agreement" / "resistance.json").read_text())
         if change == "no_runs":
@@ -91,6 +104,10 @@ class UnityMacroTests(unittest.TestCase):
     def test_a_missing_correlated_sweep_is_rejected(self) -> None:
         with self.assertRaises(ValueError):
             render(self._mutated("no_correlated"))
+
+    def test_a_switching_summary_without_nodes_is_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            render(self._mutated("no_nodes"))
 
     def test_printed_bounds_never_overstate_the_sweep(self) -> None:
         values = dict(

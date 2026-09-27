@@ -42,7 +42,7 @@ that is attained, so a digital machine, clocked or clockless, fails the premise
 whatever algorithm it runs. Measured by
 one protocol over the states each occupies, a noisy cortical membrane passes
 near its threshold and reaches such a state within a percept's time scale,
-while a logic node passes at none of its states. Enforced agreement must arrive
+while the value a clocked latch reads passes at none of its states. Enforced agreement must arrive
 before the content changes, which bounds how slowly cortical coupling may relax,
 and on a noisy sheet of coupled oscillators the coupling's reach decides how far
 phase agreement holds. We
@@ -129,7 +129,7 @@ zone of it \citep{koch2016}.
 The paper makes three claims:
 \begin{enumerate}
 \claim{sec:tests}{When two cortical regions are bridged by an analog and by a quantized loop that carry the same information, in total and about the task, P predicts that unity follows the loop that couples them gradedly, which tests whether unity tracks the graded grain or the information the regions exchange; a weak, sub-threshold perturbation of one region should also shift the graded content decoded in an overlapping region toward agreement}
-\claim{sec:enforcement}{Under noise, content read from bits responds to a change of any region below its margin by at most its error rate, a bound that is attained, so content read from bits is not physically enforced, whatever algorithm the bits run. A region held by a margin drops out of every chain of couplings, corrections it writes back included, while a graded reader joins the regions it reads. Measured by one protocol over the states each occupies, a cortical membrane passes the noise-floor test near its threshold and visits such states within every window of a percept's time scale, while a logic node passes at none of its states}
+\claim{sec:enforcement}{Under noise, content read from bits responds to a change of any region below its margin by at most its error rate, a bound that is attained, so content read from bits is not physically enforced, whatever algorithm the bits run. A region held by a margin drops out of every chain of couplings, corrections it writes back included, while a graded reader joins the regions it reads. Measured by one protocol over the states each occupies, a cortical membrane passes the noise-floor test near its threshold and visits such states within every window of a percept's time scale, while the value a clocked latch reads passes at none of its states, although the chip's nodes cross their thresholds as often}
 \claim{sec:reach}{Enforced agreement must arrive before the content changes, so P predicts that cortical coupling relaxes within \ueTauFastMs{}~ms across the cortex; on a noisy coupled sheet, disagreement in phase is effective resistance, so the coupling's reach decides how far phase agreement holds}
 \end{enumerate}
 
@@ -209,7 +209,7 @@ theorems say that records never make one while graded coupling does. Where
 cortex and a chip hold their carriers is measured, by the occupancy computation
 at the end of the section.
 
-The argument needs five definitions. Each is stated in words first.
+The argument needs six definitions. Each is stated in words first.
 
 A system has a physical state, its \emph{micro state} $x=(x_i)_i$, made up of
 the states $x_i$ of its regions. One step of its physics carries $x$ to $f(x)$.
@@ -218,6 +218,13 @@ content level is \emph{closed} when the next content can be computed from the
 current content alone, without looking at the micro state:
 $\pi\circ f = g\circ\pi$ for some content dynamics $g$. A digital computer is
 built so that its logical level is closed in this sense.
+
+A carrier's \emph{next content} is what its readers take from it, at the times
+they take it. Cortical cells integrate a presynaptic spike as it arrives, so a
+membrane's next content is the time of its next spike. A latch reads its input
+at a clock edge, so the next content of a node that feeds a latch is its value
+at the edge, and what the node does between edges is a trace in the sense of
+Section~\ref{sec:cover}.
 
 A readout has a \emph{noise margin} on a set of states when every state in the
 set can be nudged a little without changing what is read, that is, when each
@@ -385,7 +392,8 @@ occurrence of a spike is a message, and a spike count latched at a clock edge is
 a record. Cortex passes on what the count leaves it, the range below threshold in
 which a membrane's content moves with each input above its noise, and, as
 measured below, it passes there only near threshold. The verdict reverses within
-each substrate: a bit caught in the middle of switching passes, and a neural
+each substrate: a synchronizer that latches a node in the middle of switching
+passes, and a neural
 circuit read only from latched counts fails (Section~\ref{sec:ai}). What
 separates a working chip from cortex is where each holds its carriers, a fact
 about the system that the criterion reads and does not set.
@@ -546,9 +554,40 @@ that \uOccCarriersMid{} carriers leave the window without a link is at most
 \uCorMissC{} at $c=\uCorShareTol$. The shorter window is more sensitive to
 correlation: within \uOccContentShortMs{}~ms the link falls to
 \uCorLinkShortTol{} at $c=\uCorShareTol$, so P's per-window condition is met at
-the time scale of a percept rather than of its fastest components. What separates the membrane from the bit is the distance
-from threshold at which each carrier is held, a few noise amplitudes against
+the time scale of a percept rather than of its fastest components. What
+separates the membrane from the restored bit is the distance from threshold at
+which each carrier is held when it is read, a few noise amplitudes against
 \ueMarginToNoise{}.
+
+\paragraph{A switching chip, counted the same way.} A chip's nodes also pass
+through their thresholds, many times in every window, and the protocol counts
+them too (Appendix~\ref{app:occupancy}). Take a \uSwClockGHz{}~GHz clock and
+nodes that switch in \uSwActivityLow{} to \uSwActivityHigh{} of its cycles, each
+transition lasting \uSwTransitionPs{}~ps. On the rising half of a transition a
+change of one noise amplitude moves the time of the crossing by one jitter, as
+it moves a spike time. If a node's next content were that time, the node would
+pass there, at \uSwNodePassMinPercent{} to \uSwNodePassMaxPercent\% of its
+states, within the membrane's range, and within every window of
+\uOccContentShortMs{}~ms except with probability below
+$10^{-\uSwNoTransitionOrders}$. Counted at the voltage, a chip passes per window
+as a membrane does. Its next content is what its latch reads at the clock edge,
+and timing closure keeps every transition on a clocked path outside the latch's
+setup-and-hold window \citep{ginosar2011}, so the latch reads the node at its
+rail: the restored bit above, which passes at none of its states and in no
+window. The crossing a latch discards is the content a membrane delivers,
+because a membrane's readers integrate its spike times as they arrive. The one
+place a working chip latches a transition is a synchronizer between clock
+domains. With a \uSwAperturePs{}~ps aperture and data changing every tenth
+cycle \citep{ginosar2011}, its first stage samples inside the aperture at most
+\uSwSyncPassPercent\% of the time, $\uSwSyncEventsLong$ times in a window of
+\uOccContentLongMs{}~ms, and which way it resolves moves with the timing of the
+transition; a second stage given one cycle to settle leaves it unresolved once
+in more than $10^{\uSwMtbfOrders}$ years. What the synchronizer decides is the
+cycle at which a new value is taken. The protocols that carry data across the
+boundary hold the value until it has been taken, as a clockless circuit accepts
+a value once its code is complete (Section~\ref{sec:ai}), so the value is the
+same whichever way it resolves. Within a clock domain no content passes, and the
+regions that carry a program's contents lie there.
 
 \paragraph{The yardstick.} The separation holds at every yardstick from
 \uYardLow{} to \uYardHigh{}. Across that range the logic node passes at none of
@@ -1063,8 +1102,13 @@ is correct.
 \item \emph{Hardware near its thresholds.} The noisy margin theorem bounds a
 digital content's response by its error rate. Hardware run so close to its
 thresholds that a change of one noise amplitude moves its contents by a
-fluctuation would escape the bound. The thermal estimate declares the node
-capacitance it uses.
+fluctuation would escape the bound. A synchronizer's first stage is such
+hardware by design. The count takes what it decides to be the cycle at which a
+value is taken, which holds for protocols that hold the value across the
+boundary; a machine whose contents were read from how its synchronizers resolve
+would pass where they do. The thermal estimate declares the node capacitance
+it uses, and the switching count declares its clock, activity factors,
+transition time and synchronizer.
 
 \item \emph{The cortical estimates.} The single-input estimate combines in vitro
 measurements of one connection type and one noise recording, and reads the
@@ -1290,6 +1334,24 @@ time constants. Halving
 both the grid spacing and the time step changes the passing fraction by
 \uOccResolutionPercent\%, and the correlation of two carriers' passing by at
 most \uCorResolutionRho{}.
+
+The switching chip is counted in closed form. On the rising half of a
+transition the node's voltage crosses its threshold at a slew $\dot V$, a change
+$\Delta V$ moves the crossing by $\Delta V/\dot V$ and the node's noise jitters
+it by $\sigma/\dot V$, so the response is $2\Phi(\Delta V/2\sigma)-1$ whatever
+the slew. Every admissible change of at least one noise amplitude then reaches
+the fluctuation, exactly at one amplitude, so the node passes at the
+fluctuation and at no higher yardstick. A node that switches in a fraction
+$\alpha$ of the cycles of a clock of frequency $f$, with transitions of
+duration $t$, spends $\alpha f t/2$ of its time on the rising half of one, and a
+window of $N$ cycles holds no transition with probability $(1-\alpha)^N$. A
+synchronizer with aperture $T_W$, clock $f_C$ and data changing at rate $f_D$
+samples inside its aperture at the rate $T_W f_C f_D$, so at most a share $T_W
+f_D$ of its samples do, and a second stage allowed a time $S$ to resolve fails
+once in $e^{S/\tau}/(T_W f_C f_D)$ on average, with $\tau$ the stage's
+resolution time constant \citep{ginosar2011}; the declared values are that
+tutorial's 28~nm example, $\tau=\uSwTauPs$~ps and $f_D=\uSwDataMHz$~MHz, with
+$S$ one cycle.
 
 \section{Formal results}
 \label{app:formal}
