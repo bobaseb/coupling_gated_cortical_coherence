@@ -31,7 +31,10 @@ physically enforced agreement: within every window of a content's time scale,
 some graded carrier of each region must register the graded state of every
 region it overlaps, above its own noise, through a coupling that pulls their
 contents together. The premise is functional at the grain of physical dynamics
-and rejects computational functionalism. We prove that under noise, content read
+and rejects computational functionalism, and it makes a prediction that
+computational functionalism does not: when two cortical regions are bridged by
+an analog and by a quantized loop carrying the same information, unity follows
+the analog loop. We prove that under noise, content read
 from bits responds to a change of any region by at most its error rate, a bound
 that is attained, so a digital machine, clocked or clockless, fails the premise
 whatever algorithm it runs. Measured by
@@ -39,9 +42,8 @@ one protocol over the states each occupies, a noisy cortical membrane passes
 near its threshold and reaches such a state within a percept's time scale,
 while a logic node passes at none of its states. On a noisy sheet of coupled
 oscillators, coupling that falls off more slowly than $r^{-4}$ keeps agreement
-at every distance. The premise predicts that unity follows graded coupling when
-coupling and information flow are separated experimentally, and we state the
-cortical outcomes that would refute it.
+at every distance. We state the preparation that runs the bridge and the
+cortical outcomes that would refute the premise.
 \end{abstract}
 
 \section{Introduction}
@@ -95,9 +97,9 @@ zone of it \citep{koch2016}.
 
 The paper makes three claims:
 \begin{enumerate}
+\claim{sec:tests}{When two cortical regions are bridged by an analog and by a quantized loop that carry the same information, P predicts that unity follows the loop that couples them gradedly, which separates P from computational functionalism; a weak, sub-threshold perturbation of one region should also shift the graded content decoded in an overlapping region toward agreement}
 \claim{sec:enforcement}{Under noise, content read from bits responds to a change of any region below its margin by at most its error rate, a bound that is attained, so content read from bits is not physically enforced, whatever algorithm the bits run. Measured by one protocol over the states each occupies, a cortical membrane passes the noise-floor test near its threshold and visits such states within every window of a percept's time scale, while a logic node passes at none of its states}
 \claim{sec:reach}{On a noisy coupled sheet, the reach of the coupling sets how fast agreement fades with distance: coupling that falls off more slowly than $r^{-4}$ keeps agreement at every distance, and coupling of finite second moment lets it fade without limit}
-\claim{sec:tests}{P makes testable predictions for cortex: a weak, sub-threshold perturbation of one region shifts the graded content decoded in an overlapping region toward agreement, and when two regions are bridged at matched information flow, unity follows the bridge that couples them gradedly, which separates P from computational functionalism}
 \end{enumerate}
 
 Every formal result in the paper is machine-checked in Lean~4, and
@@ -720,6 +722,20 @@ regions exchange, and unity that is the same under both loops counts against
 P. Intracortical
 stimulation in animals supports the design with decoded agreement as the
 measure; reported unity needs a bridged human preparation.
+
+\paragraph{A first preparation.} Closed loops that bridge two cortical sites
+already run for days in behaving animals. Spikes recorded at one site have
+triggered stimulation at another in freely moving monkeys \citep{jackson2006}
+and in rats after cortical injury \citep{guggenmos2013}. Those loops are
+triggered by events, which is the quantized condition; the analog arm replaces
+the trigger with a continuous drive. A first preparation places chronic arrays in
+two areas that represent a shared variable, interrupts the natural connection
+between them, and alternates the two loops across blocks in the same animal.
+Transfer entropy \citep{schreiber2000} is estimated from each block's
+recordings, and the analog loop's cutoff is set on pilot blocks to match the
+quantized loop's. The readout is the companion's excess decoded agreement
+between the two areas, and the number of trials follows from that statistic's
+power, which the companion's test fixes.
 
 \paragraph{A weak nudge should spread.} Weak stimulation of one region, below the
 level that changes behaviour, should shift the content decoded in an overlapping

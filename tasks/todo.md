@@ -77,12 +77,19 @@ found. Work order: U49 (cheap, removes an easy objection), then U50/U52
 everything done: 5.5–6 at *Neuroscience of Consciousness*; about 5 if U47
 comes back badly; above 6 needs data (a bridge pilot).
 
-- [ ] **U48 — Make the bridge the centerpiece.** The analog versus quantized
+- [x] **U48 — Make the bridge the centerpiece.** The analog versus quantized
   bridge at matched transfer entropy is the only test that separates P from
   computational functionalism, and the paper's most original content. Make it
   claim 1, expand §tests' treatment, and add a feasibility sketch in rodent or
   NHP with decoded agreement as the readout: closed-loop hardware, recording
   and stimulation sites, the transfer-entropy estimator and trial counts.
+  *Done 2026-09-27, trial counts deferred:* the bridge is claim 1 and the
+  abstract states its prediction before the proofs; §tests "A first
+  preparation" anchors the loops in Jackson, Mavoori & Fetz 2006 and
+  Guggenmos et al. 2013 (event-triggered, i.e. the quantized arm), with
+  transfer entropy (Schreiber 2000); all three verified via Crossref. Trial
+  counts need the power of the companion's excess-agreement statistic,
+  which is N20; the paper says so instead of inventing a number.
 - [x] **U49 — The fluctuation yardstick looks rigged.** 2Φ(½) − 1 ≈ 0.38 is
   also the largest response a Gaussian-noise threshold gives to a shift of one
   noise amplitude, so binary readouts fail by the choice of constant and at
