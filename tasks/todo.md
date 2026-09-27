@@ -778,7 +778,7 @@ hostile reviewer would open with.*
 U86–U90 are the rest, most severe first; U85 plus U87 plus U89 would move it
 to about 7.*
 
-- [ ] **U86 — The weight still rests on two premises.** Wholeness (Bayne's
+- [x] **U86 — The weight still rests on two premises.** Wholeness (Bayne's
   mereological account) and counting (the noise-to-threshold scale) are
   argued, not derived. The paper now says so, but a reviewer who rejects either
   rejects the paper, and the Lean results cannot help. Options: (a) show what
@@ -788,6 +788,18 @@ to about 7.*
   resolution (coarse-graining, effective theories), beyond the product
   decomposition U83 added. **Success.** Each premise has either a second
   argument or a stated fallback showing which claims survive without it.
+  *Done 2026-09-27:* both. Counting gets a second argument in §enforcement's
+  counting paragraph: physics individuates degrees of freedom by the effective
+  description valid at the parts' resolution; a chip's is its logic (closed
+  content level, Rosas et al.'s computational closure), whose bits interact
+  only through the rule, while block-averaging a coupled sheet leaves a coupled
+  sheet. Wholeness gets a fallback and a test: 'What the premise rests on' says
+  joint access predicts equal unity under the two loops (same information to
+  the same regions), so the bridge decides wholeness vs joint access too; the
+  introduction says so. 'The premise' limitation states what survives each
+  rejection: without wholeness the theorems, count and measurements stand and
+  only the unity→one-system step goes; without counting chips still fail P by
+  the margin theorems, and only the argument from wholeness to P goes.
 - [x] **U87 — Audit every generated number against its sentence.** U82 found
   that U75's "the synchronizer's resolution passes" contradicted the paper's
   own binary ceiling. A reviewer who finds one such slip distrusts the rest.

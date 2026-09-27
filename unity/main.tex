@@ -139,7 +139,7 @@ The paper makes three claims:
 Every formal result in the paper is machine-checked in Lean~4, and
 Appendix~\ref{app:formal} maps each one to its declaration. The two premises
 are the steps that are argued rather than proved, and the bridge tests them
-together.
+together and tells wholeness from its main rival, unity as joint access.
 
 \section{Unity as agreement over a cover of contents}
 \label{sec:cover}
@@ -443,6 +443,25 @@ the argument turns on. Both ends of the range
 are properties of each part, the size of its noise and the position of its
 thresholds, so nobody chooses the scale to separate brains from chips.
 
+Physics reaches the same count a second way, through the effective description
+it uses at the parts' own resolution. Such a description keeps the variables
+that survive coarse-graining between the parts' noise and their thresholds, and
+it treats as separate degrees of freedom exactly those whose dynamics it can
+write without reference to one another's state. A chip has one, its logic. Each
+bit is a variable that evolves, at each clock step, by a Boolean function of the
+bits wired to it, and the voltages beneath are integrated out at the cost of
+the error rate. This is the closure of the content level defined above, which
+marks a macroscopic level as computationally closed \cite{rosas2024}, and in
+it the bits interact only through the rule, the exchange of records the count
+treats as messages. A coupled field has no description of that kind at the same
+resolution: averaging a sheet of coupled oscillators or membranes over blocks
+leaves a sheet whose blocks pull on their neighbours, and each block's dynamics
+is written with its neighbours' state in it. Counting by the effective
+description valid at the parts' own resolution makes a chip's contents many
+systems and a coupled field's contents one, as the noise-floor count does, and
+the description is the one an engineer uses to design the chip and a physicist
+to model the field, not one built to separate them.
+
 This is the noise-floor reading of graded dependence given above, and the
 identity is proved: for carriers whose contents overlap, each depends gradedly
 above the noise floor on every carrier it overlaps exactly when every
@@ -688,7 +707,15 @@ share most of their input, as shown above, and P asks exactly this of the region
 are unified. P thus rests on wholeness and counting, and every step between
 them is proved: wholeness asks for one physical state, and counting says at
 which scale physics counts one. The bridge of Section~\ref{sec:tests} tests
-them together.
+them together, and it also decides between wholeness and its main rival. On the
+account of unity as joint access, contents are unified when they are available
+together to the same consumers \citep{bayne2010}. The two loops of the bridge
+carry the same information, in total and about the task, to the same regions,
+so joint access predicts the same unity under both, while wholeness, through
+P, predicts that unity follows the analog loop. Counting has a second support
+in the effective description physics already uses at the parts' resolution.
+Each premise carries a separate part of the argument, and
+Section~\ref{sec:limitations} states what stands if either is rejected.
 
 \section{When and how far a coupling enforces agreement}
 \label{sec:reach}
@@ -1237,6 +1264,14 @@ Section~\ref{sec:tests} bear on whether it holds. It is necessary
 for unity and not sufficient for consciousness: coupled pendulums satisfy it.
 The argument for it takes the mereological account of phenomenal unity, and an
 account on which unity is joint access to contents rejects its first step.
+Rejecting wholeness leaves the theorems, the count and the measurements
+standing, since they concern how physics counts systems and where each
+substrate holds its carriers, and removes the step from unity to one physical
+system; the bridge then tests joint access against wholeness directly.
+Rejecting counting, for a count at no particular scale, makes every chip one
+system. The margin lemma and the noisy margin theorem still deny a chip's
+contents graded dependence above the noise floor, so chips still fail P, and
+what is lost is the argument from wholeness to P, which runs through the count.
 The count makes two carriers two systems when a single change of one between
 its noise and its threshold leaves the other unmoved, which is stricter than a
 product decomposition; the two agree on records and graded readers, and a carrier that
