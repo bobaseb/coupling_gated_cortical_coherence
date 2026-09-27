@@ -1,0 +1,252 @@
+"""Pins the claim each generated numeral supports in the unity paper (U87).
+
+``test_unity_macros.py`` and ``test_unity_estimates.py`` check that the macro
+files match the saved summaries. This checks the other half: that the rounded
+value a sentence prints states what the sentence claims. ``CHECKLIST`` classes
+every macro by the kind of claim its sentences make, so a new macro fails here
+until someone decides which way it may round:
+
+* ``declared``: an input copied through, stated as such.
+* ``point``: an estimate stated as a value; rounding either way is fine.
+* ``lower``: a sentence says "at least" or "or more"; the print never rounds up.
+* ``upper``: a sentence says "at most", "below" or "within"; it never rounds down.
+* ``range``: an interval stated from both ends; each end rounds outward.
+* ``orders``: "below 10^-k"; the printed exponent never exceeds the true one.
+"""
+
+import json
+import math
+import re
+import unittest
+from typing import Any
+
+import unity_estimates as ue
+from unity_estimates import FLUCTUATION_TV, normal_cdf
+from unity_macros import FIGURES, render
+
+OCCUPANCY = FIGURES / "unity_occupancy"
+
+CHECKLIST: dict[str, str] = {
+    **dict.fromkeys(
+        (
+            "ueFibreCm ueVelocitySlow ueVelocityFast ueSynapseMs ueContentMs ueReduction "
+            "ueVelocityMax ueFieldPeak ueFieldDetection ueLocalCm ueSupplyPercent ueNodeCapFf "
+            "ueEpspMv ueEpspCv ueMembraneNoiseMv ueBridgeStepToNoise "
+            "uNoiseLow uNoiseMid uNoiseHigh uSideSmall uSideLarge uScalingSideA uScalingSideB "
+            "uScalingSideC uOccTauFast uOccTauSlow uOccRateLow uOccRateHigh uOccNextShort "
+            "uOccNextLong uOccShiftMax uOccShareMin uOccLatchShortMs uOccLatchLongMs "
+            "uOccContentShortMs uOccContentLongMs uOccCarriersFew uOccCarriersMid "
+            "uOccCarriersMany uYardLow uYardHigh uCorShareTol uCorPaths uCorShareA uCorShareB "
+            "uSwClockGHz uSwActivityLow uSwActivityHigh uSwTransitionPs uSwAperturePs uSwTauPs "
+            "uSwDataMHz"
+        ).split(),
+        "declared",
+    ),
+    **dict.fromkeys(
+        (
+            "ueConeSlowMs ueConeFastMs ueConeMaxMs ueFieldDeficitOrders ueConeLocalMaxMs "
+            "ueConeLocalFastMs ueFieldDeficitLocalOrders ueMarginPercent ueNoiseToMargin "
+            "ueFluctuationTV ueThermalNoiseMv ueMarginToNoise ueGradedWindowPercent "
+            "ueCorticalShiftToJitter ueCorticalTV ueMatchedNoiseToStep ueNoiseMatchMaxStep "
+            "uOrderedRuns uLogarithmicRuns uChordNearestHigh uChordExponentialHigh "
+            "uChordSigmaOneHigh uChordSigmaThreeHigh uFarExponentialA uFarExponentialB "
+            "uFarExponentialC uFarSigmaOneA uFarSigmaOneB uFarSigmaOneC uFarSigmaThreeA "
+            "uFarSigmaThreeB uFarSigmaThreeC uStiffnessRatio uOccDistanceMin uOccDistanceMax "
+            "uOccResolutionPercent uYardBinaryCeiling uCorLinkShortTol uSwNodePassMinPercent "
+            "uSwNodePassMaxPercent uSwSyncEventsLong"
+        ).split(),
+        "point",
+    ),
+    **dict.fromkeys(
+        (
+            "ueTauSlowMs ueTauLocalMs ueTauFastMs ueBandMatchFailPercent uOccLinkFewLong "
+            "uOccLinkMidShort uYardBestMin uYardHitMinHigh uCorLinkMidTol uCorLinkManyTol "
+            "uSwMtbfOrders"
+        ).split(),
+        "lower",
+    ),
+    **dict.fromkeys(
+        (
+            "ueFieldReachMm ueEpspPassMv ueEdgeQuantile ueNoiseMatchFailPercent "
+            "ueBridgeMinCutoffHz uHarmonicRatioLow uHarmonicRatioMid uOccInstantLinkMin "
+            "uCorMissA uCorMissB uCorMissC uCorResolutionRho uSwSyncPassPercent"
+        ).split(),
+        "upper",
+    ),
+    **dict.fromkeys(
+        (
+            "uOccPassMinPercent uOccPassMaxPercent uOccCountPassMinPercent "
+            "uOccCountPassMaxPercent uOccHitMinLong uOccHitMaxLong"
+        ).split(),
+        "range",
+    ),
+    **dict.fromkeys("ueErrorOrders uOccBitOrders uSwNoTransitionOrders".split(), "orders"),
+}
+
+
+def _printed() -> dict[str, float]:
+    text = ue.render() + render(FIGURES)
+    values = {}
+    for name, value in re.findall(r"\\newcommand\{\\(\w+)\}\{(.*)\}", text):
+        if "/" in value or "times" in value:
+            continue
+        values[name] = float(value)
+    return values
+
+
+def _read(name: str) -> dict[str, Any]:
+    result: dict[str, Any] = json.loads((OCCUPANCY / name).read_text())
+    return result
+
+
+class ChecklistTest(unittest.TestCase):
+    def test_every_generated_macro_is_classed_once(self) -> None:
+        text = ue.render() + render(FIGURES)
+        names = set(re.findall(r"\\newcommand\{\\(\w+)\}", text))
+        self.assertEqual(set(CHECKLIST), names)
+
+    def test_every_generated_result_is_stated_in_the_paper(self) -> None:
+        paper = (ue.OUTPUT.parent / "main.tex").read_text(encoding="utf-8")
+        names = re.findall(r"\\newcommand\{\\(\w+)\}", render(FIGURES))
+        unused = [n for n in names if not re.search(rf"\\{n}(?![A-Za-z])", paper)]
+        self.assertEqual(unused, [])
+
+
+class EstimateBoundsTest(unittest.TestCase):
+    def test_each_estimate_rounds_the_way_its_sentence_allows(self) -> None:
+        printed, exact = _printed(), ue.estimates()
+        for name, kind in CHECKLIST.items():
+            key = name[2].lower() + name[3:]
+            if not name.startswith("ue") or key not in exact:
+                continue
+            with self.subTest(macro=name):
+                if kind == "lower":
+                    self.assertLessEqual(printed[name], exact[key])
+                if kind == "upper":
+                    self.assertGreaterEqual(printed[name], exact[key])
+
+    def test_the_graded_window_is_where_one_amplitude_reaches_the_fluctuation(self) -> None:
+        est = ue.estimates()
+        distance = est["gradedWindowPercent"] / 100 * est["marginToNoise"]
+        response = normal_cdf(distance) - normal_cdf(distance - 1)
+        self.assertAlmostEqual(response, FLUCTUATION_TV, places=12)
+
+    def test_the_printed_cutoff_keeps_the_loop_within_the_tightest_deadline(self) -> None:
+        est = ue.estimates()
+        tightest = min(est["tauSlowMs"], est["tauFastMs"], est["tauLocalMs"])
+        cutoff = _printed()["ueBridgeMinCutoffHz"]
+        self.assertLessEqual(1000 / (2 * math.pi * cutoff), tightest)
+
+
+class OccupancyBoundsTest(unittest.TestCase):
+    def test_the_pass_ranges_enclose_every_regime(self) -> None:
+        printed = _printed()
+        neurons = _read("summary.json")["neurons"]
+        timing = [100 * n["pass_fraction"] for n in neurons]
+        counted = [
+            100 * n["latched_pass_fraction"][f"{n['config']['window_ms']:g}"] for n in neurons
+        ]
+        for prefix, values in (("uOccPass", timing), ("uOccCountPass", counted)):
+            self.assertLessEqual(printed[f"{prefix}MinPercent"], min(values))
+            self.assertGreaterEqual(printed[f"{prefix}MaxPercent"], max(values))
+
+    def test_the_visit_range_encloses_every_regime_and_share(self) -> None:
+        printed = _printed()
+        hits = [
+            h["400"]
+            for n in _read("summary.json")["neurons"]
+            for h in n["window_hit_probability"].values()
+        ]
+        self.assertLessEqual(printed["uOccHitMinLong"], min(hits))
+        self.assertGreaterEqual(printed["uOccHitMaxLong"], max(hits))
+
+    def test_latching_at_either_clock_changes_no_passing_fraction(self) -> None:
+        for n in _read("summary.json")["neurons"]:
+            for period in ("1", "5"):
+                self.assertAlmostEqual(n["latched_pass_fraction"][period], n["pass_fraction"])
+
+    def test_the_membrane_beats_the_highest_yardstick_at_its_best_state(self) -> None:
+        swept = _read("yardstick.json")
+        best = min(b for n in swept["neurons"] for b in n["best_response"].values())
+        self.assertLessEqual(_printed()["uYardBestMin"], best)
+        self.assertGreater(best, max(swept["yardsticks"]))
+
+    def test_the_hit_bound_at_the_highest_yardstick_never_rounds_up(self) -> None:
+        swept = _read("yardstick.json")
+        top = swept["yardsticks"].index(max(swept["yardsticks"]))
+        hits = [
+            per["400"]
+            for n in swept["neurons"]
+            for per in n["by_yardstick"][top]["window_hit_probability"].values()
+        ]
+        self.assertLessEqual(_printed()["uYardHitMinHigh"], min(hits))
+
+    def test_a_lower_yardstick_never_lowers_the_chance_of_a_passing_state(self) -> None:
+        swept = _read("yardstick.json")
+        order = sorted(range(len(swept["yardsticks"])), key=lambda i: swept["yardsticks"][i])
+        for n in swept["neurons"]:
+            for share in n["by_yardstick"][0]["window_hit_probability"]:
+                hits = [n["by_yardstick"][i]["window_hit_probability"][share]["400"] for i in order]
+                for lower, higher in zip(hits, hits[1:], strict=False):
+                    self.assertGreaterEqual(lower + 1e-12, higher)
+
+
+class CorrelatedBoundsTest(unittest.TestCase):
+    def _links(self, share: str, window: str, carriers: str) -> list[tuple[float, float]]:
+        return [
+            (1 - row["probability"], row["standard_error"])
+            for n in _read("correlated.json")["neurons"]
+            for per in n["by_scale"].values()
+            for row in [per[share][window]["no_link"][carriers]]
+        ]
+
+    def test_printed_links_are_two_standard_errors_below_every_estimate(self) -> None:
+        printed = _printed()
+        tol = f"{printed['uCorShareTol']:g}"
+        for macro, carriers in (("uCorLinkMidTol", "100"), ("uCorLinkManyTol", "1000")):
+            low = min(p - 2 * e for p, e in self._links(tol, "400", carriers))
+            self.assertLessEqual(printed[macro], low)
+
+    def test_printed_misses_are_two_standard_errors_above_every_estimate(self) -> None:
+        printed = _printed()
+        for macro, share in (("uCorMissA", "0.25"), ("uCorMissB", "0.5"), ("uCorMissC", None)):
+            key = share or f"{printed['uCorShareTol']:g}"
+            high = max(1 - p + 2 * e for p, e in self._links(key, "400", "100"))
+            self.assertGreaterEqual(printed[macro], high)
+
+    def test_the_link_holds_at_every_share_below_the_tolerated_one(self) -> None:
+        printed = _printed()
+        shares = [s for s in _read("correlated.json")["shares"] if s <= printed["uCorShareTol"]]
+        for share in shares:
+            low = min(p - 2 * e for p, e in self._links(f"{share:g}", "400", "100"))
+            self.assertGreaterEqual(low, printed["uCorLinkMidTol"])
+
+
+class SwitchingClaimsTest(unittest.TestCase):
+    def test_the_saved_synchronizer_passes_no_yardstick_above_its_ceiling(self) -> None:
+        chip = _read("switching.json")
+        sync = chip["synchronizer"]
+        self.assertLess(sync["binary_ceiling"], chip["fluctuation_tv"])
+        for y, share in zip(chip["yardsticks"], sync["pass_fraction_by_yardstick"], strict=True):
+            if y > sync["binary_ceiling"]:
+                self.assertEqual(share, 0.0)
+
+    def test_the_saved_latch_passes_at_no_yardstick(self) -> None:
+        latched = _read("switching.json")["latched"]["pass_fraction_by_yardstick"]
+        self.assertEqual(latched, [0.0] * len(latched))
+
+    def test_the_node_range_lies_inside_the_membrane_range(self) -> None:
+        nodes = [100 * n["pass_fraction"] for n in _read("switching.json")["nodes"]]
+        membrane = [100 * n["pass_fraction"] for n in _read("summary.json")["neurons"]]
+        self.assertGreaterEqual(min(nodes), min(membrane))
+        self.assertLessEqual(max(nodes), max(membrane))
+
+    def test_every_window_holds_a_transition_but_for_the_printed_orders(self) -> None:
+        printed = _printed()
+        for node in _read("switching.json")["nodes"]:
+            for value in node["log10_no_transition"].values():
+                self.assertGreaterEqual(-value, printed["uSwNoTransitionOrders"])
+
+
+if __name__ == "__main__":
+    unittest.main()

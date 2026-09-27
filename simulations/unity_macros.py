@@ -37,6 +37,19 @@ def _read(path: Path) -> dict[str, Any]:
     return cast(dict[str, Any], json.loads(path.read_text()))
 
 
+def _sig(value: float, digits: int, *, up: bool) -> str:
+    """A bound to ``digits`` significant figures, rounded only away from the claim."""
+    scale = 10 ** (math.floor(math.log10(value)) - digits + 1)
+    steps = round(value / scale, 9)
+    rounded = (math.ceil(steps) if up else math.floor(steps)) * scale
+    return f"{rounded:.{digits}g}"
+
+
+def _floor(value: float, digits: int) -> str:
+    """A lower bound printed without rounding up."""
+    return f"{math.floor(value * 10**digits) / 10**digits:.{digits}f}"
+
+
 def _finite(value: object) -> float:
     number = float(cast(float, value))
     if not math.isfinite(number):
@@ -61,7 +74,7 @@ def _harmonic_values(runs: list[dict[str, Any]], low: float, mid: float) -> list
     values = []
     for name, noise in (("Low", low), ("Mid", mid)):
         ratio = max(_finite(r["harmonic_ratio_max"]) for r in _select(runs, noise=noise))
-        values.append((f"uHarmonicRatio{name}", f"{ratio:.2f}"))
+        values.append((f"uHarmonicRatio{name}", f"{math.ceil(ratio * 100) / 100:.2f}"))
     return values
 
 
@@ -127,11 +140,11 @@ def _window_values(neurons: list[dict[str, Any]]) -> list[tuple[str, str]]:
         ("uOccCarriersFew", str(few)),
         ("uOccCarriersMid", str(mid)),
         ("uOccCarriersMany", str(many)),
-        ("uOccInstantLinkMin", f"{instant:.2g}"),
-        ("uOccHitMinLong", f"{min(hits[long]):.2g}"),
-        ("uOccHitMaxLong", f"{max(hits[long]):.3g}"),
-        ("uOccLinkFewLong", f"{1.0 - (1.0 - min(hits[long])) ** few:.2g}"),
-        ("uOccLinkMidShort", f"{1.0 - (1.0 - min(hits[short])) ** mid:.2g}"),
+        ("uOccInstantLinkMin", _sig(instant, 2, up=True)),
+        ("uOccHitMinLong", _sig(min(hits[long]), 2, up=False)),
+        ("uOccHitMaxLong", _sig(max(hits[long]), 3, up=True)),
+        ("uOccLinkFewLong", _floor(1.0 - (1.0 - min(hits[long])) ** few, 2)),
+        ("uOccLinkMidShort", _floor(1.0 - (1.0 - min(hits[short])) ** mid, 2)),
     ]
 
 
@@ -154,10 +167,10 @@ def _regime_values(neurons: list[dict[str, Any]]) -> list[tuple[str, str]]:
         ("uOccNextLong", window[1]),
         ("uOccDistanceMin", f"{min(distance):.1f}"),
         ("uOccDistanceMax", f"{max(distance):.1f}"),
-        ("uOccPassMinPercent", f"{min(passing):.2g}"),
-        ("uOccPassMaxPercent", f"{max(passing):.2g}"),
-        ("uOccCountPassMinPercent", f"{min(counted):.2g}"),
-        ("uOccCountPassMaxPercent", f"{max(counted):.2g}"),
+        ("uOccPassMinPercent", _sig(min(passing), 2, up=False)),
+        ("uOccPassMaxPercent", _sig(max(passing), 2, up=True)),
+        ("uOccCountPassMinPercent", _sig(min(counted), 2, up=False)),
+        ("uOccCountPassMaxPercent", _sig(max(counted), 2, up=True)),
     ]
 
 
@@ -207,18 +220,13 @@ def _yardstick_values(swept: dict[str, Any]) -> list[tuple[str, str]]:
         ("uYardLow", f"{min(yardsticks):g}"),
         ("uYardHigh", f"{max(yardsticks):g}"),
         ("uYardBinaryCeiling", f"{_finite(swept['binary_ceiling']):.2f}"),
-        ("uYardBestMin", f"{best:.2f}"),
-        ("uYardHitMinHigh", f"{min(hits):.2g}"),
+        ("uYardBestMin", _floor(best, 2)),
+        ("uYardHitMinHigh", _sig(min(hits), 2, up=False)),
     ]
 
 
 # Shares at which the miss probability is printed, besides the tolerated one.
 MISS_SHARES = ("0.25", "0.5")
-
-
-def _floor(value: float, digits: int) -> str:
-    """A lower bound printed without rounding up."""
-    return f"{math.floor(value * 10**digits) / 10**digits:.{digits}f}"
 
 
 def _ceil_sig(value: float) -> str:
@@ -227,13 +235,26 @@ def _ceil_sig(value: float) -> str:
     return f"{math.ceil(value / scale) * scale:.2g}"
 
 
-def _links(neurons: list[dict[str, Any]], share: str, window: str, carriers: int) -> list[float]:
-    """The link probability in every regime and noise share, at one share of input."""
+def _links(
+    neurons: list[dict[str, Any]], share: str, window: str, carriers: int, errors: float = 0.0
+) -> list[float]:
+    """The link probability in every regime and noise share, ``errors`` standard errors low."""
     return [
-        1.0 - _finite(per[share][window]["no_link"][str(carriers)]["probability"])
+        1.0 - _finite(row["probability"]) - errors * _finite(row["standard_error"])
         for n in neurons
         for per in n["by_scale"].values()
+        for row in [per[share][window]["no_link"][str(carriers)]]
     ]
+
+
+def _misses(neurons: list[dict[str, Any]], share: str, carriers: int) -> float:
+    """The largest miss probability, two standard errors high."""
+    return max(
+        _finite(row["probability"]) + 2 * _finite(row["standard_error"])
+        for n in neurons
+        for per in n["by_scale"].values()
+        for row in [per[share]["400"]["no_link"][str(carriers)]]
+    )
 
 
 def _correlated_values(swept: dict[str, Any]) -> list[tuple[str, str]]:
@@ -247,14 +268,15 @@ def _correlated_values(swept: dict[str, Any]) -> list[tuple[str, str]]:
     values = [
         ("uCorShareTol", tol),
         ("uCorPaths", str(swept["paths"])),
-        ("uCorLinkMidTol", _floor(min(_links(neurons, tol, "400", int(mid))), 2)),
-        ("uCorLinkManyTol", _floor(min(_links(neurons, tol, "400", int(many))), 2)),
-        ("uCorLinkShortTol", _floor(min(_links(neurons, tol, "40", int(mid))), 2)),
+        # Monte Carlo bounds: two standard errors below the least link.
+        ("uCorLinkMidTol", _floor(min(_links(neurons, tol, "400", int(mid), 2.0)), 2)),
+        ("uCorLinkManyTol", _floor(min(_links(neurons, tol, "400", int(many), 2.0)), 2)),
+        ("uCorLinkShortTol", f"{min(_links(neurons, tol, '40', int(mid))):.2f}"),
     ]
     for label, share in zip("AB", MISS_SHARES, strict=True):
-        miss = 1.0 - min(_links(neurons, share, "400", int(mid)))
+        miss = _misses(neurons, share, int(mid))
         values += [(f"uCorShare{label}", share), (f"uCorMiss{label}", _ceil_sig(miss))]
-    values.append(("uCorMissC", _ceil_sig(1.0 - min(_links(neurons, tol, "400", int(mid))))))
+    values.append(("uCorMissC", _ceil_sig(_misses(neurons, tol, int(mid)))))
     check = swept["resolution_check"]
     rho = [
         [_finite(row["400"]["pair_correlation"]) for row in check[k]["by_scale"]["1"].values()]

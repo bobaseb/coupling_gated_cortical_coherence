@@ -132,7 +132,7 @@ zone of it \citep{koch2016}.
 The paper makes three claims:
 \begin{enumerate}
 \claim{sec:tests}{When two cortical regions are bridged by an analog and by a quantized loop that carry the same information, in total and about the task, P predicts that unity follows the loop that couples them gradedly, which tests whether unity tracks the graded grain or the information the regions exchange; a weak, sub-threshold perturbation of one region should also shift the graded content decoded in an overlapping region toward agreement}
-\claim{sec:enforcement}{Under noise, content read from bits responds to a change of any region below its margin by at most its error rate, a bound that is attained, so content read from bits is not physically enforced, whatever algorithm the bits run. A region held by a margin drops out of every chain of couplings, corrections it writes back included, while a graded reader joins the regions it reads. Measured by one protocol over the states each occupies, a cortical membrane passes the noise-floor test near its threshold and visits such states within every window of a percept's time scale, while the value a clocked latch reads passes at none of its states, although the chip's nodes cross their thresholds as often}
+\claim{sec:enforcement}{Under noise, content read from bits responds to a change of any region below its margin by at most its error rate, a bound that is attained, so content read from bits is not physically enforced, whatever algorithm the bits run. A region held by a margin drops out of every chain of couplings, corrections it writes back included, while a graded reader joins the regions it reads. Measured by one protocol over the states each occupies, a cortical membrane passes the noise-floor test near its threshold, and some carrier of a region of many visits such states within a window of a percept's time scale with high probability, while the value a clocked latch reads passes at none of its states, although the chip's nodes cross their thresholds as often}
 \claim{sec:reach}{Enforced agreement must arrive before the content changes, so P predicts that cortical coupling relaxes within \ueTauFastMs{}~ms across the cortex; on a noisy coupled sheet, disagreement in phase is effective resistance, so the coupling's reach decides how far phase agreement holds}
 \end{enumerate}
 
@@ -393,8 +393,8 @@ on the chain, not at a record beside it. In the running example, a register
 holding the bird's location as a number is a record, and a cell in a third area
 that integrates spike times from the visual and the parietal area, and projects
 back to both, is a reader. A synapse, and a membrane integrating spike times
-near its threshold, which a cortical membrane visits within every window as
-measured below, are readers in this sense. A workspace that makes every record
+near its threshold, which some membrane of a cortical region visits within a
+window with high probability, as measured below, are readers in this sense. A workspace that makes every record
 available to a common reader is the case of the rule again: what the reader
 receives is a set of records, each held by its own margin. Computation therefore
 adds contents and never produces the whole they are parts of. What can make
@@ -458,9 +458,11 @@ of \ueNodeCapFf{}~fF at room temperature the thermal noise is
 \ueThermalNoiseMv{}~mV \citep{johnson1928,nyquist1928}, and the textbook
 inverter's margin is \ueMarginToNoise{} times that. After a change of one noise
 amplitude, the probability of a flip, which bounds the response, is below
-$10^{-\ueErrorOrders}$ \citep{kish2002}, and the response reaches the
-fluctuation only within \ueGradedWindowPercent\% of the margin's width from the
-threshold, where the bit is in the middle of switching. No other bit registers a
+$10^{-\ueErrorOrders}$ \citep{kish2002}. A change of one amplitude toward the
+threshold moves the bit by the fluctuation only from half an amplitude away,
+\ueGradedWindowPercent\% of the margin's width, where the bit is in the middle
+of switching, and a change in both directions moves it by less at every
+distance, as the binary ceiling below states. No other bit registers a
 change anywhere in the margin except through that error rate. By the noisy
 margin theorem, once that rate is under the fluctuation and each carrier
 has a change above its noise inside the margin, no carrier of any region
@@ -507,7 +509,8 @@ spike within \uOccNextShort{} or \uOccNextLong{}~ms, and every change of one to
 the fluctuation. Propagating the membrane's probability exactly on a voltage
 grid (Appendix~\ref{app:occupancy}), it sits on average \uOccDistanceMin{} to
 \uOccDistanceMax{} noise amplitudes below threshold and passes at
-\uOccPassMinPercent{} to \uOccPassMaxPercent\% of the states it occupies. A bit
+\uOccPassMinPercent{} to \uOccPassMaxPercent\% of the states it occupies when
+the region supplies all of its noise. A bit
 restored to a rail at the logic node's margin passes at none of its states, and
 its largest response over them is below $10^{-\uOccBitOrders}$. No bit passes
 at any margin when the noise of the step that reads it includes one amplitude
@@ -587,21 +590,22 @@ switched within a cycle would take a quantity fixed by the node's logical
 inputs, which are restored bits, and moved by its noise only through the error
 rate, whereas the same reader of a membrane passes, as shown above. The one
 place a working chip latches a transition is a synchronizer between clock
-domains. With a \uSwAperturePs{}~ps aperture and data changing every tenth cycle
-\citep{ginosar2011}, its first stage samples inside the aperture at most
+domains. With a \uSwAperturePs{}~ps aperture and data changing at
+\uSwDataMHz{}~MHz \citep{ginosar2011}, its first stage samples inside the aperture at most
 \uSwSyncPassPercent\% of the time, $\uSwSyncEventsLong$ times in a window of
 \uOccContentLongMs{}~ms, and which way it resolves moves with the timing of the
 transition; a second stage given one cycle to settle leaves it unresolved once
 in more than $10^{\uSwMtbfOrders}$ years. What that second stage takes is the
-bit the first resolves to, and no binary readout reaches the fluctuation: at the
-centre of the aperture a change of one noise amplitude in the transition's
+bit the first resolves to, and one bit under thermal noise, which is Gaussian,
+does not reach the fluctuation: at the centre of the aperture, where its
+two-sided response is largest, a change of one noise amplitude in the transition's
 timing moves the probability of either resolution by at most
 $\Phi(1)-1/2=\uYardBinaryCeiling$, and the stage's own noise only lowers that.
 The synchronizer therefore fails graded dependence at every sample, those inside
 its aperture included, whichever protocol carries the data across the boundary,
 and so does a random source that reads its bits from how a metastable stage
-resolves. The value a chip reads from one bit passes nowhere, within a clock
-domain or across its boundaries. Several bits held near their thresholds
+resolves. At the fluctuation, the value a chip reads from one bit passes
+nowhere, within a clock domain or across its boundaries. Several bits held near their thresholds
 together, reading one graded quantity as the stages of a time-to-digital
 converter read one transition time, do no better than the quantity they read.
 Whatever noise each stage adds, the word is a function of that quantity and of
@@ -612,11 +616,14 @@ quantity passes, and P then counts the stage as it counts an analog one: as a
 graded reader of that quantity, with a verdict that turns on what the quantity
 is coupled to.
 
-\paragraph{The yardstick.} The separation holds at every yardstick from
-\uYardLow{} to \uYardHigh{} (Figure~\ref{fig:yardstick}). Across that range the
-logic node passes at none of its states, and the membrane enters a passing state
-within \uOccContentLongMs{}~ms with probability at least \uYardHitMinHigh{} at
-the highest yardstick, rising as the yardstick is lowered. The formal results
+\paragraph{The yardstick.} The separation of the membrane from the value a latch
+reads holds at every yardstick from \uYardLow{} to \uYardHigh{}
+(Figure~\ref{fig:yardstick}). Across that range the latched logic node passes
+at none of its states, and the membrane enters a passing state within
+\uOccContentLongMs{}~ms with probability at least \uYardHitMinHigh{} at the
+highest yardstick, and at least as often at every lower one. Below
+$\Phi(1)-1/2$ one bit can reach the yardstick, so a synchronizer's first stage
+can pass there, at no more than \uSwSyncPassPercent\% of its samples. The formal results
 take the yardstick as a parameter and hold at every value of it. The fluctuation
 is the value that makes \emph{large} mean what it means for the carrier itself:
 a change that moves the content by as much as the content moves of its own
@@ -674,8 +681,10 @@ to reproduce that evidence by computation is the simulation objection again. A
 bridged cortex is of the first kind, so at the bridge P stakes itself on
 behaviour (Section~\ref{sec:tests}).
 
-\paragraph{What the premise rests on.} Cortex passes the count within every
-window, as shown above, and P asks exactly this of the regions whose contents
+\paragraph{What the premise rests on.} Cortex passes the count within a window
+of a percept's time scale: some carrier of a region of \uOccCarriersMany{}
+passes with probability at least \uCorLinkManyTol{}, even when the carriers
+share most of their input, as shown above, and P asks exactly this of the regions whose contents
 are unified. P thus rests on wholeness and counting, and every step between
 them is proved: wholeness asks for one physical state, and counting says at
 which scale physics counts one. The bridge of Section~\ref{sec:tests} tests
@@ -703,12 +712,13 @@ most $\varepsilon$ from step $\log(d_0/\varepsilon)/\log(1/\kappa)$ on, and one
 that shrinks by at most a factor $\rho$ per step is still above $\varepsilon$ at
 every step before $\log(d_0/\varepsilon)/\log(1/\rho)$. Unity at the time scale
 of a content requires the later of the two edges to fall before the content
-changes. In cortex, signal travel uses at most \ueConeSlowMs{}~ms of the
-\ueContentMs{}~ms that precede a conscious percept, so the condition falls on
-the coupling's relaxation time (Appendix~\ref{app:window}). P therefore
-predicts a cortical relaxation time of at most \ueTauFastMs{}~ms across the
-cortex and \ueTauLocalMs{}~ms within a posterior zone, and a slower restoration
-counts against it.
+changes. In cortex, signal travel typically takes \ueConeFastMs{} to
+\ueConeSlowMs{}~ms of the \ueContentMs{}~ms that precede a conscious percept,
+so the condition falls on the coupling's relaxation time
+(Appendix~\ref{app:window}). P therefore predicts a cortical relaxation time of
+at most \ueTauSlowMs{} to \ueTauFastMs{}~ms across the cortex, as signals take
+the slower or the faster fibres, and \ueTauLocalMs{}~ms within a posterior zone,
+and a restoration slower than these counts against it.
 
 \paragraph{Reach.} The pairs lie up to \ueFibreCm{}~cm apart if a scene's
 contents span the cortex, and about \ueLocalCm{}~cm if they are confined to a
@@ -853,8 +863,8 @@ The line P draws therefore coincides with the physical line between digital and
 analog operation, and working systems sit far from it on either side: a logic
 node's margin is \ueMarginToNoise{} noise amplitudes wide, while a cortical
 membrane sits on average \uOccDistanceMin{} to \uOccDistanceMax{} noise
-amplitudes below its threshold and reaches a passing state within every window
-of a percept's time scale.
+amplitudes below its threshold, and some membrane of a region reaches a passing
+state within a window of a percept's time scale with high probability.
 
 \paragraph{Attractor basins.} Cortex has margins of its own. An attractor
 network's basin is a dynamical margin: every state in it flows to the same
@@ -938,7 +948,7 @@ that settles after the content has changed fails P's timing condition
 (Section~\ref{sec:reach}) however gradedly it couples. A first-order filter
 with cutoff $f_c$ settles with time constant $1/(2\pi f_c)$, and the bridged
 coupling relaxes no faster than its loop, so the analog loop's cutoff is kept
-at or above \ueBridgeMinCutoffHz{}~Hz, whose time constant equals the shortest
+at or above \ueBridgeMinCutoffHz{}~Hz, whose time constant is at most the shortest
 relaxation time that brings agreement in time in Appendix~\ref{app:window}. If
 matching would take the cutoff lower, the quantizer's step is coarsened
 instead, which lowers the quantized loop's transfer entropy and raises the
@@ -1505,8 +1515,10 @@ most \uCorResolutionRho{}.
 Correlation lowers the per-window link. The chance that \uOccCarriersMid{}
 carriers leave a window of \uOccContentLongMs{}~ms without a link is at most
 \uCorMissA{} at $c=\uCorShareA$, \uCorMissB{} at $c=\uCorShareB$ and
-\uCorMissC{} at $c=\uCorShareTol$. The shorter window is more sensitive: within
-\uOccContentShortMs{}~ms the link falls to \uCorLinkShortTol{} at
+\uCorMissC{} at $c=\uCorShareTol$. These bounds, and the links of at least
+\uCorLinkMidTol{} and \uCorLinkManyTol{} in Section~\ref{sec:enforcement}, lie
+two Monte Carlo standard errors beyond the estimate in every regime. The shorter window is more sensitive: within
+\uOccContentShortMs{}~ms the link falls to about \uCorLinkShortTol{} at
 $c=\uCorShareTol$, so P's per-window condition is met at the time scale of a
 percept rather than of its fastest components.
 

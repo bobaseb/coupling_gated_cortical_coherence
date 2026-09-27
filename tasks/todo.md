@@ -788,7 +788,7 @@ to about 7.*
   resolution (coarse-graining, effective theories), beyond the product
   decomposition U83 added. **Success.** Each premise has either a second
   argument or a stated fallback showing which claims survive without it.
-- [ ] **U87 — Audit every generated number against its sentence.** U82 found
+- [x] **U87 — Audit every generated number against its sentence.** U82 found
   that U75's "the synchronizer's resolution passes" contradicted the paper's
   own binary ceiling. A reviewer who finds one such slip distrusts the rest.
   For every macro in `unity_estimates.tex` and `unity_results.tex`, check that
@@ -797,6 +797,31 @@ to about 7.*
   other. Consider a test that pins the claim each macro supports (e.g. the
   synchronizer's share is zero above `BINARY_CEILING`). **Success.** A
   checklist with every macro ticked, and fixes committed.
+  *Done 2026-09-27:* all 130 macros audited against generator and sentence.
+  The checklist is executable: `test_unity_claims.CHECKLIST` classes every
+  macro (declared / point / lower / upper / range / orders), fails on any
+  unclassed macro, and checks each lower/upper/range print against the exact
+  value. Fixed: (1) `ueGradedWindowPercent` computed where the *flip
+  probability* reaches θ*, not the response: now half an amplitude (0.099%),
+  and the sentence says a two-sided change never reaches it. (2) bounds that
+  rounded the wrong way: `ueEpspPassMv` 0.63→0.64, `ueBridgeMinCutoffHz`
+  0.99→1, `ueFieldReachMm` 3.7→3.8, `uYardHitMinHigh` 0.037→0.036, pass ranges
+  now outward (0.013–2.4%); estimates carry `ROUNDED_UP/DOWN`, macros `_sig`.
+  (3) correlated links/misses were point estimates stated as bounds with
+  c=0.75 resting on <1 SE: now two Monte Carlo SEs beyond every regime
+  (0.88, 0.98; misses 0.0018/0.017/0.12), stated in app:occupancy. (4) "a
+  membrane visits passing states within every window" (claim 2, wholeness,
+  premise, margin's width) overstated a 0.085–0.997 hit probability: now "some
+  carrier of a region … with high probability", the premise paragraph citing
+  the 1000-carrier bound. (5) timing: "signal travel uses at most 31 ms" was
+  typical arrival; the prediction is now 160–166 ms by fibre class. (6) "the
+  separation holds at every yardstick" now says latch vs membrane; below
+  Φ(1)−1/2 a synchronizer's first stage can pass at ≤0.2%. (7) "no binary
+  readout reaches the fluctuation" now says under thermal (Gaussian) noise.
+  (8) the pass range states its noise share. "Every tenth cycle" is now
+  `\uSwDataMHz`. Pinned also: latching at 1/5 ms changes nothing, saved
+  synchronizer/latch shares, node range inside membrane range, hit monotone in
+  yardstick, and every results macro cited.
 - [x] **U88 — The per-window rescue is still the soft spot.** The membrane
   passes at only 0.014–2.3% of its states. The switching node's crossing time
   passes at a similar rate and is rejected only because no reader takes it, so
