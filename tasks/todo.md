@@ -774,11 +774,17 @@ Review response (raised 2026-09-26, external-style review scored 5/10; plan
   completed codes held at rails; Martin & Nyström 2006, verified at
   Caltech's record and IEEE Xplore). "Counting systems" answers the reductio:
   ordinary usage counts by program, physics by restoration.
-- [ ] **U39 — Bridge arms share one filter.** The quantized arm is the analog
+- [x] **U39 — Bridge arms share one filter.** The quantized arm is the analog
   arm's filter followed by a quantizer; transfer entropy is matched by the
   analog arm's bandwidth alone. The arms then differ only in the quantizer's
   nonlinearity; the test decides P against information-flow functionalism,
   and Limitations names the residual reply.
+  *Done 2026-09-27:* the quantized loop is the analog loop's filter and
+  amplifier with a quantizer between them; the loops differ in the quantizer
+  and in the analog arm's cutoff. The fail-fraction arithmetic in `bridge()`
+  was already independent of the filter, so no code or numbers changed. The
+  readout sentence names the information-flow form of computational
+  functionalism; new Limitations item "The bridge's reach".
 - [ ] **U40 — Fold the unity window into §reach.** One paragraph "Agreement in
   time" in §reach; the cortical worked example to the appendix; `tab:formal`
   and cross-references retargeted.

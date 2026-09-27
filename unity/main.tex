@@ -651,8 +651,10 @@ other, through one of two loops. The \emph{analog loop}'s output moves with ever
 graded change in its input. It is analog end to end, an analog filter and
 amplifier driving the stimulator with no digitizing stage, because a loop that
 digitizes the recording before driving the stimulator would run the quantized
-condition in both arms. The \emph{quantized loop}'s output is read from bits, so
-it has a margin.
+condition in both arms. The \emph{quantized loop} is the same filter and
+amplifier with a quantizer between them, so its output is read from bits and has
+a margin. The two loops share one filter shape, and they differ in the
+quantizer and in one cutoff frequency, set below.
 
 The two loops must carry the same information and fall on opposite sides of P.
 Section~\ref{sec:enforcement} fixes what the second condition means: a change
@@ -675,12 +677,14 @@ the region's own, the quantized loop fails at \ueBandMatchFailPercent\% of its
 states or more. Stepping the quantized loop's resolution checks that its
 transfer entropy rises with the resolution, so that the resolution, and not
 recording noise, sets the matched value. The two loops then carry the same
-information, and only the analog one couples the regions gradedly.
+information through the same filter shape, and only the analog one couples the
+regions gradedly.
 
 The readout is unity, with the evidence fixed at the start of this section. Unity that follows
-the analog loop at matched transfer entropy supports P over computational
-functionalism, and
-unity that is the same under both loops counts against P. Intracortical
+the analog loop at matched transfer entropy supports P over the information-flow
+form of computational functionalism, on which unity follows the information
+regions exchange, and unity that is the same under both loops counts against
+P. Intracortical
 stimulation in animals supports the design with decoded agreement as the
 measure; reported unity needs a bridged human preparation.
 
@@ -875,6 +879,11 @@ source falls below the detection threshold within millimetres, by an estimate
 that places the field's peak at a declared distance. Across centimetres graded
 coupling is carried chiefly by synapses, and the field's contribution there is a
 quantity to be measured.
+
+\item \emph{The bridge's reach.} The bridge separates P from the information-flow
+form of computational functionalism. A functionalism that counts the quantizer's
+nonlinearity, or the cutoff that matches information, as a functional difference
+between the loops can accommodate either outcome.
 
 \item \emph{Human evidence.} The dissociation of coupling from information has,
 so far, no human preparation in which reported unity can be measured across a
