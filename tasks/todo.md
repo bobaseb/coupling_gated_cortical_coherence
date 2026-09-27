@@ -805,7 +805,7 @@ to about 7.*
   cells read spike times as they arrive (evidence for spike-timing-dependent
   integration, not just rate readout) and state what P predicts if cortical
   readers turned out to integrate over windows that discard sub-jitter timing.
-- [ ] **U89 — Cases the analysis leaves open.** (a) The binary ceiling
+- [x] **U89 — Cases the analysis leaves open.** (a) The binary ceiling
   Φ(1)−1/2 assumes Gaussian noise; a sharply peaked unimodal law can put more
   mass within one amplitude. State the class of noise laws for which one bit
   stays below the fluctuation, or bound it generally. (b) Hardware reading one
@@ -816,6 +816,22 @@ to about 7.*
   fluctuation; with independent per-stage noise it may not be) or state it as
   a prediction about hardware. **Success.** Both are settled or stated as
   predictions, and the limitation shrinks.
+  *Done 2026-09-27:* (a) the two-sided response of one bit is the smaller of the
+  noise law's masses on the two width-a intervals meeting at the threshold; for
+  a symmetric single-peaked law it peaks with the threshold at the state, at the
+  mass between centre and one amplitude. So one bit stays below the fluctuation
+  exactly when the law puts less than twice the fluctuation within one SD of its
+  centre: Gaussian, logistic, Laplace do, Student-3 does not (0.409). Stated in
+  §enforcement and app:occupancy; the synchronizer's noise is thermal, so
+  Gaussian. The membrane paragraph's "no binary readout passes at any margin"
+  now says *when the step's noise includes one amplitude of the change* (a
+  membrane read only as spike-or-not over a short window does pass, since less
+  than its stationary noise enters the window). (b) settled, not a prediction:
+  a word of stages reading one quantity is a function of it plus independent
+  noise, so by data processing it responds no more than the quantity; thresholds
+  at ±a/2 attain it. Such a stage is a graded reader, counted as an analog one.
+  `unity_switching.py` adds `NOISE_LAWS`, `bit_ceiling`, `word_response`, and
+  `switching.json` records both. The limitation is now 'The hardware counts'.
 - [ ] **U90 — Length.** 59 pages; the argument's structure is hard to see on a
   first read even after U84. Target a main text that a reviewer can read in one
   sitting: candidates are §tests' preparation detail, §ai paragraphs that

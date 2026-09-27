@@ -505,10 +505,14 @@ grid (Appendix~\ref{app:occupancy}), it sits on average \uOccDistanceMin{} to
 \uOccDistanceMax{} noise amplitudes below threshold and passes at
 \uOccPassMinPercent{} to \uOccPassMaxPercent\% of the states it occupies. A bit
 restored to a rail at the logic node's margin passes at none of its states, and
-its largest response over them is below $10^{-\uOccBitOrders}$. No binary
-readout passes at any margin: under Gaussian noise, its response to a change of
-one noise amplitude, asked in both directions as the criterion asks, is at most
-$\Phi(1)-1/2=\uYardBinaryCeiling$. A graded content exceeds the fluctuation by a
+its largest response over them is below $10^{-\uOccBitOrders}$. No bit passes
+at any margin when the noise of the step that reads it includes one amplitude
+of the change: under Gaussian noise its response to that change, asked in both
+directions as the criterion asks, is at most
+$\Phi(1)-1/2=\uYardBinaryCeiling$, below the fluctuation, and it stays below
+the fluctuation under every symmetric noise law with one peak that puts less than twice the fluctuation of its mass within one
+standard deviation of its centre, logistic and Laplace noise included
+(Appendix~\ref{app:occupancy}). A graded content exceeds the fluctuation by a
 wide margin: at its best state the membrane responds by at least \uYardBestMin{}
 in every regime and at every noise share.
 
@@ -571,7 +575,16 @@ The synchronizer therefore fails graded dependence at every sample, those inside
 its aperture included, whichever protocol carries the data across the boundary,
 and so does a random source that reads its bits from how a metastable stage
 resolves. The value a chip reads from one bit passes nowhere, within a clock
-domain or across its boundaries.
+domain or across its boundaries. Several bits held near their thresholds
+together, reading one graded quantity as the stages of a time-to-digital
+converter read one transition time, do no better than the quantity they read.
+Whatever noise each stage adds, the word is a function of that quantity and of
+noise independent of it, so by the data-processing inequality its response to a
+change is at most the quantity's own. A word whose thresholds straddle the
+quantity within its noise attains that response, so it passes exactly where the
+quantity passes, and P then counts the stage as it counts an analog one: as a
+graded reader of that quantity, with a verdict that turns on what the quantity
+is coupled to.
 
 \paragraph{The yardstick.} The separation holds at every yardstick from
 \uYardLow{} to \uYardHigh{} (Figure~\ref{fig:yardstick}). Across that range the
@@ -1198,15 +1211,13 @@ agrees with P on every test here, and it is the intended reading of P: the
 tests ask which grain unity tracks, not whether a functional account of unity
 is correct.
 
-\item \emph{Hardware near its thresholds.} The noisy margin theorem bounds a
-digital content's response by its error rate. Hardware run so close to its
-thresholds that a change of one noise amplitude moves its contents by a
-fluctuation would escape the bound. One bit cannot, under Gaussian noise, since
-no binary readout reaches the fluctuation, so such hardware would read one
-graded quantity through several bits held near their thresholds together, a
-design the switching count does not cover. The thermal estimate declares the node capacitance
-it uses, and the switching count declares its clock, activity factors,
-transition time and synchronizer.
+\item \emph{The hardware counts.} The ceiling on one bit is stated for
+symmetric noise laws with one peak that put less than twice the fluctuation of
+their mass within one standard deviation of the centre; the thermal noise of a
+logic node meets it, and a bit under noise with a sharper peak and heavier
+tails, such as a Student law with three degrees of freedom, can pass. The
+thermal estimate declares the node capacitance it uses, and the switching count
+declares its clock, activity factors, transition time and synchronizer.
 
 \item \emph{The cortical estimates.} The single-input estimate of
 Appendix~\ref{app:noise} combines in vitro measurements of one connection type
@@ -1487,7 +1498,30 @@ synchronizer with aperture $T_W$, clock $f_C$ and data changing at rate $f_D$
 samples inside its aperture at the rate $T_W f_C f_D$, so at most a share $T_W
 f_D$ of its samples do. Each sample is read as one bit, so it passes at no
 yardstick above $\Phi(1)-1/2$, and at lower yardsticks that share bounds its
-passing fraction. A second stage allowed a time $S$ to resolve fails
+passing fraction. The noise in what the first stage samples includes the
+transition's own jitter, one amplitude of the change, and it is thermal, so
+Gaussian.
+
+The ceiling depends on the noise law only through its mass near the centre.
+A bit read as 1 when a quantity plus noise exceeds a threshold responds to a
+change $a$ by the noise law's mass on one of the two intervals of width $a$ that
+meet at the threshold, so its two-sided response is the smaller of the two, at
+most half the mass of an interval of width $2a$. For a symmetric law with one
+peak the smaller mass is largest with the threshold at the state, where it is
+the mass between the centre and one amplitude. One bit therefore stays below
+the fluctuation at every threshold exactly when the law puts less than twice the
+fluctuation of its mass within one amplitude of its centre. Scaled to unit
+standard deviation, Gaussian, logistic and Laplace noise meet this, and a
+Student law with three degrees of freedom does not.
+
+A word of stages reading one graded quantity $q$ is a function of $q$ plus the
+quantity's own noise and the stages' noise, and the stages' noise is
+independent of $q$. The response of the word to a change of $q$ is therefore at
+most the response of $q$ itself, $2\Phi(a/2\sigma)-1$ under Gaussian noise of
+amplitude $\sigma$, by the data-processing inequality for total variation. With
+two thresholds half an amplitude on either side of the state and no stage noise,
+the word's three outcomes split the line where the two laws cross, and a change
+of one amplitude in either direction moves it by exactly the fluctuation. A second stage allowed a time $S$ to resolve fails
 once in $e^{S/\tau}/(T_W f_C f_D)$ on average, with $\tau$ the stage's
 resolution time constant \citep{ginosar2011}; the declared values are that
 tutorial's 28~nm example, $\tau=\uSwTauPs$~ps and $f_D=\uSwDataMHz$~MHz, with

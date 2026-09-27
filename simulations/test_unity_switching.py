@@ -74,6 +74,59 @@ class SynchronizerTest(unittest.TestCase):
             self.assertEqual(share, bound if y <= us.BINARY_CEILING else 0.0)
 
 
+class NoiseLawTest(unittest.TestCase):
+    def test_a_symmetric_single_peaked_bit_peaks_with_its_threshold_at_the_state(self) -> None:
+        for name, cdf in us.NOISE_LAWS.items():
+            with self.subTest(law=name):
+                self.assertAlmostEqual(us.bit_ceiling(cdf), cdf(1.0) - 0.5, delta=1e-3)
+
+    def test_the_gaussian_ceiling_is_the_binary_ceiling(self) -> None:
+        self.assertAlmostEqual(us.bit_ceiling(us.NOISE_LAWS["gaussian"]), us.BINARY_CEILING, 3)
+
+    def test_each_law_has_unit_standard_deviation(self) -> None:
+        for name, cdf in us.NOISE_LAWS.items():
+            with self.subTest(law=name):
+                self.assertAlmostEqual(us.variance(cdf), 1.0, delta=2e-2)
+
+    def test_one_bit_stays_below_exactly_when_the_centre_holds_less_than_twice_it(self) -> None:
+        for name, cdf in us.NOISE_LAWS.items():
+            with self.subTest(law=name):
+                centre = cdf(1.0) - cdf(-1.0)
+                self.assertEqual(us.bit_ceiling(cdf) < FLUCTUATION_TV, centre < 2 * FLUCTUATION_TV)
+
+    def test_gaussian_logistic_and_laplace_stay_below_and_student_three_does_not(self) -> None:
+        below = {name: us.bit_ceiling(cdf) < FLUCTUATION_TV for name, cdf in us.NOISE_LAWS.items()}
+        self.assertEqual(
+            below, {"gaussian": True, "logistic": True, "laplace": True, "student3": False}
+        )
+
+
+class WordTest(unittest.TestCase):
+    def test_a_word_responds_no_more_than_the_quantity_it_reads(self) -> None:
+        for thresholds in ((0.0,), (-0.5, 0.5), (-1.0, 0.0, 1.0), (-0.3, -0.1, 0.1, 0.3)):
+            for stage_noise in (0.0, 0.2, 1.0):
+                for change in (1.0, -1.0, 2.0):
+                    with self.subTest(t=thresholds, s=stage_noise, c=change):
+                        response = us.word_response(thresholds, change, stage_noise)
+                        self.assertLessEqual(response, tv_of_shift(change) + 1e-6)
+
+    def test_one_threshold_is_one_bit_under_the_binary_ceiling(self) -> None:
+        self.assertAlmostEqual(us.word_response((0.0,), 1.0, 0.0), us.BINARY_CEILING, 4)
+
+    def test_thresholds_half_an_amplitude_either_side_reach_the_fluctuation(self) -> None:
+        for change in (1.0, -1.0):
+            self.assertAlmostEqual(us.word_response((-0.5, 0.5), change, 0.0), FLUCTUATION_TV, 4)
+
+    def test_stage_noise_only_lowers_the_word_response(self) -> None:
+        clean = us.word_response((-0.5, 0.5), 1.0, 0.0)
+        self.assertLess(us.word_response((-0.5, 0.5), 1.0, 0.5), clean)
+
+    def test_the_summary_records_both_hardware_cases(self) -> None:
+        summary = us.run()
+        self.assertEqual(set(summary["noise_laws"]), set(us.NOISE_LAWS))
+        self.assertLessEqual(summary["word"]["best_response"], FLUCTUATION_TV + 1e-6)
+
+
 class SummaryTest(unittest.TestCase):
     def test_the_summary_is_json_and_covers_every_declared_activity(self) -> None:
         summary = us.run()

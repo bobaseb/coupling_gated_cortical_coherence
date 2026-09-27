@@ -33,6 +33,23 @@ in the aperture as passing bounds its passing fraction by ``T_W f_D``. A second
 stage allowed one cycle ``S`` to resolve fails with mean
 time ``e^{S/τ} / (T_W f_C f_D)``.
 
+Other noise laws (U89). A bit read as 1 when a quantity plus noise exceeds a
+threshold responds to a change ``a`` by the noise law's mass on one of the two
+intervals of width ``a`` that meet at the threshold, so its two-sided response
+is the smaller of the two. For a symmetric law with one peak this is largest
+with the threshold at the state, where it is ``F(a) − 1/2``, so one bit stays
+below the fluctuation exactly when the law puts less than twice the fluctuation
+of its mass within one amplitude of its centre. Gaussian, logistic and Laplace
+laws at unit standard deviation do; a Student law with three degrees of
+freedom does not. Thermal noise is Gaussian.
+
+Several bits reading one quantity (U89). A word of stages reading one graded
+quantity, each adding noise of its own, is a function of that quantity plus
+noise independent of it, so by the data-processing inequality its response to
+a change is at most the quantity's own, ``2Φ(a/2) − 1``. Two thresholds half an
+amplitude either side of the state, with no stage noise, attain it: the word
+passes where the quantity it reads passes, and nowhere else.
+
 Declared parameters, not measured ones: a 1 GHz clock; activity factors from a
 memory-like 0.02 through random logic's typical 0.1 to a node that switches
 every other cycle, 0.5 (the dynamic-power convention ``P = α C V² f``); a
@@ -48,8 +65,10 @@ beside the occupancy summaries, and ``unity_macros.py`` reads it.
 
 from __future__ import annotations
 
+import itertools
 import json
 import math
+from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -67,6 +86,85 @@ DATA_HZ = CLOCK_HZ / 10
 SECONDS_PER_YEAR = 365.25 * 24 * 3600
 # The largest two-sided response of one bit to a change of one noise amplitude.
 BINARY_CEILING = normal_cdf(1.0) - 0.5
+WORD_THRESHOLDS = (-0.5, 0.5)
+
+Cdf = Callable[[float], float]
+
+
+def _logistic(x: float) -> float:
+    return 1.0 / (1.0 + math.exp(-x * math.pi / math.sqrt(3.0)))
+
+
+def _laplace(x: float) -> float:
+    tail = 0.5 * math.exp(-abs(x) * math.sqrt(2.0))
+    return tail if x < 0 else 1.0 - tail
+
+
+def _student3(x: float) -> float:
+    t = x * math.sqrt(3.0)
+    return 0.5 + (t / (math.sqrt(3.0) * (1 + t * t / 3)) + math.atan(t / math.sqrt(3.0))) / math.pi
+
+
+# Symmetric single-peaked noise laws, each scaled to unit standard deviation.
+NOISE_LAWS: dict[str, Cdf] = {
+    "gaussian": normal_cdf,
+    "logistic": _logistic,
+    "laplace": _laplace,
+    "student3": _student3,
+}
+
+
+def variance(cdf: Cdf, reach: float = 2000.0, nodes: int = 400_001) -> float:
+    """``E[x²]`` of a symmetric law from its distribution function, on a grid."""
+    edges = [reach * math.sinh(6 * k / (nodes - 1)) / math.sinh(6) for k in range(nodes)]
+    total = 0.0
+    for low, high in itertools.pairwise(edges):
+        mid = 0.5 * (low + high)
+        total += mid * mid * (cdf(high) - cdf(low))
+    return 2 * total
+
+
+def bit_ceiling(cdf: Cdf, change: float = 1.0) -> float:
+    """The largest two-sided response of one bit to ``change``, over thresholds."""
+    offsets = [k / 1000 for k in range(-3000, 3001)]
+    return max(min(cdf(u) - cdf(u - change), cdf(u + change) - cdf(u)) for u in offsets)
+
+
+def _stage_one(level: float, threshold: float, stage_noise: float) -> float:
+    if stage_noise == 0.0:
+        return float(level > threshold)
+    return normal_cdf((level - threshold) / stage_noise)
+
+
+def word_law(thresholds: Sequence[float], state: float, stage_noise: float) -> list[float]:
+    """The law of the word read from ``state`` plus unit Gaussian noise, one stage per threshold."""
+    outcomes = list(itertools.product((0, 1), repeat=len(thresholds)))
+    law = [0.0] * len(outcomes)
+    step = 1e-3
+    for k in range(-10_000, 10_001):
+        noise = k * step
+        weight = math.exp(-0.5 * noise * noise) * step / math.sqrt(2 * math.pi)
+        ones = [_stage_one(state + noise, t, stage_noise) for t in thresholds]
+        for i, word in enumerate(outcomes):
+            law[i] += weight * math.prod(p if b else 1 - p for p, b in zip(ones, word, strict=True))
+    return law
+
+
+def _interval_law(thresholds: Sequence[float], state: float) -> list[float]:
+    cuts = [-math.inf, *sorted(thresholds), math.inf]
+    return [
+        normal_cdf(high - state) - normal_cdf(low - state) for low, high in itertools.pairwise(cuts)
+    ]
+
+
+def word_response(thresholds: Sequence[float], change: float, stage_noise: float) -> float:
+    """Total variation a ``change`` of the quantity makes to the word's law."""
+    if stage_noise == 0.0:
+        pair = [_interval_law(thresholds, x) for x in (0.0, change)]
+    else:
+        pair = [word_law(thresholds, x, stage_noise) for x in (0.0, change)]
+    first, second = pair
+    return 0.5 * sum(abs(p - q) for p, q in zip(first, second, strict=True))
 
 
 def crossing_response(change: float, slew: float) -> float:
@@ -167,6 +265,19 @@ def run() -> dict[str, Any]:
         "nodes": [_node(a) for a in ACTIVITIES],
         "latched": latched_summary(),
         "synchronizer": _synchronizer(),
+        "noise_laws": {
+            name: {
+                "centre_mass": cdf(1.0) - cdf(-1.0),
+                "ceiling": bit_ceiling(cdf),
+                "below_fluctuation": bit_ceiling(cdf) < FLUCTUATION_TV,
+            }
+            for name, cdf in NOISE_LAWS.items()
+        },
+        "word": {
+            "thresholds": list(WORD_THRESHOLDS),
+            "best_response": word_response(WORD_THRESHOLDS, 1.0, 0.0),
+            "quantity_response": tv_of_shift(1.0),
+        },
     }
 
 

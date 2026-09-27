@@ -110,5 +110,35 @@
       "400": 800000.0
     },
     "mtbf_years": 4.259064602213371e+29
+  },
+  "noise_laws": {
+    "gaussian": {
+      "centre_mass": 0.6826894921370859,
+      "ceiling": 0.3413447460685429,
+      "below_fluctuation": true
+    },
+    "logistic": {
+      "centre_mass": 0.719640870292547,
+      "ceiling": 0.3598204351462735,
+      "below_fluctuation": true
+    },
+    "laplace": {
+      "centre_mass": 0.7568832655657858,
+      "ceiling": 0.3784416327828929,
+      "below_fluctuation": true
+    },
+    "student3": {
+      "centre_mass": 0.8183098861837905,
+      "ceiling": 0.40915494309189526,
+      "below_fluctuation": false
+    }
+  },
+  "word": {
+    "thresholds": [
+      -0.5,
+      0.5
+    ],
+    "best_response": 0.38292492254802624,
+    "quantity_response": 0.38292492254802624
   }
 }
