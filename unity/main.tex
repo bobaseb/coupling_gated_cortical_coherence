@@ -248,7 +248,10 @@ other, so the weaker form fails exactly as the stronger one does, and each part
 is a system of its own. Its wires pass on only the changes that cross a
 threshold, which is the rule applied at each clock step, so between thresholds,
 where a working chip spends nearly all of its time, it is as many systems as it
-has bits. The citizens of Block's nation likewise register each other only
+has bits. The count looks strange because ordinary usage counts by program, and
+one program uses all of the bits. Counted by physics, each bit is restored to
+its own rail by its own gates, and what keeps the bits in step is the rule the
+program applies, a protocol among separate records. The citizens of Block's nation likewise register each other only
 through the messages they exchange. Cortex passes within every window, as shown
 below. P asks exactly this of the regions whose contents are unified. The
 premise is thus the conjunction of two more familiar ones: a unified experience
@@ -538,6 +541,18 @@ threshold, as measured above. What a digital circuit adds is restoration. Each
 gate drives its output back to a rail, so every transition the latch reads
 starts and ends far from any threshold, and the clock then removes the graded
 timing that spikes keep.
+
+\paragraph{Clockless logic.} Asynchronous circuits have no clock. In a
+quasi-delay-insensitive design each stage signals completion to the next
+through a handshake, and correctness holds under every assignment of gate and
+wire delays apart from a few forks assumed isochronic \citep{martin2006}. Their
+transition times vary gradedly with every voltage, as a spike time does. The
+design makes the computed values independent of those times: a value is
+accepted once its code is complete, whatever delays produced it. The timing of
+such a circuit is therefore a trace in the sense of Section~\ref{sec:cover}. It
+moves with the physics, and the circuit's own contents are read from completed
+codes, each held at a rail by restoring gates, so they meet the margin theorem
+as a clocked circuit's contents do.
 
 \paragraph{Leakage.} Real digital hardware leaks: supply noise, crosstalk and
 temperature move the analog quantities behind every bit. The margin theorem says

@@ -764,11 +764,16 @@ Review response (raised 2026-09-26, external-style review scored 5/10; plan
   §enforcement "A region in numbers"; §ai "Why spikes are not bits" and "The
   margin's width" argue from the rail arm; Limitations "The cortical estimate"
   becomes the simulation's scope; intro claim 1 updated.
-- [ ] **U38 — Clockless logic, and the "as many systems as bits" reductio.**
+- [x] **U38 — Clockless logic, and the "as many systems as bits" reductio.**
   Quasi-delay-insensitive design makes content invariant to transition timing
   by construction, so timing is a trace (verify citation online). State the
   many-systems consequence as intended and argue it from how physics
   individuates subsystems whose interaction stays below their noise.
+  *Done 2026-09-27:* §ai "Clockless logic" (QDI handshakes make values
+  independent of delays, so timing is a trace; contents are read from
+  completed codes held at rails; Martin & Nyström 2006, verified at
+  Caltech's record and IEEE Xplore). "Counting systems" answers the reductio:
+  ordinary usage counts by program, physics by restoration.
 - [ ] **U39 — Bridge arms share one filter.** The quantized arm is the analog
   arm's filter followed by a quantizer; transfer entropy is matched by the
   analog arm's bandwidth alone. The arms then differ only in the quantizer's
