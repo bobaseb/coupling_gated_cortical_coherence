@@ -31,9 +31,10 @@ physically enforced agreement: within every window of a content's time scale,
 some graded carrier of each region must register the graded state of every
 region it overlaps, above its own noise, through a coupling that pulls their
 contents together. The premise is functional at the grain of physical dynamics
-and rejects computational functionalism. We prove that content read through a
-noise margin depends on the graded state of no region, so a digital machine,
-clocked or clockless, fails the premise whatever algorithm it runs. Measured by
+and rejects computational functionalism. We prove that under noise, content read
+from bits responds to a change of any region by at most its error rate, a bound
+that is attained, so a digital machine, clocked or clockless, fails the premise
+whatever algorithm it runs. Measured by
 one protocol over the states each occupies, a noisy cortical membrane passes
 near its threshold and reaches such a state within a percept's time scale,
 while a logic node passes at none of its states. On a noisy sheet of coupled
@@ -94,7 +95,7 @@ zone of it \citep{koch2016}.
 
 The paper makes three claims:
 \begin{enumerate}
-\claim{sec:enforcement}{Content read through a noise margin, under continuous physical dynamics, depends on the graded state of no region, so content read from bits is not physically enforced, whatever algorithm the bits run. Measured by one protocol over the states each occupies, a cortical membrane passes the noise-floor test near its threshold and visits such states within every window of a percept's time scale, while a logic node passes at none of its states}
+\claim{sec:enforcement}{Under noise, content read from bits responds to a change of any region below its margin by at most its error rate, a bound that is attained, so content read from bits is not physically enforced, whatever algorithm the bits run. Measured by one protocol over the states each occupies, a cortical membrane passes the noise-floor test near its threshold and visits such states within every window of a percept's time scale, while a logic node passes at none of its states}
 \claim{sec:reach}{On a noisy coupled sheet, the reach of the coupling sets how fast agreement fades with distance: coupling that falls off more slowly than $r^{-4}$ keeps agreement at every distance, and coupling of finite second moment lets it fade without limit}
 \claim{sec:tests}{P makes testable predictions for cortex: a weak, sub-threshold perturbation of one region shifts the graded content decoded in an overlapping region toward agreement, and when two regions are bridged at matched information flow, unity follows the bridge that couples them gradedly, which separates P from computational functionalism}
 \end{enumerate}
@@ -175,14 +176,14 @@ gradedly on each region there and the overlap discrepancy contracts near it.
 P requires this at the states the system occupies while its contents are
 unified.
 
-\paragraph{The margin theorem.} In words: if content is read through a margin,
+\paragraph{The margin lemma.} In words: if content is read through a margin,
 small enough physical changes never reach it. Precisely, if the micro dynamics
 is continuous and carries a state into a margin's operating set, the next
 content depends gradedly on no region's micro state. The proof is short:
 continuity carries a small enough neighbourhood of each region's micro state
 into the neighbourhood on which the readout is constant. A thresholded
 continuous quantity has a margin away from its threshold, and so does a finite
-word of such readouts, so the theorem covers any content read from bits. The
+word of such readouts, so the lemma covers any content read from bits. The
 definitions carry the weight of the result, and the rest of this section argues
 that they sit at the right level.
 
@@ -291,7 +292,7 @@ together.
 \paragraph{Categories.} Categorical contents have margins in every substrate,
 brains included. The dominant percept in binocular rivalry, a perceived
 category, or any class picked as the largest of several values stays the same
-on each side of its boundary. Away from the boundary, the margin theorem
+on each side of its boundary. Away from the boundary, the margin lemma
 therefore denies it graded dependence in cortex exactly as in silicon. So P is
 stated on the graded variables from which categories are read, such as a
 location, an orientation, a time or the relative strength of competing
@@ -309,7 +310,7 @@ at every later one.
 gate's chance of flipping is a smooth function of its input voltage and is never
 exactly zero, so the \emph{probability} of a digital machine's next content
 depends, however slightly, on every region. Read on exact contents, the margin
-theorem would then pick out a difference lying below the noise floor of both
+lemma would then pick out a difference lying below the noise floor of both
 substrates. P is therefore read on probabilities. The \emph{response} of a
 content to a region at scale $\eta$ is the largest change that moving the region
 by at most $\eta$ makes to the probability of any outcome of the next content, a
@@ -325,7 +326,8 @@ is met exactly when a change of one noise amplitude reaches the fluctuation.
 The constants are a Gaussian identity and the system's own
 scales, and none of them is fitted to either substrate.
 
-The margin theorem has a noisy form. Let each realization of the noise fix an
+The margin lemma has a noisy form, the noisy margin theorem, and it is this
+form that carries the argument, since real physics is noisy. Let each realization of the noise fix an
 $L$-Lipschitz step of the micro dynamics, one that stretches no distance by
 more than a factor $L$. Let the content be constant within radius $r$ of the
 noisy successor, except on a set of realizations of probability at most
@@ -516,7 +518,7 @@ substrates, can satisfy P.
 
 \paragraph{Symbols and physical contents.} The line P draws is between symbolic
 and physical content, and the line between digital and analog hardware is its
-most common instance. A \emph{symbol}, in the sense the margin theorem makes
+most common instance. A \emph{symbol}, in the sense the margin lemma makes
 precise, is a content read through a noise margin: a physical state whose
 identity survives every small enough change of the state that carries it. Two
 symbols therefore agree only when a rule applied at discrete steps makes them
@@ -538,7 +540,7 @@ cortical sheet does. A neuromorphic chip passes where its contents are read from
 membrane potentials coupled continuously, and fails where they are read from
 spike counts latched at a clock edge. Biological tissue passes or fails on the
 same terms: a neural circuit whose contents were read only from all-or-none
-events latched far from threshold would fall under the margin theorem as any
+events latched far from threshold would fall under the margin lemma as any
 digital circuit does.
 
 \paragraph{Why spikes are not bits.} Spikes are all-or-none events, and what
@@ -547,7 +549,7 @@ through threshold, the moment it crosses moves continuously with any small
 input, and the receiving cells integrate spike times as they arrive rather than
 sampling them. Spike timing therefore carries graded dependence from one region
 to the next. A clocked latch compares the time of a transition with the clock
-edge, which puts a threshold on the transition time, so the margin theorem
+edge, which puts a threshold on the transition time, so the margin lemma
 applies with that time as the thresholded quantity. The clock alone does not
 separate the substrates: a spike time read through a clock still passes near
 threshold, as measured above. What a digital circuit adds is restoration. Each
@@ -564,11 +566,11 @@ design makes the computed values independent of those times: a value is
 accepted once its code is complete, whatever delays produced it. The timing of
 such a circuit is therefore a trace in the sense of Section~\ref{sec:cover}. It
 moves with the physics, and the circuit's own contents are read from completed
-codes, each held at a rail by restoring gates, so they meet the margin theorem
+codes, each held at a rail by restoring gates, so they meet the margin lemma
 as a clocked circuit's contents do.
 
 \paragraph{Leakage.} Real digital hardware leaks: supply noise, crosstalk and
-temperature move the analog quantities behind every bit. The margin theorem says
+temperature move the analog quantities behind every bit. The margin lemma says
 where such leakage can reach content. If a content read as a word of
 thresholded continuous quantities depends gradedly on any region, some bit of
 the next state sits exactly on its threshold, and correct operation keeps every
@@ -589,7 +591,7 @@ well below that scale: a textbook inverter's static noise margin is
 variation of \ueSupplyPercent{}\% \citep{rabaey2003}, so the expected variation
 is \ueNoiseToMargin{} of the margin. The nondeterminism of floating-point
 reduction order is a choice among logical trajectories and lies outside both
-theorems: it changes which content is computed, not how content depends on
+results: it changes which content is computed, not how content depends on
 graded state.
 
 \paragraph{The margin's width.} If P turned on how wide an engineer happened to
@@ -619,7 +621,7 @@ potentials within the basin, and the spike times on the way to the attractor.
 Downstream cells integrate those. The voltage beneath a bit has no such reader,
 since the chip reads it only through the threshold. A cortical circuit whose
 contents were read only as attractor labels, far from the basins' boundaries,
-would fall under the margin theorem as a chip does, and the weak nudge of
+would fall under the margin lemma as a chip does, and the weak nudge of
 Section~\ref{sec:tests} tests which case cortex is in.
 
 \section{Tests}
@@ -714,7 +716,7 @@ restoration at the relaxation rate of Section~\ref{sec:reach}, with a restoring
 pull proportional to the size of the perturbation, below any threshold as well
 as above. The same protocol run on an artificial system, by patching the
 activations of one layer, head or position, has an outcome fixed in advance by
-the margin theorem. A digital system can restore agreement by computation, above
+the margin lemma. A digital system can restore agreement by computation, above
 the scale at which its logical trajectory changes, and below that scale nothing
 moves. Observing this checks that the hardware operates inside its margins. It
 is also the contrast that makes the cortical outcome informative: a restoring
@@ -793,7 +795,7 @@ enforced.
 exclusion from a different premise. If the physical dynamics of a system is
 relevant to its consciousness, processors designed and verified to suppress
 deviations from their computational dynamics cannot be conscious. The margin
-theorem states that suppression formally, and three things are added to it
+lemma states that suppression formally, and three things are added to it
 here. The criterion's scale is fixed by the parts' own noise, so it counts
 systems instead of asking whether physics is relevant at all. The coupling must
 contract disagreement, which a substrate meets or fails separately from how it
@@ -844,7 +846,7 @@ The tests separate P from computational functionalism. A functionalism that
 states its roles at the grain of graded physical state agrees with P on every
 test here, and the paper does not choose between the two.
 
-\item \emph{Hardware near its thresholds.} Under noise the margin theorem bounds a
+\item \emph{Hardware near its thresholds.} The noisy margin theorem bounds a
 digital content's response by its error rate. Hardware run so close to its
 thresholds that a change of one noise amplitude moves its contents by a
 fluctuation would escape the bound. The thermal estimate declares the node
@@ -877,10 +879,10 @@ unified contents were basin labels alone would fail P.
 
 \item \emph{Which variables are contents.} Which variables a system's own
 dynamics reads, and so which are its contents, is settled system by system from
-its circuitry. The margin theorem takes that identification as given.
+its circuitry. The margin lemma takes that identification as given.
 
 \item \emph{Artificial systems.} The predictions for artificial systems are
-consequences of the margin theorem. Confirming them checks that hardware runs
+consequences of the margin lemma. Confirming them checks that hardware runs
 inside its margins and leaves P untested; the tests of P are the cortical ones.
 
 \item \emph{Agreement in time.} Its edges are proved for a given contraction

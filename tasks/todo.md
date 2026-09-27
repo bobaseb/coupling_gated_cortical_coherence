@@ -120,11 +120,15 @@ comes back badly; above 6 needs data (a bridge pilot).
   the dialectic: a functionalist rejecting P must reject one of two claims.
   The intro's reason and Limitations "The premise" follow (an access account
   of unity rejects the first step).
-- [ ] **U51 — Present the margin theorem as a lemma.** It is one step
+- [x] **U51 — Present the margin theorem as a lemma.** It is one step
   (continuous map into a locally constant readout). Put the contribution's
   weight on what is not trivial: the noise-floor criterion, the noisy margin
   bound and its attainment, and the occupancy measurement. Lean-checking a
   one-step lemma draws attention to how little is checked.
+  *Done 2026-09-27:* "the margin lemma" throughout; "the noisy margin
+  theorem" is named where introduced as the form that carries the argument;
+  abstract and claim 1 now lead with the noisy bound and its attainment.
+  Lean names unchanged (no identifier in the main text).
 - [x] **U52 — "Each bit is a separate system" needs more than one paragraph.**
   Physicists will read it as a redefinition, since crosstalk and a shared
   supply are real interactions. The whole paper rests on this move: expand
@@ -186,10 +190,10 @@ comes back badly; above 6 needs data (a bridge pilot).
   hypothesis. One paragraph in §related: P is the premise that report sets
   aside, stated so that it can be tested (the bridge), and it adds a
   substrate condition to an indicator list rather than a new indicator.
-
-  *Done 2026-09-27:* verified on arXiv (19 authors, 2308.08708; "computational
-  functionalism … as a working hypothesis", p. 5 of v3); new §related
+  *Done 2026-09-27:* verified on arXiv (19 authors, 2308.08708; adopts
+  "computational functionalism … as a working hypothesis"); new §related
   paragraph "Indicator properties".
+
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
   Consciousness* or *Phil. Trans. B*. arXiv posting: cs.AI primary (author has
