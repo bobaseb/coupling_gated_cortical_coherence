@@ -785,12 +785,18 @@ Review response (raised 2026-09-26, external-style review scored 5/10; plan
 - [ ] **U41 — Abstract and introduction.** Lead with the premise and the
   region-scale separation, then reach, then refutable predictions; the margin
   theorem as means, not headline. At most one disclaimer.
-- [ ] **U42 — Computational functionalism, not functionalism.** P is itself a
+- [x] **U42 — Computational functionalism, not functionalism.** P is itself a
   functional criterion fixed at the grain of the physical dynamics, so it
   rejects computational functionalism and is compatible with fine-grained
   functionalism. Rename throughout; a Related work paragraph on grain (verify
   any citation online); Limitations "The premise" states that P does not decide
   against a functionalism stated at the grain of graded physical state.
+  *Done 2026-09-27:* intro says P is a functional condition at the grain of
+  graded physical dynamics and rejects computational functionalism; §tests
+  and Limitations say "computational functionalism"; Related work "The
+  grain of a function" (Block 1978; Godfrey-Smith 2016, J Phil
+  113(10):481–506, verified via Crossref); Limitations "The premise" states
+  that a physically grained functionalism agrees with P on every test.
 - [ ] **U43 — P is neutral on where unified contents live.** Raised by the
   author: the paper commits to a distributed, whole-brain view in §reach
   ("regions a single scene joins lie up to 15 cm apart") and in the window
