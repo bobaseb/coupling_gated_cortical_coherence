@@ -727,7 +727,7 @@ hostile reviewer would open with.*
   limitation shrinks to hardware reading one graded quantity through several
   bits held near threshold together (not covered). No Lean row: the ceiling is
   a Gaussian computation (`test_unity_occupancy`), not a Lean theorem.
-- [ ] **U83 — The third step of the counting argument.** 'Counting systems at
+- [x] **U83 — The third step of the counting argument.** 'Counting systems at
   the noise floor' concludes that one unregistered change in the
   noise-to-threshold range makes two systems, "since their joint state
   factors along it". Critics will say that one unregistered direction does not
@@ -737,6 +737,16 @@ hostile reviewer would open with.*
   independent of, at that scale), weaken the conclusion to what one direction
   gives, or say which it is and why the weaker reading still separates records
   from graded readers.
+  *Done 2026-09-27:* the third option. The third step now states physics'
+  criterion as a product decomposition (each part's dynamics independent of the
+  other's state at the resolution), shows a record meets it outright (inside
+  its margin its next content ignores the other's whole graded state, up to the
+  error rate) and a graded reader meets its opposite (no coordinate of the read
+  region is ignored), and says the count draws the line at the strict end: one
+  unregistered change makes two. Records and graded readers are classed alike
+  by both readings, and they are the cases the argument turns on. 'The premise'
+  limitation says where the readings part: a carrier registering some changes
+  in the range and not others.
 - [ ] **U84 — Length and density of §enforcement.** After U75–U80 the section
   carries six definitions, an outline, and about twenty paragraphs. Candidates
   to move to an appendix: the noise paragraph's MLR detail, 'A neuron in
