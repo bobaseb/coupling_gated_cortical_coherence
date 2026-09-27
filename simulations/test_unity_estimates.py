@@ -88,6 +88,11 @@ class NoiseFloorTest(unittest.TestCase):
         self.assertGreater(estimates["errorOrders"], 10.0)
         self.assertLess(estimates["gradedWindowPercent"], 1.0)
 
+    def test_an_astronomical_error_rate_is_reported_as_a_round_bound(self) -> None:
+        self.assertEqual(ue.reported_orders(55400.3), ue.REPORTED_ORDERS)
+        self.assertEqual(ue.reported_orders(42.7), 42)
+        self.assertEqual(ue.estimates()["errorOrders"], ue.REPORTED_ORDERS)
+
     def test_the_cortical_carrier_passes_at_a_unitary_epsp(self) -> None:
         estimates = ue.estimates()
         self.assertGreater(estimates["corticalShiftToJitter"], 1.0)

@@ -20,6 +20,9 @@ class UnityMacroTests(unittest.TestCase):
         self.assertIn("\\uCorShareTol", text)
         self.assertIn("figures/unity_occupancy/", text)
 
+    def test_the_restored_bit_is_reported_as_a_round_bound(self) -> None:
+        self.assertIn("\\newcommand{\\uOccBitOrders}{100}", render(FIGURES))
+
     def test_every_macro_the_paper_uses_is_generated(self) -> None:
         paper = (OUTPUT.parent / "main.tex").read_text()
         defined = set(render(FIGURES).split("\\newcommand{\\")[1:])

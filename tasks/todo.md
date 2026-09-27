@@ -619,6 +619,9 @@ it to about 7.*
   the macro's generator, not the prose). (c) The definition of unity and the
   bridge assumption lean on a self-citation (the companion); state enough of
   both in-paper that the argument stands without it.
+  *(b) done 2026-09-27:* `unity_estimates.REPORTED_ORDERS = 100` and
+  `reported_orders`; `\ueErrorOrders` and `\uOccBitOrders` now print 100 and
+  the prose says "below $10^{-100}$". (a), (c) open.
 
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of

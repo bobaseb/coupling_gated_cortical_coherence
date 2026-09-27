@@ -111,6 +111,9 @@ EPSP_CV = 0.52
 MEMBRANE_NOISE_MV = 0.54
 # Above this argument the Gaussian tail is taken from its asymptotic series.
 TAIL_SWITCH = 30.0
+# Declared: probabilities below 10^-100 are printed as that bound. The exact
+# exponent of a thermal flip is tens of thousands, a number no reader can use.
+REPORTED_ORDERS = 100
 
 
 def normal_cdf(x: float) -> float:
@@ -146,6 +149,11 @@ def inverse_gaussian_tail(p: float) -> float:
         else:
             high = mid
     return (low + high) / 2
+
+
+def reported_orders(orders: float) -> int:
+    """The power of ten printed for a probability ``10^-orders``: a bound, never above it."""
+    return min(math.floor(orders), REPORTED_ORDERS)
 
 
 def thermal_noise_v(capacitance: float) -> float:
@@ -200,7 +208,7 @@ def noise_floor() -> dict[str, float]:
         "thermalNoiseMv": 1000 * sigma,
         "marginToNoise": ratio,
         # A change of one noise amplitude leaves margin − σ: the response bound.
-        "errorOrders": float(f"{-log10_gaussian_tail(ratio - 1):.3g}"),
+        "errorOrders": reported_orders(-log10_gaussian_tail(ratio - 1)),
         # The response reaches the fluctuation only this close to the threshold.
         "gradedWindowPercent": 100 * inverse_gaussian_tail(FLUCTUATION_TV) / ratio,
         "epspMv": EPSP_MV,

@@ -16,6 +16,8 @@ from fractions import Fraction
 from pathlib import Path
 from typing import Any, cast
 
+from unity_estimates import reported_orders
+
 ROOT = Path(__file__).resolve().parent
 FIGURES = ROOT / "figures"
 OUTPUT = ROOT.parent / "unity" / "unity_results.tex"
@@ -166,7 +168,7 @@ def _control_values(summary: dict[str, Any]) -> list[tuple[str, str]]:
         ("uOccLatchShortMs", f"{periods[0]:g}"),
         ("uOccLatchLongMs", f"{periods[-1]:g}"),
         ("uOccResolutionPercent", f"{100 * abs(fine - coarse) / coarse:.0f}"),
-        ("uOccBitOrders", f"{-_finite(bit['log10_max_response']):.0f}"),
+        ("uOccBitOrders", str(reported_orders(-_finite(bit["log10_max_response"])))),
     ]
 
 
