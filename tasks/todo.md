@@ -669,6 +669,65 @@ it to about 7.*
   app:reach and renamed the *phase-to-content assumption*, so that "bridge"
   names only the experiment.
 
+*Self-assessment 2026-09-27 after U75–U80 (grade ~6/10, weak accept). U81–U85
+are what keeps it below 7, most severe first. U81 and U82 are the ones a
+hostile reviewer would open with.*
+
+- [ ] **U81 — "Next content" must predate the chip case.** U75 confirmed the
+  review's worry at the voltage level: a switching node's crossing time passes
+  at 0.02–0.5% of its states, inside the membrane's 0.014–2.3%, in every
+  window. The separation now rests on the sixth definition (a carrier's next
+  content is what its readers take, when they take it), added in the same
+  commit that needed it. A reader can call it the second tuning of the
+  criterion, after the per-window form. Remedy: derive it from §cover's
+  carrier definition, whose first condition already asks that the regions a
+  region drives *respond* to the variable, so that "read at the clock edge"
+  follows from the carrier condition rather than being stipulated beside it.
+  Then check that the membrane's per-window result and the latch's failure
+  both follow from the carrier definition unchanged.
+  **Success.** §enforcement has five definitions again, or the sixth is stated
+  as a lemma of §cover's; no sentence introduces the reader-relative reading
+  only where the chip needs it.
+- [ ] **U82 — The synchronizer by principle, not by protocol.** A
+  synchronizer's first stage latches transitions by design, 8×10^5 times per
+  400 ms, and its resolution passes. The paper answers that it decides the
+  cycle, not the value, which holds only for transfer protocols that hold the
+  value across the boundary, a contingent design fact now parked in the
+  'Hardware near its thresholds' limitation. Options: (a) state it up front as
+  a prediction P makes about hardware: a machine whose contents are read from
+  how its synchronizers (or metastability-based random sources) resolve
+  passes P's graded-dependence half at those carriers, and then ask whether it
+  meets the contraction half (it pulls no two regions toward agreement);
+  (b) show that the contraction half fails for every synchronizer, which would
+  make the verdict principled. Prefer (b) if it is provable, and a Lean row if
+  it is.
+  **Success.** The synchronizer paragraph gives a reason from P's own two
+  demands, and the limitation shrinks or goes.
+- [ ] **U83 — The third step of the counting argument.** 'Counting systems at
+  the noise floor' concludes that one unregistered change in the
+  noise-to-threshold range makes two systems, "since their joint state
+  factors along it". Critics will say that one unregistered direction does not
+  factor a joint state; physics asks for a product decomposition, not a single
+  unmoved direction. Either argue the step (the held-but-unregistered
+  coordinate is a subsystem whose state the other part's dynamics is
+  independent of, at that scale), weaken the conclusion to what one direction
+  gives, or say which it is and why the weaker reading still separates records
+  from graded readers.
+- [ ] **U84 — Length and density of §enforcement.** After U75–U80 the section
+  carries six definitions, an outline, and about twenty paragraphs. Candidates
+  to move to an appendix: the noise paragraph's MLR detail, 'A neuron in
+  numbers' (its content is in the occupancy result), the correlated-carrier
+  numbers after the first one. Target: §enforcement readable in one sitting,
+  with the argument's spine (outline → definitions → margin lemma → wholeness
+  → counting → the chip, counted → the membrane and the switching chip,
+  counted) visible from the paragraph titles.
+- [ ] **U85 — No data, so choose the venue for a design paper.** The central
+  test is proposed, not run, and the empirical parts are models with declared
+  parameters. That caps the grade near 6 at venues that expect results. Fold
+  into U31: target a venue where a conceptual argument with a preregistered
+  design is a normal format, and consider a Registered Report of the bridge's
+  first preparation (Stage 1 needs exactly the design §tests now states).
+
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
   Consciousness* or *Phil. Trans. B*. arXiv posting: cs.AI primary (author has
