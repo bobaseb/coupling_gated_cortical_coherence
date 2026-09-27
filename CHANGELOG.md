@@ -23,7 +23,32 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
-## 2026-09-26 — Unity paper: P above the noise floor (U24–U26)
+## 2026-09-27 — Unity paper: P over carriers, per content window (U36–U46)
+
+The draft claimed that "a cortical spike time passes the same test" as the
+noise-floor criterion, from one estimate: a unitary EPSP shifts a spike by 1.5
+jitters. That estimate holds only while the membrane rises through threshold.
+Evaluated by the protocol applied to the logic node, over the states a membrane
+occupies (`simulations/unity_occupancy.py`), a cortical carrier passes at
+0.014–2.3% of them, so P as stated (every change of every region, at every
+state) failed for cortex as well as for chips. P now asks, within every window
+of the contents' time scale, that *some* carrier of each region pass
+(`Phase10_PhysicalUnity`, §"P over carriers, per content window"). This is
+strictly weaker, which a witness proves, and bits still fail it. A stationary
+membrane reaches a passing state within 400 ms with probability 0.085–0.997.
+Three further claims are no longer made:
+
+- that the clock is what removes graded dependence from a digital circuit; the
+  clock alone changes nothing measurable, and restoration to a rail is what
+  separates;
+- that P rejects functionalism: it rejects *computational* functionalism and is
+  itself a functional condition at the grain of physical dynamics;
+- that the regions a scene joins lie up to 15 cm apart; P is neutral on where
+  unified contents live, and the estimates are given for a localized extent too.
+
+The unity-window section is now a paragraph of §reach and an appendix.
+
+
 
 The physical-unity draft stated the digital exclusion for a deterministic micro
 dynamics and conceded, in Limitations, that "graded leakage in real hardware"

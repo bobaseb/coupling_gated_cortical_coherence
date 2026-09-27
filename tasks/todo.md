@@ -793,9 +793,11 @@ Review response (raised 2026-09-26, external-style review scored 5/10; plan
   time for cortex"); `tab:formal` rows and the §tests reference point to
   `sec:reach`. "Window" in the old sense is renamed "agreement in time" so
   that it does not collide with P's content window.
-- [ ] **U41 — Abstract and introduction.** Lead with the premise and the
+- [x] **U41 — Abstract and introduction.** Lead with the premise and the
   region-scale separation, then reach, then refutable predictions; the margin
   theorem as means, not headline. At most one disclaimer.
+  *Done 2026-09-27:* 180-word abstract leading with the premise; claim 3
+  names computational functionalism; CHANGELOG entry for U36–U46.
 - [x] **U42 — Computational functionalism, not functionalism.** P is itself a
   functional criterion fixed at the grain of the physical dynamics, so it
   rejects computational functionalism and is compatible with fine-grained
