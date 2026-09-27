@@ -286,3 +286,7 @@ depends_on = ["g24_shared_task"]
 path = "unity_agreement"
 layer = "simulation"
 depends_on = ["spatial_kernel"]
+
+[[modules]]
+path = "unity_occupancy"
+layer = "simulation"

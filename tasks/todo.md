@@ -692,6 +692,23 @@ Review response (raised 2026-09-26, external-style review scored 5/10; plan
   arm fails at region scale, stop and return to the author before touching
   the thesis. **Success.** The separation is a measured curve under one
   protocol, not two differently placed estimates.
+  *Built 2026-09-27, as a record; the paper is unchanged.* The author chose
+  carrier grain: the protocol is one carrier, so the region-scale simulation
+  was not built. `simulations/unity_occupancy.py` does an exact grid
+  propagation of a noisy LIF membrane, with a Brownian-bridge crossing
+  correction and the mean calibrated to a declared rate. The next content is
+  the first spike time in a window. Every change of 1–3σ, up or down, must
+  reach θ*. Summary in `figures/unity_occupancy/summary.json`.
+  **Result: the cortical carrier fails at 97.7–99.99% of the states it
+  occupies**, with a mean distance to threshold of 2.0–3.5σ over τ 5–20 ms,
+  rates 0.5–8 Hz and windows 10–30 ms. It passes only near threshold, so the
+  paper's single-cell estimate (1.5× jitter) was evaluated at a favourable
+  state. A restored bit passes nowhere at any margin: θ* is exactly the
+  largest response a Gaussian-noised binary readout can make to a 1σ change.
+  At the logic margin its response is 10^−53878. A clock latch changed
+  nothing measurable. The resolution check (half step, half dt) moves the
+  pass fraction by ~10%. Author's decision: restate P existentially over
+  carriers ("some carriers, always"), see U44.
 - [ ] **U37 — Paper: the region result replaces the single-cell headline.**
   §enforcement "A region in numbers"; §ai "Why spikes are not bits" and "The
   margin's width" argue from the rail arm; Limitations "The cortical estimate"
