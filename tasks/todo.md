@@ -773,6 +773,55 @@ hostile reviewer would open with.*
   design is a normal format, and consider a Registered Report of the bridge's
   first preparation (Stage 1 needs exactly the design §tests now states).
 
+*Self-assessment 2026-09-27 after U81–U84 (grade ~6/10, weak accept; about
+6.5 at a venue for conceptual work). U85 (no data) is still the main cap.
+U86–U90 are the rest, most severe first; U85 plus U87 plus U89 would move it
+to about 7.*
+
+- [ ] **U86 — The weight still rests on two premises.** Wholeness (Bayne's
+  mereological account) and counting (the noise-to-threshold scale) are
+  argued, not derived. The paper now says so, but a reviewer who rejects either
+  rejects the paper, and the Lean results cannot help. Options: (a) show what
+  survives under the main rival account of unity (joint access), e.g. which
+  predictions of §tests hold without wholeness; (b) give the counting premise
+  independent support from how physics already individuates subsystems at a
+  resolution (coarse-graining, effective theories), beyond the product
+  decomposition U83 added. **Success.** Each premise has either a second
+  argument or a stated fallback showing which claims survive without it.
+- [ ] **U87 — Audit every generated number against its sentence.** U82 found
+  that U75's "the synchronizer's resolution passes" contradicted the paper's
+  own binary ceiling. A reviewer who finds one such slip distrusts the rest.
+  For every macro in `unity_estimates.tex` and `unity_results.tex`, check that
+  the sentence citing it states what the generator computes (quantity, units,
+  direction of the bound, regime) and that no two sentences contradict each
+  other. Consider a test that pins the claim each macro supports (e.g. the
+  synchronizer's share is zero above `BINARY_CEILING`). **Success.** A
+  checklist with every macro ticked, and fixes committed.
+- [ ] **U88 — The per-window rescue is still the soft spot.** The membrane
+  passes at only 0.014–2.3% of its states. The switching node's crossing time
+  passes at a similar rate and is rejected only because no reader takes it, so
+  the separation rests entirely on the carrier condition (U81). Hostile
+  reviewers will aim there. Strengthen the independent case that downstream
+  cells read spike times as they arrive (evidence for spike-timing-dependent
+  integration, not just rate readout) and state what P predicts if cortical
+  readers turned out to integrate over windows that discard sub-jitter timing.
+- [ ] **U89 — Cases the analysis leaves open.** (a) The binary ceiling
+  Φ(1)−1/2 assumes Gaussian noise; a sharply peaked unimodal law can put more
+  mass within one amplitude. State the class of noise laws for which one bit
+  stays below the fluctuation, or bound it generally. (b) Hardware reading one
+  graded quantity through several bits held near threshold together (a
+  time-to-digital converter's delay line) is not covered (the 'Hardware near
+  its thresholds' limitation). Either settle it (with common input noise the
+  word is a function of one noisy scalar, so data processing caps it at the
+  fluctuation; with independent per-stage noise it may not be) or state it as
+  a prediction about hardware. **Success.** Both are settled or stated as
+  predictions, and the limitation shrinks.
+- [ ] **U90 — Length.** 59 pages; the argument's structure is hard to see on a
+  first read even after U84. Target a main text that a reviewer can read in one
+  sitting: candidates are §tests' preparation detail, §ai paragraphs that
+  restate the margin lemma (Leakage, the margin's width), and §related. Move,
+  don't delete (AGENTS §10 for any disclaimer that moves).
+
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
   Consciousness* or *Phil. Trans. B*. arXiv posting: cs.AI primary (author has
