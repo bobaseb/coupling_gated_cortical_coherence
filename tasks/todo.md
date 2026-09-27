@@ -146,11 +146,15 @@ comes back badly; above 6 needs data (a bridge pilot).
   or sharpen it: what does P predict that generic modulation does not (for
   example, proportionality below threshold and direction toward agreement,
   not merely a change)?
-- [ ] **U55 — Sharpen the delta against Kleiner 2024 and IIT/Findlay 2024.**
+- [x] **U55 — Sharpen the delta against Kleiner 2024 and IIT/Findlay 2024.**
   "Digital hardware suppresses its physics" is already published (Kleiner),
   and IIT already denies simulations experience. State the novel part in
   §related: the contraction condition, the noise-floor criterion and the
   bridge test.
+  *Done 2026-09-27:* §related names the three additions to Kleiner & Ludwig
+  (noise-scaled system count, contraction, the bridge) and says P's verdict is
+  read from one measurement on both substrates, where IIT's is read from
+  causal structure.
 - [ ] **U56 — Condition P on the companion's correlate; present a two-stage
   program.** The companion calls the glued state a *proposed correlate* and
   says "nothing here establishes a consciousness criterion", while the unity
@@ -174,7 +178,7 @@ comes back badly; above 6 needs data (a bridge pilot).
   simulation objection of §enforcement, applied part by part). The bridge is a
   local, testable instance of partial replacement: say so in §tests, which
   also serves U48.
-- [ ] **U58 — Cite and position against Butlin et al. 2023.** "Consciousness in
+- [x] **U58 — Cite and position against Butlin et al. 2023.** "Consciousness in
   Artificial Intelligence: Insights from the Science of Consciousness"
   (arXiv:2308.08708; verify authors, year and venue online) is the default
   reference point for any claim that current AI lacks a property of
@@ -183,6 +187,9 @@ comes back badly; above 6 needs data (a bridge pilot).
   aside, stated so that it can be tested (the bridge), and it adds a
   substrate condition to an indicator list rather than a new indicator.
 
+  *Done 2026-09-27:* verified on arXiv (19 authors, 2308.08708; "computational
+  functionalism … as a working hypothesis", p. 5 of v3); new §related
+  paragraph "Indicator properties".
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
   Consciousness* or *Phil. Trans. B*. arXiv posting: cs.AI primary (author has
