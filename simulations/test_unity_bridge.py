@@ -1,4 +1,4 @@
-"""Gates on the bridge's feasibility: matching the loops and counting trials (U95)."""
+"""Gates on the bridge's feasibility: matching the loops and counting trials (U95, U98)."""
 
 import json
 import math
@@ -30,13 +30,13 @@ class LoopTest(unittest.TestCase):
 
 class InformationTest(unittest.TestCase):
     def test_a_lower_cutoff_carries_less_transfer_entropy(self) -> None:
-        low = ub.evaluate(SMALL, ub.Loop("analog", 2.0), trials=60, seed=0)
-        high = ub.evaluate(SMALL, ub.Loop("analog", 200.0), trials=60, seed=0)
+        low = ub.evaluate(SMALL, ub.Loop("analog", 2.0), trials=60, seed=0)["linear"]
+        high = ub.evaluate(SMALL, ub.Loop("analog", 200.0), trials=60, seed=0)["linear"]
         self.assertLess(low.transfer_entropy, high.transfer_entropy)
 
     def test_a_coarser_step_carries_less_of_both(self) -> None:
-        fine = ub.evaluate(SMALL, ub.Loop("quantized", 5.0), trials=60, seed=0)
-        coarse = ub.evaluate(SMALL, ub.Loop("quantized", 30.0), trials=60, seed=0)
+        fine = ub.evaluate(SMALL, ub.Loop("quantized", 5.0), trials=60, seed=0)["linear"]
+        coarse = ub.evaluate(SMALL, ub.Loop("quantized", 30.0), trials=60, seed=0)["linear"]
         self.assertLess(coarse.transfer_entropy, fine.transfer_entropy)
         self.assertLess(coarse.decodability, fine.decodability)
 
@@ -46,27 +46,69 @@ class InformationTest(unittest.TestCase):
         self.assertLess(abs(te), 0.5)
 
     def test_decodability_is_a_share_of_variance(self) -> None:
-        score = ub.evaluate(SMALL, ub.Loop("analog", 50.0), trials=60, seed=0).decodability
+        score = ub.evaluate(SMALL, ub.Loop("analog", 50.0), trials=60, seed=0)[
+            "linear"
+        ].decodability
         self.assertGreater(score, 0.0)
         self.assertLess(score, 1.0)
+
+
+class NeighbourTest(unittest.TestCase):
+    def test_independent_series_carry_no_neighbour_transfer_entropy(self) -> None:
+        rng = np.random.default_rng(0)
+        te = ub.transfer_entropy_neighbours(
+            rng.standard_normal((200, 400)), rng.standard_normal((200, 400))
+        )
+        self.assertLess(abs(te), 10.0)
+
+    def test_on_the_linear_loop_both_estimators_agree(self) -> None:
+        block = ub.simulate(SMALL, ub.Loop("analog", 50.0), trials=100, seed=0)
+        linear = ub.transfer_entropy(block.recorded_a, block.recorded_b)
+        neighbour = ub.transfer_entropy_neighbours(block.recorded_a, block.recorded_b)
+        self.assertLess(abs(neighbour / linear - 1), 0.15)
+        self.assertLess(
+            abs(
+                ub.decodability_neighbours(block.task, block.recorded_b)
+                - ub.decodability(block.task, block.recorded_b)
+            ),
+            0.05,
+        )
+
+    def test_the_neighbour_estimator_sees_the_quantizer_s_timing(self) -> None:
+        block = ub.simulate(SMALL, ub.Loop("quantized", 10.0), trials=100, seed=0)
+        linear = ub.transfer_entropy(block.recorded_a, block.recorded_b)
+        neighbour = ub.transfer_entropy_neighbours(block.recorded_a, block.recorded_b)
+        self.assertGreater(neighbour, 1.15 * linear)
+
+    def test_every_loop_is_measured_by_both_estimators(self) -> None:
+        measured = ub.evaluate(SMALL, ub.Loop("analog", 50.0), trials=40, seed=0)
+        self.assertEqual(set(measured), set(ub.ESTIMATORS))
 
 
 class MatchTest(unittest.TestCase):
     def test_the_matched_cutoff_reproduces_the_quantized_transfer_entropy(self) -> None:
         cutoffs = np.geomspace(1.0, 1000.0, 12)
-        analog = [ub.evaluate(SMALL, ub.Loop("analog", f), 60, 0) for f in cutoffs]
-        target = ub.evaluate(SMALL, ub.Loop("quantized", 10.0), 60, 0)
-        cutoff = ub.matched_cutoff(cutoffs, analog, target.transfer_entropy)
+        analog = [ub.evaluate(SMALL, ub.Loop("analog", f), 60, 0)["linear"] for f in cutoffs]
+        target = ub.evaluate(SMALL, ub.Loop("quantized", 10.0), 60, 0)["linear"]
+        te = [m.transfer_entropy for m in analog]
+        cutoff = ub.matched_cutoff(cutoffs, te, target.transfer_entropy)
         if cutoff is None:
             self.fail("the quantized loop's transfer entropy lies within the analog range")
-        matched = ub.evaluate(SMALL, ub.Loop("analog", cutoff), 60, 0)
+        matched = ub.evaluate(SMALL, ub.Loop("analog", cutoff), 60, 0)["linear"]
         relative = abs(matched.transfer_entropy / target.transfer_entropy - 1)
         self.assertLess(relative, 0.1)
 
     def test_a_target_below_the_floor_has_no_matched_cutoff(self) -> None:
-        cutoffs = np.array([1.0, 10.0])
-        analog = [ub.Measures(5.0, 0.5), ub.Measures(20.0, 0.6)]
-        self.assertIsNone(ub.matched_cutoff(cutoffs, analog, 1.0))
+        self.assertIsNone(ub.matched_cutoff(np.array([1.0, 10.0]), [5.0, 20.0], 1.0))
+
+    def test_the_lower_match_binds(self) -> None:
+        row = ub.binding({"te_cutoff_hz": 40.0, "decodability_cutoff_hz": 90.0})
+        self.assertEqual(row, ("transfer_entropy", 40.0))
+        row = ub.binding({"te_cutoff_hz": None, "decodability_cutoff_hz": 90.0})
+        self.assertEqual(row, ("decodability", 90.0))
+        self.assertEqual(
+            ub.binding({"te_cutoff_hz": None, "decodability_cutoff_hz": None}), (None, None)
+        )
 
 
 class PowerTest(unittest.TestCase):
@@ -98,7 +140,18 @@ class SavedTest(unittest.TestCase):
         self.assertEqual(saved["declared_step"], ub.DECLARED_STEP)
         self.assertEqual(len(saved["regimes"]), 1)
         row = saved["regimes"][0]["steps"][0]
-        self.assertIn("gap", row)
+        spread = saved["regimes"][0]["spread"]
+        for estimator in ub.ESTIMATORS:
+            self.assertIn("relative_te_sd", spread[estimator])
+        common = row["common"]
+        bound = [row[e]["cutoff_hz"] for e in ub.ESTIMATORS if row[e]["cutoff_hz"] is not None]
+        self.assertEqual(common["cutoff_hz"], min(bound))
+        for estimator in ub.ESTIMATORS:
+            self.assertIn("relative_te_excess", common[estimator])
+            self.assertIn("decodability_excess", common[estimator])
+            self.assertIn("gap", row[estimator])
+            self.assertIn("te_shortfall", row[estimator])
+            self.assertIn("cutoff_hz", row[estimator])
         self.assertTrue(math.isfinite(saved["trials"]["behaviour"]))
 
 

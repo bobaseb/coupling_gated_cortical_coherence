@@ -5,12 +5,13 @@ Reads ``figures/unity_agreement/summary.json`` (the sheet simulations),
 ``figures/unity_occupancy/`` ``summary.json`` (the occupancy-weighted carrier
 test), ``yardstick.json`` (the same test at other yardsticks), ``correlated.json``
 (carriers sharing input), ``switching.json`` (a clocked chip by the same
-protocol), ``window.json`` (the per-window link at every window length) and
-``bridge.json`` (the bridge's two loops on a model pair of regions), and writes
+protocol), ``window.json`` (the per-window link at every window length),
+``bridge.json`` (the bridge's two loops on a model pair of regions) and
+``relay.json`` (a thalamic relay cell in tonic and burst mode), and writes
 ``unity/unity_results.tex``. Nothing here integrates a sheet, sums a Fourier
 series or propagates a membrane: ``unity_agreement.py``, ``unity_occupancy.py``,
-``unity_correlated.py``, ``unity_switching.py``, ``unity_window.py`` and
-``unity_bridge.py`` produce the summaries as
+``unity_correlated.py``, ``unity_switching.py``, ``unity_window.py``,
+``unity_bridge.py`` and ``unity_relay.py`` produce the summaries as
 separate commands.
 """
 
@@ -350,9 +351,15 @@ def _declared_rows(bridge: dict[str, Any]) -> list[dict[str, Any]]:
         for row in r["steps"]
         if row["step"] == bridge["declared_step"] and _spans(row, r["task"])
     ]
-    if not rows or any(row["gap"] is None or row["spread"] is None for row in rows):
+    if not rows or not all(_complete(row) for row in rows):
         raise ValueError("The saved bridge run has no match at the declared step")
     return rows
+
+
+def _complete(row: dict[str, Any]) -> bool:
+    """Whether a declared row has every match, the common cutoff and its spread."""
+    matches = (row["linear"]["gap"], row["neighbour"]["decodability_cutoff_hz"])
+    return None not in matches and row["common"] is not None and row["spread"] is not None
 
 
 def _bridge_task_values(bridge: dict[str, Any]) -> list[tuple[str, str]]:
@@ -375,13 +382,13 @@ def _bridge_task_values(bridge: dict[str, Any]) -> list[tuple[str, str]]:
 def _bridge_match_values(bridge: dict[str, Any]) -> list[tuple[str, str]]:
     """Where the loops match, and by how much the matched analog loop falls short."""
     rows = _declared_rows(bridge)
-    cutoffs = [_finite(r["matched_cutoff_hz"]) for r in rows]
-    gaps = [-_finite(r["gap"]) for r in rows]
+    cutoffs = [_finite(r["linear"]["te_cutoff_hz"]) for r in rows]
+    gaps = [-_finite(r["linear"]["gap"]) for r in rows]
     others = [
-        _finite(row["gap"])
+        _finite(row["linear"]["gap"])
         for r in bridge["regimes"]
         for row in r["steps"]
-        if row["gap"] is not None and not _spans(row, r["task"])
+        if row["linear"]["gap"] is not None and not _spans(row, r["task"])
     ]
     return [
         ("uBrCutoffMin", f"{math.floor(min(cutoffs)):d}"),
@@ -397,8 +404,9 @@ def _bridge_trial_values(bridge: dict[str, Any]) -> list[tuple[str, str]]:
     rows = _declared_rows(bridge)
     trials, block = bridge["trials"], _finite(bridge["block_trials"])
     scale = 1.959963984540054 * math.sqrt(block / _finite(trials["behaviour"]))
-    te = 100 * scale * max(_finite(r["spread"]["relative_te_sd"]) for r in rows)
-    gap = scale * max(_finite(r["spread"]["gap_sd"]) for r in rows)
+    spreads = [r["spread"][name] for r in rows for name in ("linear", "neighbour")]
+    te = 100 * scale * max(_finite(s["relative_te_sd"]) for s in spreads)
+    gap = scale * max(_finite(s["gap_sd"]) for s in spreads)
     return [
         ("uBrBlockTrials", f"{block:g}"),
         ("uBrTrialsBehaviour", str(trials["behaviour"])),
@@ -408,12 +416,95 @@ def _bridge_trial_values(bridge: dict[str, Any]) -> list[tuple[str, str]]:
     ]
 
 
+def _bridge_neighbour_values(bridge: dict[str, Any]) -> list[tuple[str, str]]:
+    """The nearest-neighbour estimator: its binding match, and where a TE match exists."""
+    rows = _declared_rows(bridge)
+    cutoffs = [_finite(r["neighbour"]["decodability_cutoff_hz"]) for r in rows]
+    gaps = [
+        _finite(row["neighbour"]["gap"])
+        for r in bridge["regimes"]
+        for row in r["steps"]
+        if row["neighbour"]["gap"] is not None and _spans(row, r["task"])
+    ]
+    return [
+        ("uBrNnCutoffMin", f"{math.floor(min(cutoffs)):d}"),
+        ("uBrNnCutoffMax", f"{math.ceil(max(cutoffs)):d}"),
+        ("uBrNnGapPositive", str(sum(g > 0 for g in gaps))),
+        ("uBrNnGapCases", str(len(gaps))),
+        ("uBrNnGapMax", _sig(max(gaps), 2, up=True)),
+    ]
+
+
+def _bridge_common_values(bridge: dict[str, Any]) -> list[tuple[str, str]]:
+    """How far below the quantized loop the analog loop falls at the common cutoff."""
+    rows = [r["common"]["neighbour"] for r in _declared_rows(bridge)]
+    te = [-100 * _finite(r["relative_te_excess"]) for r in rows]
+    gap = [-_finite(r["decodability_excess"]) for r in rows]
+    return [
+        ("uBrCommonTeMinPercent", _sig(min(te), 2, up=False)),
+        ("uBrCommonTeMaxPercent", _sig(max(te), 2, up=True)),
+        ("uBrCommonGapMin", _sig(min(gap), 2, up=False)),
+        ("uBrCommonGapMax", _sig(max(gap), 2, up=True)),
+    ]
+
+
 def _bridge_values(bridge: dict[str, Any]) -> list[tuple[str, str]]:
     """The bridge's two loops on a model pair of regions."""
     return [
         *_bridge_task_values(bridge),
         *_bridge_match_values(bridge),
+        *_bridge_neighbour_values(bridge),
+        *_bridge_common_values(bridge),
         *_bridge_trial_values(bridge),
+    ]
+
+
+def _relay_pairs(cells: list[dict[str, Any]]) -> list[tuple[dict[str, Any], dict[str, Any]]]:
+    """Tonic and burst cells at the same noise, rate and window."""
+    burst = [c for c in cells if c["mode"] == "burst"]
+    tonic = {json.dumps(c["config"], sort_keys=True): c for c in cells if c["mode"] == "tonic"}
+    return [(tonic[json.dumps(b["config"], sort_keys=True)], b) for b in burst]
+
+
+def _relay_mode_values(cells: list[dict[str, Any]], mode: str, label: str) -> list[tuple[str, str]]:
+    """One mode's passing share at an instant and its visit probability over a percept."""
+    rows = [c for c in cells if c["mode"] == mode]
+    passing = [100 * _finite(c["pass_fraction"]) for c in rows]
+    long = max(rows[0]["window_hit_probability"], key=float)
+    hits = [_finite(c["window_hit_probability"][long]) for c in rows]
+    return [
+        (f"uRl{label}PassMinPercent", _sig(min(passing), 2, up=False)),
+        (f"uRl{label}PassMaxPercent", _sig(max(passing), 2, up=True)),
+        (f"uRl{label}HitMin", _sig(min(hits), 2, up=False)),
+        (f"uRl{label}HitMax", _sig(max(hits), 2, up=True)),
+    ]
+
+
+def _relay_values(relay: dict[str, Any]) -> list[tuple[str, str]]:
+    """A thalamic relay cell at matched rates in its two modes."""
+    cells = relay["cells"]
+    ratios = [
+        _finite(tonic["window_hit_probability"][w]) / _finite(burst["window_hit_probability"][w])
+        for tonic, burst in _relay_pairs(cells)
+        for w in tonic["window_hit_probability"]
+    ]
+    check = relay["resolution_check"]
+    moved = [
+        abs(_finite(f["window_hit_probability"][w]) / _finite(c["window_hit_probability"][w]) - 1)
+        for c, f in zip(check["coarse"], check["fine"], strict=True)
+        for w in c["window_hit_probability"]
+    ]
+    sigmas = sorted({_finite(c["config"]["sigma_mv"]) for c in cells})
+    rates = sorted({_finite(c["config"]["rate_hz"]) for c in cells})
+    return [
+        ("uRlSigmaLow", f"{sigmas[0]:g}"),
+        ("uRlSigmaHigh", f"{sigmas[-1]:g}"),
+        ("uRlRateLow", f"{rates[0]:g}"),
+        ("uRlRateHigh", f"{rates[-1]:g}"),
+        *_relay_mode_values(cells, "tonic", "Tonic"),
+        *_relay_mode_values(cells, "burst", "Burst"),
+        ("uRlHitRatioMin", _floor(min(ratios), 1)),
+        ("uRlResolutionPercent", _ceil_sig(100 * max(moved))),
     ]
 
 
@@ -428,6 +519,7 @@ def render(figures: Path) -> str:
     values += _switching_values(_read(figures / "unity_occupancy" / "switching.json"))
     values += _window_sweep_values(_read(figures / "unity_occupancy" / "window.json"))
     values += _bridge_values(_read(figures / "unity_occupancy" / "bridge.json"))
+    values += _relay_values(_read(figures / "unity_occupancy" / "relay.json"))
     lines = [
         "% Generated by simulations/unity_macros.py from saved JSON summaries in",
         "% simulations/figures/unity_agreement/ and simulations/figures/unity_occupancy/.",

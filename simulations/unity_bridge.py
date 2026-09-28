@@ -1,4 +1,4 @@
-"""Whether the bridge's two loops can be matched, and how many trials it needs (U95).
+"""Whether the bridge's two loops can be matched, and how many trials it needs (U95, U98).
 
 The bridge reconnects two cortical regions through an analog loop and through a
 quantized one, and asks the loops to carry the same information, in total and
@@ -22,24 +22,42 @@ The model, in units of region A's own noise amplitude, at a 1 ms step:
 * region B is a leaky integrator of the delivered current with a 10 ms time
   constant and unit noise, recorded with unit white noise.
 
-Transfer entropy from A's recording to B's is estimated by the linear-Gaussian
-estimator with five 1 ms lags, in bits per second. Task decodability is the
-variance of ``s`` explained by a linear decoder of B's recording at lags up to
-40 ms, fitted on half the trials and scored on the other half: it is the task
-information that reaches B, which is what the loops must match. Both are
-computed on the same trials for both loops (common random numbers).
+Both quantities are estimated twice (U98). The *linear* estimator: transfer
+entropy from A's recording to B's by the linear-Gaussian formula with five 1 ms
+lags, in bits per second, and task decodability as the variance of ``s``
+explained by a linear decoder of B's recording at lags up to 40 ms, fitted on
+half the trials and scored on the other half. It misses whatever the
+quantizer's nonlinearity passes on. The *neighbour* estimator: the same
+transfer entropy, as the conditional mutual information of the Frenzel-Pompe
+nearest-neighbour estimator (Frenzel & Pompe 2007, Phys Rev Lett 99:204101,
+extending Kraskov, Stögbauer & Grassberger 2004, Phys Rev E 69:066138) with the
+same lags, and decodability as ``1 - exp(-2 I)`` for the nearest-neighbour
+mutual information ``I`` between ``s`` and B's lagged recording: the variance a
+decoder would explain if the information were Gaussian, so that on a linear
+loop the two estimators agree. Both use every fourth sample and four
+neighbours. Decodability is the task information that reaches B, which is what
+the loops must match. Every quantity is computed on the same trials for both
+loops (common random numbers).
 
-For each step the analog cutoff that matches the quantized loop's transfer
-entropy is read off a grid of cutoffs, from the floor that keeps the analog
-loop within the content's window (``unity_estimates``) up to 1 kHz, by
-interpolation in the logarithm of the cutoff. The *gap* is the analog loop's
-decodability at that cutoff minus the quantized loop's. A gap at or below zero
-means the analog loop carries the quantized loop's transfer entropy and no more
-task information than it: an account on which unity follows information then
-predicts no advantage for the analog loop.
+For each step and estimator, two analog cutoffs are read off a grid of
+cutoffs, from the floor that keeps the analog loop within the content's window
+(``unity_estimates``) up to 1 kHz, by interpolation in the logarithm of the
+cutoff: the one that matches the quantized loop's transfer entropy, and the one
+that matches its decodability. Both measures rise with the cutoff, so at the
+lower of the two the analog loop carries no more of either than the quantized
+loop: that cutoff *binds*. The *gap* is the analog loop's decodability at the
+transfer-entropy match minus the quantized loop's, and the *shortfall* is the
+fraction of the quantized loop's transfer entropy the analog loop lacks at the
+decodability match. A gap at or below zero, or a shortfall at or above zero,
+says which match binds. The lower of the two estimators' binding cutoffs is the
+one a preparation sets, and both estimators are evaluated there again: the
+analog loop's excess over the quantized loop, relative in transfer entropy and
+absolute in decodability. Where neither excess is positive, an account on which
+unity follows information predicts no advantage for the analog loop.
 
-Trials. At the declared step the match is repeated on independent blocks, and
-the spread of the matched transfer entropy and of the gap across blocks gives
+Trials. At the declared step the common cutoff is repeated on independent
+blocks, and the spread of the relative difference in transfer
+entropy and of the difference in decodability across blocks gives
 their confidence intervals at any trial count, shrinking as its square root.
 The behavioural comparison is two proportions and the neural one two means,
 each at a declared effect size, two-sided ``α = 0.05`` and power 0.8.
@@ -64,6 +82,8 @@ from typing import Any, Literal
 import numpy as np
 from numpy.typing import NDArray
 from scipy.signal import lfilter
+from scipy.spatial import cKDTree
+from scipy.special import digamma
 
 from unity_estimates import BRIDGE_STEP_TO_NOISE, estimates, quantized_fail_fraction
 
@@ -91,6 +111,9 @@ POWER = 0.8
 ACCURACY_HIGH = 0.75
 ACCURACY_LOW = 0.70
 NEURAL_EFFECT = 0.2
+NEIGHBOURS = 4
+THIN = 4
+ESTIMATORS = ("linear", "neighbour")
 
 
 @dataclass(frozen=True)
@@ -206,22 +229,104 @@ def decodability(task: FloatArray, recorded: FloatArray) -> float:
     return 1.0 - float(np.var(target - design(held) @ coef) / np.var(target))
 
 
-def evaluate(task: Task, loop: Loop, trials: int, seed: int) -> Measures:
-    """Transfer entropy and task decodability of one loop on one block."""
-    block = simulate(task, loop, trials, seed)
-    return Measures(
-        transfer_entropy(block.recorded_a, block.recorded_b),
-        decodability(block.task, block.recorded_b),
+def _standardized(x: FloatArray) -> FloatArray:
+    return np.asarray((x - x.mean(axis=0)) / x.std(axis=0), dtype=np.float64)
+
+
+def _radius(points: FloatArray, k: int) -> FloatArray:
+    """Each point's distance to its ``k``-th neighbour in the maximum norm, exclusive."""
+    distances, _ = cKDTree(points).query(points, k + 1, p=np.inf, workers=-1)
+    return np.asarray(np.nextafter(distances[:, -1], 0), dtype=np.float64)
+
+
+def _within(points: FloatArray, radius: FloatArray) -> FloatArray:
+    """How many other points lie strictly within each point's radius."""
+    tree = cKDTree(points)
+    counts = tree.query_ball_point(points, radius, p=np.inf, return_length=True, workers=-1)
+    return np.asarray(counts, dtype=np.float64) - 1
+
+
+def mutual_information(x: FloatArray, y: FloatArray, k: int = NEIGHBOURS) -> float:
+    """Nearest-neighbour estimate of ``I(X; Y)`` in nats (Kraskov et al., first estimator)."""
+    x, y = _standardized(x), _standardized(y)
+    radius = _radius(np.column_stack([x, y]), k)
+    counts = digamma(_within(x, radius) + 1) + digamma(_within(y, radius) + 1)
+    return float(digamma(k) + digamma(len(x)) - np.mean(counts))
+
+
+def conditional_mutual_information(
+    x: FloatArray, y: FloatArray, z: FloatArray, k: int = NEIGHBOURS
+) -> float:
+    """Nearest-neighbour estimate of ``I(X; Y | Z)`` in nats (Frenzel & Pompe)."""
+    x, y, z = _standardized(x), _standardized(y), _standardized(z)
+    radius = _radius(np.column_stack([x, y, z]), k)
+    terms = (
+        digamma(_within(z, radius) + 1)
+        - digamma(_within(np.column_stack([x, z]), radius) + 1)
+        - digamma(_within(np.column_stack([y, z]), radius) + 1)
     )
+    return float(digamma(k) + np.mean(terms))
 
 
-def matched_cutoff(cutoffs: FloatArray, analog: list[Measures], target: float) -> float | None:
-    """The cutoff at which the analog loop's transfer entropy equals ``target``, if in range."""
-    te = np.array([m.transfer_entropy for m in analog])
-    if not te.min() <= target <= te.max():
+def _thinned(x: FloatArray, lags: tuple[int, ...] | range, start: int) -> FloatArray:
+    n = x.shape[1]
+    return np.stack([x[:, start - k : n - k][:, ::THIN].ravel() for k in lags], axis=1)
+
+
+def transfer_entropy_neighbours(
+    source: FloatArray, target: FloatArray, lags: int = TE_LAGS
+) -> float:
+    """Nearest-neighbour transfer entropy from ``source`` to ``target``, in bits per second."""
+    past = range(1, lags + 1)
+    now = _thinned(target, (0,), lags)
+    info = conditional_mutual_information(
+        now, _thinned(source, past, lags), _thinned(target, past, lags)
+    )
+    return info / math.log(2) / DT_S
+
+
+def decodability_neighbours(task: FloatArray, recorded: FloatArray) -> float:
+    """Variance of the task a decoder would explain, from nearest-neighbour information."""
+    start = max(DECODER_LAGS)
+    info = mutual_information(_thinned(task, (0,), start), _thinned(recorded, DECODER_LAGS, start))
+    return 1.0 - math.exp(-2.0 * info)
+
+
+def evaluate(task: Task, loop: Loop, trials: int, seed: int) -> dict[str, Measures]:
+    """Transfer entropy and task decodability of one loop on one block, by each estimator."""
+    block = simulate(task, loop, trials, seed)
+    a, b = block.recorded_a, block.recorded_b
+    return {
+        "linear": Measures(transfer_entropy(a, b), decodability(block.task, b)),
+        "neighbour": Measures(
+            transfer_entropy_neighbours(a, b), decodability_neighbours(block.task, b)
+        ),
+    }
+
+
+def matched_cutoff(cutoffs: FloatArray, values: list[float], target: float) -> float | None:
+    """The cutoff at which the analog loop's measure equals ``target``, if in range."""
+    measured = np.array(values)
+    if not measured.min() <= target <= measured.max():
         return None
-    order = np.argsort(te)
-    return float(np.exp(np.interp(target, te[order], np.log(cutoffs[order]))))
+    order = np.argsort(measured)
+    return float(np.exp(np.interp(target, measured[order], np.log(cutoffs[order]))))
+
+
+def binding(row: dict[str, Any]) -> tuple[str | None, float | None]:
+    """The lower of the two matched cutoffs, and which measure it matches."""
+    matches = [
+        (cutoff, name)
+        for name, cutoff in (
+            ("transfer_entropy", row["te_cutoff_hz"]),
+            ("decodability", row["decodability_cutoff_hz"]),
+        )
+        if cutoff is not None
+    ]
+    if not matches:
+        return None, None
+    cutoff, name = min(matches)
+    return name, cutoff
 
 
 def trials_two_proportions(high: float, low: float, alpha: float, power: float) -> int:
@@ -242,34 +347,90 @@ def half_width(sd: float, measured_trials: int, trials: int) -> float:
     return NormalDist().inv_cdf(0.975) * sd * math.sqrt(measured_trials / trials)
 
 
-def _step_row(
-    task: Task, step: float, cutoffs: FloatArray, analog: list[Measures], trials: int
+def _estimator_row(
+    task: Task,
+    cutoffs: FloatArray,
+    analog: list[Measures],
+    quantized: Measures,
+    trials: int,
+    estimator: str,
 ) -> dict[str, Any]:
-    quantized = evaluate(task, Loop("quantized", step), trials, 0)
-    cutoff = matched_cutoff(cutoffs, analog, quantized.transfer_entropy)
+    """Both matches of one step under one estimator, and which of them binds."""
+    te = [m.transfer_entropy for m in analog]
     row: dict[str, Any] = {
-        "step": step,
-        "fail_fraction": quantized_fail_fraction(step, 1.0, RECORDING_NOISE),
         "transfer_entropy": quantized.transfer_entropy,
         "decodability": quantized.decodability,
-        "matched_cutoff_hz": cutoff,
+        "te_cutoff_hz": matched_cutoff(cutoffs, te, quantized.transfer_entropy),
+        "te_above_grid": quantized.transfer_entropy > max(te),
+        "decodability_cutoff_hz": matched_cutoff(
+            cutoffs, [m.decodability for m in analog], quantized.decodability
+        ),
         "gap": None,
+        "te_shortfall": None,
     }
-    if cutoff is not None:
-        matched = evaluate(task, Loop("analog", cutoff), trials, 0)
-        row["gap"] = matched.decodability - quantized.decodability
+    if row["te_cutoff_hz"] is not None:
+        at = evaluate(task, Loop("analog", row["te_cutoff_hz"]), trials, 0)[estimator]
+        row["gap"] = at.decodability - quantized.decodability
+    if row["decodability_cutoff_hz"] is not None:
+        at = evaluate(task, Loop("analog", row["decodability_cutoff_hz"]), trials, 0)[estimator]
+        row["te_shortfall"] = 1 - at.transfer_entropy / quantized.transfer_entropy
+    row["binds"], row["cutoff_hz"] = binding(row)
     return row
 
 
-def _spread(task: Task, cutoff: float, seeds: int) -> dict[str, float]:
-    """Spread across blocks of the matched transfer entropy and of the gap."""
-    te, gap = [], []
+def _step_row(
+    task: Task, step: float, cutoffs: FloatArray, analog: list[dict[str, Measures]], trials: int
+) -> dict[str, Any]:
+    quantized = evaluate(task, Loop("quantized", step), trials, 0)
+    row: dict[str, Any] = {
+        "step": step,
+        "fail_fraction": quantized_fail_fraction(step, 1.0, RECORDING_NOISE),
+    }
+    for name in ESTIMATORS:
+        row[name] = _estimator_row(
+            task, cutoffs, [m[name] for m in analog], quantized[name], trials, name
+        )
+    row["common"] = _common(task, row, quantized, trials)
+    return row
+
+
+def _common(
+    task: Task, row: dict[str, Any], quantized: dict[str, Measures], trials: int
+) -> dict[str, Any] | None:
+    """Both estimators at the lowest binding cutoff of either: the one a preparation sets."""
+    bound = [row[name]["cutoff_hz"] for name in ESTIMATORS if row[name]["cutoff_hz"] is not None]
+    if not bound:
+        return None
+    cutoff = min(bound)
+    analog = evaluate(task, Loop("analog", cutoff), trials, 0)
+    common: dict[str, Any] = {"cutoff_hz": cutoff}
+    for name in ESTIMATORS:
+        common[name] = {
+            "relative_te_excess": analog[name].transfer_entropy / quantized[name].transfer_entropy
+            - 1,
+            "decodability_excess": analog[name].decodability - quantized[name].decodability,
+        }
+    return common
+
+
+def _spread(task: Task, cutoff: float, seeds: int) -> dict[str, Any]:
+    """Spread across blocks of the two loops' differences at the common cutoff, by estimator."""
+    te: dict[str, list[float]] = {name: [] for name in ESTIMATORS}
+    gap: dict[str, list[float]] = {name: [] for name in ESTIMATORS}
     for seed in range(1, seeds + 1):
         analog = evaluate(task, Loop("analog", cutoff), BLOCK_TRIALS, seed)
         quantized = evaluate(task, Loop("quantized", DECLARED_STEP), BLOCK_TRIALS, seed)
-        te.append(analog.transfer_entropy / quantized.transfer_entropy - 1)
-        gap.append(analog.decodability - quantized.decodability)
-    return {"relative_te_sd": float(np.std(te, ddof=1)), "gap_sd": float(np.std(gap, ddof=1))}
+        for name in ESTIMATORS:
+            a, q = analog[name], quantized[name]
+            te[name].append(a.transfer_entropy / q.transfer_entropy - 1)
+            gap[name].append(a.decodability - q.decodability)
+    spread: dict[str, Any] = {"cutoff_hz": cutoff}
+    for name in ESTIMATORS:
+        spread[name] = {
+            "relative_te_sd": float(np.std(te[name], ddof=1)),
+            "gap_sd": float(np.std(gap[name], ddof=1)),
+        }
+    return spread
 
 
 def regime(
@@ -281,8 +442,8 @@ def regime(
     rows = [_step_row(task, step, grid, analog, trials) for step in steps]
     declared = next((r for r in rows if r["step"] == DECLARED_STEP), None)
     spread = None
-    if declared is not None and declared["matched_cutoff_hz"] is not None:
-        spread = _spread(task, declared["matched_cutoff_hz"], seeds)
+    if declared is not None and declared["common"] is not None:
+        spread = _spread(task, declared["common"]["cutoff_hz"], seeds)
     return {"task": {"sd": task.sd, "tau_ms": task.tau_ms}, "steps": rows, "spread": spread}
 
 
@@ -298,6 +459,7 @@ def run(
         "declared_step": DECLARED_STEP,
         "cutoff_floor_hz": estimates()["bridgeMinCutoffHz"],
         "block_trials": BLOCK_TRIALS,
+        "estimators": list(ESTIMATORS),
         "effects": {
             "accuracy_high": ACCURACY_HIGH,
             "accuracy_low": ACCURACY_LOW,

@@ -1007,7 +1007,7 @@ up. Counting is still a premise with a precedent rather than a derivation, the
 bridge's feasibility rests on a linear model, and U96 is now conditional. U100
 is the only item that could lift the U85 cap (to about 7.5–8).*
 
-- [ ] **U98 — The bridge's gap may be an artefact of the linear estimator.**
+- [x] **U98 — The bridge's gap may be an artefact of the linear estimator.**
   `unity_bridge.py` estimates transfer entropy with a linear-Gaussian estimator,
   which misses the quantizer's nonlinear information, so the quantized loop's
   transfer entropy may be underestimated and the sign of the task-information
@@ -1018,13 +1018,49 @@ is the only item that could lift the U85 cap (to about 7.5–8).*
   **Success.** `bridge.json` records both estimators. app:bridge states whether
   the gap keeps its sign, with the matched cutoffs under each, and Limitations
   drops or keeps the linear-estimator clause accordingly.
-- [ ] **U99 — Make the thalamic prediction directional again.** U96 left it
+  *Done 2026-09-28:* it was partly an artefact. `unity_bridge.py` now
+  estimates both quantities twice: linear, and nearest-neighbour
+  (Frenzel–Pompe conditional MI for TE, KSG MI → `1 − e^{−2I}` for
+  decodability; both verified refs; the two agree on the analog loop, tested).
+  By the neighbour estimator the quantized loop's TE is ~35% above the linear
+  one (its jumps time B's increments), and at step 10 it exceeds the analog
+  loop's TE at every cutoff up to 1 kHz in all four spanning regimes: no TE
+  match, and where one exists (other steps) the gap is positive in 4 of 7
+  cases, up to 0.038. So the gap's sign depends on the estimator. What does not:
+  both measures rise with the cutoff, so the lower of the TE and decodability
+  matches leaves the analog loop no richer in either. The neighbour
+  decodability match (33–399 Hz) lies above the linear TE match (17–95 Hz) in
+  every regime, so the linear TE match is the cutoff; there the neighbour
+  estimator gives the analog loop 10–55% less TE and 0.028–0.065 less task
+  variance, and less of both at every spanning step (`common` in
+  `bridge.json`, gated in `test_unity_claims`). Spread now measured at that
+  cutoff by both estimators (TE tol 4.4%, gap tol 0.006 at 1248 trials, below
+  every margin). Matching rule rewritten as "quantized loop carries at least
+  as much information, in total and about the task" (abstract, claim 1,
+  §enforcement, §tests, Figure 2 caption, app:bridge, unity/index.html);
+  Limitations drops the linear-estimator clause, keeps the linear model.
+- [x] **U99 — Make the thalamic prediction directional again.** U96 left it
   conditional ("whichever mode passes more often"). Add a relay-cell model with
   a T-type calcium current (e.g. a reduced integrate-and-fire-or-burst model),
   run the occupancy protocol on it in tonic and in burst mode at matched rates,
   and report the passing fraction and per-window link in each mode.
   **Success.** A generated difference between the modes, classed in
   `test_unity_claims.CHECKLIST`, and the §reach sentence states its direction.
+  *Done 2026-09-28:* `unity_relay.py`: the integrate-and-fire-or-burst cell
+  (Smith, Cox, Sherman & Rinzel 2000, J Neurophysiol 83:588, verified;
+  parameters cross-checked in two secondary sources) on a `(V, h)` grid with
+  exact probability propagation, same protocol as `unity_occupancy`. Modes by
+  bias range (burst: rest 2–6 σ below V_h; tonic: ≥ 3 σ above), each
+  calibrated to 0.5 or 2 Hz, σ = 2 or 4 mV, windows 10/30 ms (`relay.json`).
+  Direction: tonic. At an instant the modes pass at similar shares
+  (0.16–1.5% vs 0.3–1.6%), but burst passing states sit in/around rare bursts;
+  within 400 ms a tonic cell visits one with p 0.28–0.84, a bursting one
+  0.07–0.34, ratio ≥ 2.3 in every regime and both content windows. Grid
+  lesson: the membrane step must span a grid step or the threshold pulls mass
+  back (0.1σ grid was 3.5× off the Siegert rate); default 0.05σ, dt 0.4 ms,
+  tested against Siegert within 5%; half-step check moves visits ≤ 8.5%.
+  §reach now predicts more cross-patch unity in tonic mode; new app:occupancy
+  paragraph; Limitations notes the reduced model. Main-text words unchanged.
 - [ ] **U100 — First data: occupancy from public in vivo intracellular
   recordings.** Every cortical number is a declared model range. Part one is a
   search: look online for publicly available in vivo whole-cell or sharp
@@ -1060,6 +1096,24 @@ is the only item that could lift the U85 cap (to about 7.5–8).*
   disclaimer free), and in the Limitations pendulum bullet. Run
   `check_claims.py` after each edit.
 
+- [ ] **U102 — What the bridge tests, and what a null leaves open.** Raised
+  2026-09-28. The two loops share every stage but the quantizer and the
+  cutoff, so no property of the electronics can separate the arms, and the
+  positive control (interrupted, no loop) makes a double failure
+  uninformative. Unstated: the test presupposes that coupling routed through
+  electronics and stimulation is the kind that can unify, i.e. P as an
+  organisational criterion (argued only in §ai, "Organisation, not
+  material"). A null in which both loops restore integration equally counts
+  against organisational P, but is compatible with a substrate-bound variant
+  (graded coupling must run through tissue), which no artificial bridge can
+  test. Two further auxiliaries shared by both arms: stimulation enters B
+  unlike synaptic input (synchronous, antidromic recruitment), and the loop
+  realises P only at the grain of a multi-unit envelope from a few contacts.
+  One sentence in §tests ("The readout") naming the test as one of P as an
+  organisational criterion against information accounts; one Limitations
+  item on the substrate-bound variant and the two auxiliaries. Pairs with
+  U101. Run `check_claims.py` after each edit.
+
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
   Consciousness* or *Phil. Trans. B*. arXiv posting: cs.AI primary (author has
@@ -1068,12 +1122,14 @@ is the only item that could lift the U85 cap (to about 7.5–8).*
   is less likely to apply. Arxiv abstract box: write `r^-4` plainly. Comments
   field: pages, theorem with proof, analytic bounds, simulations, formal
   appendix.
-- [ ] **U32 — Cite the companion's PsyArXiv DOI.** The companion was
+- [x] **U32 — Cite the companion's PsyArXiv DOI.** The companion was
   submitted to PsyArXiv (awaiting moderation as of 2026-09-26);
   `unity/references.tex` cites it as "Manuscript" with the GitHub link. Swap
   in the DOI once posted, preferably before the unity paper's arXiv v1, then
   rerun `unity/prepare_arxiv.sh` and commit with the rebuilt PDF. The DOI
   also unblocks the unity half of U19, which was waiting on an identifier.
+  *Done 2026-09-28:* `unity/references.tex` cites PsyArXiv,
+  doi:10.31234/osf.io/fydt3_v1; unity PDF and arXiv build rebuilt.
 - [x] **U34 — Lean: the noise-amplitude reduction for additive unimodal
   noise.** Raised 2026-09-26 after U33. `gaussian_shift_le` covers only
   Gaussian noise. For additive noise with a unimodal density `p`,

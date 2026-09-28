@@ -37,7 +37,7 @@ within the time a percept takes to form. The condition is functional, but it is
 stated at the grain of graded physical dynamics rather than at the grain of an
 algorithm, and at that grain cortex and digital chips come apart. It predicts
 that when two cortical regions are reconnected by an analog loop and by a
-quantized loop carrying the same information in total, and no less about the
+quantized loop carrying at least as much information, in total and about the
 task, unity follows the analog loop. An account stated on the information that
 regions exchange predicts no difference. We prove that under noise, content
 read from bits responds to any change below its margin by at most its error
@@ -132,7 +132,7 @@ regions within each window of the content's time scale.
 
 The paper makes three claims:
 \begin{enumerate}
-\claim{sec:tests}{When two cortical regions are bridged by an analog and by a quantized loop that carry the same information in total, the quantized loop no less about the task, P predicts that unity follows the analog loop; a weak, sub-threshold nudge to one region should also shift the graded content decoded in an overlapping region toward agreement}
+\claim{sec:tests}{When two cortical regions are bridged by an analog and by a quantized loop with the quantized loop carrying at least as much information, in total and about the task, P predicts that unity follows the analog loop; a weak, sub-threshold nudge to one region should also shift the graded content decoded in an overlapping region toward agreement}
 \claim{sec:enforcement}{Under noise, content read from bits responds to any change below its margin by at most its error rate, a bound that is attained, so no digital machine meets P, whatever algorithm it runs; by one test applied to both, a cortical membrane passes near its threshold within a percept's time scale, while the value a clocked latch reads passes at none of its states}
 \claim{sec:reach}{Enforced agreement must arrive before the content changes, so P predicts that cortical coupling relaxes within \ueTauFastMs{}~ms across the cortex; on a noisy sheet of coupled oscillators, the coupling's reach decides how far agreement in phase holds}
 \end{enumerate}
@@ -515,8 +515,8 @@ counting, and every step between them is proved. Counting has a second support i
 already uses at the parts' resolution (Appendix~\ref{app:count}), and a
 precedent in how it counts clusters in a gas. The bridge tests the two premises together and decides between wholeness and
 its main rival, joint access, on which contents are unified when available
-together to the same consumers \citep{bayne2010}. The two loops of the bridge carry the same information in
-total to the same regions, and the quantized loop no less about the task. Joint
+together to the same consumers \citep{bayne2010}. The quantized loop of the bridge carries at least as much
+information to the same regions as the analog loop, in total and about the task. Joint
 access therefore predicts no advantage for the analog loop, while wholeness,
 through P, predicts that unity follows the analog loop.
 Section~\ref{sec:limitations} states what stands if either premise is rejected.
@@ -577,16 +577,16 @@ not a reader of records.
 
 The thalamus is the natural candidate hub. Its relay cells fire in two modes
 \citep{sherman2001}. In the tonic mode the output follows the input nearly
-linearly, and an integrate-and-fire model predicts a relay cell's response to
-natural scenes \citep{lesica2004}. In the burst mode the cell answers with an
+linearly \citep{lesica2004}. In the burst mode the cell answers with an
 all-or-none burst, typically when excitation follows a prolonged inhibition
 \citep{lesica2004}, and it can burst again only after a renewed hyperpolarization
-\citep{sherman2001}. The onset of a burst still moves gradedly with the input,
-as a spike time does, so which mode passes more often is a measurement and not
-an inference. The protocol of Section~\ref{sec:enforcement}, applied to relay
-cells recorded in each mode, makes it, and P predicts that unity across patches
-joined through the thalamus is greater in whichever mode passes more often
-within a window. The same count applies to machines: analog patches joined by a digital router carry several unified
+\citep{sherman2001}. The protocol of Section~\ref{sec:enforcement}, applied to a
+model relay cell with both modes \citep{smith2000} at matched rates, orders
+them: within \uOccContentLongMs{}~ms a tonic cell enters a passing state at least
+\uRlHitRatioMin{} times as often as a bursting one, in every declared regime
+(Appendix~\ref{app:occupancy}). P therefore predicts that unity across patches
+joined through the thalamus is greater in the tonic mode, a prediction that
+relay cells recorded in each mode test. The same count applies to machines: analog patches joined by a digital router carry several unified
 contents and no single one. Bridging two areas within one patch tests P
 directly, and bridging two patches across a putative hub tests whether the hub
 is graded.
@@ -697,24 +697,24 @@ between them, so its output is read from bits and has a margin.
 The two loops share one filter shape. They differ in the quantizer and in one
 cutoff frequency, set below.
 
-\paragraph{Matching the information.} The two loops must carry the same
-information and fall on opposite sides of P. Adding noise to the analog loop to
-match them would make it fail P too, so its bandwidth is lowered instead, with
-no noise added, until the transfer entropy it carries matches the quantized
-loop's, keeping the cutoff high enough that the loop settles in time
+\paragraph{Matching the information.} The analog loop must carry no more
+information than the quantized one, and the two must fall on opposite sides of P. Adding noise to the analog loop to
+match them would make it fail P too, so its bandwidth is lowered instead,
+keeping the cutoff high enough that the loop settles in time
 (Appendix~\ref{app:bridge}). Transfer entropy counts everything one region's
 activity tells about the other's, and the loops could match it and still differ
 in how much of the task gets through. So the task variable is also decoded from
 the activity each loop evokes in the region it drives, and the loops count as
-matched when their transfer entropy agrees and the analog loop carries no more
-task information than the quantized one. Two settings need not meet two
-conditions, so both loops were simulated on a model pair of regions. At a step
-of \ueBridgeStepToNoise{} noise amplitudes, a cutoff between \uBrCutoffMin{} and
-\uBrCutoffMax{}~Hz matches the transfer entropy in every simulated regime whose
-task variable spans at least half a step, and the matched analog loop then
-carries less task information than the quantized one. An account on which
-unity follows the information regions exchange therefore predicts no advantage
-for the analog loop.
+matched when the analog loop carries no more information than the quantized
+one, in total or about the task. Both loops were simulated on a model pair of
+regions, with a linear and a nearest-neighbour estimator of each quantity. At a step of
+\ueBridgeStepToNoise{} noise amplitudes, a cutoff between \uBrCutoffMin{} and
+\uBrCutoffMax{}~Hz matches the linear estimate of transfer entropy in every
+simulated regime whose task variable spans at least half a step. At that cutoff
+the analog loop carries less task information than the quantized one by either
+estimator, and less transfer entropy by the nearest-neighbour one. An account
+on which unity follows the information regions exchange therefore predicts no
+advantage for the analog loop.
 
 \paragraph{The readout.} If unity, with the evidence fixed above, follows the
 analog loop, that is evidence that unity tracks the finer grain and not only the
@@ -778,8 +778,8 @@ recordings stay readable under a continuous drive (Appendix~\ref{app:bridge}).
 region A is rectified and smoothed, passed through a filter both loops share,
 and then either kept analog or quantized, before an output stage both loops
 share drives the stimulator in region B. The quantizer's step and the analog
-loop's cutoff are the two settings that match the loops in transfer entropy,
-with the quantized loop carrying no less task information. What leaks from the stimulator into a recording contact
+loop's cutoff are set so that the quantized loop carries at least as much
+information as the analog loop, in total and about the task. What leaks from the stimulator into a recording contact
 is removed by subtracting the loop's own output, passed through the measured
 transfer. The loop from B to A is the same.}
 \label{fig:bridge}
@@ -899,7 +899,8 @@ carrier counts stay far below the anatomical ones. The per-window bound is
 proved for independent carriers and, without independence, as the variance of
 the number that pass over the square of its mean, a ratio that correlation keeps
 above a floor. The sweep of the window's length assumes independent carriers,
-and shared input lowers the link most in the shortest windows.
+and shared input lowers the link most in the shortest windows. The relay cell
+is a reduced model with no reticular feedback.
 
 \item \emph{Reach.} Phase variance equals effective resistance in the harmonic
 approximation at identical natural frequencies. The logarithmic lower bound is
@@ -936,8 +937,7 @@ difference between the loops can accommodate either outcome; such an account
 individuates roles finely enough to see a quantizer, which is the grain P names,
 so the bridge leaves it on P's side of the line. The comparison presupposes that
 the analog loop restores some integration, which the positive-control blocks
-check. That the loops can be matched is shown on a linear model pair of regions
-with a linear-Gaussian estimator of transfer entropy.
+check. That the loops can be matched is shown on a linear model pair of regions.
 
 \item \emph{Human evidence.} No human preparation yet measures reported unity
 across a bridged connection. Human data can falsify P but cannot by themselves
@@ -1226,6 +1226,32 @@ registered only whether a node switched within a cycle would take a quantity
 fixed by the node's logical inputs, which are restored bits, moved by its noise
 only through the error rate.
 
+\paragraph{A thalamic relay cell.} The integrate-and-fire-or-burst model
+\citep{smith2000}, with its published parameters, adds to the membrane a
+low-threshold calcium current that flows above $-60$~mV, inactivates there and
+recovers below it. Noise gives the passive membrane a standard deviation of
+\uRlSigmaLow{} or \uRlSigmaHigh{}~mV, the unit of every change. In burst mode a
+constant current holds the membrane below the calcium threshold, where the
+current recovers and noise that carries the membrane past the threshold sets
+off a burst; in tonic mode it holds the membrane above, the current stays
+inactivated, and the cell is an integrate-and-fire membrane. In each mode the
+current is calibrated to a rate of \uRlRateLow{} or \uRlRateHigh{}~Hz, and the
+next content is the first spike time within \uOccNextShort{} or
+\uOccNextLong{}~ms, as for the cortical membrane, with the calcium current's
+state kept under each change. At an instant the two modes pass at similar
+shares of their states, \uRlTonicPassMinPercent{} to
+\uRlTonicPassMaxPercent\% in tonic mode and \uRlBurstPassMinPercent{} to
+\uRlBurstPassMaxPercent\% in burst mode. A bursting cell's passing states lie in
+and around its bursts, which are rare, while a tonic cell's lie below its spike
+threshold, where it spends the time between spikes. Within
+\uOccContentLongMs{}~ms a tonic cell enters a passing state with probability
+\uRlTonicHitMin{} to \uRlTonicHitMax{}, and a bursting cell with probability
+\uRlBurstHitMin{} to \uRlBurstHitMax{}. At matched noise, rate and window the
+tonic cell's chance is at least \uRlHitRatioMin{} times the bursting cell's,
+within \uOccContentShortMs{}~ms as well. Probability is propagated exactly on a
+grid in membrane potential and inactivation, and a run at half every grid step
+moves no visit probability by more than \uRlResolutionPercent\%.
+
 \paragraph{The yardstick.} The separation of the membrane from the value a latch
 reads holds at every yardstick from \uYardLow{} to \uYardHigh{}
 (Figure~\ref{fig:yardstick}), not only at the fluctuation. Across that range the
@@ -1431,7 +1457,8 @@ state within a window of a percept's time scale with high probability.
 \section{The bridge in detail}
 \label{app:bridge}
 
-The two loops must carry the same information and fall on opposite sides of P.
+The analog loop must carry no more information than the quantized one, and the
+two must fall on opposite sides of P.
 Section~\ref{sec:enforcement} fixes what the second condition means: a change
 of the recorded region by its own noise amplitude must move the analog loop's
 output by at least the fluctuation, and the quantized loop's output by less.
@@ -1445,8 +1472,8 @@ that still passes caps the step at \ueNoiseMatchMaxStep{} noise amplitudes of
 the region, and the quantized loop then fails at no more than
 \ueNoiseMatchFailPercent\% of its states, taking states as uniform within a
 step. The analog loop's bandwidth is lowered instead, with no noise added,
-until the transfer entropy it carries, estimated from the recorded activity,
-matches the quantized loop's. Lowering the bandwidth slows the loop, and a loop
+until the information it carries, estimated from the recorded activity, no
+longer exceeds the quantized loop's. Lowering the bandwidth slows the loop, and a loop
 that settles after the content has changed fails P's timing condition
 (Section~\ref{sec:reach}) however gradedly it couples. A first-order filter
 with cutoff $f_c$ settles with time constant $1/(2\pi f_c)$, and the bridged
@@ -1471,25 +1498,49 @@ standard deviation \uBrTaskSdLow{} to \uBrTaskSdHigh{} and time constant
 noise. A is recorded with noise of its own amplitude and passed through the
 shared filter, then through the analog loop's cutoff or the quantizer, and the
 shared output stage drives region B, a leaky integrator with noise of its own.
-Transfer entropy from A's recording to B's is estimated by the linear-Gaussian
-estimator, and task decodability is the variance of the task variable that a
-linear decoder of B's recording explains on held-out trials. For each step, the
-cutoff that matches the quantized loop's transfer entropy is read off a grid of
-cutoffs from the floor above to 1~kHz.
+Both quantities are estimated twice. The linear estimator takes transfer
+entropy from A's recording to B's by the linear-Gaussian formula, and task
+decodability as the variance of the task variable that a linear decoder of B's
+recording explains on held-out trials. It misses what the quantizer's
+nonlinearity passes on, so the nearest-neighbour estimator takes transfer
+entropy as a conditional mutual information \citep{kraskov2004,frenzel2007} and
+decodability as the variance a decoder would explain if the task information
+in B's recording, estimated the same way, were Gaussian; on the analog loop the
+two estimators agree. For each step and estimator, two cutoffs are read off a
+grid from the floor above to 1~kHz: the one that matches the quantized loop's
+transfer entropy and the one that matches its decodability. Both measures rise
+with the cutoff, so at the lower of the two the analog loop carries no more of
+either.
 
 At the step of \ueBridgeStepToNoise{} noise amplitudes, in every regime whose task
-variable spans at least half a step, the matching cutoff lies between
-\uBrCutoffMin{} and \uBrCutoffMax{}~Hz, well above the floor, and the matched
-analog loop explains \uBrGapMin{} to \uBrGapMax{} less of the task variable's
-variance than the quantized loop. The same holds at every simulated step no
-larger than twice the task variable's standard deviation. Lowering the bandwidth removes fast activity that carries
-transfer entropy and little of the task, while the quantizer removes small
-changes at every frequency, so at matched transfer entropy the quantized loop
-keeps more of the task. When the task variable spans only a fifth of a step,
-the matched analog loop can carry more task information, by up to
-\uBrGapOtherMax{}, and the step has to be made finer before the loops are
-compared. The task is therefore chosen so that its variable spans several noise
-amplitudes of the recorded region.
+variable spans at least half a step, the linear transfer entropy is matched
+between \uBrCutoffMin{} and \uBrCutoffMax{}~Hz, well above the floor, and the
+matched analog loop explains \uBrGapMin{} to \uBrGapMax{} less of the task
+variable's variance than the quantized loop. The same holds at every simulated
+step no larger than twice the task variable's standard deviation. Lowering the
+bandwidth removes fast activity that carries transfer entropy and little of the
+task, while the quantizer removes small changes at every frequency, so at
+matched linear transfer entropy the quantized loop keeps more of the task. When
+the task variable spans only a fifth of a step, the matched analog loop can
+carry more task information, by up to \uBrGapOtherMax{}, and the step has to be
+made finer before the loops are compared. The task is therefore chosen so that
+its variable spans several noise amplitudes of the recorded region.
+
+By the nearest-neighbour estimator the quantized loop carries more transfer
+entropy than the analog loop does at any cutoff up to 1~kHz, because its jumps
+tell the driven region when the recorded one crossed a step, so at the declared
+step no cutoff matches it. At the steps where one does, the matched analog loop
+carries more task information in \uBrNnGapPositive{} of \uBrNnGapCases{} cases,
+by up to \uBrNnGapMax{}: which side of a transfer-entropy match the task
+information falls on depends on the estimator. The lower match does not. The
+nearest-neighbour decodability is matched between \uBrNnCutoffMin{} and
+\uBrNnCutoffMax{}~Hz, above the linear transfer-entropy match in every regime,
+so the lower match is the linear one, and a preparation sets the cutoff there.
+At that cutoff, by the nearest-neighbour estimator, the analog loop carries
+\uBrCommonTeMinPercent{} to \uBrCommonTeMaxPercent\% less transfer entropy and
+explains \uBrCommonGapMin{} to \uBrCommonGapMax{} less of the task variable's
+variance than the quantized loop, and it carries less of both at every simulated
+step no larger than twice the task variable's standard deviation.
 
 On the preparation, the decoder is fitted on other blocks of the same loop, the
 step and the cutoff are set together on pilot blocks, and the check is repeated
@@ -1501,9 +1552,10 @@ narrow with the square root of the trials. The behavioural comparison, accuracy
 \uBrAccHigh{} against \uBrAccLow{} at a two-sided level of 0.05 and power 0.8,
 needs \uBrTrialsBehaviour{} trials per loop, and the neural comparison, at a
 standardized difference of \uBrNeuralEffect{}, needs \uBrTrialsNeural{}. At the
-behavioural count the transfer entropies are matched to within
-\uBrTeTolPercent\% and the gap is known to within \uBrGapTol{}, smaller than the
-gap itself, so the pilot blocks can confirm on which side it falls. The model
+behavioural count, by either estimator, the transfer entropies are known to
+within \uBrTeTolPercent\% and the difference in task variance to within
+\uBrGapTol{}, smaller than every margin above, so the pilot blocks can confirm
+that the analog loop carries no more of either. The model
 has no spikes, no stimulation artefact and no plasticity.
 
 The analog loop has to be analog end to end, because a loop that digitized the
