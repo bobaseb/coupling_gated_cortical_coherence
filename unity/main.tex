@@ -828,11 +828,18 @@ A switchboard therefore needs no observer of its own: when the hub is graded,
 the regress stops at the hub, which is more coupling and not a reader of
 records.
 
-The thalamus is the natural candidate hub. Its relay cells fire in two modes: a
-tonic mode whose output sums its inputs nearly linearly, and a burst mode that
-answers them with all-or-none bursts \citep{sherman2001}. P predicts that unity
-across patches joined through the thalamus is greater in the tonic mode, where
-the relay's output moves more gradedly with its input. The same count applies
+The thalamus is the natural candidate hub. Its relay cells fire in two modes
+\citep{sherman2001}. In the tonic mode the output follows the input nearly
+linearly, and an integrate-and-fire model predicts a relay cell's response to
+natural scenes \citep{lesica2004}. In the burst mode the cell answers with an
+all-or-none burst, typically when excitation follows a prolonged inhibition
+\citep{lesica2004}, and it can burst again only after a renewed hyperpolarization
+\citep{sherman2001}. The onset of a burst still moves gradedly with the input,
+as a spike time does, so which mode passes more often is a measurement and not
+an inference. The protocol of Section~\ref{sec:enforcement}, applied to relay
+cells recorded in each mode, makes it, and P predicts that unity across patches
+joined through the thalamus is greater in whichever mode passes more often
+within a window. The same count applies
 to machines: analog patches joined by a digital router carry several unified
 contents and no single one. Bridging two areas within one patch tests P
 directly, and bridging two patches across a putative hub tests whether the hub
