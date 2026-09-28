@@ -897,6 +897,58 @@ to about 7.*
   moved (check-claims counts unchanged). Also repaired: U89's insertion had
   split app:occupancy's synchronizer paragraph, leaving its MTBF sentence after
   the multi-bit paragraph.
+- [x] **U91 — Plain prose, section by section.** *Done 2026-09-27 (`9e476dd`):*
+  abstract and all eight main-text sections rewritten for a non-specialist;
+  sentences 27.6 → 22.6 words on average; count's strictness stated in
+  §enforcement; bridge gains positive-control blocks. Appendices unchanged.
+- [x] **U92 — Local unity and switching.** *Done 2026-09-28 (`975d60c`):* P asks
+  for agreement only among unified regions; a hub routing thresholded messages
+  leaves unified islands, a graded hub joins them (per window, possibly in
+  turn); thalamic tonic vs burst mode as the candidate test (Sherman 2001).
+
+*Self-assessment 2026-09-28 after U91–U92 (grade 6/10, borderline accept at a
+specialist venue; about 5.5 at a selective one). Readability, the positive
+control and local unity moved it up from 5. U93 is the ceiling; U93 plus U95
+plus U97 would move it to about 7. U85 (no data) still caps it.*
+
+- [ ] **U93 — Counting still carries the argument, and it is argued rather than
+  proved.** U86 added the effective-description argument, but a philosopher
+  will still call the strict reading (every change between noise and threshold,
+  not some) a stipulation, and the Lean results cover only the easy steps. Give
+  counting an independent anchor: a case where physics already individuates
+  systems at the noise floor (e.g. decoherence and pointer states,
+  thermodynamic subsystems, or open-system effective theories) and classes it as
+  the count does. **Success.** A cited physics precedent that draws the line at
+  the parts' own noise, stated in §enforcement's counting paragraph, with the
+  strict/product difference argued rather than only admitted.
+- [ ] **U94 — Cortex passes only through definitions a reviewer can call drawn
+  for the purpose.** A chip passes at the voltage and fails only by what the
+  latch reads (U81, U88); cortex passes only in the per-window, some-carrier
+  form. Show the verdict does not depend on the window: sweep the window
+  length independently of the \ueContentMs{}~ms percept time and report where
+  the membrane stops passing, and fix the window from psychophysics cited
+  independently of this paper. **Success.** A generated range of windows over
+  which the separation holds, with its lower end stated.
+- [ ] **U95 — No power or feasibility estimate for the bridge.** Two settings
+  (step, cutoff) must match transfer entropy and task decodability at once;
+  that may have no solution, and no effect size or trial count is given.
+  Add a script that simulates both loops on a model pair of regions, finds the
+  matching (step, cutoff) region, and estimates trials for the behavioural and
+  neural comparisons at a declared effect size. Numbers enter as generated
+  macros, classed in `test_unity_claims.CHECKLIST`. **Success.** app:bridge
+  states whether a match exists, its tolerance, and a trial count.
+- [ ] **U96 — The thalamus prediction is thin.** U92 predicts more cross-patch
+  unity in tonic than in burst mode from one review, and P's own logic says
+  burst spikes keep graded timing. Either derive the difference (response at
+  the noise floor of a relay cell in each mode, by the occupancy protocol) or
+  scope it as a direction to test, not a prediction. **Success.** A computed
+  or cited difference in graded dependence between the two modes, or the
+  sentence reworded.
+- [ ] **U97 — Length.** 66 pages, main text about 12,500 words. Target about
+  9,000: move the switching chip and yardstick detail to app:occupancy, keeping
+  the result and a pointer in §enforcement, as U90 did. Move, don't delete
+  (AGENTS §10). **Success.** Main text ≤ 9,000 words, every macro still cited.
+- U85 (no data) remains the cap; see above.
 
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
