@@ -1045,6 +1045,21 @@ is the only item that could lift the U85 cap (to about 7.5–8).*
   against the model's declared ranges, or a recorded reason no public dataset
   suffices.
 
+- [ ] **U101 — P is silent on which contents are conscious.** Raised
+  2026-09-28. The paper calls P necessary for unity (intro) and not sufficient
+  for consciousness (one Limitations clause: coupled pendulums), but §ai says
+  analog substrates "can satisfy P" with no scope beside it. Content is defined
+  by causal role alone (§carriers), so a fully analog crossbar's column
+  currents are contents, and passing P means only that those activations are
+  held together physically, not that any is experienced or anything like a
+  human percept. State that P is a condition on how a system's conscious
+  contents are held together and does not pick out which contents are
+  conscious or what they are like: once beside the intro's "necessary
+  condition" sentence (phrased as what P claims, to stay clear of
+  `check-claims`), once in §ai after "can satisfy P" (§ai has its one
+  disclaimer free), and in the Limitations pendulum bullet. Run
+  `check_claims.py` after each edit.
+
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
   Consciousness* or *Phil. Trans. B*. arXiv posting: cs.AI primary (author has
