@@ -968,13 +968,22 @@ plus U97 would move it to about 7. U85 (no data) still caps it.*
   no more task information" (abstract, claim 1, §enforcement, §tests,
   Figure 2, index.html). Trials: 1248 per loop behavioural (0.75 vs 0.70),
   393 neural (d = 0.2); at 1248, TE matched within 2% and gap within 0.0053.
-- [ ] **U96 — The thalamus prediction is thin.** U92 predicts more cross-patch
+- [x] **U96 — The thalamus prediction is thin.** U92 predicts more cross-patch
   unity in tonic than in burst mode from one review, and P's own logic says
   burst spikes keep graded timing. Either derive the difference (response at
   the noise floor of a relay cell in each mode, by the occupancy protocol) or
   scope it as a direction to test, not a prediction. **Success.** A computed
   or cited difference in graded dependence between the two modes, or the
   sentence reworded.
+  *Done 2026-09-28 (`f49d7d8`):* reworded, with the reason. Tonic relay is
+  near-linear (an integrate-and-fire model predicts LGN responses to natural
+  movies; Lesica & Stanley 2004, verified); bursts are all-or-none, triggered
+  by excitation after prolonged inhibition, and need renewed hyperpolarization
+  (Sherman 2001), yet burst onset is graded like a spike time. So the direction
+  is left to the occupancy protocol on relay cells recorded in each mode, and P
+  predicts more cross-patch unity in whichever mode passes more often within a
+  window. Computing it needs a relay-cell model with a T current, which the LIF
+  occupancy model lacks.
 - [ ] **U97 — Length.** 66 pages, main text about 12,500 words. Target about
   9,000: move the switching chip and yardstick detail to app:occupancy, keeping
   the result and a pointer in §enforcement, as U90 did. Move, don't delete
