@@ -992,7 +992,7 @@ plus U97 would move it to about 7. U85 (no data) still caps it.*
   (counted after U93–U96 added ~400); PDF 70 → 63 pages. Moved, not deleted:
   new app:count (logic-node detail, effective descriptions) and
   app:replacement (gradual replacement in full); app:occupancy gains the
-  membrane, window, reader, shared-input and switching detail and Figure 1;
+  membrane, window, reader, shared-input and switching detail and the yardstick figure;
   app:digital gains clockless logic; app:field the causal-cone setup;
   app:window the precise cone statement; app:bridge the pilot-block procedure
   and why the analog arm is analog end to end. Main-text sites keep result +
