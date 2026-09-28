@@ -1001,6 +1001,50 @@ plus U97 would move it to about 7. U85 (no data) still caps it.*
   check-claims disclaimers 3 → 4 (none removed).
 - U85 (no data) remains the cap; see above.
 
+*Self-assessment 2026-09-28 after U93–U97 (grade 6.5/10; about 6 at a
+selective venue). Length, the window sweep and the bridge simulation moved it
+up. Counting is still a premise with a precedent rather than a derivation, the
+bridge's feasibility rests on a linear model, and U96 is now conditional. U100
+is the only item that could lift the U85 cap (to about 7.5–8).*
+
+- [ ] **U98 — The bridge's gap may be an artefact of the linear estimator.**
+  `unity_bridge.py` estimates transfer entropy with a linear-Gaussian estimator,
+  which misses the quantizer's nonlinear information, so the quantized loop's
+  transfer entropy may be underestimated and the sign of the task-information
+  gap at the matched cutoff may change. Rerun the match with a nonparametric
+  estimator (e.g. Kraskov–Stögbauer–Grassberger nearest-neighbour transfer
+  entropy, or a binned plug-in estimator with bias correction) on both loops,
+  and use the same estimator for decodability, or a nonlinear decoder.
+  **Success.** `bridge.json` records both estimators. app:bridge states whether
+  the gap keeps its sign, with the matched cutoffs under each, and Limitations
+  drops or keeps the linear-estimator clause accordingly.
+- [ ] **U99 — Make the thalamic prediction directional again.** U96 left it
+  conditional ("whichever mode passes more often"). Add a relay-cell model with
+  a T-type calcium current (e.g. a reduced integrate-and-fire-or-burst model),
+  run the occupancy protocol on it in tonic and in burst mode at matched rates,
+  and report the passing fraction and per-window link in each mode.
+  **Success.** A generated difference between the modes, classed in
+  `test_unity_claims.CHECKLIST`, and the §reach sentence states its direction.
+- [ ] **U100 — First data: occupancy from public in vivo intracellular
+  recordings.** Every cortical number is a declared model range. Part one is a
+  search: look online for publicly available in vivo whole-cell or sharp
+  recordings of cortical membrane potential in awake (or at least
+  unanaesthetized) animals, long enough to estimate occupancy near threshold,
+  e.g. on DANDI, CRCNS, the Allen Institute, Figshare or Zenodo, or data
+  deposited with published papers (Poulet & Petersen 2008 style paired
+  recordings would also give the shared-input fraction). For each candidate,
+  record the licence, species, area, state, sampling rate, duration, whether
+  spike thresholds can be extracted, and whether paired cells are available.
+  Part two, on the best dataset: measure the membrane's distance from
+  threshold in its own noise amplitudes, the fraction of time spent in the
+  passing states of `unity_occupancy.py`, and the per-window chance of
+  entering one, and compare them with the model ranges. Data stay out of the
+  tree; a download script and a compact summary JSON are committed, and the
+  numbers enter as generated macros. **Success.** A dataset survey in the
+  working record, then either a measured occupancy in the paper, stated
+  against the model's declared ranges, or a recorded reason no public dataset
+  suffices.
+
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
   Consciousness* or *Phil. Trans. B*. arXiv posting: cs.AI primary (author has
