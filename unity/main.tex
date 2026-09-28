@@ -448,12 +448,32 @@ no coordinate at that resolution that the reader ignores.
 The count takes the strict reading of the third step. Two carriers are one
 system when \emph{every} change of one between its noise and its nearest
 threshold moves the other by at least the other's own fluctuation, and two when
-\emph{some} such change leaves the other unmoved. That is stricter than a
-product decomposition, which may join a carrier that registers some changes in
-the range and not others. The two agree on records and on graded readers, the
-two cases the argument turns on. Both ends of the range belong to each part, the
-size of its noise and the position of its thresholds, so nobody chooses the
-scale to separate brains from chips.
+\emph{some} such change leaves the other unmoved. A product decomposition asks
+less: it may join a carrier that registers some changes in the range and not
+others. The two agree on records and on graded readers, the two cases the
+argument turns on, and between them the strict reading is the first two steps
+applied inside the range. Where a larger change moves the content at least as
+much as a smaller one, as it does under the single-peaked noise treated below, a
+carrier can miss a change in the range in two ways. It can miss the small
+changes and register the large ones, which is a margin narrower than the range.
+Or it can register changes on one side of the state and miss those on the
+other, which is a threshold at the state, and then what it registers is which
+side was taken, a symbol. Both are the ways a record registers, so the strict
+reading adds no condition of its own. Both ends of the range belong to each
+part, the size of its noise and the position of its thresholds, so nobody
+chooses the scale to separate brains from chips.
+
+\paragraph{A precedent: clusters in a gas.} Physics already counts systems by
+comparing an interaction with the parts' own fluctuations. In the theory of
+imperfect gases, two molecules belong to one physical cluster when their
+attraction outweighs the kinetic energy of their relative thermal motion, and a
+cluster is a set of molecules joined by chains of such bonds
+\citep{hill1955,sator2003}. Molecules whose attraction is weaker than their
+thermal motion still interact, and that interaction changes the pressure of the
+gas, yet it joins them into no cluster. The criterion has the three features of
+the count: the scale is set by the parts' own noise, systems are joined through
+chains, and a real interaction below that scale leaves the parts separate, as
+crosstalk below a bit's margin leaves bits separate.
 
 \paragraph{The same count from effective descriptions.} Physics reaches the same
 count a second way, through the effective description it uses at the parts' own
@@ -723,7 +743,8 @@ share most of their input. P asks exactly this of the regions whose contents are
 unified. So P rests on wholeness and counting, and every step between them is
 proved: wholeness asks for one physical state, and counting says at which scale
 physics counts one. Counting has a second support in the effective description
-physics already uses at the parts' resolution. The bridge of
+physics already uses at the parts' resolution, and a precedent in how it
+counts clusters in a gas. The bridge of
 Section~\ref{sec:tests} tests the two premises together, and it also decides
 between wholeness and its main rival. On the account of unity as joint access,
 contents are unified when they are available together to the same consumers
@@ -1227,6 +1248,10 @@ change of one between its noise and its threshold leaves the other unmoved,
 which is stricter than a product decomposition. The two agree on records and
 graded readers, and a carrier that registers some changes in that range and not
 others is two systems by the count and may be one by a product decomposition.
+Section~\ref{sec:enforcement} reads such a carrier as registering through a
+margin or a threshold, which holds where the response grows with the change;
+the Lean development proves the steps from the count to P, not the count
+itself.
 
 \item \emph{Functionalism.} A functionalism that states its roles at the grain
 of graded physical state agrees with P on every test here, and it is the

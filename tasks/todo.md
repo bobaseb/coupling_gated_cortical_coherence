@@ -911,7 +911,7 @@ specialist venue; about 5.5 at a selective one). Readability, the positive
 control and local unity moved it up from 5. U93 is the ceiling; U93 plus U95
 plus U97 would move it to about 7. U85 (no data) still caps it.*
 
-- [ ] **U93 — Counting still carries the argument, and it is argued rather than
+- [x] **U93 — Counting still carries the argument, and it is argued rather than
   proved.** U86 added the effective-description argument, but a philosopher
   will still call the strict reading (every change between noise and threshold,
   not some) a stipulation, and the Lean results cover only the easy steps. Give
@@ -921,6 +921,16 @@ plus U97 would move it to about 7. U85 (no data) still caps it.*
   the count does. **Success.** A cited physics precedent that draws the line at
   the parts' own noise, stated in §enforcement's counting paragraph, with the
   strict/product difference argued rather than only admitted.
+  *Done 2026-09-28:* §enforcement gains "A precedent: clusters in a gas": Hill's
+  (1955) physical-cluster criterion, reviewed by Sator (2003, Phys Rep; both
+  verified), bonds two molecules when attraction outweighs relative thermal
+  kinetic energy and takes clusters as chain-connected components; sub-thermal
+  interaction changes the pressure and joins no cluster. The strict reading is
+  now argued: where response grows with the change, a carrier misses a change
+  in the range only by a margin narrower than the range or by a threshold at
+  the state, both record-type registration, so strictness adds no condition.
+  Limitations' Counting item states where that argument holds and that Lean
+  proves count→P, not the count.
 - [x] **U94 — Cortex passes only through definitions a reviewer can call drawn
   for the purpose.** A chip passes at the voltage and fails only by what the
   latch reads (U81, U88); cortex passes only in the per-window, some-carrier
