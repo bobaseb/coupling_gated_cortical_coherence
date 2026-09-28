@@ -38,7 +38,7 @@ CHECKLIST: dict[str, str] = {
             "uOccContentShortMs uOccContentLongMs uOccCarriersFew uOccCarriersMid "
             "uOccCarriersMany uYardLow uYardHigh uCorShareTol uCorPaths uCorShareA uCorShareB "
             "uSwClockGHz uSwActivityLow uSwActivityHigh uSwTransitionPs uSwAperturePs uSwTauPs "
-            "uSwDataMHz"
+            "uSwDataMHz uWinPerceptMs uWinLongestMs"
         ).split(),
         "declared",
     ),
@@ -61,7 +61,7 @@ CHECKLIST: dict[str, str] = {
         (
             "ueTauSlowMs ueTauLocalMs ueTauFastMs ueBandMatchFailPercent uOccLinkFewLong "
             "uOccLinkMidShort uYardBestMin uYardHitMinHigh uCorLinkMidTol uCorLinkManyTol "
-            "uSwMtbfOrders"
+            "uSwMtbfOrders uWinLinkPercept"
         ).split(),
         "lower",
     ),
@@ -69,7 +69,8 @@ CHECKLIST: dict[str, str] = {
         (
             "ueFieldReachMm ueEpspPassMv ueEdgeQuantile ueNoiseMatchFailPercent "
             "ueBridgeMinCutoffHz uHarmonicRatioLow uHarmonicRatioMid uOccInstantLinkMin "
-            "uCorMissA uCorMissB uCorMissC uCorResolutionRho uSwSyncPassPercent"
+            "uCorMissA uCorMissB uCorMissC uCorResolutionRho uSwSyncPassPercent "
+            "uWinLowManyMs uWinLowMidMs"
         ).split(),
         "upper",
     ),
@@ -246,6 +247,22 @@ class SwitchingClaimsTest(unittest.TestCase):
         for node in _read("switching.json")["nodes"]:
             for value in node["log10_no_transition"].values():
                 self.assertGreaterEqual(-value, printed["uSwNoTransitionOrders"])
+
+
+class WindowClaimsTest(unittest.TestCase):
+    def test_the_printed_lower_ends_are_never_earlier_than_the_saved_ones(self) -> None:
+        printed, ends = _printed(), _read("window.json")["lower_end_ms"]
+        self.assertGreaterEqual(printed["uWinLowManyMs"], ends["1000"])
+        self.assertGreaterEqual(printed["uWinLowMidMs"], ends["100"])
+
+    def test_the_lower_end_falls_below_the_shortest_percept(self) -> None:
+        swept = _read("window.json")
+        self.assertLess(swept["lower_end_ms"]["1000"], swept["percept_low_ms"])
+
+    def test_the_link_at_the_shortest_percept_never_rounds_up(self) -> None:
+        link = _read("window.json")["least_link_at_percept_low"]["1000"]
+        self.assertLessEqual(_printed()["uWinLinkPercept"], link)
+        self.assertGreaterEqual(link, _read("window.json")["level"])
 
 
 if __name__ == "__main__":

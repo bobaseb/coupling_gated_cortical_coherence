@@ -573,6 +573,16 @@ probability as low as \uOccInstantLinkMin{}. That is why P is stated per window.
 Reading the spike time through a clock of \uOccLatchShortMs{} or
 \uOccLatchLongMs{}~ms leaves the passing fraction unchanged.
 
+The verdict does not rest on the length of the window. Two events are perceived
+in order when they are about \uWinPerceptMs{}~ms apart or more
+\citep{hirsh1961}, so no content changes faster than that. Sweeping the window
+from one time step to \uWinLongestMs{}~ms, some of \uOccCarriersMany{}
+independent carriers links two regions more often than not in every regime and
+at every noise share from a window of \uWinLowManyMs{}~ms upward, and at
+\uWinPerceptMs{}~ms with probability at least \uWinLinkPercept{}
+(Appendix~\ref{app:occupancy}). The value a latch reads links in no window of
+any length.
+
 \paragraph{Readers that ignore spike times.} The membrane's result does not rest
 on its readers taking spike times. A reader that registers only whether the
 membrane fired within the window, and discards every spike time, finds it
@@ -1240,7 +1250,9 @@ The carrier counts stay far below the anatomical ones. The per-window bound is
 proved formally in two forms: for independent carriers, and without
 independence, where the chance that no carrier passes is at most the variance of
 the number that pass over the square of its mean, a ratio that correlation
-between carriers keeps above a floor however many there are.
+between carriers keeps above a floor however many there are. The sweep of the
+window's length assumes independent carriers, and shared input lowers the link
+most in the shortest windows.
 
 \item \emph{Reach.} Identifying phase variance with effective resistance rests
 on the harmonic approximation at identical natural frequencies. The logarithmic
@@ -1494,6 +1506,16 @@ two Monte Carlo standard errors beyond the estimate in every regime. The shorter
 \uOccContentShortMs{}~ms the link falls to about \uCorLinkShortTol{} at
 $c=\uCorShareTol$, so P's per-window condition is met at the time scale of a
 percept rather than of its fastest components.
+
+The window is also swept on its own, from one time step to \uWinLongestMs{}~ms,
+for independent carriers. The chance that one carrier occupies a passing state
+at some step of a window is propagated once on the same chain, so every window
+comes from one pass, and the link of $K$ carriers within it is
+$1-(1-h)^K$. The link reaches one half in every regime and at every noise share
+from \uWinLowManyMs{}~ms with \uOccCarriersMany{} carriers and from
+\uWinLowMidMs{}~ms with \uOccCarriersMid{}, and since $h$ grows with the
+window it stays above one half at every longer one. Halving the grid spacing and
+the time step moves both ends earlier, so these are the conservative values.
 
 The switching chip is counted in closed form. On the rising half of a
 transition the node's voltage crosses its threshold at a slew $\dot V$, a change

@@ -921,7 +921,7 @@ plus U97 would move it to about 7. U85 (no data) still caps it.*
   the count does. **Success.** A cited physics precedent that draws the line at
   the parts' own noise, stated in §enforcement's counting paragraph, with the
   strict/product difference argued rather than only admitted.
-- [ ] **U94 — Cortex passes only through definitions a reviewer can call drawn
+- [x] **U94 — Cortex passes only through definitions a reviewer can call drawn
   for the purpose.** A chip passes at the voltage and fails only by what the
   latch reads (U81, U88); cortex passes only in the per-window, some-carrier
   form. Show the verdict does not depend on the window: sweep the window
@@ -929,6 +929,14 @@ plus U97 would move it to about 7. U85 (no data) still caps it.*
   the membrane stops passing, and fix the window from psychophysics cited
   independently of this paper. **Success.** A generated range of windows over
   which the separation holds, with its lower end stated.
+  *Done 2026-09-28:* `unity_window.py` sweeps the per-window link from one time
+  step to 1000 ms in one pass per regime and share (`window.json`). Some of
+  1000 independent carriers links two regions more often than not in every
+  regime and share from 3 ms upward (100 carriers: from 31 ms), and at the
+  temporal-order threshold of 20 ms (Hirsh & Sherrick 1961, verified) with
+  probability ≥ 0.98. Half grid and half step move both ends earlier (1.6 and
+  16.9 ms), so the printed ends are conservative. Stated in §enforcement and
+  app:occupancy; Limitations notes the sweep assumes independent carriers.
 - [ ] **U95 — No power or feasibility estimate for the bridge.** Two settings
   (step, cutoff) must match transfer entropy and task decodability at once;
   that may have no solution, and no effect size or trial count is given.

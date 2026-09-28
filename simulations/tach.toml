@@ -304,3 +304,8 @@ depends_on = ["unity_occupancy"]
 path = "unity_switching"
 layer = "simulation"
 depends_on = ["unity_occupancy"]
+
+[[modules]]
+path = "unity_window"
+layer = "simulation"
+depends_on = ["unity_occupancy"]
