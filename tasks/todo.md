@@ -984,10 +984,21 @@ plus U97 would move it to about 7. U85 (no data) still caps it.*
   predicts more cross-patch unity in whichever mode passes more often within a
   window. Computing it needs a relay-cell model with a T current, which the LIF
   occupancy model lacks.
-- [ ] **U97 — Length.** 66 pages, main text about 12,500 words. Target about
+- [x] **U97 — Length.** 66 pages, main text about 12,500 words. Target about
   9,000: move the switching chip and yardstick detail to app:occupancy, keeping
   the result and a pointer in §enforcement, as U90 did. Move, don't delete
   (AGENTS §10). **Success.** Main text ≤ 9,000 words, every macro still cited.
+  *Done 2026-09-28:* main text (abstract to Limitations) 13,373 → 8,980 words
+  (counted after U93–U96 added ~400); PDF 70 → 63 pages. Moved, not deleted:
+  new app:count (logic-node detail, effective descriptions) and
+  app:replacement (gradual replacement in full); app:occupancy gains the
+  membrane, window, reader, shared-input and switching detail and Figure 1;
+  app:digital gains clockless logic; app:field the causal-cone setup;
+  app:window the precise cone statement; app:bridge the pilot-block procedure
+  and why the analog arm is analog end to end. Main-text sites keep result +
+  pointer; §ai, §tests, §cover, §reach, Related work and Limitations
+  tightened sentence by sentence. Every macro and reference still cited;
+  check-claims disclaimers 3 → 4 (none removed).
 - U85 (no data) remains the cap; see above.
 
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
