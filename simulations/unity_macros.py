@@ -5,12 +5,12 @@ Reads ``figures/unity_agreement/summary.json`` (the sheet simulations),
 ``figures/unity_occupancy/`` ``summary.json`` (the occupancy-weighted carrier
 test), ``yardstick.json`` (the same test at other yardsticks), ``correlated.json``
 (carriers sharing input), ``switching.json`` (a clocked chip by the same
-protocol) and ``window.json`` (the per-window link at every window length), and
-writes
+protocol), ``window.json`` (the per-window link at every window length) and
+``bridge.json`` (the bridge's two loops on a model pair of regions), and writes
 ``unity/unity_results.tex``. Nothing here integrates a sheet, sums a Fourier
 series or propagates a membrane: ``unity_agreement.py``, ``unity_occupancy.py``,
-``unity_correlated.py``, ``unity_switching.py`` and ``unity_window.py`` produce
-the summaries as
+``unity_correlated.py``, ``unity_switching.py``, ``unity_window.py`` and
+``unity_bridge.py`` produce the summaries as
 separate commands.
 """
 
@@ -337,6 +337,86 @@ def _window_sweep_values(swept: dict[str, Any]) -> list[tuple[str, str]]:
     ]
 
 
+def _spans(row: dict[str, Any], task: dict[str, Any]) -> bool:
+    """Whether the task variable spans at least half a quantizer step."""
+    return 2 * _finite(task["sd"]) >= _finite(row["step"])
+
+
+def _declared_rows(bridge: dict[str, Any]) -> list[dict[str, Any]]:
+    """The declared step's row in every regime whose task spans half a step."""
+    rows = [
+        {**row, "spread": r["spread"]}
+        for r in bridge["regimes"]
+        for row in r["steps"]
+        if row["step"] == bridge["declared_step"] and _spans(row, r["task"])
+    ]
+    if not rows or any(row["gap"] is None or row["spread"] is None for row in rows):
+        raise ValueError("The saved bridge run has no match at the declared step")
+    return rows
+
+
+def _bridge_task_values(bridge: dict[str, Any]) -> list[tuple[str, str]]:
+    """The declared task regimes and effect sizes."""
+    tasks = [r["task"] for r in bridge["regimes"]]
+    sds = [_finite(t["sd"]) for t in tasks]
+    taus = [_finite(t["tau_ms"]) for t in tasks]
+    effects = bridge["effects"]
+    return [
+        ("uBrTaskSdLow", f"{min(sds):g}"),
+        ("uBrTaskSdHigh", f"{max(sds):g}"),
+        ("uBrTaskTauShort", f"{min(taus):g}"),
+        ("uBrTaskTauLong", f"{max(taus):g}"),
+        ("uBrAccHigh", f"{_finite(effects['accuracy_high']):g}"),
+        ("uBrAccLow", f"{_finite(effects['accuracy_low']):g}"),
+        ("uBrNeuralEffect", f"{_finite(effects['neural']):g}"),
+    ]
+
+
+def _bridge_match_values(bridge: dict[str, Any]) -> list[tuple[str, str]]:
+    """Where the loops match, and by how much the matched analog loop falls short."""
+    rows = _declared_rows(bridge)
+    cutoffs = [_finite(r["matched_cutoff_hz"]) for r in rows]
+    gaps = [-_finite(r["gap"]) for r in rows]
+    others = [
+        _finite(row["gap"])
+        for r in bridge["regimes"]
+        for row in r["steps"]
+        if row["gap"] is not None and not _spans(row, r["task"])
+    ]
+    return [
+        ("uBrCutoffMin", f"{math.floor(min(cutoffs)):d}"),
+        ("uBrCutoffMax", f"{math.ceil(max(cutoffs)):d}"),
+        ("uBrGapMin", _sig(min(gaps), 2, up=False)),
+        ("uBrGapMax", _sig(max(gaps), 2, up=True)),
+        ("uBrGapOtherMax", _sig(max(others), 2, up=True)),
+    ]
+
+
+def _bridge_trial_values(bridge: dict[str, Any]) -> list[tuple[str, str]]:
+    """Trials per loop, and how closely the pilot blocks pin the match at that count."""
+    rows = _declared_rows(bridge)
+    trials, block = bridge["trials"], _finite(bridge["block_trials"])
+    scale = 1.959963984540054 * math.sqrt(block / _finite(trials["behaviour"]))
+    te = 100 * scale * max(_finite(r["spread"]["relative_te_sd"]) for r in rows)
+    gap = scale * max(_finite(r["spread"]["gap_sd"]) for r in rows)
+    return [
+        ("uBrBlockTrials", f"{block:g}"),
+        ("uBrTrialsBehaviour", str(trials["behaviour"])),
+        ("uBrTrialsNeural", str(trials["neural"])),
+        ("uBrTeTolPercent", _sig(te, 2, up=True)),
+        ("uBrGapTol", _ceil_sig(gap)),
+    ]
+
+
+def _bridge_values(bridge: dict[str, Any]) -> list[tuple[str, str]]:
+    """The bridge's two loops on a model pair of regions."""
+    return [
+        *_bridge_task_values(bridge),
+        *_bridge_match_values(bridge),
+        *_bridge_trial_values(bridge),
+    ]
+
+
 def render(figures: Path) -> str:
     """Read saved summaries; never integrate a sheet or recompute a resistance."""
     directory = figures / "unity_agreement"
@@ -347,6 +427,7 @@ def render(figures: Path) -> str:
     values += _correlated_values(_read(figures / "unity_occupancy" / "correlated.json"))
     values += _switching_values(_read(figures / "unity_occupancy" / "switching.json"))
     values += _window_sweep_values(_read(figures / "unity_occupancy" / "window.json"))
+    values += _bridge_values(_read(figures / "unity_occupancy" / "bridge.json"))
     lines = [
         "% Generated by simulations/unity_macros.py from saved JSON summaries in",
         "% simulations/figures/unity_agreement/ and simulations/figures/unity_occupancy/.",

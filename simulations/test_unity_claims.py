@@ -38,7 +38,8 @@ CHECKLIST: dict[str, str] = {
             "uOccContentShortMs uOccContentLongMs uOccCarriersFew uOccCarriersMid "
             "uOccCarriersMany uYardLow uYardHigh uCorShareTol uCorPaths uCorShareA uCorShareB "
             "uSwClockGHz uSwActivityLow uSwActivityHigh uSwTransitionPs uSwAperturePs uSwTauPs "
-            "uSwDataMHz uWinPerceptMs uWinLongestMs"
+            "uSwDataMHz uWinPerceptMs uWinLongestMs uBrTaskSdLow uBrTaskSdHigh uBrTaskTauShort "
+            "uBrTaskTauLong uBrAccHigh uBrAccLow uBrNeuralEffect uBrBlockTrials"
         ).split(),
         "declared",
     ),
@@ -53,7 +54,7 @@ CHECKLIST: dict[str, str] = {
             "uFarExponentialC uFarSigmaOneA uFarSigmaOneB uFarSigmaOneC uFarSigmaThreeA "
             "uFarSigmaThreeB uFarSigmaThreeC uStiffnessRatio uOccDistanceMin uOccDistanceMax "
             "uOccResolutionPercent uYardBinaryCeiling uCorLinkShortTol uSwNodePassMinPercent "
-            "uSwNodePassMaxPercent uSwSyncEventsLong"
+            "uSwNodePassMaxPercent uSwSyncEventsLong uBrTrialsBehaviour uBrTrialsNeural"
         ).split(),
         "point",
     ),
@@ -70,14 +71,15 @@ CHECKLIST: dict[str, str] = {
             "ueFieldReachMm ueEpspPassMv ueEdgeQuantile ueNoiseMatchFailPercent "
             "ueBridgeMinCutoffHz uHarmonicRatioLow uHarmonicRatioMid uOccInstantLinkMin "
             "uCorMissA uCorMissB uCorMissC uCorResolutionRho uSwSyncPassPercent "
-            "uWinLowManyMs uWinLowMidMs"
+            "uWinLowManyMs uWinLowMidMs uBrGapOtherMax uBrTeTolPercent uBrGapTol"
         ).split(),
         "upper",
     ),
     **dict.fromkeys(
         (
             "uOccPassMinPercent uOccPassMaxPercent uOccCountPassMinPercent "
-            "uOccCountPassMaxPercent uOccHitMinLong uOccHitMaxLong"
+            "uOccCountPassMaxPercent uOccHitMinLong uOccHitMaxLong uBrCutoffMin uBrCutoffMax "
+            "uBrGapMin uBrGapMax"
         ).split(),
         "range",
     ),
@@ -263,6 +265,51 @@ class WindowClaimsTest(unittest.TestCase):
         link = _read("window.json")["least_link_at_percept_low"]["1000"]
         self.assertLessEqual(_printed()["uWinLinkPercept"], link)
         self.assertGreaterEqual(link, _read("window.json")["level"])
+
+
+class BridgeClaimsTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.bridge = _read("bridge.json")
+        self.printed = _printed()
+        self.declared = [
+            {**row, "spread": r["spread"]}
+            for r in self.bridge["regimes"]
+            for row in r["steps"]
+            if row["step"] == self.bridge["declared_step"] and 2 * r["task"]["sd"] >= row["step"]
+        ]
+
+    def test_the_printed_ranges_enclose_every_spanning_regime(self) -> None:
+        cutoffs = [r["matched_cutoff_hz"] for r in self.declared]
+        gaps = [-r["gap"] for r in self.declared]
+        self.assertLessEqual(self.printed["uBrCutoffMin"], min(cutoffs))
+        self.assertGreaterEqual(self.printed["uBrCutoffMax"], max(cutoffs))
+        self.assertLessEqual(self.printed["uBrGapMin"], min(gaps))
+        self.assertGreaterEqual(self.printed["uBrGapMax"], max(gaps))
+
+    def test_every_matched_cutoff_clears_the_floor(self) -> None:
+        for row in self.declared:
+            self.assertGreater(row["matched_cutoff_hz"], self.bridge["cutoff_floor_hz"])
+
+    def test_a_task_spanning_half_a_step_never_favours_the_analog_loop(self) -> None:
+        for r in self.bridge["regimes"]:
+            for row in r["steps"]:
+                if 2 * r["task"]["sd"] >= row["step"]:
+                    self.assertIsNotNone(row["gap"])
+                    self.assertLessEqual(row["gap"], 0.0)
+
+    def test_the_printed_tolerances_are_upper_bounds_and_resolve_the_gap(self) -> None:
+        scale = 1.959963984540054 * math.sqrt(
+            self.bridge["block_trials"] / self.bridge["trials"]["behaviour"]
+        )
+        te = max(r["spread"]["relative_te_sd"] for r in self.declared) * scale
+        gap = max(r["spread"]["gap_sd"] for r in self.declared) * scale
+        self.assertGreaterEqual(self.printed["uBrTeTolPercent"], 100 * te)
+        self.assertGreaterEqual(self.printed["uBrGapTol"], gap)
+        self.assertLess(self.printed["uBrGapTol"], self.printed["uBrGapMin"])
+
+    def test_the_behavioural_comparison_is_the_weaker(self) -> None:
+        trials = self.bridge["trials"]
+        self.assertGreater(trials["behaviour"], trials["neural"])
 
 
 if __name__ == "__main__":

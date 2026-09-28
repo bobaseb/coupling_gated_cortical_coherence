@@ -937,7 +937,7 @@ plus U97 would move it to about 7. U85 (no data) still caps it.*
   probability ≥ 0.98. Half grid and half step move both ends earlier (1.6 and
   16.9 ms), so the printed ends are conservative. Stated in §enforcement and
   app:occupancy; Limitations notes the sweep assumes independent carriers.
-- [ ] **U95 — No power or feasibility estimate for the bridge.** Two settings
+- [x] **U95 — No power or feasibility estimate for the bridge.** Two settings
   (step, cutoff) must match transfer entropy and task decodability at once;
   that may have no solution, and no effect size or trial count is given.
   Add a script that simulates both loops on a model pair of regions, finds the
@@ -945,6 +945,19 @@ plus U97 would move it to about 7. U85 (no data) still caps it.*
   neural comparisons at a declared effect size. Numbers enter as generated
   macros, classed in `test_unity_claims.CHECKLIST`. **Success.** app:bridge
   states whether a match exists, its tolerance, and a trial count.
+  *Done 2026-09-28:* `unity_bridge.py` simulates both loops on a linear model
+  pair (task OU → A + own noise → recording → shared filter → cutoff or
+  quantizer → shared output → leaky B), linear-Gaussian TE from A's recording
+  to B's, task decodability from B's recording (the information that reaches
+  B; decoding the noiseless delivered current barely moves with the cutoff,
+  since a first-order filter loses nothing without downstream noise). Finding:
+  exact equality on both is not generic; at TE match the analog loop keeps
+  *less* task information whenever the task SD ≥ half a step (step 10: cutoff
+  17–95 Hz, gap 0.025–0.06 R²), and can keep more (up to 0.075) when the task
+  spans a fifth of a step. So the matching rule is now "same TE, analog loop
+  no more task information" (abstract, claim 1, §enforcement, §tests,
+  Figure 2, index.html). Trials: 1248 per loop behavioural (0.75 vs 0.70),
+  393 neural (d = 0.2); at 1248, TE matched within 2% and gap within 0.0053.
 - [ ] **U96 — The thalamus prediction is thin.** U92 predicts more cross-patch
   unity in tonic than in burst mode from one review, and P's own logic says
   burst spikes keep graded timing. Either derive the difference (response at

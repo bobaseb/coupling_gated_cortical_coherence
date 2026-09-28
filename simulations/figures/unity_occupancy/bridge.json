@@ -1,0 +1,426 @@
+{
+  "declared_step": 10.0,
+  "cutoff_floor_hz": 0.9934398590659169,
+  "block_trials": 100,
+  "effects": {
+    "accuracy_high": 0.75,
+    "accuracy_low": 0.7,
+    "neural": 0.2,
+    "alpha": 0.05,
+    "power": 0.8
+  },
+  "trials": {
+    "behaviour": 1248,
+    "neural": 393
+  },
+  "regimes": [
+    {
+      "task": {
+        "sd": 2.0,
+        "tau_ms": 20.0
+      },
+      "steps": [
+        {
+          "step": 6.0,
+          "fail_fraction": 0.5673973930562342,
+          "transfer_entropy": 40.3708554061977,
+          "decodability": 0.22884970265808335,
+          "matched_cutoff_hz": 38.577184264598934,
+          "gap": -0.02878564571198705
+        },
+        {
+          "step": 8.0,
+          "fail_fraction": 0.6755480447921756,
+          "transfer_entropy": 19.78854130764823,
+          "decodability": 0.1389050880181083,
+          "matched_cutoff_hz": 11.845032536211527,
+          "gap": -0.022222912130351546
+        },
+        {
+          "step": 10.0,
+          "fail_fraction": 0.7404384358337405,
+          "transfer_entropy": 6.750964779769386,
+          "decodability": 0.049449549737310305,
+          "matched_cutoff_hz": 3.726610004840837,
+          "gap": -0.004670225056507604
+        },
+        {
+          "step": 12.0,
+          "fail_fraction": 0.7836986965281171,
+          "transfer_entropy": 1.542903453137599,
+          "decodability": 0.010895761312259333,
+          "matched_cutoff_hz": 1.0946556584455578,
+          "gap": -0.001359461235278081
+        },
+        {
+          "step": 15.0,
+          "fail_fraction": 0.8269589572224936,
+          "transfer_entropy": 0.03324822521621533,
+          "decodability": 0.0005517236753963539,
+          "matched_cutoff_hz": null,
+          "gap": null
+        },
+        {
+          "step": 20.0,
+          "fail_fraction": 0.8702192179168702,
+          "transfer_entropy": 0.003138194537318554,
+          "decodability": 0.0004019997001820652,
+          "matched_cutoff_hz": null,
+          "gap": null
+        },
+        {
+          "step": 30.0,
+          "fail_fraction": 0.9134794786112468,
+          "transfer_entropy": 0.003138194537318554,
+          "decodability": 0.0004019997001820652,
+          "matched_cutoff_hz": null,
+          "gap": null
+        }
+      ],
+      "spread": {
+        "relative_te_sd": 0.12166363273626632,
+        "gap_sd": 0.01197758872599392
+      }
+    },
+    {
+      "task": {
+        "sd": 2.0,
+        "tau_ms": 100.0
+      },
+      "steps": [
+        {
+          "step": 6.0,
+          "fail_fraction": 0.5673973930562342,
+          "transfer_entropy": 30.882807252795924,
+          "decodability": 0.510435189710543,
+          "matched_cutoff_hz": 23.444045140133326,
+          "gap": 0.022435965187950324
+        },
+        {
+          "step": 8.0,
+          "fail_fraction": 0.6755480447921756,
+          "transfer_entropy": 15.653248104949345,
+          "decodability": 0.3424029816347506,
+          "matched_cutoff_hz": 5.304882529805929,
+          "gap": 0.07431898170556273
+        },
+        {
+          "step": 10.0,
+          "fail_fraction": 0.7404384358337405,
+          "transfer_entropy": 6.4975859340331965,
+          "decodability": 0.1664155432370743,
+          "matched_cutoff_hz": 1.19662264866436,
+          "gap": 0.04586619091353472
+        },
+        {
+          "step": 12.0,
+          "fail_fraction": 0.7836986965281171,
+          "transfer_entropy": 2.425908988105265,
+          "decodability": 0.06495964956876477,
+          "matched_cutoff_hz": null,
+          "gap": null
+        },
+        {
+          "step": 15.0,
+          "fail_fraction": 0.8269589572224936,
+          "transfer_entropy": 0.24126978541507715,
+          "decodability": 0.0073776685998333535,
+          "matched_cutoff_hz": null,
+          "gap": null
+        },
+        {
+          "step": 20.0,
+          "fail_fraction": 0.8702192179168702,
+          "transfer_entropy": 0.018440337207892857,
+          "decodability": 0.000617638763323769,
+          "matched_cutoff_hz": null,
+          "gap": null
+        },
+        {
+          "step": 30.0,
+          "fail_fraction": 0.9134794786112468,
+          "transfer_entropy": 0.018440337207892857,
+          "decodability": 0.000617638763323769,
+          "matched_cutoff_hz": null,
+          "gap": null
+        }
+      ],
+      "spread": {
+        "relative_te_sd": 0.15110138704217985,
+        "gap_sd": 0.038244245158340094
+      }
+    },
+    {
+      "task": {
+        "sd": 5.0,
+        "tau_ms": 20.0
+      },
+      "steps": [
+        {
+          "step": 6.0,
+          "fail_fraction": 0.5673973930562342,
+          "transfer_entropy": 134.87037575546765,
+          "decodability": 0.4750482577416273,
+          "matched_cutoff_hz": 121.60919575147112,
+          "gap": -0.024197776585186404
+        },
+        {
+          "step": 8.0,
+          "fail_fraction": 0.6755480447921756,
+          "transfer_entropy": 123.03200252274503,
+          "decodability": 0.46123691624551844,
+          "matched_cutoff_hz": 72.45011779803927,
+          "gap": -0.03897321002477483
+        },
+        {
+          "step": 10.0,
+          "fail_fraction": 0.7404384358337405,
+          "transfer_entropy": 105.63469058673134,
+          "decodability": 0.4430539482040885,
+          "matched_cutoff_hz": 43.463177864724166,
+          "gap": -0.05954642156890022
+        },
+        {
+          "step": 12.0,
+          "fail_fraction": 0.7836986965281171,
+          "transfer_entropy": 83.5515203131103,
+          "decodability": 0.40958791059950395,
+          "matched_cutoff_hz": 25.472561947704744,
+          "gap": -0.077547491597038
+        },
+        {
+          "step": 15.0,
+          "fail_fraction": 0.8269589572224936,
+          "transfer_entropy": 51.14420870208501,
+          "decodability": 0.3350281335600983,
+          "matched_cutoff_hz": 11.84757601561247,
+          "gap": -0.09056701422235147
+        },
+        {
+          "step": 20.0,
+          "fail_fraction": 0.8702192179168702,
+          "transfer_entropy": 18.926727911597013,
+          "decodability": 0.17144288950307307,
+          "matched_cutoff_hz": 4.2063263943790705,
+          "gap": -0.04438489475100649
+        },
+        {
+          "step": 30.0,
+          "fail_fraction": 0.9134794786112468,
+          "transfer_entropy": 1.1557167889503772,
+          "decodability": 0.010391084799655226,
+          "matched_cutoff_hz": null,
+          "gap": null
+        }
+      ],
+      "spread": {
+        "relative_te_sd": 0.0149307594461485,
+        "gap_sd": 0.006864181953904713
+      }
+    },
+    {
+      "task": {
+        "sd": 5.0,
+        "tau_ms": 100.0
+      },
+      "steps": [
+        {
+          "step": 6.0,
+          "fail_fraction": 0.5673973930562342,
+          "transfer_entropy": 76.42669111967243,
+          "decodability": 0.7621891907148806,
+          "matched_cutoff_hz": 68.85683416446909,
+          "gap": -0.0093940370545611
+        },
+        {
+          "step": 8.0,
+          "fail_fraction": 0.6755480447921756,
+          "transfer_entropy": 62.364245260157276,
+          "decodability": 0.7401967066556165,
+          "matched_cutoff_hz": 31.9249717011774,
+          "gap": -0.01681583823918087
+        },
+        {
+          "step": 10.0,
+          "fail_fraction": 0.7404384358337405,
+          "transfer_entropy": 48.68009947592482,
+          "decodability": 0.7118263084397641,
+          "matched_cutoff_hz": 17.197859235194176,
+          "gap": -0.02546780238327162
+        },
+        {
+          "step": 12.0,
+          "fail_fraction": 0.7836986965281171,
+          "transfer_entropy": 35.25167938029727,
+          "decodability": 0.6637049684726852,
+          "matched_cutoff_hz": 9.278223430893425,
+          "gap": -0.028208125724159094
+        },
+        {
+          "step": 15.0,
+          "fail_fraction": 0.8269589572224936,
+          "transfer_entropy": 20.665790431380564,
+          "decodability": 0.5526861056010739,
+          "matched_cutoff_hz": 4.173929581889428,
+          "gap": -0.008700342217724977
+        },
+        {
+          "step": 20.0,
+          "fail_fraction": 0.8702192179168702,
+          "transfer_entropy": 8.156580522974679,
+          "decodability": 0.3276010402925664,
+          "matched_cutoff_hz": 1.3273643742846957,
+          "gap": 0.010487841334339887
+        },
+        {
+          "step": 30.0,
+          "fail_fraction": 0.9134794786112468,
+          "transfer_entropy": 1.4187715522675135,
+          "decodability": 0.04490319119752073,
+          "matched_cutoff_hz": null,
+          "gap": null
+        }
+      ],
+      "spread": {
+        "relative_te_sd": 0.034614960775769914,
+        "gap_sd": 0.00941152750389073
+      }
+    },
+    {
+      "task": {
+        "sd": 10.0,
+        "tau_ms": 20.0
+      },
+      "steps": [
+        {
+          "step": 6.0,
+          "fail_fraction": 0.5673973930562342,
+          "transfer_entropy": 250.75381546037838,
+          "decodability": 0.6052891535988802,
+          "matched_cutoff_hz": 204.2557327944886,
+          "gap": -0.016629431404248995
+        },
+        {
+          "step": 8.0,
+          "fail_fraction": 0.6755480447921756,
+          "transfer_entropy": 242.48913522001274,
+          "decodability": 0.602264346592519,
+          "matched_cutoff_hz": 140.90972759793542,
+          "gap": -0.028004047202805582
+        },
+        {
+          "step": 10.0,
+          "fail_fraction": 0.7404384358337405,
+          "transfer_entropy": 228.17476260513925,
+          "decodability": 0.5961064005002837,
+          "matched_cutoff_hz": 94.57038006158167,
+          "gap": -0.043029954217916444
+        },
+        {
+          "step": 12.0,
+          "fail_fraction": 0.7836986965281171,
+          "transfer_entropy": 210.13007500738607,
+          "decodability": 0.5871213726672702,
+          "matched_cutoff_hz": 65.66749569490855,
+          "gap": -0.058789020547838966
+        },
+        {
+          "step": 15.0,
+          "fail_fraction": 0.8269589572224936,
+          "transfer_entropy": 180.56103684399707,
+          "decodability": 0.5701468165437414,
+          "matched_cutoff_hz": 40.058603135668946,
+          "gap": -0.08333731925791954
+        },
+        {
+          "step": 20.0,
+          "fail_fraction": 0.8702192179168702,
+          "transfer_entropy": 127.90742166956225,
+          "decodability": 0.527960669327223,
+          "matched_cutoff_hz": 17.1582652273418,
+          "gap": -0.13285572857937789
+        },
+        {
+          "step": 30.0,
+          "fail_fraction": 0.9134794786112468,
+          "transfer_entropy": 54.96448781399524,
+          "decodability": 0.38649663003643064,
+          "matched_cutoff_hz": 4.992995446265275,
+          "gap": -0.153105367115564
+        }
+      ],
+      "spread": {
+        "relative_te_sd": 0.0070415373694854705,
+        "gap_sd": 0.0029927049998342186
+      }
+    },
+    {
+      "task": {
+        "sd": 10.0,
+        "tau_ms": 100.0
+      },
+      "steps": [
+        {
+          "step": 6.0,
+          "fail_fraction": 0.5673973930562342,
+          "transfer_entropy": 153.32215527537326,
+          "decodability": 0.8493734014150673,
+          "matched_cutoff_hz": 101.9782005811903,
+          "gap": -0.011698638746967416
+        },
+        {
+          "step": 8.0,
+          "fail_fraction": 0.6755480447921756,
+          "transfer_entropy": 139.40312005676745,
+          "decodability": 0.8444036740012999,
+          "matched_cutoff_hz": 57.378876654909114,
+          "gap": -0.021652817462707752
+        },
+        {
+          "step": 10.0,
+          "fail_fraction": 0.7404384358337405,
+          "transfer_entropy": 122.16283436237026,
+          "decodability": 0.8348937680838726,
+          "matched_cutoff_hz": 34.42227420640752,
+          "gap": -0.031566057025850136
+        },
+        {
+          "step": 12.0,
+          "fail_fraction": 0.7836986965281171,
+          "transfer_entropy": 104.29949148623646,
+          "decodability": 0.8221584523553489,
+          "matched_cutoff_hz": 21.65017692692578,
+          "gap": -0.04242173538330629
+        },
+        {
+          "step": 15.0,
+          "fail_fraction": 0.8269589572224936,
+          "transfer_entropy": 77.93733456163584,
+          "decodability": 0.7951407060425864,
+          "matched_cutoff_hz": 11.167235689253383,
+          "gap": -0.06009681531544886
+        },
+        {
+          "step": 20.0,
+          "fail_fraction": 0.8702192179168702,
+          "transfer_entropy": 49.30241400451648,
+          "decodability": 0.7470627444876613,
+          "matched_cutoff_hz": 5.263836880630256,
+          "gap": -0.08021704237001825
+        },
+        {
+          "step": 30.0,
+          "fail_fraction": 0.9134794786112468,
+          "transfer_entropy": 20.144493209360107,
+          "decodability": 0.5628931618781807,
+          "matched_cutoff_hz": 1.94033518974721,
+          "gap": -0.026085867762915438
+        }
+      ],
+      "spread": {
+        "relative_te_sd": 0.014960926488567174,
+        "gap_sd": 0.004050472093185611
+      }
+    }
+  ]
+}
