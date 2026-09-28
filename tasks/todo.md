@@ -1081,7 +1081,7 @@ is the only item that could lift the U85 cap (to about 7.5–8).*
   against the model's declared ranges, or a recorded reason no public dataset
   suffices.
 
-- [ ] **U101 — P is silent on which contents are conscious.** Raised
+- [x] **U101 — P is silent on which contents are conscious.** Raised
   2026-09-28. The paper calls P necessary for unity (intro) and not sufficient
   for consciousness (one Limitations clause: coupled pendulums), but §ai says
   analog substrates "can satisfy P" with no scope beside it. Content is defined
@@ -1095,8 +1095,14 @@ is the only item that could lift the U85 cap (to about 7.5–8).*
   `check-claims`), once in §ai after "can satisfy P" (§ai has its one
   disclaimer free), and in the Limitations pendulum bullet. Run
   `check_claims.py` after each edit.
+  *Done 2026-09-28:* intro: P "a condition on how a system's conscious
+  contents are held together: which contents are conscious, and what they are
+  like, lie outside it" (no lexicon hit); §ai: after "can satisfy P", a
+  crossbar's column currents held together physically, "does not determine"
+  whether any is experienced or like a human percept (§ai's one disclaimer);
+  Limitations premise bullet gains the same with the crossbar example.
 
-- [ ] **U102 — What the bridge tests, and what a null leaves open.** Raised
+- [x] **U102 — What the bridge tests, and what a null leaves open.** Raised
   2026-09-28. The two loops share every stage but the quantizer and the
   cutoff, so no property of the electronics can separate the arms, and the
   positive control (interrupted, no loop) makes a double failure
@@ -1113,6 +1119,12 @@ is the only item that could lift the U85 cap (to about 7.5–8).*
   organisational criterion against information accounts; one Limitations
   item on the substrate-bound variant and the two auxiliaries. Pairs with
   U101. Run `check_claims.py` after each edit.
+  *Done 2026-09-28:* "The readout" ends on the shared stages and names the
+  bridge a test of P as a criterion of organisation (pointing at §ai) against
+  information accounts; new Limitations item "What a null leaves open"
+  (substrate-bound variant, stimulation unlike synaptic input, multi-unit
+  envelope from a few contacts). check-claims: 4 → 5 disclaimers, all within
+  limits; PDF 66 pages; unity arXiv build rerun.
 
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
