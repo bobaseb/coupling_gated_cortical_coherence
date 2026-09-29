@@ -7,7 +7,9 @@
       "saved_ou_hz": 1.190445779268257,
       "pilot_ou_hz": 1.2149058290665764,
       "pilot_shot_hz": 0.675784147923018,
-      "pilot_threshold_hz": 2.2776463074809064
+      "pilot_threshold_hz": 2.2776463074809064,
+      "pilot_two_moment_hz": 0.700868398472351,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "SC902_1",
@@ -15,7 +17,9 @@
       "saved_ou_hz": 0.10625832592995313,
       "pilot_ou_hz": 0.10523223899231572,
       "pilot_shot_hz": 0.18409096849929843,
-      "pilot_threshold_hz": 0.49608450166232554
+      "pilot_threshold_hz": 0.49608450166232554,
+      "pilot_two_moment_hz": 0.18255861183136987,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "SC904_1",
@@ -23,7 +27,9 @@
       "saved_ou_hz": 0.06167185025791726,
       "pilot_ou_hz": 0.06093103085127903,
       "pilot_shot_hz": 0.11838968628409721,
-      "pilot_threshold_hz": 0.10992569171361134
+      "pilot_threshold_hz": 0.10992569171361134,
+      "pilot_two_moment_hz": 0.11948150200296291,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "SC905_1",
@@ -31,7 +37,9 @@
       "saved_ou_hz": 0.12369003159570796,
       "pilot_ou_hz": 0.12395375021824116,
       "pilot_shot_hz": 0.1514054633417033,
-      "pilot_threshold_hz": 0.1799339567478316
+      "pilot_threshold_hz": 0.1799339567478316,
+      "pilot_two_moment_hz": 0.12914691690412625,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "SC906_1",
@@ -39,7 +47,9 @@
       "saved_ou_hz": 0.9048437962121822,
       "pilot_ou_hz": 0.9040623831622138,
       "pilot_shot_hz": 0.8638830978774625,
-      "pilot_threshold_hz": 4.818878864701416
+      "pilot_threshold_hz": 4.818878864701416,
+      "pilot_two_moment_hz": 0.863776307493136,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "SC908_1",
@@ -47,7 +57,9 @@
       "saved_ou_hz": 0.27401912870729683,
       "pilot_ou_hz": 0.27567283825795486,
       "pilot_shot_hz": 0.19302154847718905,
-      "pilot_threshold_hz": 0.3051406314387547
+      "pilot_threshold_hz": 0.3051406314387547,
+      "pilot_two_moment_hz": 0.2109916430710096,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "SC909_1",
@@ -55,7 +67,9 @@
       "saved_ou_hz": 0.6173776355122855,
       "pilot_ou_hz": 0.6053619841762241,
       "pilot_shot_hz": 0.8536491708732139,
-      "pilot_threshold_hz": 4.732445587537889
+      "pilot_threshold_hz": 4.732445587537889,
+      "pilot_two_moment_hz": 1.3837278111089584,
+      "two_moment_tail_reachable": true
     },
     {
       "cell": "SC910_1",
@@ -63,7 +77,9 @@
       "saved_ou_hz": 0.0003223225651710018,
       "pilot_ou_hz": 0.00031324822626374946,
       "pilot_shot_hz": 0.02288277403798206,
-      "pilot_threshold_hz": 0.0007850505503649131
+      "pilot_threshold_hz": 0.0007850505503649131,
+      "pilot_two_moment_hz": 0.017340112848778448,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "SC911_1",
@@ -71,7 +87,9 @@
       "saved_ou_hz": 0.47283431985529567,
       "pilot_ou_hz": 0.4691711365030603,
       "pilot_shot_hz": 0.37210898442594464,
-      "pilot_threshold_hz": 1.7344598554316741
+      "pilot_threshold_hz": 1.7344598554316741,
+      "pilot_two_moment_hz": 0.38611900724783427,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "SC912_1",
@@ -79,7 +97,9 @@
       "saved_ou_hz": 0.07848477607441334,
       "pilot_ou_hz": 0.07846602659555674,
       "pilot_shot_hz": 0.07770384705508006,
-      "pilot_threshold_hz": 0.145589370698439
+      "pilot_threshold_hz": 0.145589370698439,
+      "pilot_two_moment_hz": 0.08319569392555796,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "SC913_1",
@@ -87,7 +107,9 @@
       "saved_ou_hz": 0.18965501072545266,
       "pilot_ou_hz": 0.18903711975745638,
       "pilot_shot_hz": 0.1952795632717959,
-      "pilot_threshold_hz": 0.4033415266558595
+      "pilot_threshold_hz": 0.4033415266558595,
+      "pilot_two_moment_hz": 0.20089854201979843,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "SC916_1",
@@ -95,7 +117,9 @@
       "saved_ou_hz": 0.007932141649833966,
       "pilot_ou_hz": 0.007976561241739595,
       "pilot_shot_hz": 0.022788142352940466,
-      "pilot_threshold_hz": 0.01730956525973008
+      "pilot_threshold_hz": 0.01730956525973008,
+      "pilot_two_moment_hz": 0.02213612408421439,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "SC918_1",
@@ -103,7 +127,9 @@
       "saved_ou_hz": 0.2691804409060568,
       "pilot_ou_hz": 0.2763503229775586,
       "pilot_shot_hz": 0.4360083282986672,
-      "pilot_threshold_hz": 0.3153893618016298
+      "pilot_threshold_hz": 0.3153893618016298,
+      "pilot_two_moment_hz": 0.4442809517488047,
+      "two_moment_tail_reachable": true
     },
     {
       "cell": "SC919_1",
@@ -111,7 +137,9 @@
       "saved_ou_hz": 0.21284562621114939,
       "pilot_ou_hz": 0.21128465530997848,
       "pilot_shot_hz": 0.17481064057358214,
-      "pilot_threshold_hz": 0.3137838946002272
+      "pilot_threshold_hz": 0.3137838946002272,
+      "pilot_two_moment_hz": 0.19297847311006078,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "SC923_1",
@@ -119,7 +147,9 @@
       "saved_ou_hz": 0.9667997078550139,
       "pilot_ou_hz": 0.9606970910767982,
       "pilot_shot_hz": 0.8431592510780637,
-      "pilot_threshold_hz": 1.332681519147705
+      "pilot_threshold_hz": 1.332681519147705,
+      "pilot_two_moment_hz": 0.8660758142485638,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "SC925_1",
@@ -127,7 +157,9 @@
       "saved_ou_hz": 0.3874564724125737,
       "pilot_ou_hz": 0.3910717337643653,
       "pilot_shot_hz": 0.339976227187284,
-      "pilot_threshold_hz": 0.49699216694493975
+      "pilot_threshold_hz": 0.49699216694493975,
+      "pilot_two_moment_hz": 0.3620724167251852,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "SC926_1",
@@ -135,7 +167,9 @@
       "saved_ou_hz": 0.1893219740123889,
       "pilot_ou_hz": 0.19166192304822488,
       "pilot_shot_hz": 0.24022006886695824,
-      "pilot_threshold_hz": 0.2039544966906733
+      "pilot_threshold_hz": 0.2039544966906733,
+      "pilot_two_moment_hz": 0.21511276989779912,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "JP902_1",
@@ -143,7 +177,9 @@
       "saved_ou_hz": 0.2920385930001497,
       "pilot_ou_hz": 0.2929659952259886,
       "pilot_shot_hz": 0.43315891004438106,
-      "pilot_threshold_hz": 0.5472107134416638
+      "pilot_threshold_hz": 0.5472107134416638,
+      "pilot_two_moment_hz": 0.4337980653045458,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "JP903_1",
@@ -151,7 +187,9 @@
       "saved_ou_hz": 0.49965796761409476,
       "pilot_ou_hz": 0.49936904749899025,
       "pilot_shot_hz": 0.4247965445610561,
-      "pilot_threshold_hz": 0.7574705901561782
+      "pilot_threshold_hz": 0.7574705901561782,
+      "pilot_two_moment_hz": 0.4369968554922426,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "JP905_1",
@@ -159,7 +197,9 @@
       "saved_ou_hz": 0.014843411616212528,
       "pilot_ou_hz": 0.015156944567108886,
       "pilot_shot_hz": 0.08420369592409979,
-      "pilot_threshold_hz": 0.07013439859920118
+      "pilot_threshold_hz": 0.07013439859920118,
+      "pilot_two_moment_hz": 0.07761111500441147,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "JP906_1",
@@ -167,7 +207,9 @@
       "saved_ou_hz": 0.13462689218076498,
       "pilot_ou_hz": 0.13366722650048865,
       "pilot_shot_hz": 0.1901174900672765,
-      "pilot_threshold_hz": 0.32407805285972907
+      "pilot_threshold_hz": 0.32407805285972907,
+      "pilot_two_moment_hz": 0.1941575128249841,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK140_1",
@@ -175,7 +217,9 @@
       "saved_ou_hz": 0.7384110850452336,
       "pilot_ou_hz": 0.7367707391572265,
       "pilot_shot_hz": 0.5979698389483584,
-      "pilot_threshold_hz": 0.9436124158401535
+      "pilot_threshold_hz": 0.9436124158401535,
+      "pilot_two_moment_hz": 0.6145570142891077,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK140_2",
@@ -183,7 +227,9 @@
       "saved_ou_hz": 2.71541092703984,
       "pilot_ou_hz": 2.7019011892686446,
       "pilot_shot_hz": 1.8617368380292538,
-      "pilot_threshold_hz": 2.8274655925646988
+      "pilot_threshold_hz": 2.8274655925646988,
+      "pilot_two_moment_hz": 1.663238549649647,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK146_1",
@@ -191,7 +237,9 @@
       "saved_ou_hz": 1.8780479528604728,
       "pilot_ou_hz": 1.8596283140001209,
       "pilot_shot_hz": 1.225966446098737,
-      "pilot_threshold_hz": 3.1413260772841425
+      "pilot_threshold_hz": 3.1413260772841425,
+      "pilot_two_moment_hz": 0.9678098480908963,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK181_1",
@@ -199,7 +247,9 @@
       "saved_ou_hz": 4.182824749968735,
       "pilot_ou_hz": 4.178444592971184,
       "pilot_shot_hz": 2.385898910064081,
-      "pilot_threshold_hz": 4.718057587101592
+      "pilot_threshold_hz": 4.718057587101592,
+      "pilot_two_moment_hz": 2.4831429494278767,
+      "two_moment_tail_reachable": true
     },
     {
       "cell": "TK184_1",
@@ -207,7 +257,9 @@
       "saved_ou_hz": 3.124431711617898,
       "pilot_ou_hz": 3.137631176014228,
       "pilot_shot_hz": 2.1757327776615365,
-      "pilot_threshold_hz": 4.66485847840183
+      "pilot_threshold_hz": 4.66485847840183,
+      "pilot_two_moment_hz": 2.2805680754942266,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK236_1",
@@ -215,7 +267,9 @@
       "saved_ou_hz": 0.0896658927837184,
       "pilot_ou_hz": 0.08901373566553974,
       "pilot_shot_hz": 0.17525368030073477,
-      "pilot_threshold_hz": 0.3447389258963057
+      "pilot_threshold_hz": 0.3447389258963057,
+      "pilot_two_moment_hz": 0.17590648594357808,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK241_2",
@@ -223,7 +277,9 @@
       "saved_ou_hz": 8.394731837180178,
       "pilot_ou_hz": 8.428998507277448,
       "pilot_shot_hz": 6.875872933055335,
-      "pilot_threshold_hz": 12.580548706543514
+      "pilot_threshold_hz": 12.580548706543514,
+      "pilot_two_moment_hz": 27.62804583027306,
+      "two_moment_tail_reachable": true
     },
     {
       "cell": "TK250_2",
@@ -231,7 +287,9 @@
       "saved_ou_hz": 1.7459658783415541,
       "pilot_ou_hz": 1.7495013441035918,
       "pilot_shot_hz": 1.4567323977391928,
-      "pilot_threshold_hz": 2.654009206684278
+      "pilot_threshold_hz": 2.654009206684278,
+      "pilot_two_moment_hz": 1.5525369501995279,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK254_2",
@@ -239,7 +297,9 @@
       "saved_ou_hz": 0.3783094180590239,
       "pilot_ou_hz": 0.3774029449043834,
       "pilot_shot_hz": 0.3313363557152496,
-      "pilot_threshold_hz": 0.428872862792015
+      "pilot_threshold_hz": 0.428872862792015,
+      "pilot_two_moment_hz": 0.3300868863037363,
+      "two_moment_tail_reachable": true
     },
     {
       "cell": "TK266_1",
@@ -247,7 +307,9 @@
       "saved_ou_hz": 0.2207063485406654,
       "pilot_ou_hz": 0.21709843421500863,
       "pilot_shot_hz": 0.21444722042840703,
-      "pilot_threshold_hz": 0.31361186516554856
+      "pilot_threshold_hz": 0.31361186516554856,
+      "pilot_two_moment_hz": 0.22216734907730445,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK272_1",
@@ -255,7 +317,9 @@
       "saved_ou_hz": 10.112453767502883,
       "pilot_ou_hz": 10.086422971413274,
       "pilot_shot_hz": 7.476425396202951,
-      "pilot_threshold_hz": 28.475155332600323
+      "pilot_threshold_hz": 28.475155332600323,
+      "pilot_two_moment_hz": 43.00848995702391,
+      "two_moment_tail_reachable": true
     },
     {
       "cell": "TK276_1",
@@ -263,7 +327,9 @@
       "saved_ou_hz": 3.650053151872978,
       "pilot_ou_hz": 3.7010887770782905,
       "pilot_shot_hz": 2.6103126570935764,
-      "pilot_threshold_hz": 4.966727396468264
+      "pilot_threshold_hz": 4.966727396468264,
+      "pilot_two_moment_hz": 2.7728354841626155,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK277_1",
@@ -271,7 +337,9 @@
       "saved_ou_hz": 1.8483387215947,
       "pilot_ou_hz": 1.8585268803623554,
       "pilot_shot_hz": 1.415001789822715,
-      "pilot_threshold_hz": 2.630126387567988
+      "pilot_threshold_hz": 2.630126387567988,
+      "pilot_two_moment_hz": 1.4675200475320884,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK278_1",
@@ -279,7 +347,9 @@
       "saved_ou_hz": 8.933644680710955,
       "pilot_ou_hz": 8.918352797628604,
       "pilot_shot_hz": 2.7473165468837593,
-      "pilot_threshold_hz": 21.9918677097336
+      "pilot_threshold_hz": 21.9918677097336,
+      "pilot_two_moment_hz": 7.264234420104625,
+      "two_moment_tail_reachable": true
     },
     {
       "cell": "TK283_2",
@@ -287,7 +357,9 @@
       "saved_ou_hz": 0.4998065161152416,
       "pilot_ou_hz": 0.49837906651533553,
       "pilot_shot_hz": 0.5914604778201783,
-      "pilot_threshold_hz": 0.612219296887387
+      "pilot_threshold_hz": 0.612219296887387,
+      "pilot_two_moment_hz": 0.5820066487838989,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK299_1",
@@ -295,7 +367,9 @@
       "saved_ou_hz": 0.6463892178265126,
       "pilot_ou_hz": 0.6398995983671432,
       "pilot_shot_hz": 0.6138753067646675,
-      "pilot_threshold_hz": 0.9234897337503181
+      "pilot_threshold_hz": 0.9234897337503181,
+      "pilot_two_moment_hz": 0.62085452928871,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK304_1",
@@ -303,7 +377,9 @@
       "saved_ou_hz": 2.5680531861596787,
       "pilot_ou_hz": 2.5694797348227625,
       "pilot_shot_hz": 1.5603954961719644,
-      "pilot_threshold_hz": 3.541362036908052
+      "pilot_threshold_hz": 3.541362036908052,
+      "pilot_two_moment_hz": 1.7537038884527776,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK316_1",
@@ -311,7 +387,9 @@
       "saved_ou_hz": 1.4936943796189657,
       "pilot_ou_hz": 1.4919156498835762,
       "pilot_shot_hz": 1.1004224670285403,
-      "pilot_threshold_hz": 1.7674853207413197
+      "pilot_threshold_hz": 1.7674853207413197,
+      "pilot_two_moment_hz": 1.141327187595811,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK318_1",
@@ -319,7 +397,9 @@
       "saved_ou_hz": 0.8278822154651531,
       "pilot_ou_hz": 0.8392432645583565,
       "pilot_shot_hz": 0.8048737332789971,
-      "pilot_threshold_hz": 0.9742864446862852
+      "pilot_threshold_hz": 0.9742864446862852,
+      "pilot_two_moment_hz": 0.7961404001894455,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK355_2",
@@ -327,7 +407,9 @@
       "saved_ou_hz": 1.0004015413953182,
       "pilot_ou_hz": 0.978740188133344,
       "pilot_shot_hz": 0.8409993047972036,
-      "pilot_threshold_hz": 1.184976717282272
+      "pilot_threshold_hz": 1.184976717282272,
+      "pilot_two_moment_hz": 0.8711479342532977,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK355_3",
@@ -335,7 +417,9 @@
       "saved_ou_hz": 0.37719877095583404,
       "pilot_ou_hz": 0.3777395367747636,
       "pilot_shot_hz": 1.0098957346343926,
-      "pilot_threshold_hz": 0.38326004502936917
+      "pilot_threshold_hz": 0.38326004502936917,
+      "pilot_two_moment_hz": 0.25724693934097514,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK358_3",
@@ -343,7 +427,9 @@
       "saved_ou_hz": 0.00037542500745476324,
       "pilot_ou_hz": 0.0003637156041913776,
       "pilot_shot_hz": 0.023935186730079612,
-      "pilot_threshold_hz": 0.008219336204877132
+      "pilot_threshold_hz": 0.008219336204877132,
+      "pilot_two_moment_hz": 0.10416529982140015,
+      "two_moment_tail_reachable": true
     },
     {
       "cell": "TK383_1",
@@ -351,7 +437,9 @@
       "saved_ou_hz": 0.15257478751198464,
       "pilot_ou_hz": 0.15476359371933343,
       "pilot_shot_hz": 0.21513770754992606,
-      "pilot_threshold_hz": 0.2102949675169061
+      "pilot_threshold_hz": 0.2102949675169061,
+      "pilot_two_moment_hz": 0.21533328378471933,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK385_1",
@@ -359,7 +447,9 @@
       "saved_ou_hz": 0.20860048971901413,
       "pilot_ou_hz": 0.20902554672990828,
       "pilot_shot_hz": 0.35719890689550676,
-      "pilot_threshold_hz": 0.23983655521558173
+      "pilot_threshold_hz": 0.23983655521558173,
+      "pilot_two_moment_hz": 0.3538941666864068,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK385_2",
@@ -367,7 +457,9 @@
       "saved_ou_hz": 0.006891306718775077,
       "pilot_ou_hz": 0.006869587267694431,
       "pilot_shot_hz": 0.0948530434502786,
-      "pilot_threshold_hz": 2.168763572053043
+      "pilot_threshold_hz": 2.168763572053043,
+      "pilot_two_moment_hz": 0.09347942346259945,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK387_1",
@@ -375,7 +467,9 @@
       "saved_ou_hz": 2.564977190409217,
       "pilot_ou_hz": 2.577256267036021,
       "pilot_shot_hz": 1.7935113488876313,
-      "pilot_threshold_hz": 3.326054405927123
+      "pilot_threshold_hz": 3.326054405927123,
+      "pilot_two_moment_hz": 1.9131775522671153,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK402_1",
@@ -383,7 +477,9 @@
       "saved_ou_hz": 0.20367457791370286,
       "pilot_ou_hz": 0.2070992720951673,
       "pilot_shot_hz": 0.4081844311240326,
-      "pilot_threshold_hz": 4.792948094567618
+      "pilot_threshold_hz": 4.792948094567618,
+      "pilot_two_moment_hz": 0.4132245116248559,
+      "two_moment_tail_reachable": true
     },
     {
       "cell": "TK403_1",
@@ -391,7 +487,9 @@
       "saved_ou_hz": 0.12228508263227954,
       "pilot_ou_hz": 0.1219406572090252,
       "pilot_shot_hz": 0.1911803654426094,
-      "pilot_threshold_hz": 0.17389341767036576
+      "pilot_threshold_hz": 0.17389341767036576,
+      "pilot_two_moment_hz": 0.19360378597580039,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK408_1",
@@ -399,7 +497,9 @@
       "saved_ou_hz": 0.03793974336111058,
       "pilot_ou_hz": 0.037954953732029055,
       "pilot_shot_hz": 0.19048434418130866,
-      "pilot_threshold_hz": 0.1614062436502975
+      "pilot_threshold_hz": 0.1614062436502975,
+      "pilot_two_moment_hz": 0.18511235063955933,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK409_1",
@@ -407,7 +507,9 @@
       "saved_ou_hz": 2.219042672877486,
       "pilot_ou_hz": 2.1880774465262114,
       "pilot_shot_hz": 1.4881549043784248,
-      "pilot_threshold_hz": 2.7451005310711207
+      "pilot_threshold_hz": 2.7451005310711207,
+      "pilot_two_moment_hz": 1.6380915257623647,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK413_1",
@@ -415,7 +517,9 @@
       "saved_ou_hz": 0.3514263152823382,
       "pilot_ou_hz": 0.3500371043831385,
       "pilot_shot_hz": 0.33996607956130387,
-      "pilot_threshold_hz": 0.3902536427676
+      "pilot_threshold_hz": 0.3902536427676,
+      "pilot_two_moment_hz": 0.34047140129303727,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK414_1",
@@ -423,7 +527,9 @@
       "saved_ou_hz": 0.10804357305478729,
       "pilot_ou_hz": 0.10842330190396346,
       "pilot_shot_hz": 0.25395178522807094,
-      "pilot_threshold_hz": 0.12302826959099662
+      "pilot_threshold_hz": 0.12302826959099662,
+      "pilot_two_moment_hz": 0.2528477084355253,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK415_1",
@@ -431,7 +537,9 @@
       "saved_ou_hz": 3.132621606654501,
       "pilot_ou_hz": 3.1430565446921244,
       "pilot_shot_hz": 2.485461187917991,
-      "pilot_threshold_hz": 3.993648673114159
+      "pilot_threshold_hz": 3.993648673114159,
+      "pilot_two_moment_hz": 2.543122214078666,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK415_2",
@@ -439,7 +547,9 @@
       "saved_ou_hz": 0.5059233549885365,
       "pilot_ou_hz": 0.5051512905565186,
       "pilot_shot_hz": 0.613656062474689,
-      "pilot_threshold_hz": 0.6549336950896931
+      "pilot_threshold_hz": 0.6549336950896931,
+      "pilot_two_moment_hz": 0.6080530490545951,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK415_3",
@@ -447,7 +557,9 @@
       "saved_ou_hz": 0.7784664242415669,
       "pilot_ou_hz": 0.7739845997829063,
       "pilot_shot_hz": 0.7900131108528554,
-      "pilot_threshold_hz": 1.0180459725742526
+      "pilot_threshold_hz": 1.0180459725742526,
+      "pilot_two_moment_hz": 0.7988436904657106,
+      "two_moment_tail_reachable": true
     },
     {
       "cell": "TK416_1",
@@ -455,7 +567,9 @@
       "saved_ou_hz": 0.17105341058282203,
       "pilot_ou_hz": 0.1744339718984612,
       "pilot_shot_hz": 0.5307157861062114,
-      "pilot_threshold_hz": 0.2265220924104504
+      "pilot_threshold_hz": 0.2265220924104504,
+      "pilot_two_moment_hz": 0.5525326449771929,
+      "two_moment_tail_reachable": true
     },
     {
       "cell": "TK455_1",
@@ -463,7 +577,9 @@
       "saved_ou_hz": 0.011430307542659283,
       "pilot_ou_hz": 0.011632965595856139,
       "pilot_shot_hz": 0.040303988076536616,
-      "pilot_threshold_hz": 0.015822100381674153
+      "pilot_threshold_hz": 0.015822100381674153,
+      "pilot_two_moment_hz": 0.04480330829503744,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK457_1",
@@ -471,7 +587,9 @@
       "saved_ou_hz": 0.1269886814785,
       "pilot_ou_hz": 0.12699889585175392,
       "pilot_shot_hz": 0.2845199788214653,
-      "pilot_threshold_hz": 0.15707686652678188
+      "pilot_threshold_hz": 0.15707686652678188,
+      "pilot_two_moment_hz": 0.28024158271528204,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK460_2",
@@ -479,7 +597,9 @@
       "saved_ou_hz": 0.744267399871858,
       "pilot_ou_hz": 0.740947355285146,
       "pilot_shot_hz": 0.6163184312023263,
-      "pilot_threshold_hz": 0.832496917418458
+      "pilot_threshold_hz": 0.832496917418458,
+      "pilot_two_moment_hz": 8.442834179304015,
+      "two_moment_tail_reachable": true
     },
     {
       "cell": "TK462_1",
@@ -487,7 +607,9 @@
       "saved_ou_hz": 0.22796514278731178,
       "pilot_ou_hz": 0.22967227998859505,
       "pilot_shot_hz": 0.6662080348243502,
-      "pilot_threshold_hz": 0.2594962828067347
+      "pilot_threshold_hz": 0.2594962828067347,
+      "pilot_two_moment_hz": 0.6178667080042591,
+      "two_moment_tail_reachable": true
     },
     {
       "cell": "TK470_1",
@@ -495,7 +617,9 @@
       "saved_ou_hz": 0.33532210110921046,
       "pilot_ou_hz": 0.34074728298818724,
       "pilot_shot_hz": 0.3433048533904546,
-      "pilot_threshold_hz": 0.4451144118459873
+      "pilot_threshold_hz": 0.4451144118459873,
+      "pilot_two_moment_hz": 0.35119370990796084,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK473_1",
@@ -503,7 +627,9 @@
       "saved_ou_hz": 0.12492193397783091,
       "pilot_ou_hz": 0.12439188517196657,
       "pilot_shot_hz": 0.1377592676139354,
-      "pilot_threshold_hz": 0.13972718900428874
+      "pilot_threshold_hz": 0.13972718900428874,
+      "pilot_two_moment_hz": 0.1356553776742201,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK485_1",
@@ -511,7 +637,9 @@
       "saved_ou_hz": 0.05429800774102316,
       "pilot_ou_hz": 0.05382523212565944,
       "pilot_shot_hz": 0.1992528776265794,
-      "pilot_threshold_hz": 0.06461066774880736
+      "pilot_threshold_hz": 0.06461066774880736,
+      "pilot_two_moment_hz": 0.19945111992215653,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK485_2",
@@ -519,7 +647,9 @@
       "saved_ou_hz": 0.11254655233943184,
       "pilot_ou_hz": 0.11207345721777984,
       "pilot_shot_hz": 0.3299847179930353,
-      "pilot_threshold_hz": 0.15661345804284846
+      "pilot_threshold_hz": 0.15661345804284846,
+      "pilot_two_moment_hz": 0.3029508494188931,
+      "two_moment_tail_reachable": true
     },
     {
       "cell": "TK490_1",
@@ -527,7 +657,9 @@
       "saved_ou_hz": 0.12109564145894947,
       "pilot_ou_hz": 0.12248169870781796,
       "pilot_shot_hz": 0.3553364482447378,
-      "pilot_threshold_hz": 0.1359584482305198
+      "pilot_threshold_hz": 0.1359584482305198,
+      "pilot_two_moment_hz": 0.35539736497276103,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK496_1",
@@ -535,7 +667,9 @@
       "saved_ou_hz": 0.0788945447646566,
       "pilot_ou_hz": 0.07920261269566053,
       "pilot_shot_hz": 0.19418152986460585,
-      "pilot_threshold_hz": 0.1038122619764275
+      "pilot_threshold_hz": 0.1038122619764275,
+      "pilot_two_moment_hz": 0.19431787360278233,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK496_2",
@@ -543,7 +677,9 @@
       "saved_ou_hz": 1.197617690077767,
       "pilot_ou_hz": 1.190353338589487,
       "pilot_shot_hz": 1.2772488745477952,
-      "pilot_threshold_hz": 1.3321205225173756
+      "pilot_threshold_hz": 1.3321205225173756,
+      "pilot_two_moment_hz": 1.2936255041069198,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK496_3",
@@ -551,7 +687,9 @@
       "saved_ou_hz": 2.9852280422056015,
       "pilot_ou_hz": 3.012198710566171,
       "pilot_shot_hz": 2.273455812049288,
-      "pilot_threshold_hz": 4.698671279769307
+      "pilot_threshold_hz": 4.698671279769307,
+      "pilot_two_moment_hz": 2.349390038935282,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK496_4",
@@ -559,7 +697,9 @@
       "saved_ou_hz": 0.017348197033401777,
       "pilot_ou_hz": 0.017101882791569673,
       "pilot_shot_hz": 0.21569134019234137,
-      "pilot_threshold_hz": 1.7133274480850404
+      "pilot_threshold_hz": 1.7133274480850404,
+      "pilot_two_moment_hz": 0.21237874213833197,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK497_1",
@@ -567,7 +707,9 @@
       "saved_ou_hz": 0.18929820101734468,
       "pilot_ou_hz": 0.1898999198862275,
       "pilot_shot_hz": 0.4147992823265034,
-      "pilot_threshold_hz": 0.22335347881825104
+      "pilot_threshold_hz": 0.22335347881825104,
+      "pilot_two_moment_hz": 0.4151781383180956,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK497_2",
@@ -575,7 +717,9 @@
       "saved_ou_hz": 0.09770335796993831,
       "pilot_ou_hz": 0.0988044776346085,
       "pilot_shot_hz": 0.21466656994232752,
-      "pilot_threshold_hz": 0.1938975631153398
+      "pilot_threshold_hz": 0.1938975631153398,
+      "pilot_two_moment_hz": 0.21469053119064163,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK497_3",
@@ -583,7 +727,9 @@
       "saved_ou_hz": 0.013525903407658494,
       "pilot_ou_hz": 0.01348202189910514,
       "pilot_shot_hz": 0.10904432560818725,
-      "pilot_threshold_hz": 0.015455462706731819
+      "pilot_threshold_hz": 0.015455462706731819,
+      "pilot_two_moment_hz": 0.10300094019262683,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK498_1",
@@ -591,7 +737,9 @@
       "saved_ou_hz": 5.78037624334174,
       "pilot_ou_hz": 5.806384734440815,
       "pilot_shot_hz": 4.3552378475936955,
-      "pilot_threshold_hz": 11.741459276243738
+      "pilot_threshold_hz": 11.741459276243738,
+      "pilot_two_moment_hz": 4.468279663687039,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK499_1",
@@ -599,7 +747,9 @@
       "saved_ou_hz": 0.6671066213533543,
       "pilot_ou_hz": 0.6582552522944163,
       "pilot_shot_hz": 0.6977278479571685,
-      "pilot_threshold_hz": 0.7030104916674053
+      "pilot_threshold_hz": 0.7030104916674053,
+      "pilot_two_moment_hz": 0.6858232547242823,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK499_2",
@@ -607,7 +757,9 @@
       "saved_ou_hz": 0.14858390243273306,
       "pilot_ou_hz": 0.146429671434677,
       "pilot_shot_hz": 0.395941605464569,
-      "pilot_threshold_hz": 0.2051080466678175
+      "pilot_threshold_hz": 0.2051080466678175,
+      "pilot_two_moment_hz": 0.40257813675678333,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK499_3",
@@ -615,7 +767,9 @@
       "saved_ou_hz": 0.09918838767723474,
       "pilot_ou_hz": 0.09907007682058716,
       "pilot_shot_hz": 0.3122049102650103,
-      "pilot_threshold_hz": 0.12461547764603573
+      "pilot_threshold_hz": 0.12461547764603573,
+      "pilot_two_moment_hz": 0.31406178957230707,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK504_1",
@@ -623,7 +777,9 @@
       "saved_ou_hz": 0.08409190456964638,
       "pilot_ou_hz": 0.08355475038751214,
       "pilot_shot_hz": 0.20353121435320246,
-      "pilot_threshold_hz": 0.19826740937519774
+      "pilot_threshold_hz": 0.19826740937519774,
+      "pilot_two_moment_hz": 0.20349008234684257,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK504_2",
@@ -631,7 +787,9 @@
       "saved_ou_hz": 2.7901237831694985,
       "pilot_ou_hz": 2.784144182284976,
       "pilot_shot_hz": 1.6944706703447023,
-      "pilot_threshold_hz": 3.057422135942357
+      "pilot_threshold_hz": 3.057422135942357,
+      "pilot_two_moment_hz": 1.8406217224135544,
+      "two_moment_tail_reachable": true
     },
     {
       "cell": "TK509_1",
@@ -639,7 +797,9 @@
       "saved_ou_hz": 1.0949694729303279,
       "pilot_ou_hz": 1.0832104137203775,
       "pilot_shot_hz": 0.9182077131009607,
-      "pilot_threshold_hz": 1.2384974426995874
+      "pilot_threshold_hz": 1.2384974426995874,
+      "pilot_two_moment_hz": 0.9242491603477875,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK532_1",
@@ -647,7 +807,9 @@
       "saved_ou_hz": 0.26632300330551906,
       "pilot_ou_hz": 0.26695633274140584,
       "pilot_shot_hz": 0.45476789745765905,
-      "pilot_threshold_hz": 0.36806286049861825
+      "pilot_threshold_hz": 0.36806286049861825,
+      "pilot_two_moment_hz": 0.4541005613180216,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK538_1",
@@ -655,7 +817,9 @@
       "saved_ou_hz": 0.027886103477114583,
       "pilot_ou_hz": 0.02827411513033377,
       "pilot_shot_hz": 0.20121880650466328,
-      "pilot_threshold_hz": 0.04912448916794801
+      "pilot_threshold_hz": 0.04912448916794801,
+      "pilot_two_moment_hz": 0.1980314554149006,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK539_1",
@@ -663,7 +827,9 @@
       "saved_ou_hz": 0.26294907620107105,
       "pilot_ou_hz": 0.2618122638833947,
       "pilot_shot_hz": 0.40560757564936245,
-      "pilot_threshold_hz": 0.30755963266324526
+      "pilot_threshold_hz": 0.30755963266324526,
+      "pilot_two_moment_hz": 0.3965947200941391,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK539_2",
@@ -671,7 +837,9 @@
       "saved_ou_hz": 0.3853434625800918,
       "pilot_ou_hz": 0.38750275963148456,
       "pilot_shot_hz": 0.4540848836308364,
-      "pilot_threshold_hz": 0.4431020623045899
+      "pilot_threshold_hz": 0.4431020623045899,
+      "pilot_two_moment_hz": 0.44910789271717005,
+      "two_moment_tail_reachable": false
     },
     {
       "cell": "TK545_1",
@@ -679,7 +847,9 @@
       "saved_ou_hz": 1.619394914736021,
       "pilot_ou_hz": 1.6295533060256713,
       "pilot_shot_hz": 1.6697121176000285,
-      "pilot_threshold_hz": 2.4836903083309294
+      "pilot_threshold_hz": 2.4836903083309294,
+      "pilot_two_moment_hz": 1.7454090689890973,
+      "two_moment_tail_reachable": true
     },
     {
       "cell": "TK545_2",
@@ -687,7 +857,9 @@
       "saved_ou_hz": 0.20729274871702363,
       "pilot_ou_hz": 0.20735397716320278,
       "pilot_shot_hz": 0.30064154549109323,
-      "pilot_threshold_hz": 0.2477276008656687
+      "pilot_threshold_hz": 0.2477276008656687,
+      "pilot_two_moment_hz": 0.2994471661423737,
+      "two_moment_tail_reachable": true
     }
   ]
 }

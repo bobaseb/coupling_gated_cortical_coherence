@@ -2,7 +2,8 @@
 
 The Gaussian and jump variances sum to the OU innovation variance. The input
 rate and jump scale must be set from voltage statistics; the firing rate is
-reserved as an independent check. The bridge correction remains the diffusion
+reserved as an independent check. ``two_moment`` sets both from the measured
+fast skew and three-SD tail excess. The bridge correction remains the diffusion
 approximation used by ``unity_occupancy`` and is tested against simulated paths.
 """
 
@@ -14,6 +15,7 @@ from dataclasses import dataclass
 import numpy as np
 from numpy.polynomial.laguerre import laggauss
 from numpy.typing import NDArray
+from scipy import stats
 from scipy.special import ndtr
 
 import unity_occupancy as uo
@@ -76,3 +78,33 @@ def stationary_rate(grid: uo.Grid, membrane: uo.Membrane, dt_ms: float, shot: Sh
     matrix = chain(grid, membrane, dt_ms, shot)
     mass = uo._stationary_mass(matrix)
     return float(mass[grid.nodes.size] * 1000 / dt_ms)
+
+
+def tail_ratio(fraction: float, skew: float) -> float:
+    """Stationary mass above three SD over a Gaussian's, for unit-variance input.
+
+    Filtered exponential jumps are Gamma distributed; ``fraction`` of the
+    variance is theirs and the rest Gaussian, with the given stationary skew.
+    """
+    shape = 4 * fraction**3 / skew**2
+    scale = math.sqrt(fraction / shape)
+    shift = 3 + shape * scale
+    z = np.linspace(-10, 10, 4001)
+    tail = stats.gamma.sf(shift - math.sqrt(1 - fraction) * z, shape, scale=scale)
+    return float(np.trapezoid(stats.norm.pdf(z) * tail, z) / stats.norm.sf(3))
+
+
+def two_moment(skew: float, tail: float, tau_ms: float) -> tuple[ShotInput, bool]:
+    """Jump input matching skew and tail excess, and whether the tail was reachable.
+
+    Among members with the measured skew, the lightest jumps that reach the
+    tail are taken; if none reaches it, the heaviest-tailed member is.
+    """
+    fractions = np.linspace(0.01, 0.99, 197)
+    ratios = np.array([tail_ratio(float(f), skew) for f in fractions])
+    peak = int(np.argmax(ratios))
+    reachable = bool(ratios[peak] >= tail)
+    index = peak + int(np.flatnonzero(ratios[peak:] >= tail)[-1]) if reachable else peak
+    fraction = float(fractions[index])
+    shape = 4 * fraction**3 / skew**2
+    return ShotInput(shape / tau_ms, math.sqrt(fraction / shape)), reachable

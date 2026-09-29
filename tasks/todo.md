@@ -1243,7 +1243,7 @@ is the only item that could lift the U85 cap (to about 7.5–8).*
   a nonzero transfer coefficient. Neither is part of P, and no gradient identity
   is claimed.
 
-- [ ] **U105 — A twin that fires like the recorded cells.** Raised
+- [x] **U105 — A twin that fires like the recorded cells.** Raised
   2026-09-29, from the U100 result. The passing states of the recorded
   membranes are read off a Gaussian twin (OU held at the slow part) that
   predicts 0.47× the median cell's rate and is within 2× for only 48% of
@@ -1301,6 +1301,24 @@ is the only item that could lift the U85 cap (to about 7.5–8).*
   that split alone worsens the rate check. Event-rate calibration from the
   voltage law, threshold dynamics, and the full path-based occupancy comparison
   remain open.
+  *Closed 2026-09-29, negative, per the success clause.* `unity_shot.two_moment`
+  sets jump rate and size from the fast skew and three-SD tail excess together,
+  still without spike counts (filtered exponential jumps are Gamma, so a
+  Gaussian-plus-Gamma law is matched; checked against sampled paths in
+  `test_unity_shot.py`). For 69 of 86 cells the measured tail excess exceeds
+  the largest any Gaussian-plus-exponential-jump membrane with that cell's skew
+  can produce, so the minimal shot-noise family cannot represent their fast
+  voltage at all. Taking the heaviest member there and the matched one
+  elsewhere gives a median ratio of 0.481 and 38.4% within 2×
+  (`pilot_two_moment_hz` in `shot_pilot.json`), no better than OU. The OU
+  mismatch concentrates in exactly those cells (median 0.335 vs 0.676 in the
+  17 reachable ones). Ruled in: non-Gaussian, heavy-tailed fast input, by
+  association. Ruled out as minimal fixes: a fixed-rate jump process, a
+  two-moment exponential-jump process, a static threshold mixture, and a
+  wider slow split. What remains (heavier-than-exponential amplitudes,
+  dynamic thresholds) is new modelling, not a minimal extension; no
+  production rerun was made, so pass fractions, window visits and the
+  Limitations rate clause stand as published.
 
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
@@ -1485,4 +1503,6 @@ recording diagnostics that favour testing non-Gaussian upward events. A
 fixed-rate sparse-jump pilot passed its synthetic rate check but failed on the
 recorded cells; a static threshold mixture improved the median rate ratio but
 fell short of the declared target. A fitted replacement twin and the occupancy
-checks remain open under U105.
+checks remain open under U105. *Later the same day:* a jump input fitted to
+both skew and tail excess also failed, and most cells' tails lie outside that
+family's reach; U105 closed negative with the occupancy numbers unchanged.

@@ -6,7 +6,9 @@ import unittest
 import numpy as np
 
 import unity_occupancy as uo
-from unity_shot import ShotInput, stationary_rate, step
+from scipy import stats
+
+from unity_shot import ShotInput, stationary_rate, step, tail_ratio, two_moment
 from unity_shot_pilot import threshold_rate
 
 
@@ -49,6 +51,31 @@ class ShotKernelTest(unittest.TestCase):
         self.assertAlmostEqual(
             stationary_rate(grid, membrane, 0.1, shot) / measured, 1.0, delta=0.2
         )
+
+
+class TwoMomentTest(unittest.TestCase):
+    def test_tail_ratio_matches_samples_of_gaussian_plus_gamma(self) -> None:
+        fraction, skew = 0.4, 0.6
+        shape = 4 * fraction**3 / skew**2
+        scale = math.sqrt(fraction / shape)
+        rng = np.random.default_rng(5)
+        samples = rng.gamma(shape, scale, 4_000_000) - shape * scale
+        samples += math.sqrt(1 - fraction) * rng.normal(size=samples.size)
+        measured = np.mean(samples > 3) / stats.norm.sf(3)
+        self.assertAlmostEqual(tail_ratio(fraction, skew) / measured, 1.0, delta=0.05)
+
+    def test_matched_input_reproduces_skew_and_tail(self) -> None:
+        shot, reachable = two_moment(0.4, 3.5, 50.0)
+        self.assertTrue(reachable)
+        self.assertAlmostEqual(2 * shot.rate_per_ms * 50.0 * shot.scale**3, 0.4, places=9)
+        fraction = shot.rate_per_ms * 50.0 * shot.scale**2
+        self.assertAlmostEqual(tail_ratio(fraction, 0.4), 3.5, delta=0.1)
+
+    def test_unreachable_tail_takes_the_heaviest_member(self) -> None:
+        shot, reachable = two_moment(0.4, 50.0, 50.0)
+        self.assertFalse(reachable)
+        peak = tail_ratio(shot.rate_per_ms * 50.0 * shot.scale**2, 0.4)
+        self.assertLess(peak, 50.0)
 
 
 if __name__ == "__main__":

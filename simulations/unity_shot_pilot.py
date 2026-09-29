@@ -4,6 +4,8 @@ The slow levels use quarter-millivolt histograms from the original paths.
 This screening cannot replace the original paths or determine passing states.
 The jump rate is fixed before looking at firing rates; its scale comes only
 from an unthresholded stationary-skew approximation to the measured fast skew.
+A second jump input takes both its rate and scale from the fast skew and
+three-SD tail excess, again without spike counts.
 """
 
 from __future__ import annotations
@@ -18,7 +20,7 @@ from numpy.polynomial.hermite import hermgauss
 import unity_occupancy as uo
 import unity_recording_diagnostics as diag
 import unity_recordings as ur
-from unity_shot import ShotInput, stationary_rate
+from unity_shot import ShotInput, stationary_rate, two_moment
 
 RATE_PER_MS = 0.01
 OUTPUT = ur.OUTPUT / "shot_pilot.json"
@@ -42,10 +44,11 @@ def threshold_rate(grid: uo.Grid, membrane: uo.Membrane, dt_ms: float, spread: f
 
 def predict(
     state: dict[str, float], shape: dict[str, Any], threshold_mv: float
-) -> tuple[float, float, float]:
-    """OU, jump and threshold-mixture rates under empirical slow levels."""
+) -> tuple[float, float, float, float]:
+    """OU, jump, threshold-mixture and two-moment jump rates under empirical slow levels."""
     tau = state["tau_ms"]
     scale = (max(shape["skew"], 0) / (2 * RATE_PER_MS * tau)) ** (1 / 3)
+    matched, _ = two_moment(shape["skew"], shape["upper_tail_ratio"], tau)
     low = -max(8, math.ceil(state["distance"] + 8))
     grid = uo.Grid(low, ur.GRID_STEP)
     histogram = shape["slow_histogram"]
@@ -57,7 +60,7 @@ def predict(
     for mean, (_, count) in zip(model_means, histogram, strict=True):
         rounded = min(-0.2, round(mean / ur.MEAN_STEP) * ur.MEAN_STEP)
         by_mean[rounded] = by_mean.get(rounded, 0) + count
-    original = changed = threshold = 0.0
+    original = changed = threshold = both = 0.0
     threshold_sd = shape["threshold_sd_mv"] / state["sigma_mv"]
     for mean, count in by_mean.items():
         weight = count / total
@@ -65,7 +68,8 @@ def predict(
         original += weight * uo.stationary(grid, membrane, ur.DT_MS)[2]
         changed += weight * stationary_rate(grid, membrane, ur.DT_MS, ShotInput(RATE_PER_MS, scale))
         threshold += weight * threshold_rate(grid, membrane, ur.DT_MS, threshold_sd)
-    return original, changed, threshold
+        both += weight * stationary_rate(grid, membrane, ur.DT_MS, matched)
+    return original, changed, threshold, both
 
 
 def run() -> dict[str, Any]:
@@ -78,7 +82,9 @@ def run() -> dict[str, Any]:
         if cell["type"] != "EXC" or "quiet" not in cell.get("states", {}):
             continue
         state = cell["states"]["quiet"]
-        baseline, changed, threshold = predict(state, by_cell[cell["cell"]], cell["threshold_mv"])
+        shape = by_cell[cell["cell"]]
+        baseline, changed, threshold, both = predict(state, shape, cell["threshold_mv"])
+        _, reachable = two_moment(shape["skew"], shape["upper_tail_ratio"], state["tau_ms"])
         rows.append(
             {
                 "cell": cell["cell"],
@@ -87,6 +93,8 @@ def run() -> dict[str, Any]:
                 "pilot_ou_hz": baseline,
                 "pilot_shot_hz": changed,
                 "pilot_threshold_hz": threshold,
+                "pilot_two_moment_hz": both,
+                "two_moment_tail_reachable": reachable,
             }
         )
     return {"jump_rate_per_ms": RATE_PER_MS, "cells": rows}
