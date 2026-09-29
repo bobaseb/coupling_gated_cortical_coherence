@@ -1,0 +1,693 @@
+{
+  "jump_rate_per_ms": 0.01,
+  "cells": [
+    {
+      "cell": "SC901_1",
+      "recorded_hz": 1.1874946022972621,
+      "saved_ou_hz": 1.190445779268257,
+      "pilot_ou_hz": 1.2149058290665764,
+      "pilot_shot_hz": 0.675784147923018,
+      "pilot_threshold_hz": 2.2776463074809064
+    },
+    {
+      "cell": "SC902_1",
+      "recorded_hz": 0.06219679064560269,
+      "saved_ou_hz": 0.10625832592995313,
+      "pilot_ou_hz": 0.10523223899231572,
+      "pilot_shot_hz": 0.18409096849929843,
+      "pilot_threshold_hz": 0.49608450166232554
+    },
+    {
+      "cell": "SC904_1",
+      "recorded_hz": 0.18510291722197542,
+      "saved_ou_hz": 0.06167185025791726,
+      "pilot_ou_hz": 0.06093103085127903,
+      "pilot_shot_hz": 0.11838968628409721,
+      "pilot_threshold_hz": 0.10992569171361134
+    },
+    {
+      "cell": "SC905_1",
+      "recorded_hz": 0.2353257580851207,
+      "saved_ou_hz": 0.12369003159570796,
+      "pilot_ou_hz": 0.12395375021824116,
+      "pilot_shot_hz": 0.1514054633417033,
+      "pilot_threshold_hz": 0.1799339567478316
+    },
+    {
+      "cell": "SC906_1",
+      "recorded_hz": 0.09259259259259259,
+      "saved_ou_hz": 0.9048437962121822,
+      "pilot_ou_hz": 0.9040623831622138,
+      "pilot_shot_hz": 0.8638830978774625,
+      "pilot_threshold_hz": 4.818878864701416
+    },
+    {
+      "cell": "SC908_1",
+      "recorded_hz": 0.22040024684827647,
+      "saved_ou_hz": 0.27401912870729683,
+      "pilot_ou_hz": 0.27567283825795486,
+      "pilot_shot_hz": 0.19302154847718905,
+      "pilot_threshold_hz": 0.3051406314387547
+    },
+    {
+      "cell": "SC909_1",
+      "recorded_hz": 1.002551950419249,
+      "saved_ou_hz": 0.6173776355122855,
+      "pilot_ou_hz": 0.6053619841762241,
+      "pilot_shot_hz": 0.8536491708732139,
+      "pilot_threshold_hz": 4.732445587537889
+    },
+    {
+      "cell": "SC910_1",
+      "recorded_hz": 0.07338551859099804,
+      "saved_ou_hz": 0.0003223225651710018,
+      "pilot_ou_hz": 0.00031324822626374946,
+      "pilot_shot_hz": 0.02288277403798206,
+      "pilot_threshold_hz": 0.0007850505503649131
+    },
+    {
+      "cell": "SC911_1",
+      "recorded_hz": 0.4503693028283192,
+      "saved_ou_hz": 0.47283431985529567,
+      "pilot_ou_hz": 0.4691711365030603,
+      "pilot_shot_hz": 0.37210898442594464,
+      "pilot_threshold_hz": 1.7344598554316741
+    },
+    {
+      "cell": "SC912_1",
+      "recorded_hz": 0.14411529223378702,
+      "saved_ou_hz": 0.07848477607441334,
+      "pilot_ou_hz": 0.07846602659555674,
+      "pilot_shot_hz": 0.07770384705508006,
+      "pilot_threshold_hz": 0.145589370698439
+    },
+    {
+      "cell": "SC913_1",
+      "recorded_hz": 0.6074787382441614,
+      "saved_ou_hz": 0.18965501072545266,
+      "pilot_ou_hz": 0.18903711975745638,
+      "pilot_shot_hz": 0.1952795632717959,
+      "pilot_threshold_hz": 0.4033415266558595
+    },
+    {
+      "cell": "SC916_1",
+      "recorded_hz": 0.09303046747809907,
+      "saved_ou_hz": 0.007932141649833966,
+      "pilot_ou_hz": 0.007976561241739595,
+      "pilot_shot_hz": 0.022788142352940466,
+      "pilot_threshold_hz": 0.01730956525973008
+    },
+    {
+      "cell": "SC918_1",
+      "recorded_hz": 0.39582013932868904,
+      "saved_ou_hz": 0.2691804409060568,
+      "pilot_ou_hz": 0.2763503229775586,
+      "pilot_shot_hz": 0.4360083282986672,
+      "pilot_threshold_hz": 0.3153893618016298
+    },
+    {
+      "cell": "SC919_1",
+      "recorded_hz": 0.3860322502371341,
+      "saved_ou_hz": 0.21284562621114939,
+      "pilot_ou_hz": 0.21128465530997848,
+      "pilot_shot_hz": 0.17481064057358214,
+      "pilot_threshold_hz": 0.3137838946002272
+    },
+    {
+      "cell": "SC923_1",
+      "recorded_hz": 1.7840409428386075,
+      "saved_ou_hz": 0.9667997078550139,
+      "pilot_ou_hz": 0.9606970910767982,
+      "pilot_shot_hz": 0.8431592510780637,
+      "pilot_threshold_hz": 1.332681519147705
+    },
+    {
+      "cell": "SC925_1",
+      "recorded_hz": 0.29834913478750913,
+      "saved_ou_hz": 0.3874564724125737,
+      "pilot_ou_hz": 0.3910717337643653,
+      "pilot_shot_hz": 0.339976227187284,
+      "pilot_threshold_hz": 0.49699216694493975
+    },
+    {
+      "cell": "SC926_1",
+      "recorded_hz": 0.588350656991567,
+      "saved_ou_hz": 0.1893219740123889,
+      "pilot_ou_hz": 0.19166192304822488,
+      "pilot_shot_hz": 0.24022006886695824,
+      "pilot_threshold_hz": 0.2039544966906733
+    },
+    {
+      "cell": "JP902_1",
+      "recorded_hz": 0.8849557522123893,
+      "saved_ou_hz": 0.2920385930001497,
+      "pilot_ou_hz": 0.2929659952259886,
+      "pilot_shot_hz": 0.43315891004438106,
+      "pilot_threshold_hz": 0.5472107134416638
+    },
+    {
+      "cell": "JP903_1",
+      "recorded_hz": 0.47836486192650574,
+      "saved_ou_hz": 0.49965796761409476,
+      "pilot_ou_hz": 0.49936904749899025,
+      "pilot_shot_hz": 0.4247965445610561,
+      "pilot_threshold_hz": 0.7574705901561782
+    },
+    {
+      "cell": "JP905_1",
+      "recorded_hz": 0.21245455833057927,
+      "saved_ou_hz": 0.014843411616212528,
+      "pilot_ou_hz": 0.015156944567108886,
+      "pilot_shot_hz": 0.08420369592409979,
+      "pilot_threshold_hz": 0.07013439859920118
+    },
+    {
+      "cell": "JP906_1",
+      "recorded_hz": 0.1682335477486393,
+      "saved_ou_hz": 0.13462689218076498,
+      "pilot_ou_hz": 0.13366722650048865,
+      "pilot_shot_hz": 0.1901174900672765,
+      "pilot_threshold_hz": 0.32407805285972907
+    },
+    {
+      "cell": "TK140_1",
+      "recorded_hz": 1.128231147190771,
+      "saved_ou_hz": 0.7384110850452336,
+      "pilot_ou_hz": 0.7367707391572265,
+      "pilot_shot_hz": 0.5979698389483584,
+      "pilot_threshold_hz": 0.9436124158401535
+    },
+    {
+      "cell": "TK140_2",
+      "recorded_hz": 4.930222533541678,
+      "saved_ou_hz": 2.71541092703984,
+      "pilot_ou_hz": 2.7019011892686446,
+      "pilot_shot_hz": 1.8617368380292538,
+      "pilot_threshold_hz": 2.8274655925646988
+    },
+    {
+      "cell": "TK146_1",
+      "recorded_hz": 3.7429587903943076,
+      "saved_ou_hz": 1.8780479528604728,
+      "pilot_ou_hz": 1.8596283140001209,
+      "pilot_shot_hz": 1.225966446098737,
+      "pilot_threshold_hz": 3.1413260772841425
+    },
+    {
+      "cell": "TK181_1",
+      "recorded_hz": 7.405948394721292,
+      "saved_ou_hz": 4.182824749968735,
+      "pilot_ou_hz": 4.178444592971184,
+      "pilot_shot_hz": 2.385898910064081,
+      "pilot_threshold_hz": 4.718057587101592
+    },
+    {
+      "cell": "TK184_1",
+      "recorded_hz": 3.9026567826416314,
+      "saved_ou_hz": 3.124431711617898,
+      "pilot_ou_hz": 3.137631176014228,
+      "pilot_shot_hz": 2.1757327776615365,
+      "pilot_threshold_hz": 4.66485847840183
+    },
+    {
+      "cell": "TK236_1",
+      "recorded_hz": 0.35195334104278747,
+      "saved_ou_hz": 0.0896658927837184,
+      "pilot_ou_hz": 0.08901373566553974,
+      "pilot_shot_hz": 0.17525368030073477,
+      "pilot_threshold_hz": 0.3447389258963057
+    },
+    {
+      "cell": "TK241_2",
+      "recorded_hz": 10.245806421634683,
+      "saved_ou_hz": 8.394731837180178,
+      "pilot_ou_hz": 8.428998507277448,
+      "pilot_shot_hz": 6.875872933055335,
+      "pilot_threshold_hz": 12.580548706543514
+    },
+    {
+      "cell": "TK250_2",
+      "recorded_hz": 2.830028087496808,
+      "saved_ou_hz": 1.7459658783415541,
+      "pilot_ou_hz": 1.7495013441035918,
+      "pilot_shot_hz": 1.4567323977391928,
+      "pilot_threshold_hz": 2.654009206684278
+    },
+    {
+      "cell": "TK254_2",
+      "recorded_hz": 0.2880311959941507,
+      "saved_ou_hz": 0.3783094180590239,
+      "pilot_ou_hz": 0.3774029449043834,
+      "pilot_shot_hz": 0.3313363557152496,
+      "pilot_threshold_hz": 0.428872862792015
+    },
+    {
+      "cell": "TK266_1",
+      "recorded_hz": 0.6828609572329554,
+      "saved_ou_hz": 0.2207063485406654,
+      "pilot_ou_hz": 0.21709843421500863,
+      "pilot_shot_hz": 0.21444722042840703,
+      "pilot_threshold_hz": 0.31361186516554856
+    },
+    {
+      "cell": "TK272_1",
+      "recorded_hz": 8.878279062282067,
+      "saved_ou_hz": 10.112453767502883,
+      "pilot_ou_hz": 10.086422971413274,
+      "pilot_shot_hz": 7.476425396202951,
+      "pilot_threshold_hz": 28.475155332600323
+    },
+    {
+      "cell": "TK276_1",
+      "recorded_hz": 5.84530336671349,
+      "saved_ou_hz": 3.650053151872978,
+      "pilot_ou_hz": 3.7010887770782905,
+      "pilot_shot_hz": 2.6103126570935764,
+      "pilot_threshold_hz": 4.966727396468264
+    },
+    {
+      "cell": "TK277_1",
+      "recorded_hz": 3.082700445590337,
+      "saved_ou_hz": 1.8483387215947,
+      "pilot_ou_hz": 1.8585268803623554,
+      "pilot_shot_hz": 1.415001789822715,
+      "pilot_threshold_hz": 2.630126387567988
+    },
+    {
+      "cell": "TK278_1",
+      "recorded_hz": 9.416943281858854,
+      "saved_ou_hz": 8.933644680710955,
+      "pilot_ou_hz": 8.918352797628604,
+      "pilot_shot_hz": 2.7473165468837593,
+      "pilot_threshold_hz": 21.9918677097336
+    },
+    {
+      "cell": "TK283_2",
+      "recorded_hz": 1.0955414012738853,
+      "saved_ou_hz": 0.4998065161152416,
+      "pilot_ou_hz": 0.49837906651533553,
+      "pilot_shot_hz": 0.5914604778201783,
+      "pilot_threshold_hz": 0.612219296887387
+    },
+    {
+      "cell": "TK299_1",
+      "recorded_hz": 1.5412414965986396,
+      "saved_ou_hz": 0.6463892178265126,
+      "pilot_ou_hz": 0.6398995983671432,
+      "pilot_shot_hz": 0.6138753067646675,
+      "pilot_threshold_hz": 0.9234897337503181
+    },
+    {
+      "cell": "TK304_1",
+      "recorded_hz": 2.8243147827203283,
+      "saved_ou_hz": 2.5680531861596787,
+      "pilot_ou_hz": 2.5694797348227625,
+      "pilot_shot_hz": 1.5603954961719644,
+      "pilot_threshold_hz": 3.541362036908052
+    },
+    {
+      "cell": "TK316_1",
+      "recorded_hz": 2.3970740868877574,
+      "saved_ou_hz": 1.4936943796189657,
+      "pilot_ou_hz": 1.4919156498835762,
+      "pilot_shot_hz": 1.1004224670285403,
+      "pilot_threshold_hz": 1.7674853207413197
+    },
+    {
+      "cell": "TK318_1",
+      "recorded_hz": 2.9987452948557087,
+      "saved_ou_hz": 0.8278822154651531,
+      "pilot_ou_hz": 0.8392432645583565,
+      "pilot_shot_hz": 0.8048737332789971,
+      "pilot_threshold_hz": 0.9742864446862852
+    },
+    {
+      "cell": "TK355_2",
+      "recorded_hz": 1.537751806858373,
+      "saved_ou_hz": 1.0004015413953182,
+      "pilot_ou_hz": 0.978740188133344,
+      "pilot_shot_hz": 0.8409993047972036,
+      "pilot_threshold_hz": 1.184976717282272
+    },
+    {
+      "cell": "TK355_3",
+      "recorded_hz": 0.3781306997642244,
+      "saved_ou_hz": 0.37719877095583404,
+      "pilot_ou_hz": 0.3777395367747636,
+      "pilot_shot_hz": 1.0098957346343926,
+      "pilot_threshold_hz": 0.38326004502936917
+    },
+    {
+      "cell": "TK358_3",
+      "recorded_hz": 0.03191217768700536,
+      "saved_ou_hz": 0.00037542500745476324,
+      "pilot_ou_hz": 0.0003637156041913776,
+      "pilot_shot_hz": 0.023935186730079612,
+      "pilot_threshold_hz": 0.008219336204877132
+    },
+    {
+      "cell": "TK383_1",
+      "recorded_hz": 0.8788529790085461,
+      "saved_ou_hz": 0.15257478751198464,
+      "pilot_ou_hz": 0.15476359371933343,
+      "pilot_shot_hz": 0.21513770754992606,
+      "pilot_threshold_hz": 0.2102949675169061
+    },
+    {
+      "cell": "TK385_1",
+      "recorded_hz": 1.5004715767812742,
+      "saved_ou_hz": 0.20860048971901413,
+      "pilot_ou_hz": 0.20902554672990828,
+      "pilot_shot_hz": 0.35719890689550676,
+      "pilot_threshold_hz": 0.23983655521558173
+    },
+    {
+      "cell": "TK385_2",
+      "recorded_hz": 0.08446761270392895,
+      "saved_ou_hz": 0.006891306718775077,
+      "pilot_ou_hz": 0.006869587267694431,
+      "pilot_shot_hz": 0.0948530434502786,
+      "pilot_threshold_hz": 2.168763572053043
+    },
+    {
+      "cell": "TK387_1",
+      "recorded_hz": 4.078837071415428,
+      "saved_ou_hz": 2.564977190409217,
+      "pilot_ou_hz": 2.577256267036021,
+      "pilot_shot_hz": 1.7935113488876313,
+      "pilot_threshold_hz": 3.326054405927123
+    },
+    {
+      "cell": "TK402_1",
+      "recorded_hz": 0.9845031905195989,
+      "saved_ou_hz": 0.20367457791370286,
+      "pilot_ou_hz": 0.2070992720951673,
+      "pilot_shot_hz": 0.4081844311240326,
+      "pilot_threshold_hz": 4.792948094567618
+    },
+    {
+      "cell": "TK403_1",
+      "recorded_hz": 0.8241111372733695,
+      "saved_ou_hz": 0.12228508263227954,
+      "pilot_ou_hz": 0.1219406572090252,
+      "pilot_shot_hz": 0.1911803654426094,
+      "pilot_threshold_hz": 0.17389341767036576
+    },
+    {
+      "cell": "TK408_1",
+      "recorded_hz": 0.508789081984876,
+      "saved_ou_hz": 0.03793974336111058,
+      "pilot_ou_hz": 0.037954953732029055,
+      "pilot_shot_hz": 0.19048434418130866,
+      "pilot_threshold_hz": 0.1614062436502975
+    },
+    {
+      "cell": "TK409_1",
+      "recorded_hz": 3.5556729367804287,
+      "saved_ou_hz": 2.219042672877486,
+      "pilot_ou_hz": 2.1880774465262114,
+      "pilot_shot_hz": 1.4881549043784248,
+      "pilot_threshold_hz": 2.7451005310711207
+    },
+    {
+      "cell": "TK413_1",
+      "recorded_hz": 0.8181446297895549,
+      "saved_ou_hz": 0.3514263152823382,
+      "pilot_ou_hz": 0.3500371043831385,
+      "pilot_shot_hz": 0.33996607956130387,
+      "pilot_threshold_hz": 0.3902536427676
+    },
+    {
+      "cell": "TK414_1",
+      "recorded_hz": 1.1217451490489032,
+      "saved_ou_hz": 0.10804357305478729,
+      "pilot_ou_hz": 0.10842330190396346,
+      "pilot_shot_hz": 0.25395178522807094,
+      "pilot_threshold_hz": 0.12302826959099662
+    },
+    {
+      "cell": "TK415_1",
+      "recorded_hz": 6.15654326080231,
+      "saved_ou_hz": 3.132621606654501,
+      "pilot_ou_hz": 3.1430565446921244,
+      "pilot_shot_hz": 2.485461187917991,
+      "pilot_threshold_hz": 3.993648673114159
+    },
+    {
+      "cell": "TK415_2",
+      "recorded_hz": 1.813572944789069,
+      "saved_ou_hz": 0.5059233549885365,
+      "pilot_ou_hz": 0.5051512905565186,
+      "pilot_shot_hz": 0.613656062474689,
+      "pilot_threshold_hz": 0.6549336950896931
+    },
+    {
+      "cell": "TK415_3",
+      "recorded_hz": 0.9728874444064317,
+      "saved_ou_hz": 0.7784664242415669,
+      "pilot_ou_hz": 0.7739845997829063,
+      "pilot_shot_hz": 0.7900131108528554,
+      "pilot_threshold_hz": 1.0180459725742526
+    },
+    {
+      "cell": "TK416_1",
+      "recorded_hz": 1.1843207487218002,
+      "saved_ou_hz": 0.17105341058282203,
+      "pilot_ou_hz": 0.1744339718984612,
+      "pilot_shot_hz": 0.5307157861062114,
+      "pilot_threshold_hz": 0.2265220924104504
+    },
+    {
+      "cell": "TK455_1",
+      "recorded_hz": 0.07500562542190664,
+      "saved_ou_hz": 0.011430307542659283,
+      "pilot_ou_hz": 0.011632965595856139,
+      "pilot_shot_hz": 0.040303988076536616,
+      "pilot_threshold_hz": 0.015822100381674153
+    },
+    {
+      "cell": "TK457_1",
+      "recorded_hz": 0.2497422015983501,
+      "saved_ou_hz": 0.1269886814785,
+      "pilot_ou_hz": 0.12699889585175392,
+      "pilot_shot_hz": 0.2845199788214653,
+      "pilot_threshold_hz": 0.15707686652678188
+    },
+    {
+      "cell": "TK460_2",
+      "recorded_hz": 0.49350222075999345,
+      "saved_ou_hz": 0.744267399871858,
+      "pilot_ou_hz": 0.740947355285146,
+      "pilot_shot_hz": 0.6163184312023263,
+      "pilot_threshold_hz": 0.832496917418458
+    },
+    {
+      "cell": "TK462_1",
+      "recorded_hz": 0.3373598868211993,
+      "saved_ou_hz": 0.22796514278731178,
+      "pilot_ou_hz": 0.22967227998859505,
+      "pilot_shot_hz": 0.6662080348243502,
+      "pilot_threshold_hz": 0.2594962828067347
+    },
+    {
+      "cell": "TK470_1",
+      "recorded_hz": 0.6925988564065394,
+      "saved_ou_hz": 0.33532210110921046,
+      "pilot_ou_hz": 0.34074728298818724,
+      "pilot_shot_hz": 0.3433048533904546,
+      "pilot_threshold_hz": 0.4451144118459873
+    },
+    {
+      "cell": "TK473_1",
+      "recorded_hz": 0.1257216422263794,
+      "saved_ou_hz": 0.12492193397783091,
+      "pilot_ou_hz": 0.12439188517196657,
+      "pilot_shot_hz": 0.1377592676139354,
+      "pilot_threshold_hz": 0.13972718900428874
+    },
+    {
+      "cell": "TK485_1",
+      "recorded_hz": 0.7482108002602472,
+      "saved_ou_hz": 0.05429800774102316,
+      "pilot_ou_hz": 0.05382523212565944,
+      "pilot_shot_hz": 0.1992528776265794,
+      "pilot_threshold_hz": 0.06461066774880736
+    },
+    {
+      "cell": "TK485_2",
+      "recorded_hz": 0.5613617976786038,
+      "saved_ou_hz": 0.11254655233943184,
+      "pilot_ou_hz": 0.11207345721777984,
+      "pilot_shot_hz": 0.3299847179930353,
+      "pilot_threshold_hz": 0.15661345804284846
+    },
+    {
+      "cell": "TK490_1",
+      "recorded_hz": 0.3618003183842802,
+      "saved_ou_hz": 0.12109564145894947,
+      "pilot_ou_hz": 0.12248169870781796,
+      "pilot_shot_hz": 0.3553364482447378,
+      "pilot_threshold_hz": 0.1359584482305198
+    },
+    {
+      "cell": "TK496_1",
+      "recorded_hz": 0.5724897048069891,
+      "saved_ou_hz": 0.0788945447646566,
+      "pilot_ou_hz": 0.07920261269566053,
+      "pilot_shot_hz": 0.19418152986460585,
+      "pilot_threshold_hz": 0.1038122619764275
+    },
+    {
+      "cell": "TK496_2",
+      "recorded_hz": 4.3717181585053115,
+      "saved_ou_hz": 1.197617690077767,
+      "pilot_ou_hz": 1.190353338589487,
+      "pilot_shot_hz": 1.2772488745477952,
+      "pilot_threshold_hz": 1.3321205225173756
+    },
+    {
+      "cell": "TK496_3",
+      "recorded_hz": 3.495598135680994,
+      "saved_ou_hz": 2.9852280422056015,
+      "pilot_ou_hz": 3.012198710566171,
+      "pilot_shot_hz": 2.273455812049288,
+      "pilot_threshold_hz": 4.698671279769307
+    },
+    {
+      "cell": "TK496_4",
+      "recorded_hz": 0.19740738303612554,
+      "saved_ou_hz": 0.017348197033401777,
+      "pilot_ou_hz": 0.017101882791569673,
+      "pilot_shot_hz": 0.21569134019234137,
+      "pilot_threshold_hz": 1.7133274480850404
+    },
+    {
+      "cell": "TK497_1",
+      "recorded_hz": 1.1469966797464533,
+      "saved_ou_hz": 0.18929820101734468,
+      "pilot_ou_hz": 0.1898999198862275,
+      "pilot_shot_hz": 0.4147992823265034,
+      "pilot_threshold_hz": 0.22335347881825104
+    },
+    {
+      "cell": "TK497_2",
+      "recorded_hz": 0.8660508083140878,
+      "saved_ou_hz": 0.09770335796993831,
+      "pilot_ou_hz": 0.0988044776346085,
+      "pilot_shot_hz": 0.21466656994232752,
+      "pilot_threshold_hz": 0.1938975631153398
+    },
+    {
+      "cell": "TK497_3",
+      "recorded_hz": 0.3027734043841589,
+      "saved_ou_hz": 0.013525903407658494,
+      "pilot_ou_hz": 0.01348202189910514,
+      "pilot_shot_hz": 0.10904432560818725,
+      "pilot_threshold_hz": 0.015455462706731819
+    },
+    {
+      "cell": "TK498_1",
+      "recorded_hz": 7.749498446166555,
+      "saved_ou_hz": 5.78037624334174,
+      "pilot_ou_hz": 5.806384734440815,
+      "pilot_shot_hz": 4.3552378475936955,
+      "pilot_threshold_hz": 11.741459276243738
+    },
+    {
+      "cell": "TK499_1",
+      "recorded_hz": 2.4750590206381844,
+      "saved_ou_hz": 0.6671066213533543,
+      "pilot_ou_hz": 0.6582552522944163,
+      "pilot_shot_hz": 0.6977278479571685,
+      "pilot_threshold_hz": 0.7030104916674053
+    },
+    {
+      "cell": "TK499_2",
+      "recorded_hz": 2.5755277461762103,
+      "saved_ou_hz": 0.14858390243273306,
+      "pilot_ou_hz": 0.146429671434677,
+      "pilot_shot_hz": 0.395941605464569,
+      "pilot_threshold_hz": 0.2051080466678175
+    },
+    {
+      "cell": "TK499_3",
+      "recorded_hz": 1.4789351666799904,
+      "saved_ou_hz": 0.09918838767723474,
+      "pilot_ou_hz": 0.09907007682058716,
+      "pilot_shot_hz": 0.3122049102650103,
+      "pilot_threshold_hz": 0.12461547764603573
+    },
+    {
+      "cell": "TK504_1",
+      "recorded_hz": 0.9586646365533187,
+      "saved_ou_hz": 0.08409190456964638,
+      "pilot_ou_hz": 0.08355475038751214,
+      "pilot_shot_hz": 0.20353121435320246,
+      "pilot_threshold_hz": 0.19826740937519774
+    },
+    {
+      "cell": "TK504_2",
+      "recorded_hz": 4.413511017284602,
+      "saved_ou_hz": 2.7901237831694985,
+      "pilot_ou_hz": 2.784144182284976,
+      "pilot_shot_hz": 1.6944706703447023,
+      "pilot_threshold_hz": 3.057422135942357
+    },
+    {
+      "cell": "TK509_1",
+      "recorded_hz": 3.3392013859781486,
+      "saved_ou_hz": 1.0949694729303279,
+      "pilot_ou_hz": 1.0832104137203775,
+      "pilot_shot_hz": 0.9182077131009607,
+      "pilot_threshold_hz": 1.2384974426995874
+    },
+    {
+      "cell": "TK532_1",
+      "recorded_hz": 1.3871763255240446,
+      "saved_ou_hz": 0.26632300330551906,
+      "pilot_ou_hz": 0.26695633274140584,
+      "pilot_shot_hz": 0.45476789745765905,
+      "pilot_threshold_hz": 0.36806286049861825
+    },
+    {
+      "cell": "TK538_1",
+      "recorded_hz": 0.6120256800979241,
+      "saved_ou_hz": 0.027886103477114583,
+      "pilot_ou_hz": 0.02827411513033377,
+      "pilot_shot_hz": 0.20121880650466328,
+      "pilot_threshold_hz": 0.04912448916794801
+    },
+    {
+      "cell": "TK539_1",
+      "recorded_hz": 0.8819082815387199,
+      "saved_ou_hz": 0.26294907620107105,
+      "pilot_ou_hz": 0.2618122638833947,
+      "pilot_shot_hz": 0.40560757564936245,
+      "pilot_threshold_hz": 0.30755963266324526
+    },
+    {
+      "cell": "TK539_2",
+      "recorded_hz": 1.7093408354403334,
+      "saved_ou_hz": 0.3853434625800918,
+      "pilot_ou_hz": 0.38750275963148456,
+      "pilot_shot_hz": 0.4540848836308364,
+      "pilot_threshold_hz": 0.4431020623045899
+    },
+    {
+      "cell": "TK545_1",
+      "recorded_hz": 2.1945493518424004,
+      "saved_ou_hz": 1.619394914736021,
+      "pilot_ou_hz": 1.6295533060256713,
+      "pilot_shot_hz": 1.6697121176000285,
+      "pilot_threshold_hz": 2.4836903083309294
+    },
+    {
+      "cell": "TK545_2",
+      "recorded_hz": 0.935868387351,
+      "saved_ou_hz": 0.20729274871702363,
+      "pilot_ou_hz": 0.20735397716320278,
+      "pilot_shot_hz": 0.30064154549109323,
+      "pilot_threshold_hz": 0.2477276008656687
+    }
+  ]
+}

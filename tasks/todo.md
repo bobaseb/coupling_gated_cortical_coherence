@@ -1178,7 +1178,7 @@ is the only item that could lift the U85 cap (to about 7.5–8).*
   envelope from a few contacts). check-claims: 4 → 5 disclaimers, all within
   limits; PDF 66 pages; unity arXiv build rerun.
 
-- [ ] **U103 — A learning signal in the physics, not better learning.** Raised
+- [x] **U103 — A learning signal in the physics, not better learning.** Raised
   2026-09-28. Question: can the unity paper claim better learning or
   representation? No. P is met by coupled pendulums, so it implies no quality
   of learning or representation. The bridge fixes the quantized loop at no
@@ -1204,8 +1204,12 @@ is the only item that could lift the U85 cap (to about 7.5–8).*
   `unity/prepare_arxiv.sh` or remove `unity/arxiv_submit`. **Success.** The
   paragraph states the locality contrast in the present tense with verified
   citations, and every gate passes.
+  *Done 2026-09-29:* one related-work paragraph states the local-response
+  contrast, names equilibrium propagation and physical-network training with
+  publisher-verified citations, and disclaims a learning or representation
+  advantage. The unity PDF and both submission builds were regenerated.
 
-- [ ] **U104 — Formal scope of the learning corollary.** Raised 2026-09-28,
+- [x] **U104 — Formal scope of the learning corollary.** Raised 2026-09-28,
   split from U103. The claim to formalise: below its margin, content read from
   bits gives no perturbative learning signal in the substrate, while under
   graded dependence plus contraction the substrate's linear response carries
@@ -1230,6 +1234,14 @@ is the only item that could lift the U85 cap (to about 7.5–8).*
   **Success.** (a) proved and audited; (b) either proved in the linear model
   or recorded with the reason it is out of reach; the U103 paragraph, if
   written, cites only what is proved.
+  *Done 2026-09-29:* `nudgeSignal_le_of_marginRate` proves the finite-difference
+  bound at positive nudge size; the formal-results table maps it and `lake build`
+  audits it. The positive half does not follow from graded dependence and
+  contraction alone: a graded contracting map such as $x\mapsto x/2$ relaxes
+  to the same fixed point after an initial nudge, so its equilibrium response
+  is zero. A nonzero relaxed response needs a specified persistent forcing and
+  a nonzero transfer coefficient. Neither is part of P, and no gradient identity
+  is claimed.
 
 - [ ] **U105 — A twin that fires like the recorded cells.** Raised
   2026-09-29, from the U100 result. The passing states of the recorded
@@ -1263,6 +1275,32 @@ is the only item that could lift the U85 cap (to about 7.5–8).*
   which direction; Limitations drops or narrows the rate clause accordingly.
   If no minimal extension reaches that, record which cause was ruled in or
   out and why.
+  *Diagnostic pass 2026-09-29:* `unity_recording_diagnostics.py` reads the
+  original deposit with the U100 spike detector and epoch cuts, saving
+  `recording_diagnostics.json`. For 86 quiet EXC cells, fast-remainder skew
+  is 0.57 at the median, the mass above three standard deviations is 6.26
+  times a Gaussian tail, and both rise where the OU rate ratio falls
+  (Spearman $-0.43$ and $-0.41$). Threshold spread and slow-part spread have
+  weaker correlations of the opposite sign ($+0.13$, $+0.31$). These are
+  associations, not a validated replacement twin. A calibrated shot-input model,
+  synthetic recovery check, production rerun and occupancy comparison remain.
+  *Rate-only pilot 2026-09-29:* `unity_shot.py` adds a discrete jump kernel
+  whose rate agrees with a synthetic path. `unity_shot_pilot.py` fixes the jump
+  rate at 0.01/ms and chooses jump size from an unthresholded skew approximation,
+  without using spike counts. It uses the measured slow-level histogram; its
+  reconstructed OU rate agrees with the saved OU rate to a median ratio of
+  0.999 (10–90% 0.987–1.014).
+  The jump candidate reaches a median recorded-rate ratio of 0.459 and comes
+  within 2× for 39.5% of cells, versus 0.470 and 47.7% for the saved OU. It
+  fails the declared rate target, so it is not a replacement twin and no pass
+  fraction or visit number is changed. Positive-tail excess is associated with
+  the mismatch, but this single fixed-rate jump process does not resolve it.
+  A static Gaussian threshold mixture using the measured across-spike spread
+  reaches a median ratio of 0.656 and 50.0% within 2×, also short of the
+  target. The saved 200 ms slow split yields 0.445 and 41.9%, so widening
+  that split alone worsens the rate check. Event-rate calibration from the
+  voltage law, threshold dynamics, and the full path-based occupancy comparison
+  remain open.
 
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
@@ -1436,3 +1474,15 @@ is the only item that could lift the U85 cap (to about 7.5–8).*
   seeds.
 - [ ] **N37** — Remove the installed-energy box from Fig. 1 with N19; cut
   Conclusions to about three sentences.
+
+## 2026-09-29 — U103–U105 pass
+
+U103 adds the locality statement and two verified references to the unity
+paper, without a learning-performance claim. U104 adds an audited bound on a
+finite-difference signal; a persistent forcing law is still needed before a
+positive equilibrium-response theorem is meaningful. U105 now has reproducible
+recording diagnostics that favour testing non-Gaussian upward events. A
+fixed-rate sparse-jump pilot passed its synthetic rate check but failed on the
+recorded cells; a static threshold mixture improved the median rate ratio but
+fell short of the declared target. A fitted replacement twin and the occupancy
+checks remain open under U105.

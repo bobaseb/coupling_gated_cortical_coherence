@@ -30,25 +30,25 @@ ORCID: \href{https://orcid.org/0000-0002-5951-0772}{0000-0002-5951-0772}}
 
 \begin{abstract}
 A conscious scene is experienced as one scene, although many brain regions
-contribute to it. We argue that this unity requires physically enforced
-agreement: the regions must be coupled so that any change in one, however small,
-as long as it exceeds the region's own noise, pulls the others toward agreement
-within the time a percept takes to form. The condition is functional, but it is
-stated at the grain of graded physical dynamics rather than at the grain of an
-algorithm, and at that grain cortex and digital chips come apart. It predicts
-that when two cortical regions are reconnected by an analog loop and by a
-quantized loop carrying at least as much information, in total and about the
-task, unity follows the analog loop. An account stated on the information that
-regions exchange predicts no difference. We prove that under noise, content
-read from bits responds to any change below its margin by at most its error
-rate, a bound that is attained, so a digital machine, clocked or clockless,
-fails the condition whatever algorithm it runs. Applying one test to both
-substrates, a noisy cortical membrane, modelled or recorded in awake mice, passes
-near its firing threshold and reaches such a state within a percept's time scale, while the value a clocked
-latch reads passes at none of its states. The condition also bounds how slowly
-cortical coupling may relax, and on a noisy sheet of coupled oscillators the
-coupling's reach decides how far agreement holds. We specify an animal
-preparation for the bridge and the outcomes that would refute the premise.
+contribute to it. We propose that unity requires physically enforced
+agreement: overlapping contents must be carried by graded dynamics that register
+changes above their own noise and restore agreement within a percept's time
+scale. The proposal links experiential wholeness to a particular form of mutual
+physical constraint. We distinguish that realization hypothesis from ordinary
+causal interaction and from its mathematical consequences. Under a noisy margin,
+we prove that a small physical change moves the next content's distribution by
+at most the probability of approaching a readout threshold. This excludes
+digital realizations that maintain the required margins at every relevant
+readout. A membrane model, including one fitted to awake-mouse recordings,
+reaches sensitive states within perceptual windows, while a restored latch
+output fails the same response criterion. We confront a fast digital
+replacement whose resolution is finer than biological noise, and specify a
+bridge comparison against a dynamical model of integration. The experiment
+crosses bandwidth with quantization, measures complete reader responses over
+time, and tests reports of unity under an explicit readout assumption.
+Information-matching simulations establish a design constraint; the full
+coupling and experiential tests require the proposed preparation. Coupling
+speed and reach provide further predictions for the restoration of agreement.
 \end{abstract}
 
 \section{Introduction}
@@ -68,9 +68,10 @@ their own noise they cannot vary independently at any scale. We call this
 agreement \emph{physically enforced}. Picture next a set of account books kept
 consistent by a clerk, who at fixed times compares the books and corrects any
 mismatch. Between checks a smudge on one page changes nothing in any other book.
-The books agree only because a rule makes them agree, and we call this agreement
-\emph{computed}. The springs make one system in the sense physics uses; the books
-are many systems kept in step by a protocol.
+The books agree because the clerk updates them, and we call this agreement
+\emph{computed}. Both arrangements involve physical causes. They differ in
+which changes reach the other parts: a displacement changes the spring's pull,
+whereas a smudge that preserves a numeral leaves the clerk's update unchanged.
 
 A digital chip is of the second kind. Each bit is a separate record, built to
 ignore small disturbances: a voltage a little above or below the level for 1
@@ -79,15 +80,15 @@ from small changes in every other bit, so whatever agreement a program produces
 among its bits is computed. Our premise is that
 the unity of an experience is agreement of the first kind.
 
-\paragraph{Premise P (physical unity).} A system's contents are unified only if
-each region's contents are read from graded carriers and, within every window of
-the contents' own time scale, some carrier of each region depends on the graded
-physical state of every region it overlaps, above the noise floor and through a
-coupling that contracts their disagreement.
+\paragraph{Premise P (physical unity).} A system's contents are unified only if,
+for every pair of overlapping regions and every window of the contents' own
+time scale, some content-bearing carrier in each direction depends gradedly
+above noise on a carrier in the other region, and their coupling contracts
+overlap discrepancy within that window. The carrier and time may differ
+between directions and between overlaps.
 
-In short, the regions that contribute to one experience must be held together
-by a physical coupling that feels arbitrarily small changes above noise, and not
-by an exchange of symbols. P is a necessary condition for unity, and a condition
+P requires sensitivity above noise and restoration of shared contents. It is
+proposed as a necessary condition for unity, and a condition
 on how a system's conscious contents are held together: which contents are
 conscious, and what they are like, lie outside it. It says nothing
 about where in the brain unified contents live: it constrains whichever regions
@@ -101,29 +102,36 @@ leaves the grain open. Described coarsely enough, a nation whose citizens
 exchange messages by radio could run a brain's program \citep{block1978}, while
 the biology of cognition has been argued to tie mental states to a finer grain
 \citep{godfreysmith2016}. P sits at the grain of graded physical dynamics, and
-computational functionalism about unity at the grain of the algorithm. For
-cortex the two grains agree. They come apart for a perfect digital simulation of
-cortex, which is unified at the algorithm's grain and fails P, since its
-agreement is kept by a rule acting on separate records. The experiment of
-Section~\ref{sec:tests} asks which grain unity tracks, holding fixed the
-information two brain regions exchange and changing only whether the link
-between them is graded or digital.
+computational functionalism about unity at the grain of the algorithm. These
+descriptions assign different roles to physical perturbations that preserve a
+logical value. A digital simulation's trajectory can reproduce agreement while
+its internal readouts retain physical margins. The experiment of
+Section~\ref{sec:tests} asks which grain unity tracks by crossing bandwidth
+with quantization, measuring the resulting coupling, and comparing an explicit
+dynamical alternative. Information exchange supplies one of its controls.
 
-\paragraph{The argument.} The case for P rests on two premises, both defended in
+\paragraph{The argument.} The case for P has three parts, defended in
 Section~\ref{sec:enforcement}.
 \begin{itemize}
 \item \emph{Wholeness}, an account of unity: unified experiences are parts of one
-total experience, so they need one physical system to carry them.
-\item \emph{Counting}, how physics counts systems: two parts are one system when
-each responds to the other at every scale between its own noise and its own
-thresholds.
+total experience. A physical account therefore seeks a common realization of
+their belonging together.
+\item \emph{Counting}, a hypothesis about that realization: regions belong to
+one constitutive component when chains of mutual responses above noise join
+their content-bearing carriers. A direct link registers every admissible
+change between the carrier's noise and its threshold.
+\item \emph{Restoration}: the coupling of overlapping contents corrects their
+disagreement within the time for which those contents persist.
 \end{itemize}
-Every step between these premises and P is proved. Three results do the work.
-Content read from bits responds to a small change by at most its error rate. A
-rule that compares records only adds another record, and it joins none of them
-into one system. A graded reader does join the regions it reads.
+Counting identifies the proposed physical whole; restoration selects the
+couplings that maintain compatible contents. Together they motivate P. The
+formal results establish consequences of the response criterion: noisy margins
+bound sensitivity, records with such margins drop out of its coupling chains,
+and graded readers can join them. The experiential interpretation is argued
+through its counterfactual commitments and tested through a stated relation
+between experience and reports.
 
-\paragraph{Noise and time.} Two refinements make P fit real brains. Physical
+\paragraph{Noise and time.} Two refinements make P applicable to noisy carriers. Physical
 systems are noisy, so P is read on probabilities: a change counts only if it is
 larger than the part's own noise, and it must then move what the part does next
 by at least as much as the part fluctuates by itself. And a neuron is sensitive
@@ -134,14 +142,14 @@ regions within each window of the content's time scale.
 
 The paper makes three claims:
 \begin{enumerate}
-\claim{sec:tests}{When two cortical regions are bridged by an analog and by a quantized loop with the quantized loop carrying at least as much information, in total and about the task, P predicts that unity follows the analog loop; a weak, sub-threshold nudge to one region should also shift the graded content decoded in an overlapping region toward agreement}
-\claim{sec:enforcement}{Under noise, content read from bits responds to any change below its margin by at most its error rate, a bound that is attained, so no digital machine meets P, whatever algorithm it runs; by one test applied to both, a cortical membrane, modelled or recorded in awake mice, passes near its threshold within a percept's time scale, while the value a clocked latch reads passes at none of its states}
+\claim{sec:tests}{P predicts that a bridge which restores unified experience supplies graded coupling and contraction within the content's window; removing that coupling while preserving a calibrated readout of unity challenges P and its readout assumption together. A comparison against a specified dynamical model tests whether bandwidth, delay and quantization explain the readout}
+\claim{sec:enforcement}{Under a noisy margin, a small change moves the next content's distribution by at most its threshold-neighbourhood probability, a bound that is attained. Maintained margins exclude digital readouts under this criterion, while membrane models, including fits to awake-mouse recordings, reach passing states within perceptual windows}
 \claim{sec:reach}{Enforced agreement must arrive before the content changes, so P predicts that cortical coupling relaxes within \ueTauFastMs{}~ms across the cortex; on a noisy sheet of coupled oscillators, the coupling's reach decides how far agreement in phase holds}
 \end{enumerate}
 
-Every formal result is machine-checked in Lean~4 (Appendix~\ref{app:formal}).
-The two premises are argued, the proofs run from them, and the bridge tests
-them together.
+The formal results listed in Appendix~\ref{app:formal} are machine-checked in
+Lean~4. The realization hypothesis and the readout assumption are the empirical
+and philosophical commitments against which those results are interpreted.
 
 \section{Unity as agreement between overlapping regions}
 \label{sec:cover}
@@ -149,9 +157,9 @@ them together.
 Think of an atlas. Each page maps one patch of ground, neighbouring pages
 overlap, and where they overlap they show the same roads. Pages that agree on
 every overlap fit together into one map of the whole territory. We treat the
-brain's regions the same way. Each describes part of a shared situation, and
-unity is the property that these local descriptions agree wherever they
-overlap. When they do, they fix a single global state.
+brain's regions the same way. Each describes part of a shared situation.
+Agreement of these local descriptions wherever they overlap is the proposed
+content structure of unity. When they agree, they fix a global description.
 
 Synchrony is not unity: two regions can oscillate in phase while encoding a
 stimulus at two different locations. Unity is about what overlapping regions
@@ -186,8 +194,8 @@ measurement trivial by choosing the regions after the fact.
 \paragraph{A running example.} A visual area represents the bird's location on
 a retinotopic map, and a parietal area represents the same location to plan a
 reach. Each area's content is its estimate of the location, carried by the
-membrane potentials and spike times of the cells that encode it, and unity, here,
-is the two estimates agreeing.
+membrane potentials and spike times of the cells that encode it. Compatible
+content, here, is the two estimates agreeing.
 
 \paragraph{The definition, stated precisely.} Region $i$ carries a content
 $s_i$, a description of the variables it represents, and regions $i$ and $j$
@@ -195,7 +203,8 @@ overlap in the variables both represent. Restricting a content to an overlap
 keeps only the shared variables. The contents are \emph{compatible} when every
 two agree on their overlap, $s_i|_{i\cap j}=s_j|_{i\cap j}$. Compatible contents
 extend to exactly one global description whose restriction to each region is
-that region's content. Unity is compatibility, and its degree is the
+that region's content. Compatibility is the proposed correlate of unity, and
+its departure from exact agreement is the
 \emph{overlap discrepancy}: the largest distance between two contents restricted
 to a common overlap.
 
@@ -209,21 +218,23 @@ the two errors imply. These results are proved in a companion paper
 \citep{bobadillasuarez2026coherence}, and P adds a condition on how that
 agreement is produced.
 
-\paragraph{Two stages.} The companion proposes agreement on overlaps as a
-correlate of unity, to be tested, and P is conditional on that identification.
-Its test asks whether excess decoded agreement is larger on trials the subject
-perceives than on trials it does not. A positive result makes the bridge of
-Section~\ref{sec:tests} the next question; a negative one removes decoded
-agreement as a neural measure of unity and leaves the bridge its behavioural
-readout, so the second stage does not wait on the first.
+\paragraph{Two stages.} The companion tests excess decoded agreement as a
+correlate of unified content. The bridge then tests its physical realization.
+The experiential inference requires a readout calibrated against unity across
+changes in visibility, attention and task performance
+(Section~\ref{sec:tests}). A negative result for decoded agreement removes
+that neural readout; any remaining experiential test uses the independently
+calibrated report criterion. Animal behaviour supplies a test of integration
+across regions and of the mechanism that produces it.
 
 \section{Enforced agreement and computed agreement}
 \label{sec:enforcement}
 
 \paragraph{The argument in outline.} Five definitions make ``physically
 enforced'' precise. Two theorems show that content read from bits does not
-respond to small changes, without noise and with it. Two premises, wholeness and
-counting, turn that fact into a claim about unity, and the rest is proved. One
+respond to small changes, without noise and with it. Wholeness motivates a
+realization hypothesis, counting makes its response condition precise, and
+restoration constrains the dynamics of agreement. One
 measurement protocol, applied to a cortical membrane and to a logic node, shows
 where each substrate holds its carriers.
 
@@ -240,8 +251,8 @@ $\pi(f(x))$ of a carrier is what its readers take from it next.
 \item \emph{Noise margin.} A readout has a noise margin on a set of states when
 each state in it has a neighbourhood on which the readout is constant, as any
 voltage well above a bit's threshold reads as 1.
-\item \emph{Graded dependence.} Content depends gradedly on a region when every
-change to that region, however small, can move the next content. Formally, no
+\item \emph{Graded dependence.} Content depends gradedly on a region when
+arbitrarily small changes to that region can move the next content. Formally, no
 neighbourhood of the region's micro state leaves the next content unchanged
 while the other regions are held fixed.
 \item \emph{Contraction.} The overlap discrepancy \emph{contracts} near a state
@@ -249,9 +260,11 @@ when one step of $f$ shrinks it by a factor below one throughout a
 neighbourhood of that state, so perturbations too small to cross any threshold
 are pulled back toward agreement along with larger ones.
 \item \emph{Physical enforcement.} Agreement is physically enforced at a state
-when content depends gradedly on each region there and the overlap discrepancy
-contracts near it. P requires this at the states the system occupies while its
-contents are unified.
+when content depends gradedly on each overlapping region there and the
+overlap discrepancy contracts nearby. P uses the carrier and temporal form:
+each directed overlap is reached by some carrier during each content window,
+and the coupling restores agreement within that window. Sensitivity and
+contraction are separate requirements.
 \end{itemize}
 
 \paragraph{The margin lemma.} In words: content read through a margin cannot
@@ -261,15 +274,14 @@ depends gradedly on no region's micro state. The proof takes one line:
 continuity carries a small enough neighbourhood of each region's micro state
 into the neighbourhood on which the readout is constant. A finite word of
 thresholded quantities has a margin away from its thresholds, so the lemma
-covers any content read from bits. It is elementary by design: a reader who
-disputes the separation disputes a definition, and the rest of this section
-argues for each.
+covers contents read from bits away from their thresholds. The result
+separates two forms of physical dependence; the argument for making that
+separation a condition of unity follows below.
 
-\paragraph{Noise.} A gate's chance of flipping is a smooth function of its input
-voltage and never exactly zero, so the \emph{probability} of a digital machine's
-next content depends, very slightly, on every region, and the exact margin lemma
-would mark a difference below the noise of both substrates. P is therefore read
-on probabilities.
+\paragraph{Noise.} A noisy threshold's chance of flipping can vary smoothly with
+its input voltage even inside a nominal margin. Its next-content probability
+can therefore retain a small physical dependence that the exact margin lemma
+discards. P is read on response probabilities relative to the source's noise.
 
 The \emph{response} of a content to a region at scale $\eta$ is the largest
 change that moving the region by at most $\eta$ makes to the probability of any
@@ -296,113 +308,97 @@ $\varepsilon$. Then a change of one region smaller than $r/L$ moves the
 probability of every outcome of the next content by at most $\varepsilon$. For
 anything computed from bits, $\varepsilon$ is the probability that some bit of
 the noisy successor lands within $\delta$ of its threshold, and the bound is
-attained. In plain terms: below its margin, a bit feels a change only through
-its error rate.
+attained. We call $\varepsilon$ the \emph{margin exception probability}.
+It measures proximity to a threshold, including states that still return the
+correct bit. A bound on logical error alone therefore leaves this probability
+to be checked. The noise-floor exclusion additionally requires an admissible
+change above the source's noise inside $r/L$, with $\varepsilon$ below the
+fluctuation. At every readout where these hypotheses hold, that change witnesses
+failure of the response criterion.
 
-\paragraph{The simulation objection.} Why state P on the physical state, below
-the level of contents? Because at the content level a computer can imitate a
-coupled field exactly: a digital system that integrates the field's equations
-has a content map whose next step shrinks the disagreement between overlapping
-regions just as the field does. P is stated instead on how content depends on
-graded physical state, and there the two differ. The field's content moves with
-every graded change in the regions it overlaps; the simulation's content is read
-from bits held inside their margins and moves with none of them. So a perfect
-simulation of a coupled cortical field reproduces its content-level trajectory
-and fails P. The next paragraphs give the reason for that verdict.
+\paragraph{The simulation objection.} A digital consensus algorithm can
+contract content-level disagreement, and a simulation can approximate a field's
+trajectory to finer precision than biological noise over the observation
+window. P adds a requirement on the physical carriers of those contents.
+Internal readouts maintained within the noisy-margin hypotheses fail that
+requirement even when the logical trajectory restores agreement. The choice
+of those carriers and interventions is therefore part of the realization
+argument. An external graded input and an internal bit voltage give different
+tests, as the replacement analysis below makes explicit.
 
-\paragraph{Why unity tracks enforcement.} Unity settles how many subjects there
-are: a unified experience is had by one subject and a divided one by two or
-more. So whatever makes contents unified also decides whether they belong to one
-system or to several, and agreement at the content level cannot settle that
-count. Put the records of one program in different buildings, stretch the
-clerk's step to a year, or let one processor visit the records in turn. The
-content trajectory stays the same, while the system that realises it goes from
-one chip to several machines to one record at a time. Block's nation, whose
-citizens run a brain's functional organisation by radio \citep{block1978}, is the
-same program spread over a country. A criterion stated on content-level
-agreement gives all of these the same number of subjects, with no physical fact
-to consult.
+\paragraph{Wholeness and its realization.} Wholeness takes experiences to be
+unified when they are parts of a single total experience
+\citep{bayne2010}. Their belonging together is a relation among the contents,
+rather than a further represented item alongside them. A physical account of
+that relation must identify the participating carriers, the changes through
+which they affect one another, and the time over which they form a whole.
+Counting proposes mutual sensitivity of those carriers as its realization.
+Its motivation is that overlapping descriptions of a graded variable can be
+jointly constrained throughout their physically distinguishable variations:
+moving one description recruits a response in the others, and a restoring
+coupling keeps the shared variable consistent.
 
-\paragraph{Wholeness: unity is not one more content.} Wholeness takes
-experiences to be unified when they are parts of a single total experience, the
-subject's experience at that time \citep{bayne2010}. Being a part of a whole is
-not a further part of it. So the unity of two contents is not a third content
-alongside them, and that limits what can realise it.
+\paragraph{Comparing possible criteria.} Ordinary causal dependence includes a
+digital circuit: changing an input bit changes what its readers compute. Mere
+dependence also includes a one-way relay and a common broadcast, while mutual
+dependence includes circuits that amplify disagreement. Contraction supplies
+the restoring direction, but a digital consensus algorithm can contract
+content-level discrepancy too. Counting adds sensitivity throughout an
+admissible range above noise; P combines that sensitivity with restoration and
+a deadline. This choice makes a specific commitment about the realization of
+unity. A fast and accurate digital replacement is its strongest test
+(Appendix~\ref{app:replacement}).
 
-\paragraph{Records join nothing.} A \emph{record} is a content held by a margin,
-sealed off from the graded state of everything else. A rule that compares
-records and corrects them reads and writes records, and whatever it produces is
-one more record. Once systems are counted as the counting premise below counts
-them, by chains of couplings at the noise floor, three facts follow as theorems.
+\paragraph{Counting: constitutive components at the noise floor.} A
+\emph{constitutive component} is a connected set under the following proposed
+relation. Two carriers are directly coupled when every admissible change of
+either, above its own noise and below its threshold, moves the other's next
+content by at least the fluctuation. Admissible changes are fixed on the
+content-bearing coordinates and in both directions where available. The
+source must admit such a change; counting is applied on nonempty admissible ranges.
+Chains of mutual couplings define membership in one component.
+
+Three considerations motivate this choice. First, the intervention acts on a
+variable that the system itself reads, so the relation belongs to the
+implementation and survives a change of the observer's decoder. Second, the
+noise amplitude and threshold locate a range in which a carrier can vary
+without changing its category. Mutual response throughout that range is a
+candidate physical realization of jointly constrained graded contents.
+Third, chains allow an intervening graded reader to connect regions, while the
+window ties the relation to the persistence of the content. The strength of
+this account is its common intervention protocol across substrates. Its
+experiential commitment is that unity requires this form of constraint even
+when a coarser causal organization reproduces the same reports.
+
+\paragraph{Records in the coupling graph.} A \emph{record} is a content held by
+a margin. It participates in ordinary causal interactions through changes of
+its symbol. Under the noisy-margin hypotheses above, three consequences hold
+for the graph defined by counting.
 \begin{itemize}
-\item A region whose content is held by a margin, with an error rate below the
-fluctuation, is coupled to no region that admits a change above its noise inside
-the margin, whatever the regions it reads carry. It is one system only with
-itself.
-\item For any set of records, records that read records included, two regions
-are one system exactly when a chain of couplings that avoids every record joins
-them. Records drop out of every chain, so rules that check rules add nothing at
-any depth.
-\item Writing corrections back changes nothing. When one region's next content
-depends on another only through a record's symbol, a change of the other inside
-the margin moves it by at most the record's error rate, so the rule couples the
-two no more than the record does.
+\item A region whose content is held by a margin, with an exception probability
+below the fluctuation, is coupled to no region that admits a change above its
+noise inside the margin, whatever the regions it reads carry. It shares a
+component only with itself.
+\item For any set of such records, two regions share a component exactly when
+a chain of couplings avoiding every record joins them. Rules that read other
+records add further isolated vertices to this graph.
+\item When a region's next content depends on another only through such a
+record's symbol, a change inside the margin moves it by at most the record's
+exception probability. Writing a correction back through that symbol preserves
+the bound.
 \end{itemize}
 
-\paragraph{Graded readers join.} A graded reader stays in the chain. A region
-whose content moves with two regions above their noise, and moves them in turn,
-joins them into one system even when they share no coupling of their own. Under
-linear dynamics with uniform noise such a reader joins two regions that a record
-reading the same two leaves apart (Appendix~\ref{app:formal}). The regress stops
-at a reader on the chain, not at a record beside it. A register holding the
-bird's location as a number is a record; a cell in a third area that integrates
-spike times from the visual and the parietal area, and projects back to both, is
-a reader. A workspace that makes every record available to a common reader is
-the rule again. Computation adds contents and never produces the whole they are
-parts of. What can make
-contents parts of one whole, without adding a content, is a physical state whose
-coordinates carry them, and whose agreement is a fact about where that state
-sits, written nowhere. P asks for exactly this.
-
-\paragraph{Counting: systems at the noise floor.} Physics counts systems by
-interaction: parts form one system when their joint state does not split into
-independent coordinates. At no particular scale this makes every chip one
-system, through wires, supply and crosstalk, which is correct for the voltages.
-But unity is a property of contents, a chip reads its contents through margins,
-and whether two coordinates split depends on the resolution at which they are
-taken. Three steps fix that resolution from the parts themselves.
-\begin{enumerate}
-\item \emph{The lower end is the part's own noise.} A difference smaller than a
-part's noise does not survive the part's next step, so it is not a state the
-part holds, nor a coordinate along which it can be independent of anything.
-\item \emph{The upper end is the part's nearest threshold.} A change that crosses
-a threshold changes the part's symbol, and what another part registers of the
-crossing is the symbol, the same whatever graded state produced it. That
-registration is a message, an exchange of records, and records join nothing.
-\item \emph{In between, physics asks for a product.} Two parts are separate
-systems at a resolution when the dynamics of each is independent of the other's
-state at that resolution. A record meets this outright, since no change inside its
-margin moves it beyond its error rate. A graded reader is the opposite case:
-every change of the region it reads, between noise and threshold, moves it by at
-least its own fluctuation.
-\end{enumerate}
-The count takes the strict reading of the third step. Two carriers are one
-system when \emph{every} change of one between its noise and its nearest
-threshold moves the other by at least the other's own fluctuation, and two when
-\emph{some} such change leaves the other unmoved. A product decomposition asks
-less: it may join a carrier that registers some changes in the range and not
-others. The two agree on records and on graded readers, the two cases the
-argument turns on, and between them the strict reading is the first two steps
-applied inside the range. Where a larger change moves the content at least as
-much as a smaller one, as it does under the single-peaked noise treated above, a
-carrier can miss a change in the range in two ways. It can miss the small
-changes and register the large ones, which is a margin narrower than the range.
-Or it can register changes on one side of the state and miss those on the
-other, which is a threshold at the state, and then what it registers is which
-side was taken, a symbol. Both are the ways a record registers, so the strict
-reading adds no condition of its own. Both ends of the range belong to each
-part, the size of its noise and the position of its thresholds, so nobody
-chooses the scale to separate brains from chips.
+\paragraph{Graded readers join.} A region whose content moves with two regions
+above their noise, and moves them in turn, joins their components even when
+they share no direct coupling. Under linear dynamics with uniform noise such a
+reader joins two regions that a record reading the same two leaves apart
+(Appendix~\ref{app:formal}). A register holding the bird's location as a number
+is a record; a cell that integrates spike times from the visual and parietal
+areas and projects back to both is a candidate graded reader. It joins them
+when the measured responses meet the criterion in each direction. A workspace
+implemented by reliable records can still make contents jointly accessible.
+P assigns constitutive unity according to the coupling graph and the restoring
+dynamics.
 
 \paragraph{A precedent: clusters in a gas.} Physics already counts systems by
 comparing an interaction with the parts' own fluctuations. In the theory of
@@ -411,39 +407,40 @@ attraction outweighs the kinetic energy of their relative thermal motion, and a
 cluster is a set of molecules joined by chains of such bonds
 \citep{hill1955,sator2003}. Molecules whose attraction is weaker than their
 thermal motion still interact, and that interaction changes the pressure of the
-gas, yet it joins them into no cluster. The criterion has the three features of
-the count: the scale is set by the parts' own noise, systems are joined through
-chains, and a real interaction below that scale leaves the parts separate, as
-crosstalk below a bit's margin leaves bits separate.
+gas, yet it joins them into no cluster. This supplies a precedent for
+comparing coupling with fluctuations and joining parts through chains. The gas
+criterion counts bound clusters; counting here proposes a relation between
+carriers of content. Its application to experience rests on the realization
+argument above.
 
-\paragraph{From systems to P.} The count is the noise-floor reading of graded
-dependence given above, and the identity is proved: for carriers whose contents
-overlap, each depends gradedly above the noise floor on every carrier it
-overlaps exactly when every overlapping pair is one system. A region holds many
-carriers, and a noisy carrier registers another only while it sits near its own
-threshold, as measured below. So two regions are one system when some carrier
-of each registers some carrier of the other, and P asks this within every window
-of the contents' time scale. Asking it of some carriers is strictly weaker than
-asking it of all: a state exists at which the first holds and the second fails.
+\paragraph{From coupling to P.} For a symmetric overlap relation, the formal
+equivalence is between graded dependence at every directed overlap and
+\emph{direct mutual coupling} at every overlap. Membership in one component
+follows by taking chains; a chain can connect endpoints that lack a direct
+link. For regions containing many carriers, the condition asks for some
+carrier reaching each overlapping region in each direction, within every
+content window. The two directions may use different carriers and times.
+This is weaker than requiring every carrier to pass, as a formal example
+shows. P additionally requires the resulting dynamics to contract discrepancy
+in time. A connectivity result establishes the sensitivity part; restoration
+is tested separately.
 
 \paragraph{The chip, counted.} A logic node of \ueNodeCapFf{}~fF at room
 temperature has thermal noise of \ueThermalNoiseMv{}~mV
 \citep{johnson1928,nyquist1928}, and the textbook inverter's margin is
 \ueMarginToNoise{} times that. A change of one noise amplitude flips the bit with
-probability below $10^{-\ueErrorOrders}$ \citep{kish2002}, so by the noisy margin
-theorem no bit registers any other, and each bit is a system of its own. Between
-thresholds, where a working chip spends nearly all of its time, its contents are
-as many systems as it has bits, carried on voltages that form one
-(Appendix~\ref{app:count}).
+probability below $10^{-\ueErrorOrders}$ \citep{kish2002}. With margins maintained
+at the readouts, the response test isolates each bit in the constitutive graph.
+The bits remain causally connected through their logical updates, carried on
+the interacting voltages of the chip (Appendix~\ref{app:count}).
 
-\paragraph{Where the line falls.} A criterion built to exclude chips would draw
-its line between substrates. This one draws it inside each substrate, at a
-carrier's distance from its own threshold, and it discards threshold crossings in
-cortex as in silicon: the occurrence of a spike is a message, and a spike count
-latched at a clock edge is a record. Cortex passes on what is left, the range
-below threshold in which a membrane moves with each input above its noise. An
-analog crossbar whose column currents drive the next array directly passes, and
-a neural circuit read only from latched counts fails (Section~\ref{sec:ai}).
+\paragraph{Where the line falls.} The response criterion is applied within each
+substrate. A membrane's spike time can retain graded dependence near threshold;
+a count read through a maintained margin is a record. The membrane calculations
+below locate sensitive states, and an analog crossbar's column currents are
+another candidate carrier. Their contribution to P also depends on what
+downstream cells or arrays read and on the restoration of shared content
+(Section~\ref{sec:ai}).
 
 \paragraph{The membrane, counted.} A spike time passes the test at the moment
 the membrane rises through threshold, where one unitary cortical input shifts
@@ -466,26 +463,28 @@ fluctuation.
 enters a passing state within \uOccContentLongMs{}~ms, the integration time that
 precedes a conscious percept, with probability \uOccHitMinLong{} to
 \uOccHitMaxLong{}, even when the region it depends on supplies only
-\uOccShareMin{} of its noise variance. Some of \uOccCarriersFew{} independent
-carriers then links two regions within such a window with probability at least
+\uOccShareMin{} of its noise variance. At least one of \uOccCarriersFew{} independent
+carriers then reaches the target region within such a window with probability at least
 \uOccLinkFewLong{}, while at a single instant even \uOccCarriersMany{} carriers
-link them with probability as low as \uOccInstantLinkMin{}. That is why P is
-stated per window. The verdict does not rest on the window's length. No content
-changes faster than the \uWinPerceptMs{}~ms at which two events are perceived in
-order \citep{hirsh1961}, and some of \uOccCarriersMany{} independent carriers
-links two regions more often than not from a window of \uWinLowManyMs{}~ms
-upward, and at \uWinPerceptMs{}~ms with probability at least \uWinLinkPercept{}.
+does so with probability as low as \uOccInstantLinkMin{}. That is why P is
+stated per window. The independent-carrier sweep also covers shorter windows.
+The \uWinPerceptMs{}~ms threshold for perceiving the order of two events
+\citep{hirsh1961} supplies a comparison scale: at least one of
+\uOccCarriersMany{} independent carriers reaches the other region more often
+than not from a window of \uWinLowManyMs{}~ms upward, and at
+\uWinPerceptMs{}~ms with probability at least \uWinLinkPercept{}.
 
-\paragraph{Recorded membranes.} The same protocol applied to whole-cell
-recordings from \uRecCellsQuiet{} excitatory cells of the barrel cortex of awake
-mice in quiet wakefulness \citep{kiritani2023} tests the declared ranges
-(Appendix~\ref{app:occupancy}). The median cell sits \uRecDistanceMed{} noise
+\paragraph{Recorded membranes.} Whole-cell recordings from
+\uRecCellsQuiet{} excitatory cells of the barrel cortex of awake mice in quiet
+wakefulness \citep{kiritani2023} constrain a membrane model's noise, time
+constant and slow drive. Applying the response protocol to that fitted model
+tests the declared ranges (Appendix~\ref{app:occupancy}). The median cell sits \uRecDistanceMed{} noise
 amplitudes below its threshold, farther than the declared \uOccDistanceMin{} to
-\uOccDistanceMax{}, and passes at \uRecPassMedPercent\% of its states, inside
-the declared range. At a noise share of
+\uOccDistanceMax{}, and its fitted model passes at \uRecPassMedPercent\% of sampled
+states, inside the declared range. At a noise share of
 \uOccShareMin{} it enters a passing state within \uOccContentLongMs{}~ms with
-probability \uRecHitMedLong{}, and some of \uOccCarriersFew{} independent
-carriers drawn from these cells links two regions within that window with
+probability \uRecHitMedLong{}, and at least one of \uOccCarriersFew{} independent
+model carriers drawn from these cells reaches the target within that window with
 probability at least \uRecLinkFewLong{}.
 
 \paragraph{Readers, shared input and switching nodes.} Three variations leave the
@@ -493,9 +492,10 @@ verdict where it is (Appendix~\ref{app:occupancy}). A reader that registers only
 whether the membrane fired within the window finds it passing at
 \uOccCountPassMinPercent{} to \uOccCountPassMaxPercent\% of its states; if every
 cortical reader pooled spikes only over windows longer than a content's time
-scale, P would deny unity to cortex, and that would count against P. Carriers that share input \citep{poulet2008}, up to
-\uCorShareTol{} of their noise variance, still link two regions: some of
-\uOccCarriersMany{} does so within \uOccContentLongMs{}~ms with probability at
+scale, P would deny unity to cortex, and that would count against P. With
+shared input \citep{poulet2008} up to \uCorShareTol{} of the noise variance,
+at least one of \uOccCarriersMany{} model carriers supplies a directed reach
+within \uOccContentLongMs{}~ms with probability at
 least \uCorLinkManyTol{}. And a chip's nodes, which pass through their thresholds
 many times in every window, pass at the voltage as a membrane does, since a
 change of one noise amplitude moves a crossing by one jitter. The voltage is not
@@ -510,30 +510,30 @@ noise amplitudes, against \ueMarginToNoise{}.
 \paragraph{Categories.} Categorical contents, such as the dominant percept in
 binocular rivalry, have margins in every substrate, so P is stated on the graded
 variables from which categories are read, such as the relative strength of
-competing percepts. This opens no route for a digital machine: every variable it
-computes is a function of its bits.
+competing percepts. Internal computed variables stored in reliable bit words
+remain subject to the same margin hypotheses.
 
-\paragraph{Gradual replacement.} Replacing a brain's neurons one at a time by
-digital units that compute the same input--output function is the standard
-objection to a substrate condition \citep{chalmers1995}. Exact replacement is
-unavailable at the grain P concerns: a unit read through margins discards the
-graded dependence below them, and whether that changes behaviour is what the
-bridge of Section~\ref{sec:tests} tests for one connection. Where behaviour and
-report are preserved exactly, P accepts that unity may still change, because
-reports are contents and unity is not one more content
-(Appendix~\ref{app:replacement}).
+\paragraph{Gradual replacement.} Replacing neurons by units that reproduce
+their input--output dynamics tests a substrate condition
+\citep{chalmers1995}. The demanding case is a recurrent controller with a
+resolution finer than biological noise, sufficient bandwidth and matched delay.
+Its response to a cortical input can be graded above that input's noise even
+while its internal bits retain wide voltage margins. P evaluates the
+content-bearing carriers and their readers at each interface; its digital
+exclusion uses the maintained-margin hypotheses there. Appendix~\ref{app:replacement}
+works through this distinction and the consequences of preserved reports.
 
-\paragraph{What the premise rests on.} Cortex passes the count within a window
-of a percept's time scale, which is what P asks, so P rests on wholeness and
-counting, and every step between them is proved. Counting has a second support in the effective description physics
-already uses at the parts' resolution (Appendix~\ref{app:count}), and a
-precedent in how it counts clusters in a gas. The bridge tests the two premises together and decides between wholeness and
-its main rival, joint access, on which contents are unified when available
-together to the same consumers \citep{bayne2010}. The quantized loop of the bridge carries at least as much
-information to the same regions as the analog loop, in total and about the task. Joint
-access therefore predicts no advantage for the analog loop, while wholeness,
-through P, predicts that unity follows the analog loop.
-Section~\ref{sec:limitations} states what stands if either premise is rejected.
+\paragraph{What the premise rests on.} The argument for P is that unified
+graded contents require mutual physical constraint throughout their admissible
+variations and restoration before they change. The formal results give that
+hypothesis a precise consequence for readouts held within margins. The
+membrane computations supply candidate sensitive states, including under fits
+to recorded potentials. The bridge tests the proposed realization together
+with a calibrated readout of unity, against a dynamical model that can explain
+integration through bandwidth, delay and nonlinear transmission
+(Section~\ref{sec:tests}). Joint access \citep{bayne2010} and wholeness supply
+different interpretations of unity; each interpretation needs an implementation
+and a readout model to predict an experimental outcome.
 
 \section{When and how far a coupling enforces agreement}
 \label{sec:reach}
@@ -577,17 +577,16 @@ discrepancy is at most $L\sqrt{D\,R_{\mathrm{eff}}}$ (Appendix~\ref{app:reach}).
 In cortex the long-range coupling is synaptic, since the field of a local source
 falls below detection within millimetres (Appendix~\ref{app:field}).
 
-\paragraph{Local unity and switching.} P asks for agreement only among the
+\paragraph{Local unity and switching.} P asks for agreement among the
 regions whose contents are unified, which may form one patch of cortex or
-several patches joined through a hub that routes activity between them. A hub
-that routes discrete messages, passing thresholded signals, exchanges records,
-and records drop out of every chain of couplings. Patches joined only through it
-are several unified islands whose agreement with one another is computed, as on
-the switch model of the split brain \citep{bayne2010}. A hub that reads the
-patches' graded state and drives them gradedly is a graded reader and joins them
-into one system, even if it visits them in turn, since P is stated per window.
-When the hub is graded, the regress stops at the hub, which is more coupling and
-not a reader of records.
+several patches joined through a hub. The count evaluates the carriers that
+enter and leave that hub. Under the maintained-margin hypotheses, records
+drop out of the constitutive graph and leave patches disconnected there,
+as a candidate realization of the switch model of the split brain
+\citep{bayne2010}. A hub whose complete input--output response satisfies the
+graded criterion can join the patches even if it visits them in turn.
+The test includes the timing and memory of its readers and the return of
+discrepancy within a content window.
 
 The thalamus is the natural candidate hub. Its relay cells fire in two modes
 \citep{sherman2001}. In the tonic mode the output follows the input nearly
@@ -598,22 +597,23 @@ all-or-none burst, typically when excitation follows a prolonged inhibition
 model relay cell with both modes \citep{smith2000} at matched rates, orders
 them: within \uOccContentLongMs{}~ms a tonic cell enters a passing state at least
 \uRlHitRatioMin{} times as often as a bursting one, in every declared regime
-(Appendix~\ref{app:occupancy}). P therefore predicts that unity across patches
-joined through the thalamus is greater in the tonic mode, a prediction that
-relay cells recorded in each mode test. The same count applies to machines: analog patches joined by a digital router carry several unified
-contents and no single one. Bridging two areas within one patch tests P
-directly, and bridging two patches across a putative hub tests whether the hub
-is graded.
+(Appendix~\ref{app:occupancy}). This predicts a greater opportunity for a passing route in tonic mode,
+to be tested on relay cells recorded in each mode. Under P and R, an effect
+on unity is expected where this difference changes whether the complete
+connection meets the window and restoration requirements. The same protocol
+applies to a router between analog patches: its representation and timing
+determine which graded changes its downstream readers retain. Bridging across
+a putative hub tests this complete connection.
 
 \section{Current artificial systems}
 \label{sec:ai}
 
-A clocked digital chip is a collection of separate records. Each bit is held in
-place by its own noise margin, and below that margin it varies independently of
-every other bit and of the voltages beneath it. The records agree only when the
-program, applied at each clock step, makes them agree. A transformer running on
-such hardware reads every content from bits held within their margins, so its
-agreement is computed, whatever it computes. A chip tracking the bird holds each
+A clocked digital chip stores records protected by noise margins and
+updates them through causal connections between gates. When its next readouts
+satisfy the noisy-margin hypotheses, admissible voltage perturbations give
+responses below the yardstick. A transformer on such hardware inherits that
+property for its internal logical contents. Its computed agreement can still
+follow a contracting algorithm. A chip tracking the bird holds each
 area's estimate as a word of bits, and the two words agree when a step of the
 program copies or averages one into the other; between steps, neither moves with
 the voltages beneath the other. Hardware whose contents are graded physical
@@ -638,15 +638,16 @@ and the phase of a coupled oscillator are physical contents.
 organised, not what it is made of. An analog crossbar whose column currents
 settle through shared conductances, or an array of coupled electronic or optical
 oscillators, couples its contents as a cortical sheet does. A neuromorphic chip
-passes where its contents are read from membrane potentials coupled continuously,
-and fails where they are read from spike counts latched at a clock edge, and a
-neural circuit read only from all-or-none events latched far from threshold
-would fail as a digital circuit does. In analog in-memory accelerators, a layer's
+can pass through coupled membrane potentials when their responses and
+restoration meet P. A latched count is evaluated at its reader, with its noise,
+margin and integration window. A neural circuit whose readouts maintain the
+same margin hypotheses receives the same exclusion. In analog in-memory accelerators, a layer's
 products are currents summed on the lines of a memory array and then digitized:
 in a 64-core phase-change chip each row's current is converted into integers,
-and the traffic between cores runs on those integers \citep{legallo2023}. Such a
-chip fails P between layers, since its graded stage lies inside each product and
-couples no two contents.
+and the traffic between cores runs on those integers \citep{legallo2023}. For the stored inter-core words, the margin
+test applies at their logical readouts. Whether the complete channel couples
+the analog variables of two arrays is assessed at those arrays' readers, as
+for the cortical bridge.
 
 \paragraph{Why spikes are not bits.} What makes all-or-none spikes graded
 carriers is their timing. When a membrane rises through threshold, the moment it
@@ -658,13 +659,14 @@ transition a latch reads starts and ends far from any threshold. Clockless logic
 fails in the same way: its transition times move with every voltage, but its
 values are read from completed codes held at rails (Appendix~\ref{app:digital}).
 
-\paragraph{Leakage and the margin's width.} Leakage below a bit's margin, from
-supply noise, crosstalk or temperature, reaches content only through the error
-rate. A gate's restoring gain pulls each bit toward its own rail, and pulls no
-two bits toward agreement. Nor is the width of the margin a free design
-parameter. A machine whose contents reached the fluctuation at the noise scale
-would err at every step, so the line P draws coincides with the line between
-digital and analog operation (Appendix~\ref{app:digital}).
+\paragraph{Leakage and the margin's width.} Supply noise, crosstalk and
+temperature affect the voltages beneath digital readouts. Their effect on the
+next logical content is bounded by the margin exception probability when the
+theorem's hypotheses hold. A gate's restoring gain stabilizes its rail, while
+the logical network can coordinate the values on different rails. The
+width of the margin determines which physical interventions the bound covers.
+Precision of a represented number and the voltage margin of each bit are
+distinct properties (Appendix~\ref{app:digital}).
 
 \paragraph{Attractor basins.} Cortex has margins of its own. An attractor
 network's basin is a dynamical margin: which attractor the network settles in
@@ -680,17 +682,24 @@ in.
 \section{Tests}
 \label{sec:tests}
 
-\paragraph{What counts as evidence about experience.} Every test below measures
-decoded agreement, the agreement of the contents available to readout. If a
-split in readout could always be dismissed as a split in access alone, no
-observation would bear on P. So the evidence about experience is fixed in
-advance: responses that combine stimuli across the regions in question when the
-task requires it, and reports of a single field of experience spanning them. A
-dissociation counts against P if such responses and reports split while graded
-coupling between the regions is intact, or stay integrated after it is removed.
-This standard binds P: in a bridged cortex each region still reads its own
-coupled carriers, so behaviour is evidence about unity, and a split of unity
-behind unchanged reports is no answer P can give to a null result.
+\paragraph{The readout assumption.} A bridge changes a physical mechanism;
+an inference about experience also uses an observation model.
+\emph{Assumption R} is that, within the tested interventions, a subject's
+calibrated reports of one simultaneous field spanning the two regions retain
+their evidential relation to experienced unity. Calibration includes separate
+reports of local visibility, the ability to report from each region, attention,
+and success on the component tasks. The criterion is fixed before comparing
+the loops and applied equally to natural coupling, artificial bridges and
+gradual replacement.
+
+Under R, preserved reports of unity after certified removal of P's required
+coupling challenge P and R jointly. The experiment commits to that outcome;
+preserved reports receive the same interpretation in the replacement case.
+Behavioural matching across two fields measures information integration and
+supplies a mechanistic precursor in animals. A human preparation adds reports
+of simultaneous unity. Decoded agreement supplies a neural correlate after the
+companion's validation, with its decoder held fixed across the interventions.
+The inferential limits of R are stated in Section~\ref{sec:limitations}.
 
 \paragraph{Separating coupling from information.} In every manipulation of
 cortex available so far, graded coupling and information move together, and
@@ -711,14 +720,18 @@ its input.
 \item The \emph{quantized loop} is the same filter and amplifier with a quantizer
 between them, so its output is read from bits and has a margin.
 \end{itemize}
-The two loops share one filter shape. They differ in the quantizer and in one
-cutoff frequency, set below.
+The output stage and stimulation path are shared. A factorial comparison
+uses the same chosen bandwidths in both arms, crossing bandwidth with the
+presence of the quantizer. An information-controlled pair is then selected
+within this family. Further blocks sweep the quantizer's step at fixed
+bandwidth and delay.
 
-\paragraph{Matching the information.} The analog loop must carry no more
-information than the quantized one, and the two must fall on opposite sides of P. Adding noise to the analog loop to
-match them would make it fail P too, so its bandwidth is lowered instead,
-keeping the cutoff high enough that the loop settles in time
-(Appendix~\ref{app:bridge}). Transfer entropy counts everything one region's
+\paragraph{Matching the information.} An information-controlled pair gives the analog loop no more estimated
+transfer entropy or task information than the quantized loop. Its bandwidth
+can be lowered while preserving a settling time inside the content window
+(Appendix~\ref{app:bridge}). The coupling classification is assessed separately
+on the full circuit: each direction must be tested at the actual downstream
+reader, with the reader's memory and integration time included. Transfer entropy counts everything one region's
 activity tells about the other's, and the loops could match it and still differ
 in how much of the task gets through. So the task variable is also decoded from
 the activity each loop evokes in the region it drives, and the loops count as
@@ -729,20 +742,47 @@ regions, with a linear and a nearest-neighbour estimator of each quantity. At a 
 \uBrCutoffMax{}~Hz matches the linear estimate of transfer entropy in every
 simulated regime whose task variable spans at least half a step. At that cutoff
 the analog loop carries less task information than the quantized one by either
-estimator, and less transfer entropy by the nearest-neighbour one. An account
-on which unity follows the information regions exchange therefore predicts no
-advantage for the analog loop.
+estimator, and less transfer entropy by the nearest-neighbour one. These comparisons constrain two information summaries. The dynamical
+alternative below uses the delivered time series and can predict different
+outcomes even when those summaries are matched.
 
-\paragraph{The readout.} If unity, with the evidence fixed above, follows the
-analog loop, that is evidence that unity tracks the finer grain and not only the
-information the regions exchange. If unity is the same under both loops, that
-counts against P. In animals, unity is measured by integration across the
-bridged connection in behaviour and by decoded agreement in the recordings;
-reported unity needs a bridged human preparation. The loops share every stage
-but the quantizer and the cutoff, so no property of the electronics separates
-them, and the bridge tests P as a criterion of organisation
-(Section~\ref{sec:ai}) against accounts on which unity follows the information
-regions exchange.
+\paragraph{A competing mechanism.} The alternative is a recurrent observer
+whose estimates combine local evidence with the signal delivered by the
+bridge. Its update has a finite delay, a fitted gain, a noise process and a
+decision rule applied to the estimates' difference
+(Appendix~\ref{app:bridge}). The quantizer and filter enter through their
+measured transformation of the input. Parameters are fitted on pilot blocks
+and then frozen. Predictions are scored on held-out bandwidths, quantizer
+resolutions and perturbations, including both response choices and
+disagreement recovery. The alternative can favour either arm through its
+temporal and nonlinear transmission, with no constitutive role assigned to
+sensitivity within a physical margin.
+
+\paragraph{Certifying the contrast.} P asks for a carrier response somewhere
+within each content window. The classification therefore uses the probability
+of visiting a passing state, in each direction, and the measured restoration
+of discrepancy. A low instantaneous passing fraction can coexist with frequent
+visits. Every candidate route is assessed, including threshold crossings,
+joint words, repeated samples and residual biological paths. For exclusion,
+the response bound applies to the complete next-readout map, including its
+memory; for inclusion, the measured carriers must also support contraction
+(Appendix~\ref{app:bridge}). The same noise scale, admissible interventions
+and content window are used for both arms.
+
+\paragraph{Predictions and outcomes.} In blocks where an analog bridge restores
+the calibrated unity readout, P with R predicts that a quantized bridge
+certified to lack the required coupling will fail to preserve that readout.
+The recurrent observer predicts the readout from the transmitted signals and
+its frozen decision rule. A discriminating block is one in which these
+predictions diverge while local visibility and report ability remain intact.
+Preserved unity reports in that block challenge P with R. An analog advantage
+supports P over this alternative only when the alternative fails to account
+for it within its preregistered uncertainty. If both bridges pass the coupling
+criterion, their equal performance is compatible with P. A failure of the
+analog bridge to restore integration leaves the positive control unmet.
+Accuracy in the animal comparison constrains the observer's functional
+predictions, while the perturbation measurements test the physical conditions
+in P. The experiential comparison uses R's human calibration.
 
 \paragraph{A first preparation.} Closed loops that trigger stimulation at one
 cortical site from spikes recorded at another already run for days in behaving
@@ -750,17 +790,21 @@ animals \citep{jackson2006,guggenmos2013}; the analog arm replaces the trigger
 with a continuous drive. A first preparation places chronic
 arrays in two areas that represent a shared variable, such as the visual and
 parietal areas that represent the bird's location, interrupts the natural
-connection between them, and alternates the two loops across blocks in the same
-animal. Transfer entropy \citep{schreiber2000} is estimated from each block's
+connection between them, and alternates bandwidth and quantization conditions
+across blocks in the same animal. Residual routes are assessed with directed
+perturbations before treating the interruption as a disconnection. Transfer entropy \citep{schreiber2000} is estimated from each block's
 recordings, and the step and cutoff are set on pilot blocks. The primary
-readout is behavioural: a task that requires combining the values the two areas
-represent, such as judging whether stimuli in their two fields match. Blocks
+animal readout is behavioural integration: a task requiring the values the two
+areas represent to be combined, such as judging whether stimuli in their two
+fields match. Blocks
 with the connection interrupted and neither loop running come first, as a
 positive control: the comparison is informative only if the analog loop restores
 some of the integration that interruption removes. The companion's excess
 decoded agreement is the neural readout. At declared effect sizes the
 behavioural comparison is the weaker and needs \uBrTrialsBehaviour{} trials per
-loop. The loops record and stimulate in separate frequency bands, so the
+loop for the original pairwise comparison. The factorial design and the
+equivalence margins for preserved reports need a power calculation on pilot
+variability before data collection. The loops record and stimulate in separate frequency bands, so the
 recordings stay readable under a continuous drive (Appendix~\ref{app:bridge}).
 
 \begin{figure}[t]
@@ -798,35 +842,37 @@ recordings stay readable under a continuous drive (Appendix~\ref{app:bridge}).
 \caption{The bridge, one direction of two. Multi-unit activity recorded in
 region A is rectified and smoothed, passed through a filter both loops share,
 and then either kept analog or quantized, before an output stage both loops
-share drives the stimulator in region B. The quantizer's step and the analog
-loop's cutoff are set so that the quantized loop carries at least as much
-information as the analog loop, in total and about the task. What leaks from the stimulator into a recording contact
+share drives the stimulator in region B. Bandwidth is varied in both arms.
+The displayed pair uses the quantizer's step and the analog cutoff to control
+estimated transfer entropy and task information; the full comparison also
+tests both arms at common bandwidths. What leaks from the stimulator into a recording contact
 is removed by subtracting the loop's own output, passed through the measured
 transfer. The loop from B to A is the same.}
 \label{fig:bridge}
 \end{figure}
 
-\paragraph{A weak nudge should spread.} Weak stimulation of one region, below the
-level that changes behaviour, should shift the content decoded in an overlapping
-region toward agreement with it, in proportion to the stimulation's strength.
-Transcranial alternating current and weak intracortical fields supply the nudge.
-The decoded content must be a graded variable read from activity the region's
-targets integrate, since a decoded category is constant away from its
-boundaries in any substrate. A change alone confirms little, since most accounts expect
-stimulating one region to alter connected ones. What P predicts is the change's
-form: a shift with the sign that agreement requires, in proportion to strength
-down to the weakest strength that measurably moves the stimulated region, with
-no strength below which it vanishes. No shift, a shift of the wrong sign, or one
-that appears only above a threshold strength counts against P.
+\paragraph{A weak nudge should spread.} Perturb a content-bearing coordinate
+in one region, in either direction, and measure the next content read in an
+overlapping region. The perturbation's size runs from the source's noise
+amplitude to its threshold. P predicts a response at the declared yardstick
+from some carrier within the content window, together with a restoring change
+in the shared variable. Transcranial alternating current and weak
+intracortical fields provide candidate interventions. The decoded variable is
+graded and read by the region's targets, and its scale is calibrated against
+the source's noise. A response in a direction that amplifies disagreement
+challenges the restoring part of P; a valid upper bound below the yardstick
+throughout the window challenges its sensitivity part. The rival observer is
+tested on these same intervention time courses.
 
 \paragraph{Agreement should be restored.} Perturb one region and measure how
-fast its disagreement with its partners comes back down. P predicts restoration within the relaxation time of
-Section~\ref{sec:reach}, with a restoring pull proportional to the perturbation,
-below any threshold as well as above. On an artificial system, patching the
-activations of one layer, head or position runs the same protocol, and the
-margin lemma fixes the outcome: restoration by computation above the scale at
-which the logical trajectory changes, and nothing below it. That contrast makes
-the cortical outcome informative.
+fast its disagreement with its partners returns to the declared tolerance.
+P predicts restoration within the relaxation time of Section~\ref{sec:reach}
+for the admissible perturbations, with proportional restoring response in the
+linear regime. On an artificial system, patching a represented activation
+changes a logical value and tests content-level restoration. Perturbing an
+internal physical carrier within the noisy-margin hypotheses tests the
+response bound. These interventions address different coordinates, as the
+replacement analysis makes explicit.
 
 \paragraph{The field's causal cone.} The brain's electric field reaches the
 tissue with no propagation delay \citep{gratiy2017}, while synaptic influence
@@ -871,9 +917,10 @@ physics is relevant at all, a contraction condition, and a test in cortex.
 
 \paragraph{Integrated information.} Integrated information theory also denies
 experience to digital simulations of a brain \citep{tononi2015,findlay2024},
-through the causal structure of the hardware at the grain of its logic gates. P
-turns instead on how content depends on graded physical state, measured by one
-protocol on a cortical membrane and on a logic node.
+through the causal structure of the hardware at the grain of its logic gates.
+P proposes sensitivity and restoration of graded content-bearing carriers as
+its constitutive condition, evaluated through the same response protocol on
+model membranes and logic nodes.
 
 \section{Limitations}
 \label{sec:limitations}
@@ -887,30 +934,43 @@ are conscious and what they are like. An analog crossbar that passes P holds its
 column currents together physically, which makes none of them an experience,
 still less one like a human percept.
 
-\item \emph{Wholeness.} An account on which unity is joint access to contents
-rejects the argument's first step. Rejecting wholeness leaves the theorems, the
-count and the measurements standing, and removes the step from unity to one
-physical system; the bridge then tests joint access against wholeness directly.
+\item \emph{Wholeness and counting.} Wholeness does not entail the proposed
+count or contraction. Counting is a realization hypothesis, stricter than
+ordinary causal dependence or failure of a product decomposition. A digital
+network has causal dependence among its logical states, and a field may have a
+closed effective description. The reasons for selecting sensitivity throughout
+the admissible range motivate P but do not prove its necessity for experience.
+The gas analogy supports a fluctuation-relative comparison, not an identity
+between physical clusters and subjects. Rejecting counting leaves the response
+bounds standing and removes their proposed experiential interpretation.
 
-\item \emph{Counting.} Rejecting counting, in favour of a count at no particular
-scale, makes every chip one system. Chips still fail P by the noisy margin
-theorem; what is lost is the argument from wholeness to P. The count is stricter
-than a product decomposition: a carrier that registers some changes between its
-noise and its threshold and not others is two systems by the count and may be
-one by a product decomposition. Section~\ref{sec:enforcement} reads such a
-carrier as registering through a margin or a threshold, which holds where the
-response grows with the change. The formal results start from the count.
+\item \emph{Grain and functionalism.} A functional account that includes the
+same physical response and restoration criterion agrees with P. Accounts that
+track temporal organization, nonlinear transmission or joint access can still
+disagree with its constitutive interpretation. Matching two information
+summaries does not equate those organizations. A successful alternative model
+therefore remains a competitor, including when it distinguishes the loops.
 
-\item \emph{Functionalism.} A functionalism that states its roles at the grain
-of graded physical state agrees with P on every test here, and it is the
-intended reading of P. The tests ask which grain unity tracks.
+\item \emph{The hardware counts.} The digital exclusion requires the stated
+margin, Lipschitz and admissible-perturbation hypotheses at the actual
+next readout. The margin exception probability is not generally a logical
+error rate. The single-bit ceiling holds for the stated symmetric
+single-peaked noise laws; a Student law with three degrees of freedom can
+violate it. A joint word or an integrated sequence needs its own response law.
+High precision at a cortical interface can transmit perturbations above
+biological noise despite large margins on the processor's internal bits.
+The thermal and switching examples declare their capacitance, clock,
+activity, transition time and synchronizer.
 
-\item \emph{The hardware counts.} The ceiling on one bit holds for symmetric
-single-peaked noise laws that put less than twice the fluctuation of their mass
-within one standard deviation of the centre. Thermal noise meets it; a bit under
-a Student law with three degrees of freedom can pass. The thermal and switching
-counts declare their capacitance, clock, activity, transition time and
-synchronizer.
+\item \emph{Readouts and replacement.} R is an additional assumption linking
+calibrated reports to unity across the interventions. Behavioural integration
+can occur without the experience targeted here. An animal matching task
+therefore does not establish experiential unity, and a positive human report
+requires control of visibility, attention and report ability. Preserved reports
+under certified failure of P challenge P with R jointly; abandoning R would
+also abandon the behavioural inference in the gradual-replacement case.
+The proposed experiment cannot settle P independently of all readout
+assumptions.
 
 \item \emph{The cortical estimates.} The single-input estimate combines in vitro
 measurements of one connection type and one noise recording, through a linear
@@ -928,7 +988,11 @@ proved for independent carriers and, without independence, as the variance of
 the number that pass over the square of its mean, a ratio that correlation keeps
 above a floor. The sweep of the window's length assumes independent carriers,
 and shared input lowers the link most in the shortest windows. The relay cell
-is a reduced model with no reticular feedback.
+is a reduced model with no reticular feedback. The passing-state estimates
+measure candidate sensitivity, not reciprocal contraction of a network's
+decoded contents. The time windows are declared perceptual scales; the
+temporal-order threshold supplies a benchmark rather than a universal lower
+bound on content change.
 
 \item \emph{Reach.} Phase variance equals effective resistance in the harmonic
 approximation at identical natural frequencies. The logarithmic lower bound is
@@ -959,27 +1023,33 @@ to its conductance against the short-range part. The field's reach rests on an
 estimate that places its peak at a declared distance, and its contribution
 across centimetres is a quantity to be measured.
 
-\item \emph{The bridge's reach.} A functional account that counts the
-quantizer's nonlinearity, or the cutoff that matches information, as a
-difference between the loops can accommodate either outcome; such an account
-individuates roles finely enough to see a quantizer, which is the grain P names,
-so the bridge leaves it on P's side of the line. The comparison presupposes that
-the analog loop restores some integration, which the positive-control blocks
-check. That the loops can be matched is shown on a linear model pair of regions.
+\item \emph{The bridge's reach.} The saved simulations establish
+information-control feasibility in a one-direction transmission model with
+declared noise and filters. They do not establish that the complete reciprocal
+preparation falls on opposite sides of P, or fit the proposed rival observer.
+The model has no spikes, stimulation artefact or plasticity. An instantaneous
+failing fraction does not certify a failing window, and single-bit bounds do
+not certify a reader of a joint word or repeated samples. Temporal response,
+alternative anatomical routes and restoring dynamics require measurement.
+The factorial comparison and resolution sweep are proposed experiments;
+their power and equivalence margins must be calibrated on pilot data.
 
-\item \emph{What a null leaves open.} The bridge routes coupling through
-electronics and stimulation, so it tests P as a criterion of organisation. A
-null, in which both loops restore integration equally, counts against that
-reading and is compatible with a substrate-bound variant on which graded
-coupling must run through tissue, a variant no artificial bridge can test. Both
-arms also share two auxiliaries: stimulation enters a region unlike synaptic
-input, recruiting cells synchronously and antidromically, and the loop realises
-P only at the grain of a multi-unit envelope recorded from a few contacts.
+\item \emph{Interpreting outcomes.} A selective advantage for the analog arm
+is not sufficient evidence for P: bandwidth, delay and nonlinear transmission
+may account for it. The comparison needs divergent predictions against the
+fitted alternative. A null challenges P with R only when a bridge certified
+to lack the required coupling preserves the calibrated unity readout with
+adequate equivalence power. Equal outcomes when both bridges pass are
+compatible with P. The positive control requires the analog loop to restore
+integration, and stimulation can recruit cells synchronously or antidromically.
+The recorded envelope also samples only part of a region's carriers.
 
-\item \emph{Human evidence.} No human preparation yet measures reported unity
-across a bridged connection. Human data can falsify P but cannot by themselves
-tell the graded grain from the grain of information exchanged, because the two
-co-vary in every manipulation available so far.
+\item \emph{Human evidence.} No human bridge preparation here measures
+reported unity. Human validation of the readout and the coupling classification
+is an empirical requirement. A tissue-specific hypothesis would be a different
+proposal from P's organizational criterion and is not the hypothesis tested
+by the electronic bridge.
+
 \end{itemize}
 
 \input{references}
@@ -1138,71 +1208,84 @@ one noise amplitude up and one down both reach the fluctuation.
 \section{Counting in detail}
 \label{app:count}
 
-\paragraph{The logic node.} A change of one amplitude toward the threshold moves
-a restored bit by the fluctuation only from half an amplitude away,
-\ueGradedWindowPercent\% of the margin's width, where the bit is in the middle
-of switching, and a change in both directions moves it by less at every
-distance, by the binary ceiling. No other bit registers a change anywhere in the
-margin except through the error rate. By the noisy margin theorem, once that
-rate is under the fluctuation and each carrier has a change above its noise
-inside the margin, no carrier of any region registers any other, and the
-per-window form of P fails exactly as the per-instant form does.
+\paragraph{The logic node.} In the declared Gaussian model a change of one
+amplitude toward the threshold moves a restored bit by the fluctuation only
+from half an amplitude away, \ueGradedWindowPercent\% of the margin's width.
+When both directions are admissible, their smaller response stays below the
+fluctuation at every distance, by the single-bit ceiling. The noisy margin
+theorem supplies the more general exclusion whenever the exception probability
+is below the yardstick and an admissible perturbation fits inside the effective
+margin. A readout that meets those hypotheses at every state in a window fails
+throughout the window.
 
-The chip's wires pass on only changes that cross a threshold, which is the rule
-applied at each clock step. Crosstalk and supply noise below the margin are real
-interactions, and they move the voltages. By the noisy margin theorem they move
-the contents by at most the error rate, the quantity a working chip is designed
-to keep small. The count looks strange only because ordinary usage counts by
-program, and one program uses all of the bits. Counted by physics, each bit is
-restored to its own rail by its own gates, and what keeps the bits in step is
-the rule the program applies, a protocol among separate records. The citizens of
-Block's nation likewise register each other only through the messages they
-exchange.
+The circuit still transmits changes of logical state. Crosstalk and supply
+noise also move its voltages. Counting isolates a reliable record with respect
+to the specified physical interventions, while retaining both kinds of
+interaction in the full description of the chip. A reader that integrates
+several decisions is assessed on its complete next-readout map, as in
+Appendix~\ref{app:bridge}.
 
-\paragraph{The same count from effective descriptions.} Physics reaches the same
-count a second way, through the effective description it uses at the parts' own
-resolution. Such a description keeps the variables that survive coarse-graining
-between the parts' noise and their thresholds, and it treats as separate degrees
-of freedom exactly those whose dynamics it can write without reference to one
-another's state. A chip has one such description, its logic. Each bit evolves,
-at each clock step, by a Boolean function of the bits wired to it, and the
-voltages beneath are integrated out at the cost of the error rate. This is the
-closure of the content level defined above, the property that marks a
-macroscopic level as computationally closed \citep{rosas2024}, and in it the
-bits interact only through the rule. A coupled field has no description of that
-kind at the same resolution. Averaging a sheet of coupled oscillators or
-membranes over blocks leaves a sheet whose blocks pull on their neighbours, and
-each block's dynamics is written with its neighbours' state in it. So the
-effective description makes a chip's contents many systems and a coupled
-field's contents one, as the noise-floor count does. It is the description an
-engineer uses to design the chip and a physicist uses to model the field, not
-one built to separate them.
+\paragraph{Effective descriptions and causal dependence.} At the logical
+level a digital circuit has an update $b'=g(b)$. For example, the update
+$b'_1=b_2,\ b'_2=b_1$ couples the two coordinates causally: changing either
+input bit changes the other output. Computational closure retains this
+dependence while discarding voltage differences within a logical state.
+Consequently, closure and an ordinary product decomposition answer a different
+question from counting. The proposed constitutive graph asks which
+content-preserving physical interventions reach another carrier above noise.
+Its isolation of reliable records coexists with causal dependence between
+their logical values.
+
+A field can likewise admit a closed effective description. Its case for P
+rests on the measured response and restoration of the selected carriers.
+For each substrate the choice of content coordinates, their noise, the
+admissible interventions and the reader's integration time is fixed before
+the test. These choices give the proposed count physical meaning and provide
+the quantities by which it can be challenged.
 
 \section{Gradual replacement}
 \label{app:replacement}
 
-The standard objection to a substrate condition
-replaces a brain's neurons one at a time by digital units that compute the same
-input--output function \citep{chalmers1995}. If behaviour and report are
-preserved throughout while unity fades or divides, then at the intermediate
-stages the subject is wrong about its own experience, which the argument takes
-to be absurd. P answers in two parts.
+The strongest replacement is a recurrent digital controller that reproduces
+the relevant cortical dynamics within biological noise, has sufficient
+bandwidth, and matches the natural delay. Its converters resolve changes
+smaller than the cortical input's noise, and its output drives the same
+downstream readers. A neuron-by-neuron replacement then preserves the
+functional organization at the grain used to predict behaviour
+\citep{chalmers1995}.
 
-First, exact replacement is unavailable at the grain P concerns. By the margin
-lemma, a unit that reads its inputs through margins reproduces a neuron's
-function to the resolution of its margins, and discards the graded dependence
-below it. Whether discarding it changes behaviour is an empirical question. The
-bridge of Section~\ref{sec:tests} asks it for one connection, so the bridge is a
-local, testable instance of replacement.
+Two interventions must be distinguished. Changing the cortical input by one
+of its noise amplitudes can change many quantization levels and the controller's
+output. Changing an internal bit voltage by one of its own noise amplitudes,
+while staying inside its margin, leaves the next logical content almost
+unchanged. The margin theorem bounds the second intervention under its stated
+hypotheses. Higher numerical precision makes the first finer without reducing
+the voltage margin of each internal bit.
 
-Second, where replacement preserves behaviour and report exactly, P accepts the
-conclusion the argument calls absurd, and gives its reason. Reports are contents
-computed from contents, and unity is not one more content, so reports can stay
-the same while unity changes. Behaviour is evidence about unity in a system
-whose contents are carried by its own coupling, and a system built to reproduce
-that evidence by computation is the simulation objection again. A bridged cortex
-is of the first kind, so at the bridge P stakes itself on behaviour
-(Section~\ref{sec:tests}).
+P's claim is that a content-bearing internal realization also matters. This
+claim receives its motivation from mutual constraint on graded carriers
+(Section~\ref{sec:enforcement}), and its demanding consequence is that an
+accurate logical emulation can reproduce content dynamics while lacking that
+internal relation. To apply it to a hybrid replacement, the analysis must
+identify which internal variables actually carry the relevant contents.
+Where a controller serves only as a channel between cortical carriers, the
+response of those carriers to one another is assessed through the complete
+channel. A finely quantized channel may transmit every admissible cortical
+change; its digital label alone supplies no exclusion.
+
+The resolution sweep consequently has two uses. It tests the rival observer's
+predicted improvement as transmitted error and delay decrease, and it locates
+any transition in the measured coupling criterion at the cortical interfaces.
+If the fine-resolution bridge passes P there, equal readouts fit both accounts.
+If it fails throughout the relevant windows while the unity readout remains
+intact, it challenges P together with R.
+
+The readout assumption is the same in gradual replacement and in the bridge.
+Accepting unchanged reports as evidence of unchanged unity commits P with R to
+that challenge. A version of P that permits unity to change behind perfectly
+preserved reports rejects R for those interventions and gives up this
+behavioural test. Choosing between those packages precedes the experiment; the
+choice is fixed across its outcomes.
 
 \section{The occupancy computation}
 \label{app:occupancy}
@@ -1261,7 +1344,7 @@ exactly the content a membrane delivers when its readers integrate spike times
 as they arrive. The separation holds for count readers too: a reader that
 registered only whether a node switched within a cycle would take a quantity
 fixed by the node's logical inputs, which are restored bits, moved by its noise
-only through the error rate.
+only through the margin exception probability.
 
 \paragraph{A thalamic relay cell.} The integrate-and-fire-or-burst model
 \citep{smith2000}, with its published parameters, adds to the membrane a
@@ -1490,20 +1573,20 @@ a clocked circuit's contents do.
 \paragraph{Leakage.} Real digital hardware leaks: supply noise, crosstalk and
 temperature move the analog quantities behind every bit. The margin lemma says
 where such leakage can reach content. If a content read as a word of
-thresholded continuous quantities depends gradedly on any region, some bit of
-the next state sits exactly on its threshold, and correct operation keeps every
-state off that set. Digital logic does pull perturbations back, but each gate
-does so alone: its gain pulls a disturbed voltage back toward its own rail. That
-restores each bit toward its own logical value, pulls no region toward agreement
-with another, and is what keeps the bits inside their margins. The chip's
-records stay separate even in the one place where its physics contracts.
+thresholded continuous quantities depends gradedly on any region in the exact
+sense, some bit of the next readout sits on its threshold. Correct sampled
+operation places those readouts inside margins. Gate restoration stabilizes
+the rails, and the network of gates supplies logical coordination. The
+constitutive graph tests whether an admissible physical change inside those
+margins reaches another content above the yardstick.
 
 The margin also has a width. If every bit of the next state is at least
 $\delta$ from its threshold, each bit is read from an $L_v$-Lipschitz quantity
 and the micro dynamics is $L$-Lipschitz, then a change to one region smaller
 than $\delta/(L L_v)$ changes no bit. Leakage below that scale reaches content
-only through the error rate (Section~\ref{sec:enforcement}), and leakage above
-it flips a bit, which is a logical error. Digital design keeps ordinary noise
+only through the margin exception probability (Section~\ref{sec:enforcement}).
+Above that scale the bound ceases to certify invariance; a sufficiently large
+disturbance can cause a logical error. Digital design keeps ordinary noise
 well below that scale: a textbook inverter's static noise margin is
 \ueMarginPercent{}\% of its supply voltage, against an expected supply
 variation of \ueSupplyPercent{}\% \citep{rabaey2003}, so the expected variation
@@ -1512,61 +1595,152 @@ reduction order is a choice among logical trajectories and lies outside both
 results: it changes which content is computed, not how content depends on
 graded state.
 
-\paragraph{The margin's width.} If P turned on how wide an engineer happened to
-make a noise margin, that would be a reductio of P: two machines running one
-program would differ in unity by a design parameter. The width is not free in
-that way. By the noisy margin theorem a content's response to a region is at
-most its error rate, so a machine whose contents reached the fluctuation at the
-noise scale would err with probability at least \ueFluctuationTV{} at every
-step. Its bits would fail to hold their values from one step to the next, its
-program's trajectory would stop being reproducible, and whatever agreement
-survived would come from the physics beneath the bits and not from the program.
-The line P draws therefore coincides with the physical line between digital and
-analog operation, and working systems sit far from it on either side: a logic
-node's margin is \ueMarginToNoise{} noise amplitudes wide, while a cortical
-membrane sits on average \uOccDistanceMin{} to \uOccDistanceMax{} noise
-amplitudes below its threshold, and some membrane of a region reaches a passing
-state within a window of a percept's time scale with high probability.
+\paragraph{The margin's width.} A reliable rail and a near-threshold
+converter have different response laws, even when they occur on one chip.
+Increasing the number of bits refines a represented number while preserving
+each rail's voltage margin. Under the noisy margin theorem, reaching the
+fluctuation with an admissible perturbation inside $r/L$ requires a margin
+exception probability at least that large. This concerns proximity to
+thresholds, so the processor's logical error rate is a separate quantity.
+The criterion is therefore applied to each physical readout and its actual
+input range. The examples compare rails \ueMarginToNoise{} noise amplitudes
+from threshold with model membranes averaging \uOccDistanceMin{} to
+\uOccDistanceMax{} amplitudes below it.
+
+A converter driven by an external graded signal is evaluated with that
+signal's noise and the reader's integration time. A joint word or repeated
+measurements may carry a graded response at that scale. The appropriate
+question for a hybrid system is which such carriers overlap, and whether their
+responses and restoration meet P throughout its content windows.
 
 \section{The bridge in detail}
 \label{app:bridge}
 
-The analog loop must carry no more information than the quantized one, and the
-two must fall on opposite sides of P.
-Section~\ref{sec:enforcement} fixes what the second condition means: a change
-of the recorded region by its own noise amplitude must move the analog loop's
-output by at least the fluctuation, and the quantized loop's output by less.
-The analog loop passes exactly when its noise, in the region's units, is at
-most the region's own. The quantized loop fails at every state farther from a
-quantization edge than the region's noise plus \ueEdgeQuantile{} times the
-recording noise, so its step must be many times both. Matching information by
-adding noise to the analog loop defeats this. At matched information the added
-noise is \ueMatchedNoiseToStep{} of the quantizer's step, so an analog loop
-that still passes caps the step at \ueNoiseMatchMaxStep{} noise amplitudes of
-the region, and the quantized loop then fails at no more than
-\ueNoiseMatchFailPercent\% of its states, taking states as uniform within a
-step. The analog loop's bandwidth is lowered instead, with no noise added,
-until the information it carries, estimated from the recorded activity, no
-longer exceeds the quantized loop's. Lowering the bandwidth slows the loop, and a loop
-that settles after the content has changed fails P's timing condition
-(Section~\ref{sec:reach}) however gradedly it couples. A first-order filter
-with cutoff $f_c$ settles with time constant $1/(2\pi f_c)$, and the bridged
-coupling relaxes no faster than its loop, so the analog loop's cutoff is kept
-at or above \ueBridgeMinCutoffHz{}~Hz, whose time constant is at most the shortest
-relaxation time that brings agreement in time in Appendix~\ref{app:window}. If
-matching would take the cutoff lower, the quantizer's step is coarsened
-instead, which lowers the quantized loop's transfer entropy and raises the
-share of its states that fail. A null result then cannot come from an analog
-loop too slow for the content's window. Above that floor the step is free: at a step of
-\ueBridgeStepToNoise{} noise amplitudes, with recording noise no larger than
-the region's own, the quantized loop fails at \ueBandMatchFailPercent\% of its
-states or more. Stepping the quantized loop's resolution checks that its
-transfer entropy rises with the resolution, so that the resolution, and not
-recording noise, sets the matched value.
+\paragraph{Instantaneous design estimates.} For an additive Gaussian channel,
+at unit gain, an input shift of one source noise amplitude reaches the
+fluctuation when the effective channel noise is at most that amplitude.
+These quantities are evaluated at the chosen input and output coordinates,
+after filtering. A scalar quantizer suppresses a change at states sufficiently
+far from an edge. With the declared noise, being farther than the source's
+noise plus \ueEdgeQuantile{} times the recording noise suffices for one
+admissible perturbation to miss the yardstick.
 
-\paragraph{Whether the loops can be matched.} Two settings need not meet two
-conditions, so both loops were simulated on a model pair of regions, at a 1~ms
-step and in units of region A's noise amplitude. A task variable, a process of
+Under the information-matching approximation in the estimate, adding noise to
+an analog channel would require \ueMatchedNoiseToStep{} of the quantizer's step.
+Keeping that channel sensitive then caps the step at
+\ueNoiseMatchMaxStep{} source noise amplitudes. Under uniform occupancy within
+a step, the resulting fraction of states certified to fail is at most
+\ueNoiseMatchFailPercent\%. Lowering bandwidth instead preserves this
+instantaneous noise budget while changing the time course. The reported step
+of \ueBridgeStepToNoise{} noise amplitudes, with the declared recording noise,
+gives a certified failing fraction of at least \ueBandMatchFailPercent\% under
+the same occupancy assumption.
+
+A first-order filter of cutoff $f_c$ has time constant $1/(2\pi f_c)$.
+The design floor of \ueBridgeMinCutoffHz{}~Hz compares this constant with the
+restoration deadline in Appendix~\ref{app:window}. The preparation also measures
+total delay and the closed loop's recovery of disagreement. The filter floor
+is a preliminary constraint; satisfying the deadline is a property of the
+whole loop. Settings enter the comparison after the information controls are
+met and each arm's temporal classification is established, before its outcome
+readouts are compared.
+
+\paragraph{The complete reader and the content window.}
+For a micro state $x$, let $C_j^{\rm next}$ be the next content actually taken
+from carrier $j$, including any integration of several samples by its reader.
+Let $\mathcal A_i(x)$ contain the admissible changes of source carrier $i$,
+between its noise and its threshold, with other coordinates fixed. Write
+\[
+ r_{ij}(x)=\inf_{s\in\mathcal A_i(x)}
+ \operatorname{TV}\!\left(
+   \mathcal L(C_j^{\rm next}\mid x_i\leftarrow s,x_{-i}),
+   \mathcal L(C_j^{\rm next}\mid x)\right).
+\]
+The laws are interventional, using the same declared noise process in each
+case. An empty $\mathcal A_i(x)$ is excluded from certification. For a
+trajectory $X$ and a content window $T$, define
+\[
+ G_{ab}(X,T)=
+ \mathbf 1\!\left\{\exists t\in T,\ i\in a,\ j\in b:
+       r_{ij}(X_t)\geq\theta\right\},
+ \qquad \theta=2\Phi(1/2)-1.
+\]
+This expresses the carrier and window criterion used in
+Section~\ref{sec:enforcement}. Both directions are evaluated, and the
+probability that both occur in the same window is estimated with their
+dependence retained. Restoring dynamics and its deadline are checked by a
+separate perturbation of overlap discrepancy.
+
+The quantifiers matter. A failing instantaneous fraction gives the time spent
+outside the passing set, whereas $G_{ab}$ records whether that set is visited.
+A threshold reached briefly can make the latter large. Several thresholds
+reading the same graded input can also preserve information that a single bit
+loses, as the example in Appendix~\ref{app:occupancy} shows. A reader that
+integrates successive symbols is assessed on that joint sequence: repeated
+noisy observations can resolve an input change that a single observation
+misses. Filter memory, timing of code changes, recording noise correlations
+and downstream membrane integration belong in this next-readout law.
+
+To exclude a route by the noisy margin theorem, apply it to the full map from
+the perturbed state to this next readout. Its Lipschitz constant and exception
+probability cover the whole map and all relevant samples, and an admissible
+change must remain inside its effective margin. A single-sample margin bound
+provides that certificate only when the next readout uses that sample alone.
+To establish a passing route, lower confidence bounds must cover every
+admissible change for a selected carrier pair; a finite grid needs justified
+monotonicity or regularity between its points. To establish failure, an upper
+bound below the yardstick for one admissible change suffices for each candidate
+pair. The observation window, intervention duration and tolerances are fixed
+before outcome comparisons. The preparation measures alternative anatomical
+routes as part of the same audit.
+
+\paragraph{A specified dynamical alternative.}
+Let $z_t$ contain the recurrent observer's estimates of the locations carried
+by the two regions. At the chosen sampling interval its pilot-fitted update is
+\[
+ z_{t+1}=A z_t+B u_{t-d}+K\ell_t+\xi_t ,
+\]
+where $\ell_t$ is local sensory evidence, $u_t$ is the delivered bridge signal,
+$d$ is its measured delay, and $\xi_t$ has the calibrated residual law.
+The recorded input passes through the measured filters and, in the quantized
+arm, the quantizer before entering $u_t$. Parameters describing the cortical
+observer are shared across arms; the measured circuit transformation changes
+with bandwidth and resolution. The state includes filter and delay memory.
+
+For the matching task let $m_t=w^\top z_t$ be the predicted difference of the
+two location estimates. If the decision is \emph{same} when $|m_t+e_t|\leq r$,
+the model's choice probability is
+\[
+ p_{\rm same}(t)=F_e(r-m_t)-F_e(-r-m_t),
+\]
+with $F_e$ the pilot-fitted continuous cumulative distribution of decision
+noise and a fixed criterion $r$. For unity reports the specified alternative is
+\[
+ \operatorname{logit} p_U(t)
+   =\gamma_0+\gamma_D|m_t|+\gamma_V v_t+\gamma_q q_t ,
+\]
+where $v_t$ is the observer's uncertainty about the location difference and
+$q_t$ is the independently measured local visibility score. The coefficients
+are fitted on calibration blocks and fixed for the comparison. Both decision
+models use a common rule across arms, with no free coefficient for the analog
+or quantized label.
+
+The factorial comparison fits the effects of bandwidth and quantization
+separately, while the resolution sweep at fixed bandwidth tests their
+interaction with noise and delay. The experiment records impulse responses,
+output spectra, stimulation gain and discrepancy recovery as well as transfer
+entropy and task information. Predictions concern the complete response and
+recovery distributions on held-out blocks. This alternative can predict an
+analog advantage from smoothing or a quantized advantage from transmitted
+signal strength. P with R additionally rules out preserved unity reports in a
+condition certified to fail its coupling requirement. A condition that both
+accounts predict alike measures their common mechanism; a disagreement
+between their predictions defines the decisive comparison.
+
+\paragraph{Whether the loops can be matched.} The saved simulations assess information matching for transmission from
+region A to region B, at a 1~ms step and in units of A's noise amplitude.
+The proposed preparation uses reciprocal loops and adds the temporal
+certification and observer comparison above. A task variable, a process of
 standard deviation \uBrTaskSdLow{} to \uBrTaskSdHigh{} and time constant
 \uBrTaskTauShort{} or \uBrTaskTauLong{}~ms, drives region A on top of A's own
 noise. A is recorded with noise of its own amplitude and passed through the
@@ -1626,15 +1800,17 @@ narrow with the square root of the trials. The behavioural comparison, accuracy
 \uBrAccHigh{} against \uBrAccLow{} at a two-sided level of 0.05 and power 0.8,
 needs \uBrTrialsBehaviour{} trials per loop, and the neural comparison, at a
 standardized difference of \uBrNeuralEffect{}, needs \uBrTrialsNeural{}. At the
-behavioural count, by either estimator, the transfer entropies are known to
-within \uBrTeTolPercent\% and the difference in task variance to within
-\uBrGapTol{}, smaller than every margin above, so the pilot blocks can confirm
-that the analog loop carries no more of either. The model
-has no spikes, no stimulation artefact and no plasticity.
+behavioural count, by either estimator, the model's transfer entropies are
+estimated to within \uBrTeTolPercent\% and the difference in task variance to within
+\uBrGapTol{}, smaller than every margin above in these simulations. Those counts describe
+the declared pairwise effects. Pilot data determine the repeated-block
+variance, multiple-comparison plan and equivalence power for the factorial
+experiment and report readout. The limits of this transmission model are
+collected in Section~\ref{sec:limitations}.
 
-The analog loop has to be analog end to end, because a loop that digitized the
-recording before driving the stimulator would run the quantized condition in
-both arms.
+The analog arm is kept analog end to end so that quantization is an explicit
+experimental factor. Each arm's status under P is determined by the complete
+response protocol above.
 
 \paragraph{Stimulation artefact.} Event-triggered loops blank the recording
 around each pulse, and a continuous drive leaves no interval to blank. The loops
@@ -1647,10 +1823,11 @@ subtracting the loop's own output, which the loop knows exactly, passed through
 the transfer from stimulator to recording contact measured on open-loop
 calibration blocks. Both loops end in the same output stage, which smooths the
 quantizer's steps into the stimulation band, and share the stimulator, the
-bands and the subtraction, so a residual artefact reaches both arms by one
-path. Open-loop blocks in which each stimulator follows activity recorded in
-another block measure that residual in each arm, and the comparison of the
-loops is made after it is removed.
+bands and the subtraction, so both arms use the same artefact path. Their different waveforms can still
+produce different residuals. Open-loop blocks in which each stimulator follows
+activity recorded in another block estimate that residual separately in every
+bandwidth and quantization condition. Its uncertainty is propagated to the
+response bounds and the outcome comparison.
 
 \section{Timing the field's cone}
 \label{app:field}
@@ -1695,6 +1872,17 @@ for each subject from the tractography length of the connecting fibres
 \section{Further related work}
 \label{app:related}
 
+\paragraph{Embodied architectures.} \citet{starzyk2026} propose that candidate
+conditions for consciousness involve sensory representations integrated with
+regulation, affect and recurrent feedback in the Motivated Emotional Mind
+(MEM) architecture. They treat realization in artificial substrates as a
+hypothesis to be tested through causal organization and temporal dynamics.
+P asks a narrower question about the coupling of contents: whether their
+carriers retain graded sensitivity above noise and restore agreement within a
+content window. MEM's proposed comparisons with competing architectures and
+combined alternatives also exemplify the explicit model comparison required
+by the bridge.
+
 \paragraph{Biology and the medium.} \citet{seth2026} argues that consciousness
 may depend on biological properties that computation does not capture. P
 locates the relevant property in how the substrate is organised, and admits
@@ -1702,6 +1890,18 @@ non-biological hardware that has it (Section~\ref{sec:ai}). Mortal computation,
 whose parameters are useful only on the hardware instance that learned them
 \citep{hinton2022,ororbia2023}, shares P's refusal to separate the computation
 from the medium.
+
+The distinction also concerns where a learning signal is available. Under the
+noisy-margin hypotheses a content read from bits has a response no larger than
+its margin exception probability (Section~\ref{sec:enforcement};
+Appendix~\ref{app:formal}); a graded substrate can carry a local
+response to a weak nudge as it relaxes. Weak nudges followed by relaxation are
+also used in equilibrium propagation \citep{scellier2017}, while physical
+networks can be trained with a hybrid physical and digital backpropagation
+procedure \citep{wright2022}. P supplies neither a learning rule nor an
+advantage in learning or representation: digital hardware can retain smaller
+changes by using more bits, and the reach bound in Section~\ref{sec:reach}
+expresses consistency across a distributed content.
 
 \paragraph{Analog and digital.} On the mechanistic account of
 \citet{piccinini2008}, a digital computer manipulates strings of digits, states
@@ -1734,14 +1934,21 @@ and digital at the noise margin, which a parallel digital machine keeps.
 \section{Formal results}
 \label{app:formal}
 
-Each formal result the paper states is a theorem of the Lean~4 development in
+Table~\ref{tab:formal} lists the machine-checked results used here, from the
+Lean~4 development in
 the \href{https://github.com/bobaseb/coupling_gated_cortical_coherence}{project repository},
 in its four \texttt{Phase10} modules. Table~\ref{tab:formal} maps each result to its
 declaration and to the section that argues from it. Every theorem rests only on
 Lean's foundational axioms \texttt{propext}, \texttt{Classical.\allowbreak{}choice} and
 \texttt{Quot.sound}, which the build verifies for every declaration of the
 development. Small concrete models in \texttt{Examples/} meet the hypotheses
-of the bounds and show where they are attained.
+of the bounds and show where they are attained. In this table, a system
+means a component of the stipulated coupling graph. The digital exclusion rows
+use the full noisy-margin hypotheses, including an admissible change above
+noise within the effective margin for every source. Connectivity and the
+probabilistic reach bounds concern sensitivity; contraction and the experiential
+interpretation are distinct requirements. The observer equations in
+Appendix~\ref{app:bridge} specify an experimental model.
 
 {\small
 \begin{longtable}{>{\raggedright\arraybackslash}p{0.47\textwidth}c>{\raggedright\arraybackslash}p{0.34\textwidth}}
@@ -1774,22 +1981,23 @@ Contraction by $\kappa$ reaches $\varepsilon$ by step $\log(d_0/\varepsilon)/\lo
 A discrepancy shrinking by at most $\rho$ per step is above $\varepsilon$ before $\log(d_0/\varepsilon)/\log(1/\rho)$ & \ref{sec:reach} & \texttt{lt\_\allowbreak{}disc\_\allowbreak{}iterate\_\allowbreak{}of\_\allowbreak{}lt\_\allowbreak{}log} \\
 Graded dependence of a bit word requires some bit exactly on its threshold & \ref{sec:ai} & \texttt{exists\_\allowbreak{}threshold\_\allowbreak{}of\_\allowbreak{}gradedDependence} \\
 A one-region change below $\delta/(L L_v)$ changes no bit & \ref{sec:ai} & \texttt{bits\_\allowbreak{}eq\_\allowbreak{}of\_\allowbreak{}lipschitz} \\
-Under noise, a one-region change below $r/L$ moves the probability of every event of the next content by at most the error rate & \ref{sec:enforcement} & \texttt{law\_\allowbreak{}le\_\allowbreak{}of\_\allowbreak{}marginRate} \\
-The same for anything computed from noisy bits, with error rate the probability of landing within $\delta$ of a threshold & \ref{sec:enforcement} & \texttt{bits\_\allowbreak{}law\_\allowbreak{}le\_\allowbreak{}of\_\allowbreak{}lipschitz} \\
+Under noise, a one-region change below $r/L$ moves the probability of every event of the next content by at most the margin exception probability & \ref{sec:enforcement} & \texttt{law\_\allowbreak{}le\_\allowbreak{}of\_\allowbreak{}marginRate} \\
+The same for anything computed from noisy bits, with margin exception probability the probability of landing within $\delta$ of a threshold & \ref{sec:enforcement} & \texttt{bits\_\allowbreak{}law\_\allowbreak{}le\_\allowbreak{}of\_\allowbreak{}lipschitz} \\
 The response of a content to one region grows with the scale & \ref{sec:enforcement} & \texttt{response\_\allowbreak{}mono} \\
-Below $r/L$ the response is at most the error rate & \ref{sec:enforcement} & \texttt{response\_\allowbreak{}le\_\allowbreak{}of\_\allowbreak{}marginRate} \\
-Graded dependence above the noise floor at every overlap holds exactly when every overlapping pair is one system & \ref{sec:enforcement} & \texttt{enforcedAtNoiseFloor\_\allowbreak{}iff} \\
-A region whose content has a margin with error rate below the fluctuation is coupled to no region, and is one system only with itself & \ref{sec:enforcement} & \texttt{not\_\allowbreak{}coupledAtNoiseFloor\_\allowbreak{}of\_\allowbreak{}record}, \texttt{sameSystem\_\allowbreak{}iff\_\allowbreak{}eq\_\allowbreak{}of\_\allowbreak{}record} \\
+Below $r/L$ the response is at most the margin exception probability & \ref{sec:enforcement} & \texttt{response\_\allowbreak{}le\_\allowbreak{}of\_\allowbreak{}marginRate} \\
+Below $r/L$ the finite-difference nudge signal is at most the margin exception probability divided by the nudge size & \ref{app:related} & \texttt{nudgeSignal\_\allowbreak{}le\_\allowbreak{}of\_\allowbreak{}marginRate} \\
+For symmetric overlaps, graded dependence at every directed overlap holds exactly when every overlapping pair is directly coupled & \ref{sec:enforcement} & \texttt{enforcedAtNoiseFloor\_\allowbreak{}iff} \\
+A region whose content has a margin with margin exception probability below the fluctuation is coupled to no region, and is one system only with itself & \ref{sec:enforcement} & \texttt{not\_\allowbreak{}coupledAtNoiseFloor\_\allowbreak{}of\_\allowbreak{}record}, \texttt{sameSystem\_\allowbreak{}iff\_\allowbreak{}eq\_\allowbreak{}of\_\allowbreak{}record} \\
 For any set of such records, two regions are one system exactly when a chain of couplings avoiding every record joins them & \ref{sec:enforcement} & \texttt{sameSystem\_\allowbreak{}iff\_\allowbreak{}of\_\allowbreak{}records} \\
-A content that depends on a region only through a record's symbol responds to it by at most the record's error rate, so write-back through a record couples nothing & \ref{sec:enforcement} & \texttt{shiftResponse\_\allowbreak{}le\_\allowbreak{}of\_\allowbreak{}factors}, \texttt{not\_\allowbreak{}coupledAtNoiseFloor\_\allowbreak{}of\_\allowbreak{}factors} \\
+A content that depends on a region only through a record's symbol responds to it by at most the record's margin exception probability, so write-back through a record couples nothing & \ref{sec:enforcement} & \texttt{shiftResponse\_\allowbreak{}le\_\allowbreak{}of\_\allowbreak{}factors}, \texttt{not\_\allowbreak{}coupledAtNoiseFloor\_\allowbreak{}of\_\allowbreak{}factors} \\
 A record that reads two graded regions joins neither, a write-back through it links neither, and a graded reader under linear dynamics with uniform noise joins two uncoupled regions & \ref{sec:enforcement} & \texttt{tally\_\allowbreak{}sameSystem\_\allowbreak{}iff}, \texttt{writeBack\_\allowbreak{}not\_\allowbreak{}coupled}, \texttt{reader\_\allowbreak{}sameSystem} \\
 Asking graded dependence above the noise floor of every carrier implies asking it of some carriers of each region & \ref{sec:enforcement} & \texttt{EnforcedAtNoiseFloor.\allowbreak{}enforcedByCarriers} \\
 A state at which some carriers of each region pass and not every carrier does & \ref{sec:enforcement} & \texttt{spare\_\allowbreak{}enforcedByCarriers}, \texttt{spare\_\allowbreak{}not\_\allowbreak{}enforcedAtNoiseFloor} \\
 Regions joined by carriers at every overlap are one system & \ref{sec:enforcement} & \texttt{EnforcedByCarriers.\allowbreak{}regionSameSystem} \\
-Bits with error rate below the fluctuation: no carrier of any region reaches any other, and each region is a system of its own & \ref{sec:enforcement} & \texttt{not\_\allowbreak{}reachesAtNoiseFloor\_\allowbreak{}of\_\allowbreak{}bits}, \texttt{regionSameSystem\_\allowbreak{}iff\_\allowbreak{}eq\_\allowbreak{}of\_\allowbreak{}bits} \\
-With $K$ independent carriers each passing within a window with probability at least $p$, two regions go unlinked in the window with probability at most $(1-p)^K$ & \ref{sec:enforcement} & \texttt{measure\_\allowbreak{}not\_\allowbreak{}reachesWithin\_\allowbreak{}le} \\
-Without independence, two regions go unlinked in the window with probability at most the variance of the number of passing carriers over the square of its mean & \ref{sec:enforcement} & \texttt{measure\_\allowbreak{}not\_\allowbreak{}reachesWithin\_\allowbreak{}le\_\allowbreak{}variance} \\
-Bits with error rate below the fluctuation couple no pair of regions, so each region is a system of its own & \ref{sec:enforcement} & \texttt{sameSystem\_\allowbreak{}iff\_\allowbreak{}eq\_\allowbreak{}of\_\allowbreak{}bits} \\
+Bits with margin exception probability below the fluctuation: no carrier of any region reaches any other, and each region is a system of its own & \ref{sec:enforcement} & \texttt{not\_\allowbreak{}reachesAtNoiseFloor\_\allowbreak{}of\_\allowbreak{}bits}, \texttt{regionSameSystem\_\allowbreak{}iff\_\allowbreak{}eq\_\allowbreak{}of\_\allowbreak{}bits} \\
+With $K$ independent candidate carriers each giving directed reach within a window with probability at least $p$, that direction fails with probability at most $(1-p)^K$ & \ref{sec:enforcement} & \texttt{measure\_\allowbreak{}not\_\allowbreak{}reachesWithin\_\allowbreak{}le} \\
+Without independence, directed reach fails with probability at most the variance of the number of passing carriers over the square of its mean & \ref{sec:enforcement} & \texttt{measure\_\allowbreak{}not\_\allowbreak{}reachesWithin\_\allowbreak{}le\_\allowbreak{}variance} \\
+Bits with margin exception probability below the fluctuation couple no pair of regions, so each region is a system of its own & \ref{sec:enforcement} & \texttt{sameSystem\_\allowbreak{}iff\_\allowbreak{}eq\_\allowbreak{}of\_\allowbreak{}bits} \\
 The same bits fail graded dependence above the noise floor at any overlap of two regions & \ref{sec:enforcement} & \texttt{not\_\allowbreak{}enforcedAtNoiseFloor\_\allowbreak{}of\_\allowbreak{}bits} \\
 A smaller shift of a Gaussian moves no event more than a larger one & \ref{sec:enforcement} & \texttt{gaussian\_\allowbreak{}shift\_\allowbreak{}le} \\
 Where the response grows with the change, graded dependence above the noise floor is decided by a change of one noise amplitude & \ref{sec:enforcement} & \texttt{gradedAboveNoise\_\allowbreak{}iff\_\allowbreak{}of\_\allowbreak{}mono} \\

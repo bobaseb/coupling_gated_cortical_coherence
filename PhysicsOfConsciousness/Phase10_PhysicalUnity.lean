@@ -582,6 +582,27 @@ theorem response_le_of_marginRate [Fintype ι] {μ : Measure Ω} {f : Ω → (�
   iSup₂_le fun s hs => shiftResponse_le_of_marginRate hf hπ i s
     ((mul_le_mul_of_nonneg_left hs L.coe_nonneg).trans_lt hη)
 
+/-- The finite-difference nudge signal at a positive scale `η` is the response
+divided by that scale. This defines a local signal, not a learning update or an
+objective gradient. -/
+noncomputable def nudgeSignal (μ : Measure Ω) (f : Ω → (∀ i, S i) → ∀ i, S i)
+    (π : (∀ i, S i) → C) (x : ∀ i, S i) (i : ι) (η : ℝ) : ENNReal :=
+  response μ f π x i η / ENNReal.ofReal η
+
+/-- Below a noisy readout's margin, its finite-difference nudge signal is at
+most the error rate divided by the nudge size. At zero error rate the signal
+vanishes. This does not establish a nonzero signal for a graded substrate or
+the gradient identity of equilibrium propagation. -/
+theorem nudgeSignal_le_of_marginRate [Fintype ι] {μ : Measure Ω}
+    {f : Ω → (∀ i, S i) → ∀ i, S i} {L : NNReal}
+    (hf : ∀ ω, LipschitzWith L (f ω)) {π : (∀ i, S i) → C} {r : ℝ}
+    {ε : ENNReal} {x : ∀ i, S i} (hπ : HasMarginRate μ (fun ω => f ω x) π r ε)
+    (i : ι) {η : ℝ} (_hpos : 0 < η) (hη : L * η < r) :
+    nudgeSignal μ f π x i η ≤ ε / ENNReal.ofReal η := by
+  unfold nudgeSignal
+  gcongr
+  exact response_le_of_marginRate hf hπ i hη
+
 /-- **A bit word is as many systems as it has regions.** Let every region's
 content be a function `q j` of one word of bits, bit `k` the `Lv`-Lipschitz micro
 quantity `v k` against the threshold `c k`, and let the error rate `ε`, the
