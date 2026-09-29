@@ -29,7 +29,20 @@ input *visits* the passing band anywhere in a content window: a continuous
 variable spanning half a step crosses the step's edges and visits it in almost
 every window, so the quantized arm could never be certified to fail, while a
 held stimulus sits mid-step. A trial lasts one content window, and each step's
-``visit_fraction`` is the share of trials that visit.
+``visit_fraction`` is the share of trials that visit. The window opens
+``SETTLE_TAUS`` time constants of the slowest analog loop after the stimulus,
+once that loop has settled at the new level.
+
+Settled on a held stimulus, the analog loop at its slowest cutoff carries more
+linear transfer entropy than the quantized loop at every step whose input stays
+clear of the passing band, so a third setting matches them: white noise of the
+analog loop's own, added before its cutoff filter. The filter leaves little of
+it at the delivered current (``channel_noise``), where the loop passes while
+that noise stays within one region amplitude. For each held regime the noise
+is read off a grid at which the analog loop's linear transfer entropy falls
+``NOISE_MARGIN`` below the quantized loop's at the declared step, and its
+decodability to the quantized loop's; the larger binds. The largest over
+regimes is then checked on independent blocks (``held_noise``).
 
 Both quantities are estimated twice (U98). The *linear* estimator: transfer
 entropy from A's recording to B's by the linear-Gaussian formula with five 1 ms
@@ -128,6 +141,16 @@ NEURAL_EFFECT = 0.2
 # Declared: a held stimulus lies within this many region noise amplitudes of a
 # step's centre. The spread also keeps the neighbour estimator free of ties.
 HELD_SPREAD = 0.5
+# Declared: a held trial's window opens this many time constants of the slowest
+# analog loop after the stimulus, once that loop has settled at the new level.
+SETTLE_TAUS = 5.0
+# The analog loop's own noise, in region noise amplitudes, added before its
+# cutoff filter; the pilot's match is read off this grid.
+NOISE_GRID = tuple(2.5 * k for k in range(13))
+# Declared: the noise is matched to this fraction below the quantized loop's
+# transfer entropy, so that independent blocks do not reverse the order.
+NOISE_MARGIN = 0.05
+IMPULSE_STEPS = 5000
 NEIGHBOURS = 4
 THIN = 4
 ESTIMATORS = ("linear", "neighbour")
@@ -164,10 +187,15 @@ TASKS = (
 
 @dataclass(frozen=True)
 class Loop:
-    """An analog loop at a cutoff in Hz, or a quantized loop at a step."""
+    """An analog loop at a cutoff in Hz, or a quantized loop at a step.
+
+    An analog loop may add white noise of its own, ``noise`` region amplitudes,
+    before its cutoff filter.
+    """
 
     kind: Literal["analog", "quantized"]
     setting: float
+    noise: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -211,10 +239,29 @@ def _held(rng: np.random.Generator, shape: tuple[int, int], levels: int) -> Floa
     return np.asarray(np.broadcast_to(level, shape), dtype=np.float64)
 
 
+def burn_steps(task: Task) -> int:
+    """Steps before the window: a held stimulus waits for the slowest analog loop to settle."""
+    if task.kind == "ou":
+        return BURN_STEPS
+    tau_ms = 1000 / (2 * math.pi * estimates()["bridgeMinCutoffHz"])
+    return max(BURN_STEPS, math.ceil(SETTLE_TAUS * tau_ms / (DT_S * 1000)))
+
+
+def _drive(shared: FloatArray, loop: Loop, seed: int) -> FloatArray:
+    if loop.kind == "quantized":
+        return quantize(shared, loop.setting)
+    if loop.noise == 0.0:
+        return lowpass(shared, loop.setting)
+    # The loop's own generator, so every other draw is shared with the silent loop.
+    own = np.random.default_rng((seed, 1)).standard_normal(shared.shape)
+    return lowpass(shared + loop.noise * own, loop.setting)
+
+
 def simulate(task: Task, loop: Loop, trials: int, seed: int) -> Trials:
     """One block of trials through one loop."""
     rng = np.random.default_rng(seed)
-    shape = (trials, TRIAL_STEPS + BURN_STEPS)
+    burn = burn_steps(task)
+    shape = (trials, TRIAL_STEPS + burn)
     s = (
         _held(rng, shape, task.levels)
         if task.kind == "held"
@@ -224,11 +271,7 @@ def simulate(task: Task, loop: Loop, trials: int, seed: int) -> Trials:
         s + _ou(rng, shape, REGION_TAU_MS, 1.0) + RECORDING_NOISE * rng.standard_normal(shape)
     )
     shared = lowpass(recorded_a, FILTER_HZ)
-    if loop.kind == "analog":
-        drive = lowpass(shared, loop.setting)
-    else:
-        drive = quantize(shared, loop.setting)
-    current = lowpass(drive, FILTER_HZ)
+    current = lowpass(_drive(shared, loop, seed), FILTER_HZ)
     leak = math.exp(-DT_S * 1000 / REGION_TAU_MS)
     kicks = (1 - leak) * np.roll(current, 1, axis=-1) + math.sqrt(
         1 - leak**2
@@ -236,7 +279,7 @@ def simulate(task: Task, loop: Loop, trials: int, seed: int) -> Trials:
     kicks[:, 0] = 0.0
     b = np.asarray(lfilter([1], [1, -leak], kicks, axis=-1), dtype=np.float64)
     recorded_b = b + RECORDING_NOISE * rng.standard_normal(shape)
-    keep = slice(BURN_STEPS, None)
+    keep = slice(burn, None)
     return Trials(s[:, keep], recorded_a[:, keep], recorded_b[:, keep], shared[:, keep])
 
 
@@ -350,12 +393,18 @@ def decodability_neighbours(task: FloatArray, recorded: FloatArray) -> float:
     return 1.0 - math.exp(-2.0 * info)
 
 
+def linear(block: Trials) -> Measures:
+    """Transfer entropy and task decodability of one block by the linear estimator."""
+    b = block.recorded_b
+    return Measures(transfer_entropy(block.recorded_a, b), decodability(block.task, b))
+
+
 def evaluate(task: Task, loop: Loop, trials: int, seed: int) -> dict[str, Measures]:
     """Transfer entropy and task decodability of one loop on one block, by each estimator."""
     block = simulate(task, loop, trials, seed)
     a, b = block.recorded_a, block.recorded_b
     return {
-        "linear": Measures(transfer_entropy(a, b), decodability(block.task, b)),
+        "linear": linear(block),
         "neighbour": Measures(
             transfer_entropy_neighbours(a, b), decodability_neighbours(block.task, b)
         ),
@@ -369,6 +418,32 @@ def matched_cutoff(cutoffs: FloatArray, values: list[float], target: float) -> f
         return None
     order = np.argsort(measured)
     return float(np.exp(np.interp(target, measured[order], np.log(cutoffs[order]))))
+
+
+def matched_noise(grid: tuple[float, ...], values: list[float], target: float) -> float | None:
+    """The loop noise at which a measure that falls with it reaches ``target``, if in range."""
+    measured = np.array(values)
+    if measured[0] <= target:
+        return 0.0
+    if measured.min() > target:
+        return None
+    order = np.argsort(measured)
+    return float(np.interp(target, measured[order], np.array(grid)[order]))
+
+
+def channel_noise(loop: Loop) -> float:
+    """The analog loop's own noise at the delivered current, in region noise amplitudes.
+
+    Recording noise and the loop's added noise, each white, through the filters
+    between it and the current; the budget within which the loop passes is one
+    region amplitude (``unity_estimates.analog_passes``).
+    """
+    impulse = np.zeros(IMPULSE_STEPS)
+    impulse[0] = 1.0
+    added = lowpass(lowpass(impulse, loop.setting), FILTER_HZ)
+    recorded = lowpass(added, FILTER_HZ)
+    variance = loop.noise**2 * np.sum(added**2) + RECORDING_NOISE**2 * np.sum(recorded**2)
+    return float(np.sqrt(variance))
 
 
 def binding(row: dict[str, Any]) -> tuple[str | None, float | None]:
@@ -492,6 +567,29 @@ def _spread(task: Task, cutoff: float, seeds: int) -> dict[str, Any]:
     return spread
 
 
+def _noise_match(
+    task: Task, cutoff: float, quantized: dict[str, Any], trials: int
+) -> dict[str, Any]:
+    """The analog loop's noise, at ``cutoff``, that brings it to the quantized loop's measures."""
+    measured = [linear(simulate(task, Loop("analog", cutoff, n), trials, 0)) for n in NOISE_GRID]
+    te_noise = matched_noise(
+        NOISE_GRID,
+        [m.transfer_entropy for m in measured],
+        (1 - NOISE_MARGIN) * quantized["transfer_entropy"],
+    )
+    decodability_noise = matched_noise(
+        NOISE_GRID, [m.decodability for m in measured], quantized["decodability"]
+    )
+    both = (te_noise, decodability_noise)
+    return {
+        "cutoff_hz": cutoff,
+        "te_noise": te_noise,
+        "decodability_noise": decodability_noise,
+        # Both measures fall with the noise: at the larger, neither exceeds its target.
+        "noise": None if None in both else max(n for n in both if n is not None),
+    }
+
+
 def regime(
     task: Task, steps: tuple[float, ...], trials: int, cutoffs: int, seeds: int
 ) -> dict[str, Any]:
@@ -511,7 +609,46 @@ def regime(
             "transfer_entropy": analog[0][name].transfer_entropy,
             "decodability": analog[0][name].decodability,
         }
-    return {"task": saved, "steps": rows, "spread": spread, "floor": floor}
+    noise = None
+    if task.kind == "held" and declared is not None:
+        noise = _noise_match(task, float(grid[0]), declared["linear"], trials)
+    return {"task": saved, "steps": rows, "spread": spread, "floor": floor, "noise_match": noise}
+
+
+def _noise_blocks(task: Task, loop: Loop, seeds: int) -> dict[str, Any]:
+    """The noisy analog loop against the quantized one on independent blocks, linear estimator."""
+    te, gap = [], []
+    for seed in range(1, seeds + 1):
+        analog = linear(simulate(task, loop, BLOCK_TRIALS, seed))
+        quantized = linear(simulate(task, Loop("quantized", DECLARED_STEP), BLOCK_TRIALS, seed))
+        te.append(analog.transfer_entropy / quantized.transfer_entropy - 1)
+        gap.append(analog.decodability - quantized.decodability)
+    return {
+        "levels": task.levels,
+        "relative_te_excess_mean": float(np.mean(te)),
+        "relative_te_excess_sd": float(np.std(te, ddof=1)),
+        "decodability_gap_mean": float(np.mean(gap)),
+        "decodability_gap_sd": float(np.std(gap, ddof=1)),
+    }
+
+
+def held_noise(
+    tasks: tuple[Task, ...], regimes: list[dict[str, Any]], seeds: int
+) -> dict[str, Any] | None:
+    """One noise for every held regime, the largest matched, checked on independent blocks."""
+    held = [(t, r["noise_match"]) for t, r in zip(tasks, regimes, strict=True) if t.kind == "held"]
+    noises = [m["noise"] if m is not None else None for _, m in held]
+    if not held or None in noises:
+        return None
+    first = held[0][1]
+    loop = Loop("analog", first["cutoff_hz"], max(n for n in noises if n is not None))
+    return {
+        "cutoff_hz": loop.setting,
+        "noise": loop.noise,
+        "channel_noise": channel_noise(loop),
+        "block_count": seeds,
+        "blocks": [_noise_blocks(t, loop, seeds) for t, _ in held],
+    }
 
 
 def run(
@@ -522,11 +659,15 @@ def run(
     seeds: int = SEEDS,
 ) -> dict[str, Any]:
     """Every declared task regime and step, and the trial counts."""
+    regimes = [regime(t, steps, trials, cutoffs, seeds) for t in tasks]
     return {
         "declared_step": DECLARED_STEP,
         "cutoff_floor_hz": estimates()["bridgeMinCutoffHz"],
         "block_trials": BLOCK_TRIALS,
         "held_spread": HELD_SPREAD,
+        "settle_taus": SETTLE_TAUS,
+        "noise_margin": NOISE_MARGIN,
+        "noise_grid": list(NOISE_GRID),
         "estimators": list(ESTIMATORS),
         "effects": {
             "accuracy_high": ACCURACY_HIGH,
@@ -539,7 +680,8 @@ def run(
             "behaviour": trials_two_proportions(ACCURACY_HIGH, ACCURACY_LOW, ALPHA, POWER),
             "neural": trials_two_means(NEURAL_EFFECT, ALPHA, POWER),
         },
-        "regimes": [regime(t, steps, trials, cutoffs, seeds) for t in tasks],
+        "regimes": regimes,
+        "held_noise": held_noise(tasks, regimes, seeds),
     }
 
 

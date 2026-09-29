@@ -115,6 +115,54 @@ class VisitTest(unittest.TestCase):
         self.assertLess(coarse, fine)
 
 
+class SettleTest(unittest.TestCase):
+    def test_a_held_trial_opens_its_window_after_the_slowest_loop_has_settled(self) -> None:
+        tau_ms = 1000 / (2 * math.pi * ue.estimates()["bridgeMinCutoffHz"])
+        self.assertGreaterEqual(ub.burn_steps(ub.held(1)) * ub.DT_S * 1000, ub.SETTLE_TAUS * tau_ms)
+        self.assertEqual(ub.burn_steps(SMALL), ub.BURN_STEPS)
+
+    def test_the_slowest_analog_loop_delivers_the_held_level_in_the_window(self) -> None:
+        floor = ue.estimates()["bridgeMinCutoffHz"]
+        block = ub.simulate(ub.held(1), ub.Loop("analog", floor), trials=40, seed=0)
+        level = block.task[:, 0]
+        early = block.recorded_b[:, :50].mean(axis=1)
+        slope = float(np.polyfit(level, early, 1)[0])
+        self.assertGreater(slope, 0.95)
+
+
+class LoopNoiseTest(unittest.TestCase):
+    def test_a_silent_loop_noise_leaves_the_trials_unchanged(self) -> None:
+        plain = ub.simulate(SMALL, ub.Loop("analog", 10.0), trials=4, seed=3)
+        silent = ub.simulate(SMALL, ub.Loop("analog", 10.0, 0.0), trials=4, seed=3)
+        self.assertTrue(np.array_equal(plain.recorded_b, silent.recorded_b))
+
+    def test_loop_noise_touches_only_the_analog_drive(self) -> None:
+        plain = ub.simulate(SMALL, ub.Loop("analog", 10.0), trials=4, seed=3)
+        noisy = ub.simulate(SMALL, ub.Loop("analog", 10.0, 5.0), trials=4, seed=3)
+        self.assertTrue(np.array_equal(plain.recorded_a, noisy.recorded_a))
+        self.assertFalse(np.array_equal(plain.recorded_b, noisy.recorded_b))
+
+    def test_loop_noise_lowers_the_transfer_entropy(self) -> None:
+        floor = ue.estimates()["bridgeMinCutoffHz"]
+        quiet = ub.linear(ub.simulate(ub.held(1), ub.Loop("analog", floor), 100, 0))
+        noisy = ub.linear(ub.simulate(ub.held(1), ub.Loop("analog", floor, 15.0), 100, 0))
+        self.assertLess(noisy.transfer_entropy, quiet.transfer_entropy)
+
+    def test_channel_noise_is_the_filtered_noise_at_the_delivered_current(self) -> None:
+        floor = ue.estimates()["bridgeMinCutoffHz"]
+        silent = ub.channel_noise(ub.Loop("analog", floor))
+        self.assertLess(silent, 0.1)
+        self.assertLess(silent, ub.channel_noise(ub.Loop("analog", floor, 5.0)))
+        white = ub.channel_noise(ub.Loop("analog", 1000.0))
+        self.assertGreater(white, silent)
+
+    def test_the_matched_noise_reproduces_a_target(self) -> None:
+        grid = (0.0, 5.0, 10.0)
+        self.assertAlmostEqual(ub.matched_noise(grid, [30.0, 20.0, 10.0], 25.0) or 0, 2.5)
+        self.assertEqual(ub.matched_noise(grid, [30.0, 20.0, 10.0], 40.0), 0.0)
+        self.assertIsNone(ub.matched_noise(grid, [30.0, 20.0, 10.0], 5.0))
+
+
 class MatchTest(unittest.TestCase):
     def test_the_matched_cutoff_reproduces_the_quantized_transfer_entropy(self) -> None:
         cutoffs = np.geomspace(1.0, 1000.0, 12)
@@ -191,6 +239,31 @@ class SavedTest(unittest.TestCase):
             self.assertIn("decodability", floor[estimator])
         self.assertEqual(saved["regimes"][0]["task"]["kind"], "ou")
         self.assertTrue(math.isfinite(saved["trials"]["behaviour"]))
+
+    def test_a_held_run_saves_its_noise_match(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            ub.write(
+                Path(tmp),
+                tasks=(ub.held(1),),
+                steps=(10.0,),
+                trials=40,
+                cutoffs=4,
+                seeds=2,
+            )
+            saved = json.loads((Path(tmp) / "bridge.json").read_text())
+        self.assertEqual(saved["settle_taus"], ub.SETTLE_TAUS)
+        self.assertEqual(saved["noise_margin"], ub.NOISE_MARGIN)
+        match = saved["regimes"][0]["noise_match"]
+        for key in ("te_noise", "decodability_noise", "noise"):
+            self.assertIn(key, match)
+        common = saved["held_noise"]
+        self.assertGreaterEqual(common["noise"], match["noise"])
+        self.assertLessEqual(common["channel_noise"], 1.0)
+        self.assertEqual(common["block_count"], 2)
+        block = common["blocks"][0]
+        self.assertEqual(block["levels"], 1)
+        for key in ("relative_te_excess_mean", "relative_te_excess_sd", "decodability_gap_mean"):
+            self.assertIn(key, block)
 
 
 if __name__ == "__main__":

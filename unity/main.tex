@@ -756,7 +756,8 @@ further blocks sweep the quantizer's step at fixed bandwidth and delay.
 \paragraph{Matching the information.} In the information-controlled pair, the
 analog loop carries no more estimated transfer entropy or task information than
 the quantized loop; its bandwidth is lowered to achieve this while it still
-settles within the content window (Appendix~\ref{app:bridge}). Whether each
+settles within the content window, and with held stimuli it also adds noise of
+its own, below the level at which it would fail P (Appendix~\ref{app:bridge}). Whether each
 loop passes P is a separate question, answered on the full circuit: each
 direction is tested at the actual downstream reader, including that reader's
 memory and integration time. Transfer entropy counts everything one region's
@@ -825,7 +826,8 @@ parietal areas that represent the bird's location, interrupts the natural
 connection between them at its terminals (Appendix~\ref{app:bridge}), and alternates bandwidth and quantization conditions
 across blocks in the same animal. Directed perturbations check for residual
 routes before the interruption is treated as a disconnection. Transfer entropy \citep{schreiber2000} is estimated from each block's
-recordings, and the step and cutoff are set on pilot blocks. The primary
+recordings, and the step, the cutoff and the analog loop's noise are set on
+pilot blocks. The primary
 animal readout is behavioural integration: a task requiring the values the two
 areas represent to be combined, such as judging whether stimuli in their two
 fields match. Blocks
@@ -875,8 +877,8 @@ region A is rectified and smoothed, passed through a filter both loops share,
 and then either kept analog or quantized, before an output stage both loops
 share drives the stimulator in region B. The arm cutoffs $f_{c,A}$ and
 $f_{c,Q}$ are varied in both arms.
-The displayed pair uses the quantizer's step and the analog cutoff to control
-estimated transfer entropy and task information; the full comparison also
+The displayed pair uses the quantizer's step, the analog cutoff and noise added
+in the analog arm to control estimated transfer entropy and task information; the full comparison also
 tests both arms at common bandwidths. What leaks from the stimulator into a recording contact
 is removed by subtracting the loop's own output, passed through the measured
 transfer. The loop from B to A is the same.}
@@ -1906,7 +1908,9 @@ lies within \uBrHeldSpread{} noise amplitudes of the centre of a step. With
 visited the passing band in at most \uBrHeldVisitMaxPercent\% of windows, and
 the quantized loop is certified to fail in the rest. A change of stimulus
 crosses an edge, so the window is the period in which the content is held,
-after the loop has settled at the new level. Held stimuli also give a
+after the loop has settled at the new level: in simulation it opens
+\uBrHeldSettleTaus{} time constants of the slowest analog filter after the
+stimulus. Held stimuli also give a
 comparison within the quantized arm. The loop records its own input, so its
 trials divide into those whose input visited the passing band and those whose
 input stayed clear of it, and P with R predicts that the second lose the
@@ -1919,13 +1923,21 @@ decoder of B's recording explains at least \uBrHeldDecodMin{} of its variance,
 for the quantized loop and for the analog loop at its slowest cutoff,
 \ueBridgeMinCutoffHz{}~Hz. Most of the transfer entropy then comes from the
 held level, and at that cutoff the analog loop carries \uBrHeldFloorTeMinPercent{}
-to \uBrHeldFloorTeMaxPercent\% of the quantized loop's linear transfer entropy.
-The information-controlled pair with held stimuli therefore runs the analog
-loop at the slowest cutoff that meets the restoration deadline, where the two
-loops carry about the same transfer entropy and the same task information, and
-the pilot blocks set the step so that the analog loop carries no more. At these
-rates the nearest-neighbour estimate of transfer entropy is dominated by its
-bias, so the linear estimate sets this match.
+to \uBrHeldFloorTeMaxPercent\% of the quantized loop's linear transfer entropy,
+so lowering its bandwidth cannot match the pair. The analog loop therefore adds
+white noise of its own before its cutoff filter. The filter passes little of
+that noise to the delivered current, where the loop still passes while its
+noise stays within one noise amplitude of the region, as in the instantaneous
+estimate above. The pilot blocks set the noise at which the analog loop carries
+\uBrNoiseMarginPercent\% less linear transfer entropy than the quantized loop
+and no more task information. In simulation that noise is \uBrHeldNoise{} noise
+amplitudes, and the loop's noise at the delivered current, filtered recording
+noise included, is \uBrHeldChannelNoise{} amplitudes. On \uBrNoiseBlocks{} further blocks
+of \uBrBlockTrials{} trials, the analog loop then carries at most
+\uBrHeldNoiseTeMaxPercent\% of the quantized loop's linear transfer entropy in
+every held regime, and no more task information. At these rates the
+nearest-neighbour estimate of transfer entropy is dominated by its bias, so the
+linear estimate sets this match.
 
 With blocks of \uBrBlockTrials{} trials repeated on independent noise, the matched transfer
 entropy and the gap vary from block to block, and their confidence intervals

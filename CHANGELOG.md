@@ -23,6 +23,20 @@ published, so nothing below is a correction to the scholarly record.
 
 ---
 
+## 2026-09-29 — Unity paper: the held-stimulus bridge is matched by noise (U106)
+
+One claim is no longer made.
+
+- That with held stimuli the analog loop at its slowest cutoff carries 83 to
+  105 % of the quantized loop's linear transfer entropy, and that the pilot
+  blocks can set the quantizer's step so that the analog loop carries no more.
+  The range was measured before the slowest analog loop had settled (200 ms of
+  burn-in against a 160 ms time constant). Settled, the analog loop carries
+  more at every step whose input stays clear of the passing band, so no step
+  and cutoff pair matches. The paper now adds noise of the analog loop's own
+  before its cutoff filter, within the budget at which it still passes P, and
+  reports the match on independent blocks. Recorded in `tasks/todo.md`, U106.
+
 ## 2026-09-27 — Unity paper: second review response (U59–U65)
 
 One claim is no longer made.

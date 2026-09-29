@@ -504,6 +504,22 @@ def _bridge_held_values(bridge: dict[str, Any]) -> list[tuple[str, str]]:
     ]
 
 
+def _bridge_noise_values(bridge: dict[str, Any]) -> list[tuple[str, str]]:
+    """The analog loop's own noise that matches the held regimes, on independent blocks."""
+    noise = bridge.get("held_noise")
+    if noise is None:
+        raise ValueError("The saved bridge run lacks a noise match for held stimuli")
+    te = max(1 + _finite(b["relative_te_excess_mean"]) for b in noise["blocks"])
+    return [
+        ("uBrHeldSettleTaus", f"{_finite(bridge['settle_taus']):g}"),
+        ("uBrNoiseMarginPercent", f"{100 * _finite(bridge['noise_margin']):g}"),
+        ("uBrHeldNoise", f"{_finite(noise['noise']):.1f}"),
+        ("uBrHeldChannelNoise", _sig(_finite(noise["channel_noise"]), 2, up=True)),
+        ("uBrNoiseBlocks", str(noise["block_count"])),
+        ("uBrHeldNoiseTeMaxPercent", f"{math.ceil(100 * te):d}"),
+    ]
+
+
 def _bridge_values(bridge: dict[str, Any]) -> list[tuple[str, str]]:
     """The bridge's two loops on a model pair of regions."""
     ou = _by_kind(bridge, "ou")
@@ -515,6 +531,7 @@ def _bridge_values(bridge: dict[str, Any]) -> list[tuple[str, str]]:
         *_bridge_trial_values(ou),
         *_bridge_visit_values(bridge),
         *_bridge_held_values(bridge),
+        *_bridge_noise_values(bridge),
     ]
 
 

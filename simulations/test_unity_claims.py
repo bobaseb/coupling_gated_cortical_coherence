@@ -43,7 +43,8 @@ CHECKLIST: dict[str, str] = {
             "uRlSigmaHigh uRlRateLow uRlRateHigh uRecSlowMs uRecSlowAltMs uRecMinStateS "
             "uBrHeldStimuliFew "
             "uBrHeldStimuliMany uBrHeldSpread ueVmCorrelationQuiet ueVmCorrelationWhisk "
-            "uePreSpikeMv ueNeighbourPreSpikeMv"
+            "uePreSpikeMv ueNeighbourPreSpikeMv uBrHeldSettleTaus uBrNoiseMarginPercent "
+            "uBrNoiseBlocks"
         ).split(),
         "declared",
     ),
@@ -62,7 +63,8 @@ CHECKLIST: dict[str, str] = {
             "uBrNnGapPositive uBrNnGapCases uRecCellsTotal uRecCellsQuiet uRecCellsWhisk "
             "uRecTimedSweeps uRecDistanceMed uRecPassMedPercent uRecPassInsidePercent "
             "uRecHitMedLong uRecHitBelowPercent uRecHitMedLongWhisk uRecDistanceMedWhisk "
-            "uRecHitMedLongAlt uRecPassMedPercentAlt uRecRateRatioMed uRecRateWithinTwoPercent"
+            "uRecHitMedLongAlt uRecPassMedPercentAlt uRecRateRatioMed uRecRateWithinTwoPercent "
+            "uBrHeldNoise"
         ).split(),
         "point",
     ),
@@ -81,7 +83,8 @@ CHECKLIST: dict[str, str] = {
             "ueBridgeMinCutoffHz uHarmonicRatioLow uHarmonicRatioMid uOccInstantLinkMin "
             "uCorMissA uCorMissB uCorMissC uCorResolutionRho uSwSyncPassPercent "
             "uWinLowManyMs uWinLowMidMs uBrGapOtherMax uBrTeTolPercent uBrGapTol uBrNnGapMax "
-            "uRlResolutionPercent uBrHeldVisitMaxPercent"
+            "uRlResolutionPercent uBrHeldVisitMaxPercent uBrHeldChannelNoise "
+            "uBrHeldNoiseTeMaxPercent"
         ).split(),
         "upper",
     ),
@@ -389,6 +392,23 @@ class BridgeClaimsTest(unittest.TestCase):
             for r, row in held
         ]
         _enclose(self, "uBrHeldFloorTeMinPercent", "uBrHeldFloorTeMaxPercent", te)
+
+    def test_the_noisy_analog_loop_carries_no_more_on_independent_blocks(self) -> None:
+        noise = self.bridge["held_noise"]
+        matches = [r["noise_match"]["noise"] for r in self.bridge["regimes"] if r["noise_match"]]
+        self.assertEqual(noise["noise"], max(matches))
+        self.assertTrue(ue.analog_passes(1.0, noise["channel_noise"]))
+        self.assertGreaterEqual(self.printed["uBrHeldChannelNoise"], noise["channel_noise"])
+        self.assertLess(self.printed["uBrHeldChannelNoise"], 1.0)
+        root = math.sqrt(noise["block_count"])
+        self.assertEqual(self.printed["uBrNoiseBlocks"], noise["block_count"])
+        for block in noise["blocks"]:
+            te, te_sd = block["relative_te_excess_mean"], block["relative_te_excess_sd"]
+            self.assertLess(te + 2 * te_sd / root, 0.0)
+            gap, gap_sd = block["decodability_gap_mean"], block["decodability_gap_sd"]
+            self.assertLessEqual(gap + 2 * gap_sd / root, 0.0)
+            self.assertGreaterEqual(self.printed["uBrHeldNoiseTeMaxPercent"], 100 * (1 + te))
+        self.assertLess(self.printed["uBrHeldNoiseTeMaxPercent"], 100)
 
     def test_the_behavioural_comparison_is_the_weaker(self) -> None:
         trials = self.bridge["trials"]

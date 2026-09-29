@@ -1534,6 +1534,18 @@ loop matches the quantized loop's linear transfer entropy only near its floor
 cutoff (one regime carries a few per cent more there); the neighbour TE estimate
 is bias-dominated at these rates. Open: a held-stimulus step/cutoff pair where
 the analog loop carries strictly no more linear TE in every regime.
+*Later the same day (option b, the author's choice):* the open pair does not
+exist. The committed held regimes had 200 ms of burn-in against the floor
+loop's 160 ms time constant; settled (≥ 500 ms), the analog loop at the floor
+carries ~8.5 % more linear TE than the quantized loop at spread 0.5 (4.4 % at
+0.1), and with levels centred on each step every step ≥ 8 keeps the excess;
+only step 6 reverses it, where the input visits in 100 % of windows. White
+noise after the cutoff filter barely moves it (1.07 at σ = 3). Adopted: held
+trials settle for `SETTLE_TAUS` = 5 floor time constants, and the analog loop
+adds white noise before its cutoff filter, matched per held regime to
+`NOISE_MARGIN` below the quantized TE (and no more decodability), the largest
+across regimes checked on 16 independent blocks; `channel_noise` gives its
+size at the delivered current against the one-amplitude passing budget.
 The same pass added appendix paragraphs on topographic multichannel bridging,
 terminal silencing of the natural route, experiment size, and a Limitations
 item on the human arm (four references, each verified by web search).

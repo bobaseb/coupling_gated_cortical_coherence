@@ -3,6 +3,23 @@
   "cutoff_floor_hz": 0.9934398590659169,
   "block_trials": 100,
   "held_spread": 0.5,
+  "settle_taus": 5.0,
+  "noise_margin": 0.05,
+  "noise_grid": [
+    0.0,
+    2.5,
+    5.0,
+    7.5,
+    10.0,
+    12.5,
+    15.0,
+    17.5,
+    20.0,
+    22.5,
+    25.0,
+    27.5,
+    30.0
+  ],
   "estimators": [
     "linear",
     "neighbour"
@@ -315,7 +332,8 @@
           "transfer_entropy": 7.5963288376076115,
           "decodability": -0.006621204265131464
         }
-      }
+      },
+      "noise_match": null
     },
     {
       "task": {
@@ -593,7 +611,8 @@
           "transfer_entropy": 11.65084472137853,
           "decodability": 0.19300623609991052
         }
-      }
+      },
+      "noise_match": null
     },
     {
       "task": {
@@ -881,7 +900,8 @@
           "transfer_entropy": 13.015552972665972,
           "decodability": 0.03115544485754418
         }
-      }
+      },
+      "noise_match": null
     },
     {
       "task": {
@@ -1169,7 +1189,8 @@
           "transfer_entropy": 9.73985001724991,
           "decodability": 0.31315905029588853
         }
-      }
+      },
+      "noise_match": null
     },
     {
       "task": {
@@ -1467,7 +1488,8 @@
           "transfer_entropy": 9.046141783847048,
           "decodability": 0.06880183851441701
         }
-      }
+      },
+      "noise_match": null
     },
     {
       "task": {
@@ -1765,7 +1787,8 @@
           "transfer_entropy": 2.910956596581556,
           "decodability": 0.446762461432195
         }
-      }
+      },
+      "noise_match": null
     },
     {
       "task": {
@@ -1780,112 +1803,122 @@
           "fail_fraction": 0.5673973930562342,
           "visit_fraction": 1.0,
           "linear": {
-            "transfer_entropy": 39.94542525566672,
-            "decodability": 0.9863516572086408,
-            "te_cutoff_hz": 39.07917114107113,
+            "transfer_entropy": 40.132871058964476,
+            "decodability": 0.9872306148650577,
+            "te_cutoff_hz": 34.28663307072735,
             "te_above_grid": false,
-            "decodability_cutoff_hz": 14.241882417857243,
-            "gap": 0.001024465382160722,
-            "te_shortfall": 0.21793386820158633,
-            "binds": "decodability",
-            "cutoff_hz": 14.241882417857243
+            "decodability_cutoff_hz": null,
+            "gap": 0.0006388485414922096,
+            "te_shortfall": null,
+            "binds": "transfer_entropy",
+            "cutoff_hz": 34.28663307072735
           },
           "neighbour": {
-            "transfer_entropy": 24.903134897691903,
-            "decodability": 0.8885283951816708,
+            "transfer_entropy": 28.700687170853225,
+            "decodability": 0.8880892271892621,
             "te_cutoff_hz": null,
             "te_above_grid": true,
-            "decodability_cutoff_hz": 26.322956069192003,
+            "decodability_cutoff_hz": 31.735751830136948,
             "gap": null,
-            "te_shortfall": 0.3855369103184637,
+            "te_shortfall": 0.5434687123539201,
             "binds": "decodability",
-            "cutoff_hz": 26.322956069192003
+            "cutoff_hz": 31.735751830136948
           },
           "common": {
-            "cutoff_hz": 14.241882417857243,
+            "cutoff_hz": 31.735751830136948,
             "linear": {
-              "relative_te_excess": -0.21793386820158633,
-              "decodability_excess": 0.0015425193572902174
+              "relative_te_excess": -0.017448334528221476,
+              "decodability_excess": 0.0006563552609230028
             },
             "neighbour": {
-              "relative_te_excess": -0.6541802321333013,
-              "decodability_excess": 0.00041641957863147727
+              "relative_te_excess": -0.5434687123539201,
+              "decodability_excess": 3.623694039389669e-06
             }
           }
         },
         {
           "step": 8.0,
           "fail_fraction": 0.6755480447921756,
-          "visit_fraction": 0.975,
+          "visit_fraction": 0.97,
           "linear": {
-            "transfer_entropy": 31.349301039786678,
-            "decodability": 0.9828979384528841,
-            "te_cutoff_hz": 14.439512139209066,
-            "te_above_grid": false,
-            "decodability_cutoff_hz": 1.0003721942010126,
-            "gap": 0.004984732373371714,
-            "te_shortfall": 0.3367421396341147,
-            "binds": "decodability",
-            "cutoff_hz": 1.0003721942010126
-          },
-          "neighbour": {
-            "transfer_entropy": 8.920658535017001,
-            "decodability": 0.8868465341856339,
-            "te_cutoff_hz": 6.059342627474534,
+            "transfer_entropy": 33.97916437782755,
+            "decodability": 0.9832158679058078,
+            "te_cutoff_hz": 17.123955999156536,
             "te_above_grid": false,
             "decodability_cutoff_hz": null,
-            "gap": 0.002147367085195362,
+            "gap": 0.004896061546353803,
             "te_shortfall": null,
             "binds": "transfer_entropy",
-            "cutoff_hz": 6.059342627474534
+            "cutoff_hz": 17.123955999156536
+          },
+          "neighbour": {
+            "transfer_entropy": 7.201905663008067,
+            "decodability": 0.8868346055565373,
+            "te_cutoff_hz": 9.633210955893283,
+            "te_above_grid": false,
+            "decodability_cutoff_hz": null,
+            "gap": 0.001575794528971608,
+            "te_shortfall": null,
+            "binds": "transfer_entropy",
+            "cutoff_hz": 9.633210955893283
           },
           "common": {
-            "cutoff_hz": 1.0003721942010126,
+            "cutoff_hz": 9.633210955893283,
             "linear": {
-              "relative_te_excess": -0.3367421396341147,
-              "decodability_excess": 2.0284201561082682e-05
+              "relative_te_excess": -0.12597708635586768,
+              "decodability_excess": 0.00531401691324862
             },
             "neighbour": {
-              "relative_te_excess": -0.8279749475533589,
-              "decodability_excess": 0.0009941753717185309
+              "relative_te_excess": 0.16424189119255672,
+              "decodability_excess": 0.001575794528971608
             }
           }
         },
         {
           "step": 10.0,
           "fail_fraction": 0.7404384358337405,
-          "visit_fraction": 0.19,
+          "visit_fraction": 0.205,
           "linear": {
-            "transfer_entropy": 19.92121988908217,
-            "decodability": 0.9907590486886642,
+            "transfer_entropy": 21.30290047641381,
+            "decodability": 0.9906338882128705,
             "te_cutoff_hz": null,
             "te_above_grid": false,
-            "decodability_cutoff_hz": null,
+            "decodability_cutoff_hz": 1.7604929017636504,
             "gap": null,
-            "te_shortfall": null,
-            "binds": null,
-            "cutoff_hz": null
+            "te_shortfall": -0.10601879774731215,
+            "binds": "decodability",
+            "cutoff_hz": 1.7604929017636504
           },
           "neighbour": {
-            "transfer_entropy": -6.464562029063954,
-            "decodability": 0.8867499787441988,
-            "te_cutoff_hz": null,
+            "transfer_entropy": -3.8433298814253334,
+            "decodability": 0.886892364012134,
+            "te_cutoff_hz": 1.6074962616112887,
             "te_above_grid": false,
             "decodability_cutoff_hz": null,
-            "gap": null,
+            "gap": 0.0020827535537479847,
             "te_shortfall": null,
-            "binds": null,
-            "cutoff_hz": null
+            "binds": "transfer_entropy",
+            "cutoff_hz": 1.6074962616112887
           },
-          "common": null
+          "common": {
+            "cutoff_hz": 1.6074962616112887,
+            "linear": {
+              "relative_te_excess": 0.09978494345512856,
+              "decodability_excess": 9.2872972990099e-05
+            },
+            "neighbour": {
+              "relative_te_excess": 0.27806185042986264,
+              "decodability_excess": 0.0020827535537479847
+            }
+          }
         },
         {
           "step": 12.0,
           "fail_fraction": 0.7836986965281171,
-          "visit_fraction": 0.395,
+          "visit_fraction": 0.41,
           "linear": {
-            "transfer_entropy": 16.293677982012785,
-            "decodability": 0.9932115724803648,
+            "transfer_entropy": 17.508335840115652,
+            "decodability": 0.9930777056695531,
             "te_cutoff_hz": null,
             "te_above_grid": false,
             "decodability_cutoff_hz": null,
@@ -1895,25 +1928,35 @@
             "cutoff_hz": null
           },
           "neighbour": {
-            "transfer_entropy": -2.658826624283752,
-            "decodability": 0.8871943191971878,
-            "te_cutoff_hz": null,
+            "transfer_entropy": -2.3958956346478764,
+            "decodability": 0.8871676000021838,
+            "te_cutoff_hz": 3.476759656047042,
             "te_above_grid": false,
             "decodability_cutoff_hz": null,
-            "gap": null,
+            "gap": 0.001725754448464345,
             "te_shortfall": null,
-            "binds": null,
-            "cutoff_hz": null
+            "binds": "transfer_entropy",
+            "cutoff_hz": 3.476759656047042
           },
-          "common": null
+          "common": {
+            "cutoff_hz": 3.476759656047042,
+            "linear": {
+              "relative_te_excess": 0.4298428960442162,
+              "decodability_excess": -0.0032724561604554614
+            },
+            "neighbour": {
+              "relative_te_excess": 0.192393979049154,
+              "decodability_excess": 0.001725754448464345
+            }
+          }
         },
         {
           "step": 15.0,
           "fail_fraction": 0.8269589572224936,
           "visit_fraction": 0.67,
           "linear": {
-            "transfer_entropy": 18.23189610786174,
-            "decodability": 0.9945259723864999,
+            "transfer_entropy": 19.19840760816587,
+            "decodability": 0.9946649475193278,
             "te_cutoff_hz": null,
             "te_above_grid": false,
             "decodability_cutoff_hz": null,
@@ -1923,25 +1966,25 @@
             "cutoff_hz": null
           },
           "neighbour": {
-            "transfer_entropy": 8.619923323676417,
-            "decodability": 0.888567017946112,
-            "te_cutoff_hz": 5.03388720504466,
+            "transfer_entropy": 7.3302224252051165,
+            "decodability": 0.8871120647756937,
+            "te_cutoff_hz": 13.157542914402804,
             "te_above_grid": false,
-            "decodability_cutoff_hz": 21.439298455318493,
-            "gap": 0.0005632508769406464,
-            "te_shortfall": -0.47572931369145577,
+            "decodability_cutoff_hz": null,
+            "gap": 0.0010719558120113604,
+            "te_shortfall": null,
             "binds": "transfer_entropy",
-            "cutoff_hz": 5.03388720504466
+            "cutoff_hz": 13.157542914402804
           },
           "common": {
-            "cutoff_hz": 5.03388720504466,
+            "cutoff_hz": 13.157542914402804,
             "linear": {
-              "relative_te_excess": 0.3833099479720381,
-              "decodability_excess": -0.005351688532910792
+              "relative_te_excess": 0.6607074514706153,
+              "decodability_excess": -0.0063922950350889796
             },
             "neighbour": {
-              "relative_te_excess": -0.02300810504854689,
-              "decodability_excess": 0.0005632508769406464
+              "relative_te_excess": -0.1067400268408617,
+              "decodability_excess": 0.0010719558120113604
             }
           }
         },
@@ -1950,19 +1993,19 @@
           "fail_fraction": 0.8702192179168702,
           "visit_fraction": 0.67,
           "linear": {
-            "transfer_entropy": 26.130462967551033,
-            "decodability": 0.8290948753324769,
-            "te_cutoff_hz": 6.198810199400765,
+            "transfer_entropy": 26.48352515264821,
+            "decodability": 0.8499854072102986,
+            "te_cutoff_hz": 5.231818811836376,
             "te_above_grid": false,
             "decodability_cutoff_hz": null,
-            "gap": 0.15977258735599542,
+            "gap": 0.1392587148580633,
             "te_shortfall": null,
             "binds": "transfer_entropy",
-            "cutoff_hz": 6.198810199400765
+            "cutoff_hz": 5.231818811836376
           },
           "neighbour": {
-            "transfer_entropy": 130.8351566920967,
-            "decodability": 0.8665385406212325,
+            "transfer_entropy": 120.61359816949525,
+            "decodability": 0.8713946283158233,
             "te_cutoff_hz": null,
             "te_above_grid": true,
             "decodability_cutoff_hz": null,
@@ -1972,24 +2015,24 @@
             "cutoff_hz": null
           },
           "common": {
-            "cutoff_hz": 6.198810199400765,
+            "cutoff_hz": 5.231818811836376,
             "linear": {
-              "relative_te_excess": -0.00046185396916786914,
-              "decodability_excess": 0.15977258735599542
+              "relative_te_excess": -0.00047943895414848114,
+              "decodability_excess": 0.1392587148580633
             },
             "neighbour": {
-              "relative_te_excess": -0.9559684794132906,
-              "decodability_excess": 0.02246742769935617
+              "relative_te_excess": -0.9698027877121668,
+              "decodability_excess": 0.01727581510319043
             }
           }
         },
         {
           "step": 30.0,
           "fail_fraction": 0.9134794786112468,
-          "visit_fraction": 0.07,
+          "visit_fraction": 0.105,
           "linear": {
-            "transfer_entropy": 0.04666454205138965,
-            "decodability": 8.351515865678838e-05,
+            "transfer_entropy": 0.026704203078068353,
+            "decodability": 0.00041748543643838065,
             "te_cutoff_hz": null,
             "te_above_grid": false,
             "decodability_cutoff_hz": null,
@@ -1999,30 +2042,56 @@
             "cutoff_hz": null
           },
           "neighbour": {
-            "transfer_entropy": -2.589640451638651,
-            "decodability": -0.002794765072430927,
-            "te_cutoff_hz": null,
+            "transfer_entropy": 1.8020050128976648,
+            "decodability": 0.01547688676614134,
+            "te_cutoff_hz": 5.244628783317337,
             "te_above_grid": false,
             "decodability_cutoff_hz": null,
-            "gap": null,
+            "gap": 0.8732230482544323,
             "te_shortfall": null,
-            "binds": null,
-            "cutoff_hz": null
+            "binds": "transfer_entropy",
+            "cutoff_hz": 5.244628783317337
           },
-          "common": null
+          "common": {
+            "cutoff_hz": 5.244628783317337,
+            "linear": {
+              "relative_te_excess": 990.6427244170391,
+              "decodability_excess": 0.9888233550827308
+            },
+            "neighbour": {
+              "relative_te_excess": 1.166784947963047,
+              "decodability_excess": 0.8732230482544323
+            }
+          }
         }
       ],
-      "spread": null,
+      "spread": {
+        "cutoff_hz": 1.6074962616112887,
+        "linear": {
+          "relative_te_sd": 0.01841642495006811,
+          "gap_sd": 0.0005408699711033595
+        },
+        "neighbour": {
+          "relative_te_sd": 15.152477325062677,
+          "gap_sd": 0.0004662508616310002
+        }
+      },
       "floor": {
         "cutoff_hz": 0.9934398590659169,
         "linear": {
-          "transfer_entropy": 20.765635774259042,
-          "decodability": 0.9827768793102544
+          "transfer_entropy": 22.94617152017722,
+          "decodability": 0.99109320495639
         },
         "neighbour": {
-          "transfer_entropy": 1.6515331003565545,
-          "decodability": 0.8877727585843322
+          "transfer_entropy": -3.6849742035970747,
+          "decodability": 0.8892095806850749
         }
+      },
+      "noise_match": {
+        "cutoff_hz": 0.9934398590659169,
+        "te_noise": 9.268964641086392,
+        "decodability_noise": 3.6560321221775123,
+        "noise": 9.268964641086392
       }
     },
     {
@@ -2038,57 +2107,57 @@
           "fail_fraction": 0.5673973930562342,
           "visit_fraction": 1.0,
           "linear": {
-            "transfer_entropy": 35.55903507257544,
-            "decodability": 0.9914887083428533,
-            "te_cutoff_hz": 22.707466672754602,
+            "transfer_entropy": 37.36124917825982,
+            "decodability": 0.9919280529850708,
+            "te_cutoff_hz": 24.036861000055655,
             "te_above_grid": false,
-            "decodability_cutoff_hz": 1.035605793436669,
-            "gap": 0.004684145450645327,
-            "te_shortfall": 0.5127185288031315,
-            "binds": "decodability",
-            "cutoff_hz": 1.035605793436669
+            "decodability_cutoff_hz": null,
+            "gap": 0.004353797910536361,
+            "te_shortfall": null,
+            "binds": "transfer_entropy",
+            "cutoff_hz": 24.036861000055655
           },
           "neighbour": {
-            "transfer_entropy": 32.25045937675605,
-            "decodability": 0.9595697838095638,
+            "transfer_entropy": 43.35454013573498,
+            "decodability": 0.9594700967182899,
             "te_cutoff_hz": null,
             "te_above_grid": true,
-            "decodability_cutoff_hz": 1.2690160263263925,
+            "decodability_cutoff_hz": null,
             "gap": null,
-            "te_shortfall": 0.9949043936725472,
-            "binds": "decodability",
-            "cutoff_hz": 1.2690160263263925
+            "te_shortfall": null,
+            "binds": null,
+            "cutoff_hz": null
           },
           "common": {
-            "cutoff_hz": 1.035605793436669,
+            "cutoff_hz": 24.036861000055655,
             "linear": {
-              "relative_te_excess": -0.5127185288031315,
-              "decodability_excess": 7.638439241786088e-05
+              "relative_te_excess": -1.6204985394119298e-05,
+              "decodability_excess": 0.004353797910536361
             },
             "neighbour": {
-              "relative_te_excess": -0.9693332781400372,
-              "decodability_excess": -0.00014116473190184387
+              "relative_te_excess": -0.689564829981609,
+              "decodability_excess": 0.00012404768774276764
             }
           }
         },
         {
           "step": 8.0,
           "fail_fraction": 0.6755480447921756,
-          "visit_fraction": 0.975,
+          "visit_fraction": 0.98,
           "linear": {
-            "transfer_entropy": 28.772345047125665,
-            "decodability": 0.9861683379594264,
-            "te_cutoff_hz": 9.324806943111202,
+            "transfer_entropy": 29.665502673826524,
+            "decodability": 0.9859746394040708,
+            "te_cutoff_hz": 8.961153392507818,
             "te_above_grid": false,
             "decodability_cutoff_hz": null,
-            "gap": 0.0102357221366558,
+            "gap": 0.010506297491847949,
             "te_shortfall": null,
             "binds": "transfer_entropy",
-            "cutoff_hz": 9.324806943111202
+            "cutoff_hz": 8.961153392507818
           },
           "neighbour": {
-            "transfer_entropy": 44.705494758451934,
-            "decodability": 0.9593243036246462,
+            "transfer_entropy": 45.051517779852276,
+            "decodability": 0.9593335023268248,
             "te_cutoff_hz": null,
             "te_above_grid": true,
             "decodability_cutoff_hz": null,
@@ -2098,90 +2167,90 @@
             "cutoff_hz": null
           },
           "common": {
-            "cutoff_hz": 9.324806943111202,
+            "cutoff_hz": 8.961153392507818,
             "linear": {
-              "relative_te_excess": -0.000464597066441641,
-              "decodability_excess": 0.0102357221366558
+              "relative_te_excess": -0.00048460638274616663,
+              "decodability_excess": 0.010506297491847949
             },
             "neighbour": {
-              "relative_te_excess": -0.8914119821915294,
-              "decodability_excess": 0.0005202761489963015
+              "relative_te_excess": -0.749480699536848,
+              "decodability_excess": 0.0004478848980732364
             }
           }
         },
         {
           "step": 10.0,
           "fail_fraction": 0.7404384358337405,
-          "visit_fraction": 0.19,
+          "visit_fraction": 0.205,
           "linear": {
-            "transfer_entropy": 20.25268933898561,
-            "decodability": 0.9971598046803625,
-            "te_cutoff_hz": 1.3851994662465241,
-            "te_above_grid": false,
-            "decodability_cutoff_hz": null,
-            "gap": -0.0022163084156495705,
-            "te_shortfall": null,
-            "binds": "transfer_entropy",
-            "cutoff_hz": 1.3851994662465241
-          },
-          "neighbour": {
-            "transfer_entropy": -3.804621047925814,
-            "decodability": 0.9592049467755381,
+            "transfer_entropy": 21.57477224369153,
+            "decodability": 0.9971216637929694,
             "te_cutoff_hz": null,
             "te_above_grid": false,
-            "decodability_cutoff_hz": null,
+            "decodability_cutoff_hz": 1.7286745555114562,
             "gap": null,
+            "te_shortfall": -0.10751844884043549,
+            "binds": "decodability",
+            "cutoff_hz": 1.7286745555114562
+          },
+          "neighbour": {
+            "transfer_entropy": 1.083567983750074,
+            "decodability": 0.9591795980708347,
+            "te_cutoff_hz": 4.1004803157610095,
+            "te_above_grid": false,
+            "decodability_cutoff_hz": null,
+            "gap": 0.0005938518536060533,
             "te_shortfall": null,
-            "binds": null,
-            "cutoff_hz": null
+            "binds": "transfer_entropy",
+            "cutoff_hz": 4.1004803157610095
           },
           "common": {
-            "cutoff_hz": 1.3851994662465241,
+            "cutoff_hz": 1.7286745555114562,
             "linear": {
-              "relative_te_excess": 0.0006925830194621785,
-              "decodability_excess": -0.0022163084156495705
+              "relative_te_excess": 0.10751844884043549,
+              "decodability_excess": 3.450677090732768e-07
             },
             "neighbour": {
-              "relative_te_excess": -1.167705994343545,
-              "decodability_excess": 0.00045214538230753387
+              "relative_te_excess": 3.2963841286788256,
+              "decodability_excess": 0.0006013175607881838
             }
           }
         },
         {
           "step": 12.0,
           "fail_fraction": 0.7836986965281171,
-          "visit_fraction": 0.665,
+          "visit_fraction": 0.65,
           "linear": {
-            "transfer_entropy": 24.506481811439627,
-            "decodability": 0.9970932194525922,
-            "te_cutoff_hz": 3.612956631743471,
+            "transfer_entropy": 24.713520832212286,
+            "decodability": 0.997306955531724,
+            "te_cutoff_hz": 2.6523787955539513,
             "te_above_grid": false,
             "decodability_cutoff_hz": null,
-            "gap": -0.0002759383469457255,
+            "gap": -0.0003374332357635179,
             "te_shortfall": null,
             "binds": "transfer_entropy",
-            "cutoff_hz": 3.612956631743471
+            "cutoff_hz": 2.6523787955539513
           },
           "neighbour": {
-            "transfer_entropy": 10.221739975848635,
-            "decodability": 0.9596549754489422,
-            "te_cutoff_hz": 11.718483878678663,
+            "transfer_entropy": 11.38280150314788,
+            "decodability": 0.9592396456015868,
+            "te_cutoff_hz": 13.120577191756608,
             "te_above_grid": false,
-            "decodability_cutoff_hz": 1.523597757584575,
-            "gap": 0.00020289855961119763,
-            "te_shortfall": 0.6956535579804858,
-            "binds": "decodability",
-            "cutoff_hz": 1.523597757584575
+            "decodability_cutoff_hz": null,
+            "gap": 0.00045910685694383613,
+            "te_shortfall": null,
+            "binds": "transfer_entropy",
+            "cutoff_hz": 13.120577191756608
           },
           "common": {
-            "cutoff_hz": 1.523597757584575,
+            "cutoff_hz": 2.6523787955539513,
             "linear": {
-              "relative_te_excess": -0.13886905564738172,
-              "decodability_excess": -0.00148466352171428
+              "relative_te_excess": -0.0003351072731425653,
+              "decodability_excess": -0.0003374332357635179
             },
             "neighbour": {
-              "relative_te_excess": -0.6956535579804858,
-              "decodability_excess": 2.9122345275744976e-05
+              "relative_te_excess": -0.8277949852050677,
+              "decodability_excess": 0.0004460630941183208
             }
           }
         },
@@ -2190,8 +2259,8 @@
           "fail_fraction": 0.8269589572224936,
           "visit_fraction": 0.81,
           "linear": {
-            "transfer_entropy": 3.345917347165746,
-            "decodability": 0.9103011866392829,
+            "transfer_entropy": 3.2817682230833345,
+            "decodability": 0.9096802067855508,
             "te_cutoff_hz": null,
             "te_above_grid": false,
             "decodability_cutoff_hz": null,
@@ -2201,25 +2270,25 @@
             "cutoff_hz": null
           },
           "neighbour": {
-            "transfer_entropy": 8.743952817727948,
-            "decodability": 0.8830645648558806,
-            "te_cutoff_hz": 11.03802900316811,
+            "transfer_entropy": 9.250102572693867,
+            "decodability": 0.8831933383296238,
+            "te_cutoff_hz": 8.746814883189082,
             "te_above_grid": false,
             "decodability_cutoff_hz": null,
-            "gap": 0.07677200877779988,
+            "gap": 0.07658920819690895,
             "te_shortfall": null,
             "binds": "transfer_entropy",
-            "cutoff_hz": 11.03802900316811
+            "cutoff_hz": 8.746814883189082
           },
           "common": {
-            "cutoff_hz": 11.03802900316811,
+            "cutoff_hz": 8.746814883189082,
             "linear": {
-              "relative_te_excess": 7.921588701058832,
-              "decodability_excess": 0.08604396601148911
+              "relative_te_excess": 7.989684892506023,
+              "decodability_excess": 0.08680845822593997
             },
             "neighbour": {
-              "relative_te_excess": 0.04717294217809176,
-              "decodability_excess": 0.07677200877779988
+              "relative_te_excess": 0.20149863884517227,
+              "decodability_excess": 0.07658920819690895
             }
           }
         },
@@ -2228,19 +2297,19 @@
           "fail_fraction": 0.8702192179168702,
           "visit_fraction": 0.38,
           "linear": {
-            "transfer_entropy": 21.936188771850308,
-            "decodability": 0.969058212429446,
-            "te_cutoff_hz": 1.7105888895442063,
+            "transfer_entropy": 20.699881086611395,
+            "decodability": 0.9684312698959289,
+            "te_cutoff_hz": null,
             "te_above_grid": false,
             "decodability_cutoff_hz": null,
-            "gap": 0.02712247323774397,
+            "gap": null,
             "te_shortfall": null,
-            "binds": "transfer_entropy",
-            "cutoff_hz": 1.7105888895442063
+            "binds": null,
+            "cutoff_hz": null
           },
           "neighbour": {
-            "transfer_entropy": 69.79494683168484,
-            "decodability": 0.9498686848479914,
+            "transfer_entropy": 71.72917946651907,
+            "decodability": 0.9489652128333813,
             "te_cutoff_hz": null,
             "te_above_grid": true,
             "decodability_cutoff_hz": null,
@@ -2249,25 +2318,15 @@
             "binds": null,
             "cutoff_hz": null
           },
-          "common": {
-            "cutoff_hz": 1.7105888895442063,
-            "linear": {
-              "relative_te_excess": 0.0006222750175530756,
-              "decodability_excess": 0.02712247323774397
-            },
-            "neighbour": {
-              "relative_te_excess": -0.9731725139622782,
-              "decodability_excess": 0.009853556837527422
-            }
-          }
+          "common": null
         },
         {
           "step": 30.0,
           "fail_fraction": 0.9134794786112468,
-          "visit_fraction": 0.09,
+          "visit_fraction": 0.085,
           "linear": {
-            "transfer_entropy": 0.5308935223798693,
-            "decodability": 0.850718149920763,
+            "transfer_entropy": 0.562636797827082,
+            "decodability": 0.8501303618420503,
             "te_cutoff_hz": null,
             "te_above_grid": false,
             "decodability_cutoff_hz": null,
@@ -2277,41 +2336,79 @@
             "cutoff_hz": null
           },
           "neighbour": {
-            "transfer_entropy": -0.251771916716272,
-            "decodability": 0.8597395544976454,
-            "te_cutoff_hz": null,
+            "transfer_entropy": 2.8739988937070295,
+            "decodability": 0.8589906195874684,
+            "te_cutoff_hz": 2.899078235836662,
             "te_above_grid": false,
             "decodability_cutoff_hz": null,
-            "gap": null,
+            "gap": 0.10075318056668991,
             "te_shortfall": null,
-            "binds": null,
-            "cutoff_hz": null
+            "binds": "transfer_entropy",
+            "cutoff_hz": 2.899078235836662
           },
-          "common": null
+          "common": {
+            "cutoff_hz": 2.899078235836662,
+            "linear": {
+              "relative_te_excess": 43.28889742919638,
+              "decodability_excess": 0.1468035318912949
+            },
+            "neighbour": {
+              "relative_te_excess": -0.5500107863434245,
+              "decodability_excess": 0.10075318056668991
+            }
+          }
         }
       ],
       "spread": {
-        "cutoff_hz": 1.3851994662465241,
+        "cutoff_hz": 1.7286745555114562,
         "linear": {
-          "relative_te_sd": 0.030660803454117765,
-          "gap_sd": 0.00030625355841426793
+          "relative_te_sd": 0.017891942225676433,
+          "gap_sd": 0.0001891779255746818
         },
         "neighbour": {
-          "relative_te_sd": 2.0098242268435054,
-          "gap_sd": 0.0001206247842416239
+          "relative_te_sd": 4.2541949651291695,
+          "gap_sd": 0.00011292719254687466
         }
       },
       "floor": {
         "cutoff_hz": 0.9934398590659169,
         "linear": {
-          "transfer_entropy": 16.91389426201866,
-          "decodability": 0.9908993787036362
+          "transfer_entropy": 23.287465663842262,
+          "decodability": 0.9972530601633841
         },
         "neighbour": {
-          "transfer_entropy": 0.028842597524986843,
-          "decodability": 0.9593910333944909
+          "transfer_entropy": 2.3265769166369346,
+          "decodability": 0.9598257365173396
         }
+      },
+      "noise_match": {
+        "cutoff_hz": 0.9934398590659169,
+        "te_noise": 9.449445229904644,
+        "decodability_noise": 3.467652552514003,
+        "noise": 9.449445229904644
       }
     }
-  ]
+  ],
+  "held_noise": {
+    "cutoff_hz": 0.9934398590659169,
+    "noise": 9.449445229904644,
+    "channel_noise": 0.5283810985492008,
+    "block_count": 16,
+    "blocks": [
+      {
+        "levels": 1,
+        "relative_te_excess_mean": -0.03821040971301438,
+        "relative_te_excess_sd": 0.022317457817266163,
+        "decodability_gap_mean": -0.0032052717223744684,
+        "decodability_gap_sd": 0.0011325460329614904
+      },
+      {
+        "levels": 2,
+        "relative_te_excess_mean": -0.036042378521590465,
+        "relative_te_excess_sd": 0.02285451883910488,
+        "decodability_gap_mean": -0.0010816208884687553,
+        "decodability_gap_sd": 0.0003238657428664098
+      }
+    ]
+  }
 }
