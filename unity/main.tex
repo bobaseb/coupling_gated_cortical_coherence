@@ -35,14 +35,16 @@ agreement: the regions must be coupled so that any change in one, as long as it
 exceeds that region's own noise, reaches the others and pulls them back toward
 agreement within the time a percept takes to form. This is a hypothesis about
 how unity is physically realized, and it is stricter than ordinary cause and
-effect, since the bits of a computer also act on one another. We prove that,
-under noise, content read from bits responds to a small physical change by at
-most the probability that a bit comes near its threshold, a bound that is
-attained. A digital system whose bits stay well clear of their thresholds
-therefore fails the condition. Applying one test to both substrates, a model
-cortical membrane, including one fitted to recordings from awake mice, often
-reaches a sensitive state within a percept's time, while the value a clocked
-latch reads never does. We take on the hardest case, a fast digital replacement
+effect, since the bits of a computer also act on one another. The condition is
+tested where each carrier of content is read. Machine-checked results make the
+digital case precise: under noise, content read from bits responds to a small
+physical change by at most the probability that a bit comes near its threshold,
+a bound that is attained, so a digital system whose bits are read well clear of
+their thresholds fails the condition. Applying one test to both substrates, the
+chance that any of \uOccCarriersFew{} independent model membranes fitted
+to recordings from awake mice reaches a sensitive state within a percept's time
+is at least \uRecLinkFewLong{}, while the value a clocked latch reads never
+does. We take on the hardest case, a fast digital replacement
 whose resolution is finer than biological noise, and propose an experiment that
 reconnects two cortical regions through an analog or a quantized loop, varies
 bandwidth and quantization separately, and compares the outcome with a model in
@@ -82,7 +84,9 @@ A digital chip is of the second kind. Each bit is a separate record, built to
 ignore small disturbances: a voltage a little above or below the level for 1
 still reads as 1. That makes computers reliable, and it also seals each bit off
 from small changes in every other bit, so whatever agreement a program produces
-among its bits is computed. Our premise is that
+among its bits is computed. The line falls where the bits are read: a converter
+that samples a graded signal finer than its noise is judged by the same test,
+and can pass it. Our premise is that
 the unity of an experience is agreement of the first kind.
 
 \paragraph{Premise P (physical unity).} A system's contents are unified only if,
@@ -505,7 +509,9 @@ constant and slow drive. Applying the response protocol to that fitted model
 tests the declared ranges (Appendix~\ref{app:occupancy}). The median cell sits \uRecDistanceMed{} noise
 amplitudes below its threshold, farther than the declared \uOccDistanceMin{} to
 \uOccDistanceMax{}, and its fitted model passes at \uRecPassMedPercent\% of sampled
-states, inside the declared range. At a noise share of
+states, inside the declared range. That model predicts \uRecRateRatioMed{}
+times the median cell's recorded firing rate: recorded membranes fire more
+readily than the Gaussian model from which their passing states are read. At a noise share of
 \uOccShareMin{} it enters a passing state within \uOccContentLongMs{}~ms with
 probability \uRecHitMedLong{}, and at least one of \uOccCarriersFew{} independent
 model carriers drawn from these cells reaches the target within that window with
@@ -895,7 +901,8 @@ within its margin tests the response bound. They act on different variables,
 as the replacement analysis shows.
 
 \paragraph{The field's causal cone.} The brain's electric field reaches the
-tissue with no propagation delay \citep{gratiy2017}, while synaptic influence
+tissue with negligible propagation delay on neural time scales
+\citep{gratiy2017}, while synaptic influence
 across the cortex takes at least \ueConeMaxMs{}~ms. Re-agreement faster than the
 synaptic route allows would reveal a non-synaptic part of the coupling. The
 field of a local source falls below detection within millimetres, so the cone is
@@ -1075,6 +1082,42 @@ bridge leaves it untested.
 
 \end{itemize}
 
+\section*{Data and code availability}
+
+The Lean development, simulation scripts, tests and saved numerical summaries
+are maintained in the GitHub repository
+\href{https://github.com/bobaseb/coupling_gated_cortical_coherence}{\nolinkurl{bobaseb/coupling_gated_cortical_coherence}}.
+The formalization uses Lean 4.34.0-rc2 and Mathlib commit
+\texttt{5ce203ecd53f8c3e47ee5530d7c86b94a55f0183}. Publication simulation
+values are generated from saved summaries without rerunning production sweeps.
+The whole-cell recordings are those of \citet{kiritani2023}, deposited on
+Zenodo under CC BY 4.0
+(\href{https://doi.org/10.5281/zenodo.7833080}{doi:10.5281/zenodo.7833080});
+the repository fetches and verifies them, contains the analysis, and does not
+redistribute the recordings.
+
+\section*{Funding and competing interests}
+
+This research received no external funding. The author declares no competing
+interests.
+
+\section*{Use of AI tools}
+
+AI assistance to this work was substantial and is not separable by task.
+Several coding assistants and chat interfaces were used in an interleaved way
+throughout: Google's Antigravity CLI (Gemini 3.1 Pro, Claude 4.6 Opus, Claude
+4.6 Sonnet), OpenAI's Codex CLI (GPT-6 Astra and Sol; GPT-5.6 Terra, Luna and
+Sol), Claude Code (Claude Opus 5 and Opus 5.5), Gemini Pro through its web
+interface, and Anthropic's Fable and DeepSeek v4 Flash through OpenRouter,
+accessed with the Hermes CLI. Between them they contributed to the Lean
+development, the simulation and analysis code, and the drafting and revision of
+this paper. Because the tools were used in combination and in alternation, no
+section, proof, figure or result is attributable to any one of them, and none is
+claimed to be. The author is responsible for all content, including everything
+a tool produced. Machine checking establishes the stated Lean results under
+their hypotheses; it does not validate biological interpretations or replace
+scientific review of generated code and prose.
+
 \input{references}
 
 \appendix
@@ -1121,8 +1164,8 @@ bound above is the matching statement for tails slower than $r^{-4}$, whose
 walks escape. The same threshold holds beyond the harmonic approximation: the
 plane rotator in two dimensions with coupling falling as $r^{-\alpha}$,
 $2<\alpha<4$, has true long-range order at low noise \citep{kunz1976}, which
-short-range coupling forbids. The plane-rotator sheet also has a
-Kosterlitz--Thouless transition \citep{frohlich1981}, an order--disorder
+short-range coupling forbids. With short-range coupling the plane-rotator sheet
+has a Kosterlitz--Thouless transition \citep{frohlich1981}, an order--disorder
 crossover that the simulations below locate. When natural frequencies differ
 from site to site, short-range coupling fares worse still: phases then
 desynchronize in every dimension up to four \citep{hong2005}.
@@ -1224,7 +1267,7 @@ the cell.
 changes with the state, as the variance of a spike count does, a larger change
 still moves the content at least as much as a smaller one on each side of the
 state, provided the laws have a monotone likelihood ratio, as exponential
-families do: such laws cross once along the parameter the region moves. The
+families in their natural parameter do: such laws cross once along the parameter the region moves. The
 criterion of Section~\ref{sec:enforcement} is then met exactly when a change of
 one noise amplitude up and one down both reach the fluctuation.
 
@@ -1233,7 +1276,7 @@ one noise amplitude up and one down both reach the fluctuation.
 
 \paragraph{The logic node.} In the declared Gaussian model a change of one
 amplitude toward the threshold moves a restored bit by the fluctuation only
-from half an amplitude away, \ueGradedWindowPercent\% of the margin's width.
+at half an amplitude from the threshold, \ueGradedWindowPercent\% of the margin's width.
 When both directions are admissible, their smaller response stays below the
 fluctuation at every distance, by the single-bit ceiling. The noisy margin
 theorem supplies the more general exclusion whenever the exception probability
@@ -1407,7 +1450,7 @@ into its running mean over \uRecSlowMs{}~ms and a fast remainder. The noise
 amplitude and the model's time constant are those at which the model membrane,
 analysed exactly as the recording is, has the remainder's spread and correlation
 time. Within a next-content window the membrane is taken to be the model membrane
-held at the mean behind the running mean's current value, which supplies the law
+with its mean held at the running mean's current value, which supplies the law
 of the next spike time that a single recorded path does not. Across the
 \uRecCellsQuiet{} cells with at least \uRecMinStateS{}~s of quiet wakefulness, the
 tenth to ninetieth percentiles run from \uRecDistanceLow{} to
@@ -1497,7 +1540,8 @@ carriers leave a window of \uOccContentLongMs{}~ms without a link is at most
 \uCorMissA{} at $c=\uCorShareA$, \uCorMissB{} at $c=\uCorShareB$ and
 \uCorMissC{} at $c=\uCorShareTol$. These bounds, and the links of at least
 \uCorLinkMidTol{} and \uCorLinkManyTol{} in Section~\ref{sec:enforcement}, lie
-two Monte Carlo standard errors beyond the estimate in every regime. The shorter window is more sensitive: within
+two Monte Carlo standard errors on the conservative side of the estimate in
+every regime. The shorter window is more sensitive: within
 \uOccContentShortMs{}~ms the link falls to about \uCorLinkShortTol{} at
 $c=\uCorShareTol$, so P's per-window condition is met at the time scale of a
 percept rather than of its fastest components.
@@ -1527,7 +1571,7 @@ samples inside its aperture at the rate $T_W f_C f_D$, so at most a share $T_W
 f_D$ of its samples do. Each sample is read as one bit, so it passes at no
 yardstick above $\Phi(1)-1/2$, and at lower yardsticks that share bounds its
 passing fraction. A second stage allowed a time $S$ to resolve fails
-once in $e^{S/\tau}/(T_W f_C f_D)$ on average, with $\tau$ the stage's
+on average once every $e^{S/\tau}/(T_W f_C f_D)$ seconds, with $\tau$ the stage's
 resolution time constant \citep{ginosar2011}; the declared values are that
 tutorial's 28~nm example, $\tau=\uSwTauPs$~ps and $f_D=\uSwDataMHz$~MHz, with
 $S$ one cycle.
@@ -1644,8 +1688,9 @@ far from an edge. With the declared noise, being farther than the source's
 noise plus \ueEdgeQuantile{} times the recording noise suffices for one
 admissible perturbation to miss the yardstick.
 
-Under the information-matching approximation in the estimate, adding noise to
-an analog channel would require \ueMatchedNoiseToStep{} of the quantizer's step.
+Under the information-matching approximation in the estimate, matching by
+adding noise to the analog channel would require noise of standard deviation
+\ueMatchedNoiseToStep{} times the quantizer's step.
 Keeping that channel sensitive then caps the step at
 \ueNoiseMatchMaxStep{} source noise amplitudes. Under uniform occupancy within
 a step, the resulting fraction of states certified to fail is at most
@@ -1708,7 +1753,7 @@ To establish a passing route, lower confidence bounds must cover every
 admissible change for a selected carrier pair; a finite grid needs justified
 monotonicity or regularity between its points. To establish failure, an upper
 bound below the yardstick for one admissible change suffices for each candidate
-pair. The observation window, intervention duration and tolerances are fixed
+pair, at every state the window visits. The observation window, intervention duration and tolerances are fixed
 before outcome comparisons. The preparation measures alternative anatomical
 routes as part of the same audit.
 
@@ -1853,7 +1898,7 @@ response bounds and the outcome comparison.
 Brain tissue carries an electric field as
 well as synapses. At the frequencies of neural activity that field is
 quasi-static \citep{gratiy2017}: it reaches every point of the tissue it spans
-with no propagation delay. Synaptic influence between distant regions, by
+with a propagation delay negligible on the neural time scales considered here. Synaptic influence between distant regions, by
 contrast, arrives only after axonal conduction and synaptic transmission, no
 sooner than \ueConeMaxMs{}~ms across the longest cortico-cortical fibres. If two
 regions re-agree after a local perturbation faster than the synaptic route
