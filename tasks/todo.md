@@ -1231,6 +1231,39 @@ is the only item that could lift the U85 cap (to about 7.5–8).*
   or recorded with the reason it is out of reach; the U103 paragraph, if
   written, cites only what is proved.
 
+- [ ] **U105 — A twin that fires like the recorded cells.** Raised
+  2026-09-29, from the U100 result. The passing states of the recorded
+  membranes are read off a Gaussian twin (OU held at the slow part) that
+  predicts 0.47× the median cell's rate and is within 2× for only 48% of
+  cells (`uRecRateRatioMed`, `uRecRateWithinTwoPercent`). Recorded membranes
+  fire more readily than a Gaussian one at the same distance, so a reviewer
+  can say the passing states are inferred from a wrong model, and the sign
+  of the error on pass fractions and window visits is unknown. Likely causes,
+  to test in this order: (1) non-Gaussian input: large, skewed synaptic
+  events (shot noise), so upward excursions are more frequent than the
+  Gaussian tail allows; (2) a threshold that varies spike to spike, lower
+  after fast rises (Azouz & Gray 2000, PNAS, verify online per §4);
+  (3) remaining slow variance inside the next-content window. **Plan.**
+  First measure the fast remainder's skewness and upper-tail excess and the
+  spread of per-spike thresholds per cell, and correlate each with the rate
+  ratio, to pick the cause before modelling it. Then extend the twin
+  minimally: e.g. a shot-noise membrane (Poisson excitatory and inhibitory
+  jumps with exponential amplitudes, still propagated exactly on the grid,
+  as a jump kernel in `_step`), fitted to the remainder's spread,
+  correlation time and skewness; or a threshold drawn from the measured
+  per-cell spread. Test-first on synthetic shot-noise paths, as
+  `test_unity_recordings.py` does for the OU twin; the calibration must
+  still recover known parameters and the rate. **Constraints.** No refit to
+  the rate itself: the rate stays the check, not a target. Keep the OU twin's
+  numbers as a row beside the new one, so the change is visible. Macros
+  regenerated and classed (`CHECKLIST`); `recordings.json` rerun (~2.5 h;
+  `OPENBLAS_NUM_THREADS=1`). **Success.** The twin predicts the recorded
+  rate within 2× for most cells (target ≥ 80%, median ratio 0.8–1.25), and
+  the paper states whether the pass fractions and window visits move and in
+  which direction; Limitations drops or narrows the rate clause accordingly.
+  If no minimal extension reaches that, record which cause was ruled in or
+  out and why.
+
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
   Consciousness* or *Phil. Trans. B*. arXiv posting: cs.AI primary (author has
