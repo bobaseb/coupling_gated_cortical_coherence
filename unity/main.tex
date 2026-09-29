@@ -848,8 +848,8 @@ recordings stay readable under a continuous drive (Appendix~\ref{app:bridge}).
 \node[box] (rec) at (8,-22) {record\\multi-unit};
 \node[box] (env) at (30,-22) {rectify,\\smooth};
 \node[box] (filt) at (52,-22) {shared\\filter};
-\node[box] (ana) at (77,-15) {analog,\\cutoff $f_c$};
-\node[box] (quant) at (77,-29) {quantizer,\\step $\Delta$};
+\node[box] (ana) at (77,-15) {analog,\\cutoff $f_{c,A}$};
+\node[box] (quant) at (77,-29) {quantizer,\\step $\Delta$, cutoff $f_{c,Q}$};
 \node[box] (out) at (102,-22) {shared\\output stage};
 \node[box] (stim) at (127,-22) {stimulator};
 \draw[arr] (A) -- (rec);
@@ -869,7 +869,8 @@ recordings stay readable under a continuous drive (Appendix~\ref{app:bridge}).
 \caption{The bridge, one direction of two. Multi-unit activity recorded in
 region A is rectified and smoothed, passed through a filter both loops share,
 and then either kept analog or quantized, before an output stage both loops
-share drives the stimulator in region B. Bandwidth is varied in both arms.
+share drives the stimulator in region B. The arm cutoffs $f_{c,A}$ and
+$f_{c,Q}$ are varied in both arms.
 The displayed pair uses the quantizer's step and the analog cutoff to control
 estimated transfer entropy and task information; the full comparison also
 tests both arms at common bandwidths. What leaks from the stimulator into a recording contact
@@ -948,6 +949,19 @@ through the causal structure of the hardware at the grain of its logic gates.
 P proposes sensitivity and restoration of graded content-bearing carriers as
 its constitutive condition, evaluated through the same response protocol on
 model membranes and logic nodes.
+
+\paragraph{What physical tests can tell us.} \citet{love2026} argues that
+third-person science cannot resolve why physical processes are experienced or
+settle the attribution of experience to another system, while its findings can
+inform practical judgments about that attribution. This paper works within
+that distinction: P is a proposed necessary condition for the unity of contents
+already taken to be conscious, and the bridge tests its physical mechanism
+together with an assumption about reports. Neither the response bounds nor
+their experimental tests solve the hard problem. A Russellian-monist reading,
+on which the intrinsic nature underlying physical dynamics matters to
+experience \citep{alterpereboom2023}, is compatible with this use of measured
+dynamics to inform judgments about other systems; P does not identify that
+intrinsic nature.
 
 \section{Limitations}
 \label{sec:limitations}
