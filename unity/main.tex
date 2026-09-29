@@ -33,26 +33,21 @@ A conscious scene is experienced as one scene, although many brain regions
 contribute to it. We propose that this unity requires physically enforced
 agreement: the regions must be coupled so that any change in one, as long as it
 exceeds that region's own noise, reaches the others and pulls them back toward
-agreement within the time a percept takes to form. This is a hypothesis about
-how unity is physically realized, and it is stricter than ordinary cause and
-effect, since the bits of a computer also act on one another. The condition is
-tested where each carrier of content is read. Machine-checked results make the
-digital case precise: under noise, content read from bits responds to a small
-physical change by at most the probability that a bit comes near its threshold,
-a bound that is attained, so a digital system whose bits are read well clear of
-their thresholds fails the condition. Applying one test to both substrates, the
-chance that any of \uOccCarriersFew{} independent model membranes fitted
-to recordings from awake mice reaches a sensitive state within a percept's time
-is at least \uRecLinkFewLong{}, while the value a clocked latch reads never
-does. We take on the hardest case, a fast digital replacement
-whose resolution is finer than biological noise, and propose an experiment that
-reconnects two cortical regions through an analog or a quantized loop, varies
-bandwidth and quantization separately, and compares the outcome with a model in
-which only bandwidth, delay and nonlinearity matter. Reports of unity enter
-through an explicit assumption linking them to experience. Simulations show
-that the two loops can be matched on the information they carry; the coupling
-and experiential tests need the proposed preparation. The condition also
-predicts how fast and how far cortical coupling must restore agreement.
+agreement within the time a percept takes to form. The condition is stricter
+than cause and effect, since the bits of a computer also act on one another,
+and it separates cortex from digital hardware at a finer functional grain than
+the algorithm. A machine-checked bound makes the digital side precise: under
+noise, content read from bits responds to a small physical change by at most
+the probability that a bit comes near its threshold, so bits read well clear of
+their thresholds fail the condition. Applied to model membranes fitted to
+recordings from awake mice, the same test finds that at least one of
+\uOccCarriersFew{} independent carriers reaches a sensitive state within a
+percept's time with probability at least \uRecLinkFewLong{}. The premise itself
+is an empirical hypothesis, and we propose an experiment to test it: reconnect
+two cortical regions through an analog or a quantized loop, vary bandwidth and
+quantization separately, and compare reports of unity with a rival model in
+which only bandwidth, delay and nonlinearity matter. The condition also
+predicts that cortical coupling restores agreement within \ueTauFastMs{}~ms.
 \end{abstract}
 
 \section{Introduction}
@@ -120,7 +115,12 @@ computational functionalism about unity at the grain of the algorithm.
 Arguments that consciousness depends on embodiment, biology or the substrate
 often leave open which physical property does the work. P names one and states
 it as a mechanism: what a system's own readers take in, through what margin,
-against what noise and within what window. A substrate requirement then becomes
+against what noise and within what window. The closest precedent argues that, if
+physical dynamics matters to consciousness, processors designed to suppress
+deviations from their computational dynamics cannot be conscious
+\citep{kleiner2024}. P supplies the scale at which suppression counts, the
+parts' own noise, adds that the coupling must restore agreement, and puts both
+to a test in cortex. A substrate requirement then becomes
 something to measure, by one protocol in cortex and in chips, and to test
 against a specified rival model. For cortex the two grains agree. They come apart for a digital simulation of
 cortex: it can reproduce the course in which the contents agree, while every
