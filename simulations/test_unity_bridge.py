@@ -9,6 +9,7 @@ from pathlib import Path
 import numpy as np
 
 import unity_bridge as ub
+import unity_estimates as ue
 
 SMALL = ub.Task(sd=5.0, tau_ms=100.0)
 
@@ -85,6 +86,35 @@ class NeighbourTest(unittest.TestCase):
         self.assertEqual(set(measured), set(ub.ESTIMATORS))
 
 
+class HeldTest(unittest.TestCase):
+    def test_a_held_level_sits_near_a_step_centre_for_the_whole_trial(self) -> None:
+        block = ub.simulate(ub.held(2), ub.Loop("quantized", ub.DECLARED_STEP), trials=50, seed=0)
+        self.assertTrue(np.all(block.task == block.task[:, :1]))
+        offset = block.task[:, 0] - ub.DECLARED_STEP * np.round(block.task[:, 0] / ub.DECLARED_STEP)
+        self.assertLessEqual(float(np.abs(offset).max()), ub.HELD_SPREAD)
+        self.assertEqual(float(np.abs(block.task).max() // ub.DECLARED_STEP), 2.0)
+
+    def test_a_held_task_records_the_spread_of_its_levels(self) -> None:
+        self.assertAlmostEqual(ub.held(1).sd, ub.DECLARED_STEP * math.sqrt(2 / 3), places=0)
+
+    def test_one_trial_is_one_content_window(self) -> None:
+        self.assertAlmostEqual(ub.TRIAL_STEPS * ub.DT_S, ue.CONTENT_TIME_S)
+
+
+class VisitTest(unittest.TestCase):
+    def test_a_continuous_task_visits_the_passing_band_in_almost_every_window(self) -> None:
+        self.assertGreater(ub.visit_fraction(SMALL, ub.DECLARED_STEP, trials=100, seed=0), 0.9)
+
+    def test_a_held_task_rarely_visits_it(self) -> None:
+        self.assertLess(ub.visit_fraction(ub.held(2), ub.DECLARED_STEP, trials=200, seed=0), 0.3)
+
+    def test_a_coarser_step_is_visited_less_often(self) -> None:
+        task = ub.held(1)
+        fine = ub.visit_fraction(task, 8.0, trials=200, seed=0)
+        coarse = ub.visit_fraction(task, 20.0, trials=200, seed=0)
+        self.assertLess(coarse, fine)
+
+
 class MatchTest(unittest.TestCase):
     def test_the_matched_cutoff_reproduces_the_quantized_transfer_entropy(self) -> None:
         cutoffs = np.geomspace(1.0, 1000.0, 12)
@@ -138,6 +168,7 @@ class SavedTest(unittest.TestCase):
             )
             saved = json.loads((Path(tmp) / "bridge.json").read_text())
         self.assertEqual(saved["declared_step"], ub.DECLARED_STEP)
+        self.assertEqual(saved["held_spread"], ub.HELD_SPREAD)
         self.assertEqual(len(saved["regimes"]), 1)
         row = saved["regimes"][0]["steps"][0]
         spread = saved["regimes"][0]["spread"]
@@ -152,6 +183,13 @@ class SavedTest(unittest.TestCase):
             self.assertIn("gap", row[estimator])
             self.assertIn("te_shortfall", row[estimator])
             self.assertIn("cutoff_hz", row[estimator])
+        self.assertIn("visit_fraction", row)
+        floor = saved["regimes"][0]["floor"]
+        self.assertEqual(floor["cutoff_hz"], saved["cutoff_floor_hz"])
+        for estimator in ub.ESTIMATORS:
+            self.assertIn("transfer_entropy", floor[estimator])
+            self.assertIn("decodability", floor[estimator])
+        self.assertEqual(saved["regimes"][0]["task"]["kind"], "ou")
         self.assertTrue(math.isfinite(saved["trials"]["behaviour"]))
 
 

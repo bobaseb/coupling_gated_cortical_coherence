@@ -795,7 +795,11 @@ joint words, repeated samples and residual biological paths. To exclude a loop,
 the response bound must cover the complete map to the next readout, memory
 included; to include one, the measured carriers must also restore agreement
 (Appendix~\ref{app:bridge}). Both arms use the same noise scale, interventions
-and content window.
+and content window. A task variable that varies continuously crosses the
+quantizer's edges and visits a passing state in almost every window, so the
+task holds each stimulus at the centre of a quantizer step for the trial, and
+the quantized loop's own record of its input sorts its trials into those that
+visited a passing state and those that did not.
 
 \paragraph{Predictions and outcomes.} Take blocks in which the analog bridge
 restores the calibrated unity readout. P with R predicts that a quantized
@@ -818,7 +822,7 @@ animals \citep{jackson2006,guggenmos2013}; the analog arm replaces the trigger
 with a continuous drive. A first preparation places chronic
 arrays in two areas that represent a shared variable, such as the visual and
 parietal areas that represent the bird's location, interrupts the natural
-connection between them, and alternates bandwidth and quantization conditions
+connection between them at its terminals (Appendix~\ref{app:bridge}), and alternates bandwidth and quantization conditions
 across blocks in the same animal. Directed perturbations check for residual
 routes before the interruption is treated as a disconnection. Transfer entropy \citep{schreiber2000} is estimated from each block's
 recordings, and the step and cutoff are set on pilot blocks. The primary
@@ -1014,6 +1018,13 @@ unity survive a certified failure of P, P and R are challenged together; giving
 up R would also give up the behavioural inference in gradual replacement. The
 proposed experiment cannot settle P independently of every readout
 assumption.
+
+\item \emph{Human preparations.} The experiential comparison needs a human in
+whom the natural connection between two regions is interrupted and a bridge
+restores it. Intracranial recordings made for clinical monitoring leave that
+connection intact, and callosal section cannot be reversed, so the human arm
+awaits a clinical preparation that allows it. The animal experiment tests P's
+physical conditions in the meantime.
 
 \item \emph{The cortical estimates.} The single-input estimate combines in vitro
 measurements of one connection type and one noise recording, through a linear
@@ -1871,6 +1882,40 @@ On the preparation, the decoder is fitted on other blocks of the same loop, the
 step and the cutoff are set together on pilot blocks, and the check is repeated
 on the blocks that are compared.
 
+\paragraph{Certifying failure over a window.} Criterion $G$ passes a loop whose
+quantizer input visits a passing state anywhere in a content window, and a
+continuous task variable crosses the quantizer's edges as it moves. At the
+declared step, in every simulated regime whose task variable spans half a step,
+the quantized loop's input came within the passing distance of an edge in
+\uBrOuVisitMinPercent\% of the simulated \ueContentMs{}~ms windows. With such a task
+both loops pass P, and the decisive blocks do not arise. The task therefore
+presents one stimulus per trial, held for the trial, whose represented value
+lies within \uBrHeldSpread{} noise amplitudes of the centre of a step. With
+\uBrHeldStimuliFew{} or \uBrHeldStimuliMany{} such stimuli, the simulated input
+visited the passing band in at most \uBrHeldVisitMaxPercent\% of windows, and
+the quantized loop is certified to fail in the rest. A change of stimulus
+crosses an edge, so the window is the period in which the content is held,
+after the loop has settled at the new level. Held stimuli also give a
+comparison within the quantized arm. The loop records its own input, so its
+trials divide into those whose input visited the passing band and those whose
+input stayed clear of it, and P with R predicts that the second lose the
+calibrated unity readout more often than the first. A visit also marks a
+larger excursion of noise, so the recurrent observer is scored on the same
+division.
+
+With held stimuli both loops deliver the stimulus almost completely: a linear
+decoder of B's recording explains at least \uBrHeldDecodMin{} of its variance,
+for the quantized loop and for the analog loop at its slowest cutoff,
+\ueBridgeMinCutoffHz{}~Hz. Most of the transfer entropy then comes from the
+held level, and at that cutoff the analog loop carries \uBrHeldFloorTeMinPercent{}
+to \uBrHeldFloorTeMaxPercent\% of the quantized loop's linear transfer entropy.
+The information-controlled pair with held stimuli therefore runs the analog
+loop at the slowest cutoff that meets the restoration deadline, where the two
+loops carry about the same transfer entropy and the same task information, and
+the pilot blocks set the step so that the analog loop carries no more. At these
+rates the nearest-neighbour estimate of transfer entropy is dominated by its
+bias, so the linear estimate sets this match.
+
 With blocks of \uBrBlockTrials{} trials repeated on independent noise, the matched transfer
 entropy and the gap vary from block to block, and their confidence intervals
 narrow with the square root of the trials. The behavioural comparison, accuracy
@@ -1905,6 +1950,40 @@ produce different residuals. Open-loop blocks in which each stimulator follows
 activity recorded in another block estimate that residual separately in every
 bandwidth and quantization condition. Its uncertainty is propagated to the
 response bounds and the outcome comparison.
+
+\paragraph{Writing a location across a population.} A location is carried by a
+population whose units have receptive fields, and one current cannot write it.
+The bridge therefore runs one loop per channel: each recording channel in A is
+paired with the stimulating channel in B whose units share its receptive field,
+so the delivered pattern is topographic, and each quantized channel has its own
+quantizer. Simultaneous stimulation through many electrodes in visual cortex
+already produces percepts of shapes, motion and letters matched to the
+electrodes' receptive fields \citep{chen2020}. Microstimulation activates a
+sparse and distributed set of neurons, partly through their axons, rather than
+a dense volume around the tip \citep{histed2009}, so the transfer from each
+stimulating channel to B's population is measured on open-loop blocks, and the
+task variable is the one decoded from the activity each loop evokes in B.
+Both arms share the channel map, the stimulator and that transfer. The
+simulations above model one channel.
+
+\paragraph{Interrupting the connection.} The natural route is interrupted at
+its terminals. Projection neurons in A express an inhibitory designer receptor
+targeted to their axons, and its ligand, delivered locally in B, suppresses
+their release there, reversibly and only on that pathway \citep{stachniak2014}.
+Optogenetic inhibition at terminals attenuates evoked release when timed
+precisely, while sustained archaerhodopsin activation increases spontaneous
+release \citep{mahn2016}, so it suits only brief blocks. Indirect routes, through
+the pulvinar or other cortical areas, remain. The directed perturbations measure
+how much of a nudge in A still reaches B with both loops off, and that residual
+enters the certification as a biological path of its own.
+
+\paragraph{Size of the experiment.} The trial counts above are per loop
+condition. They multiply with the cells of the factorial design and the blocks
+of the resolution sweep, and they grow with the equivalence margins that
+preserved reports need. The number of cells is therefore fixed from pilot
+variance, before any comparison, and a first experiment can run the
+information-controlled pair and its unbridged control before the full
+factorial.
 
 \section{Timing the field's cone}
 \label{app:field}

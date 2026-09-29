@@ -1506,3 +1506,22 @@ fell short of the declared target. A fitted replacement twin and the occupancy
 checks remain open under U105. *Later the same day:* a jump input fitted to
 both skew and tail excess also failed, and most cells' tails lie outside that
 family's reach; U105 closed negative with the occupancy numbers unchanged.
+
+## 2026-09-29 — U106: the bridge's quantized arm can be certified to fail
+
+Criterion G passes a loop whose quantizer input *visits* the passing band
+anywhere in a content window. With the continuous (OU) task variables of
+`unity_bridge.py`, at the declared step, every regime spanning half a step
+visited it in every simulated window, so both arms passed P and the decisive
+blocks could not arise. Fix: stimuli held for the trial at step centres
+(`held` tasks), which visit in a minority of windows (`\uBrHeldVisitMaxPercent`),
+plus a within-arm contrast sorting trials by the loop's own record of visits.
+The sweep was rerun; OU regimes reproduce the committed summary exactly. With
+held stimuli both loops deliver the stimulus almost completely, and the analog
+loop matches the quantized loop's linear transfer entropy only near its floor
+cutoff (one regime carries a few per cent more there); the neighbour TE estimate
+is bias-dominated at these rates. Open: a held-stimulus step/cutoff pair where
+the analog loop carries strictly no more linear TE in every regime.
+The same pass added appendix paragraphs on topographic multichannel bridging,
+terminal silencing of the natural route, experiment size, and a Limitations
+item on the human arm (four references, each verified by web search).

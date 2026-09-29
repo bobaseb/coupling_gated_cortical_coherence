@@ -40,7 +40,9 @@ CHECKLIST: dict[str, str] = {
             "uSwClockGHz uSwActivityLow uSwActivityHigh uSwTransitionPs uSwAperturePs uSwTauPs "
             "uSwDataMHz uWinPerceptMs uWinLongestMs uBrTaskSdLow uBrTaskSdHigh uBrTaskTauShort "
             "uBrTaskTauLong uBrAccHigh uBrAccLow uBrNeuralEffect uBrBlockTrials uRlSigmaLow "
-            "uRlSigmaHigh uRlRateLow uRlRateHigh uRecSlowMs uRecSlowAltMs uRecMinStateS"
+            "uRlSigmaHigh uRlRateLow uRlRateHigh uRecSlowMs uRecSlowAltMs uRecMinStateS "
+            "uBrHeldStimuliFew "
+            "uBrHeldStimuliMany uBrHeldSpread"
         ).split(),
         "declared",
     ),
@@ -67,7 +69,8 @@ CHECKLIST: dict[str, str] = {
         (
             "ueTauSlowMs ueTauLocalMs ueTauFastMs ueBandMatchFailPercent uOccLinkFewLong "
             "uOccLinkMidShort uYardBestMin uYardHitMinHigh uCorLinkMidTol uCorLinkManyTol "
-            "uSwMtbfOrders uWinLinkPercept uRlHitRatioMin uRecLinkFewLong"
+            "uSwMtbfOrders uWinLinkPercept uRlHitRatioMin uRecLinkFewLong uBrOuVisitMinPercent "
+            "uBrHeldDecodMin"
         ).split(),
         "lower",
     ),
@@ -77,7 +80,7 @@ CHECKLIST: dict[str, str] = {
             "ueBridgeMinCutoffHz uHarmonicRatioLow uHarmonicRatioMid uOccInstantLinkMin "
             "uCorMissA uCorMissB uCorMissC uCorResolutionRho uSwSyncPassPercent "
             "uWinLowManyMs uWinLowMidMs uBrGapOtherMax uBrTeTolPercent uBrGapTol uBrNnGapMax "
-            "uRlResolutionPercent"
+            "uRlResolutionPercent uBrHeldVisitMaxPercent"
         ).split(),
         "upper",
     ),
@@ -90,7 +93,8 @@ CHECKLIST: dict[str, str] = {
             "uRlTonicPassMaxPercent uRlTonicHitMin uRlTonicHitMax uRlBurstPassMinPercent "
             "uRlBurstPassMaxPercent uRlBurstHitMin uRlBurstHitMax uRecDistanceLow "
             "uRecDistanceHigh uRecFastMsLow uRecFastMsHigh uRecPassLowPercent "
-            "uRecPassHighPercent uRecHitLowLong uRecHitHighLong"
+            "uRecPassHighPercent uRecHitLowLong uRecHitHighLong uBrHeldFloorTeMinPercent "
+            "uBrHeldFloorTeMaxPercent"
         ).split(),
         "range",
     ),
@@ -292,7 +296,7 @@ class BridgeClaimsTest(unittest.TestCase):
             {**row, "spread": r["spread"]}
             for r in self.bridge["regimes"]
             for row in r["steps"]
-            if 2 * r["task"]["sd"] >= row["step"]
+            if 2 * r["task"]["sd"] >= row["step"] and r["task"].get("kind", "ou") == "ou"
         ]
         self.declared = [r for r in self.spanning if r["step"] == self.bridge["declared_step"]]
 
@@ -347,6 +351,30 @@ class BridgeClaimsTest(unittest.TestCase):
         self.assertLess(self.printed["uBrGapTol"], self.printed["uBrGapMin"])
         self.assertLess(self.printed["uBrGapTol"], self.printed["uBrCommonGapMin"])
         self.assertLess(self.printed["uBrTeTolPercent"], self.printed["uBrCommonTeMinPercent"])
+
+    def test_the_window_visits_are_bounded_the_way_the_sentences_state(self) -> None:
+        held = [
+            (r, row)
+            for r in self.bridge["regimes"]
+            if r["task"]["kind"] == "held"
+            for row in r["steps"]
+            if row["step"] == self.bridge["declared_step"]
+        ]
+        ou = [r["visit_fraction"] for r in self.declared]
+        self.assertLessEqual(self.printed["uBrOuVisitMinPercent"], 100 * min(ou))
+        visits = [row["visit_fraction"] for _, row in held]
+        self.assertGreaterEqual(self.printed["uBrHeldVisitMaxPercent"], 100 * max(visits))
+        self.assertLess(
+            self.printed["uBrHeldVisitMaxPercent"], self.printed["uBrOuVisitMinPercent"]
+        )
+        decodable = [row["linear"]["decodability"] for _, row in held]
+        decodable += [r["floor"]["linear"]["decodability"] for r, _ in held]
+        self.assertLessEqual(self.printed["uBrHeldDecodMin"], min(decodable))
+        te = [
+            100 * r["floor"]["linear"]["transfer_entropy"] / row["linear"]["transfer_entropy"]
+            for r, row in held
+        ]
+        _enclose(self, "uBrHeldFloorTeMinPercent", "uBrHeldFloorTeMaxPercent", te)
 
     def test_the_behavioural_comparison_is_the_weaker(self) -> None:
         trials = self.bridge["trials"]

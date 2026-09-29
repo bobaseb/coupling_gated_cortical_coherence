@@ -452,14 +452,69 @@ def _bridge_common_values(bridge: dict[str, Any]) -> list[tuple[str, str]]:
     ]
 
 
+def _by_kind(bridge: dict[str, Any], kind: str) -> dict[str, Any]:
+    """The run restricted to continuous (``ou``) or held task regimes (U106)."""
+    regimes = [r for r in bridge["regimes"] if r["task"].get("kind", "ou") == kind]
+    return {**bridge, "regimes": regimes}
+
+
+def _at_declared(bridge: dict[str, Any]) -> list[tuple[dict[str, Any], dict[str, Any]]]:
+    """Each regime with its row at the declared step."""
+    return [
+        (r, row)
+        for r in bridge["regimes"]
+        for row in r["steps"]
+        if row["step"] == bridge["declared_step"]
+    ]
+
+
+def _bridge_visit_values(bridge: dict[str, Any]) -> list[tuple[str, str]]:
+    """Criterion G per window at the declared step: continuous against held stimuli (U106)."""
+    ou = [row for r, row in _at_declared(_by_kind(bridge, "ou")) if _spans(row, r["task"])]
+    held = [row for _, row in _at_declared(_by_kind(bridge, "held"))]
+    if not ou or not held:
+        raise ValueError("The saved bridge run lacks continuous or held regimes")
+    least = min(_finite(r["visit_fraction"]) for r in ou)
+    most = max(_finite(r["visit_fraction"]) for r in held)
+    return [
+        ("uBrOuVisitMinPercent", f"{math.floor(100 * least):d}"),
+        ("uBrHeldVisitMaxPercent", f"{math.ceil(100 * most):d}"),
+    ]
+
+
+def _bridge_held_values(bridge: dict[str, Any]) -> list[tuple[str, str]]:
+    """The information both loops carry with held stimuli, the analog one at its floor."""
+    held = _at_declared(_by_kind(bridge, "held"))
+    stimuli = [2 * int(r["task"]["levels"]) + 1 for r, _ in held]
+    decodable = [_finite(row["linear"]["decodability"]) for _, row in held]
+    decodable += [_finite(r["floor"]["linear"]["decodability"]) for r, _ in held]
+    te = [
+        100
+        * _finite(r["floor"]["linear"]["transfer_entropy"])
+        / _finite(row["linear"]["transfer_entropy"])
+        for r, row in held
+    ]
+    return [
+        ("uBrHeldStimuliFew", str(min(stimuli))),
+        ("uBrHeldStimuliMany", str(max(stimuli))),
+        ("uBrHeldSpread", f"{_finite(bridge['held_spread']):g}"),
+        ("uBrHeldDecodMin", _floor(min(decodable), 2)),
+        ("uBrHeldFloorTeMinPercent", f"{math.floor(min(te)):d}"),
+        ("uBrHeldFloorTeMaxPercent", f"{math.ceil(max(te)):d}"),
+    ]
+
+
 def _bridge_values(bridge: dict[str, Any]) -> list[tuple[str, str]]:
     """The bridge's two loops on a model pair of regions."""
+    ou = _by_kind(bridge, "ou")
     return [
-        *_bridge_task_values(bridge),
-        *_bridge_match_values(bridge),
-        *_bridge_neighbour_values(bridge),
-        *_bridge_common_values(bridge),
-        *_bridge_trial_values(bridge),
+        *_bridge_task_values(ou),
+        *_bridge_match_values(ou),
+        *_bridge_neighbour_values(ou),
+        *_bridge_common_values(ou),
+        *_bridge_trial_values(ou),
+        *_bridge_visit_values(bridge),
+        *_bridge_held_values(bridge),
     ]
 
 

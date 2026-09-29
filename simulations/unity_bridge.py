@@ -22,6 +22,15 @@ The model, in units of region A's own noise amplitude, at a 1 ms step:
 * region B is a leaky integrator of the delivered current with a 10 ms time
   constant and unit noise, recorded with unit white noise.
 
+A *held* task (U106) replaces the continuous task variable with one stimulus
+per trial, held for the trial, at a centre of the declared step up to a small
+declared spread. It answers criterion G, which passes a loop whose quantizer
+input *visits* the passing band anywhere in a content window: a continuous
+variable spanning half a step crosses the step's edges and visits it in almost
+every window, so the quantized arm could never be certified to fail, while a
+held stimulus sits mid-step. A trial lasts one content window, and each step's
+``visit_fraction`` is the share of trials that visit.
+
 Both quantities are estimated twice (U98). The *linear* estimator: transfer
 entropy from A's recording to B's by the linear-Gaussian formula with five 1 ms
 lags, in bits per second, and task decodability as the variance of ``s``
@@ -85,7 +94,12 @@ from scipy.signal import lfilter
 from scipy.spatial import cKDTree
 from scipy.special import digamma
 
-from unity_estimates import BRIDGE_STEP_TO_NOISE, estimates, quantized_fail_fraction
+from unity_estimates import (
+    BRIDGE_STEP_TO_NOISE,
+    estimates,
+    fail_distance,
+    quantized_fail_fraction,
+)
 
 FloatArray = NDArray[np.float64]
 
@@ -111,6 +125,9 @@ POWER = 0.8
 ACCURACY_HIGH = 0.75
 ACCURACY_LOW = 0.70
 NEURAL_EFFECT = 0.2
+# Declared: a held stimulus lies within this many region noise amplitudes of a
+# step's centre. The spread also keeps the neighbour estimator free of ties.
+HELD_SPREAD = 0.5
 NEIGHBOURS = 4
 THIN = 4
 ESTIMATORS = ("linear", "neighbour")
@@ -118,13 +135,31 @@ ESTIMATORS = ("linear", "neighbour")
 
 @dataclass(frozen=True)
 class Task:
-    """The task variable: standard deviation in region noise amplitudes, time constant."""
+    """The task variable: standard deviation in region noise amplitudes, time constant.
+
+    An ``ou`` task varies continuously. A ``held`` task holds one stimulus for
+    the trial, at one of ``2 levels + 1`` centres of the declared step, and its
+    time constant is the trial's length.
+    """
 
     sd: float
     tau_ms: float
+    kind: Literal["ou", "held"] = "ou"
+    levels: int = 0
 
 
-TASKS = tuple(Task(sd, tau) for sd in (2.0, 5.0, 10.0) for tau in (20.0, 100.0))
+def held(levels: int) -> Task:
+    """Stimuli held for the trial at the declared step's centres ``-levels .. levels``."""
+    centres = DECLARED_STEP * np.arange(-levels, levels + 1)
+    sd = math.sqrt(float(np.mean(centres**2)) + HELD_SPREAD**2 / 3)
+    return Task(sd, TRIAL_STEPS * DT_S * 1000, "held", levels)
+
+
+TASKS = (
+    *(Task(sd, tau) for sd in (2.0, 5.0, 10.0) for tau in (20.0, 100.0)),
+    held(1),
+    held(2),
+)
 
 
 @dataclass(frozen=True)
@@ -142,6 +177,7 @@ class Trials:
     task: FloatArray
     recorded_a: FloatArray
     recorded_b: FloatArray
+    quantizer_input: FloatArray
 
 
 @dataclass(frozen=True)
@@ -169,11 +205,21 @@ def _ou(rng: np.random.Generator, shape: tuple[int, int], tau_ms: float, sd: flo
     return np.asarray(lfilter([1], [1, -a], kicks, axis=-1), dtype=np.float64)
 
 
+def _held(rng: np.random.Generator, shape: tuple[int, int], levels: int) -> FloatArray:
+    centre = DECLARED_STEP * rng.integers(-levels, levels + 1, size=(shape[0], 1))
+    level = centre + rng.uniform(-HELD_SPREAD, HELD_SPREAD, size=(shape[0], 1))
+    return np.asarray(np.broadcast_to(level, shape), dtype=np.float64)
+
+
 def simulate(task: Task, loop: Loop, trials: int, seed: int) -> Trials:
     """One block of trials through one loop."""
     rng = np.random.default_rng(seed)
     shape = (trials, TRIAL_STEPS + BURN_STEPS)
-    s = _ou(rng, shape, task.tau_ms, task.sd)
+    s = (
+        _held(rng, shape, task.levels)
+        if task.kind == "held"
+        else _ou(rng, shape, task.tau_ms, task.sd)
+    )
     recorded_a = (
         s + _ou(rng, shape, REGION_TAU_MS, 1.0) + RECORDING_NOISE * rng.standard_normal(shape)
     )
@@ -191,7 +237,19 @@ def simulate(task: Task, loop: Loop, trials: int, seed: int) -> Trials:
     b = np.asarray(lfilter([1], [1, -leak], kicks, axis=-1), dtype=np.float64)
     recorded_b = b + RECORDING_NOISE * rng.standard_normal(shape)
     keep = slice(BURN_STEPS, None)
-    return Trials(s[:, keep], recorded_a[:, keep], recorded_b[:, keep])
+    return Trials(s[:, keep], recorded_a[:, keep], recorded_b[:, keep], shared[:, keep])
+
+
+def visit_fraction(task: Task, step: float, trials: int, seed: int) -> float:
+    """Share of trials, one content window each, whose quantizer input enters the passing band.
+
+    A state passes when it lies within ``fail_distance`` of an edge, halfway
+    between two multiples of ``step`` (``unity_estimates``); criterion G asks
+    only whether the window visits such a state.
+    """
+    x = simulate(task, Loop("quantized", step), trials, seed).quantizer_input
+    to_edge = step / 2 - np.abs(x - step * np.round(x / step))
+    return float(np.mean(np.any(to_edge <= fail_distance(1.0, RECORDING_NOISE), axis=1)))
 
 
 def _lagged(x: FloatArray, lags: tuple[int, ...] | range, start: int) -> FloatArray:
@@ -385,6 +443,7 @@ def _step_row(
     row: dict[str, Any] = {
         "step": step,
         "fail_fraction": quantized_fail_fraction(step, 1.0, RECORDING_NOISE),
+        "visit_fraction": visit_fraction(task, step, trials, 0),
     }
     for name in ESTIMATORS:
         row[name] = _estimator_row(
@@ -444,7 +503,15 @@ def regime(
     spread = None
     if declared is not None and declared["common"] is not None:
         spread = _spread(task, declared["common"]["cutoff_hz"], seeds)
-    return {"task": {"sd": task.sd, "tau_ms": task.tau_ms}, "steps": rows, "spread": spread}
+    saved = {"sd": task.sd, "tau_ms": task.tau_ms, "kind": task.kind, "levels": task.levels}
+    # The analog loop at the slowest cutoff that settles within the window.
+    floor: dict[str, Any] = {"cutoff_hz": float(grid[0])}
+    for name in ESTIMATORS:
+        floor[name] = {
+            "transfer_entropy": analog[0][name].transfer_entropy,
+            "decodability": analog[0][name].decodability,
+        }
+    return {"task": saved, "steps": rows, "spread": spread, "floor": floor}
 
 
 def run(
@@ -459,6 +526,7 @@ def run(
         "declared_step": DECLARED_STEP,
         "cutoff_floor_hz": estimates()["bridgeMinCutoffHz"],
         "block_trials": BLOCK_TRIALS,
+        "held_spread": HELD_SPREAD,
         "estimators": list(ESTIMATORS),
         "effects": {
             "accuracy_high": ACCURACY_HIGH,
