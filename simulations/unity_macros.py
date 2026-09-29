@@ -7,11 +7,13 @@ test), ``yardstick.json`` (the same test at other yardsticks), ``correlated.json
 (carriers sharing input), ``switching.json`` (a clocked chip by the same
 protocol), ``window.json`` (the per-window link at every window length),
 ``bridge.json`` (the bridge's two loops on a model pair of regions) and
-``relay.json`` (a thalamic relay cell in tonic and burst mode), and writes
+``relay.json`` (a thalamic relay cell in tonic and burst mode), and
+``recordings.json`` with ``recordings_slow200.json`` (recorded membranes of awake
+cortex, at two splits of their slow part), and writes
 ``unity/unity_results.tex``. Nothing here integrates a sheet, sums a Fourier
 series or propagates a membrane: ``unity_agreement.py``, ``unity_occupancy.py``,
 ``unity_correlated.py``, ``unity_switching.py``, ``unity_window.py``,
-``unity_bridge.py`` and ``unity_relay.py`` produce the summaries as
+``unity_bridge.py``, ``unity_relay.py`` and ``unity_recordings.py`` produce the summaries as
 separate commands.
 """
 
@@ -20,6 +22,8 @@ import math
 from fractions import Fraction
 from pathlib import Path
 from typing import Any, cast
+
+import numpy as np
 
 from unity_estimates import reported_orders
 
@@ -508,6 +512,105 @@ def _relay_values(relay: dict[str, Any]) -> list[tuple[str, str]]:
     ]
 
 
+# The recorded cells the paper states: excitatory, the membranes the model is of.
+RECORDED_TYPE = "EXC"
+# Spread across cells is stated as the tenth to the ninetieth percentile.
+DECILES = (10.0, 90.0)
+# The share at which recorded window visits are stated, as in the model's claim.
+RECORDED_SCALE = "0.25"
+
+
+def _states(recordings: dict[str, Any], state: str) -> list[dict[str, Any]]:
+    cells = recordings["cells"]
+    return [
+        c["states"][state]
+        for c in cells
+        if c["type"] == RECORDED_TYPE and state in c.get("states", {})
+    ]
+
+
+def _hits(states: list[dict[str, Any]], long: str) -> list[float]:
+    """Each state's measured chance of a passing state within the long window."""
+    return [
+        _finite(s["windows"][0]["window_hit_probability"][RECORDED_SCALE][long]) for s in states
+    ]
+
+
+def _passes(states: list[dict[str, Any]]) -> list[float]:
+    return [100 * _finite(s["windows"][0]["pass_fraction"]["1"]["measured"]) for s in states]
+
+
+def _deciles(values: list[float]) -> tuple[float, float]:
+    low, high = np.percentile(values, DECILES)
+    return float(low), float(high)
+
+
+def _outward(values: list[float], digits: int) -> tuple[str, str]:
+    """The decile range to ``digits`` decimals, each end rounded away from the middle."""
+    low, high = _deciles(values)
+    scale = 10**digits
+    return (
+        f"{math.floor(low * scale) / scale:.{digits}f}",
+        f"{math.ceil(high * scale) / scale:.{digits}f}",
+    )
+
+
+def _model_bounds(summary: dict[str, Any]) -> tuple[float, float, float]:
+    """The model's least and greatest pass fraction, in percent, and its least visit."""
+    neurons = summary["neurons"]
+    passing = [100 * _finite(n["pass_fraction"]) for n in neurons]
+    hits = [_finite(h["400"]) for n in neurons for h in n["window_hit_probability"].values()]
+    return min(passing), max(passing), min(hits)
+
+
+def _recordings_values(
+    recordings: dict[str, Any], alternative: dict[str, Any], summary: dict[str, Any]
+) -> list[tuple[str, str]]:
+    """Recorded excitatory membranes in quiet wakefulness, beside the model's declared ranges."""
+    quiet, whisking = _states(recordings, "quiet"), _states(recordings, "whisking")
+    windows = quiet[0]["windows"][0]["window_hit_probability"][RECORDED_SCALE]
+    long = max(windows, key=float)
+    hits, passes = _hits(quiet, long), _passes(quiet)
+    pass_low, pass_high, hit_min = _model_bounds(summary)
+    ratios = [_finite(s["twin_rate_hz"]) / _finite(s["rate_hz"]) for s in quiet]
+    few = min(int(k) for k in summary["neurons"][0]["link_probability"]["1"])
+    mean_hit = sum(hits) / len(hits)
+    distance = [_finite(s["distance"]) for s in quiet]
+    fast = [_finite(s["fast_correlation_ms"]) for s in quiet]
+    pairs = recordings["pairs"]
+    alt = _states(alternative, "quiet")
+    return [
+        ("uRecCellsTotal", str(len(recordings["cells"]))),
+        ("uRecCellsQuiet", str(len(quiet))),
+        ("uRecCellsWhisk", str(len(whisking))),
+        ("uRecTimedSweeps", str(pairs["timed_sweeps"])),
+        ("uRecSlowMs", f"{_finite(recordings['slow_ms']):g}"),
+        ("uRecMinStateS", f"{_finite(recordings['min_state_s']):g}"),
+        ("uRecSlowAltMs", f"{_finite(alternative['slow_ms']):g}"),
+        ("uRecDistanceMed", f"{np.median(distance):.1f}"),
+        *zip(("uRecDistanceLow", "uRecDistanceHigh"), _outward(distance, 1), strict=True),
+        *zip(("uRecFastMsLow", "uRecFastMsHigh"), _outward(fast, 0), strict=True),
+        ("uRecPassMedPercent", f"{np.median(passes):.2g}"),
+        ("uRecPassLowPercent", _sig(_deciles(passes)[0], 2, up=False)),
+        ("uRecPassHighPercent", _sig(_deciles(passes)[1], 2, up=True)),
+        (
+            "uRecPassInsidePercent",
+            f"{100 * np.mean([pass_low <= p <= pass_high for p in passes]):.0f}",
+        ),
+        ("uRecHitMedLong", f"{np.median(hits):.2f}"),
+        ("uRecHitLowLong", _floor(_deciles(hits)[0], 2)),
+        ("uRecHitHighLong", f"{math.ceil(_deciles(hits)[1] * 100) / 100:.2f}"),
+        ("uRecHitBelowPercent", f"{100 * np.mean([h < hit_min for h in hits]):.0f}"),
+        ("uRecLinkFewLong", _floor(1.0 - (1.0 - mean_hit) ** few, 2)),
+        ("uRecHitMedLongWhisk", f"{np.median(_hits(whisking, long)):.2f}"),
+        ("uRecDistanceMedWhisk", f"{np.median([_finite(s['distance']) for s in whisking]):.1f}"),
+        ("uRecHitMedLongAlt", f"{np.median(_hits(alt, long)):.2f}"),
+        ("uRecPassMedPercentAlt", f"{np.median(_passes(alt)):.2g}"),
+        ("uRecRateRatioMed", f"{np.median(ratios):.2f}"),
+        ("uRecRateWithinTwoPercent", f"{100 * np.mean([0.5 <= r <= 2.0 for r in ratios]):.0f}"),
+    ]
+
+
 def render(figures: Path) -> str:
     """Read saved summaries; never integrate a sheet or recompute a resistance."""
     directory = figures / "unity_agreement"
@@ -520,6 +623,11 @@ def render(figures: Path) -> str:
     values += _window_sweep_values(_read(figures / "unity_occupancy" / "window.json"))
     values += _bridge_values(_read(figures / "unity_occupancy" / "bridge.json"))
     values += _relay_values(_read(figures / "unity_occupancy" / "relay.json"))
+    values += _recordings_values(
+        _read(figures / "unity_occupancy" / "recordings.json"),
+        _read(figures / "unity_occupancy" / "recordings_slow200.json"),
+        _read(figures / "unity_occupancy" / "summary.json"),
+    )
     lines = [
         "% Generated by simulations/unity_macros.py from saved JSON summaries in",
         "% simulations/figures/unity_agreement/ and simulations/figures/unity_occupancy/.",

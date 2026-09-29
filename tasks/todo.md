@@ -1061,7 +1061,7 @@ is the only item that could lift the U85 cap (to about 7.5–8).*
   tested against Siegert within 5%; half-step check moves visits ≤ 8.5%.
   §reach now predicts more cross-patch unity in tonic mode; new app:occupancy
   paragraph; Limitations notes the reduced model. Main-text words unchanged.
-- [ ] **U100 — First data: occupancy from public in vivo intracellular
+- [x] **U100 — First data: occupancy from public in vivo intracellular
   recordings.** Every cortical number is a declared model range. Part one is a
   search: look online for publicly available in vivo whole-cell or sharp
   recordings of cortical membrane potential in awake (or at least
@@ -1080,6 +1080,58 @@ is the only item that could lift the U85 cap (to about 7.5–8).*
   working record, then either a measured occupancy in the paper, stated
   against the model's declared ranges, or a recorded reason no public dataset
   suffices.
+  *Survey 2026-09-28* (awake cortical Vm, public):
+  - **Kiritani, Pala, Gasselin, Crochet & Petersen 2023** (PLoS ONE
+    18:e0287174; Zenodo 7833080, CC BY 4.0, 5.1 GB MATLAB v7.3 + code).
+    Mouse wS1 L2/3–L5, awake head-restrained; quiet, free whisking, active
+    touch scored from whisker video. 240 cells (93 EXC, 49 PV, 25 VIP,
+    73 SST), whole-cell current clamp, 10 kHz Bessel, 40 kHz. Thresholds
+    extractable (authors' detector, per-cell slope criterion stored). No
+    simultaneous recordings: none of the 689 sweeps with a time of day shares
+    its start with another cell's (142 carry a date only). **Chosen.**
+  - Pala & Petersen 2018 (eLife 7:e35869; Zenodo 1304771, CC BY 4.0,
+    1.3 GB). wS1 L2/3 PV and SST only, awake, 20 kHz, juxtacellular
+    presynaptic excitatory cell (not a Vm pair). Inhibitory only.
+  - Perrenoud, Pennartz & Gentet 2016 (PLoS Biol; Dryad 10.5061/dryad.4754j,
+    Zenodo 4979751, CC0, 9.9 GB). V1 L2/3 PV and pyramidal, awake, with LFP.
+    Sampling rate not in the record.
+  - Yu, Gutnisky, Hires & Svoboda 2016 (DANDI 000005, CC BY 4.0, 46 GB NWB).
+    Barrel cortex and VPM, intracellular and extracellular, behaving
+    (object localisation).
+  - Esmaeili et al. 2022 (PLoS Biol 20:e3001667; Zenodo 6511622, CC BY 4.0,
+    3 GB). Whole-cell across several areas in learning mice; contents not
+    inspected. Candidate cross-area replication.
+  - Paired Vm (shared-input fraction): Poulet & Petersen 2008, Jouhanneau
+    et al. 2015 (Cell Rep), Arroyo et al. 2018 (Neuron) did dual whole-cell
+    in awake mice, but no public deposit found. The shared-input fraction
+    cannot be measured from public data.
+  - CRCNS: only in vitro (vc/pvc-6, -9, hc-10) or anaesthetised (hc-1).
+    Allen and DANDI patch-seq sets are slices. DANDI 000480 (rabbit V1
+    intracellular) has no files.
+  *Done 2026-09-28:* `unity_recordings.py` (`fetch`: parallel resumable
+  ranges, md5-checked, into ignored `cache_kiritani2023/`; `run`: 2.5 h on
+  4 cores) → `recordings.json`, `recordings_slow200.json`; 22 synthetic tests.
+  Method: authors' spike detector, median onset threshold, spikes count as
+  failing. A one-time-constant OU twin failed its own rate check (EXC quiet
+  τ_corr 420 ms, twin 0.01 Hz vs 1.2 Hz): the awake Vm has a 11–17 ms fast
+  component plus a slow wander. So: 100 ms running mean = slow part; noise
+  amplitude and τ calibrated so the model, analysed exactly as the recording
+  (spikes cut, running mean removed, autocovariance propagated through the
+  chain), gives the remainder's spread and correlation time; passing states
+  of the twin held at the mean behind the slow level (quasi-static).
+  Recovers σ, τ, level on synthetic slow-mean paths (rate within 17%).
+  Result, 86 EXC cells in quiet wakefulness: distance median 3.7 (10–90%
+  2.2–5.1; declared 2.0–3.5); pass 0.15% (0.025–1.3%; 90% of cells inside
+  declared 0.013–2.4%); 400 ms visit at share 1/16 median 0.15 (0.01–0.51;
+  31% below the least declared regime 0.085); some of 10 carriers drawn from
+  these cells links within 400 ms w.p. ≥ 0.91 (model bound 0.59). Whisking:
+  4.1, 0.13. Split at 200 ms: 0.12%, 0.13. Twin predicts 0.47× the median
+  cell's rate, within 2× for 48% of cells (recorded membranes fire more
+  readily than a Gaussian one). Paper: §enforcement "Recorded membranes",
+  app:occupancy paragraph, abstract and claim 2 "modelled or recorded in
+  awake mice", Limitations scope; 28 `uRec` macros classed in CHECKLIST.
+  Correlation stays declared (no pairs). Not examined: interneurons (in the
+  JSON), Esmaeili 2022 cross-area replication.
 
 - [x] **U101 — P is silent on which contents are conscious.** Raised
   2026-09-28. The paper calls P necessary for unity (intro) and not sufficient
@@ -1125,6 +1177,59 @@ is the only item that could lift the U85 cap (to about 7.5–8).*
   (substrate-bound variant, stimulation unlike synaptic input, multi-unit
   envelope from a few contacts). check-claims: 4 → 5 disclaimers, all within
   limits; PDF 66 pages; unity arXiv build rerun.
+
+- [ ] **U103 — A learning signal in the physics, not better learning.** Raised
+  2026-09-28. Question: can the unity paper claim better learning or
+  representation? No. P is met by coupled pendulums, so it implies no quality
+  of learning or representation. The bridge fixes the quantized loop at no
+  less information than the analog one, so "analog represents better" argues
+  for the information account the bridge tests against. A learning advantage
+  would also confound the bridge: timing-dependent plasticity across days of
+  alternating blocks gives the analog arm a behavioural edge that has nothing
+  to do with unity. Digital systems reach zero overlap discrepancy by
+  computation and keep sub-margin information by adding bits. What the paper
+  does support is a claim about locality: by the noisy margin theorem,
+  bit-read content gives no perturbative learning signal in the substrate
+  below its margin, while a P-substrate (graded dependence plus contraction)
+  carries one in its linear response. The weak-nudge and restoration tests
+  are the nudge-and-relax structure of equilibrium propagation. The reach
+  bound (RMS discrepancy ≤ L√(D·R_eff)) is a consistency property of a
+  distributed representation, not an advantage. **Scope.** At most one
+  paragraph in app:related, beside mortal computation; no `\claim`, nothing
+  in the main text. A formal "margin ⇒ zero in-substrate gradient" corollary
+  would be a separate note (AGENTS.md §3, split scope). **Before adding:**
+  verify Scellier & Bengio 2017 (equilibrium propagation, Front. Comput.
+  Neurosci.) and Wright et al. 2022 (deep physical neural networks, Nature)
+  online (§4). Run `check_claims.py`, rebuild `unity/main.pdf`, and rerun
+  `unity/prepare_arxiv.sh` or remove `unity/arxiv_submit`. **Success.** The
+  paragraph states the locality contrast in the present tense with verified
+  citations, and every gate passes.
+
+- [ ] **U104 — Formal scope of the learning corollary.** Raised 2026-09-28,
+  split from U103. The claim to formalise: below its margin, content read from
+  bits gives no perturbative learning signal in the substrate, while under
+  graded dependence plus contraction the substrate's linear response carries
+  one. Most of the first half already exists in `Phase10_PhysicalUnity.lean`:
+  `response_le_of_marginRate` (a change below r/L moves the response by at
+  most ε) and `shiftResponse_le_of_marginRate`, and the noiseless
+  `not_gradedDependence_of_margin` / `not_gradedDependence_iterate_of_bits`.
+  **Scope, to decide before any Lean is written:** (a) define a
+  finite-difference "nudge signal" (response to a nudge of size h, divided
+  by h) and prove it is at most ε/h below r/L, so it goes to zero as ε goes
+  to zero, a short corollary of `response_le_of_marginRate`; (b) the positive
+  half: under contraction by κ with graded dependence, the relaxed response
+  to a nudge is nonzero and proportional to h at first order. That needs a
+  differentiable or linear model (e.g. the linear-Gaussian setting the
+  graded-reader result already uses), and is the harder part; (c) do not try
+  to formalise equilibrium propagation's gradient identity (Scellier &
+  Bengio). That is out of scope. **Constraints.** No new axioms (Audit.lean,
+  AGENTS.md §8); every new declaration gets a row in the unity paper's
+  app:formal table and none is named in the main text (§9); after the Lean
+  change, follow the proof-companion rebuild chain. Home: a separate note, or
+  an app:formal row only if U103's paragraph cites it; no new `\claim`.
+  **Success.** (a) proved and audited; (b) either proved in the linear model
+  or recorded with the reason it is out of reach; the U103 paragraph, if
+  written, cites only what is proved.
 
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of

@@ -43,8 +43,8 @@ regions exchange predicts no difference. We prove that under noise, content
 read from bits responds to any change below its margin by at most its error
 rate, a bound that is attained, so a digital machine, clocked or clockless,
 fails the condition whatever algorithm it runs. Applying one test to both
-substrates, a noisy cortical membrane passes near its firing threshold and
-reaches such a state within a percept's time scale, while the value a clocked
+substrates, a noisy cortical membrane, modelled or recorded in awake mice, passes
+near its firing threshold and reaches such a state within a percept's time scale, while the value a clocked
 latch reads passes at none of its states. The condition also bounds how slowly
 cortical coupling may relax, and on a noisy sheet of coupled oscillators the
 coupling's reach decides how far agreement holds. We specify an animal
@@ -135,7 +135,7 @@ regions within each window of the content's time scale.
 The paper makes three claims:
 \begin{enumerate}
 \claim{sec:tests}{When two cortical regions are bridged by an analog and by a quantized loop with the quantized loop carrying at least as much information, in total and about the task, P predicts that unity follows the analog loop; a weak, sub-threshold nudge to one region should also shift the graded content decoded in an overlapping region toward agreement}
-\claim{sec:enforcement}{Under noise, content read from bits responds to any change below its margin by at most its error rate, a bound that is attained, so no digital machine meets P, whatever algorithm it runs; by one test applied to both, a cortical membrane passes near its threshold within a percept's time scale, while the value a clocked latch reads passes at none of its states}
+\claim{sec:enforcement}{Under noise, content read from bits responds to any change below its margin by at most its error rate, a bound that is attained, so no digital machine meets P, whatever algorithm it runs; by one test applied to both, a cortical membrane, modelled or recorded in awake mice, passes near its threshold within a percept's time scale, while the value a clocked latch reads passes at none of its states}
 \claim{sec:reach}{Enforced agreement must arrive before the content changes, so P predicts that cortical coupling relaxes within \ueTauFastMs{}~ms across the cortex; on a noisy sheet of coupled oscillators, the coupling's reach decides how far agreement in phase holds}
 \end{enumerate}
 
@@ -475,6 +475,18 @@ changes faster than the \uWinPerceptMs{}~ms at which two events are perceived in
 order \citep{hirsh1961}, and some of \uOccCarriersMany{} independent carriers
 links two regions more often than not from a window of \uWinLowManyMs{}~ms
 upward, and at \uWinPerceptMs{}~ms with probability at least \uWinLinkPercept{}.
+
+\paragraph{Recorded membranes.} The same protocol applied to whole-cell
+recordings from \uRecCellsQuiet{} excitatory cells of the barrel cortex of awake
+mice in quiet wakefulness \citep{kiritani2023} tests the declared ranges
+(Appendix~\ref{app:occupancy}). The median cell sits \uRecDistanceMed{} noise
+amplitudes below its threshold, farther than the declared \uOccDistanceMin{} to
+\uOccDistanceMax{}, and passes at \uRecPassMedPercent\% of its states, inside
+the declared range. At a noise share of
+\uOccShareMin{} it enters a passing state within \uOccContentLongMs{}~ms with
+probability \uRecHitMedLong{}, and some of \uOccCarriersFew{} independent
+carriers drawn from these cells links two regions within that window with
+probability at least \uRecLinkFewLong{}.
 
 \paragraph{Readers, shared input and switching nodes.} Three variations leave the
 verdict where it is (Appendix~\ref{app:occupancy}). A reader that registers only
@@ -905,7 +917,10 @@ measurements of one connection type and one noise recording, through a linear
 threshold crossing. The occupancy computation models one integrate-and-fire
 membrane under white noise, with a threshold without dynamics of its own, and
 its time constants, rates, windows, noise shares and carrier counts are declared
-ranges, not fits. Correlation is one shared component at declared shares,
+ranges, not fits. The recorded check covers one area of one species in one
+dataset without simultaneous recordings, and reads its passing states off a
+Gaussian model held at the slow part of the potential, which predicts
+\uRecRateRatioMed{} times the median cell's firing rate. Correlation is one shared component at declared shares,
 compared with the correlations of neighbouring cells, and omits the unshared
 input that drives the single spikes of awake cortex \citep{poulet2008}. The
 carrier counts stay far below the anatomical ones. The per-window bound is
@@ -1273,6 +1288,43 @@ tonic cell's chance is at least \uRlHitRatioMin{} times the bursting cell's,
 within \uOccContentShortMs{}~ms as well. Probability is propagated exactly on a
 grid in membrane potential and inactivation, and a run at half every grid step
 moves no visit probability by more than \uRlResolutionPercent\%.
+
+\paragraph{Recorded membranes.} The recordings \citep{kiritani2023} hold
+\uRecCellsTotal{} cells of layers 2/3 to 5 of the barrel cortex of awake
+head-restrained mice, with quiet wakefulness, free whisking and touch scored from
+whisker filming; the excitatory cells are the membranes the model describes.
+Spikes are detected by the authors' criterion for each cell, a cell's threshold is
+the median potential at spike onset, and each spike, from onset to
+repolarisation, counts as a failing state, as the model's refractory states do.
+The awake potential moves on two time scales: fluctuations with a correlation
+time of \uRecFastMsLow{} to \uRecFastMsHigh{}~ms, and a wander over hundreds of
+milliseconds that carries much of its variance. One time constant fitted to both
+misses the fast fluctuations that set the next spike, so the potential is split
+into its running mean over \uRecSlowMs{}~ms and a fast remainder. The noise
+amplitude and the model's time constant are those at which the model membrane,
+analysed exactly as the recording is, has the remainder's spread and correlation
+time. Within a next-content window the membrane is taken to be the model membrane
+held at the mean behind the running mean's current value, which supplies the law
+of the next spike time that a single recorded path does not. Across the
+\uRecCellsQuiet{} cells with at least \uRecMinStateS{}~s of quiet wakefulness, the
+tenth to ninetieth percentiles run from \uRecDistanceLow{} to
+\uRecDistanceHigh{} noise amplitudes below threshold, from
+\uRecPassLowPercent{} to \uRecPassHighPercent\% of states passing, with
+\uRecPassInsidePercent\% of cells inside the declared range, and from
+\uRecHitLowLong{} to \uRecHitHighLong{} for a passing state within
+\uOccContentLongMs{}~ms at a noise share of \uOccShareMin{}; for
+\uRecHitBelowPercent\% of cells that chance is below the least declared regime's,
+\uOccHitMinLong{}. During free whisking (\uRecCellsWhisk{} cells) the median cell
+sits \uRecDistanceMedWhisk{} amplitudes below threshold and enters a passing state
+within the window with probability \uRecHitMedLongWhisk{}. Splitting at
+\uRecSlowAltMs{}~ms instead gives a median passing share of
+\uRecPassMedPercentAlt\% and a median visit probability of \uRecHitMedLongAlt{}.
+For the median cell the model predicts \uRecRateRatioMed{} times the recorded
+firing rate, and it comes within a factor of two for \uRecRateWithinTwoPercent\%
+of cells: recorded membranes fire more readily than a Gaussian membrane at the
+same distance, and the passing states are read off that Gaussian description. None
+of the \uRecTimedSweeps{} sweeps timed to the second holds two cells recorded at
+once, so the share of input that neighbouring cells hold in common stays declared.
 
 \paragraph{The yardstick.} The separation of the membrane from the value a latch
 reads holds at every yardstick from \uYardLow{} to \uYardHigh{}

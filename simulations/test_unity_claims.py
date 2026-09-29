@@ -40,7 +40,7 @@ CHECKLIST: dict[str, str] = {
             "uSwClockGHz uSwActivityLow uSwActivityHigh uSwTransitionPs uSwAperturePs uSwTauPs "
             "uSwDataMHz uWinPerceptMs uWinLongestMs uBrTaskSdLow uBrTaskSdHigh uBrTaskTauShort "
             "uBrTaskTauLong uBrAccHigh uBrAccLow uBrNeuralEffect uBrBlockTrials uRlSigmaLow "
-            "uRlSigmaHigh uRlRateLow uRlRateHigh"
+            "uRlSigmaHigh uRlRateLow uRlRateHigh uRecSlowMs uRecSlowAltMs uRecMinStateS"
         ).split(),
         "declared",
     ),
@@ -56,7 +56,10 @@ CHECKLIST: dict[str, str] = {
             "uFarSigmaThreeB uFarSigmaThreeC uStiffnessRatio uOccDistanceMin uOccDistanceMax "
             "uOccResolutionPercent uYardBinaryCeiling uCorLinkShortTol uSwNodePassMinPercent "
             "uSwNodePassMaxPercent uSwSyncEventsLong uBrTrialsBehaviour uBrTrialsNeural "
-            "uBrNnGapPositive uBrNnGapCases"
+            "uBrNnGapPositive uBrNnGapCases uRecCellsTotal uRecCellsQuiet uRecCellsWhisk "
+            "uRecTimedSweeps uRecDistanceMed uRecPassMedPercent uRecPassInsidePercent "
+            "uRecHitMedLong uRecHitBelowPercent uRecHitMedLongWhisk uRecDistanceMedWhisk "
+            "uRecHitMedLongAlt uRecPassMedPercentAlt uRecRateRatioMed uRecRateWithinTwoPercent"
         ).split(),
         "point",
     ),
@@ -64,7 +67,7 @@ CHECKLIST: dict[str, str] = {
         (
             "ueTauSlowMs ueTauLocalMs ueTauFastMs ueBandMatchFailPercent uOccLinkFewLong "
             "uOccLinkMidShort uYardBestMin uYardHitMinHigh uCorLinkMidTol uCorLinkManyTol "
-            "uSwMtbfOrders uWinLinkPercept uRlHitRatioMin"
+            "uSwMtbfOrders uWinLinkPercept uRlHitRatioMin uRecLinkFewLong"
         ).split(),
         "lower",
     ),
@@ -85,7 +88,9 @@ CHECKLIST: dict[str, str] = {
             "uBrGapMin uBrGapMax uBrNnCutoffMin uBrNnCutoffMax uBrCommonTeMinPercent "
             "uBrCommonTeMaxPercent uBrCommonGapMin uBrCommonGapMax uRlTonicPassMinPercent "
             "uRlTonicPassMaxPercent uRlTonicHitMin uRlTonicHitMax uRlBurstPassMinPercent "
-            "uRlBurstPassMaxPercent uRlBurstHitMin uRlBurstHitMax"
+            "uRlBurstPassMaxPercent uRlBurstHitMin uRlBurstHitMax uRecDistanceLow "
+            "uRecDistanceHigh uRecFastMsLow uRecFastMsHigh uRecPassLowPercent "
+            "uRecPassHighPercent uRecHitLowLong uRecHitHighLong"
         ).split(),
         "range",
     ),
@@ -386,6 +391,73 @@ class RelayClaimsTest(unittest.TestCase):
         self.assertLess(
             1 + self.printed["uRlResolutionPercent"] / 100, self.printed["uRlHitRatioMin"]
         )
+
+
+class RecordingsClaimsTest(unittest.TestCase):
+    """Recorded excitatory membranes in quiet wakefulness (U100)."""
+
+    def setUp(self) -> None:
+        cells = _read("recordings.json")["cells"]
+        self.quiet = [
+            c["states"]["quiet"]
+            for c in cells
+            if c["type"] == "EXC" and "quiet" in c.get("states", {})
+        ]
+        self.printed = _printed()
+
+    def _deciles(self, values: list[float]) -> tuple[float, float]:
+        ordered = sorted(values)
+
+        # Linear interpolation between order statistics, as numpy's default.
+        def at(q: float) -> float:
+            position = q * (len(ordered) - 1)
+            k = math.floor(position)
+            upper = ordered[min(k + 1, len(ordered) - 1)]
+            return ordered[k] + (position - k) * (upper - ordered[k])
+
+        return at(0.1), at(0.9)
+
+    def test_each_decile_range_rounds_outward(self) -> None:
+        window = self.quiet[0]["windows"][0]
+        ranges = {
+            "uRecDistance": [s["distance"] for s in self.quiet],
+            "uRecFastMs": [s["fast_correlation_ms"] for s in self.quiet],
+            "uRecPass": [
+                100 * s["windows"][0]["pass_fraction"]["1"]["measured"] for s in self.quiet
+            ],
+            "uRecHit": [
+                s["windows"][0]["window_hit_probability"]["0.25"]["400"] for s in self.quiet
+            ],
+        }
+        self.assertIn("400", window["window_hit_probability"]["0.25"])
+        for prefix, values in ranges.items():
+            low, high = self._deciles(values)
+            suffix = ("LowPercent", "HighPercent") if prefix == "uRecPass" else ("Low", "High")
+            if prefix == "uRecHit":
+                suffix = ("LowLong", "HighLong")
+            with self.subTest(prefix=prefix):
+                self.assertLessEqual(self.printed[prefix + suffix[0]], low)
+                self.assertGreaterEqual(self.printed[prefix + suffix[1]], high)
+
+    def test_the_population_link_never_rounds_up(self) -> None:
+        hits = [s["windows"][0]["window_hit_probability"]["0.25"]["400"] for s in self.quiet]
+        exact = 1.0 - (1.0 - sum(hits) / len(hits)) ** 10
+        self.assertLessEqual(self.printed["uRecLinkFewLong"], exact)
+
+    def test_the_link_counts_the_few_carriers_the_model_states(self) -> None:
+        self.assertEqual(self.printed["uOccCarriersFew"], 10)
+
+    def test_the_median_cell_sits_beyond_the_declared_distance_and_passes_inside(self) -> None:
+        p = self.printed
+        self.assertGreater(p["uRecDistanceMed"], p["uOccDistanceMax"])
+        self.assertGreaterEqual(p["uRecPassMedPercent"], p["uOccPassMinPercent"])
+        self.assertLessEqual(p["uRecPassMedPercent"], p["uOccPassMaxPercent"])
+
+    def test_the_recorded_link_is_above_the_models_bound(self) -> None:
+        self.assertGreater(self.printed["uRecLinkFewLong"], self.printed["uOccLinkFewLong"])
+
+    def test_no_two_timed_sweeps_are_simultaneous(self) -> None:
+        self.assertEqual(_read("recordings.json")["pairs"]["shared_starts"], 0)
 
 
 if __name__ == "__main__":

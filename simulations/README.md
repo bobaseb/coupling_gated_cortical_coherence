@@ -128,6 +128,15 @@ macros.
 chip counted by the occupancy protocol in closed form, at its nodes' threshold
 crossings, at its latch and at a synchronizer. It is cheap, so
 `test_unity_switching.py` reruns it and fails when the saved summary drifts.
+`unity_recordings.py` applies the same protocol to recorded membranes: the
+whole-cell recordings of Kiritani et al. (2023) from awake mouse barrel cortex
+(Zenodo 7833080, CC BY 4.0, 5.1 GB). `uv run python unity_recordings.py fetch`
+downloads them into the ignored `cache_kiritani2023/` and checks the deposit's
+digest; `uv run python unity_recordings.py run` (about 2.5 hours on four cores)
+writes `figures/unity_occupancy/recordings.json`, and `run --slow-ms 200 --type
+EXC` the sensitivity summary `recordings_slow200.json`. The data never enter
+the tree. `test_unity_recordings.py` checks the pipeline on synthetic model
+paths, where the answer is known, without the deposit.
 
 ## The wave extension
 

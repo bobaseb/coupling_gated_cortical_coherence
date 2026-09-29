@@ -91,6 +91,10 @@ path = "empirical_collapse"
 layer = "analysis"
 
 [[modules]]
+path = "unity_recordings"
+layer = "analysis"
+
+[[modules]]
 path = "collapse_design"
 layer = "analysis"
 depends_on = ["empirical_collapse"]

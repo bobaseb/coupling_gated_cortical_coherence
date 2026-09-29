@@ -4,3 +4,5 @@ cache_ds005620/
 # It has to be ignored, or mutmut git change detection reads its own output back
 # as changed input and invalidates the cache on every run.
 mutants/
+# Kiritani et al. (2023) whole-cell recordings, fetched by unity_recordings.py — ~5 GB
+cache_kiritani2023/
