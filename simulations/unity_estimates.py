@@ -109,6 +109,15 @@ BRIDGE_STEP_TO_NOISE = 10.0
 EPSP_MV = 1.3
 EPSP_CV = 0.52
 MEMBRANE_NOISE_MV = 0.54
+# Neighbouring layer 2/3 cells of awake mouse barrel cortex (Poulet & Petersen
+# 2008, Nature 454:881, dual whole-cell, 19 pairs): the zero-lag correlation of
+# their membrane potentials in quiet wakefulness and while whisking, and the
+# depolarization in the 20 ms before a spike, of the spiking cell and of its
+# neighbour.
+VM_CORRELATION_QUIET = 0.72
+VM_CORRELATION_WHISK = 0.33
+PRE_SPIKE_MV = 9.0
+NEIGHBOUR_PRE_SPIKE_MV = 1.4
 # Above this argument the Gaussian tail is taken from its asymptotic series.
 TAIL_SWITCH = 30.0
 # Declared: probabilities below 10^-100 are printed as that bound. The exact
@@ -219,6 +228,10 @@ def noise_floor() -> dict[str, float]:
         "corticalTV": tv_of_shift(dprime),
         # Every larger sub-threshold input passes: the ratio grows with the input.
         "epspPassMv": smallest_passing_input(EPSP_CV, MEMBRANE_NOISE_MV),
+        "vmCorrelationQuiet": VM_CORRELATION_QUIET,
+        "vmCorrelationWhisk": VM_CORRELATION_WHISK,
+        "preSpikeMv": PRE_SPIKE_MV,
+        "neighbourPreSpikeMv": NEIGHBOUR_PRE_SPIKE_MV,
     }
 
 

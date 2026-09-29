@@ -105,7 +105,7 @@ margin theorem excludes content read from bits. Constraints and history:
   Docstring gives the exchangeable floor ρ(1 − h)/h. lake build and the axiom
   audit pass; proof companion rebuilt. tab:formal row added and Limitations
   now states both forms.
-- [ ] **U47c — Read Poulet & Petersen 2008 in full.** Confirm the Vm
+- [x] **U47c — Read Poulet & Petersen 2008 in full.** Confirm the Vm
   correlations (search summary: 0.72 ± 0.11 quiet, 0.33 ± 0.17 whisking;
   not read in the paper) and the distance between recorded cells. If
   confirmed, cite measured values against the swept shares in §enforcement
@@ -113,6 +113,18 @@ margin theorem excludes content read from bits. Constraints and history:
   and consider sweeping c = 0.33 and 0.72 exactly. Also consider a second,
   private near-threshold drive (their spikes are driven by input absent from
   neighbours' Vm), which would make the one-component model pessimistic.
+  *Done 2026-09-29 (paper and SI read from the author's copy).* Confirmed:
+  mean zero-time-difference cross-correlation (mean over −2 to +2 ms, per 3-s
+  segment normalized to its s.d.) 0.72 ± 0.11 quiet, 0.33 ± 0.17 whisking,
+  19 dual whole-cell L2/3 pairs, one pair per mouse; shuffled 0.05 ± 0.11. No
+  inter-soma distance is reported ("nearby", same craniotomy). Pre-spike
+  depolarization over 20 ms: 9.0 ± 2.3 mV in the spiking cell, 1.4 ± 1.2 mV
+  in its neighbour (n = 7). No new sweep: both values lie inside the swept
+  range (0.72 ≤ 0.75 tolerated, 0.33 ≤ 0.5) and the miss grows with the share
+  (now a saved-data test), so the paper quotes the c = 0.5 and 0.75 misses as
+  bounds at the two measured correlations. Values are `ue…` constants in
+  `unity_estimates.py`; the private pre-spike drive is stated as making the
+  one-component model pessimistic near threshold, not modelled.
 
 *Review pass 2026-09-27 (score 4/10 standalone, ~4.5 read with the
 companion; 5 = reject).* Verdict: well written, honest about its limits,

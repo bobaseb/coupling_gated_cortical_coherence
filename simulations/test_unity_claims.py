@@ -42,7 +42,8 @@ CHECKLIST: dict[str, str] = {
             "uBrTaskTauLong uBrAccHigh uBrAccLow uBrNeuralEffect uBrBlockTrials uRlSigmaLow "
             "uRlSigmaHigh uRlRateLow uRlRateHigh uRecSlowMs uRecSlowAltMs uRecMinStateS "
             "uBrHeldStimuliFew "
-            "uBrHeldStimuliMany uBrHeldSpread"
+            "uBrHeldStimuliMany uBrHeldSpread ueVmCorrelationQuiet ueVmCorrelationWhisk "
+            "uePreSpikeMv ueNeighbourPreSpikeMv"
         ).split(),
         "declared",
     ),
@@ -238,6 +239,19 @@ class CorrelatedBoundsTest(unittest.TestCase):
         for share in shares:
             low = min(p - 2 * e for p, e in self._links(f"{share:g}", "400", "100"))
             self.assertGreaterEqual(low, printed["uCorLinkMidTol"])
+
+    def test_the_miss_grows_with_the_share_in_every_saved_regime(self) -> None:
+        shares = _read("correlated.json")["shares"]
+        by_share = [self._links(f"{s:g}", "400", "100") for s in shares]
+        for low, high in zip(by_share, by_share[1:], strict=False):
+            for (p_low, e_low), (p_high, e_high) in zip(low, high, strict=True):
+                self.assertLessEqual(p_high, p_low + 2 * (e_low + e_high))
+
+    def test_the_measured_correlations_lie_within_the_quoted_shares(self) -> None:
+        printed = _printed()
+        self.assertLessEqual(printed["ueVmCorrelationQuiet"], printed["uCorShareTol"])
+        self.assertLessEqual(printed["ueVmCorrelationWhisk"], printed["uCorShareB"])
+        self.assertLess(printed["ueNeighbourPreSpikeMv"], printed["uePreSpikeMv"])
 
 
 class SwitchingClaimsTest(unittest.TestCase):

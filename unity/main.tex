@@ -523,8 +523,8 @@ whether the membrane fired within the window finds it passing at
 \uOccCountPassMinPercent{} to \uOccCountPassMaxPercent\% of its states; if every
 cortical reader pooled spikes only over windows longer than a content's time
 scale, P would deny unity to cortex, and that would count against P. With
-shared input \citep{poulet2008} up to \uCorShareTol{} of the noise variance,
-at least one of \uOccCarriersMany{} model carriers supplies a directed reach
+shared input up to \uCorShareTol{} of the noise variance, above the correlation
+of neighbouring membranes in quiet wakefulness \citep{poulet2008}, at least one of \uOccCarriersMany{} model carriers supplies a directed reach
 within \uOccContentLongMs{}~ms with probability at
 least \uCorLinkManyTol{}. And a chip's nodes, which pass through their thresholds
 many times in every window, pass at the voltage as a membrane does, since a
@@ -1035,8 +1035,9 @@ ranges, not fits. The recorded check covers one area of one species in one
 dataset without simultaneous recordings, and reads its passing states off a
 Gaussian model held at the slow part of the potential, which predicts
 \uRecRateRatioMed{} times the median cell's firing rate. Correlation is one shared component at declared shares,
-compared with the correlations of neighbouring cells, and omits the unshared
-input that drives the single spikes of awake cortex \citep{poulet2008}. The
+which span the correlations of neighbouring cells measured in one area of the
+mouse, and the model shares the approach to threshold in the same proportion,
+where the recordings show it to be mostly private \citep{poulet2008}. The
 carrier counts stay far below the anatomical ones. The per-window bound is
 proved for independent carriers and, without independence, as the variance of
 the number that pass over the square of its mean, a ratio that correlation keeps
@@ -1411,13 +1412,23 @@ the count. So P classes a cortical membrane as a graded carrier whether its
 readers integrate spike times at the grain of milliseconds, as the evidence of
 Section~\ref{sec:cover} indicates, or pool spikes over the content's window.
 
-\paragraph{Shared input.} In awake cortex neighbouring membrane potentials are
-highly correlated during quiet wakefulness and less so during active behaviour
-\citep{poulet2008}. The model gives every membrane a shared component carrying a
-fraction $c$ of its noise variance, so that two membranes correlate by $c$ and
-each keeps its own law. At least one of \uOccCarriersMid{} such carriers enters a
-passing state within \uOccContentLongMs{}~ms with probability at least
-\uCorLinkMidTol{} for every share up to $c=\uCorShareTol$, in every regime.
+\paragraph{Shared input.} In the barrel cortex of awake mice, the membrane
+potentials of neighbouring layer~2/3 cells correlate at zero lag by
+\ueVmCorrelationQuiet{} on average during quiet wakefulness and by
+\ueVmCorrelationWhisk{} while the animal whisks \citep{poulet2008}. The model
+gives every membrane a shared component carrying a fraction $c$ of its noise
+variance, so that two membranes correlate by $c$ and each keeps its own law. At
+least one of \uOccCarriersMid{} such carriers enters a passing state within
+\uOccContentLongMs{}~ms with probability at least \uCorLinkMidTol{} for every
+share up to $c=\uCorShareTol$, in every regime. Both measured correlations lie in
+that range. The chance of a window without a link grows with the share, so it
+is at most \uCorMissB{} at the whisking correlation and \uCorMissC{} at the
+quiet one. The same recordings show that the input carrying a membrane to its
+threshold is mostly its own: in the 20~ms before a spike the spiking cell
+depolarizes by \uePreSpikeMv{}~mV and its neighbour by
+\ueNeighbourPreSpikeMv{}~mV \citep{poulet2008}. The model shares that approach
+in the same proportion as the rest of the fluctuation, so near threshold it
+correlates the carriers more than the recordings do.
 
 \paragraph{Switching nodes.} Take a \uSwClockGHz{}~GHz clock and nodes that
 switch in \uSwActivityLow{} to \uSwActivityHigh{} of its cycles, each transition
