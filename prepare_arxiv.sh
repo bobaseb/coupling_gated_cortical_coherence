@@ -1,7 +1,7 @@
 #!/bin/bash
-# Build the arXiv submission from the manuscript sources, and the bioRxiv pair
+# Build the arXiv submission from the manuscript sources, and the PsyArXiv pair
 # (the same NeurIPS-styled article and supplement as separate PDFs) beside it
-# in arxiv_submit/biorxiv/.
+# in arxiv_submit/psyarxiv/.
 #
 # Four rules keep this from going stale or shipping something broken. The file
 # set is *read from the .tex sources* on every run rather than listed here, so a
@@ -111,8 +111,8 @@ edit "drop the lineno package"       '/\\usepackage{lineno}/d'
 edit "drop \\linenumbers"            '/^\\linenumbers$/d'
 edit "keep citation links off page breaks" "$CITE_BOXING"
 
-# 4. The bioRxiv pair: the same NeurIPS-styled article on its own, and the
-#    supplement styled to match as a separate file. bioRxiv takes the article
+# 4. The PsyArXiv pair: the same NeurIPS-styled article on its own, and the
+#    supplement styled to match as a separate file. PsyArXiv takes the article
 #    as one PDF and supplemental material as separate files, so these two PDFs
 #    are built from the styled sources before the merge below absorbs the
 #    supplement. The supplement's \externaldocument{main} reads the styled
@@ -153,12 +153,12 @@ for doc in main supplementary; do
   fi
   [ -f "$split/$doc.pdf" ] || { echo "prepare_arxiv: no standalone $doc.pdf produced" >&2; split_fail=1; }
 done
-[ "$split_fail" -eq 0 ] || { rm -rf "$split"; echo "prepare_arxiv: NOT shipping a broken bioRxiv pair" >&2; exit 1; }
-mkdir -p biorxiv
-cp "$split/main.pdf" biorxiv/main.pdf
-cp "$split/supplementary.pdf" biorxiv/supplementary.pdf
+[ "$split_fail" -eq 0 ] || { rm -rf "$split"; echo "prepare_arxiv: NOT shipping a broken PsyArXiv pair" >&2; exit 1; }
+mkdir -p psyarxiv
+cp "$split/main.pdf" psyarxiv/main.pdf
+cp "$split/supplementary.pdf" psyarxiv/supplementary.pdf
 rm -rf "$split"
-echo "prepare_arxiv: bioRxiv pair built, $(pdfinfo biorxiv/main.pdf | awk '/^Pages:/{print $2}') + $(pdfinfo biorxiv/supplementary.pdf | awk '/^Pages:/{print $2}') pages"
+echo "prepare_arxiv: PsyArXiv pair built, $(pdfinfo psyarxiv/main.pdf | awk '/^Pages:/{print $2}') + $(pdfinfo psyarxiv/supplementary.pdf | awk '/^Pages:/{print $2}') pages"
 
 # 5. Merge the supplement in as an appendix. Its preamble is dropped, and so is
 #    its own \input{references}: the merged document has one bibliography.

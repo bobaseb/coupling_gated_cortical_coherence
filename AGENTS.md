@@ -69,8 +69,8 @@ applies the NeurIPS style, packs the sources and compiles the result. Three
 failure modes are invisible from either source file, so three gates read the
 assembled submission rather than the files it is assembled from.
 
-The same run also writes `arxiv_submit/biorxiv/`: the NeurIPS-styled article
-and supplement as two PDFs, because bioRxiv takes supplemental material as a
+The same run also writes `arxiv_submit/psyarxiv/`: the NeurIPS-styled article
+and supplement as two PDFs, because PsyArXiv takes supplemental material as a
 separate file. They are built from the same styled sources as the merged
 document, and the supplement reads the styled article's `.aux`, so the pair
 cannot disagree with the arXiv build about numbering.

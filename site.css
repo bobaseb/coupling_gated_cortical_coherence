@@ -259,14 +259,6 @@ a:hover {
     background: #1a252f;
 }
 
-.button-pending {
-    background: transparent;
-    color: #7f8c8d;
-    border: 1px dashed #b0bec5;
-    cursor: default;
-    font-weight: normal;
-}
-
 .link-note {
     font-size: 0.95rem;
     color: #555;

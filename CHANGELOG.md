@@ -18,8 +18,8 @@ a list of everything that changed; it lists **claims that were made and are no
 longer made**, which is a much shorter list and the only one worth being able to
 find.
 
-No version of this work has been posted or submitted. Nothing below was ever
-published, so nothing below is a correction to the scholarly record.
+The article is posted on PsyArXiv, <https://doi.org/10.31234/osf.io/fydt3_v1>.
+The physical-unity paper in `unity/` has not been posted or submitted.
 
 ---
 

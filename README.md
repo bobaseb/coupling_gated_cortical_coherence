@@ -17,7 +17,7 @@ Sebastian Bobadilla-Suarez &middot; Independent Researcher &middot;
 
 *A conditional field model of cortical coherence, with a machine-checked composition, a testable recovery prediction, and its assumptions named.*
 
-[**Read the Paper**](main.pdf) | [**Math Supplement**](supplementary.pdf) | [**Maths Primer**](docs/primer.pdf) | [**Project Website**](https://bobaseb.github.io/coupling_gated_cortical_coherence/)
+[**Read the Paper**](main.pdf) | [**PsyArXiv Preprint**](https://doi.org/10.31234/osf.io/fydt3_v1) | [**Math Supplement**](supplementary.pdf) | [**Maths Primer**](docs/primer.pdf) | [**Unity Paper**](unity/main.pdf) | [**Project Website**](https://bobaseb.github.io/coupling_gated_cortical_coherence/)
 
 [**Lean Proof Companion**](proof_companion/README.md) — mathematical explanations,
 extracted statements, and tactic traces; initial coverage of 12 results.
@@ -160,7 +160,11 @@ The manuscript and supplementary materials are written in LaTeX and compiled usi
 
 A third document is a companion rather than part of the publication:
 
-- `docs/primer.tex`: a plain-English primer on the advanced mathematics and physics used in both, for readers coming from cognitive neuroscience, machine learning or philosophy of mind. It works through each object in turn — what it is, why the framework needs it, what is actually proved, and what is not — and covers the topology, thermodynamics, operator theory, Kuramoto dynamics, bifurcation theory, sheaf theory, fixed-point theory, circular statistics and formal methodology that the two papers use. It reads the manuscript's generated numerical macros, so its figures cannot drift from the saved simulation summaries. Where it differs from `main.tex` or `supplementary.tex`, those are authoritative.
+- `docs/primer.tex`: a plain-English primer on the advanced mathematics and physics used in both, for readers coming from cognitive neuroscience, machine learning or philosophy of mind. It works through each object in turn — what it is, why the framework needs it, what is actually proved, and what is not — and covers the topology, thermodynamics, operator theory, Kuramoto dynamics, bifurcation theory, sheaf theory, fixed-point theory, circular statistics and formal methodology that the article and its supplement use. It reads the manuscript's generated numerical macros, so its figures cannot drift from the saved simulation summaries. Where it differs from `main.tex` or `supplementary.tex`, those are authoritative.
+
+The repository also carries a second, self-contained paper:
+
+- `unity/main.tex`: *Unity requires physically enforced agreement* — why one physical state is not the same as many records kept in step. It is a single document with its appendix, with its own [PDF](unity/main.pdf) and [project page](https://bobaseb.github.io/coupling_gated_cortical_coherence/unity/index.html). `unity/prepare_arxiv.sh` builds its arXiv submission in `unity/arxiv_submit/`, as `./prepare_arxiv.sh` does for the article above.
 
 ## 🤖 AI Assistance
 
