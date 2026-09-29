@@ -115,6 +115,42 @@ class VisitTest(unittest.TestCase):
         self.assertLess(coarse, fine)
 
 
+class RelabelTest(unittest.TestCase):
+    """U107: a session's relabelling moves the stimuli and the quantizer's levels together."""
+
+    def test_an_offset_quantizer_reads_the_nearest_shifted_level(self) -> None:
+        values = ub.quantize(np.array([0.4, 0.6, -1.6]), 1.0, offset=0.5)
+        self.assertEqual(values.tolist(), [0.5, 0.5, -1.5])
+
+    def test_a_relabelled_session_delivers_levels_it_never_delivered_before(self) -> None:
+        loop = ub.Loop("quantized", ub.DECLARED_STEP)
+        plain = ub.simulate(ub.held(1), loop, trials=40, seed=0)
+        shifted = ub.simulate(ub.held(1, offset=0.5), loop, trials=40, seed=0)
+        quantized = ub.quantize(shifted.quantizer_input, ub.DECLARED_STEP, offset=0.5)
+        before = ub.quantize(plain.quantizer_input, ub.DECLARED_STEP)
+        levels = {float(v) for v in np.unique(before)}
+        self.assertFalse(levels & {float(v) for v in np.unique(quantized)})
+
+    def test_relabelling_keeps_the_held_spread(self) -> None:
+        self.assertEqual(ub.held(2, offset=0.5).sd, ub.held(2).sd)
+
+    def test_relabelling_keeps_what_the_quantized_loop_carries(self) -> None:
+        loop = ub.Loop("quantized", ub.DECLARED_STEP)
+        plain = ub.evaluate(ub.held(2), loop, trials=100, seed=0)
+        shifted = ub.evaluate(ub.held(2, offset=0.5), loop, trials=100, seed=0)
+        for estimator in ub.ESTIMATORS:
+            for field in ("transfer_entropy", "decodability"):
+                with self.subTest(estimator=estimator, field=field):
+                    before = getattr(plain[estimator], field)
+                    after = getattr(shifted[estimator], field)
+                    self.assertAlmostEqual(after, before, delta=1e-6 * abs(before) + 1e-9)
+
+    def test_relabelling_keeps_the_quantized_loop_clear_of_the_passing_band(self) -> None:
+        plain = ub.visit_fraction(ub.held(2), ub.DECLARED_STEP, trials=200, seed=0)
+        shifted = ub.visit_fraction(ub.held(2, offset=0.5), ub.DECLARED_STEP, trials=200, seed=0)
+        self.assertEqual(shifted, plain)
+
+
 class SettleTest(unittest.TestCase):
     def test_a_held_trial_opens_its_window_after_the_slowest_loop_has_settled(self) -> None:
         tau_ms = 1000 / (2 * math.pi * ue.estimates()["bridgeMinCutoffHz"])

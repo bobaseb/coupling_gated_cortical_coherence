@@ -33,6 +33,14 @@ held stimulus sits mid-step. A trial lasts one content window, and each step's
 ``SETTLE_TAUS`` time constants of the slowest analog loop after the stimulus,
 once that loop has settled at the new level.
 
+A session can be *relabelled* (U107) by shifting the held stimuli and the
+quantizer's levels together by a fraction of a step. Every other stage is
+linear and time-invariant and the quantizer commutes with the joint shift, so
+every signal moves by a constant: what the loop carries and its visits to the
+passing band are unchanged, while the currents it delivers are ones the
+unshifted sessions never delivered, which invalidates a code learned from
+them.
+
 Settled on a held stimulus, the analog loop at its slowest cutoff carries more
 linear transfer entropy than the quantized loop at every step whose input stays
 clear of the passing band, so a third setting matches them: white noise of the
@@ -162,20 +170,26 @@ class Task:
 
     An ``ou`` task varies continuously. A ``held`` task holds one stimulus for
     the trial, at one of ``2 levels + 1`` centres of the declared step, and its
-    time constant is the trial's length.
+    time constant is the trial's length. A session's ``offset``, in steps,
+    relabels it (U107): the stimuli and the quantizer's levels move together.
     """
 
     sd: float
     tau_ms: float
     kind: Literal["ou", "held"] = "ou"
     levels: int = 0
+    offset: float = 0.0
 
 
-def held(levels: int) -> Task:
-    """Stimuli held for the trial at the declared step's centres ``-levels .. levels``."""
+def held(levels: int, offset: float = 0.0) -> Task:
+    """Stimuli held for the trial at the declared step's centres ``-levels .. levels``.
+
+    An ``offset`` shifts every centre by that fraction of a step, and the
+    quantizer's levels with them.
+    """
     centres = DECLARED_STEP * np.arange(-levels, levels + 1)
     sd = math.sqrt(float(np.mean(centres**2)) + HELD_SPREAD**2 / 3)
-    return Task(sd, TRIAL_STEPS * DT_S * 1000, "held", levels)
+    return Task(sd, TRIAL_STEPS * DT_S * 1000, "held", levels, offset)
 
 
 TASKS = (
@@ -222,9 +236,9 @@ def lowpass(x: FloatArray, cutoff_hz: float) -> FloatArray:
     return np.asarray(lfilter([1 - a], [1, -a], x, axis=-1), dtype=np.float64)
 
 
-def quantize(x: FloatArray, step: float) -> FloatArray:
-    """The nearest multiple of ``step``."""
-    return np.asarray(step * np.round(x / step), dtype=np.float64)
+def quantize(x: FloatArray, step: float, offset: float = 0.0) -> FloatArray:
+    """The nearest of the levels ``step * (k + offset)``."""
+    return np.asarray(step * (np.round(x / step - offset) + offset), dtype=np.float64)
 
 
 def _ou(rng: np.random.Generator, shape: tuple[int, int], tau_ms: float, sd: float) -> FloatArray:
@@ -233,8 +247,9 @@ def _ou(rng: np.random.Generator, shape: tuple[int, int], tau_ms: float, sd: flo
     return np.asarray(lfilter([1], [1, -a], kicks, axis=-1), dtype=np.float64)
 
 
-def _held(rng: np.random.Generator, shape: tuple[int, int], levels: int) -> FloatArray:
-    centre = DECLARED_STEP * rng.integers(-levels, levels + 1, size=(shape[0], 1))
+def _held(rng: np.random.Generator, shape: tuple[int, int], task: Task) -> FloatArray:
+    k = rng.integers(-task.levels, task.levels + 1, size=(shape[0], 1))
+    centre = DECLARED_STEP * (k + task.offset)
     level = centre + rng.uniform(-HELD_SPREAD, HELD_SPREAD, size=(shape[0], 1))
     return np.asarray(np.broadcast_to(level, shape), dtype=np.float64)
 
@@ -247,9 +262,9 @@ def burn_steps(task: Task) -> int:
     return max(BURN_STEPS, math.ceil(SETTLE_TAUS * tau_ms / (DT_S * 1000)))
 
 
-def _drive(shared: FloatArray, loop: Loop, seed: int) -> FloatArray:
+def _drive(shared: FloatArray, loop: Loop, seed: int, offset: float) -> FloatArray:
     if loop.kind == "quantized":
-        return quantize(shared, loop.setting)
+        return quantize(shared, loop.setting, offset)
     if loop.noise == 0.0:
         return lowpass(shared, loop.setting)
     # The loop's own generator, so every other draw is shared with the silent loop.
@@ -262,16 +277,12 @@ def simulate(task: Task, loop: Loop, trials: int, seed: int) -> Trials:
     rng = np.random.default_rng(seed)
     burn = burn_steps(task)
     shape = (trials, TRIAL_STEPS + burn)
-    s = (
-        _held(rng, shape, task.levels)
-        if task.kind == "held"
-        else _ou(rng, shape, task.tau_ms, task.sd)
-    )
+    s = _held(rng, shape, task) if task.kind == "held" else _ou(rng, shape, task.tau_ms, task.sd)
     recorded_a = (
         s + _ou(rng, shape, REGION_TAU_MS, 1.0) + RECORDING_NOISE * rng.standard_normal(shape)
     )
     shared = lowpass(recorded_a, FILTER_HZ)
-    current = lowpass(_drive(shared, loop, seed), FILTER_HZ)
+    current = lowpass(_drive(shared, loop, seed, task.offset), FILTER_HZ)
     leak = math.exp(-DT_S * 1000 / REGION_TAU_MS)
     kicks = (1 - leak) * np.roll(current, 1, axis=-1) + math.sqrt(
         1 - leak**2
@@ -287,11 +298,11 @@ def visit_fraction(task: Task, step: float, trials: int, seed: int) -> float:
     """Share of trials, one content window each, whose quantizer input enters the passing band.
 
     A state passes when it lies within ``fail_distance`` of an edge, halfway
-    between two multiples of ``step`` (``unity_estimates``); criterion G asks
+    between two of the quantizer's levels (``unity_estimates``); criterion G asks
     only whether the window visits such a state.
     """
     x = simulate(task, Loop("quantized", step), trials, seed).quantizer_input
-    to_edge = step / 2 - np.abs(x - step * np.round(x / step))
+    to_edge = step / 2 - np.abs(x - quantize(x, step, task.offset))
     return float(np.mean(np.any(to_edge <= fail_distance(1.0, RECORDING_NOISE), axis=1)))
 
 

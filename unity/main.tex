@@ -719,6 +719,8 @@ about experienced unity. Calibration separates those reports from reports of
 local visibility, the ability to report from each region, attention, and
 success on each component task. The criterion is fixed in advance and applied
 equally to natural coupling, artificial bridges and gradual replacement.
+Appendix~\ref{app:bridge} specifies the time-resolved report calibration and
+the competing switching account used to assess this readout.
 
 Under R, if a bridge certified to remove P's coupling leaves reports of unity
 intact, P and R are challenged together, and the experiment commits to reading
@@ -815,7 +817,11 @@ performance is what P expects. If the analog bridge fails to restore
 integration, the positive control has failed and the comparison is
 uninformative. In animals, accuracy constrains the observer's predictions and
 the perturbation measurements test P's physical conditions; the experiential
-comparison rests on R's calibration in humans.
+comparison rests on R's calibration in humans. A stable stimulation code can
+also be learned as a symbol; a readout restored that way improves over sessions
+and is lost when the quantizer's levels are relabelled, whereas one restored by
+coupling is present from the first bridged blocks and follows the relabelling
+(Appendix~\ref{app:bridge}).
 
 \paragraph{A first preparation.} Closed loops that trigger stimulation at one
 cortical site from spikes recorded at another already run for days in behaving
@@ -1027,7 +1033,11 @@ unity needs visibility, attention and report ability controlled. If reports of
 unity survive a certified failure of P, P and R are challenged together; giving
 up R would also give up the behavioural inference in gradual replacement. The
 proposed experiment cannot settle P independently of every readout
-assumption.
+assumption. Calibration against externally alternating stimuli constrains the
+report model but does not establish that those stimuli produce a particular
+experience. Switching faster than the calibrated temporal resolution can remain
+indistinguishable from simultaneous experience in both reports and recordings;
+such a regime leaves the experiential bridge comparison inconclusive.
 
 \item \emph{Human preparations.} The experiential comparison needs a human in
 whom the natural connection between two regions is interrupted and a bridge
@@ -1092,7 +1102,12 @@ across centimetres is a quantity to be measured.
 can be controlled in a one-directional transmission model with declared noise
 and filters. They do not establish that the full reciprocal preparation falls
 on opposite sides of P, and they do not fit the rival observer. The model has
-no spikes, stimulation artefact or plasticity. The fraction of time a loop
+no spikes, stimulation artefact or plasticity. Over the weeks an experiment
+runs, indirect routes can strengthen and the bridge can reorganize the
+connections it drives; the design measures the residual route in every block
+and bounds it in advance, and does not model either process. Relabelling
+leaves the information a loop carries unchanged exactly in the linear model
+only, and on a preparation it is measured on the relabelled blocks. The fraction of time a loop
 fails at an instant does not certify that it fails over a whole window, and
 bounds on single bits do not certify a reader of a joint word or of repeated
 samples. Temporal response, alternative anatomical routes and restoration need
@@ -1834,6 +1849,55 @@ are fitted on calibration blocks and fixed for the comparison. Both decision
 models use a common rule across arms, with no free coefficient for the analog
 or quantized label.
 
+\paragraph{Calibrating the report readout.} Before the human bridge comparison,
+the same subject performs a separate calibration with the natural connection
+intact. The two fields carry distinguishable features, presented together on
+some trials and in deliberate alternation at several dwell times on others.
+Where an ambiguous display elicits reported perceptual switches, it provides a
+further timing control: alternation of the stimuli is not assumed to equal
+alternation of experience. A cue at an unpredictable time asks whether the
+features were present in one simultaneous scene at that instant, appeared in
+succession, or only one was present; ``uncertain'' is an available answer.
+Other trials probe each feature separately, to measure local visibility and
+report ability without requiring a judgment of unity. Report category, latency
+and confidence are recorded, with continuous switch reports in designated
+calibration blocks. Eye position and intracranial activity constrain the timing
+and local availability of the features. A decoder trained on local-feature
+trials is held fixed across conditions; concurrent neural decoding is not
+itself a measure of experienced unity. An optional functional MRI localizer can
+be collected in a separate session; the bridge comparison uses the intracranial
+recordings and reports from the same trials.
+
+The report analysis compares two fitted accounts. A joint-state account permits
+both features in one candidate perceptual state. A switching account has states
+in which one field or the other is current, with fitted dwell times, memory and
+report integration; it can therefore predict an answer of ``one scene'' even
+after a succession of separate states. Both accounts take the observer's
+estimated feature states as input and share measured local visibility, task
+evidence, report delays and decision biases. The logistic $p_U$ above is the
+observer's marginal prediction for the unity answer; the report models extend
+it to the distribution of report category, latency, confidence and local-probe
+answers. Calibration fits those distributions and scores both accounts on
+held-out trials. The report criterion, temporal range, minimum held-out
+separation between their predicted distributions and equivalence margins for
+local visibility and report ability are fixed from pilot data before bridge
+outcomes are examined. Fitted report parameters are then frozen; the measured
+bridge signals may change the models' inputs but the arm label adds no free
+report parameter.
+
+The human comparison is informative about R only in blocks where the calibrated
+models make separable report predictions, both fields remain locally available,
+and the physical test classifies the bridge routes. The primary report contrast
+is the probability of a simultaneous-scene answer after the unpredictable cue,
+with local-feature detection and report ability matched across arms. Latency,
+confidence and switch reports test the switching account on held-out blocks. The
+recurrent observer is scored against the full report distribution, not just the
+fraction of simultaneous answers. If switching is faster than the calibrated
+report and neural resolution, or if the two fitted accounts make equivalent
+predictions, these observations do not distinguish switching from unity. The
+calibration tests the usefulness of R at the measured time scale; it does not
+turn reports or coactive neural signals into direct observations of experience.
+
 The factorial comparison fits the effects of bandwidth and quantization
 separately, while the resolution sweep at fixed bandwidth tests their
 interaction with noise and delay. The experiment records impulse responses,
@@ -2004,9 +2068,57 @@ their release there, reversibly and only on that pathway \citep{stachniak2014}.
 Optogenetic inhibition at terminals attenuates evoked release when timed
 precisely, while sustained archaerhodopsin activation increases spontaneous
 release \citep{mahn2016}, so it suits only brief blocks. Indirect routes, through
-the pulvinar or other cortical areas, remain. The directed perturbations measure
-how much of a nudge in A still reaches B with both loops off, and that residual
-enters the certification as a biological path of its own.
+the pulvinar or other cortical areas, remain, so the natural route is reduced
+rather than severed. The directed perturbations measure how much of a nudge in A
+still reaches B with both loops off, and that residual enters the certification
+as a biological path of its own. It is measured before and after every block,
+because it can grow: behaviour impaired by acute silencing of an area recovers
+spontaneously within days of a permanent lesion of the same area
+\citep{otchy2015}, and a pathway silenced for weeks invites the same
+compensation. A ceiling on the residual, fixed before any comparison, is the
+largest residual at which the quantized loop's complete map to B, residual path
+included, still fails criterion $G$; a block in which the ceiling is crossed
+leaves the quantized arm uncertified.
+
+\paragraph{A preparation that changes over weeks.} A bridge experiment runs for
+weeks, and the substrate it tests changes with it. Unbridged blocks interleaved
+with bridged ones in every session give a same-day baseline, so recovery
+through other routes is subtracted session by session rather than once per
+animal. The bridge is itself a plasticity protocol: the spike-triggered implant
+cited as precedent reorganized motor cortex output over days, with changes
+lasting more than a week \citep{jackson2006}, and the two arms deliver different
+waveforms and may induce different changes. The recommended design
+counterbalances the order of the arms across animals and runs the fewest
+sessions the power analysis allows. Acute preparations remove both processes at
+a cost in trials per animal, and are the alternative for a first arm; the
+choice rests on pilot variance and belongs to the experiment.
+
+\paragraph{Learned stimulation codes.} A stable stimulation pattern can be
+learned as a symbol: monkeys learn to discriminate objects signalled only by
+temporal patterns of intracortical microstimulation \citep{odoherty2011}. A
+quantized loop whose levels stay fixed for weeks could restore behavioural
+integration through a learned code rather than through coupling, and that
+would read as a preserved readout in a condition certified to fail P. Two
+signatures separate the routes. A readout restored by coupling is present from
+the first bridged blocks, while one restored by a learned code improves over
+sessions, so the readout is reported session by session as well as pooled. And
+a learned code is tied to the levels it was learned on. The recommended control
+relabels the loop between sessions: the held stimuli and the quantizer's levels
+shift together by a fraction of a step, a half step in the simulations, in both
+arms. Every stage of the model loop other than the quantizer is linear and
+time-invariant, and the quantizer commutes with the joint shift, so every
+signal moves by a constant. In simulation the quantized loop's transfer entropy
+and task information, by both estimators, and its visits to the passing band
+are unchanged, and every level it delivers is one the unshifted sessions never
+delivered. The stimuli stay at the centres of steps, so the certification
+stands. A readout that rests on how B's own dynamics read the delivered current
+follows the shift, since A's stimulus and B's current move together; a code
+learned on the earlier sessions' levels does not. A learned code that interpolates between
+levels can survive the shift, and the time course is what catches it. Permuting
+the levels instead breaks every learned map, and also breaks the topographic
+correspondence through which B reads the current, so a readout lost under
+permutation does not tell the two routes apart. Which relabelling a preparation
+uses, and how often, is a choice for the experiment.
 
 \paragraph{Size of the experiment.} The trial counts above are per loop
 condition. They multiply with the cells of the factorial design and the blocks

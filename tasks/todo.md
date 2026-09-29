@@ -1332,6 +1332,70 @@ is the only item that could lift the U85 cap (to about 7.5–8).*
   production rerun was made, so pass fractions, window visits and the
   Limitations rate clause stand as published.
 
+- [x] **U107 — The preparation is not static: rerouting, bridge-induced
+  plasticity and learned stimulation codes.** Raised 2026-09-29 by the
+  author: can the natural connection really be severed, or do the regions
+  adapt through another route? It can only be reduced. The paper treats the
+  residual as a measured path (app:bridge, "Interrupting the connection"),
+  but measures it once and assumes the substrate stays fixed. A bridge
+  experiment runs for weeks, and three processes change the substrate:
+  (1) *rerouting*: silenced pathways invite compensation through indirect
+  routes, and behaviour impaired by acute silencing recovers spontaneously
+  after permanent lesions of the same areas (Otchy et al. 2015, *Nature*
+  528:358–363, doi:10.1038/nature16442); (2) *the bridge is a plasticity
+  protocol*: the recurrent spike-triggered implant the paper cites as
+  precedent reorganized motor cortex output over days, with changes lasting
+  more than a week (Jackson, Mavoori & Fetz 2006, *Nature* 444:56–60,
+  doi:10.1038/nature05226), and the two arms may induce different changes;
+  (3) *learned codes*: monkeys learn to discriminate objects signalled only
+  by temporal patterns of intracortical microstimulation (O'Doherty et al.
+  2011, *Nature* 479:228–231, doi:10.1038/nature10489), so a stable
+  quantized code can be learned as a symbol and restore behavioural
+  integration without coupling, the access-without-unity case that would
+  read as a preserved report. All three references verified online
+  2026-09-29 (authors, title, venue, year); `jackson2006` is already in
+  `unity/references.tex`, the other two are not.
+  **Why it matters:** the decisive outcome (a preserved readout with a
+  quantized bridge certified to fail) has two escapes unless pinned down in
+  advance: the residual grew until the quantized loop passed, or the
+  readout assumption failed through a learned code. A reviewer will call P
+  unfalsifiable if either is decided after the outcome.
+  **Do:** (a) app:bridge: the residual is measured before and after every
+  block, and a preregistered ceiling on it, fixed before any comparison,
+  ends the quantized arm's certification when crossed; (b) interleaved
+  unbridged blocks give a same-day baseline, so rerouting is subtracted
+  per session, not per animal; (c) a time-course prediction in
+  §tests/Predictions: coupling restores the readout from the first blocks,
+  a learned code improves over sessions; (d) a relabelling control: shift
+  the quantizer's offset or permute its levels between sessions, which
+  keeps the information it carries (check this in `unity_bridge.py` on held
+  stimuli, tests first) and invalidates a learned code while leaving
+  coupling intact; (e) exposure limits: counterbalanced arm order and the
+  fewest sessions the power analysis allows; (f) Limitations: rerouting and
+  bridge-induced plasticity over weeks. Cite the two new references only
+  where the paper argues from them. `check_claims.py` after each section;
+  (c) and (d) are claims, the rest belongs in the appendix.
+  **Open questions for the author:** whether (d) should permute levels
+  (breaks any learned map, but changes which stimuli share a code) or
+  only shift the offset (keeps the map's order); whether acute
+  preparations should be the first arm despite the power cost.
+  *Done 2026-09-29:* per the author, the paper recommends designs and leaves
+  the choice to the experimentalist. Appendix app:bridge carries (a), (b),
+  (e) and (d) with its reasoning: "Interrupting the connection" gains the
+  per-block residual and its ceiling (Otchy 2015); new paragraphs "A
+  preparation that changes over weeks" (interleaved baseline, Jackson 2006,
+  counterbalanced order, acute preparations as the alternative) and "Learned
+  stimulation codes" (O'Doherty 2011, time course, recommended half-step
+  joint shift of stimuli and levels; permutation discussed and not
+  recommended, because it also breaks B's native reading of the current and
+  so cannot separate the routes). Main text: one prediction sentence in
+  "Predictions and outcomes" and a clause in the Limitations item "The
+  bridge's reach". `unity_bridge.py` gains `Task.offset` and an offset
+  quantizer; `RelabelTest` checks that the joint shift keeps both estimators'
+  transfer entropy and decodability and the visit fraction, and delivers only
+  new levels. No macro: the invariance is exact, so the paper states it
+  without a numeral, and the production summary is not rerun.
+
 - [ ] **U31 — Venue.** No new data and a self-described short theorem put an
   ML venue at 4–5 regardless of content. Peer review target: *Neuroscience of
   Consciousness* or *Phil. Trans. B*. arXiv posting: cs.AI primary (author has
