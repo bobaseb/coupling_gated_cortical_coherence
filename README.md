@@ -17,7 +17,7 @@ Sebastian Bobadilla-Suarez &middot; Independent Researcher &middot;
 
 *A conditional field model of cortical coherence, with a machine-checked composition, a testable recovery prediction, and its assumptions named.*
 
-[**Read the Paper**](main.pdf) | [**PsyArXiv Preprint**](https://doi.org/10.31234/osf.io/fydt3_v1) | [**Math Supplement**](supplementary.pdf) | [**Maths Primer**](docs/primer.pdf) | [**Unity Paper**](unity/main.pdf) | [**Project Website**](https://bobaseb.github.io/coupling_gated_cortical_coherence/)
+[**Read the Paper**](main.pdf) | [**PsyArXiv Preprint**](https://doi.org/10.31234/osf.io/fydt3_v1) | [**Math Supplement**](supplementary.pdf) | [**Maths Primer**](docs/primer.pdf) | [**Unity Paper**](unity/main.pdf) ([**PsyArXiv**](https://doi.org/10.31234/osf.io/dkqep_v1)) | [**Project Website**](https://bobaseb.github.io/coupling_gated_cortical_coherence/)
 
 [**Lean Proof Companion**](proof_companion/README.md) — mathematical explanations,
 extracted statements, and tactic traces; initial coverage of 12 results.
@@ -164,7 +164,7 @@ A third document is a companion rather than part of the publication:
 
 The repository also carries a second, self-contained paper:
 
-- `unity/main.tex`: *Unity requires physically enforced agreement* — why one physical state is not the same as many records kept in step. It is a single document with its appendix, with its own [PDF](unity/main.pdf) and [project page](https://bobaseb.github.io/coupling_gated_cortical_coherence/unity/index.html). `unity/prepare_arxiv.sh` builds its arXiv submission in `unity/arxiv_submit/`, as `./prepare_arxiv.sh` does for the article above.
+- `unity/main.tex`: *Unity requires physically enforced agreement* — why one physical state is not the same as many records kept in step. It is a single document with its appendix, with its own [PDF](unity/main.pdf), [PsyArXiv preprint](https://doi.org/10.31234/osf.io/dkqep_v1) and [project page](https://bobaseb.github.io/coupling_gated_cortical_coherence/unity/index.html). `unity/prepare_arxiv.sh` builds its arXiv submission in `unity/arxiv_submit/`, as `./prepare_arxiv.sh` does for the article above.
 
 ## 🤖 AI Assistance
 
