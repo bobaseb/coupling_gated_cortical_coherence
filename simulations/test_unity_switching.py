@@ -5,6 +5,7 @@ import math
 import tempfile
 import unittest
 from pathlib import Path
+from typing import Any
 
 import unity_switching as us
 from unity_estimates import FLUCTUATION_TV, normal_cdf, tv_of_shift
@@ -127,6 +128,28 @@ class WordTest(unittest.TestCase):
         self.assertLessEqual(summary["word"]["best_response"], FLUCTUATION_TV + 1e-6)
 
 
+def _assert_json_close(case: unittest.TestCase, expected: Any, actual: Any, path: str = "") -> None:
+    if type(expected) is not type(actual):
+        case.fail(f"{path}: {type(expected).__name__} != {type(actual).__name__}")
+    if isinstance(expected, dict):
+        case.assertEqual(set(expected), set(actual), msg=path)
+        for key in expected:
+            _assert_json_close(case, expected[key], actual[key], f"{path}.{key}")
+        return
+    if isinstance(expected, list):
+        case.assertEqual(len(expected), len(actual), msg=path)
+        for i, pair in enumerate(zip(expected, actual, strict=True)):
+            _assert_json_close(case, pair[0], pair[1], f"{path}[{i}]")
+        return
+    if isinstance(expected, float):
+        case.assertTrue(
+            math.isclose(expected, actual, rel_tol=1e-12, abs_tol=1e-15),
+            msg=f"{path}: {expected!r} != {actual!r}",
+        )
+        return
+    case.assertEqual(expected, actual, msg=path)
+
+
 class SummaryTest(unittest.TestCase):
     def test_the_summary_is_json_and_covers_every_declared_activity(self) -> None:
         summary = us.run()
@@ -144,7 +167,14 @@ class SummaryTest(unittest.TestCase):
 
     def test_the_saved_summary_is_what_the_script_writes(self) -> None:
         saved = json.loads((us.OUTPUT / "switching.json").read_text())
-        self.assertEqual(saved, json.loads(json.dumps(us.run())))
+        _assert_json_close(self, saved, json.loads(json.dumps(us.run())))
+
+    def test_saved_summary_check_rejects_drift(self) -> None:
+        fresh = json.loads(json.dumps(us.run()))
+        drifted = json.loads(json.dumps(fresh))
+        drifted["word"]["best_response"] += 1e-9
+        with self.assertRaises(AssertionError):
+            _assert_json_close(self, fresh, drifted)
 
     def test_main_writes_the_summary(self) -> None:
         with tempfile.TemporaryDirectory() as root:
